@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -91,6 +92,27 @@ public class AvailabilityDocumentStore(
         {
             Services = session.Services, SlotLength = session.SlotLength, Capacity = session.Capacity,
         };
+    }
+
+    public async Task<bool> SiteOffersServiceDuringPeriod(string siteId, string service, List<string> datesInPeriod)
+    {
+        using (metricsRecorder.BeginScope("SiteOffersServiceDuringPeriod"))
+        {
+            var docType = documentStore.GetDocumentType();
+            
+            var query = new QueryDefinition(
+                    query: "SELECT VALUE COUNT(1) " +
+                           "FROM booking_data bd " +
+                           "JOIN s IN bd.sessions " +
+                           "WHERE ARRAY_CONTAINS(@docIds, bd.id) AND bd.site = @site AND bd.docType = @docType AND ARRAY_CONTAINS(s.services, @service)")
+                .WithParameter("@docType", docType)
+                .WithParameter("@docIds", datesInPeriod)
+                .WithParameter("@site", siteId)
+                .WithParameter("@service", service);
+        
+            var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(query)).Single();
+            return dailyAvailabilityCount > 0;
+        }
     }
 
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)

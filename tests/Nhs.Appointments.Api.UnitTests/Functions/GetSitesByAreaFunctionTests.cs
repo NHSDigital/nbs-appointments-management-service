@@ -40,7 +40,7 @@ public class GetSitesByAreaFunctionTests
         var request = CreateRequest(34.6, 2.1, 10, 10, true, accessNeeds);
         var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(400);
-        _siteService.Verify(x => x.FindSitesByArea(34.6, 2.1, 10, 10, Array.Empty<string>(), false), Times.Never());
+        _siteService.Verify(x => x.FindSitesByArea(34.6, 2.1, 10, 10, Array.Empty<string>(), false, null), Times.Never());
     }
 
     [Fact]
@@ -68,13 +68,13 @@ public class GetSitesByAreaFunctionTests
                 Distance: 100)
         };
         _siteService
-            .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false))
+            .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false, null))
             .ReturnsAsync(sites);
         var request = CreateRequest(longitude, latitude, searchRadius, maxRecords, true, accessNeeds);
         var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
         _siteService.Verify(
-            x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false),
+            x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false, null),
             Times.Once());
     }
 
@@ -102,13 +102,13 @@ public class GetSitesByAreaFunctionTests
                 Distance: 100)
         };
         _siteService
-            .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false))
+            .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false, null))
             .ReturnsAsync(sites);
         var request = CreateRequest(longitude, latitude, searchRadius, maxRecords, false);
         var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
         _siteService.Verify(
-            x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false),
+            x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false, null),
             Times.Once());
     }
 

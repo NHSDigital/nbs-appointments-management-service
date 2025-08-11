@@ -10,7 +10,7 @@ namespace Nhs.Appointments.Core
     {
         public DateOnly Date { get; set; } = date;
         public readonly IEnumerable<SessionSummary> Sessions = sessions;
-        public Dictionary<string, int> CancelledAppointments { get; set; }
+        public Dictionary<string, int> CancelledAppointments { get; set; } = new();
     }
     
     public class SessionSummary

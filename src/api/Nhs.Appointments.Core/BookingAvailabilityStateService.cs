@@ -209,7 +209,7 @@ public class BookingAvailabilityStateService(
     }
 
     private static string ResolveCancellationReason(CancellationReason? reason) =>
-        reason.HasValue ? reason.ToString() : "UNKNOWN";
+        reason.HasValue ? reason.ToString() : "Cancelled_UnknownReason";
 
     private static List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to,
         List<LinkedSessionInstance> sessions)

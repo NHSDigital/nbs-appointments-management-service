@@ -94,7 +94,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 25,
                 BookedAppointments = 5,
                 OrphanedAppointments = 2,
-                CancelledAppointments = new Dictionary<string, int>() {{ "UNKNOWN", 2 }}
+                CancelledAppointments = new Dictionary<string, int>() {{ "Cancelled_UnknownReason", 2 }}
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 7));

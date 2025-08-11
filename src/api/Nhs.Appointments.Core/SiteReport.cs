@@ -6,6 +6,8 @@ public class SiteReport
 {
     public SiteReport(Site site, DailySiteSummary[] days, string[] clinicalServices)
     {
+        var cancellationReasons = days.SelectMany(x => x.Cancelled.Keys).Distinct();
+        
         SiteName = site.Name;
         ICB = site.IntegratedCareBoard;
         Region = site.Region;
@@ -15,7 +17,9 @@ public class SiteReport
         Bookings = clinicalServices.ToDictionary(
             service => service, 
             service => days.Sum(day => day.Bookings.GetValueOrDefault(service, 0)) + days.Sum(x => x.Orphaned.GetValueOrDefault(service, 0)));
-        Cancelled = days.Sum(day => day.Cancelled);
+        Cancelled = cancellationReasons.ToDictionary(
+            reason => reason,
+            reason => days.Sum(day => day.Cancelled.GetValueOrDefault(reason, 0)));
         RemainingCapacity = clinicalServices.ToDictionary(
             service => service, 
             service => days.Sum(day => day.RemainingCapacity.GetValueOrDefault(service, 0)));
@@ -30,7 +34,7 @@ public class SiteReport
     public double Latitude { get; }
     public Dictionary<string, int> Bookings { get; }
     public int TotalBookings => Bookings.Sum(x => x.Value);
-    public int Cancelled { get; }
+    public Dictionary<string, int> Cancelled { get; }
     public Dictionary<string, int> RemainingCapacity { get; }
     public int MaximumCapacity { get; }
 }

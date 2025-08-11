@@ -124,7 +124,7 @@ public class SiteSummaryAggregatorTests
                  }
              });
              
-             daySummary.CancelledAppointments = 1;
+             daySummary.CancelledAppointments = new Dictionary<string, int>() {{ "UNKNOWN", 1 }};
              
              _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.IsAny<DateOnly>())).ReturnsAsync(new Summary
              {

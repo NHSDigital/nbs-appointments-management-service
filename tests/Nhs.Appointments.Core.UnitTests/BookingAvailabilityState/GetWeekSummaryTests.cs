@@ -94,7 +94,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 25,
                 BookedAppointments = 5,
                 OrphanedAppointments = 2,
-                CancelledAppointments = 2
+                CancelledAppointments = new Dictionary<string, int>() {{ "UNKNOWN", 2 }}
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 7));
@@ -191,7 +191,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 26,
                 BookedAppointments = 6,
                 OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -241,7 +241,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 26,
                 BookedAppointments = 6,
                 OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
     }
 
@@ -323,7 +323,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 26,
                 BookedAppointments = 6,
                 OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -365,7 +365,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 26,
                 BookedAppointments = 6,
                 OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
     }
 
@@ -471,7 +471,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 32,
                 BookedAppointments = 3,
                 OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 13));
@@ -528,7 +528,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 61,
                 BookedAppointments = 3,
                 OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
         
         //extra padded data
@@ -555,7 +555,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 72,
                 BookedAppointments = 0,
                 OrphanedAppointments = 0,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
     }
 
@@ -641,7 +641,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 29,
                 BookedAppointments = 3,
                 OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
 
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 14));
@@ -683,7 +683,7 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 RemainingCapacity = 29,
                 BookedAppointments = 3,
                 OrphanedAppointments = 3,
-                CancelledAppointments = 0
+                CancelledAppointments = new Dictionary<string, int>()
             });
     }
 }

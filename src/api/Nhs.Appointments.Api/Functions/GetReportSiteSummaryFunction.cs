@@ -80,8 +80,9 @@ public class GetReportSiteSummaryFunction(
     {
         var distinctServices = rows.SelectMany(x => x.Bookings.Keys).Union(rows.SelectMany(x => x.RemainingCapacity.Keys))
             .Distinct().ToArray();
+        var distinctCancellationReasons = rows.SelectMany(x => x.Cancelled.Keys).ToArray();
         
-        await csvWriter.WriteLineAsync(string.Join(',', SiteReportMap.Headers(distinctServices)));
+        await csvWriter.WriteLineAsync(string.Join(',', SiteReportMap.Headers(distinctServices, distinctCancellationReasons)));
         foreach (var row in rows)
         {
             await csvWriter.WriteLineAsync(string.Join(',', [
@@ -92,8 +93,8 @@ public class GetReportSiteSummaryFunction(
                 SiteReportMap.Longitude(row),
                 SiteReportMap.Latitude(row),
                 string.Join(',', distinctServices.Select(service => SiteReportMap.BookingsCount(row, service))),
+                string.Join(',', distinctCancellationReasons.Select(reason => SiteReportMap.BookingsCount(row, reason))),
                 SiteReportMap.TotalBookings(row).ToString(),
-                SiteReportMap.Cancelled(row).ToString(),
                 SiteReportMap.MaximumCapacity(row).ToString(),
                 string.Join(',', distinctServices.Select(service => SiteReportMap.CapacityCount(row, service)))
             ]));
@@ -134,16 +135,17 @@ public class GetReportSiteSummaryFunction(
 
 public static class SiteReportMap
 {
-    public static string[] Headers(string[] services)
+    public static string[] Headers(string[] services, string[] cancelationReasons)
     {
         var siteHeaders = new[] { "Site Name", "ICB", "Region", "ODS Code", "Longitude", "Latitude" };
-        var statHeaders = new[] { "Total Bookings", "Cancelled", "Maximum Capacity" };
+        var statHeaders = new[] { "Total Bookings", "Maximum Capacity" };
         var bookingsHeaders = services.Select(service => $"{service} Booked");
         var capacityHeaders = services.Select(service => $"{service} Capacity");
-
+            
         return siteHeaders
-            .Union(bookingsHeaders
-            .Union(statHeaders))
+            .Union(bookingsHeaders)
+            .Union(cancelationReasons)
+            .Union(statHeaders)
             .Union(capacityHeaders)
             .ToArray();
     } 
@@ -154,8 +156,8 @@ public static class SiteReportMap
     public static double Longitude(SiteReport report) => report.Longitude;
     public static double Latitude(SiteReport report) => report.Latitude;
     public static int TotalBookings(SiteReport report) => report.TotalBookings;
-    public static int Cancelled(SiteReport report) => report.Cancelled;
+    public static int Cancelled(SiteReport report, string key) => report.Cancelled.GetValueOrDefault(key, 0);
     public static int MaximumCapacity(SiteReport report) => report.MaximumCapacity;
-    public static int BookingsCount(SiteReport report, string key) => report.Bookings.TryGetValue(key, out var booking) ? booking : 0;
-    public static int CapacityCount(SiteReport report, string key) => report.RemainingCapacity.TryGetValue(key, out var capacity) ? capacity : 0;
+    public static int BookingsCount(SiteReport report, string key) => report.Bookings.GetValueOrDefault(key, 0);
+    public static int CapacityCount(SiteReport report, string key) => report.RemainingCapacity.GetValueOrDefault(key, 0);
 }

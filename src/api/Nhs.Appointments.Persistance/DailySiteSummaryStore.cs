@@ -12,6 +12,7 @@ public class DailySiteSummaryStore(ITypedDocumentCosmosStore<DailySiteSummaryDoc
             Id = summary.Site,
             Date = summary.Date,
             Bookings = summary.Bookings,
+            Cancelled = summary.Cancelled,
             Orphaned = summary.Orphaned,
             RemainingCapacity = summary.RemainingCapacity,
             MaximumCapacity = summary.MaximumCapacity,

@@ -124,6 +124,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         cooldown  = "PT10M"
       }
     }
+    
 
     # Memory auto scale rule
     rule {

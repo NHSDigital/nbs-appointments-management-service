@@ -50,10 +50,17 @@ export const downloadReportFormSchema: yup.ObjectSchema<DownloadReportFormValues
         if (!values.startDate || !values.endDate) {
           return true; // Validation will fail on required fields first
         }
+
         return occurInOrder([
           parseToUkDatetime(values.startDate, RFC3339Format),
           parseToUkDatetime(values.endDate, RFC3339Format),
-        ]);
+        ])
+          ? true
+          : new yup.ValidationError(
+              'End date must be equal to or after start date',
+              values.endDate,
+              'endDate',
+            );
       },
     )
     .required();

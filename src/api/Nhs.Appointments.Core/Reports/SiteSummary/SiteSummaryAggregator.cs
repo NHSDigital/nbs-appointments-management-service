@@ -18,13 +18,15 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
 
         var summary = await bookingAvailabilityStateService.GetDaySummary(site, day);
         
-        if (summary.MaximumCapacity <= 0 && summary.Orphaned.All(x => x.Value <= 0) && summary.DaySummaries.All(x => x.CancelledAppointments <= 0))
+        if (summary.MaximumCapacity <= 0 && summary.Orphaned.All(x => x.Value <= 0) && summary.DaySummaries.All(x => x.CancelledAppointments.Sum(cancelled => cancelled.Value) <= 0))
         {
             await store.IfExistsDelete(site, day);
             return;
         }
 
         var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
+
+        var cancellationReasons = Enum.GetNames(typeof(CancellationReason)).ToList();
         
         await store.CreateDailySiteSummary(new DailySiteSummary
         {
@@ -33,7 +35,7 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             Bookings = clinicalServices.ToDictionary(
                 service => service, 
                 service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0)))),
-            Cancelled = summary.DaySummaries.Sum(daySummaries => daySummaries.CancelledAppointments),
+            Cancelled = cancellationReasons.ToDictionary(reason => reason, reason => summary.DaySummaries.Sum(daySummary => daySummary.CancelledAppointments.GetValueOrDefault(reason, 0))),
             Orphaned = summary.Orphaned,
             RemainingCapacity = clinicalServices.ToDictionary(
                 service => service, 

@@ -163,6 +163,7 @@ public class BookingAvailabilityStateService(
     private static Summary GenerateSummary(IEnumerable<Booking> bookings, List<DaySummary> daySummaries)
     {
         var orphaned = new Dictionary<string, int>();
+        
         foreach (var daySummary in daySummaries)
         {
             daySummary.MaximumCapacity = daySummary.Sessions.Sum(x => x.MaximumCapacity);
@@ -188,7 +189,8 @@ public class BookingAvailabilityStateService(
 
                         break;
                     case AppointmentStatus.Cancelled:
-                        daySummary.CancelledAppointments++;
+                        var reason = ResolveCancellationReason(booking.CancellationReason);
+                        daySummary.CancelledAppointments[reason] = daySummary.CancelledAppointments.GetValueOrDefault(reason, 0) + 1;
                         break;
                 }
             }
@@ -199,11 +201,15 @@ public class BookingAvailabilityStateService(
             DaySummaries = daySummaries,
             Orphaned = orphaned,
             MaximumCapacity = daySummaries.Sum(x => x.MaximumCapacity),
+            
             RemainingCapacity = daySummaries.Sum(x => x.RemainingCapacity),
             BookedAppointments = daySummaries.Sum(x => x.BookedAppointments),
             OrphanedAppointments = orphaned.Sum(x => x.Value)
         };
     }
+
+    private static string ResolveCancellationReason(CancellationReason? reason) =>
+        reason.HasValue ? reason.ToString() : "Cancelled_UnknownReason";
 
     private static List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to,
         List<LinkedSessionInstance> sessions)

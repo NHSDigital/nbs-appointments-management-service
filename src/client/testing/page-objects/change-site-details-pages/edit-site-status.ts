@@ -24,7 +24,7 @@ export default class EditSiteStatusPage extends RootPage {
     this.saveAndContinueButton = page.getByRole('button', {
       name: 'Save and continue',
     });
-    this.backLink = page.getByRole('link').filter({ hasText: 'Back' });
+    this.backLink = page.getByRole('link', { name: 'Back', exact: true });
     this.takeSiteOffline = page.getByRole('radio', {
       name: 'Take site offline',
     });

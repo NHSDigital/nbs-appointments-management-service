@@ -1,0 +1,174 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+parameters:
+  - name: env
+    displayName: "Environment to import data into"
+    type: string
+    default: "prod"
+    values: ["int", "stag", "prod"]
+  - name: runCapacity
+    displayName: "Run Capacity Data Extract"
+    type: boolean
+    default: true
+  - name: runBooking
+    displayName: "Run Booking Data Extract"
+    type: boolean
+    default: true
+    
+variables:
+  - group: covid19bookingkv${{parameters.env}}uks
+  - group: mya-extract-${{parameters.env}}
+  - name: cosmosAccountName 
+    value: nbs-mya-cdb-${{parameters.env}}-uks
+  - name: resourceGroupName
+    value: nbs-mya-rg-${{parameters.env}}-uks
+  - name: acrName
+    value: myacr
+  - name: acrLoginServer
+    value: myacr.azurecr.io
+  - name: bookingJobName
+    value: booking-extract-job
+  - name: bookingJobSchedule
+    value: "0 2 * * *"
+  - name: capacityJobName
+    value: capacity-extract-job
+  - name: capacityJobSchedule
+    value: "0 2 * * *"
+
+stages:
+  - stage: "CreateBookingDailyExtract"
+    displayName: "Create booking data extract"
+    condition: eq('${{ parameters.runBooking)', 'true')
+    jobs:
+    - job: "GenerateBookingDailyExtract"
+      displayName: "Generate and send booking extract"
+      steps:
+        - task: Docker@2
+          displayName: "Login to ACR"
+          inputs:
+            command: login
+            containerRegistry: "my-acr-service-connection"  # from Azure DevOps service connections
+
+        - task: Docker@2
+          displayName: "Build and push container"
+          inputs:
+            command: buildAndPush
+            repository: "bookingsdataextract"
+            dockerfile: "data/BookingsDataExtracts/Dockerfile"
+            containerRegistry: "my-acr-service-connection"
+            tags: |
+              $(Build.BuildId)
+          - task: AzureCLI@2
+            displayName: "Create or update Booking Container App Job"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{ parameters.env)"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                echo "Checking if Booking job exists..."
+                if az containerapp job show \
+                  --name $(bookingJobName) \
+                  --resource-group $(resourceGroupName) \
+                  >/dev/null 2>&1; then
+                  echo "Booking job exists. Updating image..."
+                  az containerapp job update \
+                    --name $(bookingJobName) \
+                    --resource-group $(resourceGroupName) \
+                    --image $(acrLoginServer)/bookingsdataextract:$(Build.BuildId)
+                else
+                  echo "Booking job does not exist. Creating..."
+                  az containerapp job create \
+                    --name $(bookingJobName) \
+                    --resource-group $(resourceGroupName) \
+                    --environment <container-app-env-name> \
+                    --image $(acrLoginServer)/bookingsdataextract:$(Build.BuildId) \
+                    --cpu 0.5 \
+                    --memory 1.0Gi \
+                    --trigger-type Scheduled \
+                    --cron-expression "$(bookingJobSchedule)" \
+                    --replica-timeout 3600 \
+                    --replica-retry-limit 3 \
+                    --parallelism 1 \
+                    --environment-variables \
+                      COSMOS_ENDPOINT=$(COSMOS_ENDPOINT) \
+                      COSMOS_TOKEN=$(COSMOS_TOKEN) \
+                      MESH_MAILBOX_DESTINATION=$(toMeshMailboxId) \
+                      MESH_WORKFLOW=$(meshBookingWorkflowId) \
+                      KeyVault__KeyVaultName=covid19bookingkv${{ parameters.env)uks \
+                      KeyVault__TenantId=$(tenantId) \
+                      KeyVault__ClientId=$(ClientId) \
+                      KeyVault__ClientSecret=$(ClientSecret) \
+                      MeshClientOptions__BaseUrl=$(meshApiBaseUri) \
+                      MeshAuthorizationOptions__MailboxId=$(fromMeshMailboxId) \
+                      MeshAuthorizationOptions__CertificateName=$(meshCertificateName)
+                fi
+  - stage: "CreateCapacityDailyExtract"
+    displayName: "Create Capacity data extract"
+    condition: eq('${{ parameters.runCapacity)', 'true')
+    jobs:
+      - job: "GenerateCapacityDailyExtract"
+        displayName: "Generate and send capacity extract"
+        steps:
+          - task: Docker@2
+            displayName: "Login to ACR"
+            inputs:
+              command: login
+              containerRegistry: "my-acr-service-connection"  # from Azure DevOps service connections
+          - task: Docker@2
+            displayName: "Build and push container"
+            inputs:
+              command: buildAndPush
+              repository: "capacitydataextract"
+              dockerfile: "data/CapacityDataExtracts/Dockerfile"
+              containerRegistry: "my-acr-service-connection"
+              tags: |
+                $(Build.BuildId)
+          - task: AzureCLI@2
+            displayName: "Create or update Capacity Container App Job"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{ parameters.env)"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                set -e
+                echo "Checking if Capacity job exists..."
+                if az containerapp job show \
+                  --name $(capacityJobName) \
+                  --resource-group $(resourceGroupName) \
+                  >/dev/null 2>&1; then
+                  echo "Capacity job exists. Updating image..."
+                  az containerapp job update \
+                    --name $(capacityJobName) \
+                    --resource-group $(resourceGroupName) \
+                    --image $(acrLoginServer)/capacitydataextract:$(Build.BuildId)
+                else
+                  echo "Capacity job does not exist. Creating..."
+                  az containerapp job create \
+                    --name $(capacityJobName) \
+                    --resource-group $(resourceGroupName) \
+                    --environment <container-app-env-name> \
+                    --image $(acrLoginServer)/capacitydataextract:$(Build.BuildId) \
+                    --cpu 0.5 \
+                    --memory 1.0Gi \
+                    --trigger-type Scheduled \
+                    --cron-expression "$(capacityJobSchedule)" \
+                    --replica-timeout 3600 \
+                    --replica-retry-limit 3 \
+                    --parallelism 1 \
+                    --environment-variables \
+                      COSMOS_ENDPOINT=$(COSMOS_ENDPOINT) \
+                      COSMOS_TOKEN=$(COSMOS_TOKEN) \
+                      MESH_MAILBOX_DESTINATION=$(toMeshMailboxId) \
+                      MESH_WORKFLOW=$(meshCapacityWorkflowId) \
+                      KeyVault__KeyVaultName=covid19bookingkv${{ parameters.env)uks \
+                      KeyVault__TenantId=$(tenantId) \
+                      KeyVault__ClientId=$(ClientId) \
+                      KeyVault__ClientSecret=$(ClientSecret) \
+                      MeshClientOptions__BaseUrl=$(meshApiBaseUri) \
+                      MeshAuthorizationOptions__MailboxId=$(fromMeshMailboxId) \
+                      MeshAuthorizationOptions__CertificateName=$(meshCertificateName)
+                fi

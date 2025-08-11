@@ -166,8 +166,6 @@ public class BookingAvailabilityStateService(
         
         foreach (var daySummary in daySummaries)
         {
-            
-            var cancelled = new Dictionary<string, int>();
             daySummary.MaximumCapacity = daySummary.Sessions.Sum(x => x.MaximumCapacity);
             daySummary.RemainingCapacity = daySummary.Sessions.Sum(x => x.RemainingCapacity);
 
@@ -192,12 +190,10 @@ public class BookingAvailabilityStateService(
                         break;
                     case AppointmentStatus.Cancelled:
                         var reason = ResolveCancellationReason(booking.CancellationReason);
-                        cancelled[reason] = cancelled.GetValueOrDefault(reason, 0) + 1;
+                        daySummary.CancelledAppointments[reason] = daySummary.CancelledAppointments.GetValueOrDefault(reason, 0) + 1;
                         break;
                 }
             }
-
-            daySummary.CancelledAppointments = cancelled;
         }
 
         return new Summary

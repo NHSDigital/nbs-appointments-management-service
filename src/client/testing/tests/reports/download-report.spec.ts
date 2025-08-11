@@ -99,7 +99,6 @@ const expectedFileDownloadHeaders = [
   'COVID_FLU:65+ Booked',
   'FLU:2_3 Booked',
   'Total Bookings',
-  'Cancelled',
   'Maximum Capacity',
   'RSV:Adult Capacity',
   'COVID:5_11 Capacity',

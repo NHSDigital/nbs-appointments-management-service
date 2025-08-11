@@ -71,12 +71,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
                     RemainingCapacity = int.Parse(row.Cells.ElementAt(2).Value),
                     BookedAppointments = int.Parse(row.Cells.ElementAt(3).Value),
                     OrphanedAppointments = int.Parse(row.Cells.ElementAt(4).Value),
-                    CancelledAppointments = new Dictionary<string, int>
+                    CancelledAppointments = int.Parse(row.Cells.ElementAt(5).Value) > 0 ? new Dictionary<string, int>
                     {
                         {
                             "UNKNOWN", int.Parse(row.Cells.ElementAt(5).Value)
                         }
-                    }
+                    } : new()
                 });
 
             _statusCode.Should().Be(HttpStatusCode.OK);

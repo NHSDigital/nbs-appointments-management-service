@@ -4,6 +4,7 @@
     "JointBookings": false,
     "BulkImport": true,
     "MultipleServices": true,
-    "SiteSummaryReport": true
+    "SiteSummaryReport": true,
+    "SiteStatus": false
   }
 }

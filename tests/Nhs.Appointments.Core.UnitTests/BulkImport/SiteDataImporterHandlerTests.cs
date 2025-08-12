@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Nhs.Appointments.Core.BulkImport;
+using Nhs.Appointments.Core.Features;
 using System.Runtime.Intrinsics.Arm;
 using System.Text;
 
@@ -8,6 +9,7 @@ public class SiteDataImporterHandlerTests
 {
     private readonly Mock<ISiteService> _siteServiceMock = new();
     private readonly Mock<IWellKnowOdsCodesService> _wellKnownOdsCodesServiceMock = new();
+    private readonly Mock<IFeatureToggleHelper> _featureToggleHelperMock = new();
 
     private readonly SiteDataImporterHandler _sut;
 
@@ -16,7 +18,7 @@ public class SiteDataImporterHandlerTests
 
     public SiteDataImporterHandlerTests()
     {
-        _sut = new SiteDataImporterHandler(_siteServiceMock.Object, _wellKnownOdsCodesServiceMock.Object);
+        _sut = new SiteDataImporterHandler(_siteServiceMock.Object, _wellKnownOdsCodesServiceMock.Object, _featureToggleHelperMock.Object);
     }
 
     [Fact]
@@ -324,7 +326,7 @@ public class SiteDataImporterHandlerTests
                 new("test icb", "Site 5", "ICB")
             });
         _siteServiceMock.Setup(x => x.GetSiteByIdAsync(siteId.ToString(), "*"))
-            .ReturnsAsync(new Site(siteId.ToString(), "Site1", "123 test street", "01234 567890", "ODS", "Region", "test icb", "", [], new("Test", [60.0, 1.5])));
+            .ReturnsAsync(new Site(siteId.ToString(), "Site1", "123 test street", "01234 567890", "ODS", "Region", "test icb", "", [], new("Test", [60.0, 1.5]), SiteStatus.Online));
 
         var report = await _sut.ProcessFile(file);
 
@@ -342,7 +344,8 @@ public class SiteDataImporterHandlerTests
             It.IsAny<string>(),
             It.IsAny<Location>(),
             It.IsAny<List<Accessibility>>(),
-            It.IsAny<string>()), Times.Never);
+            It.IsAny<string>(),
+            null), Times.Never);
     }
 
     [Fact]
@@ -388,6 +391,82 @@ public class SiteDataImporterHandlerTests
 
         report.Count().Should().Be(1);
         report.First().Message.Should().Be($"OdsCode: '{odsCode}' is invalid. OdsCode's must be a maximum of 10 characters long and only contain numbers and capital letters.");
+    }
+
+    [Fact]
+    public async Task SavesSiteStatusAsOnline_WhenSiteStatusFeatureToggleEnabled()
+    {
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, ValidInputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry>
+            {
+                new("site1", "Site 1", "Test1"),
+                new("site2", "Site 2", "Test2"),
+                new("site3", "Site 3", "Test3"),
+                new("Yorkshire", "Site 4", "Region"),
+                new("test icb", "Site 5", "ICB")
+            });
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(true);
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(3);
+        report.All(r => r.Success).Should().BeTrue();
+
+        _siteServiceMock.Verify(s => s.SaveSiteAsync(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<Location>(),
+            It.IsAny<Accessibility[]>(),
+            It.IsAny<string>(),
+            SiteStatus.Online), Times.Exactly(3));
+    }
+
+    [Fact]
+    public async Task SaveSitesStatusAsNull_WhenSiteStatusFeatureToggleDisabled()
+    {
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, ValidInputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry>
+            {
+                new("site1", "Site 1", "Test1"),
+                new("site2", "Site 2", "Test2"),
+                new("site3", "Site 3", "Test3"),
+                new("Yorkshire", "Site 4", "Region"),
+                new("test icb", "Site 5", "ICB")
+            });
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(false);
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(3);
+        report.All(r => r.Success).Should().BeTrue();
+
+        _siteServiceMock.Verify(s => s.SaveSiteAsync(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<Location>(),
+            It.IsAny<Accessibility[]>(),
+            It.IsAny<string>(),
+            null), Times.Exactly(3));
     }
 
     private readonly string[] ValidInputRows =

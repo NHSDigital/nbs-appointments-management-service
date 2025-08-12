@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Persistance.Models;
@@ -39,4 +40,6 @@ public class SiteDocument : CoreDataCosmosDocument
     [JsonProperty("referenceNumberGroup")] public int ReferenceNumberGroup { get; set; }
 
     [JsonProperty("type")] public string Type { get; set; }
+
+    [JsonProperty("status")] public SiteStatus? Status { get; set; }
 }

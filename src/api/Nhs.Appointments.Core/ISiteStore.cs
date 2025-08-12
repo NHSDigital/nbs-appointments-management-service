@@ -17,7 +17,9 @@ public interface ISiteStore
     Task<IEnumerable<Site>> GetAllSites();
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null);
 
     Task<IEnumerable<Site>> GetSitesInRegionAsync(string region);
+
+    Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status);
 }

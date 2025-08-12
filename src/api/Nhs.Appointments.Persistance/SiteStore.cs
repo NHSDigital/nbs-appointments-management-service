@@ -111,7 +111,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type)
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null)
@@ -129,7 +129,8 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
                 IntegratedCareBoard = icb,
                 Location = location,
                 Region = region,
-                Type = type
+                Type = type,
+                Status = siteStatus
             };
             var document = cosmosStore.ConvertToDocument(site);
             await cosmosStore.WriteAsync(document);
@@ -150,5 +151,25 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     public Task<IEnumerable<Site>> GetSitesInRegionAsync(string region)
     {
         return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
+    }
+
+    public async Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument is null)
+        {
+            return new OperationResult(false, $"The specified site: {siteId} was not found.");
+        }
+
+        var documentType = cosmosStore.GetDocumentType();
+
+        var patchOperation = originalDocument.status is null
+            ? PatchOperation.Add("/status", status)
+            : PatchOperation.Replace("/status", status);
+
+        PatchOperation[] patchOperations = [ patchOperation ];
+
+        await cosmosStore.PatchDocument(documentType, siteId, patchOperations);
+        return new OperationResult(true);
     }
 }

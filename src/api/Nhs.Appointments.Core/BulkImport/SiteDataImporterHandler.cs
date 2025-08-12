@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Http;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.BulkImport;
 
-public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodesService wellKnowOdsCodesService) : ISiteDataImportHandler
+public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodesService wellKnowOdsCodesService, IFeatureToggleHelper featureToggleHelper) : ISiteDataImportHandler
 {
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
@@ -24,6 +25,9 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
             return report.Where(r => !r.Success);
         }
 
+		SiteStatus? siteStatus = await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus)
+			? SiteStatus.Online : null;
+
         foreach (var site in siteRows)
         {
             try
@@ -38,7 +42,8 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
                     site.Region,
                     site.Location,
                     site.Accessibilities,
-                    site.Type);
+                    site.Type,
+					siteStatus);
             }
             catch (Exception ex)
             {

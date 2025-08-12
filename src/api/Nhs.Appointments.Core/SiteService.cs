@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core;
 
@@ -21,11 +22,12 @@ public interface ISiteService
     Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null);
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
+    Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
 }
 
-public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time) : ISiteService
+public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
 {
     private const string CacheKey = "sites";
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
@@ -36,6 +38,11 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         if (sites == null || ignoreCache)
         {
             sites = await GetAndCacheSites();
+        }
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
+        {
+            sites = sites.Where(s => s.status is SiteStatus.Online or null);
         }
 
         var sitesWithDistance = sites
@@ -168,7 +175,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,
-        string region, Location location, IEnumerable<Accessibility> accessibilities, string type)
+        string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
             => await siteStore.SaveSiteAsync(
                 siteId,
                 odsCode,
@@ -179,7 +186,8 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
                 region,
                 location,
                 accessibilities,
-                type);
+                type,
+                siteStatus);
 
     public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
     {
@@ -202,6 +210,9 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     {
         return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
     }
+
+    public async Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status)
+        => await siteStore.UpdateSiteStatusAsync(siteId, status);
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
     {

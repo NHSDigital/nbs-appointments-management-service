@@ -121,6 +121,7 @@ const mockSites: Site[] = [
       { id: 'accessibility/attr_1', value: 'true' },
     ],
     informationForCitizens: 'Test information 1',
+    status: 'Online',
   },
   {
     id: '95e4ca69-da15-45f5-9ec7-6b2ea50f07c8',
@@ -139,6 +140,7 @@ const mockSites: Site[] = [
       { id: 'accessibility/attr_2', value: 'true' },
     ],
     informationForCitizens: 'Test information 2',
+    status: 'Online',
   },
   {
     id: 'd79bec60-8968-4101-b553-67dec04e1019',
@@ -157,6 +159,7 @@ const mockSites: Site[] = [
       { id: 'accessibility/attr_3', value: 'true' },
     ],
     informationForCitizens: 'Test information 3',
+    status: 'Online',
   },
   {
     id: '90a9c1f2-83d0-4c40-9c7c-080d91c56e79',
@@ -175,10 +178,31 @@ const mockSites: Site[] = [
       { id: 'accessibility/attr_4', value: 'true' },
     ],
     informationForCitizens: 'Test information 4',
+    status: 'Online',
+  },
+  {
+    id: '5b1f2f76-36b4-41af-8a9d-82d2ce2230a6',
+    name: 'Site Lima',
+    phoneNumber: '0118 999 88199 9119 725 3',
+    address: 'Lima Street, London',
+    odsCode: '1005',
+    integratedCareBoard: 'ICB5',
+    region: 'R5',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
+    accessibilities: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_4', value: 'true' },
+    ],
+    informationForCitizens: 'Test information 5',
+    status: 'Offline',
   },
 ];
 
 const mockSite = mockSites[0];
+const mockOfflineSite = mockSites[4];
 
 const mockWellKnownOdsCodeEntries: WellKnownOdsEntry[] = [
   {
@@ -765,4 +789,5 @@ export {
   mockWellKnownOdsCodeEntries,
   getMockOktaUserAssignments,
   mockClinicalServices,
+  mockOfflineSite,
 };

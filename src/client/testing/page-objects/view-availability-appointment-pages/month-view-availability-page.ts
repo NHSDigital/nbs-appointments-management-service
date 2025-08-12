@@ -40,7 +40,7 @@ export default class MonthViewAvailabilityPage extends RootPage {
       .getByRole('heading', {
         name: weekOverview.header,
       })
-      .locator('..');
+      .locator('../..');
 
     const header = cardDiv.getByRole('heading', {
       name: weekOverview.header,

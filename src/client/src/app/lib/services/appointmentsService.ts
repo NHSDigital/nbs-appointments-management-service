@@ -27,6 +27,8 @@ import {
   BookingStatus,
   UserIdentityStatus,
   WeekSummaryV2,
+  SiteStatus,
+  UpdateSiteStatusRequest,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -570,4 +572,26 @@ export const cancelSession = async (
   );
 
   return handleEmptyResponse(response);
+};
+
+export const updateSiteStatus = async (site: string, status: SiteStatus) => {
+  const payload: UpdateSiteStatusRequest = {
+    site,
+    status,
+  };
+
+  const response = await appointmentsApi.post(
+    'site-status',
+    JSON.stringify(payload),
+  );
+
+  const notificationType = 'ams-notification';
+  const notificationMessage =
+    status === 'Online'
+      ? 'The site is now online and is available for appointments.'
+      : 'The site is now offline and will not be available for appointments.';
+  await raiseNotification(notificationType, notificationMessage);
+
+  handleEmptyResponse(response);
+  revalidatePath(`/site/${site}/details`);
 };

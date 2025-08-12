@@ -1447,7 +1447,7 @@ test.describe.configure({ mode: 'serial' });
           .getByRole('heading', {
             name: 'Wednesday 20 August',
           })
-          .locator('..');
+          .locator('../..');
 
         //select the third session (flu only)
         const fluSessionRow = (
@@ -1570,7 +1570,7 @@ test.describe.configure({ mode: 'serial' });
                   .getByRole('heading', {
                     name: daySession.dayCardHeader,
                   })
-                  .locator('..')
+                  .locator('../..')
                   .getByRole('link', {
                     name: 'Change',
                   });
@@ -1652,7 +1652,7 @@ test.describe.configure({ mode: 'serial' });
                   .getByRole('heading', {
                     name: daySession.dayCardHeader,
                   })
-                  .locator('..')
+                  .locator('../..')
                   .getByRole('link', {
                     name: 'Change',
                   });
@@ -1710,7 +1710,7 @@ test.describe.configure({ mode: 'serial' });
                   .getByRole('heading', {
                     name: daySession.dayCardHeader,
                   })
-                  .locator('..')
+                  .locator('../..')
                   .getByRole('link', {
                     name: 'Change',
                   });
@@ -1813,7 +1813,7 @@ test.describe.configure({ mode: 'serial' });
                   .getByRole('heading', {
                     name: daySession.dayCardHeader,
                   })
-                  .locator('..')
+                  .locator('../..')
                   .getByRole('link', {
                     name: 'View daily appointments',
                   });

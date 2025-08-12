@@ -49,7 +49,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
       .getByRole('heading', {
         name: dayOverview.header,
       })
-      .locator('..');
+      .locator('../..');
 
     const header = cardDiv.getByRole('heading', {
       name: dayOverview.header,
@@ -178,7 +178,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
       .getByRole('heading', {
         name: dayOverview.header,
       })
-      .locator('..');
+      .locator('../..');
 
     const sessionTable = cardDiv.getByRole('table');
 

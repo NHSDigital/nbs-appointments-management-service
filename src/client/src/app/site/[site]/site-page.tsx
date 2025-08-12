@@ -8,6 +8,7 @@ interface SitePageProps {
   permissionsAtAnySite: string[];
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
   siteSummaryEnabled: boolean;
+  siteStatusEnabled: boolean;
 }
 
 export const SitePage = ({
@@ -16,6 +17,7 @@ export const SitePage = ({
   permissionsAtAnySite,
   wellKnownOdsCodeEntries,
   siteSummaryEnabled,
+  siteStatusEnabled,
 }: SitePageProps) => {
   const permissionsRelevantToCards = permissions.filter(
     p =>
@@ -30,6 +32,7 @@ export const SitePage = ({
   const overviewData = mapSiteOverviewSummaryData(
     site,
     wellKnownOdsCodeEntries,
+    siteStatusEnabled,
   );
 
   return (

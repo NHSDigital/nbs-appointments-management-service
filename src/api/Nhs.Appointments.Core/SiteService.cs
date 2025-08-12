@@ -22,7 +22,7 @@ public interface ISiteService
     Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null);
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
     Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
 }
@@ -175,7 +175,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,
-        string region, Location location, IEnumerable<Accessibility> accessibilities, string type)
+        string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
             => await siteStore.SaveSiteAsync(
                 siteId,
                 odsCode,
@@ -186,7 +186,8 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
                 region,
                 location,
                 accessibilities,
-                type);
+                type,
+                siteStatus);
 
     public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
     {

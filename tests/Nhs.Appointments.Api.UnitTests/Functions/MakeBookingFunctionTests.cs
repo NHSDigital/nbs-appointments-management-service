@@ -43,7 +43,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
             new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
                 "Test Board", "Information For Citizen 123", Enumerable.Empty<Accessibility>(),
-                new Location("Point", [0, 0])));
+                new Location("Point", [0, 0]), SiteStatus.Online));
         _bookingWriteService.Setup(x => x.MakeBooking(It.IsAny<Booking>())).ReturnsAsync((true, "TEST01"));
 
         var request = CreateRequest("34e990af-5dc9-43a6-8895-b9123216d699", "2077-01-01 10:30", "COVID", "9999999999",
@@ -77,7 +77,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
             new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
                 "Test Board", "Information For Citizens 123", Enumerable.Empty<Accessibility>(),
-                new Location("Point", [0, 0])));
+                new Location("Point", [0, 0]), SiteStatus.Online));
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));
 
@@ -97,7 +97,7 @@ public class MakeBookingFunctionTests : FeatureToggledTests
         _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
             new Site("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "Test Site", "Nowhere", "2929292", "15N", "North",
                 "Test Board", "Information For Citizens 123", Enumerable.Empty<Accessibility>(),
-                new Location("Point", [0, 0])));
+                new Location("Point", [0, 0]), SiteStatus.Online));
         var slots = AvailabilityHelper.CreateTestSlots(Date, new TimeOnly(10, 0), new TimeOnly(11, 0),
             TimeSpan.FromMinutes(5));
 

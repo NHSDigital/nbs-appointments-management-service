@@ -324,7 +324,7 @@ public class SiteDataImporterHandlerTests
                 new("test icb", "Site 5", "ICB")
             });
         _siteServiceMock.Setup(x => x.GetSiteByIdAsync(siteId.ToString(), "*"))
-            .ReturnsAsync(new Site(siteId.ToString(), "Site1", "123 test street", "01234 567890", "ODS", "Region", "test icb", "", [], new("Test", [60.0, 1.5])));
+            .ReturnsAsync(new Site(siteId.ToString(), "Site1", "123 test street", "01234 567890", "ODS", "Region", "test icb", "", [], new("Test", [60.0, 1.5]), SiteStatus.Online));
 
         var report = await _sut.ProcessFile(file);
 

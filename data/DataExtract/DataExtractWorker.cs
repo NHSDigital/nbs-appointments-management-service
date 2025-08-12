@@ -25,8 +25,8 @@ public class DataExtractWorker<TExtractor>(
             {
                 WriteFileLocally(outputFile);
             }
-
-            await SendViaMesh(outputFile);
+            Console.WriteLine($"Data extract completed. Output file Not going to mesh: {outputFile.FullName}");
+            //await SendViaMesh(outputFile);
         }
         catch (Exception ex)
         {

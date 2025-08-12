@@ -6,7 +6,7 @@ parameters:
     displayName: "The environment the disaster recovery should be ran for."
     type: string
     default: "stag"
-    values: ["stag", "prod"]
+    values: ["perf", "stag", "prod"]
 
 trigger: none
 pr: none
@@ -19,11 +19,20 @@ variables:
   - name: env
     value: ${{parameters.env}}
   - name: uksResourceGroup
-    value: "nbs-mya-rg-$(env)-uks"
+    ${{ if eq(parameters.env, 'perf') }}: 
+      value: "nbs-mya$(env)-rg-stag-uks"
+    ${{ if ne(parameters.env, 'perf') }}: 
+      value: "nbs-mya-rg-$(env)-uks"
   - name: ukwResourceGroup
-    value: "nbs-mya-rg-$(env)-ukw"
+    ${{ if eq(parameters.env, 'perf') }}: 
+      value: "nbs-mya$(env)-rg-stag-ukw"
+    ${{ if ne(parameters.env, 'perf') }}: 
+      value: "nbs-mya-rg-$(env)-ukw"
   - name: serviceConnection
-    value: "nbs-mya-rg-$(env)"
+    ${{ if eq(parameters.env, 'perf') }}: 
+      value: "nbs-mya$(env)-rg-stag"
+    ${{ if ne(parameters.env, 'perf') }}: 
+      value: "nbs-mya-rg-$(env)"
   - name: frontdoorProfileName
     value: "nbs-mya-fd-$(env)-uks"
   - name: frontdoorRuleSetNameUkw

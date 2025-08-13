@@ -124,8 +124,10 @@ public class GetSitesByAreaRequestValidatorTests
         result.Errors.Should().HaveCount(0);            
     }
     
-    [Fact]
-    public void Validate_ReturnsSuccess_WhenRequestIsValid_SiteSupportService()
+    [Theory]
+    [InlineData("RSV:Adult")]
+    [InlineData("FLU:2_3")]
+    public void Validate_ReturnsSuccess_WhenRequestIsValid_SiteSupportService(string service)
     {
         var request = new GetSitesByAreaRequest(
             180,
@@ -134,7 +136,7 @@ public class GetSitesByAreaRequestValidatorTests
             50,
             ["access_need_a", "access_need_b"],
             false,
-            ["RSV:Adult"],
+            [service],
             "2025-10-02",
             "2025-10-30"
         );
@@ -163,7 +165,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports one service: 'RSV:Adult'");     
+        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3'");     
     }
     
     /// <summary>
@@ -177,7 +179,6 @@ public class GetSitesByAreaRequestValidatorTests
     [InlineData("FLU:65+")]
     [InlineData("COVID_FLU:18_64")]
     [InlineData("COVID_FLU:65+")]
-    [InlineData("FLU:2_3")]
     public void Validate_ReturnsError_SiteSupportService_UnsupportedServiceProvided(string service)
     {
         var request = new GetSitesByAreaRequest(
@@ -194,7 +195,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports one service: 'RSV:Adult'");     
+        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3'");     
     }
     
     [Fact]

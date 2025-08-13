@@ -30,6 +30,7 @@ public interface ISiteService
 public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
 {
     private const string CacheKey = "sites";
+    
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
@@ -72,17 +73,16 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
             siteSupportsServiceFilter.from,
             siteSupportsServiceFilter.until,
             maximumRecords,
-            maximumRecords * 2);
+            maximumRecords * 20);
     }
 
     private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, string service, DateOnly from, DateOnly to,
-        int maxRecords = 50, int batchSize = 100)
+        int maxRecords = 50, int batchSize = 1000)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
         
         var results = new List<SiteWithDistance>();
 
-        var dateStringsInRange = GetDateStringsInRange(from, to);
         var iterations = 0;
         
         //while we are still short of the max, keep appending results
@@ -101,7 +101,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(swd.Site.Id, service, dateStringsInRange);
+                var siteOffersServiceDuringPeriod = await GetSiteSupportingServiceInRange(swd.Site.Id, service, from, to);
                 if (siteOffersServiceDuringPeriod)
                 {
                     concurrentBatchResults.Add(swd);
@@ -120,7 +120,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         return results;
     }
     
-       private static List<string> GetDateStringsInRange(DateOnly from, DateOnly to)
+    private static List<string> GetDateStringsInRange(DateOnly from, DateOnly to)
     {
         var result = new List<string>();
 
@@ -243,5 +243,27 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
 
         return sites;
+    }
+    
+    private async Task<bool> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from, DateOnly until)
+    {
+        var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, service, from, until);
+
+        if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
+        {
+            return siteSupportsService;
+        }
+        
+        var dateStringsInRange = GetDateStringsInRange(from, until);
+        var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
+        
+        memoryCache.Set(cacheKey, siteOffersServiceDuringPeriod, time.GetUtcNow().AddMinutes(15));
+        return siteOffersServiceDuringPeriod;
+    }
+
+    private string GetCacheSiteServiceSupportDateRangeKey(string siteId, string service, DateOnly from, DateOnly until)
+    {
+        var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
+        return $"site_{siteId}_supports_{service}_in_{dateRange}";
     }
 }

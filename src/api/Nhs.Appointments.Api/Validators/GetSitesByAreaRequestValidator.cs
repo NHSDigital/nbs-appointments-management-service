@@ -48,8 +48,8 @@ public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesByAreaRe
                     () =>
                     {
                         RuleFor(x => x.Services)
-                            .Must(services => services.Length == 1 && services.Single() == "RSV:Adult")
-                            .WithMessage("'Services' currently only supports one service: 'RSV:Adult'");
+                            .Must(services => services.Length == 1 && (services.Single() == "RSV:Adult" || services.Single() == "FLU:2_3"))
+                            .WithMessage("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3'");
                         RuleFor(x => x)
                             .Cascade(CascadeMode.Stop)
                             .Must(x => DateOnly.TryParseExact(x.From, "yyyy-MM-dd", out _))

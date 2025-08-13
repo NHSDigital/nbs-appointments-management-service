@@ -56,19 +56,6 @@ Feature: Site search
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
-
-  Scenario: Retrieve sites by service filter - single result validation error
-    Given The following sites exist in the system
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
-      | d03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for site 'd03982ab-f9a8-4d4b-97ca-419d1154896f'
-      | Date        | From  | Until | Services        | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | COVID:5_11      | 5           | 1        |
-    When I make the following request with service filtering
-      | Max Records | Search Radius | Longitude | Latitude | Service      | From     | Until    |
-      | 3           | 6000          | 0.082     | 51.5     | COVID:5_11   | Tomorrow | Tomorrow |
-    Then a bad request response is returned with the following error messages
-      | 'Services' currently only supports one service: 'RSV:Adult' |
     
   Scenario: Retrieve sites by service filter - multiple results limited to max records ordered by distance
     Given The following sites exist in the system
@@ -119,7 +106,7 @@ Feature: Site search
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
     And the following sessions exist for site '319eb942-1bcd-4d9b-b8b2-777f06d63320'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
     And the following sessions exist for site '8f3259bf-e44e-43e6-9837-54a5c87198c7'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
@@ -146,7 +133,7 @@ Feature: Site search
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
     And the following sessions exist for site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
     And the following sessions exist for site '1950e7f1-356c-4017-ba62-62f3f973681f'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
@@ -180,7 +167,7 @@ Feature: Site search
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
     And the following sessions exist for site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
     And the following sessions exist for site '1950e7f1-356c-4017-ba62-62f3f973681f'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
@@ -213,7 +200,7 @@ Feature: Site search
       | 7627459e-15b5-44e7-9318-1b1f3ca5c414 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
     And the following sessions exist for site '355ca42f-586c-4f7a-a274-4d53844e3e0c'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
     And the following sessions exist for site '8da01caa-f589-4914-9c4c-42d7adb185ae'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult-19   | 5           | 1        |
@@ -288,8 +275,8 @@ Feature: Site search
       | 2ba498ab-42b5-4536-9f11-796077922ce1 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | -0.13086317 | 51.583479 |
       | d2f9f101-b145-42ef-93e0-ae449efb9a78 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
     And the following sessions exist for site '4dbaffc9-f476-494b-817a-37dc8aa151c9'
-      | Date        | From  | Until | Services          | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | RSV:Adult, RSV:Adult  | 5           | 1        |
+      | Date        | From  | Until | Services             | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | COVID:19, RSV:Adult  | 5           | 1        |
     And the following sessions exist for site 'b06f4be6-16e3-40be-b373-b67a47301185'
       | Date                 | From  | Until | Services        | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 17:00 | RSV:Adult, FLU:2-3  | 5           | 1        |
@@ -470,12 +457,12 @@ Feature: Site search
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     And the following sessions exist for site '3558dad9-d0a6-49f4-942a-c951d07eb283'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | FLU:2_3    | 5           | 1        |
     And the following sessions exist for site 'ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     When I make the following request with service filtering and with access needs
-      | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    | AccessNeeds  |
+      | Max Records | Search Radius | Longitude | Latitude | Service     | From     | Until    | AccessNeeds  |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow | attr_one     |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
@@ -497,7 +484,7 @@ Feature: Site search
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     And the following sessions exist for site 'ab746a05-345f-4c06-829b-2d5d52ec341b'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
-      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | FLU:2_3    | 5           | 1        |
     And the following sessions exist for site '8eb79504-1545-4fd9-a358-430a649e0352'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |

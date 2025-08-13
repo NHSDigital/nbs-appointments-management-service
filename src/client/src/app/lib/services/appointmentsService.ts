@@ -23,12 +23,11 @@ import {
   Site,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
-  clinicalServices,
   BookingStatus,
   UserIdentityStatus,
-  WeekSummaryV2,
-  SiteStatus,
+  WeekSummary,
   UpdateSiteStatusRequest,
+  SiteStatus,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -122,19 +121,13 @@ export const fetchFeatureFlag = async (featureFlag: string) => {
 };
 
 export const fetchClinicalServices = async () => {
-  const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
-
-  if (canUseMultipleServices.enabled) {
-    const response = await appointmentsApi.get<ClinicalService[]>(
-      `clinical-services`,
-      {
-        cache: 'force-cache',
-      },
-    );
-    return handleBodyResponse(response);
-  }
-
-  return clinicalServices;
+  const response = await appointmentsApi.get<ClinicalService[]>(
+    `clinical-services`,
+    {
+      cache: 'force-cache',
+    },
+  );
+  return handleBodyResponse(response);
 };
 
 export const fetchSiteAccessibilities = async (siteId: string) => {
@@ -461,8 +454,8 @@ export const fetchDailyAvailability = async (
   return handleBodyResponse(response);
 };
 
-export const fetchWeekSummaryV2 = async (site: string, from: string) => {
-  const response = await appointmentsApi.get<WeekSummaryV2>(
+export const fetchWeekSummary = async (site: string, from: string) => {
+  const response = await appointmentsApi.get<WeekSummary>(
     `week-summary?site=${site}&from=${from}`,
   );
 

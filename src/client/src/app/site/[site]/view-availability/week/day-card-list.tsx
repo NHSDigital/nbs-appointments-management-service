@@ -8,7 +8,7 @@ import {
   fetchClinicalServices,
   fetchFeatureFlag,
   fetchPermissions,
-  fetchWeekSummaryV2,
+  fetchWeekSummary,
 } from '@services/appointmentsService';
 import { RFC3339Format, DayJsType } from '@services/timeService';
 

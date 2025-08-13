@@ -157,7 +157,9 @@ services:
     depends_on:
       - mesh
   mesh:
-    image: mesh-sandbox
+    image: ${DOCKER_REGISTRY-}mesh-sandbox
+    build:
+      context: https://github.com/NHSDigital/mesh-sandbox.git#refs/tags/v1.0.14
     ports:
       - 4030:80
     environment:

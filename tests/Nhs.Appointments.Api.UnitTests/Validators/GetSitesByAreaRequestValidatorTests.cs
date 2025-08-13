@@ -168,9 +168,6 @@ public class GetSitesByAreaRequestValidatorTests
         result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3'");     
     }
     
-    /// <summary>
-    /// APPT-1249 - Restrict to only hard-coded 'RSV:Adult' for now.
-    /// </summary>
     [Theory]
     [InlineData("COVID:5_11")]
     [InlineData("COVID:12_17")]

@@ -15,7 +15,8 @@ public class CapacityDataExtract(
         var availabilityTask = availabilityStore.RunQueryAsync(
             b => b.DocumentType == "daily_availability"
                 && b.Date >= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date)
-                && b.Date <= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date.AddDays(90)),
+                //&& b.Date <= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date.AddDays(90))
+                && b.Date <= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date.AddDays(60)),
             b => b
         );
 

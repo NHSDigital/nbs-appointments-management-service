@@ -3,14 +3,7 @@ import {
   RFC3339Format,
   parseToUkDatetime,
 } from '@services/timeService';
-import {
-  Booking,
-  DailyAvailability,
-  DaySummary,
-  DaySummaryV2,
-  WeekSummary,
-  WeekSummaryV2,
-} from '@types';
+import { Booking, DailyAvailability, DaySummary, WeekSummary } from '@types';
 
 const mondayThe10thOfJune2024 = parseToUkDatetime(
   '2024-06-10T00:00:00',
@@ -235,154 +228,7 @@ const mockBookings: Booking[] = [
   mockBooking6,
 ];
 
-/**
- * The weekly summary we'd expect to be generated from @mockWeekAvailability above.
- * Do not modify one of these without updating the other.
- */
 const mockWeekAvailability__Summary: DaySummary[] = [
-  {
-    ukDate: parseToUkDatetime('2024-06-10'),
-    sessions: [
-      {
-        ukStartDatetime: '2024-06-10T09:00:00',
-        ukEndDatetime: '2024-06-10T12:00:00',
-        maximumCapacity: 72,
-        totalBookings: 2,
-        bookings: { 'RSV:Adult': 2 },
-        capacity: 2,
-        slotLength: 5,
-      },
-      {
-        ukStartDatetime: '2024-06-10T13:00:00',
-        ukEndDatetime: '2024-06-10T17:30:00',
-        maximumCapacity: 54,
-        totalBookings: 0,
-        bookings: { 'RSV:Adult': 0 },
-        capacity: 1,
-        slotLength: 5,
-      },
-    ],
-    maximumCapacity: 126,
-    bookedAppointments: 2,
-    cancelledAppointments: 0,
-    orphanedAppointments: 1,
-    remainingCapacity: 124,
-  },
-  {
-    ukDate: parseToUkDatetime('2024-06-11'),
-    sessions: [
-      {
-        ukStartDatetime: '2024-06-11T09:00:00',
-        ukEndDatetime: '2024-06-11T12:00:00',
-        maximumCapacity: 36,
-        totalBookings: 2,
-        bookings: { 'RSV:Adult': 1, 'FLU:18_64': 1 },
-        capacity: 2,
-        slotLength: 10,
-      },
-      {
-        ukStartDatetime: '2024-06-11T09:00:00',
-        ukEndDatetime: '2024-06-11T12:00:00',
-        maximumCapacity: 36,
-        totalBookings: 0,
-        bookings: { 'RSV:Adult': 0 },
-        capacity: 2,
-        slotLength: 10,
-      },
-    ],
-    maximumCapacity: 72,
-    bookedAppointments: 2,
-    cancelledAppointments: 1,
-    orphanedAppointments: 0,
-    remainingCapacity: 70,
-  },
-  {
-    ukDate: parseToUkDatetime('2024-06-12'),
-    sessions: [
-      {
-        ukStartDatetime: '2024-06-12T08:00:00',
-        ukEndDatetime: '2024-06-12T12:00:00',
-        maximumCapacity: 96,
-        totalBookings: 0,
-        bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },
-        capacity: 4,
-        slotLength: 10,
-      },
-    ],
-    maximumCapacity: 96,
-    bookedAppointments: 0,
-    cancelledAppointments: 0,
-    orphanedAppointments: 0,
-    remainingCapacity: 96,
-  },
-  {
-    ukDate: parseToUkDatetime('2024-06-13'),
-    sessions: [
-      {
-        ukStartDatetime: '2024-06-13T10:00:00',
-        ukEndDatetime: '2024-06-13T14:00:00',
-        maximumCapacity: 96,
-        totalBookings: 0,
-        bookings: { 'RSV:Adult': 0 },
-        capacity: 2,
-        slotLength: 5,
-      },
-      {
-        ukStartDatetime: '2024-06-13T15:00:00',
-        ukEndDatetime: '2024-06-13T18:00:00',
-        maximumCapacity: 18,
-        totalBookings: 0,
-        bookings: { 'FLU:18_64': 0 },
-        capacity: 1,
-        slotLength: 10,
-      },
-    ],
-    maximumCapacity: 114,
-    bookedAppointments: 0,
-    cancelledAppointments: 0,
-    orphanedAppointments: 0,
-    remainingCapacity: 114,
-  },
-  {
-    ukDate: parseToUkDatetime('2024-06-14'),
-    sessions: [
-      {
-        ukStartDatetime: '2024-06-14T09:00:00',
-        ukEndDatetime: '2024-06-14T13:00:00',
-        maximumCapacity: 72,
-        totalBookings: 0,
-        bookings: { 'RSV:Adult': 0, 'FLU:18_64': 0 },
-        capacity: 3,
-        slotLength: 10,
-      },
-    ],
-    maximumCapacity: 72,
-    bookedAppointments: 0,
-    cancelledAppointments: 0,
-    orphanedAppointments: 0,
-    remainingCapacity: 72,
-  },
-  {
-    ukDate: parseToUkDatetime('2024-06-15'),
-    sessions: [],
-    maximumCapacity: 0,
-    bookedAppointments: 0,
-    cancelledAppointments: 0,
-    orphanedAppointments: 0,
-    remainingCapacity: 0,
-  },
-  {
-    ukDate: parseToUkDatetime('2024-06-16'),
-    sessions: [],
-    maximumCapacity: 0,
-    bookedAppointments: 0,
-    cancelledAppointments: 0,
-    orphanedAppointments: 0,
-    remainingCapacity: 0,
-  },
-];
-
-const mockWeekAvailability__Summary__V2: DaySummaryV2[] = [
   {
     date: '2024-06-10',
     sessions: [
@@ -526,17 +372,7 @@ const mockWeekAvailability__Summary__V2: DaySummaryV2[] = [
 ];
 
 const mockWeekSummary: WeekSummary = {
-  startDate: mondayThe10thOfJune2024,
-  endDate: sundayThe16thOfJune2024,
   daySummaries: mockWeekAvailability__Summary,
-  maximumCapacity: 480,
-  bookedAppointments: 4,
-  orphanedAppointments: 1,
-  remainingCapacity: 476,
-};
-
-const mockWeekSummaryV2: WeekSummaryV2 = {
-  daySummaries: mockWeekAvailability__Summary__V2,
   maximumCapacity: 480,
   bookedAppointments: 4,
   orphanedAppointments: 1,
@@ -550,5 +386,4 @@ export {
   mondayThe10thOfJune2024,
   sundayThe16thOfJune2024,
   mockWeekSummary,
-  mockWeekSummaryV2,
 };

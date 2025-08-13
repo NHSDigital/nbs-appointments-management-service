@@ -312,35 +312,17 @@ type SessionSummary = {
   slotLength: number;
 };
 
-type DaySummary = {
-  ukDate: DayJsType;
-  sessions: SessionSummary[];
-  maximumCapacity: number;
-  bookedAppointments: number;
-  cancelledAppointments: number;
-  orphanedAppointments: number;
-  remainingCapacity: number;
-};
-
 type WeekSummary = {
   startDate: DayJsType;
   endDate: DayJsType;
   daySummaries: DaySummary[];
   maximumCapacity: number;
-  bookedAppointments: number;
-  orphanedAppointments: number;
-  remainingCapacity: number;
-};
-
-type WeekSummaryV2 = {
-  daySummaries: DaySummaryV2[];
-  maximumCapacity: number;
   remainingCapacity: number;
   bookedAppointments: number;
   orphanedAppointments: number;
 };
 
-type DaySummaryV2 = {
+type DaySummary = {
   date: string;
   sessions: SessionSummary[];
   maximumCapacity: number;
@@ -371,11 +353,6 @@ type CancelSessionRequest = {
   slotLength: number;
   capacity: number;
 };
-
-// TODO: Decide where this info should live and move it there
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-];
 
 export type {
   ApplyAvailabilityTemplateRequest,
@@ -426,9 +403,7 @@ export type {
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
-  WeekSummaryV2,
-  DaySummaryV2,
   ClinicalService,
 };
 
-export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };
+export { MyaError, UnauthorizedError, daysOfTheWeek };

@@ -4,15 +4,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
 {
     [FeatureFile("./Scenarios/CreateAvailability/GetAvailabilityCreatedEvents.feature")]
-    public abstract class GetAvailabilityCreatedEventsFeatureSteps(string flag, bool enabled)
-        : BaseCreateAvailabilityFeatureSteps(flag, enabled)
+    public class GetAvailabilityCreatedEventsFeatureSteps : BaseCreateAvailabilityFeatureSteps
     {
         private IEnumerable<AvailabilityCreatedEvent> _actualResponse;
 
@@ -36,12 +33,4 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
                 options => options.Excluding(x => x.Created));
         }
     }
-
-    [Collection("MultipleServicesSerialToggle")]
-    public class GetAvailabilityCreatedEventsFeatureSteps_MultipleServicesEnabled()
-        : GetAvailabilityCreatedEventsFeatureSteps(Flags.MultipleServices, true);
-
-    [Collection("MultipleServicesSerialToggle")]
-    public class GetAvailabilityCreatedEventsFeatureSteps_MultipleServicesDisabled()
-        : GetAvailabilityCreatedEventsFeatureSteps(Flags.MultipleServices, false);
 }

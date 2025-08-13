@@ -66,7 +66,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
+    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
@@ -179,7 +179,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
+    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true

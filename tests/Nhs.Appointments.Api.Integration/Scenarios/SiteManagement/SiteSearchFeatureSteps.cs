@@ -10,6 +10,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
@@ -24,6 +25,9 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
     private QueryAvailabilityResponse _queryResponse;
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
+    
+    private ErrorMessageResponseItem ErrorResponse { get; set; }
+    private IEnumerable<ErrorMessageResponseItem> ErrorResponses { get; set; }
 
     public void Dispose()
     {
@@ -71,6 +75,22 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
         _statusCode = _response.StatusCode;
         (_, _queryResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
+    }
+    
+    [Then("a bad request response is returned with the following error messages")]
+    public async Task AssertBadRequest(DataTable dataTable)
+    {
+        Response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        
+        var row = dataTable.Rows.ElementAt(0);
+
+        var expectedErrorMessages = row.Cells.Select(x=>x.Value).ToList();
+
+        (_, ErrorResponses) =
+            await JsonRequestReader.ReadRequestAsync<IEnumerable<ErrorMessageResponseItem>>(
+                await Response.Content.ReadAsStreamAsync());
+        var actualErrorMessages = ErrorResponses.Select(x => x.Message).ToList();
+        actualErrorMessages.Should().BeEquivalentTo(expectedErrorMessages);
     }
 
     [Then(@"the following availability is returned for '(.+)'")]

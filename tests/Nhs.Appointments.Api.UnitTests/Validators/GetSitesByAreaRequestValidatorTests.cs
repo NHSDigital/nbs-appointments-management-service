@@ -163,7 +163,38 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports one service");     
+        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports one service: 'RSV:Adult'");     
+    }
+    
+    /// <summary>
+    /// APPT-1249 - Restrict to only hard-coded 'RSV:Adult' for now.
+    /// </summary>
+    [Theory]
+    [InlineData("COVID:5_11")]
+    [InlineData("COVID:12_17")]
+    [InlineData("COVID:18+")]
+    [InlineData("FLU:18_64")]
+    [InlineData("FLU:65+")]
+    [InlineData("COVID_FLU:18_64")]
+    [InlineData("COVID_FLU:65+")]
+    [InlineData("FLU:2_3")]
+    public void Validate_ReturnsError_SiteSupportService_UnsupportedServiceProvided(string service)
+    {
+        var request = new GetSitesByAreaRequest(
+            180,
+            90,
+            6000,
+            50,
+            ["access_need_a", "access_need_b"],
+            false,
+            [service],
+            "2025-10-02",
+            "2025-10-30"
+        );
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().HaveCount(1);
+        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports one service: 'RSV:Adult'");     
     }
     
     [Fact]

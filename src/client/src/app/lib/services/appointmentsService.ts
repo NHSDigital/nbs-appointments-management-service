@@ -23,15 +23,14 @@ import {
   Site,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
-  clinicalServices,
   BookingStatus,
   UserIdentityStatus,
-  WeekSummaryV2,
-  SiteStatus,
   UpdateSiteStatusRequest,
+  SiteStatus,
   CancelDayRequest,
+  WeekSummary,
   CancelDayResponse,
-  DaySummaryV2,
+  DaySummary
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -125,19 +124,13 @@ export const fetchFeatureFlag = async (featureFlag: string) => {
 };
 
 export const fetchClinicalServices = async () => {
-  const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
-
-  if (canUseMultipleServices.enabled) {
-    const response = await appointmentsApi.get<ClinicalService[]>(
-      `clinical-services`,
-      {
-        cache: 'force-cache',
-      },
-    );
-    return handleBodyResponse(response);
-  }
-
-  return clinicalServices;
+  const response = await appointmentsApi.get<ClinicalService[]>(
+    `clinical-services`,
+    {
+      cache: 'force-cache',
+    },
+  );
+  return handleBodyResponse(response);
 };
 
 export const fetchSiteAccessibilities = async (siteId: string) => {
@@ -464,8 +457,8 @@ export const fetchDailyAvailability = async (
   return handleBodyResponse(response);
 };
 
-export const fetchWeekSummaryV2 = async (site: string, from: string) => {
-  const response = await appointmentsApi.get<WeekSummaryV2>(
+export const fetchWeekSummary = async (site: string, from: string) => {
+  const response = await appointmentsApi.get<WeekSummary>(
     `week-summary?site=${site}&from=${from}`,
   );
 
@@ -475,8 +468,8 @@ export const fetchWeekSummaryV2 = async (site: string, from: string) => {
 export const fetchDaySummary = async (
   site: string,
   from: string,
-): Promise<DaySummaryV2> => {
-  const response = await appointmentsApi.get<WeekSummaryV2>(
+): Promise<DaySummary> => {
+  const response = await appointmentsApi.get<WeekSummary>(
     `day-summary?site=${site}&from=${from}`,
   );
 

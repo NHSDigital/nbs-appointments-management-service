@@ -293,3 +293,66 @@ variable "app_config_connection" {
 variable "disable_bulk_import_function" {
   type = bool
 }
+
+variable "data_extract_timeout" {
+  type = number
+  default = 7200
+}
+
+variable "data_extract_retry_limit" {
+  type = number
+  default = 0
+}
+
+variable "data_extract_schedule" {
+  type = string
+  default = "0 2 * * *"
+}
+
+variable "mesh_capacity_mailbox_destination" {
+  type = string
+  default = ""
+  sensitive = true  
+}
+
+variable "mesh_capacity_mailbox_workflow" {
+  type = string
+  default = ""
+  sensitive = true  
+}
+
+variable "mesh_bookings_mailbox_destination" {
+  type = string
+  default = ""
+  sensitive = true  
+}
+
+variable "mesh_bookings_mailbox_workflow" {
+  type = string
+  default = ""
+  sensitive = true  
+}
+
+variable "mesh_client_options_base_url" {
+  type = string
+  default = ""
+  sensitive = true    
+}
+
+variable "mesh_authorization_options_mailbox_id" {
+  type = string
+  default = ""
+  sensitive = true    
+}
+
+variable "mesh_authorization_options_mailbox_password" {
+  type = string
+  default = ""
+  sensitive = true  
+}
+
+variable "mesh_authorization_options_shared_key" {
+  type = string
+  default = ""
+  sensitive = true    
+}

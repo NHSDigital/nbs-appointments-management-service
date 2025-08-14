@@ -81,7 +81,7 @@ services:
     image: splunk/splunk:latest
     container_name: splunk
     environment:
-      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_START_ARGS=--accept-license --answer-yes
       - SPLUNK_PASSWORD=Password1!
       - SPLUNK_HEC_SSL=false
     ports:
@@ -96,6 +96,7 @@ services:
       - "8010:443"
       - "8020:80"
     environment:
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "true"
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: https://+:443;http://+80
       ASPNETCORE_HTTPS_PORT: 8010
@@ -157,9 +158,7 @@ services:
     depends_on:
       - mesh
   mesh:
-    image: ${DOCKER_REGISTRY-}mesh-sandbox
-    build:
-      context: https://github.com/NHSDigital/mesh-sandbox.git#refs/tags/v1.0.14
+    image: mesh-sandbox
     ports:
       - 4030:80
     environment:

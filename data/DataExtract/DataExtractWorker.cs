@@ -25,7 +25,7 @@ public class DataExtractWorker<TExtractor>(
             {
                 WriteFileLocally(outputFile);
             }
-
+            
             await SendViaMesh(outputFile);
         }
         catch (Exception ex)

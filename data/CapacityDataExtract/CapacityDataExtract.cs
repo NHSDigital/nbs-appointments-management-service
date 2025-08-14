@@ -1,5 +1,6 @@
 using CapacityDataExtracts.Documents;
 using DataExtract;
+using MassTransit.Initializers;
 using Nhs.Appointments.Persistance.Models;
 using Parquet.Serialization;
 
@@ -15,8 +16,7 @@ public class CapacityDataExtract(
         var availabilityTask = availabilityStore.RunQueryAsync(
             b => b.DocumentType == "daily_availability"
                 && b.Date >= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date)
-                //&& b.Date <= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date.AddDays(90))
-                && b.Date <= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date.AddDays(60)),
+                && b.Date <= DateOnly.FromDateTime(timeProvider.GetUtcNow().Date.AddDays(90)),
             b => b
         );
 
@@ -24,31 +24,31 @@ public class CapacityDataExtract(
         
         await Task.WhenAll(availabilityTask, siteTask);
 
+        var sites = siteTask.Result.ToArray();
+
         var capacity = availabilityTask.Result.SelectMany(
             availability => availability.Sessions.Select(
-                s => new SiteSessionInstance(availability.Site, availability.Date.ToDateTime(s.From), availability.Date.ToDateTime(s.Until))
+                s => new SiteSessionInstance(sites.Single(x => x.Id == availability.Site), availability.Date.ToDateTime(s.From), availability.Date.ToDateTime(s.Until))
                 {
                     Services = s.Services,
                     SlotLength = s.SlotLength,
                     Capacity = s.Capacity
                 })).SelectMany(slot => slot.ToSiteSlots()).ToList();
 
-        var dataConverter = new CapacityDataConverter(siteTask.Result.ToArray());
-
-        Console.WriteLine($"Preparing to Parse {capacity.Count()} report to rows");
+        Console.WriteLine($"Preparing to Parse {capacity.Count} report to rows");
 
         var rows = capacity.Select(
                 x => new SiteSessionParquet()
                 {
                     DATE = CapacityDataConverter.ExtractDate(x),
                     TIME = CapacityDataConverter.ExtractTime(x),
-                    ODS_CODE = dataConverter.ExtractOdsCode(x),
-                    LATITUDE = dataConverter.ExtractLatitude(x),
-                    LONGITUDE = dataConverter.ExtractLongitude(x),
+                    ODS_CODE = CapacityDataConverter.ExtractOdsCode(x),
+                    LATITUDE = CapacityDataConverter.ExtractLatitude(x),
+                    LONGITUDE = CapacityDataConverter.ExtractLongitude(x),
                     CAPACITY = CapacityDataConverter.ExtractCapacity(x),
-                    SITE_NAME = dataConverter.ExtractSiteName(x),
-                    REGION = dataConverter.ExtractRegion(x),
-                    ICB = dataConverter.ExtractICB(x),
+                    SITE_NAME = CapacityDataConverter.ExtractSiteName(x),
+                    REGION = CapacityDataConverter.ExtractRegion(x),
+                    ICB = CapacityDataConverter.ExtractICB(x),
                     SERVICE = CapacityDataConverter.ExtractService(x),
                 }).ToList();
 

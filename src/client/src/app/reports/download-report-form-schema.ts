@@ -2,6 +2,7 @@ import {
   occurInOrder,
   parseToUkDatetime,
   RFC3339Format,
+  stringIsValidDate,
   ukNow,
 } from '@services/timeService';
 import * as yup from 'yup';
@@ -22,12 +23,15 @@ export const downloadReportFormSchema: yup.ObjectSchema<DownloadReportFormValues
         .test(
           'is-after-february-2025-and-not-more-than-3-months-in-the-future',
           'Select a date on or after 1 March 2025 and within 3 months from today',
-          value =>
-            occurInOrder([
+          value => {
+            if (!stringIsValidDate(value, RFC3339Format)) return false;
+
+            return occurInOrder([
               parseToUkDatetime(REPORT_DATE_EARLIEST_ALLOWED, RFC3339Format),
               parseToUkDatetime(value, RFC3339Format),
               ukNow().add(3, 'month'),
-            ]),
+            ]);
+          },
         ),
       endDate: yup
         .string()
@@ -35,12 +39,15 @@ export const downloadReportFormSchema: yup.ObjectSchema<DownloadReportFormValues
         .test(
           'is-after-february-2025-and-not-more-than-3-months-in-the-future',
           'Select a date on or after 1 March 2025 and within 3 months from today',
-          value =>
-            occurInOrder([
+          value => {
+            if (!stringIsValidDate(value, RFC3339Format)) return false;
+
+            return occurInOrder([
               parseToUkDatetime(REPORT_DATE_EARLIEST_ALLOWED, RFC3339Format),
               parseToUkDatetime(value, RFC3339Format),
               ukNow().add(3, 'month'),
-            ]),
+            ]);
+          },
         ),
     })
     .test(
@@ -49,6 +56,13 @@ export const downloadReportFormSchema: yup.ObjectSchema<DownloadReportFormValues
       values => {
         if (!values.startDate || !values.endDate) {
           return true; // Validation will fail on required fields first
+        }
+
+        if (
+          !stringIsValidDate(values.startDate, RFC3339Format) ||
+          !stringIsValidDate(values.endDate, RFC3339Format)
+        ) {
+          return true;
         }
 
         return occurInOrder([

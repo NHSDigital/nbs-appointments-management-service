@@ -1,6 +1,5 @@
 using CapacityDataExtracts.Documents;
 using DataExtract;
-using MassTransit.Initializers;
 using Nhs.Appointments.Persistance.Models;
 using Parquet.Serialization;
 

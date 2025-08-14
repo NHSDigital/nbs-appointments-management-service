@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -483,7 +484,7 @@ public class SiteServiceTests
     }
     
     [Fact]
-    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSite_WhenSiteSupportsServiceFilterUsed()
+    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSite_WhenSiteSupportsServiceFilterUsed_NoCache()
     {
         var sites = new List<SiteWithDistance>
         {
@@ -520,6 +521,12 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        
+        //set up a cache, but it's for a different date range, so its not used
+        object outResult = true;
+        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
+        
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
         result.Should().BeEquivalentTo(sites);
 
@@ -527,6 +534,10 @@ public class SiteServiceTests
         
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
+        
+        //creates new correct cache for queried date range
+        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
         
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
@@ -540,10 +551,10 @@ public class SiteServiceTests
         );
     }
     
-     [Fact]
-    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed()
+    [Fact]
+    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSite_WhenSiteSupportsServiceFilterUsed_UsesCacheWhenPresent()
     {
-        var invalidSites = new List<SiteWithDistance>
+        var sites = new List<SiteWithDistance>
         {
             new SiteWithDistance(new Site(
                     Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
@@ -576,58 +587,120 @@ public class SiteServiceTests
                     }),
                 Distance: 3573)
         };
-        var validSites = new List<SiteWithDistance>
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+        
+        object outResult = true;
+        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
+        
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
+        result.Should().BeEquivalentTo(sites);
+
+        var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
+        
+        //doesn't call the store if cached
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Never);
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Never);
+        
+        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("GetSitesSupportingService returned 2 result(s) after 1 iteration(s) for service 'RSV:Adult'")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
+    }
+    
+     [Fact]
+    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed_PartialCached()
+    {
+        var invalidSites = new List<SiteWithDistance>();
+        
+        for (var i = 1; i < 21; i++)
         {
-            new SiteWithDistance(new Site(
-                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
-                    Name: "Site 3",
-                    Address: "3 Park Row",
+            var id = $"6877d86e-c2df-4def-8508-e1eccf0ea6{i:00}";
+            invalidSites.Add(new SiteWithDistance(new Site(
+                    Id: id,
+                    Name: "Site 2",
+                    Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
-                    OdsCode: "ABC03",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.2]),
+                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     }),
-                Distance: 22522),
-            new SiteWithDistance(new Site(
-                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bd",
-                    Name: "Site 4",
-                    Address: "4 Park Row",
+                Distance: 3500+i));
+            
+            //invalid site results happen to not be cached
+            object outResult = false;
+            _memoryCache.Setup(x => x.TryGetValue($"site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(false);
+        }
+
+        var validSites = new List<SiteWithDistance>();
+        
+        for (double i = 1; i < 21; i++)
+        {
+            var longitude = 50.2d + (i / 100);
+            var id = $"6877d86e-c2df-4def-8508-e1eccf0ea7{i:00}";
+            validSites.Add(new SiteWithDistance(new Site(
+                    Id: id,
+                    Name: "Site 2",
+                    Address: "2 Park Row",
                     PhoneNumber: "0113 1111111",
-                    OdsCode: "ABC04",
+                    OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.3]),
+                    Location: new Location(Type: "Point", Coordinates: [0.05, longitude]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     }),
-                Distance: 33546)
-        };
+                Distance: (int)(3700+i)));
+            
+            //valid site results happen to be cached
+            object outResult = true;
+            _memoryCache.Setup(x => x.TryGetValue($"site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(true);
+        }
         
         var sites = invalidSites.Union(validSites).ToList();
         
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        
-        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
-        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
-        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bc", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
-        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bd", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+
+        //only setup for invalid sites
+        for (var i = 1; i < 21; i++)
+        {
+            var id = $"{i:00}";
+            _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
+        }
         
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 1, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,06)));
-        result.Should().BeEquivalentTo([validSites.First()]);
+        result.Single().Site.Id.Should().Be(validSites.First().Site.Id);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
         
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bc", "RSV:Adult", docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bd", "RSV:Adult", docIds), Times.Once);
+        for (var i = 1; i < 21; i++)
+        {
+            var id = $"{i:00}";
+            _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", "RSV:Adult", docIds), Times.Once);
+        }
+        
+        for (var i = 1; i < 21; i++)
+        {
+            //since the valid sites were cached, it shouldn't look up via DB
+            var id = $"{i:00}";
+            _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea7{id}", "RSV:Adult", docIds), Times.Never);
+        }
         
         _logger.Verify(x => x.Log(
                 LogLevel.Information,

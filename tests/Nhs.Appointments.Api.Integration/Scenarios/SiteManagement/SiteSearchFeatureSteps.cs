@@ -10,6 +10,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
@@ -22,8 +23,6 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
 {
     private IEnumerable<SiteWithDistance> _sitesResponse;
     private QueryAvailabilityResponse _queryResponse;
-    private HttpResponseMessage _response;
-    private HttpStatusCode _statusCode;
 
     public void Dispose()
     {
@@ -40,12 +39,11 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
         var accessNeeds = row.Cells.ElementAt(4).Value;
-        _response = await Http.GetAsync(
+        Response = await Http.GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&accessNeeds={accessNeeds}&ignoreCache=true");
-        _statusCode = _response.StatusCode;
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await _response.Content.ReadAsStreamAsync());
+                await Response.Content.ReadAsStreamAsync());
     }
     
     [When(@"I check ([\w:]+) availability for site '(.+)' for '(.+)' between '(.+)' and '(.+)'")]
@@ -68,9 +66,8 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
             queryType = convertedQueryType.ToString()
         };
 
-        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
-        _statusCode = _response.StatusCode;
-        (_, _queryResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
+        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
+        (_, _queryResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await Response.Content.ReadAsStreamAsync());
     }
 
     [Then(@"the following availability is returned for '(.+)'")]
@@ -89,7 +86,7 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
             expectedDate,
             expectedHourBlocks);
 
-        _statusCode.Should().Be(HttpStatusCode.OK);
+        Response.StatusCode.Should().Be(HttpStatusCode.OK);
         _queryResponse
             .Single().availability
             .Single(x => x.date == expectedDate)
@@ -111,12 +108,11 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
 
         var accessNeeds = row.Cells.ElementAt(7).Value;
 
-        _response = await Http.GetAsync(
+        Response = await Http.GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from.ToString("yyyy-MM-dd")}&until={until.ToString("yyyy-MM-dd")}&accessNeeds={accessNeeds}&ignoreCache=true");
-        _statusCode = _response.StatusCode;
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await _response.Content.ReadAsStreamAsync());
+                await Response.Content.ReadAsStreamAsync());
     }
 
     [When("I make the following request with service filtering")]
@@ -133,12 +129,11 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var from = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(5).Value);
         var until = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(6).Value);
 
-        _response = await Http.GetAsync(
+        Response = await Http.GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from.ToString("yyyy-MM-dd")}&until={until.ToString("yyyy-MM-dd")}&ignoreCache=true");
-        _statusCode = _response.StatusCode;
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await _response.Content.ReadAsStreamAsync());
+                await Response.Content.ReadAsStreamAsync());
     }
 
     [When("I make the following request without access needs")]
@@ -149,13 +144,11 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var searchRadiusNumber = row.Cells.ElementAt(1).Value;
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
-
-        _response = await Http.GetAsync(
+        Response = await Http.GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&ignoreCache=true");
-        _statusCode = _response.StatusCode;
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await _response.Content.ReadAsStreamAsync());
+                await Response.Content.ReadAsStreamAsync());
     }
 
     [Then("the following sites and distances are returned")]
@@ -182,14 +175,14 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
 
         _sitesResponse.Should().HaveCount(dataTable.Rows.Count() - 1);
 
-        _statusCode.Should().Be(HttpStatusCode.OK);
+        Response.StatusCode.Should().Be(HttpStatusCode.OK);
         _sitesResponse.Should().BeEquivalentTo(expectedSites);
     }
 
     [Then("no sites are returned")]
     public void Assert()
     {
-        _statusCode.Should().Be(HttpStatusCode.OK);
+        Response.StatusCode.Should().Be(HttpStatusCode.OK);
         _sitesResponse.Should().BeEmpty();
     }
 

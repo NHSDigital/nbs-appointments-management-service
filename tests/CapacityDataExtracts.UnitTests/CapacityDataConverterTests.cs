@@ -9,7 +9,7 @@ public class CapacityDataConverterTests
     [Fact]
     public void ExtractSessionExtractDate_GetsCorrectData()
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+        var testDocument = new SiteSessionInstance(new SiteDocument(), new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
         var result = CapacityDataConverter.ExtractDate(testDocument);
         result.Should().Be("2025-01-02");
     }
@@ -17,7 +17,7 @@ public class CapacityDataConverterTests
     [Fact]
     public void ExtractSessionExtractTime_GetsCorrectData()
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 14, 00, 00), new DateTime(2025, 01, 02, 14, 05, 00));
+        var testDocument = new SiteSessionInstance(new SiteDocument(), new DateTime(2025, 01, 02, 14, 00, 00), new DateTime(2025, 01, 02, 14, 05, 00));
         var result = CapacityDataConverter.ExtractTime(testDocument);
         result.Should().Be("14:00:00");
     }
@@ -25,7 +25,7 @@ public class CapacityDataConverterTests
     [Fact]
     public void ExtractSessionExtractSlotLength_GetsCorrectData()
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+        var testDocument = new SiteSessionInstance(new SiteDocument(), new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
         var result = CapacityDataConverter.ExtractSlotLength(testDocument);
         result.Should().Be("05");
     }
@@ -35,12 +35,10 @@ public class CapacityDataConverterTests
     [InlineData("2", "ODS_02")]
     public void ExtractSessionExtractOdsCode_GetsCorrectData(string siteId, string expected)
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
-        {
-            Site = siteId,
-        };
-        var converter = new CapacityDataConverter(TestSites);
-        var result = converter.ExtractOdsCode(testDocument);
+        var testDocument = new SiteSessionInstance(TestSites.Single(x => x.Id == siteId),
+            new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+
+        var result = CapacityDataConverter.ExtractOdsCode(testDocument);
         result.Should().Be(expected);
     }
 
@@ -49,12 +47,10 @@ public class CapacityDataConverterTests
     [InlineData("2", 0.2)]
     public void ExtractSessionExtractLatitude_GetsCorrectData(string siteId, double expected)
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
-        {
-            Site = siteId,
-        };
-        var converter = new CapacityDataConverter(TestSites);
-        var result = converter.ExtractLatitude(testDocument);
+        var testDocument = new SiteSessionInstance(TestSites.Single(x => x.Id == siteId),
+            new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+
+        var result = CapacityDataConverter.ExtractLatitude(testDocument);
         result.Should().Be(expected);
     }
 
@@ -63,19 +59,17 @@ public class CapacityDataConverterTests
     [InlineData("2", 2.0)]
     public void ExtractSessionExtractLongitude_GetsCorrectData(string siteId, double expected)
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
-        {
-            Site = siteId,
-        };
-        var converter = new CapacityDataConverter(TestSites);
-        var result = converter.ExtractLongitude(testDocument);
+        var testDocument = new SiteSessionInstance(TestSites.Single(x => x.Id == siteId), new DateTime(2025, 01, 02, 9, 00, 00),
+            new DateTime(2025, 01, 02, 9, 05, 00));
+
+        var result = CapacityDataConverter.ExtractLongitude(testDocument);
         result.Should().Be(expected);
     }
 
     [Fact]
     public void ExtractSessionExtractCapacity_GetsCorrectData()
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
+        var testDocument = new SiteSessionInstance(new SiteDocument(), new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
         {
             Capacity = 5
         };
@@ -88,12 +82,10 @@ public class CapacityDataConverterTests
     [InlineData("2", "Site Two")]
     public void ExtractSessionExtractSiteName_GetsCorrectData(string siteId, string expected)
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
-        {
-            Site = siteId,
-        };
-        var converter = new CapacityDataConverter(TestSites);
-        var result = converter.ExtractSiteName(testDocument);
+        var testDocument = new SiteSessionInstance(TestSites.Single(x => x.Id == siteId),
+            new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+
+        var result = CapacityDataConverter.ExtractSiteName(testDocument);
         result.Should().Be(expected);
     }
 
@@ -102,12 +94,10 @@ public class CapacityDataConverterTests
     [InlineData("2", "RGN02")]
     public void ExtractSessionExtractRegion_GetsCorrectData(string siteId, string expected)
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
-        {
-            Site = siteId,
-        };
-        var converter = new CapacityDataConverter(TestSites);
-        var result = converter.ExtractRegion(testDocument);
+        var testDocument = new SiteSessionInstance(TestSites.Single(x => x.Id == siteId),
+            new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+        
+        var result = CapacityDataConverter.ExtractRegion(testDocument);
         result.Should().Be(expected);
     }
 
@@ -116,19 +106,17 @@ public class CapacityDataConverterTests
     [InlineData("2", "ICB02")]
     public void ExtractSessionExtractICB_GetsCorrectData(string siteId, string expected)
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
-        {
-            Site = siteId,
-        };
-        var converter = new CapacityDataConverter(TestSites);
-        var result = converter.ExtractICB(testDocument);
+        var testDocument = new SiteSessionInstance(TestSites.Single(x => x.Id == siteId),
+            new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00));
+        
+        var result = CapacityDataConverter.ExtractICB(testDocument);
         result.Should().Be(expected);
     }
 
     [Fact]
     public void ExtractSessionExtractService_GetsCorrectData()
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
+        var testDocument = new SiteSessionInstance(new SiteDocument(), new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
         {
             Services = ["service1"]
         };
@@ -139,7 +127,7 @@ public class CapacityDataConverterTests
     [Fact]
     public void ExtractSessionExtractService_Multiple_GetsCorrectData()
     {
-        var testDocument = new SiteSessionInstance("", new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
+        var testDocument = new SiteSessionInstance(new SiteDocument(), new DateTime(2025, 01, 02, 9, 00, 00), new DateTime(2025, 01, 02, 9, 05, 00))
         {
             Services = ["service1", "service2"]
         };

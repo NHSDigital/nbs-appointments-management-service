@@ -7,6 +7,7 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import { RFC3339Format, isFutureCalendarDateUk } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
+import { fetchFeatureFlag } from '@services/appointmentsService';
 
 type DaySummaryCardProps = {
   daySummary: DaySummary;
@@ -16,7 +17,7 @@ type DaySummaryCardProps = {
   canViewDailyAppointments: boolean;
 };
 
-export const DaySummaryCard = ({
+export const DaySummaryCard = async ({
   daySummary,
   siteId,
   canManageAvailability,
@@ -27,6 +28,7 @@ export const DaySummaryCard = ({
     daySummary;
 
   const isFutureCalendarDate = isFutureCalendarDateUk(ukDate);
+  const cancelDayFlag = await fetchFeatureFlag('CancelDay');
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
@@ -69,8 +71,18 @@ export const DaySummaryCard = ({
     },
   ].filter(p => p !== false);
 
+  const futureCancelDayLink =
+    cancelDayFlag.enabled && isFutureCalendarDate ? (
+      <Link className="nhsuk-link" href={`/site/${siteId}/cancel-day`}>
+        Cancel day
+      </Link>
+    ) : null;
+
   return (
-    <Card title={ukDate.format('dddd D MMMM')}>
+    <Card
+      title={ukDate.format('dddd D MMMM')}
+      actionLinks={futureCancelDayLink}
+    >
       <SessionSummaryTable
         sessionSummaries={sessions}
         clinicalServices={clinicalServices}

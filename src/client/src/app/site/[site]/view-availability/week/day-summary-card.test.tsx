@@ -9,7 +9,9 @@ import {
   ukNow,
 } from '@services/timeService';
 import { clinicalServices } from '@types';
-
+import { cookies } from 'next/headers';
+import { fetchFeatureFlag } from '@services/appointmentsService';
+import { FeatureFlag } from '@types';
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
   return {
@@ -19,8 +21,18 @@ jest.mock('@services/timeService', () => {
   };
 });
 
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(),
+}));
+jest.mock('@services/appointmentsService', () => ({
+  fetchFeatureFlag: jest.fn(),
+}));
+
 const mockIsFutureCalendarDateUk = isFutureCalendarDateUk as jest.Mock<boolean>;
 const mockUkNow = ukNow as jest.Mock<DayJsType>;
+const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
+  Promise<FeatureFlag>
+>;
 
 describe('Day Summary Card', () => {
   beforeEach(() => {
@@ -28,18 +40,23 @@ describe('Day Summary Card', () => {
 
     mockIsFutureCalendarDateUk.mockReturnValue(true);
     mockUkNow.mockReturnValue(parseToUkDatetime('2024-11-01'));
+    (cookies as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue({ value: 'mock-token' }),
+    });
+    fetchFeatureFlagMock.mockResolvedValue({
+      enabled: true,
+    });
   });
 
-  it('renders', () => {
-    render(
-      <DaySummaryCard
-        daySummary={mockDaySummaries[0]}
-        siteId={'mock-site'}
-        canManageAvailability={true}
-        clinicalServices={clinicalServices}
-        canViewDailyAppointments={true}
-      />,
-    );
+  it('renders', async () => {
+    const jsx = await DaySummaryCard({
+      daySummary: mockDaySummaries[0],
+      siteId: 'mock-site',
+      canManageAvailability: true,
+      clinicalServices: clinicalServices,
+      canViewDailyAppointments: true,
+    });
+    render(jsx);
 
     expect(
       screen.getByRole('heading', { name: 'Monday 2 December' }),
@@ -50,16 +67,15 @@ describe('Day Summary Card', () => {
   });
 
   describe('when there is availability', () => {
-    it('renders availability table', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders availability table', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('row', {
@@ -73,16 +89,15 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('includes the action column if the user has the permission', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('includes the action column if the user has the permission', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('row', {
@@ -96,16 +111,15 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('hides the action column if the user lacks the permission', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={false}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('hides the action column if the user lacks the permission', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: false,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('row', {
@@ -119,84 +133,79 @@ describe('Day Summary Card', () => {
       ).toBeNull();
     });
 
-    it('renders add session link if the date is in the future', () => {
+    it('renders add session link if the date is in the future', async () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', { name: 'Add Session' }),
       ).toBeInTheDocument();
     });
 
-    it('does not render add session link if the user lacks the permission', () => {
+    it('does not render add session link if the user lacks the permission', async () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={false}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: false,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(screen.queryByRole('link', { name: 'Add Session' })).toBeNull();
     });
 
-    it('does not render add session link if the date is in the past', () => {
+    it('does not render add session link if the date is in the past', async () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
 
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('link', { name: 'Add Session' }),
       ).not.toBeInTheDocument();
     });
 
-    it('renders total appointments table', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders total appointments table', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(screen.getByText('Total appointments: 123')).toBeInTheDocument();
       expect(screen.getByText('Booked: 5')).toBeInTheDocument();
       expect(screen.getByText('Unbooked: 118')).toBeInTheDocument();
     });
 
-    it('renders view appointments link', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders view appointments link', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', {
@@ -205,16 +214,15 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('renders a link to view cancelled appointments if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockDaySummaries[0], cancelledAppointments: 3 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders a link to view cancelled appointments if there are cancelled appointments', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockDaySummaries[0], cancelledAppointments: 3 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', {
@@ -231,16 +239,15 @@ describe('Day Summary Card', () => {
       );
     });
 
-    it('renders a warning if there are orphaned appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockDaySummaries[0], orphanedAppointments: 20 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders a warning if there are orphaned appointments', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockDaySummaries[0], orphanedAppointments: 20 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(screen.getByText(/There are/)).toBeInTheDocument();
       expect(screen.getByText('20')).toBeInTheDocument();
@@ -249,16 +256,15 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('renders a link to view orphaned appointments if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockDaySummaries[0], orphanedAppointments: 20 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders a link to view orphaned appointments if there are cancelled appointments', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockDaySummaries[0], orphanedAppointments: 20 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', {
@@ -275,16 +281,15 @@ describe('Day Summary Card', () => {
       );
     });
 
-    it('hides the View Daily Appointments link when the user does not have permission', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={false}
-        />,
-      );
+    it('hides the View Daily Appointments link when the user does not have permission', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: false,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('heading', { name: 'Monday 2 December' }),
@@ -293,19 +298,93 @@ describe('Day Summary Card', () => {
         screen.queryByRole('link', { name: 'View daily appointments' }),
       ).not.toBeInTheDocument();
     });
+
+    it('renders "Cancel day" link if the date is in the future', async () => {
+      mockIsFutureCalendarDateUk.mockReturnValue(true);
+
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
+
+      expect(
+        screen.getByRole('link', { name: 'Cancel day' }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Cancel day' })).toHaveAttribute(
+        'href',
+        '/site/mock-site/cancel-day',
+      );
+    });
+
+    it('does not render "Cancel day" link if the date is in the past', async () => {
+      mockIsFutureCalendarDateUk.mockReturnValue(false);
+
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
+
+      expect(screen.queryByRole('link', { name: 'Cancel day' })).toBeNull();
+    });
+
+    it('does not render "Cancel day" link if feature toggle is disabled', async () => {
+      mockIsFutureCalendarDateUk.mockReturnValue(false);
+      fetchFeatureFlagMock.mockResolvedValue({
+        enabled: false,
+      });
+
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
+
+      expect(screen.queryByRole('link', { name: 'Cancel day' })).toBeNull();
+    });
+
+    it('renders "Cancel day" link if feature toggle is enabled', async () => {
+      mockIsFutureCalendarDateUk.mockReturnValue(true);
+
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
+
+      expect(
+        screen.getByRole('link', { name: 'Cancel day' }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Cancel day' })).toHaveAttribute(
+        'href',
+        '/site/mock-site/cancel-day',
+      );
+    });
   });
 
   describe('when there is no availability', () => {
-    it('renders no availability message', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockEmptyDays[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders no availability message', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockEmptyDays[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(screen.getByText('No availability')).toBeInTheDocument();
 
@@ -316,16 +395,15 @@ describe('Day Summary Card', () => {
       ).toBeNull();
     });
 
-    it('does not render total appointments table', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockEmptyDays[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('does not render total appointments table', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockEmptyDays[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('row', {
@@ -334,134 +412,126 @@ describe('Day Summary Card', () => {
       ).toBeNull();
     });
 
-    it('renders add session link if the date is in the future', () => {
+    it('renders add session link if the date is in the future', async () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
-      render(
-        <DaySummaryCard
-          daySummary={mockEmptyDays[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+      const jsx = await DaySummaryCard({
+        daySummary: mockEmptyDays[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', { name: 'Add availability to this day' }),
       ).toBeInTheDocument();
     });
 
-    it('does not render add session link if the user lacks the permission', () => {
+    it('does not render add session link if the user lacks the permission', async () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
-      render(
-        <DaySummaryCard
-          daySummary={mockEmptyDays[0]}
-          siteId={'mock-site'}
-          canManageAvailability={false}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+      const jsx = await DaySummaryCard({
+        daySummary: mockEmptyDays[0],
+        siteId: 'mock-site',
+        canManageAvailability: false,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('link', { name: 'Add availability to this day' }),
       ).toBeNull();
     });
 
-    it('does not render add session link if the date is in the past', () => {
+    it('does not render add session link if the date is in the past', async () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
 
-      render(
-        <DaySummaryCard
-          daySummary={mockEmptyDays[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+      const jsx = await DaySummaryCard({
+        daySummary: mockEmptyDays[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('link', { name: 'Add availability to this day' }),
       ).not.toBeInTheDocument();
     });
 
-    it('renders view cancelled appointments if there are any to show', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 1 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders view cancelled appointments if there are any to show', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockEmptyDays[0], cancelledAppointments: 1 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', { name: 'View cancelled appointments' }),
       ).toBeInTheDocument();
     });
 
-    it('does not render view cancelled appointments if there none any to show', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 0 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('does not render view cancelled appointments if there none any to show', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockEmptyDays[0], cancelledAppointments: 0 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('link', { name: 'View cancelled appointments' }),
       ).toBeNull();
     });
 
-    it('renders view orphaned appointments if there are any to show', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 1 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders view orphaned appointments if there are any to show', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockEmptyDays[0], orphanedAppointments: 1 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', { name: 'View manual cancellations' }),
       ).toBeInTheDocument();
     });
 
-    it('does not render view orphaned appointments if there none any to show', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 0 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('does not render view orphaned appointments if there none any to show', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockEmptyDays[0], orphanedAppointments: 0 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('link', { name: 'View manual cancellations' }),
       ).toBeNull();
     });
 
-    it('does not render manage availability links on a day summary', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockDaySummaries[0]}
-          siteId={'mock-site'}
-          canManageAvailability={false}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('does not render manage availability links on a day summary', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockDaySummaries[0],
+        siteId: 'mock-site',
+        canManageAvailability: false,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('link', { name: 'Add Session' }),
@@ -471,32 +541,30 @@ describe('Day Summary Card', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('does not render the add availability link on an empty day summary', () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockEmptyDays[0]}
-          siteId={'mock-site'}
-          canManageAvailability={false}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('does not render the add availability link on an empty day summary', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: mockEmptyDays[0],
+        siteId: 'mock-site',
+        canManageAvailability: false,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.queryByRole('link', { name: 'Add availability to this day' }),
       ).not.toBeInTheDocument();
     });
 
-    it('renders a link to view cancelled appointments if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 3 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders a link to view cancelled appointments if there are cancelled appointments', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockEmptyDays[0], cancelledAppointments: 3 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', {
@@ -513,16 +581,15 @@ describe('Day Summary Card', () => {
       );
     });
 
-    it('renders a link to view orphaned appointments if there are cancelled appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 20 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders a link to view orphaned appointments if there are cancelled appointments', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockEmptyDays[0], orphanedAppointments: 20 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(
         screen.getByRole('link', {
@@ -539,22 +606,36 @@ describe('Day Summary Card', () => {
       );
     });
 
-    it('renders a warning if there are orphaned appointments', () => {
-      render(
-        <DaySummaryCard
-          daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 20 }}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-        />,
-      );
+    it('renders a warning if there are orphaned appointments', async () => {
+      const jsx = await DaySummaryCard({
+        daySummary: { ...mockEmptyDays[0], orphanedAppointments: 20 },
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
 
       expect(screen.getByText(/There are/)).toBeInTheDocument();
       expect(screen.getByText('20')).toBeInTheDocument();
       expect(
         screen.getByText(/manual cancellations on this day./),
       ).toBeInTheDocument();
+    });
+
+    it('does not render "Cancel day" link when there is no availability', async () => {
+      mockIsFutureCalendarDateUk.mockReturnValue(false);
+
+      const jsx = await DaySummaryCard({
+        daySummary: mockEmptyDays[0],
+        siteId: 'mock-site',
+        canManageAvailability: true,
+        clinicalServices: clinicalServices,
+        canViewDailyAppointments: true,
+      });
+      render(jsx);
+
+      expect(screen.queryByRole('link', { name: 'Cancel day' })).toBeNull();
     });
   });
 });

@@ -6,6 +6,7 @@
     "MultipleServices": true,
     "SiteSummaryReport": true,
     "SiteStatus": false,
+    "CancelDay": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

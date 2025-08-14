@@ -33,13 +33,11 @@ public class CapacityDataExtract(
                     Capacity = s.Capacity
                 })).SelectMany(slot => slot.ToSiteSlots()).ToList();
 
-        var dataConverter = new CapacityDataConverter(siteTask.Result);
+        var dataConverter = new CapacityDataConverter(siteTask.Result.ToArray());
 
-        Console.WriteLine($"Preparing to write {capacity.Count} capacity records to {outputFile.FullName}");
+        Console.WriteLine($"Preparing to Parse {capacity.Count()} report to rows");
 
-        using (Stream fs = outputFile.OpenWrite())
-        {
-            await ParquetSerializer.SerializeAsync(capacity.Select(
+        var rows = capacity.Select(
                 x => new SiteSessionParquet()
                 {
                     DATE = CapacityDataConverter.ExtractDate(x),
@@ -52,7 +50,13 @@ public class CapacityDataExtract(
                     REGION = dataConverter.ExtractRegion(x),
                     ICB = dataConverter.ExtractICB(x),
                     SERVICE = CapacityDataConverter.ExtractService(x),
-                }), fs);
+                }).ToList();
+
+        Console.WriteLine($"Preparing to write {rows.Count} capacity records to {outputFile.FullName}");
+
+        using (Stream fs = outputFile.OpenWrite())
+        {
+            await ParquetSerializer.SerializeAsync(rows, fs);
         }
 
         Console.WriteLine("done");

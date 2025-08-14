@@ -3,7 +3,7 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace CapacityDataExtracts;
 
-public class CapacityDataConverter(IEnumerable<SiteDocument> sites)
+public class CapacityDataConverter(SiteDocument[] sites)
 {
     public string ExtractICB(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).IntegratedCareBoard;
 

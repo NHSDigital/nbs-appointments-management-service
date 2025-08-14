@@ -2,7 +2,7 @@ using CapacityDataExtracts.Documents;
 
 namespace CapacityDataExtracts;
 
-public class CapacityDataConverter()
+public static class CapacityDataConverter
 {
     public static string ExtractICB(SiteSessionInstance document) => document.Site.IntegratedCareBoard;
 

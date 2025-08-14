@@ -35,7 +35,7 @@ public class CapacityDataExtract(
                     Capacity = s.Capacity
                 })).SelectMany(slot => slot.ToSiteSlots()).ToList();
 
-        Console.WriteLine($"Preparing to Parse {capacity.Count} report to rows");
+        Console.WriteLine($"Preparing to parse {capacity.Count} report to rows - time: {timeProvider.GetUtcNow():HH:mm:ss}");
 
         var rows = capacity.Select(
                 x => new SiteSessionParquet()
@@ -52,7 +52,7 @@ public class CapacityDataExtract(
                     SERVICE = CapacityDataConverter.ExtractService(x),
                 }).ToList();
 
-        Console.WriteLine($"Preparing to write {rows.Count} capacity records to {outputFile.FullName}");
+        Console.WriteLine($"Preparing to write {rows.Count} capacity records to {outputFile.FullName} - time: {timeProvider.GetUtcNow():HH:mm:ss}");
 
         using (Stream fs = outputFile.OpenWrite())
         {

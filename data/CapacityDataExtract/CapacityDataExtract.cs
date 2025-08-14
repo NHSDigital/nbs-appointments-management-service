@@ -35,7 +35,7 @@ public class CapacityDataExtract(
 
         var dataConverter = new CapacityDataConverter(siteTask.Result);
 
-        Console.WriteLine("Preparing to write");
+        Console.WriteLine($"Preparing to write {capacity.Count} capacity records to {outputFile.FullName}");
 
         using (Stream fs = outputFile.OpenWrite())
         {

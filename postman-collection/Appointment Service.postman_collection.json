@@ -1091,6 +1091,40 @@
         "url": "{{baseUrl}}/api/site-status"
       },
       "response": []
+    },
+    {
+      "name": "day-summary",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/day-summary?site=6877d86e-c2df-4def-8508-e1eccf0ea6be&from=2025-08-15",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "day-summary"
+          ],
+          "query": [
+            {
+              "key": "site",
+              "value": "6877d86e-c2df-4def-8508-e1eccf0ea6be"
+            },
+            {
+              "key": "from",
+              "value": "2025-08-15"
+            }
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

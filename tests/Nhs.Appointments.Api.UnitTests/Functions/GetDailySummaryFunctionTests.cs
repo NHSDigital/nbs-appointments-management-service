@@ -71,10 +71,10 @@ public class GetDailySummaryFunctionTests
         //Arrange
         var validationResult = new ValidationResult
         {
-            Errors = new List<ValidationFailure>
-            {
+            Errors =
+            [
                 new ValidationFailure("From", "Provide a date in 'yyyy-MM-dd'")
-            }
+            ]
         };
         var request = CreateRequest(site: "Site01");
         _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultipleServices)).ReturnsAsync(true);
@@ -116,25 +116,6 @@ public class GetDailySummaryFunctionTests
         contentResult.StatusCode.Should().Be(200);
         var summary = JsonSerializer.Deserialize<Summary>(contentResult.Content);
         summary.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task RunAsync_MultipleServicesDisabled_ResultIsNotImplemented()
-    {
-        //Arrange
-        var request = CreateRequest(site: "Site01", from: "2024-12-01");
-        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultipleServices)).ReturnsAsync(false);
-        _mockValidator
-            .Setup(x => x.ValidateAsync(It.IsAny<GetDaySummaryRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
-
-        //Act
-        var result = await _sut.RunAsync(request);
-
-        //Assert
-        var contentResult = Assert.IsType<ContentResult>(result);
-        contentResult.StatusCode.Should().Be((int)HttpStatusCode.NotImplemented);
-        contentResult.Content.Should().Contain("Endpoint is only available when multiple services is enabled");
     }
 
     private static HttpRequest CreateRequest(string site = null, string from = null)

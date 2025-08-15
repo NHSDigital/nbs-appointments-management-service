@@ -50,10 +50,6 @@ public class GetDailySummaryFunction(
     protected override async Task<ApiResult<Summary>> HandleRequest(
         GetDaySummaryRequest request, ILogger logger)
     {
-        if (!await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
-        {
-            return Failed(HttpStatusCode.NotImplemented, "Endpoint is only available when multiple services is enabled");
-        }
         var daySummary =
             await bookingAvailabilityStateService.GetDaySummary(request.Site, request.FromDate);
 

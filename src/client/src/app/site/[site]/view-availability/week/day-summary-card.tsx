@@ -7,7 +7,6 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import { RFC3339Format, isFutureCalendarDateUk } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
-import { fetchFeatureFlag } from '@services/appointmentsService';
 
 type DaySummaryCardProps = {
   daySummary: DaySummary;
@@ -15,20 +14,21 @@ type DaySummaryCardProps = {
   canManageAvailability: boolean;
   clinicalServices: ClinicalService[];
   canViewDailyAppointments: boolean;
+  cancelDayFlag: boolean;
 };
 
-export const DaySummaryCard = async ({
+export const DaySummaryCard = ({
   daySummary,
   siteId,
   canManageAvailability,
   clinicalServices,
   canViewDailyAppointments,
+  cancelDayFlag,
 }: DaySummaryCardProps) => {
   const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
 
   const isFutureCalendarDate = isFutureCalendarDateUk(ukDate);
-  const cancelDayFlag = await fetchFeatureFlag('CancelDay');
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
@@ -72,7 +72,7 @@ export const DaySummaryCard = async ({
   ].filter(p => p !== false);
 
   const futureCancelDayLink =
-    cancelDayFlag.enabled && isFutureCalendarDate ? (
+    cancelDayFlag && isFutureCalendarDate ? (
       <Link className="nhsuk-link" href={`/site/${siteId}/cancel-day`}>
         Cancel day
       </Link>

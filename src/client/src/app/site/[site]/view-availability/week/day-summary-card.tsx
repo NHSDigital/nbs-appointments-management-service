@@ -14,6 +14,7 @@ type DaySummaryCardProps = {
   canManageAvailability: boolean;
   clinicalServices: ClinicalService[];
   canViewDailyAppointments: boolean;
+  cancelDayFlag: boolean;
 };
 
 export const DaySummaryCard = ({
@@ -22,6 +23,7 @@ export const DaySummaryCard = ({
   canManageAvailability,
   clinicalServices,
   canViewDailyAppointments,
+  cancelDayFlag,
 }: DaySummaryCardProps) => {
   const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
     daySummary;
@@ -69,8 +71,18 @@ export const DaySummaryCard = ({
     },
   ].filter(p => p !== false);
 
+  const futureCancelDayLink =
+    cancelDayFlag && isFutureCalendarDate ? (
+      <Link className="nhsuk-link" href={`/site/${siteId}/cancel-day`}>
+        Cancel day
+      </Link>
+    ) : null;
+
   return (
-    <Card title={ukDate.format('dddd D MMMM')}>
+    <Card
+      title={ukDate.format('dddd D MMMM')}
+      actionLinks={futureCancelDayLink}
+    >
       <SessionSummaryTable
         sessionSummaries={sessions}
         clinicalServices={clinicalServices}

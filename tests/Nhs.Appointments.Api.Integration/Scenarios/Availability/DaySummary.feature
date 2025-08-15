@@ -1,4 +1,4 @@
-Feature: Get day summary for multiple services
+Feature: Get day summary
   
   Scenario: Returns expected sessions based on service lengths
     Given the following sessions

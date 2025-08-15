@@ -1105,13 +1105,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/day-summary?site=6877d86e-c2df-4def-8508-e1eccf0ea6be&from=2025-08-15",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "day-summary"
-          ],
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "day-summary"],
           "query": [
             {
               "key": "site",

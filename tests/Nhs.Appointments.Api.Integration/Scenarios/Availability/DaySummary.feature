@@ -18,7 +18,7 @@ Feature: Get day summary
       | Date             | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments | Cancelled Appointments |
       | Next Monday      | 24               | 21                 | 3                   | 1                     | 0                      |
     And the following session summaries on day 'Next Monday' are returned
-      | StartDate      | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
+      | StartDate      | Start Time | End Time | Bookings                                          | Capacity | Slot Length | Maximum Capacity |
       | Next Monday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
       | Next Monday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
       | Next Monday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |

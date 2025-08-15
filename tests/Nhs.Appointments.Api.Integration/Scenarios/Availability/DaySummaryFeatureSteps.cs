@@ -1,13 +1,25 @@
 using System.Threading.Tasks;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
 {
-    [FeatureFile("./Scenarios/Availability/DaySummary.feature")]
-    public class DaySummaryFeatureSteps : AvailabilitySummaryFeatureSteps
+    public abstract class DaySummaryFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
     {
+        private Summary _actualResponse;
+        private HttpResponseMessage _response;
+        private HttpStatusCode _statusCode;
+
+        [Then(@"the call should fail with (\d*)")]
+        public void AssertFailureCode(int statusCode) => _statusCode.Should().Be((HttpStatusCode)statusCode);
+
         [When(@"I query day summary for the current site on '(.+)'")]
         public async Task QueryDaySummary(string from)
         {

@@ -34,6 +34,15 @@ public record SiteWithDistance(
     [JsonProperty("distance")] int Distance
 );
 
+/// <summary>
+/// Filter sites based on whether they support the provided service within the date range
+/// </summary>
+public record SiteSupportsServiceFilter(
+    string service,
+    DateOnly from,
+    DateOnly until
+);
+
 public record AccessibilityRequest
 (
     [JsonProperty("accessibilities")]

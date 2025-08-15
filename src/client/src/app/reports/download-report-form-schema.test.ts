@@ -46,6 +46,16 @@ describe('Download Report Form Schema', () => {
       '2026-02-01',
       'Select a date on or after 1 March 2025 and within 3 months from today',
     ],
+    [
+      'invalid-start-date',
+      '2025-03-31',
+      'Select a date on or after 1 March 2025 and within 3 months from today',
+    ],
+    [
+      '2025-03-01',
+      'invalid-end-date',
+      'Select a date on or after 1 March 2025 and within 3 months from today',
+    ],
   ])(
     'validates the schema',
     async (

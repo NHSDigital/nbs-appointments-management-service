@@ -246,6 +246,10 @@ export const isValidDate = (
   return potentialDate.isValid();
 };
 
+export const stringIsValidDate = (input: string, format: string) => {
+  return dayjs(input, format, true).isValid();
+};
+
 export const getUkWeeksOfTheMonth = (ukDate: dayjs.Dayjs): dayjs.Dayjs[][] => {
   const startOfFirstWeekInMonth = startOfUkWeek(ukDate.startOf('month'));
   const endOfLastWeekInMonth = endOfUkWeek(ukDate.endOf('month'));

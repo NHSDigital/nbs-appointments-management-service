@@ -50,6 +50,26 @@ resource "azurerm_container_app_job" "nbs_mya_bookings_data_extract_job" {
         name  = "MeshAuthorizationOptions__SharedKey"
         value = var.mesh_authorization_options_shared_key
       }
+      env {
+        name = "MeshAuthorizationOptions__CertificateName"
+        value = var.mesh_authorization_options_certificate_name
+      }
+      env {
+        name = "KeyVault__KeyVaultName"
+        value = var.keyvault_Name
+      }
+      env {
+        name = "KeyVault__TenantId"
+        value = var.keyvault_tenant_id
+      }
+      env {
+        name = "KeyVault__ClientId"
+        value = var.keyvault_client_id
+      }
+      env {
+        name = "KeyVault__ClientSecret"
+        value = var.keyvault_client_secret
+      }
     }
   }
 
@@ -109,6 +129,26 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_data_extract_job" {
       env {
         name  = "MeshAuthorizationOptions__SharedKey"
         value = var.mesh_authorization_options_shared_key
+      }
+      env {
+        name = "MeshAuthorizationOptions__CertificateName"
+        value = var.mesh_authorization_options_certificate_name
+      }
+      env {
+        name = "KeyVault__KeyVaultName"
+        value = var.keyvault_Name
+      }
+      env {
+        name = "KeyVault__TenantId"
+        value = var.keyvault_tenant_id
+      }
+      env {
+        name = "KeyVault__ClientId"
+        value = var.keyvault_client_id
+      }
+      env {
+        name = "KeyVault__ClientSecret"
+        value = var.keyvault_client_secret
       }
     }
   }

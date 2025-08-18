@@ -128,13 +128,21 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
             var regionalPermissions = await GetRegionPermissionsAsync(userId);
             if (regionalPermissions.Any())
             {
-                filter = GlobalOrRegionalOrSiteFilter(regionalPermissions, siteId);
+                var sites = await GetSitesInRegions(regionalPermissions);
+                if (sites.Any(s => s.Id == siteId))
+                {
+                    filter = GlobalOrRegionalOrSiteFilter(regionalPermissions, siteId);
+                }
             }
 
             var icbPermissions = await GetIcbPermissionsAsync(userId);
             if (icbPermissions.Any())
             {
-                filter = GlobalOrIcbOrSiteFilter(icbPermissions, siteId);
+                var sites = await GetSitesInIcbs(icbPermissions);
+                if (sites.Any(s => s.Id == siteId))
+                {
+                    filter = GlobalOrIcbOrSiteFilter(icbPermissions, siteId);
+                }
             }
         }
 

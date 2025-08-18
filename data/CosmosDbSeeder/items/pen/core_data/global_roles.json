@@ -135,6 +135,20 @@
         "users:manage",
         "reports:sitesummary"
       ]
+    },
+    {
+      "id": "system:icb-user",
+      "name": "ICB User",
+      "description": "System role to give a user permissions to all sites within an ICB",
+      "permissions": [
+        "availability:query",
+        "booking:query",
+        "site:view",
+        "site:view:preview",
+        "site:get-meta-data",
+        "users:view",
+        "reports:sitesummary"
+      ]
     }
   ]
 }

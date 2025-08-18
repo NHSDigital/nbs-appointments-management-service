@@ -22,4 +22,6 @@ public interface ISiteStore
     Task<IEnumerable<Site>> GetSitesInRegionAsync(string region);
 
     Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status);
+
+    Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
 }

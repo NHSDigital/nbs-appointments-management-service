@@ -4,6 +4,7 @@ import {
   ClinicalService,
   clinicalServices,
   FeatureFlag,
+  ServerActionResult,
   WeekSummary,
   WeekSummaryV2,
 } from '@types';
@@ -20,6 +21,7 @@ import {
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/availabilityCalculatorService', () => {
   const originalModule = jest.requireActual(
@@ -39,15 +41,17 @@ jest.mock('@services/appointmentsService', () => ({
 }));
 
 const mockSummariseWeek = summariseWeek as jest.Mock<Promise<WeekSummary>>;
-const mockFetchPermissions = fetchPermissions as jest.Mock<Promise<string[]>>;
+const mockFetchPermissions = fetchPermissions as jest.Mock<
+  Promise<ServerActionResult<string[]>>
+>;
 const mockFetchFeatureFlag = fetchFeatureFlag as jest.Mock<
-  Promise<FeatureFlag>
+  Promise<ServerActionResult<FeatureFlag>>
 >;
 const mockFetchWeekSummaryV2 = fetchWeekSummaryV2 as jest.Mock<
-  Promise<WeekSummaryV2>
+  Promise<ServerActionResult<WeekSummaryV2>>
 >;
 const mockClinicalServices = fetchClinicalServices as jest.Mock<
-  Promise<ClinicalService[]>
+  Promise<ServerActionResult<ClinicalService[]>>
 >;
 
 const mockServices = clinicalServices;
@@ -57,19 +61,23 @@ describe.each([false, true])(
   (multipleServicesEnabled: boolean) => {
     beforeEach(() => {
       mockFetchFeatureFlag.mockReturnValue(
-        Promise.resolve({
-          enabled: multipleServicesEnabled,
-        }),
+        Promise.resolve(
+          asServerActionResult({
+            enabled: multipleServicesEnabled,
+          }),
+        ),
       );
 
       mockFetchPermissions.mockReturnValue(
-        Promise.resolve(['availability:setup']),
+        Promise.resolve(asServerActionResult(['availability:setup'])),
       );
-      mockClinicalServices.mockReturnValue(Promise.resolve(mockServices));
+      mockClinicalServices.mockReturnValue(
+        Promise.resolve(asServerActionResult(mockServices)),
+      );
 
       if (multipleServicesEnabled) {
         mockFetchWeekSummaryV2.mockReturnValue(
-          Promise.resolve(mockWeekSummaryV2),
+          Promise.resolve(asServerActionResult(mockWeekSummaryV2)),
         );
       } else {
         mockSummariseWeek.mockReturnValue(Promise.resolve(mockWeekSummary));

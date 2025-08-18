@@ -4,6 +4,7 @@ import {
 } from '@services/appointmentsService';
 import EditReferenceDetailsForm from './edit-reference-details-form';
 import NhsHeading from '@components/nhs-heading';
+import fromServer from '@server/fromServer';
 
 type Props = {
   siteId: string;
@@ -11,8 +12,8 @@ type Props = {
 
 export const EditReferenceDetailsPage = async ({ siteId }: Props) => {
   const [siteDetails, wellKnownOdsCodeEntries] = await Promise.all([
-    fetchSite(siteId),
-    fetchWellKnownOdsCodeEntries(),
+    fromServer(fetchSite(siteId)),
+    fromServer(fetchWellKnownOdsCodeEntries()),
   ]);
 
   return (

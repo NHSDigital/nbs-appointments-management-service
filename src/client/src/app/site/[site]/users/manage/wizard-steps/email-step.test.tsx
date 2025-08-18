@@ -14,14 +14,17 @@ import {
 } from '@testing/data';
 import { InjectedWizardProps } from '@components/wizard';
 import { proposeNewUser, fetchUsers } from '@services/appointmentsService';
-import { User, UserIdentityStatus } from '@types';
+import { ServerActionResult, User, UserIdentityStatus } from '@types';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const mockProposeNewUser = proposeNewUser as jest.Mock<
-  Promise<UserIdentityStatus>
+  Promise<ServerActionResult<UserIdentityStatus>>
 >;
 
-const mockFetchUsers = fetchUsers as jest.Mock<Promise<User[]>>;
+const mockFetchUsers = fetchUsers as jest.Mock<
+  Promise<ServerActionResult<User[]>>
+>;
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -51,13 +54,17 @@ describe('Email step', () => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
     });
-    mockFetchUsers.mockResolvedValue(getMockUserAssignments(mockSite.id));
-    mockProposeNewUser.mockResolvedValue({
-      identityProvider: 'NhsMail',
-      extantInIdentityProvider: true,
-      extantInSite: true,
-      meetsWhitelistRequirements: true,
-    });
+    mockFetchUsers.mockResolvedValue(
+      asServerActionResult(getMockUserAssignments(mockSite.id)),
+    );
+    mockProposeNewUser.mockResolvedValue(
+      asServerActionResult({
+        identityProvider: 'NhsMail',
+        extantInIdentityProvider: true,
+        extantInSite: true,
+        meetsWhitelistRequirements: true,
+      }),
+    );
   });
 
   it('renders', () => {
@@ -211,12 +218,14 @@ describe('Email step', () => {
   });
 
   it('fetches roles data if the email entered already exists in MYA', async () => {
-    mockProposeNewUser.mockResolvedValue({
-      identityProvider: 'NhsMail',
-      extantInIdentityProvider: true,
-      extantInSite: true,
-      meetsWhitelistRequirements: true,
-    });
+    mockProposeNewUser.mockResolvedValue(
+      asServerActionResult({
+        identityProvider: 'NhsMail',
+        extantInIdentityProvider: true,
+        extantInSite: true,
+        meetsWhitelistRequirements: true,
+      }),
+    );
 
     const { user } = render(
       <MockForm<SetUserRolesFormValues>
@@ -239,12 +248,14 @@ describe('Email step', () => {
   });
 
   it('shows a validation error when the email does not meet whitelist criteria', async () => {
-    mockProposeNewUser.mockResolvedValue({
-      identityProvider: 'NhsMail',
-      extantInIdentityProvider: true,
-      extantInSite: true,
-      meetsWhitelistRequirements: false,
-    });
+    mockProposeNewUser.mockResolvedValue(
+      asServerActionResult({
+        identityProvider: 'NhsMail',
+        extantInIdentityProvider: true,
+        extantInSite: true,
+        meetsWhitelistRequirements: false,
+      }),
+    );
 
     const { user } = render(
       <MockForm<SetUserRolesFormValues>

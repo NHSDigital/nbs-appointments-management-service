@@ -13,6 +13,7 @@ import { SetUserRolesFormValues } from '../set-user-roles-form';
 import { useRouter } from 'next/navigation';
 import { fetchUsers, proposeNewUser } from '@services/appointmentsService';
 import { Site, UserProfile } from '@types';
+import fromServer from '@server/fromServer';
 
 export type EmailStepProps = {
   site: Site;
@@ -47,12 +48,14 @@ const NamesStep = ({
       return;
     }
 
-    const proposedUser = await proposeNewUser(site.id, sanitisedEmail);
+    const proposedUser = await fromServer(
+      proposeNewUser(site.id, sanitisedEmail),
+    );
     setValue('userIdentityStatus', proposedUser);
 
     if (proposedUser.extantInSite) {
       const currentRoles =
-        (await fetchUsers(site.id))
+        (await fromServer(fetchUsers(site.id)))
           .find(user => user.id === sanitisedEmail)
           ?.roleAssignments.map(roleAssignment => roleAssignment.role) ?? [];
       setValue('roleIds', currentRoles);

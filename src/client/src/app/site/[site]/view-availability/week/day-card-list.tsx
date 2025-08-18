@@ -11,6 +11,7 @@ import {
   fetchWeekSummaryV2,
 } from '@services/appointmentsService';
 import { RFC3339Format, DayJsType } from '@services/timeService';
+import fromServer from '@server/fromServer';
 
 type Props = {
   site: Site;
@@ -34,16 +35,18 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
   let clinicalServices: ClinicalService[];
 
   const [multipleServicesFlag, cancelDayFlag] = await Promise.all([
-    fetchFeatureFlag('MultipleServices'),
-    fetchFeatureFlag('CancelDay'),
+    fromServer(fetchFeatureFlag('MultipleServices')),
+    fromServer(fetchFeatureFlag('CancelDay')),
   ]);
 
   if (multipleServicesFlag.enabled) {
     const [weekSummaryV2, permissionsV2, clinicalServicesV2] =
       await Promise.all([
-        fetchWeekSummaryV2(site.id, ukWeekStart.format(RFC3339Format)),
-        fetchPermissions(site.id),
-        fetchClinicalServices(),
+        fromServer(
+          fetchWeekSummaryV2(site.id, ukWeekStart.format(RFC3339Format)),
+        ),
+        fromServer(fetchPermissions(site.id)),
+        fromServer(fetchClinicalServices()),
       ]);
 
     weekSummary = mapWeekSummary(ukWeekStart, ukWeekEnd, weekSummaryV2);
@@ -53,8 +56,8 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
     const [weekSummaryV1, permissionsV1, clinicalServicesV1] =
       await Promise.all([
         summariseWeek(ukWeekStart, ukWeekEnd, site.id),
-        fetchPermissions(site.id),
-        fetchClinicalServices(),
+        fromServer(fetchPermissions(site.id)),
+        fromServer(fetchClinicalServices()),
       ]);
 
     weekSummary = weekSummaryV1;

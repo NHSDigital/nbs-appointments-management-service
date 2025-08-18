@@ -8,6 +8,7 @@ import {
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
 import { parseToUkDatetime } from '@services/timeService';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -26,12 +27,12 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
 
   const [site, multipleServicesFlag, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchFeatureFlag('MultipleServices'),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchFeatureFlag('MultipleServices')),
+    fromServer(fetchClinicalServices()),
   ]);
 
   const parsedDate = parseToUkDatetime(date);

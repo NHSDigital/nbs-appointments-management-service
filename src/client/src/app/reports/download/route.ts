@@ -1,4 +1,5 @@
 'use server';
+import fromServer from '@server/fromServer';
 import { fetchSiteSummaryReport } from '@services/appointmentsService';
 import { ukNow } from '@services/timeService';
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const fileName = `GeneralSiteSummaryReport-${ukNow().format()}.csv`;
 
-  const blob = await fetchSiteSummaryReport(startDate, endDate);
+  const blob = await fromServer(fetchSiteSummaryReport(startDate, endDate));
 
   return new NextResponse(blob, {
     headers: {

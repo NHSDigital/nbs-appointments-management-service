@@ -1,11 +1,17 @@
 import { render } from '@testing-library/react';
 import { mockSite } from '@testing/data';
-import { ClinicalService, clinicalServices, WeekSummary } from '@types';
+import {
+  ClinicalService,
+  clinicalServices,
+  ServerActionResult,
+  WeekSummary,
+} from '@types';
 import { WeekCardList } from './week-card-list';
 import { summariseWeek } from '@services/availabilityCalculatorService';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
 import { fetchClinicalServices } from '@services/appointmentsService';
 import { DayJsType, parseToUkDatetime } from '@services/timeService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/availabilityCalculatorService', () => ({
   summariseWeek: jest.fn(),
@@ -17,7 +23,7 @@ jest.mock('@services/appointmentsService', () => ({
 
 const mockSummariseWeek = summariseWeek as jest.Mock<Promise<WeekSummary>>;
 const mockClinicalServices = fetchClinicalServices as jest.Mock<
-  Promise<ClinicalService[]>
+  Promise<ServerActionResult<ClinicalService[]>>
 >;
 
 const mockServices = clinicalServices;
@@ -55,7 +61,9 @@ const mockWeeks: DayJsType[][] = [
 describe('Week Card List', () => {
   beforeEach(() => {
     mockSummariseWeek.mockReturnValue(Promise.resolve(mockWeekSummary));
-    mockClinicalServices.mockReturnValue(Promise.resolve(mockServices));
+    mockClinicalServices.mockReturnValue(
+      Promise.resolve(asServerActionResult(mockServices)),
+    );
   });
 
   it('renders', async () => {

@@ -5,6 +5,7 @@ import {
   fetchAvailabilityCreatedEvents,
   fetchClinicalServices,
 } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
 
 type AvailabilityCreatedEventsTableProps = {
   siteId: string;
@@ -14,8 +15,8 @@ export const AvailabilityCreatedEventsTable = async ({
   siteId,
 }: AvailabilityCreatedEventsTableProps) => {
   const [availabilityCreatedEvents, clinicalServices] = await Promise.all([
-    fetchAvailabilityCreatedEvents(siteId),
-    fetchClinicalServices(),
+    fromServer(fetchAvailabilityCreatedEvents(siteId)),
+    fromServer(fetchClinicalServices()),
   ]);
 
   if (availabilityCreatedEvents.length === 0 || clinicalServices.length === 0) {

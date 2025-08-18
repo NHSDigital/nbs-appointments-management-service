@@ -33,8 +33,10 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
   let permissions: string[];
   let clinicalServices: ClinicalService[];
 
-  const multipleServicesFlag = await fetchFeatureFlag('MultipleServices');
-  const cancelDayFlag = await fetchFeatureFlag('CancelDay');
+  const [multipleServicesFlag, cancelDayFlag] = await Promise.all([
+    fetchFeatureFlag('MultipleServices'),
+    fetchFeatureFlag('CancelDay'),
+  ]);
 
   if (multipleServicesFlag.enabled) {
     const [weekSummaryV2, permissionsV2, clinicalServicesV2] =

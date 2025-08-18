@@ -7,7 +7,7 @@ import {
   fetchUserProfile,
 } from '@services/appointmentsService';
 import { revalidateTag } from 'next/cache';
-import fromServer from '@components/fromServer';
+import fromServer from '@server/fromServer';
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');

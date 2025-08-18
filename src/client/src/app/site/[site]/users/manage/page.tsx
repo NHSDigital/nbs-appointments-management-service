@@ -9,6 +9,7 @@ import {
 import { notAuthorized } from '@services/authService';
 import SetUserRolesWizard from './set-user-roles-wizard';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 export type UserPageProps = {
   searchParams?: Promise<{
@@ -23,17 +24,19 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { user: userFromParams } = { ...(await searchParams) };
 
-  await assertPermission(siteFromPath, 'users:manage');
+  await fromServer(assertPermission(siteFromPath, 'users:manage'));
 
   const email = userFromParams?.toLowerCase();
 
   const [site, userProfile, roleOptions, userToEdit, oktaEnabled] =
     await Promise.all([
-      fetchSite(siteFromPath),
-      fetchUserProfile(),
-      fetchRoles(),
-      fetchUsers(siteFromPath).then(users => users.find(u => u.id === email)),
-      fetchFeatureFlag('OktaEnabled'),
+      fromServer(fetchSite(siteFromPath)),
+      fromServer(fetchUserProfile()),
+      fromServer(fetchRoles()),
+      fromServer(fetchUsers(siteFromPath)).then(users =>
+        users.find(u => u.id === email),
+      ),
+      fromServer(fetchFeatureFlag('OktaEnabled')),
     ]);
 
   if (userProfile.emailAddress === email) {

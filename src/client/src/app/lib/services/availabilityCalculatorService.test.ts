@@ -13,7 +13,7 @@ import {
   fetchDailyAvailability,
   fetchBookings,
 } from '@services/appointmentsService';
-import { Booking, DailyAvailability } from '@types';
+import { Booking, DailyAvailability, ServerActionResult } from '@types';
 import {
   addHoursAndMinutesToUkDatetime,
   dateTimeFormat,
@@ -23,19 +23,24 @@ import {
   isEqual,
   parseToUkDatetime,
 } from './timeService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchDailyAvailabilityMock = fetchDailyAvailability as jest.Mock<
-  Promise<DailyAvailability[]>
+  Promise<ServerActionResult<DailyAvailability[]>>
 >;
-const fetchBookingsMock = fetchBookings as jest.Mock<Promise<Booking[]>>;
+const fetchBookingsMock = fetchBookings as jest.Mock<
+  Promise<ServerActionResult<Booking[]>>
+>;
 
 describe('Availability Calculator Service', () => {
   beforeEach(() => {
     fetchDailyAvailabilityMock.mockReturnValue(
-      Promise.resolve(mockWeekAvailability),
+      Promise.resolve(asServerActionResult(mockWeekAvailability)),
     );
-    fetchBookingsMock.mockReturnValue(Promise.resolve(mockBookings));
+    fetchBookingsMock.mockReturnValue(
+      Promise.resolve(asServerActionResult(mockBookings)),
+    );
   });
 
   it('summarises a week of availability with bookings', async () => {

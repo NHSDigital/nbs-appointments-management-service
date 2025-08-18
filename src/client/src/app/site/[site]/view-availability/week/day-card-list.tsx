@@ -8,6 +8,7 @@ import {
   fetchWeekSummaryV2,
 } from '@services/appointmentsService';
 import { RFC3339Format, DayJsType } from '@services/timeService';
+import fromServer from '@server/fromServer';
 
 type Props = {
   site: Site;
@@ -30,10 +31,12 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
 
   const [weekSummaryV2, permissions, clinicalServices, cancelDayFlag] =
     await Promise.all([
-      fetchWeekSummaryV2(site.id, ukWeekStart.format(RFC3339Format)),
-      fetchPermissions(site.id),
-      fetchClinicalServices(),
-      fetchFeatureFlag('CancelDay'),
+      fromServer(
+        fetchWeekSummaryV2(site.id, ukWeekStart.format(RFC3339Format)),
+      ),
+      fromServer(fetchPermissions(site.id)),
+      fromServer(fetchClinicalServices()),
+      fromServer(fetchFeatureFlag('CancelDay')),
     ]);
 
   weekSummary = mapWeekSummary(ukWeekStart, ukWeekEnd, weekSummaryV2);

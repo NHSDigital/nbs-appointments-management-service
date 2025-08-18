@@ -8,6 +8,7 @@ import { parseToUkDatetime } from '@services/timeService';
 import EditServicesForm from './edit-services-form';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -27,11 +28,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchClinicalServices()),
   ]);
 
   const parsedDate = parseToUkDatetime(date);

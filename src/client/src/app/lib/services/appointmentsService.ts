@@ -27,10 +27,8 @@ import {
   UserIdentityStatus,
   WeekSummaryV2,
   UpdateSiteStatusRequest,
-  SiteStatus,
-  CancelDayRequest,
-  CancelDayResponse,
-  DaySummaryV2,
+  ServerActionResult,
+  Accessibility,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -43,227 +41,275 @@ import {
   ukNow,
 } from '@services/timeService';
 
-export const fetchAccessToken = async (code: string, provider: string) => {
-  const response = await appointmentsApi.post<{ token: string }>(
-    `token?provider=${provider}`,
-    code,
-  );
-  return handleBodyResponse(response);
-};
+export const fetchAccessToken = async (
+  code: string,
+  provider: string,
+): Promise<ServerActionResult<string>> =>
+  appointmentsApi
+    .post<{ token: string }>(`token?provider=${provider}`, code)
+    .then(response => handleBodyResponse(response, data => data.token));
 
 export const fetchUserProfile = async (
   eulaRoute = '/eula',
-): Promise<UserProfile> => {
-  const response = await appointmentsApi.get<UserProfile>('user/profile', {
-    next: { tags: ['user'] },
-  });
+): Promise<ServerActionResult<UserProfile>> =>
+  appointmentsApi
+    .get<UserProfile>('user/profile', {
+      next: { tags: ['user'] },
+    })
+    .then(userProfileResponse => handleBodyResponse(userProfileResponse))
+    .then(async userProfileResponse => {
+      if (userProfileResponse.success) {
+        await assertEulaAcceptance(userProfileResponse.data, eulaRoute);
+      }
+      return userProfileResponse;
+    });
 
-  const userProfile = await handleBodyResponse(response);
-  await assertEulaAcceptance(userProfile, eulaRoute);
-  return userProfile;
-};
-
-export const fetchSitesPreview = async (): Promise<Site[]> => {
-  const response = await appointmentsApi.get<Site[]>('sites-preview', {
-    next: { tags: ['user'] },
-  });
-
-  return handleBodyResponse(response);
-};
+export const fetchSitesPreview = async (): Promise<
+  ServerActionResult<Site[]>
+> =>
+  appointmentsApi
+    .get<Site[]>('sites-preview', {
+      next: { tags: ['user'] },
+    })
+    .then(response => handleBodyResponse(response));
 
 export const assertEulaAcceptance = async (
   userProfile: UserProfile,
   eulaRoute = '/eula',
 ) => {
   if (userProfile.hasSites) {
-    const eulaVersion = await fetchEula();
+    const eulaVersionResponse = await fetchEula();
 
-    if (eulaVersion.versionDate !== userProfile.latestAcceptedEulaVersion) {
+    if (!eulaVersionResponse.success) {
+      return;
+    }
+
+    if (
+      eulaVersionResponse.data.versionDate !==
+      userProfile.latestAcceptedEulaVersion
+    ) {
       redirect(eulaRoute);
     }
   }
 };
 
-export async function proposeNewUser(siteId: string, userId: string) {
-  const payload = {
-    siteId,
-    userId,
-  };
+export const proposeNewUser = async (
+  siteId: string,
+  userId: string,
+): Promise<ServerActionResult<UserIdentityStatus>> =>
+  appointmentsApi
+    .post<UserIdentityStatus>(
+      `user/propose-potential`,
+      JSON.stringify({
+        siteId,
+        userId,
+      }),
+    )
+    .then(response => handleBodyResponse(response));
 
-  const response = await appointmentsApi.post<UserIdentityStatus>(
-    `user/propose-potential`,
-    JSON.stringify(payload),
-  );
+export const fetchUsers = async (
+  site: string,
+): Promise<ServerActionResult<User[]>> =>
+  appointmentsApi
+    .get<User[]>(`users?site=${site}`, {
+      cache: 'no-store',
+      next: { tags: ['user'] },
+    })
+    .then(response =>
+      handleBodyResponse(response, (users: User[]) =>
+        users.filter(usr => usr.id.includes('@')),
+      ),
+    );
 
-  return handleBodyResponse(response);
-}
+export const fetchSite = async (
+  siteId: string,
+): Promise<ServerActionResult<Site>> =>
+  appointmentsApi
+    .get<Site>(`sites/${siteId}?scope=*`, {
+      next: { tags: ['site'] },
+    })
+    .then(response => handleBodyResponse(response));
 
-export async function fetchUsers(site: string) {
-  const response = await appointmentsApi.get<User[]>(`users?site=${site}`, {
-    cache: 'no-store',
-    next: { tags: ['user'] },
-  });
+export const fetchFeatureFlag = async (
+  featureFlag: string,
+): Promise<ServerActionResult<FeatureFlag>> =>
+  appointmentsApi
+    .get<FeatureFlag>(`feature-flag/${featureFlag}`)
+    .then(response => handleBodyResponse(response));
 
-  return handleBodyResponse(response, (users: User[]) =>
-    users.filter(usr => usr.id.includes('@')),
-  );
-}
-
-export const fetchSite = async (siteId: string) => {
-  const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`, {
-    next: { tags: ['site'] },
-  });
-  return handleBodyResponse(response);
-};
-
-export const fetchFeatureFlag = async (featureFlag: string) => {
-  const response = await appointmentsApi.get<FeatureFlag>(
-    `feature-flag/${featureFlag}`,
-  );
-  return handleBodyResponse(response);
-};
-
-export const fetchClinicalServices = async () => {
-  const response = await appointmentsApi.get<ClinicalService[]>(
-    `clinical-services`,
-    {
-      cache: 'force-cache',
-    },
-  );
-  return handleBodyResponse(response);
-};
-
-export const fetchSiteAccessibilities = async (siteId: string) => {
-  const response = await appointmentsApi.get<Site>(`sites/${siteId}?scope=*`);
-
-  return (await handleBodyResponse(response))?.accessibilities ?? [];
-};
-
-export async function fetchAccessibilityDefinitions() {
-  const response = await appointmentsApi.get<AccessibilityDefinition[]>(
-    'accessibilityDefinitions',
-    {
-      cache: 'force-cache',
-    },
-  );
-
-  return handleBodyResponse(response);
-}
-
-export async function fetchWellKnownOdsCodeEntries() {
-  const response = await appointmentsApi.get<WellKnownOdsEntry[]>(
-    'wellKnownOdsCodeEntries',
-    {
-      cache: 'force-cache',
-    },
-  );
-  return handleBodyResponse(response);
-}
-export async function fetchRoles() {
-  const response = await appointmentsApi.get<{ roles: Role[] }>(
-    'roles?tag=canned',
-  );
-
-  return (await handleBodyResponse(response)).roles;
-}
-
-export async function fetchPermissions(site: string | undefined) {
-  if (!site) {
-    return [];
+export const fetchClinicalServices = async (): Promise<
+  ServerActionResult<ClinicalService[]>
+> => {
+  const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
+  if (!canUseMultipleServices.success) {
+    return { success: false };
   }
 
-  const response = await appointmentsApi.get<{ permissions: string[] }>(
-    `user/permissions?site=${site}`,
-  );
+  if (!canUseMultipleServices.data.enabled) {
+    return { success: true, data: clinicalServices };
+  }
 
-  return (await handleBodyResponse(response)).permissions;
-}
+  return await appointmentsApi
+    .get<ClinicalService[]>(`clinical-services`, {
+      cache: 'force-cache',
+    })
+    .then(response => handleBodyResponse(response));
+};
 
-export async function fetchAvailabilityCreatedEvents(site: string) {
-  const response = await appointmentsApi.get<AvailabilityCreatedEvent[]>(
-    `availability-created?site=${site}&from=${ukNow().format(RFC3339Format)}`,
-    {
-      next: { tags: ['availability-created'] },
-    },
-  );
+export const fetchSiteAccessibilities = async (
+  siteId: string,
+): Promise<ServerActionResult<Accessibility[]>> =>
+  appointmentsApi
+    .get<Site>(`sites/${siteId}?scope=*`)
+    .then(response =>
+      handleBodyResponse(response, site => site.accessibilities),
+    );
 
-  return handleBodyResponse(response);
-}
+export const fetchAccessibilityDefinitions = async (): Promise<
+  ServerActionResult<AccessibilityDefinition[]>
+> =>
+  appointmentsApi
+    .get<AccessibilityDefinition[]>('accessibilityDefinitions', {
+      cache: 'force-cache',
+    })
+    .then(response => handleBodyResponse(response));
 
-export async function fetchEula() {
-  const response = await appointmentsApi.get<EulaVersion>('eula', {
-    next: { revalidate: 60 * 60 * 24 },
-  });
-  return handleBodyResponse(response);
-}
+export const fetchWellKnownOdsCodeEntries = async (): Promise<
+  ServerActionResult<WellKnownOdsEntry[]>
+> =>
+  appointmentsApi
+    .get<WellKnownOdsEntry[]>('wellKnownOdsCodeEntries', {
+      cache: 'force-cache',
+    })
+    .then(response => handleBodyResponse(response));
 
-export async function fetchSiteSummaryReport(
+export const fetchRoles = async (): Promise<ServerActionResult<Role[]>> =>
+  appointmentsApi
+    .get<{ roles: Role[] }>('roles?tag=canned')
+    .then(response => handleBodyResponse(response, data => data.roles));
+
+export const fetchPermissions = async (
+  site: string | undefined,
+): Promise<ServerActionResult<string[]>> => {
+  if (!site) {
+    return { success: true, data: [] };
+  }
+
+  return appointmentsApi
+    .get<{ permissions: string[] }>(`user/permissions?site=${site}`)
+    .then(response => handleBodyResponse(response, data => data.permissions));
+};
+
+export const fetchAvailabilityCreatedEvents = async (
+  site: string,
+): Promise<ServerActionResult<AvailabilityCreatedEvent[]>> =>
+  appointmentsApi
+    .get<AvailabilityCreatedEvent[]>(
+      `availability-created?site=${site}&from=${ukNow().format(RFC3339Format)}`,
+      {
+        next: { tags: ['availability-created'] },
+      },
+    )
+    .then(handleBodyResponse);
+
+export const fetchEula = async (): Promise<ServerActionResult<EulaVersion>> =>
+  appointmentsApi
+    .get<EulaVersion>('eula', {
+      next: { revalidate: 60 * 60 * 24 },
+    })
+    .then(handleBodyResponse);
+
+export const fetchSiteSummaryReport = async (
   startDate: string,
   endDate: string,
-) {
-  const response = await appointmentsApi.get<Blob>(
-    `report/site-summary?startDate=${startDate}&endDate=${endDate}`,
-  );
+): Promise<ServerActionResult<Blob>> =>
+  appointmentsApi
+    .get<Blob>(`report/site-summary?startDate=${startDate}&endDate=${endDate}`)
+    .then(response => handleBodyResponse(response));
 
-  return handleBodyResponse(response);
-}
+export const acceptEula = async (
+  versionDate: string,
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(
+      `eula/consent`,
+      JSON.stringify({
+        versionDate,
+      }),
+    )
+    .then(handleEmptyResponse)
+    .then(response => {
+      revalidatePath(`eula`);
+      return response;
+    });
 
-export async function acceptEula(versionDate: string) {
-  const payload = {
-    versionDate,
-  };
-
-  const response = await appointmentsApi.post(
-    `eula/consent`,
-    JSON.stringify(payload),
-  );
-
-  handleEmptyResponse(response);
-  revalidatePath(`eula`);
-}
-
-export async function assertPermission(site: string, permission: string) {
+export const assertPermission = async (
+  site: string,
+  permission: string,
+): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
+  if (!response.success) {
+    return { success: false };
+  }
 
-  if (!response.includes(permission)) {
+  if (!response.data.includes(permission)) {
     notAuthorized();
   }
-}
 
-export async function assertFeatureEnabled(flag: string) {
+  return { success: true, data: undefined };
+};
+
+export const assertFeatureEnabled = async (
+  flag: string,
+): Promise<ServerActionResult<void>> => {
   const response = await fetchFeatureFlag(flag);
+  if (!response.success) {
+    return { success: false };
+  }
 
-  if (!response.enabled) {
+  if (!response.data.enabled) {
     notFound();
   }
-}
 
-export async function assertAnyPermissions(
+  return { success: true, data: undefined };
+};
+
+export const assertAnyPermissions = async (
   site: string,
   permissions: string[],
-) {
+): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
+  if (!response.success) {
+    return { success: false };
+  }
 
-  if (!permissions.some(permission => response.includes(permission))) {
+  if (!permissions.some(permission => response.data.includes(permission))) {
     notAuthorized();
   }
-}
 
-export async function assertAllPermissions(
+  return { success: true, data: undefined };
+};
+
+export const assertAllPermissions = async (
   site: string,
   permissions: string[],
-) {
+): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
+  if (!response.success) {
+    return { success: false };
+  }
 
-  if (!permissions.every(permission => response.includes(permission))) {
+  if (!permissions.every(permission => response.data.includes(permission))) {
     notAuthorized();
   }
-}
+
+  return { success: true, data: undefined };
+};
 
 async function handleBodyResponse<T, Y = T>(
   response: ApiResponse<T>,
   transformData = (data: T) => data as unknown as Y,
-): Promise<Y> {
+): Promise<ServerActionResult<Y>> {
   if (!response.success) {
     if (response.httpStatusCode === 404) {
       notFound();
@@ -277,21 +323,21 @@ async function handleBodyResponse<T, Y = T>(
       notAuthorized();
     }
 
-    throw new Error(response.errorMessage);
+    return { success: false };
   }
 
   if (!response.data) {
-    throw new Error('A response body was expected but none was found.');
+    return { success: false };
   }
 
-  return transformData(response.data);
+  return { success: true, data: transformData(response.data) };
 }
 
 async function handleEmptyResponse(
   response: ApiResponse<unknown>,
-): Promise<void> {
+): Promise<ServerActionResult<void>> {
   if (response.success) {
-    return;
+    return { success: true, data: undefined };
   }
 
   if (response.httpStatusCode === 404) {
@@ -306,7 +352,7 @@ async function handleEmptyResponse(
     notAuthorized();
   }
 
-  throw new Error(response.errorMessage);
+  return { success: false };
 }
 
 export const saveUserRoleAssignments = async (
@@ -315,7 +361,7 @@ export const saveUserRoleAssignments = async (
   firstName: string,
   lastName: string,
   roles: string[],
-) => {
+): Promise<ServerActionResult<void>> => {
   const payload = {
     scope: `site:${site}`,
     user: user,
@@ -324,162 +370,165 @@ export const saveUserRoleAssignments = async (
     roles: roles,
   };
 
-  const response = await appointmentsApi.post(
-    `user/roles`,
-    JSON.stringify(payload),
-  );
-  handleEmptyResponse(response);
+  return appointmentsApi
+    .post(`user/roles`, JSON.stringify(payload))
+    .then(handleEmptyResponse)
+    .then(_ => {
+      // re-implement in https://nhsd-jira.digital.nhs.uk/browse/APPT-799
+      // const notificationType = 'ams-notification';
+      // const notificationMessage = isEdit
+      //   ? `You have changed a user's role.`
+      //   : `You have added a new user to MYA The user will be sent information about how to login.`;
+      // raiseNotification(notificationType, notificationMessage);
 
-  // re-implement in https://nhsd-jira.digital.nhs.uk/browse/APPT-799
-  // const notificationType = 'ams-notification';
-  // const notificationMessage = isEdit
-  //   ? `You have changed a user's role.`
-  //   : `You have added a new user to MYA The user will be sent information about how to login.`;
-  // raiseNotification(notificationType, notificationMessage);
-
-  revalidateTag('users');
-  revalidatePath(`/site/${site}/users`);
-  redirect(`/site/${site}/users`);
+      revalidateTag('users');
+      revalidatePath(`/site/${site}/users`);
+      redirect(`/site/${site}/users`);
+    });
 };
 
 export const saveSiteAccessibilities = async (
   site: string,
   accessibilities: SetAccessibilitiesRequest,
-) => {
-  const response = await appointmentsApi.post(
-    `sites/${site}/accessibilities`,
-    JSON.stringify(accessibilities),
-  );
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(`sites/${site}/accessibilities`, JSON.stringify(accessibilities))
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      const notificationType = 'ams-notification';
+      const notificationMessage =
+        'You have successfully updated the access needs for the current site.';
+      await raiseNotification(notificationType, notificationMessage);
 
-  handleEmptyResponse(response);
+      revalidatePath(`/site/${site}/accessibilities`);
+      return { success: true, data: undefined };
+    });
 
-  const notificationType = 'ams-notification';
-  const notificationMessage =
-    'You have successfully updated the access needs for the current site.';
-  await raiseNotification(notificationType, notificationMessage);
+export const removeUserFromSite = async (
+  site: string,
+  user: string,
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(
+      `user/remove`,
+      JSON.stringify({
+        site,
+        user,
+      }),
+    )
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      const notificationType = 'ams-notification';
+      const notificationMessage = `You have successfully removed ${user} from the current site.`;
+      await raiseNotification(notificationType, notificationMessage);
 
-  revalidatePath(`/site/${site}/accessibilities`);
-};
-
-export const removeUserFromSite = async (site: string, user: string) => {
-  const response = await appointmentsApi.post(
-    `user/remove`,
-    JSON.stringify({
-      site,
-      user,
-    }),
-  );
-
-  handleEmptyResponse(response);
-
-  const notificationType = 'ams-notification';
-  const notificationMessage = `You have successfully removed ${user} from the current site.`;
-  await raiseNotification(notificationType, notificationMessage);
-
-  revalidatePath(`/site/${site}/users`);
-  redirect(`/site/${site}/users`);
-};
+      revalidatePath(`/site/${site}/users`);
+      redirect(`/site/${site}/users`);
+    });
 
 export const applyAvailabilityTemplate = async (
   request: ApplyAvailabilityTemplateRequest,
-) => {
-  const response = await appointmentsApi.post(
-    `availability/apply-template`,
-    JSON.stringify(request),
-  );
+): Promise<ServerActionResult<void>> => {
+  return appointmentsApi
+    .post(`availability/apply-template`, JSON.stringify(request))
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      revalidateTag('availability-created');
 
-  handleEmptyResponse(response);
+      const notificationType = 'ams-notification';
+      const notificationMessage =
+        'You have successfully created availability for the current site.';
+      await raiseNotification(notificationType, notificationMessage);
 
-  revalidateTag('availability-created');
-
-  const notificationType = 'ams-notification';
-  const notificationMessage =
-    'You have successfully created availability for the current site.';
-  await raiseNotification(notificationType, notificationMessage);
-
-  revalidateTag(`fetchAvailability`);
+      revalidateTag(`fetchAvailability`);
+      return { success: true, data: undefined };
+    });
 };
 
-export const saveAvailability = async (request: SetAvailabilityRequest) => {
-  const response = await appointmentsApi.post(
-    `availability`,
-    JSON.stringify(request),
-  );
+export const saveAvailability = async (
+  request: SetAvailabilityRequest,
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(`availability`, JSON.stringify(request))
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      revalidateTag('availability-created');
 
-  handleEmptyResponse(response);
+      const notificationType = 'ams-notification';
+      const notificationMessage =
+        'You have successfully created availability for the current site.';
+      await raiseNotification(notificationType, notificationMessage);
 
-  revalidateTag('availability-created');
+      revalidateTag(`fetchAvailability`);
+      return { success: true, data: undefined };
+    });
 
-  const notificationType = 'ams-notification';
-  const notificationMessage =
-    'You have successfully created availability for the current site.';
-  await raiseNotification(notificationType, notificationMessage);
-
-  revalidateTag(`fetchAvailability`);
+export const fetchInformationForCitizens = async (
+  site: string,
+): Promise<ServerActionResult<string>> => {
+  return appointmentsApi
+    .get<Site>(`sites/${site}`)
+    .then(response =>
+      handleBodyResponse(response, data => data.informationForCitizens),
+    );
 };
-
-export async function fetchInformationForCitizens(site: string) {
-  const response = await appointmentsApi.get<Site>(`sites/${site}`);
-
-  return (await handleBodyResponse(response))?.informationForCitizens ?? '';
-}
 
 export const setSiteInformationForCitizen = async (
   site: string,
   informationForCitizens: SetInformationForCitizensRequest,
-) => {
-  const response = await appointmentsApi.post(
-    `sites/${site}/informationForCitizens`,
-    JSON.stringify(informationForCitizens),
-  );
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(
+      `sites/${site}/informationForCitizens`,
+      JSON.stringify(informationForCitizens),
+    )
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      const notificationType = 'ams-notification';
+      const notificationMessage =
+        "You have successfully updated the current site's information.";
+      await raiseNotification(notificationType, notificationMessage);
 
-  const notificationType = 'ams-notification';
-  const notificationMessage =
-    "You have successfully updated the current site's information.";
-  await raiseNotification(notificationType, notificationMessage);
-
-  handleEmptyResponse(response);
-  revalidatePath(`/site/${site}/details`);
-};
+      revalidatePath(`/site/${site}/details`);
+      return { success: true, data: undefined };
+    });
 
 export const fetchBookings = async (
   payload: FetchBookingsRequest,
   statuses: BookingStatus[],
-) => {
-  const response = await appointmentsApi.post<Booking[]>(
-    'booking/query',
-    JSON.stringify(payload),
-  );
-
-  const bookings = await handleBodyResponse(response);
-
-  return bookings.filter(b => statuses.includes(b.status));
+): Promise<ServerActionResult<Booking[]>> => {
+  return appointmentsApi
+    .post<Booking[]>('booking/query', JSON.stringify(payload))
+    .then(response => {
+      return handleBodyResponse(response, bookings =>
+        bookings.filter(b => statuses.includes(b.status)),
+      );
+    });
 };
 
 export const fetchDailyAvailability = async (
   site: string,
   from: string,
   until: string,
-) => {
-  const response = await appointmentsApi.get<DailyAvailability[]>(
-    `daily-availability?site=${site}&from=${from}&until=${until}`,
-  );
+): Promise<ServerActionResult<DailyAvailability[]>> =>
+  appointmentsApi
+    .get<
+      DailyAvailability[]
+    >(`daily-availability?site=${site}&from=${from}&until=${until}`)
+    .then(handleBodyResponse);
 
-  return handleBodyResponse(response);
-};
-
-export const fetchWeekSummaryV2 = async (site: string, from: string) => {
-  const response = await appointmentsApi.get<WeekSummaryV2>(
-    `week-summary?site=${site}&from=${from}`,
-  );
-
-  return handleBodyResponse(response);
-};
+export const fetchWeekSummaryV2 = async (
+  site: string,
+  from: string,
+): Promise<ServerActionResult<WeekSummaryV2>> =>
+  appointmentsApi
+    .get<WeekSummaryV2>(`week-summary?site=${site}&from=${from}`)
+    .then(handleBodyResponse);
 
 export const fetchDaySummary = async (
   site: string,
   from: string,
-): Promise<DaySummaryV2> => {
+): Promise<ServerActionResult<DaySummaryV2>> => {
   const response = await appointmentsApi.get<WeekSummaryV2>(
     `day-summary?site=${site}&from=${from}`,
   );
@@ -487,85 +536,81 @@ export const fetchDaySummary = async (
   return handleBodyResponse(response, data => data.daySummaries[0]);
 };
 
-export const fetchBooking = async (reference: string, site: string) => {
-  const response = await appointmentsApi.get<Booking>(
-    `booking/${reference}?site=${site}`,
-  );
-
-  return handleBodyResponse(response);
-};
+export const fetchBooking = async (
+  reference: string,
+  site: string,
+): Promise<ServerActionResult<Booking>> =>
+  appointmentsApi
+    .get<Booking>(`booking/${reference}?site=${site}`)
+    .then(handleBodyResponse);
 
 export const cancelAppointment = async (
   reference: string,
   site: string,
   cancellationReason: string,
-) => {
-  const payload = {
-    cancellationReason,
-  };
-
-  const response = await appointmentsApi.post(
-    `booking/${reference}/cancel?site=${site}`,
-    JSON.stringify(payload),
-  );
-
-  return handleEmptyResponse(response);
-};
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(
+      `booking/${reference}/cancel?site=${site}`,
+      JSON.stringify({
+        cancellationReason,
+      }),
+    )
+    .then(handleEmptyResponse);
 
 export const saveSiteDetails = async (
   site: string,
   details: SetSiteDetailsRequest,
-) => {
-  const response = await appointmentsApi.post(
-    `sites/${site}/details`,
-    JSON.stringify(details),
-  );
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(`sites/${site}/details`, JSON.stringify(details))
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      const notificationType = 'ams-notification';
+      const notificationMessage =
+        'You have successfully updated the details for the current site.';
+      await raiseNotification(notificationType, notificationMessage);
 
-  handleEmptyResponse(response);
-
-  const notificationType = 'ams-notification';
-  const notificationMessage =
-    'You have successfully updated the details for the current site.';
-  await raiseNotification(notificationType, notificationMessage);
-};
+      return { success: true, data: undefined };
+    });
 
 export const saveSiteReferenceDetails = async (
   site: string,
   referenceDetails: SetSiteReferenceDetailsRequest,
-) => {
-  const response = await appointmentsApi.post(
-    `sites/${site}/reference-details`,
-    JSON.stringify(referenceDetails),
-  );
-  handleEmptyResponse(response);
-
-  const notificationType = 'ams-notification';
-  const notificationMessage =
-    'You have successfully updated the reference details for the current site.';
-  raiseNotification(notificationType, notificationMessage);
+): Promise<ServerActionResult<void>> => {
+  return appointmentsApi
+    .post(`sites/${site}/reference-details`, JSON.stringify(referenceDetails))
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      const notificationType = 'ams-notification';
+      const notificationMessage =
+        'You have successfully updated the reference details for the current site.';
+      raiseNotification(notificationType, notificationMessage);
+      return { success: true, data: undefined };
+    });
 };
 
-export const editSession = async (request: EditSessionRequest) => {
-  const response = await appointmentsApi.post(
-    `availability`,
-    JSON.stringify(request),
-  );
+export const editSession = async (
+  request: EditSessionRequest,
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post(`availability`, JSON.stringify(request))
+    .then(handleEmptyResponse)
+    .then(async _ => {
+      revalidateTag('availability-created');
 
-  handleEmptyResponse(response);
+      const notificationType = 'ams-notification';
+      const notificationMessage = 'You have successfully edited the session.';
+      await raiseNotification(notificationType, notificationMessage);
 
-  revalidateTag('availability-created');
-
-  const notificationType = 'ams-notification';
-  const notificationMessage = 'You have successfully edited the session.';
-  await raiseNotification(notificationType, notificationMessage);
-
-  revalidateTag(`fetchAvailability`);
-};
+      revalidateTag(`fetchAvailability`);
+      return { success: true, data: undefined };
+    });
 
 export const cancelSession = async (
   sessionSummary: SessionSummary,
   site: string,
-) => {
+): Promise<ServerActionResult<void>> => {
   const ukStartDatetime = parseToUkDatetime(
     sessionSummary.ukStartDatetime,
     dateTimeFormat,
@@ -584,12 +629,9 @@ export const cancelSession = async (
     slotLength: sessionSummary.slotLength,
   };
 
-  const response = await appointmentsApi.post(
-    'session/cancel',
-    JSON.stringify(payload),
-  );
-
-  return handleEmptyResponse(response);
+  return appointmentsApi
+    .post('session/cancel', JSON.stringify(payload))
+    .then(handleEmptyResponse);
 };
 
 export const updateSiteStatus = async (site: string, status: SiteStatus) => {

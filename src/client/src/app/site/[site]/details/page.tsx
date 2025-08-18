@@ -6,6 +6,7 @@ import {
   fetchWellKnownOdsCodeEntries,
 } from '@services/appointmentsService';
 import SiteDetailsPage from './site-details-page';
+import fromServer from '@server/fromServer';
 
 export type PageProps = {
   params: Promise<{
@@ -19,9 +20,9 @@ const Page = async ({ params }: PageProps) => {
   await assertAllPermissions(siteFromPath, ['site:view', 'site:get-meta-data']);
 
   const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchWellKnownOdsCodeEntries(),
-    fetchPermissions(siteFromPath),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchWellKnownOdsCodeEntries()),
+    fromServer(fetchPermissions(siteFromPath)),
   ]);
 
   return (

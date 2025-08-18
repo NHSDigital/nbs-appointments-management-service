@@ -2,6 +2,7 @@ import { fetchSitesPreview } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { Metadata } from 'next';
 import { SitesPage } from './sites-page';
+import fromServer from '@server/fromServer';
 
 export const metadata: Metadata = {
   title: 'Manage your appointments',
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const sites = await fetchSitesPreview();
+  const sites = await fromServer(fetchSitesPreview());
 
   return (
     <NhsPage

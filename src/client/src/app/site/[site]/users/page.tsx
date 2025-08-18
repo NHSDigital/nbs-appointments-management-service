@@ -9,6 +9,7 @@ import {
 } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { UsersPage } from './users-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   params: Promise<{
@@ -23,12 +24,12 @@ const Page = async ({ params }: PageProps) => {
 
   const [userProfile, users, rolesResponse, site, permissions, oktaEnabled] =
     await Promise.all([
-      fetchUserProfile(),
-      fetchUsers(siteFromPath),
-      fetchRoles(),
-      fetchSite(siteFromPath),
-      fetchPermissions(siteFromPath),
-      fetchFeatureFlag('OktaEnabled'),
+      fromServer(fetchUserProfile()),
+      fromServer(fetchUsers(siteFromPath)),
+      fromServer(fetchRoles()),
+      fromServer(fetchSite(siteFromPath)),
+      fromServer(fetchPermissions(siteFromPath)),
+      fromServer(fetchFeatureFlag('OktaEnabled')),
     ]);
 
   return (

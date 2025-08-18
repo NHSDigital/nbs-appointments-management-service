@@ -8,6 +8,7 @@ import {
 } from '@services/appointmentsService';
 import { SitePage } from './site-page';
 import { Metadata } from 'next/types';
+import fromServer from '@server/fromServer';
 
 // TODO: Get a brief for what titles/description should be on each page
 // Could use the generateMetadata function to dynamically generate this, to include site names / other dynamic content
@@ -25,7 +26,7 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'site:view');
+  await fromServer(assertPermission(siteFromPath, 'site:view'));
 
   const [
     site,
@@ -35,12 +36,12 @@ const Page = async ({ params }: PageProps) => {
     siteSummaryEnabled,
     siteStatusFeature,
   ] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchWellKnownOdsCodeEntries(),
-    fetchPermissions(siteFromPath),
-    fetchPermissions('*'),
-    fetchFeatureFlag('SiteSummaryReport'),
-    fetchFeatureFlag('SiteStatus'),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchWellKnownOdsCodeEntries()),
+    fromServer(fetchPermissions(siteFromPath)),
+    fromServer(fetchPermissions('*')),
+    fromServer(fetchFeatureFlag('SiteSummaryReport')),
+    fromServer(fetchFeatureFlag('SiteStatus')),
   ]);
 
   return (

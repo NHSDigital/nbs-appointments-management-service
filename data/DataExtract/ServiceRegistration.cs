@@ -37,6 +37,7 @@ public static class ServiceRegistration
 
         services
             .Configure<CosmosStoreOptions>(opts => opts.DatabaseName = "appts")
+            .Configure<FileSenderOptions>(configuration.GetSection("FileSenderOptions"))
             .Configure<MeshSendOptions>(opts =>
             {
                 opts.DestinationMailboxId = destinationMailbox;
@@ -47,6 +48,15 @@ public static class ServiceRegistration
                 opts.FileName = fileName;
                 opts.CreateSampleFile = createSampleFile;
             })
+            .Configure<MeshFileOptions>(opts =>
+            {
+                opts.File = new FileInfo(fileName);
+                opts.DestinationMailboxId = destinationMailbox;
+                opts.WorkflowId = meshWorkflow;
+            })
+            .AddScoped<MeshFileSender>()
+            .AddScoped<LocalFileSender>()
+            .AddScoped<BlobFileSender>()
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)
             .AddMesh(configuration);

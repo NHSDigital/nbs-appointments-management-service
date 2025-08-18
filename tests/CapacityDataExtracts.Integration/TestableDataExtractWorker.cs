@@ -14,9 +14,12 @@ public class TestableDataExtractWorker(
     IMeshFactory meshFactory,
     TimeProvider timeProvider,
     CapacityDataExtract bookingDataExtract,
-    IOptions<FileOptions> fileOptions
+    IOptions<FileOptions> fileOptions,
+    IOptions<FileSenderOptions> fileSenderOptions,
+    IFileSenderFactory fileSenderFactory,
+    IServiceProvider serviceProvider
     ) : DataExtractWorker<CapacityDataExtract>(hostApplicationLifetime, meshSendOptions, meshAuthOptions, meshFactory, timeProvider,
-        bookingDataExtract, fileOptions)
+        bookingDataExtract, fileOptions, fileSenderOptions, fileSenderFactory, serviceProvider)
 {
     public Task Test()
     {

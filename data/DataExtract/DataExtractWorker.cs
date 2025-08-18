@@ -1,3 +1,4 @@
+using CsvHelper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Nbs.MeshClient;
@@ -11,7 +12,10 @@ public class DataExtractWorker<TExtractor>(
     IMeshFactory meshFactory,
     TimeProvider timeProvider,
     TExtractor dataExtract,
-    IOptions<FileOptions> fileOptions
+    IOptions<FileOptions> fileOptions,
+    IOptions<FileSenderOptions> fileSenderOptions,
+    IFileSenderFactory fileSenderFactory, 
+    IServiceProvider serviceProvider
     ) : BackgroundService where TExtractor : class, IExtractor
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -26,7 +30,7 @@ public class DataExtractWorker<TExtractor>(
                 WriteFileLocally(outputFile);
             }
 
-            await SendViaMesh(outputFile);
+            await SendFile(outputFile);
         }
         catch (Exception ex)
         {
@@ -42,13 +46,15 @@ public class DataExtractWorker<TExtractor>(
     private void WriteFileLocally(FileInfo outputFile) =>
         outputFile.CopyTo($"{fileOptions.Value.FileName}-sample.parquet", true);
 
-    private async Task SendViaMesh(FileInfo fileToSend)
+    private async Task SendFile(FileInfo fileToSend)
     {
         if (string.IsNullOrEmpty(meshSendOptions.Value.DestinationMailboxId) == false)
         {
-            var meshMailbox = meshFactory.GetMailbox(meshAuthOptions.Value.MailboxId);
-            var meshFileSender = new MeshFileSender(meshMailbox);
-            await meshFileSender.SendFile(fileToSend, meshSendOptions.Value.DestinationMailboxId, meshSendOptions.Value.WorkflowId);
+            var senderType = fileSenderOptions.Value.Type;
+            var factory = new FileSenderFactory(serviceProvider);
+            var sender = factory.Create(senderType);
+
+            await sender.SendFile(fileToSend);
         }
         else
             throw new InvalidOperationException("Destination mailbox was not configured");

@@ -5,7 +5,7 @@ import {
   fetchClinicalServices,
   fetchFeatureFlag,
   fetchPermissions,
-  fetchWeekSummary,
+  fetchWeekSummaryV2,
 } from '@services/appointmentsService';
 import { RFC3339Format, DayJsType } from '@services/timeService';
 
@@ -30,7 +30,7 @@ export const DayCardList = async ({ site, ukWeekStart, ukWeekEnd }: Props) => {
 
   const [weekSummaryV2, permissions, clinicalServices, cancelDayFlag] =
     await Promise.all([
-      fetchWeekSummary(site.id, ukWeekStart.format(RFC3339Format)),
+      fetchWeekSummaryV2(site.id, ukWeekStart.format(RFC3339Format)),
       fetchPermissions(site.id),
       fetchClinicalServices(),
       fetchFeatureFlag('CancelDay'),

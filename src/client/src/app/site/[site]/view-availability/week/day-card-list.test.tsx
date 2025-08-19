@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { mockSite } from '@testing/data';
-import { ClinicalService, FeatureFlag } from '@types';
+import { mockWeekSummaryV2 } from '@testing/availability-and-bookings-mock-data';
+import { ClinicalService, FeatureFlag, WeekSummaryV2 } from '@types';
 import { DayCardList } from './day-card-list';
 import {
   fetchClinicalServices,
   fetchPermissions,
-  fetchWeekSummary,
+  fetchWeekSummaryV2,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
@@ -23,13 +24,16 @@ jest.mock('@services/availabilityCalculatorService', () => {
 jest.mock('@services/appointmentsService', () => ({
   fetchPermissions: jest.fn(),
   fetchClinicalServices: jest.fn(),
-  fetchWeekSummary: jest.fn(),
+  fetchWeekSummaryV2: jest.fn(),
   fetchFeatureFlag: jest.fn(),
 }));
 
 const mockFetchPermissions = fetchPermissions as jest.Mock<Promise<string[]>>;
 const mockFetchFeatureFlag = fetchFeatureFlag as jest.Mock<
   Promise<FeatureFlag>
+>;
+const mockFetchWeekSummaryV2 = fetchWeekSummaryV2 as jest.Mock<
+  Promise<WeekSummaryV2>
 >;
 
 const mockClinicalServices = fetchClinicalServices as jest.Mock<
@@ -44,6 +48,14 @@ describe('Day Card List', () => {
     mockClinicalServices.mockReturnValue(
       Promise.resolve([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
     );
+
+    mockFetchFeatureFlag.mockReturnValue(
+      Promise.resolve({
+        enabled: false,
+      }),
+    );
+
+    mockFetchWeekSummaryV2.mockReturnValue(Promise.resolve(mockWeekSummaryV2));
   });
 
   it('renders', async () => {
@@ -63,7 +75,7 @@ describe('Day Card List', () => {
     });
     render(jsx);
 
-    expect(fetchWeekSummary).toHaveBeenCalledWith(mockSite.id, '2024-06-10');
+    expect(fetchWeekSummaryV2).toHaveBeenCalledWith(mockSite.id, '2024-06-10');
 
     expect(mockFetchFeatureFlag).toHaveBeenCalled();
     expect(mockFetchPermissions).toHaveBeenCalled();

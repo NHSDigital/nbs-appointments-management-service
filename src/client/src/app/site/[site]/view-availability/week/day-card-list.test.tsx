@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { mockSite } from '@testing/data';
-import { ClinicalService, FeatureFlag, WeekSummary } from '@types';
-import { summariseWeek } from '@services/availabilityCalculatorService';
-import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
+import { ClinicalService, FeatureFlag } from '@types';
 import { DayCardList } from './day-card-list';
 import {
   fetchClinicalServices,
@@ -29,14 +27,11 @@ jest.mock('@services/appointmentsService', () => ({
   fetchFeatureFlag: jest.fn(),
 }));
 
-const mockSummariseWeek = summariseWeek as jest.Mock<Promise<WeekSummary>>;
 const mockFetchPermissions = fetchPermissions as jest.Mock<Promise<string[]>>;
 const mockFetchFeatureFlag = fetchFeatureFlag as jest.Mock<
   Promise<FeatureFlag>
 >;
-const mockFetchWeekSummary = fetchWeekSummary as jest.Mock<
-  Promise<WeekSummary>
->;
+
 const mockClinicalServices = fetchClinicalServices as jest.Mock<
   Promise<ClinicalService[]>
 >;
@@ -49,8 +44,6 @@ describe('Day Card List', () => {
     mockClinicalServices.mockReturnValue(
       Promise.resolve([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
     );
-
-    mockFetchWeekSummary.mockReturnValue(Promise.resolve(mockWeekSummary));
   });
 
   it('renders', async () => {

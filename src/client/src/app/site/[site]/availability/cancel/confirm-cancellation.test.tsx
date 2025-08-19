@@ -4,7 +4,11 @@ import { useRouter } from 'next/navigation';
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
 import render from '@testing/render';
 import { cancelSession } from '@services/appointmentsService';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 jest.mock('@services/appointmentsService');
 const mockCancelSession = cancelSession as jest.Mock;

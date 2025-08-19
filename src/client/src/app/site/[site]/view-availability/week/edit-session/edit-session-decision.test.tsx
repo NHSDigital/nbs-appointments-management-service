@@ -4,7 +4,11 @@ import { EditSessionDecision } from './edit-session-decision';
 import { screen, waitFor } from '@testing-library/dom';
 import { mockSite } from '@testing/data';
 import { useRouter } from 'next/navigation';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;

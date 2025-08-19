@@ -9,10 +9,15 @@ import {
   ukNow,
   RFC3339Format,
 } from '@services/timeService';
-import { clinicalServices } from '@types';
 import { cookies } from 'next/headers';
 import { fetchFeatureFlag } from '@services/appointmentsService';
 import { FeatureFlag } from '@types';
+
+import { ClinicalService, FeatureFlag } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');

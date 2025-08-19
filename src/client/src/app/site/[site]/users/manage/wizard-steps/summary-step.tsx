@@ -24,13 +24,10 @@ const SummaryStep = ({
   goToPreviousStep,
   roleOptions,
   returnRouteUponCancellation,
+  pendingSubmit,
 }: InjectedWizardProps & SummaryStepProps) => {
   const router = useRouter();
-  const {
-    getValues,
-    formState: { isSubmitting, isSubmitSuccessful },
-    watch,
-  } = useFormContext<SetUserRolesFormValues>();
+  const { getValues, watch } = useFormContext<SetUserRolesFormValues>();
   const userIdentityStatus = watch('userIdentityStatus');
   const { email, roleIds, firstName, lastName } = getValues();
 
@@ -105,7 +102,7 @@ const SummaryStep = ({
         <p>{`${isCreatingNewOktaUser ? `${firstName} ${lastName}` : email} will be sent information about how to log in.`}</p>
       )}
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <ButtonGroup>

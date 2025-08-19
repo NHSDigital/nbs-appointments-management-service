@@ -18,7 +18,8 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteSummaryEnabled={true}
+        siteSummaryEnabled
+        siteStatusEnabled
       />,
     );
 
@@ -34,7 +35,8 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteSummaryEnabled={true}
+        siteSummaryEnabled
+        siteStatusEnabled
       />,
     );
 
@@ -56,7 +58,8 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteSummaryEnabled={true}
+        siteSummaryEnabled
+        siteStatusEnabled
       />,
     );
     verifySummaryListItem('Region', mockSite.region);
@@ -77,7 +80,8 @@ describe('Site Page', () => {
         permissions={mockNonManagerPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteSummaryEnabled={true}
+        siteSummaryEnabled
+        siteStatusEnabled
       />,
     );
 
@@ -93,7 +97,8 @@ describe('Site Page', () => {
         permissions={mockNonManagerPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteSummaryEnabled={true}
+        siteSummaryEnabled
+        siteStatusEnabled
       />,
     );
 
@@ -133,7 +138,8 @@ describe('Site Page', () => {
             permission === 'reports:sitesummary' ? ['reports:sitesummary'] : []
           }
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-          siteSummaryEnabled={true}
+          siteSummaryEnabled
+          siteStatusEnabled
         />,
       );
 
@@ -176,7 +182,8 @@ describe('Site Page', () => {
           permissions={mockAllPermissions.filter(p => !permissions.includes(p))}
           permissionsAtAnySite={[]}
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-          siteSummaryEnabled={true}
+          siteSummaryEnabled
+          siteStatusEnabled
         />,
       );
 

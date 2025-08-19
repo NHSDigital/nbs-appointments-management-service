@@ -8,10 +8,12 @@ import {
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
-import { clinicalServices } from '@types';
+import { clinicalServices, ServerActionResult } from '@types';
 import { cookies } from 'next/headers';
 import { fetchFeatureFlag } from '@services/appointmentsService';
 import { FeatureFlag } from '@types';
+import asServerActionResult from '@testing/asServerActionResult';
+
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
   return {
@@ -31,7 +33,7 @@ jest.mock('@services/appointmentsService', () => ({
 const mockIsFutureCalendarDateUk = isFutureCalendarDateUk as jest.Mock<boolean>;
 const mockUkNow = ukNow as jest.Mock<DayJsType>;
 const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
-  Promise<FeatureFlag>
+  Promise<ServerActionResult<FeatureFlag>>
 >;
 
 describe('Day Summary Card', () => {
@@ -43,9 +45,11 @@ describe('Day Summary Card', () => {
     (cookies as jest.Mock).mockReturnValue({
       get: jest.fn().mockReturnValue({ value: 'mock-token' }),
     });
-    fetchFeatureFlagMock.mockResolvedValue({
-      enabled: true,
-    });
+    fetchFeatureFlagMock.mockResolvedValue(
+      asServerActionResult({
+        enabled: true,
+      }),
+    );
   });
 
   it('renders', () => {
@@ -367,9 +371,11 @@ describe('Day Summary Card', () => {
 
     it.only('does not render "Cancel day" link if feature toggle is disabled', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
-      fetchFeatureFlagMock.mockResolvedValue({
-        enabled: false,
-      });
+      fetchFeatureFlagMock.mockResolvedValue(
+        asServerActionResult({
+          enabled: false,
+        }),
+      );
 
       render(
         <DaySummaryCard

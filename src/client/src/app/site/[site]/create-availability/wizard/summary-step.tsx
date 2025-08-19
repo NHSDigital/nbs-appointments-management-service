@@ -28,11 +28,9 @@ const SummaryStep = ({
   returnRouteUponCancellation,
   goToPreviousStep,
   clinicalServices,
+  pendingSubmit,
 }: InjectedWizardProps & SummaryStepProps) => {
-  const {
-    getValues,
-    formState: { isSubmitting, isSubmitSuccessful },
-  } = useFormContext<CreateAvailabilityFormValues>();
+  const { getValues } = useFormContext<CreateAvailabilityFormValues>();
 
   const { startDate, endDate, session, days, sessionType } = getValues();
 
@@ -222,7 +220,7 @@ const SummaryStep = ({
         you've created. Make sure the information is accurate before saving.
       </InsetText>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <Button type="submit">Save session</Button>

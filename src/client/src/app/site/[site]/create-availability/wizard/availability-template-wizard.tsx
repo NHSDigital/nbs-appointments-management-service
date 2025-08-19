@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import TimeAndCapacityStep from './time-and-capacity-step';
 import DaysOfWeekStep from './days-of-week-step';
 import SelectServicesStep from './select-services-step';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useTransition } from 'react';
 import { RFC3339Format, parseToUkDatetime } from '@services/timeService';
 
 export type CreateAvailabilityFormValues = {
@@ -55,6 +55,7 @@ const AvailabilityTemplateWizard = ({
   date,
   clinicalServices,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const startDate = date ? parseToUkDatetime(date, RFC3339Format) : undefined;
   const methods = useForm<CreateAvailabilityFormValues>({
     defaultValues: {
@@ -78,15 +79,13 @@ const AvailabilityTemplateWizard = ({
   const submitForm: SubmitHandler<CreateAvailabilityFormValues> = async (
     form: CreateAvailabilityFormValues,
   ) => {
-    await saveAvailabilityTemplate(form, site);
+    startTransition(async () => {
+      await saveAvailabilityTemplate(form, site);
 
-    // TODO: This redirect is blocked by awaiting the submit request, which could cause a delay to users.
-    // We need to handle this better, potentially with a loading spinner or something
-    // Maybe a <Suspense> object
-
-    date
-      ? router.push(`/site/${site.id}/view-availability/week?date=${date}`)
-      : router.push(`/site/${site.id}/create-availability`);
+      date
+        ? router.push(`/site/${site.id}/view-availability/week?date=${date}`)
+        : router.push(`/site/${site.id}/create-availability`);
+    });
   };
 
   const returnToWeekView = () => {
@@ -103,6 +102,7 @@ const AvailabilityTemplateWizard = ({
           onCompleteFinalStep={() => {
             methods.handleSubmit(submitForm);
           }}
+          pendingSubmit={pendingSubmit}
         >
           <WizardStep>
             {stepProps => <SingleOrRepeatingSessionStep {...stepProps} />}

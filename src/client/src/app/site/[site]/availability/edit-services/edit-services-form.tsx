@@ -23,6 +23,7 @@ import {
   parseToTimeComponents,
   toTimeFormat,
 } from '@services/timeService';
+import { useTransition } from 'react';
 
 export type RemoveServicesFormValues = {
   sessionToEdit: Session;
@@ -43,6 +44,7 @@ const EditServicesForm = ({
   date,
   clinicalServices,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
     existingSession.ukStartDatetime,
     dateTimeFormat,
@@ -55,7 +57,7 @@ const EditServicesForm = ({
   const {
     handleSubmit,
     register,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<RemoveServicesFormValues>({
     defaultValues: {
       sessionToEdit: {
@@ -81,43 +83,45 @@ const EditServicesForm = ({
   const submitForm: SubmitHandler<RemoveServicesFormValues> = async (
     form: RemoveServicesFormValues,
   ) => {
-    const remainingServices = form.newSession.services.filter(
-      service => form.servicesToRemove.findIndex(x => x === service) === -1,
-    );
+    startTransition(async () => {
+      const remainingServices = form.newSession.services.filter(
+        service => form.servicesToRemove.findIndex(x => x === service) === -1,
+      );
 
-    const updatedSession: AvailabilitySession = {
-      from: toTimeFormat(form.newSession.startTime) ?? '',
-      until: toTimeFormat(form.newSession.endTime) ?? '',
-      slotLength: form.newSession.slotLength,
-      capacity: form.newSession.capacity,
-      services: remainingServices,
-    };
+      const updatedSession: AvailabilitySession = {
+        from: toTimeFormat(form.newSession.startTime) ?? '',
+        until: toTimeFormat(form.newSession.endTime) ?? '',
+        slotLength: form.newSession.slotLength,
+        capacity: form.newSession.capacity,
+        services: remainingServices,
+      };
 
-    await editSession({
-      date,
-      site: site.id,
-      mode: 'Edit',
-      sessions: [updatedSession],
-      sessionToEdit: {
-        from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-        until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-        slotLength: form.sessionToEdit.slotLength,
-        capacity: form.sessionToEdit.capacity,
-        services: form.sessionToEdit.services,
-      },
+      await editSession({
+        date,
+        site: site.id,
+        mode: 'Edit',
+        sessions: [updatedSession],
+        sessionToEdit: {
+          from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+          until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
+          slotLength: form.sessionToEdit.slotLength,
+          capacity: form.sessionToEdit.capacity,
+          services: form.sessionToEdit.services,
+        },
+      });
+
+      const servicesRemovedSession: AvailabilitySession = {
+        from: toTimeFormat(form.newSession.startTime) ?? '',
+        until: toTimeFormat(form.newSession.endTime) ?? '',
+        slotLength: form.newSession.slotLength,
+        capacity: form.newSession.capacity,
+        services: form.servicesToRemove,
+      };
+
+      router.push(
+        `edit-services/confirmed?removedServicesSession=${btoa(JSON.stringify(servicesRemovedSession))}&date=${date}`,
+      );
     });
-
-    const servicesRemovedSession: AvailabilitySession = {
-      from: toTimeFormat(form.newSession.startTime) ?? '',
-      until: toTimeFormat(form.newSession.endTime) ?? '',
-      slotLength: form.newSession.slotLength,
-      capacity: form.newSession.capacity,
-      services: form.servicesToRemove,
-    };
-
-    router.push(
-      `edit-services/confirmed?removedServicesSession=${btoa(JSON.stringify(servicesRemovedSession))}&date=${date}`,
-    );
   };
 
   const clinicalServicesInSession = clinicalServices.filter(
@@ -157,7 +161,7 @@ const EditServicesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button type="submit">Continue</Button>

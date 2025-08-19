@@ -11,6 +11,7 @@ import { SetInformationForCitizensRequest } from '@types';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SPECIAL_CHARACTER_REGEX, URL_REGEX } from '../../../../../constants';
+import { useTransition } from 'react';
 
 type FormFields = {
   informationForCitizen: string;
@@ -23,11 +24,12 @@ const AddInformationForCitizensForm = ({
   information: string;
   site: string;
 }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const { replace } = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
     watch,
   } = useForm<FormFields>({
     defaultValues: {
@@ -43,13 +45,15 @@ const AddInformationForCitizensForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: SetInformationForCitizensRequest = {
-      informationForCitizens: form.informationForCitizen,
-    };
+    startTransition(async () => {
+      const payload: SetInformationForCitizensRequest = {
+        informationForCitizens: form.informationForCitizen,
+      };
 
-    await setSiteInformationForCitizen(site, payload);
+      await setSiteInformationForCitizen(site, payload);
 
-    replace(`/site/${site}/details`);
+      replace(`/site/${site}/details`);
+    });
   };
 
   return (
@@ -86,7 +90,7 @@ const AddInformationForCitizensForm = ({
       </FormGroup>
       <br />
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <ButtonGroup>

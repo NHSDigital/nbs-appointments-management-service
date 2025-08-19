@@ -11,6 +11,7 @@ import {
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { ClinicalService, SessionSummary, Site } from '@types';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type EditSessionDecisionProps = {
@@ -32,33 +33,36 @@ export const EditSessionDecision = ({
   multipleServicesEnabled,
   clinicalServices,
 }: EditSessionDecisionProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const router = useRouter();
   const {
     handleSubmit,
     register,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<EditSessionDecisionFormData>({});
 
   const submitForm: SubmitHandler<EditSessionDecisionFormData> = async (
     form: EditSessionDecisionFormData,
   ) => {
-    let reroute = `/site/${site.id}/availability/`;
-    switch (form.action) {
-      case 'edit-session':
-        reroute += `edit?session=${sessionSummary}&date=${date}`;
-        break;
-      case 'edit-services':
-        reroute += `edit-services?session=${sessionSummary}&date=${date}`;
-        break;
-      case 'cancel-session':
-        reroute += `cancel?session=${sessionSummary}&date=${date}`;
-        break;
+    startTransition(async () => {
+      let reroute = `/site/${site.id}/availability/`;
+      switch (form.action) {
+        case 'edit-session':
+          reroute += `edit?session=${sessionSummary}&date=${date}`;
+          break;
+        case 'edit-services':
+          reroute += `edit-services?session=${sessionSummary}&date=${date}`;
+          break;
+        case 'cancel-session':
+          reroute += `cancel?session=${sessionSummary}&date=${date}`;
+          break;
 
-      default:
-        throw new Error('Invalid form action');
-    }
+        default:
+          throw new Error('Invalid form action');
+      }
 
-    router.push(reroute);
+      router.push(reroute);
+    });
   };
 
   const session: SessionSummary = JSON.parse(atob(sessionSummary));
@@ -114,7 +118,7 @@ export const EditSessionDecision = ({
             />
           </RadioGroup>
         </FormGroup>
-        {isSubmitting || isSubmitSuccessful ? (
+        {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
           <ButtonGroup>

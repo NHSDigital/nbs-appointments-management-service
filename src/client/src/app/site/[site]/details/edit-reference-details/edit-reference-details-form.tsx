@@ -1,6 +1,6 @@
 ﻿/* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import React from 'react';
+import React, { useTransition } from 'react';
 import {
   Button,
   FormGroup,
@@ -32,10 +32,11 @@ const EditReferenceDetailsForm = ({
   site: Site;
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
 }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors },
   } = useForm<FormFields>({
     defaultValues: {
       odsCode: site.odsCode,
@@ -65,14 +66,16 @@ const EditReferenceDetailsForm = ({
   const { replace } = useRouter();
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: SetSiteReferenceDetailsRequest = {
-      odsCode: form.odsCode.trim(),
-      icb: form.icb,
-      region: form.region,
-    };
-    await saveSiteReferenceDetails(site.id, payload);
+    startTransition(async () => {
+      const payload: SetSiteReferenceDetailsRequest = {
+        odsCode: form.odsCode.trim(),
+        icb: form.icb,
+        region: form.region,
+      };
+      await saveSiteReferenceDetails(site.id, payload);
 
-    replace(`/site/${site.id}/details`);
+      replace(`/site/${site.id}/details`);
+    });
   };
 
   return (
@@ -118,7 +121,7 @@ const EditReferenceDetailsForm = ({
         ></Select>
       </FormGroup>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Updating reference details..." />
       ) : (
         <ButtonGroup>

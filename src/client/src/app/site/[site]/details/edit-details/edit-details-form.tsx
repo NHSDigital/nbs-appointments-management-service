@@ -1,6 +1,6 @@
 ﻿/* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import React from 'react';
+import React, { useTransition } from 'react';
 import {
   Button,
   FormGroup,
@@ -11,7 +11,7 @@ import {
   Expander,
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { SetSiteDetailsRequest, Site } from '@types';
 import { saveSiteDetails } from '@services/appointmentsService';
@@ -21,15 +21,14 @@ import {
   editSiteDetailsFormSchema,
   EditSiteDetailsFormValues,
 } from './edit-site-details-form-schema';
-import FormWrapper from '@components/form-wrapper';
 
 const EditDetailsForm = ({ site }: { site: Site }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     control,
     handleSubmit,
-    setError,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors },
   } = useForm<EditSiteDetailsFormValues>({
     defaultValues: {
       name: site.name,
@@ -44,27 +43,26 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
 
   const { replace } = useRouter();
 
-  const submitForm = async (form: EditSiteDetailsFormValues) => {
-    const payload: SetSiteDetailsRequest = {
-      name: form.name.trim(),
-      //remove the line breaks and save back
-      address: form.address.replace(/\n/g, ' ').trim(),
-      phoneNumber: form.phoneNumber?.trim(),
-      latitude: `${form.latitude}`,
-      longitude: `${form.longitude}`,
-    };
-    await saveSiteDetails(site.id, payload);
+  const submitForm: SubmitHandler<EditSiteDetailsFormValues> = async (
+    form: EditSiteDetailsFormValues,
+  ) => {
+    startTransition(async () => {
+      const payload: SetSiteDetailsRequest = {
+        name: form.name.trim(),
+        //remove the line breaks and save back
+        address: form.address.replace(/\n/g, ' ').trim(),
+        phoneNumber: form.phoneNumber?.trim(),
+        latitude: `${form.latitude}`,
+        longitude: `${form.longitude}`,
+      };
+      await saveSiteDetails(site.id, payload);
 
-    replace(`/site/${site.id}/details`);
+      replace(`/site/${site.id}/details`);
+    });
   };
 
   return (
-    <FormWrapper<EditSiteDetailsFormValues>
-      submitHandler={submitForm}
-      handleSubmit={handleSubmit}
-      setError={setError}
-      errors={errors}
-    >
+    <form onSubmit={handleSubmit(submitForm)}>
       <FormGroup error={errors.name?.message}>
         <TextInput
           id="name"
@@ -110,14 +108,14 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         errors={errors}
       />
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Updating details..." />
       ) : (
         <ButtonGroup>
           <Button type="submit">Save and continue</Button>
         </ButtonGroup>
       )}
-    </FormWrapper>
+    </form>
   );
 };
 

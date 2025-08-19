@@ -20,7 +20,7 @@ import {
   isValidStartTime,
   parseDateAndTimeComponentsToUkDateTime,
 } from '@services/timeService';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useTransition } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
 
 export type EditSessionFormValues = {
@@ -39,6 +39,7 @@ const EditSessionTimeAndCapacityForm = ({
   existingSession,
   date,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
     existingSession.ukStartDatetime,
     dateTimeFormat,
@@ -52,7 +53,7 @@ const EditSessionTimeAndCapacityForm = ({
     handleSubmit,
     watch,
     control,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
@@ -88,36 +89,38 @@ const EditSessionTimeAndCapacityForm = ({
   const submitForm: SubmitHandler<EditSessionFormValues> = async (
     form: EditSessionFormValues,
   ) => {
-    const updatedSession = toAvailabilitySession(form.newSession);
+    startTransition(async () => {
+      const updatedSession = toAvailabilitySession(form.newSession);
 
-    const sessionStart = parseDateAndTimeComponentsToUkDateTime(
-      date,
-      form.newSession.startTime,
-    );
-    const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
-      date,
-      form.newSession.endTime,
-    );
+      const sessionStart = parseDateAndTimeComponentsToUkDateTime(
+        date,
+        form.newSession.startTime,
+      );
+      const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
+        date,
+        form.newSession.endTime,
+      );
 
-    const validSessionStartTime = isValidStartTime(
-      sessionStart,
-      sessionEnd,
-      form.newSession.slotLength,
-    );
+      const validSessionStartTime = isValidStartTime(
+        sessionStart,
+        sessionEnd,
+        form.newSession.slotLength,
+      );
 
-    if (
-      existingSession.totalSupportedAppointments === 0 ||
-      validSessionStartTime
-    ) {
-      return await updateSession(form, updatedSession);
-    }
+      if (
+        existingSession.totalSupportedAppointments === 0 ||
+        validSessionStartTime
+      ) {
+        return await updateSession(form, updatedSession);
+      }
 
-    const updatedString = btoa(JSON.stringify(updatedSession));
-    const existingString = btoa(JSON.stringify(existingSession));
+      const updatedString = btoa(JSON.stringify(updatedSession));
+      const existingString = btoa(JSON.stringify(existingSession));
 
-    router.push(
-      `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
-    );
+      router.push(
+        `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
+      );
+    });
   };
 
   const updateSession = async (
@@ -131,10 +134,6 @@ const EditSessionTimeAndCapacityForm = ({
       sessions: [updatedSession],
       sessionToEdit: toAvailabilitySession(form.sessionToEdit),
     });
-
-    router.push(
-      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
-    );
   };
 
   const toAvailabilitySession = (session: Session): AvailabilitySession => ({
@@ -431,7 +430,7 @@ const EditSessionTimeAndCapacityForm = ({
         />
       </FormGroup>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button type="submit">Continue</Button>

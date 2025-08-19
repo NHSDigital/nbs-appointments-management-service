@@ -2,13 +2,14 @@ import NhsHeading from '@components/nhs-heading';
 import { fetchSite } from '@services/appointmentsService';
 import EditSiteStatusForm from './edit-site-status-form';
 import { SummaryList, SummaryListItem } from '@components/nhsuk-frontend';
+import fromServer from '@server/fromServer';
 
 type Props = {
   siteId: string;
 };
 
 export const EditSiteStatusPage = async ({ siteId }: Props) => {
-  const siteDetails = await fetchSite(siteId);
+  const siteDetails = await fromServer(fetchSite(siteId));
   const siteStatus = siteDetails.status;
 
   const summaryList: SummaryListItem[] = [

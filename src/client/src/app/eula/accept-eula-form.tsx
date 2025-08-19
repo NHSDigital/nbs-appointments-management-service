@@ -4,27 +4,28 @@ import { acceptEula } from '@services/appointmentsService';
 import { EulaVersion } from '@types';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 
 type AcceptEulaFormProps = {
   eulaVersion: EulaVersion;
 };
 
 export const AcceptEulaForm = ({ eulaVersion }: AcceptEulaFormProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const { push } = useRouter();
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful },
-  } = useForm();
+  const { handleSubmit } = useForm();
 
   const submitForm: SubmitHandler<Record<string, undefined>> = async () => {
-    await acceptEula(eulaVersion.versionDate);
-    push('/sites');
+    startTransition(async () => {
+      await acceptEula(eulaVersion.versionDate);
+      push('/sites');
+    });
   };
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button aria-label="Accept and continue" type="submit">

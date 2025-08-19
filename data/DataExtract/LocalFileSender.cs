@@ -13,6 +13,9 @@ public class LocalFileSender : IFileSender
     public Task SendFile(FileInfo file)
     {
         var target = Path.Combine(_options.TargetPath, file.Name);
+
+        Directory.CreateDirectory(_options.TargetPath);
+
         File.Copy(file.FullName, target, _options.Overwrite);
         Console.WriteLine($"Saved {file.Name} to {target}");
         return Task.CompletedTask;

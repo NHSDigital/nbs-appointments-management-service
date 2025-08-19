@@ -22,7 +22,7 @@ public class FileSenderFactory : IFileSenderFactory
 
     public IFileSender Create(string type) => type.ToLower() switch
     {
-        "mailbox" => _serviceProvider.GetRequiredService<MeshFileSender>(),
+        "mesh" => _serviceProvider.GetRequiredService<MeshFileSender>(),
         "local" => _serviceProvider.GetRequiredService<LocalFileSender>(),
         "blob" => _serviceProvider.GetRequiredService<BlobFileSender>(),
         _ => throw new ArgumentException($"Unknown sender type: {type}")

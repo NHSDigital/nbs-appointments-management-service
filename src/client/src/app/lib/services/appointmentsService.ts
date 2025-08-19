@@ -457,7 +457,7 @@ export const fetchDailyAvailability = async (
   return handleBodyResponse(response);
 };
 
-export const fetchWeekSummary = async (site: string, from: string) => {
+export const fetchWeekSummaryV2 = async (site: string, from: string) => {
   const response = await appointmentsApi.get<WeekSummaryV2>(
     `week-summary?site=${site}&from=${from}`,
   );

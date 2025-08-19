@@ -313,17 +313,35 @@ type SessionSummary = {
   slotLength: number;
 };
 
+type DaySummary = {
+  ukDate: DayJsType;
+  sessions: SessionSummary[];
+  maximumCapacity: number;
+  bookedAppointments: number;
+  cancelledAppointments: number;
+  orphanedAppointments: number;
+  remainingCapacity: number;
+};
+
 type WeekSummary = {
   startDate: DayJsType;
   endDate: DayJsType;
   daySummaries: DaySummary[];
+  maximumCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  remainingCapacity: number;
+};
+
+type WeekSummaryV2 = {
+  daySummaries: DaySummaryV2[];
   maximumCapacity: number;
   remainingCapacity: number;
   bookedAppointments: number;
   orphanedAppointments: number;
 };
 
-type DaySummary = {
+type DaySummaryV2 = {
   date: string;
   sessions: SessionSummary[];
   maximumCapacity: number;
@@ -355,11 +373,6 @@ type CancelSessionRequest = {
   capacity: number;
 };
 
-// TODO: Decide where this info should live and move it there
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-];
-
 type SiteStatus = 'Online' | 'Offline';
 
 type UpdateSiteStatusRequest = {
@@ -386,6 +399,7 @@ export type {
   CancelSessionRequest,
   ContactItem,
   DaySummary,
+  DaySummaryV2,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,
@@ -412,12 +426,11 @@ export type {
   UserProfile,
   Week,
   WeekSummary,
+  WeekSummaryV2,
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
-  WeekSummaryV2,
-  DaySummaryV2,
   ClinicalService,
   SiteStatus,
   UpdateSiteStatusRequest,

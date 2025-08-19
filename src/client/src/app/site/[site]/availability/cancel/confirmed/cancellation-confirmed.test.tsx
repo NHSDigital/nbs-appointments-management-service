@@ -2,7 +2,11 @@ import { mockWeekAvailability__Summary } from '@testing/availability-and-booking
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import CancellationConfirmed from './cancellation-confirmed';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 describe('Cancellation Confirmed Page', () => {
   it('renders the correct session in the table', () => {

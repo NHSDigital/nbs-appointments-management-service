@@ -25,9 +25,9 @@ import {
   FeatureFlag,
   BookingStatus,
   UserIdentityStatus,
-  WeekSummary,
   UpdateSiteStatusRequest,
   SiteStatus,
+  WeekSummaryV2,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -455,7 +455,7 @@ export const fetchDailyAvailability = async (
 };
 
 export const fetchWeekSummary = async (site: string, from: string) => {
-  const response = await appointmentsApi.get<WeekSummary>(
+  const response = await appointmentsApi.get<WeekSummaryV2>(
     `week-summary?site=${site}&from=${from}`,
   );
 

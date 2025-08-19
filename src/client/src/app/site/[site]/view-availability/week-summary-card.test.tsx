@@ -1,7 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { WeekSummaryCard } from './week-summary-card';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),

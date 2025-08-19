@@ -4,7 +4,11 @@ import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SummaryStep from './summary-step';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();

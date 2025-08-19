@@ -5,13 +5,18 @@ import {
   DownloadReportFormValues,
   REPORT_DATE_EARLIEST_ALLOWED,
 } from './download-report-form-schema';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Controller, useForm } from 'react-hook-form';
-import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
+import {
+  BackLink,
+  Button,
+  ButtonGroup,
+  SmallSpinnerWithText,
+} from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
 import { BackLinkProps } from '@components/nhsuk-frontend/back-link';
-import FormWrapper from '@components/form-wrapper';
+import { useTransition } from 'react';
 
 type DownloadReportFormProps = {
   setReportRequest: (reportRequest: DownloadReportFormValues) => void;
@@ -22,12 +27,12 @@ const DownloadReportForm = ({
   setReportRequest,
   backLink,
 }: DownloadReportFormProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const today = ukNow();
   const {
     handleSubmit,
     control,
     formState: { errors },
-    setError,
   } = useForm<DownloadReportFormValues>({
     defaultValues: {
       startDate: today.format(RFC3339Format),
@@ -36,6 +41,14 @@ const DownloadReportForm = ({
     resolver: yupResolver(downloadReportFormSchema),
   });
 
+  const submitForm: SubmitHandler<DownloadReportFormValues> = async (
+    form: DownloadReportFormValues,
+  ) => {
+    startTransition(async () => {
+      setReportRequest(form);
+    });
+  };
+
   return (
     <>
       <BackLink {...backLink} />
@@ -43,14 +56,13 @@ const DownloadReportForm = ({
       <NhsHeading title="Select the dates and run a report" />
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-one-third">
-          <FormWrapper<DownloadReportFormValues>
-            submitHandler={payload => {
-              setReportRequest(payload);
-            }}
-            handleSubmit={handleSubmit}
-            setError={setError}
-            errors={errors}
-          >
+          <form onSubmit={handleSubmit(submitForm)}>
+            {errors.root && (
+              <span className="nhsuk-error-message">
+                <span className="nhsuk-u-visually-hidden">Error: </span>
+                {errors.root.message}
+              </span>
+            )}
             <Controller
               name="startDate"
               control={control}
@@ -81,10 +93,14 @@ const DownloadReportForm = ({
                 />
               )}
             />
-            <ButtonGroup>
-              <Button type="submit">Create report</Button>
-            </ButtonGroup>
-          </FormWrapper>
+            {pendingSubmit ? (
+              <SmallSpinnerWithText text="Working..." />
+            ) : (
+              <ButtonGroup>
+                <Button type="submit">Create report</Button>
+              </ButtonGroup>
+            )}
+          </form>
         </div>
       </div>
     </>

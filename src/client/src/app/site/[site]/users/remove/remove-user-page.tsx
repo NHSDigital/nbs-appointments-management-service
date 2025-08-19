@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import React from 'react';
+import React, { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { removeUserFromSite } from '@services/appointmentsService';
@@ -12,17 +12,17 @@ import {
 import { Site } from '@types';
 
 const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const { replace } = useRouter();
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful },
-  } = useForm();
+  const { handleSubmit } = useForm();
   const cancel = () => {
     replace(`/site/${site.id}/users`);
   };
 
   const submitForm: SubmitHandler<object> = async () => {
-    await removeUserFromSite(site.id, user);
+    startTransition(async () => {
+      await removeUserFromSite(site.id, user);
+    });
   };
 
   return (
@@ -40,7 +40,7 @@ const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
         <li>This will not remove their access from any other sites</li>
       </ul>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <ButtonGroup>

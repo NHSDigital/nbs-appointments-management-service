@@ -11,6 +11,7 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import { cancelSession } from '@services/appointmentsService';
 import { ClinicalService, SessionSummary } from '@types';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type PageProps = {
@@ -30,24 +31,27 @@ const ConfirmCancellation = ({
   site,
   clinicalServices,
 }: PageProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<CancelSessionDecisionFormData>({});
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
   const router = useRouter();
   const submitForm: SubmitHandler<CancelSessionDecisionFormData> = async (
     form: CancelSessionDecisionFormData,
   ) => {
-    if (form.action === 'cancel-session') {
-      await cancelSession(sessionSummary, site);
-      router.push(`cancel/confirmed?session=${session}&date=${date}`);
-    } else {
-      router.push(
-        `/site/${site}/view-availability/week/edit-session?session=${session}&date=${date}`,
-      );
-    }
+    startTransition(async () => {
+      if (form.action === 'cancel-session') {
+        await cancelSession(sessionSummary, site);
+        router.push(`cancel/confirmed?session=${session}&date=${date}`);
+      } else {
+        router.push(
+          `/site/${site}/view-availability/week/edit-session?session=${session}&date=${date}`,
+        );
+      }
+    });
   };
 
   return (
@@ -84,7 +88,7 @@ const ConfirmCancellation = ({
           />
         </RadioGroup>
       </FormGroup>
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button type="submit">Continue</Button>

@@ -10,6 +10,7 @@ import {
 import { setCookieConsent } from '@services/cookiesService';
 import { NhsMyaCookieConsent } from '@types';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type CookieConsentFormProps = {
@@ -21,10 +22,11 @@ type CookieConsentFormData = {
 };
 
 const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<CookieConsentFormData>({
     defaultValues: { consented: consentCookie?.consented ? 'yes' : 'no' },
   });
@@ -33,8 +35,10 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
   const submitForm: SubmitHandler<CookieConsentFormData> = async (
     form: CookieConsentFormData,
   ) => {
-    await setCookieConsent(form.consented === 'yes');
-    router.push(`/sites`);
+    startTransition(async () => {
+      await setCookieConsent(form.consented === 'yes');
+      router.push(`/sites`);
+    });
   };
 
   return (
@@ -67,7 +71,7 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
           />
         </RadioGroup>
       </FormGroup>
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button type="submit">Save my cookie settings</Button>

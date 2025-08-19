@@ -7,9 +7,15 @@ import {
 } from './download-report-form-schema';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
+import {
+  BackLink,
+  Button,
+  ButtonGroup,
+  SmallSpinnerWithText,
+} from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
+import { useTransition } from 'react';
 
 type DownloadReportFormProps = {
   setReportRequest: (reportRequest: DownloadReportFormValues) => void;
@@ -20,6 +26,7 @@ const DownloadReportForm = ({
   setReportRequest,
   goBackHref,
 }: DownloadReportFormProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const today = ukNow();
   const {
     handleSubmit,
@@ -36,7 +43,9 @@ const DownloadReportForm = ({
   const submitForm: SubmitHandler<DownloadReportFormValues> = async (
     form: DownloadReportFormValues,
   ) => {
-    setReportRequest(form);
+    startTransition(async () => {
+      setReportRequest(form);
+    });
   };
 
   return (
@@ -83,9 +92,13 @@ const DownloadReportForm = ({
                 />
               )}
             />
-            <ButtonGroup>
-              <Button type="submit">Create report</Button>
-            </ButtonGroup>
+            {pendingSubmit ? (
+              <SmallSpinnerWithText text="Working..." />
+            ) : (
+              <ButtonGroup>
+                <Button type="submit">Create report</Button>
+              </ButtonGroup>
+            )}
           </form>
         </div>
       </div>

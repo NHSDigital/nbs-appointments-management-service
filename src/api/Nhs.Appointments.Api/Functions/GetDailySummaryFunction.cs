@@ -21,15 +21,14 @@ public class GetDailySummaryFunction(
     IValidator<GetDaySummaryRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetDailySummaryFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<GetDaySummaryRequest, Summary>(validator, userContextProvider,
         logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetDaySummary", tags: ["Availability"],
-        Summary = "Get daily availability summary for a day date and site")]
+        Summary = "Get daily availability summary for a date and site")]
     [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string),
-        Description = "The ID of the site from which to query bookings and availability")]
+        Description = "The ID of the site from which to query availability")]
     [OpenApiParameter("from", In = ParameterLocation.Query, Required = true, Type = typeof(double),
         Description = "The date for the selected day")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(Summary),

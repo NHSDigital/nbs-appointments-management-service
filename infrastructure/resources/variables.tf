@@ -386,3 +386,45 @@ variable "keyvault_client_secret" {
   default = ""
   sensitive = true      
 }
+
+variable "file_sender_options_type" {
+  type = string
+  default = ""
+  sensitive = true      
+}
+
+variable "mesh_file_options_file" {
+  type = string
+  default = ""
+  sensitive = true      
+}
+
+variable "mesh_file_options_destination_mailbox_id" {
+  type = string
+  default = ""
+  sensitive = true      
+}
+
+variable "mesh_file_options__workflow_id" {
+  type = string
+  default = ""
+  sensitive = true      
+}
+
+variable "local_file_options_target_path" {
+  type = string
+  default = ""
+  sensitive = true      
+}
+
+variable "local_file_options_overwrite" {
+  type = string
+  default = ""
+  sensitive = true      
+}
+
+variable "blob_file_options_container_name" {
+  type = string
+  default = ""
+  sensitive = true      
+}

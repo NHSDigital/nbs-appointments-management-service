@@ -39,6 +39,7 @@ const DownloadReportConfirmation = ({
             },
           }}
           download
+          prefetch={false}
         >
           <Button styleType="secondary">Export data</Button>
         </Link>

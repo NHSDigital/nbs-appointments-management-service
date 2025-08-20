@@ -5,6 +5,7 @@ type supportLink = {
   text: string;
   href: string;
   target?: HTMLAttributeAnchorTarget;
+  internal: boolean;
 };
 
 type FooterProps = {
@@ -35,6 +36,7 @@ const Footer = ({ supportLinks = [], children }: FooterProps) => {
                     href={link.href}
                     target={link.target ?? '_self'}
                     rel="noopener noreferrer"
+                    prefetch={link.internal}
                   >
                     {link.text}
                   </Link>

@@ -77,7 +77,9 @@ const SummaryList = ({ items, borders = true }: Props) => {
                 aria-label={`${item.action.text}`}
               >
                 {item.action.renderingStrategy === 'server' ? (
-                  <Link href={item.action.href}>{item.action.text}</Link>
+                  <Link href={item.action.href} prefetch={false}>
+                    {item.action.text}
+                  </Link>
                 ) : (
                   <Link href={''} onClick={item.action.onClick} role="button">
                     {item.action.text}

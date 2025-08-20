@@ -9,6 +9,9 @@ namespace Nhs.Appointments.Persistance;
 
 public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMapper mapper) : IUserStore
 {
+    private const string IcbUserRole = "system:icb-user";
+    private const string RegionalUserRole = "system:regional-user";
+
     public async Task<string> GetApiUserSigningKey(string clientId)
     {
         var documentId = $"api@{clientId}";
@@ -101,11 +104,10 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
             return;
         }
 
-        const string regionalUserRole = "system:regional-user";
         var updatedRoleAssignments = originalDocument.RoleAssignments.AsEnumerable();
 
         var hasRegionScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Scope == scope);
-        var hasOtherRegionScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Role == regionalUserRole && ra.Scope != scope);
+        var hasOtherRegionScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Role == RegionalUserRole && ra.Scope != scope);
 
         // User already has this regional permission - therefore this is treated as a removal
         if (hasRegionScopedPermission)
@@ -116,13 +118,19 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         else if (hasOtherRegionScopedPermission)
         {
             updatedRoleAssignments = updatedRoleAssignments
-                .Where(ra => ra.Role != regionalUserRole)
+                .Where(ra => ra.Role != RegionalUserRole)
                 .Concat(roleAssignments);
         }
         // No existing regional permission - add it
         else
         {
             updatedRoleAssignments = updatedRoleAssignments.Concat(roleAssignments);
+        }
+
+        // If a user has an existing ICB role, remove it unless we're removing the Regional role in this update
+        if (originalDocument.RoleAssignments.Any(ra => ra.Role == IcbUserRole && !hasRegionScopedPermission))
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Role != IcbUserRole);
         }
 
         var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
@@ -178,31 +186,36 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
             return;
         }
 
-        const string icbUserRole = "system:icb-user";
         var updatedRoleAssignments = originalDocument.RoleAssignments.AsEnumerable();
 
         var hasIcbScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Scope == scope);
-        var hasOtherIcbScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Role == icbUserRole && ra.Scope != scope);
+        var hasOtherIcbScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Role == IcbUserRole && ra.Scope != scope);
 
-        // User already has this regional permission - therefore this is treated as a removal
+        // User already has this ICB permission - therefore this is treated as a removal
         if (hasIcbScopedPermission)
         {
             updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
         }
-        // Update the user's regional permission - they're only allowed one at a time
+        // Update the user's ICB permission - they're only allowed one at a time
         else if (hasOtherIcbScopedPermission)
         {
             updatedRoleAssignments = updatedRoleAssignments
-                .Where(ra => ra.Role != icbUserRole)
+                .Where(ra => ra.Role != IcbUserRole)
                 .Concat(roleAssignments);
         }
-        // No existing regional permission - add it
+        // No existing ICB permission - add it
         else
         {
             updatedRoleAssignments = updatedRoleAssignments.Concat(roleAssignments);
         }
 
-        var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
-        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, regionalRolePatch);
+        // If a user has a regional role, remove it unless we're removing the ICB role in this update
+        if (originalDocument.RoleAssignments.Any(ra => ra.Role == RegionalUserRole) && !hasIcbScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Role != RegionalUserRole);
+        }
+
+        var icbRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, icbRolePatch);
     }
 }

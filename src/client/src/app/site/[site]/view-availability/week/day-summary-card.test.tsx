@@ -135,7 +135,7 @@ describe('Day Summary Card', () => {
       ).toBeNull();
     });
 
-    it('renders add session link if the date is in the future', async () => {
+    it('renders add session link if the date is in the future', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
       render(
@@ -154,7 +154,7 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('does not render add session link if the user lacks the permission', async () => {
+    it('does not render add session link if the user lacks the permission', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
       render(
@@ -171,7 +171,7 @@ describe('Day Summary Card', () => {
       expect(screen.queryByRole('link', { name: 'Add Session' })).toBeNull();
     });
 
-    it('does not render add session link if the date is in the past', async () => {
+    it('does not render add session link if the date is in the past', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
 
       render(
@@ -412,21 +412,6 @@ describe('Day Summary Card', () => {
           cancelDayFlag={true}
         />,
       );
-    });
-  });
-
-  describe('when there is no availability', () => {
-    it('renders no availability message', async () => {
-      render(
-        <DaySummaryCard
-          daySummary={mockEmptyDays[0]}
-          siteId={'mock-site'}
-          canManageAvailability={true}
-          clinicalServices={clinicalServices}
-          canViewDailyAppointments={true}
-          cancelDayFlag={true}
-        />,
-      );
 
       expect(screen.getByText('No availability')).toBeInTheDocument();
 
@@ -456,7 +441,7 @@ describe('Day Summary Card', () => {
       ).toBeNull();
     });
 
-    it('renders add session link if the date is in the future', async () => {
+    it('renders add session link if the date is in the future', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
       render(
@@ -475,7 +460,7 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
     });
 
-    it('does not render add session link if the user lacks the permission', async () => {
+    it('does not render add session link if the user lacks the permission', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(true);
 
       render(
@@ -494,7 +479,7 @@ describe('Day Summary Card', () => {
       ).toBeNull();
     });
 
-    it('does not render add session link if the date is in the past', async () => {
+    it('does not render add session link if the date is in the past', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
 
       render(

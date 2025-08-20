@@ -20,7 +20,7 @@ const LogInButton = ({
     >
       <Button
         aria-label={`Sign in to service with ${friendlyName}`}
-        type="submit"
+        type="button"
         styleType="primary"
       >
         Sign in to service with {friendlyName}

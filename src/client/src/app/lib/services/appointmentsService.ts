@@ -325,11 +325,13 @@ async function handleBodyResponse<T, Y = T>(
       notAuthorized();
     }
 
-    return { success: false };
+    return Promise.reject(
+      `Response code ${response.httpStatusCode} did not indicate success.`,
+    );
   }
 
   if (!response.data) {
-    return { success: false };
+    return Promise.reject(`Expected data in response, but found none.`);
   }
 
   return { success: true, data: transformData(response.data) };
@@ -354,7 +356,9 @@ async function handleEmptyResponse(
     notAuthorized();
   }
 
-  return { success: false };
+  return Promise.reject(
+    `Response code ${response.httpStatusCode} did not indicate success.`,
+  );
 }
 
 export const saveUserRoleAssignments = async (

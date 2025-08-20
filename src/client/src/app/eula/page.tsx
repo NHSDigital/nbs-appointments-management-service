@@ -22,6 +22,7 @@ const Page = async () => {
         <Link
           href="https://digital.nhs.uk/services/vaccinations-national-booking-service/terms-of-use"
           target="_blank"
+          prefetch={false}
         >
           Read the full terms of use for Manage Your Appointments
         </Link>

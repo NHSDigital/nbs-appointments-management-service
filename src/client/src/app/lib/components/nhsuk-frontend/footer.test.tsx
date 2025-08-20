@@ -5,7 +5,11 @@ import render from '@testing/render';
 describe('Footer', () => {
   it('renders', () => {
     render(
-      <Footer supportLinks={[{ text: 'Contact us', href: '/contact-us' }]} />,
+      <Footer
+        supportLinks={[
+          { text: 'Contact us', href: '/contact-us', internal: true },
+        ]}
+      />,
     );
 
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();

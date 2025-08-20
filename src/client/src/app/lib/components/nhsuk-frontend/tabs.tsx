@@ -68,6 +68,7 @@ const Tabs = ({
                   }
                   window.history.pushState(null, '', `?${params.toString()}`);
                 }}
+                prefetch={false}
               >
                 {tab.props.title}
               </Link>

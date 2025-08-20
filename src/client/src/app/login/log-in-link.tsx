@@ -15,6 +15,7 @@ const LogInLink = ({
     <Link
       href={`auth/login/${provider}?redirectUrl=${redirectUrl}`}
       aria-label={`Sign in to service with ${friendlyName}`}
+      prefetch={false}
     >
       Sign in to service with {friendlyName}
     </Link>

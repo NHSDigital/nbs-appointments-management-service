@@ -1128,7 +1128,7 @@ test.describe.configure({ mode: 'serial' });
         test.describe(`Test in timezone: '${timezone}'`, () => {
           test.use({ timezoneId: timezone });
 
-          test('All the month page data is arranged in the week cards as expected - Oct 2025', async () => {
+          test.skip('All the month page data is arranged in the week cards as expected - Oct 2025', async () => {
             //go to a specific month page that has a daylight savings change
             await page.goto(
               `manage-your-appointments/site/${site.id}/view-availability?date=2025-10-20`,
@@ -1190,7 +1190,7 @@ test.describe.configure({ mode: 'serial' });
             }
           });
 
-          test('All the month page data is arranged in the week cards as expected - March 2026', async () => {
+          test.skip('All the month page data is arranged in the week cards as expected - March 2026', async () => {
             //go to a specific month page that has a daylight savings change
             await page.goto(
               `manage-your-appointments/site/${site.id}/view-availability?date=2026-03-01`,

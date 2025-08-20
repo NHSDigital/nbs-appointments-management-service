@@ -163,4 +163,46 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task RemoveAdminUserAsync(string userId) =>
         await cosmosStore.DeleteDocument(userId, cosmosStore.GetDocumentType());
+
+    public async Task UpdateUserIcbPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    {
+        var originalDocument = await GetOrDefaultAsync(userId);
+        if (originalDocument is null)
+        {
+            var user = new User
+            {
+                Id = userId,
+                RoleAssignments = roleAssignments.ToArray()
+            };
+            await InsertAsync(user);
+            return;
+        }
+
+        const string icbUserRole = "system:icb-user";
+        var updatedRoleAssignments = originalDocument.RoleAssignments.AsEnumerable();
+
+        var hasIcbScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Scope == scope);
+        var hasOtherIcbScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Role == icbUserRole && ra.Scope != scope);
+
+        // User already has this regional permission - therefore this is treated as a removal
+        if (hasIcbScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
+        }
+        // Update the user's regional permission - they're only allowed one at a time
+        else if (hasOtherIcbScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments
+                .Where(ra => ra.Role != icbUserRole)
+                .Concat(roleAssignments);
+        }
+        // No existing regional permission - add it
+        else
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Concat(roleAssignments);
+        }
+
+        var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, regionalRolePatch);
+    }
 }

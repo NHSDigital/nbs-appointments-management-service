@@ -46,11 +46,30 @@ public class UserDataImportHandler(
 
         await CheckForNonWhitelistedEmailDomains(userImportRows, report);
 
+        var wellKnownOdsCodes = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
+
         var regionalUsers = userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Region)).ToList();
         if (regionalUsers.Count > 0)
         {
-            await ValidateRegionCodes(regionalUsers, report);
-            CheckForDuplicateRegionPermissions(regionalUsers, report);
+            var validRegionCodes = wellKnownOdsCodes
+                .Where(ods => ods.Type.Equals("region", StringComparison.CurrentCultureIgnoreCase))
+                .Select(x => x.OdsCode.ToLower())
+                .ToList();
+
+            ValidateRegionCodes(regionalUsers, report, validRegionCodes);
+            CheckForDuplicatedPermissions(regionalUsers, report, "region");
+        }
+
+        var icbUsers = userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Icb)).ToList();
+        if (icbUsers.Count > 0)
+        {
+            var validIcbCodes = wellKnownOdsCodes
+                .Where(ods => ods.Type.Equals("icb", StringComparison.CurrentCultureIgnoreCase))
+                .Select(x => x.OdsCode.ToLower())
+                .ToList();
+
+            ValidateIcbCodes(userImportRows, report, validIcbCodes);
+            CheckForDuplicatedPermissions(icbUsers, report, "ICB");
         }
 
         if (report.Any(r => !r.Success))
@@ -87,7 +106,7 @@ public class UserDataImportHandler(
                         }
                         break;
                     case UserPermissionScope.Icb:
-                        await userService.UpdateIcbUserRoleAssignmentsAsync(userRow.UserId, $"icb:{userRow.Icb}", userRow.RoleAssignments);
+                        await userService.UpdateIcbUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"icb:{userRow.Icb}", userRow.RoleAssignments);
                         break;
                 }
             }
@@ -113,13 +132,10 @@ public class UserDataImportHandler(
         }
     }
 
-    private async Task ValidateRegionCodes(List<UserImportRow> userImportRows, List<ReportItem> report)
+    private static void ValidateRegionCodes(List<UserImportRow> userImportRows, List<ReportItem> report, List<string> validRegionCodes)
     {
-        var wellKnownOdsCodes = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
-        var regionCodes = wellKnownOdsCodes.Where(ods => ods.Type.Equals("region", StringComparison.CurrentCultureIgnoreCase)).Select(x => x.OdsCode.ToLower()).ToList();
-
         var invalidRegions = userImportRows
-            .Where(usr => !regionCodes.Contains(usr.Region.ToLower()))
+            .Where(usr => !validRegionCodes.Contains(usr.Region.ToLower()))
             .Select(usr => usr.Region)
             .ToList();
 
@@ -129,7 +145,7 @@ public class UserDataImportHandler(
         }
     }
 
-    private static void CheckForDuplicateRegionPermissions(List<UserImportRow> userImportRows, List<ReportItem> report)
+    private static void CheckForDuplicatedPermissions(List<UserImportRow> userImportRows, List<ReportItem> report, string scopeName)
     {
         var duplicateUsers = userImportRows
             .GroupBy(usr => usr.UserId)
@@ -140,9 +156,22 @@ public class UserDataImportHandler(
         {
             report.AddRange(duplicateUsers.Select(usr => new ReportItem(
                 -1,
-                "User added to multiple regions",
+                $"User added to multiple {scopeName}s",
                 false,
-                $"Users can only be added to one region per upload. User: '{usr.Key}' has been added multiple times for region scoped permissions.")));
+                $"Users can only be added to one {scopeName} per upload. User: '{usr.Key}' has been added multiple times for {scopeName} scoped permissions.")));
+        }
+    }
+
+    private static void ValidateIcbCodes(List<UserImportRow> userImportRows, List<ReportItem> report, List<string> validIcbCodes)
+    {
+        var invalidIcbs = userImportRows
+            .Where(usr => !validIcbCodes.Contains(usr.Icb.ToLower()))
+            .Select(usr => usr.Icb)
+            .ToList();
+
+        if (invalidIcbs.Count > 0)
+        {
+            report.AddRange(invalidIcbs.Select(icb => new ReportItem(-1, "Invalid ICB", false, $"Provided ICB: '{icb}' not found in the well known ICB list.")));
         }
     }
 

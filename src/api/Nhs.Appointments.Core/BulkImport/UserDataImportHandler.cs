@@ -72,18 +72,23 @@ public class UserDataImportHandler(
                     }
                 }
 
-                var isRegionPermission = !string.IsNullOrEmpty(userRow.Region);
-                if (isRegionPermission)
+                var permissionScope = GetUserPermissionScope(userRow);
+
+                switch (permissionScope)
                 {
-                    await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"region:{userRow.Region}", userRow.RoleAssignments);
-                }
-                else
-                {
-                    var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"site:{userRow.SiteId}", userRow.RoleAssignments, false);
-                    if (!result.Success)
-                    {
-                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: '{string.Join('|', result.errorRoles)}'"));
-                    }
+                    case UserPermissionScope.Region:
+                        await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"region:{userRow.Region}", userRow.RoleAssignments);
+                        break;
+                    case UserPermissionScope.Site:
+                        var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"site:{userRow.SiteId}", userRow.RoleAssignments, false);
+                        if (!result.Success)
+                        {
+                            report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: '{string.Join('|', result.errorRoles)}'"));
+                        }
+                        break;
+                    case UserPermissionScope.Icb:
+                        await userService.UpdateIcbUserRoleAssignmentsAsync(userRow.UserId, $"icb:{userRow.Icb}", userRow.RoleAssignments);
+                        break;
                 }
             }
             catch (Exception ex)
@@ -141,6 +146,16 @@ public class UserDataImportHandler(
         }
     }
 
+    private static UserPermissionScope GetUserPermissionScope(UserImportRow userRow)
+    {
+        if (!string.IsNullOrEmpty(userRow.SiteId))
+            return UserPermissionScope.Site;
+
+        return !string.IsNullOrEmpty(userRow.Region)
+            ? UserPermissionScope.Region
+            : UserPermissionScope.Icb;
+    }
+
     public class UserImportRow
     {
         public string UserId { get; set; }
@@ -149,5 +164,13 @@ public class UserDataImportHandler(
         public string SiteId { get; set; }
         public IEnumerable<RoleAssignment> RoleAssignments { get; set; }
         public string Region { get; set; }
+        public string Icb {  get; set; }
+    }
+
+    private enum UserPermissionScope
+    {
+        Site,
+        Region,
+        Icb
     }
 }

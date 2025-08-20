@@ -4,22 +4,21 @@ import { ViewAvailabilityPage } from './view-availability-page';
 import { dateFormat, parseToUkDatetime, ukNow } from '@services/timeService';
 
 type PageProps = {
-  searchParams?: Promise<{
-    date?: string;
-  }>;
-  params: Promise<{
+  params: {
     site: string;
-  }>;
+  };
+  searchParams?: {
+    date?: string;
+  };
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  const { date } = { ...(await searchParams) };
-  const { site: siteFromPath } = { ...(await params) };
+  await assertPermission(params.site, 'availability:query');
+  const site = await fetchSite(params.site);
 
-  await assertPermission(siteFromPath, 'availability:query');
-  const site = await fetchSite(siteFromPath);
-
-  const searchMonth = date ? parseToUkDatetime(date, dateFormat) : ukNow();
+  const searchMonth = searchParams?.date
+    ? parseToUkDatetime(searchParams?.date, dateFormat)
+    : ukNow();
 
   return (
     <NhsPage

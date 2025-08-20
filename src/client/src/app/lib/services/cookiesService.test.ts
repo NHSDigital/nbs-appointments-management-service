@@ -4,7 +4,7 @@ import { getCookieConsent, setCookieConsent } from '@services/cookiesService';
 import { DayJsType, parseToUkDatetime, ukNow } from '@services/timeService';
 
 jest.mock('next/headers');
-const cookiesMock = cookies as jest.Mock<Promise<ReadonlyRequestCookies>>;
+const cookiesMock = cookies as jest.Mock<ReadonlyRequestCookies>;
 const cookieStoreMock: ReadonlyRequestCookies = {
   get: jest.fn(),
   getAll: jest.fn(),
@@ -43,7 +43,7 @@ describe('Cookies service', () => {
       return undefined;
     });
 
-    cookiesMock.mockResolvedValue({
+    cookiesMock.mockReturnValue({
       ...cookieStoreMock,
       get: getMock,
     });
@@ -59,7 +59,7 @@ describe('Cookies service', () => {
   });
 
   it('returns undefined if the consent cookie is not set', async () => {
-    cookiesMock.mockResolvedValue({
+    cookiesMock.mockReturnValue({
       ...cookieStoreMock,
       get: jest.fn().mockReturnValue(undefined),
     });
@@ -71,7 +71,7 @@ describe('Cookies service', () => {
 
   it('can record cookie consent', async () => {
     const setMock = jest.fn();
-    cookiesMock.mockResolvedValue({
+    cookiesMock.mockReturnValue({
       ...cookieStoreMock,
       set: setMock,
     });
@@ -91,7 +91,7 @@ describe('Cookies service', () => {
 
   it('can record cookie non-consent', async () => {
     const setMock = jest.fn();
-    cookiesMock.mockResolvedValue({
+    cookiesMock.mockReturnValue({
       ...cookieStoreMock,
       set: setMock,
     });

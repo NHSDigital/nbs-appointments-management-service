@@ -7,49 +7,41 @@ import { SessionSummary } from '@types';
 import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import EditServicesForm from './edit-services-form';
-import { notFound } from 'next/navigation';
 
 type PageProps = {
-  searchParams?: Promise<{
+  searchParams: {
     date: string;
     session: string;
-  }>;
-  params: Promise<{
+  };
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  const { date, session } = { ...(await searchParams) };
-  const { site: siteFromPath } = { ...(await params) };
-
-  if (date === undefined || session === undefined) {
-    return notFound();
-  }
-
-  await assertPermission(siteFromPath, 'availability:setup');
+  await assertPermission(params.site, 'availability:setup');
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
+    fetchSite(params.site),
     fetchClinicalServices(),
   ]);
 
-  const parsedDate = parseToUkDatetime(date);
-  const sessionSummary: SessionSummary = JSON.parse(atob(session));
+  const date = parseToUkDatetime(searchParams.date);
+  const sessionSummary: SessionSummary = JSON.parse(atob(searchParams.session));
 
   return (
     <NhsPage
-      title={`Remove services for ${parsedDate.format('DD MMMM YYYY')}`}
+      title={`Remove services for ${date.format('DD MMMM YYYY')}`}
       caption={'Remove services'}
       originPage="edit-session"
       backLink={{
-        href: `/site/${site.id}/view-availability/week/edit-session?session=${session}&date=${date}`,
+        href: `/site/${site.id}/view-availability/week/edit-session?session=${searchParams.session}&date=${searchParams.date}`,
         renderingStrategy: 'server',
         text: 'Go back',
       }}
     >
       <EditServicesForm
-        date={date}
+        date={searchParams.date}
         site={site}
         existingSession={sessionSummary}
         clinicalServices={clinicalServices}

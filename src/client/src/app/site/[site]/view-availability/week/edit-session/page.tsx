@@ -10,48 +10,46 @@ import { EditSessionDecision } from './edit-session-decision';
 import { parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
-  searchParams?: Promise<{
+  searchParams: {
     date: string;
     session: string;
-  }>;
-  params: Promise<{
+  };
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  const { site: siteFromPath } = { ...(await params) };
-  const { session, date } = { ...(await searchParams) };
-  if (session === undefined || date === undefined) {
-    return notFound();
-  }
-
-  await assertPermission(siteFromPath, 'availability:setup');
+  await assertPermission(params.site, 'availability:setup');
 
   const [site, multipleServicesFlag, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
+    fetchSite(params.site),
     fetchFeatureFlag('MultipleServices'),
     fetchClinicalServices(),
   ]);
 
-  const parsedDate = parseToUkDatetime(date);
+  const date = parseToUkDatetime(searchParams.date);
+
+  if (searchParams.session === undefined || searchParams.date === undefined) {
+    notFound();
+  }
 
   return (
     <NhsPage
-      title={`Change availability for ${parsedDate.format('DD MMMM YYYY')}`}
+      title={`Change availability for ${date.format('DD MMMM YYYY')}`}
       caption={site.name}
       site={site}
       backLink={{
         renderingStrategy: 'server',
-        href: `/site/${site.id}/view-availability/week/?date=${date}`,
+        href: `/site/${params.site}/view-availability/week/?date=${searchParams.date}`,
         text: 'Go back',
       }}
       originPage="edit-session"
     >
       <EditSessionDecision
         site={site}
-        sessionSummary={session}
-        date={date}
+        sessionSummary={searchParams.session}
+        date={searchParams.date}
         multipleServicesEnabled={multipleServicesFlag.enabled}
         clinicalServices={clinicalServices}
       ></EditSessionDecision>

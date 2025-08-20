@@ -11,39 +11,32 @@ import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
-import { notFound } from 'next/navigation';
 
 type PageProps = {
-  searchParams?: Promise<{
+  searchParams: {
     date: string;
     page: number;
     tab?: string;
-  }>;
-  params: Promise<{
+  };
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  const { site: siteFromPath } = { ...(await params) };
-  const { date, page } = { ...(await searchParams) };
-  if (date === undefined || page === undefined) {
-    return notFound();
-  }
+  await assertPermission(params.site, 'booking:view-detail');
 
-  await assertPermission(siteFromPath, 'booking:view-detail');
-
-  const fromDate = parseToUkDatetime(date);
+  const fromDate = parseToUkDatetime(searchParams.date);
   const toDate = fromDate.endOf('day');
 
   const fetchBookingsRequest: FetchBookingsRequest = {
     from: fromDate.format(dateTimeFormat),
     to: toDate.format(dateTimeFormat),
-    site: siteFromPath,
+    site: params.site,
   };
 
   const [site, bookings, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
+    fetchSite(params.site),
     fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled']),
     fetchClinicalServices(),
   ]);
@@ -63,7 +56,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${site.id}/view-availability/week?date=${date}`,
+    href: `/site/${params.site}/view-availability/week?date=${searchParams.date}`,
     text: 'Back to week view',
   };
 

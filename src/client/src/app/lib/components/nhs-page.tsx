@@ -39,8 +39,7 @@ const NhsPage = async ({
   backLink,
   originPage,
 }: Props) => {
-  const cookieStore = await cookies();
-  const notification = cookieStore.get('ams-notification')?.value;
+  const notification = cookies().get('ams-notification')?.value;
   const navigationLinks = await getLinksForSite(site);
 
   return (

@@ -9,7 +9,7 @@ import { raiseNotification } from './notificationService';
 export const getCookieConsent = async (): Promise<
   NhsMyaCookieConsent | undefined
 > => {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const nhsukCookieConsent = cookieStore.get('nhsuk-mya-cookie-consent');
 
   return nhsukCookieConsent
@@ -18,7 +18,7 @@ export const getCookieConsent = async (): Promise<
 };
 
 export const setCookieConsent = async (consented: boolean) => {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
 
   const payload: NhsMyaCookieConsent = {
     consented,

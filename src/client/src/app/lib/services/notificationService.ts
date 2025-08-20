@@ -1,13 +1,11 @@
 import { cookies } from 'next/headers';
 
-export const raiseNotification = async (
+export const raiseNotification = (
   notificationType: string,
   notificationMessage: string,
   expiryTimeInSeconds?: number,
 ) => {
-  const cookieStore = await cookies();
-
-  cookieStore.set(notificationType, notificationMessage, {
+  cookies().set(notificationType, notificationMessage, {
     maxAge: expiryTimeInSeconds ?? 15,
   });
 };

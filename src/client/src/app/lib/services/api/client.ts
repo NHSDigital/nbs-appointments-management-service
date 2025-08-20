@@ -14,13 +14,11 @@ class Client {
     this.baseUrl = baseUrl;
   }
 
-  public async get<T = unknown>(
+  public get<T = unknown>(
     path: string,
     config?: RequestInit,
   ): Promise<ApiResponse<T>> {
-    const cookieStore = await cookies();
-
-    const tokenCookie = cookieStore.get('token');
+    const tokenCookie = cookies().get('token');
 
     return fetch(`${this.baseUrl}/${path}`, {
       method: 'GET',
@@ -35,14 +33,12 @@ class Client {
     });
   }
 
-  public async post<T = unknown>(
+  public post<T = unknown>(
     path: string,
     payload?: BodyInit,
     config?: RequestInit,
   ): Promise<ApiResponse<T>> {
-    const cookieStore = await cookies();
-
-    const tokenCookie = cookieStore.get('token');
+    const tokenCookie = cookies().get('token');
 
     return fetch(`${this.baseUrl}/${path}`, {
       method: 'POST',

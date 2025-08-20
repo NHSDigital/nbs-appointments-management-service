@@ -7,22 +7,19 @@ import NhsTransactionalPage from '@components/nhs-transactional-page';
 import AvailabilityTemplateWizard from './availability-template-wizard';
 
 type PageProps = {
-  searchParams?: Promise<{
+  searchParams: {
     date: string;
-  }>;
-  params: Promise<{
+  };
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ params, searchParams }: PageProps) => {
-  const { site: siteFromPath } = { ...(await params) };
-  const { date } = { ...(await searchParams) };
-
-  await assertPermission(siteFromPath, 'availability:setup');
+  await assertPermission(params.site, 'availability:setup');
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
+    fetchSite(params.site),
     fetchClinicalServices(),
   ]);
 
@@ -32,7 +29,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
     <NhsTransactionalPage originPage="create-availability-wizard">
       <AvailabilityTemplateWizard
         site={site}
-        date={date}
+        date={searchParams.date}
         clinicalServices={clinicalServices}
       />
     </NhsTransactionalPage>

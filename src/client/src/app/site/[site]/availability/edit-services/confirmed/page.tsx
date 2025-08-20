@@ -7,47 +7,37 @@ import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import EditServicesConfirmed from './edit-services-confirmed';
-import { notFound } from 'next/navigation';
 
 type PageProps = {
-  searchParams?: Promise<{
+  searchParams: {
     date: string;
     removedServicesSession: string;
-  }>;
-  params: Promise<{
+  };
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  const { date, removedServicesSession: serialisedSession } = {
-    ...(await searchParams),
-  };
-  const { site: siteFromPath } = { ...(await params) };
-
-  if (date === undefined || serialisedSession === undefined) {
-    return notFound();
-  }
-
-  await assertPermission(siteFromPath, 'availability:setup');
+  await assertPermission(params.site, 'availability:setup');
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
+    fetchSite(params.site),
     fetchClinicalServices(),
   ]);
 
-  const parsedDate = parseToUkDatetime(date);
+  const date = parseToUkDatetime(searchParams.date);
 
   const removedServicesSession: AvailabilitySession = JSON.parse(
-    atob(serialisedSession),
+    atob(searchParams.removedServicesSession),
   );
 
   return (
     <NhsPage
       originPage="edit-session"
-      title={`Services removed for ${parsedDate.format('DD MMMM YYYY')}`}
+      title={`Services removed for ${date.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
-        href: `/site/${site.id}/view-availability/week/?date=${parsedDate.date}`,
+        href: `/site/${site.id}/view-availability/week/?date=${searchParams.date}`,
         renderingStrategy: 'server',
         text: 'Back to week view',
       }}
@@ -55,7 +45,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       <EditServicesConfirmed
         removedServicesSession={removedServicesSession}
         site={site}
-        date={date}
+        date={searchParams.date}
         clinicalServices={clinicalServices}
       />
     </NhsPage>

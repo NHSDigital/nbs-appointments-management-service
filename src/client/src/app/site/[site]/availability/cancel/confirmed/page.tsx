@@ -10,46 +10,44 @@ import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
-  searchParams?: Promise<{
+  searchParams: {
     date: string;
     session: string;
-  }>;
-  params: Promise<{
+  };
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  const { site: siteFromPath } = { ...(await params) };
-  const { session, date } = { ...(await searchParams) };
-
-  await assertPermission(siteFromPath, 'availability:setup');
-  if (session === undefined || date === undefined) {
-    notFound();
-  }
+  await assertPermission(params.site, 'availability:setup');
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
+    fetchSite(params.site),
     fetchClinicalServices(),
   ]);
 
+  if (searchParams.session === undefined || searchParams.date === undefined) {
+    notFound();
+  }
+
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${site.id}/view-availability/week/?date=${date}`,
+    href: `/site/${params.site}/view-availability/week/?date=${searchParams.date}`,
     text: 'Back to week view',
   };
 
   return (
     <NhsPage
-      title={`Cancelled session for ${parseToUkDatetime(date).format('DD MMMM YYYY')}`}
+      title={`Cancelled session for ${parseToUkDatetime(searchParams.date).format('DD MMMM YYYY')}`}
       caption={`${site.name}`}
       originPage="edit-session"
       backLink={backLink}
     >
       <CancellationConfirmed
-        session={session}
-        date={date}
-        site={site.id}
+        session={searchParams.session}
+        date={searchParams.date}
+        site={params.site}
         clinicalServices={clinicalServices}
       />
     </NhsPage>

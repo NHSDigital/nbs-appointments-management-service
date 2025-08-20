@@ -16,20 +16,18 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  params: Promise<{
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ params }: PageProps) => {
-  const { site: siteFromPath } = { ...(await params) };
-
-  await assertPermission(siteFromPath, 'site:view');
+  await assertPermission(params.site, 'site:view');
 
   const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
-    fetchSite(siteFromPath),
+    fetchSite(params.site),
     fetchWellKnownOdsCodeEntries(),
-    fetchPermissions(siteFromPath),
+    fetchPermissions(params.site),
   ]);
 
   return (

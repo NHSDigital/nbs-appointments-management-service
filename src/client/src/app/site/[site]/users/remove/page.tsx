@@ -10,35 +10,35 @@ import { notFound, redirect } from 'next/navigation';
 import { notAuthorized } from '@services/authService';
 
 export type UserPageProps = {
-  searchParams?: Promise<{
-    user?: string;
-  }>;
-  params: Promise<{
+  params: {
     site: string;
-  }>;
+  };
+  searchParams?: {
+    user?: string;
+  };
 };
 
 const Page = async ({ params, searchParams }: UserPageProps) => {
-  const { user } = { ...(await searchParams) };
-  const { site: siteFromPath } = { ...(await params) };
-
-  if (user === undefined) {
-    redirect(`/site/${siteFromPath}/users`);
+  if (searchParams?.user === undefined) {
+    redirect(`/site/${params.site}/users`);
   }
 
-  await assertPermission(siteFromPath, 'users:manage');
+  await assertPermission(params.site, 'users:manage');
 
   const [site, users, userProfile] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchUsers(siteFromPath),
+    fetchSite(params.site),
+    fetchUsers(params.site),
     fetchUserProfile(),
   ]);
 
-  if (users === undefined || !users.some(u => u.id === user.toLowerCase())) {
+  if (
+    users === undefined ||
+    !users.some(u => u.id === searchParams?.user?.toLowerCase())
+  ) {
     notFound();
   }
 
-  if (userProfile.emailAddress === user.toLowerCase()) {
+  if (userProfile.emailAddress === searchParams?.user.toLowerCase()) {
     notAuthorized();
   }
 
@@ -46,12 +46,12 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
     <NhsPage
       title="Remove User"
       breadcrumbs={[
-        { name: site.name, href: `/site/${site.id}` },
-        { name: 'Users', href: `/site/${site.id}/users` },
+        { name: site.name, href: `/site/${params.site}` },
+        { name: 'Users', href: `/site/${params.site}/users` },
       ]}
       originPage="users-remove"
     >
-      <RemoveUserPage user={user} site={site} />
+      <RemoveUserPage user={searchParams?.user} site={site} />
     </NhsPage>
   );
 };

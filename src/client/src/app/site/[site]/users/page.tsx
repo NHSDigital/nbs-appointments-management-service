@@ -11,23 +11,20 @@ import NhsPage from '@components/nhs-page';
 import { UsersPage } from './users-page';
 
 type PageProps = {
-  params: Promise<{
+  params: {
     site: string;
-  }>;
+  };
 };
 
 const Page = async ({ params }: PageProps) => {
-  const { site: siteFromPath } = { ...(await params) };
-
-  await assertAnyPermissions(siteFromPath, ['users:view', 'users:view']);
-
+  await assertAnyPermissions(params.site, ['users:view', 'users:view']);
   const [userProfile, users, rolesResponse, site, permissions, oktaEnabled] =
     await Promise.all([
       fetchUserProfile(),
-      fetchUsers(siteFromPath),
+      fetchUsers(params.site),
       fetchRoles(),
-      fetchSite(siteFromPath),
-      fetchPermissions(siteFromPath),
+      fetchSite(params.site),
+      fetchPermissions(params.site),
       fetchFeatureFlag('OktaEnabled'),
     ]);
 

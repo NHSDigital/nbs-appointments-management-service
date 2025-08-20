@@ -11,20 +11,18 @@ import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { dateFormat, parseToUkDatetime } from '@services/timeService';
 
 type PageProps = {
-  params: Promise<{
+  params: {
     site: string;
     reference: string;
-  }>;
+  };
 };
 
 const Page = async ({ params }: PageProps) => {
-  const { site: siteFromPath, reference } = { ...(await params) };
-
-  await assertPermission(siteFromPath, 'booking:cancel');
+  await assertPermission(params.site, 'booking:cancel');
 
   const [site, booking, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchBooking(reference, siteFromPath),
+    fetchSite(params.site),
+    fetchBooking(params.reference, params.site),
     fetchClinicalServices(),
   ]);
 
@@ -35,7 +33,7 @@ const Page = async ({ params }: PageProps) => {
   const returnDate = parseToUkDatetime(booking.from).format(dateFormat);
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
-    href: `/site/${site.id}/view-availability/daily-appointments?date=${returnDate}&page=1`,
+    href: `/site/${params.site}/view-availability/daily-appointments?date=${returnDate}&page=1`,
     text: 'Go back',
   };
 

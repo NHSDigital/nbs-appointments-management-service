@@ -47,7 +47,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       title={`Services removed for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
-        href: `/site/${site.id}/view-availability/week/?date=${date}`,
+        href: `/site/${site.id}/view-availability/week/?date=${parsedDate.date}`,
         renderingStrategy: 'server',
         text: 'Back to week view',
       }}

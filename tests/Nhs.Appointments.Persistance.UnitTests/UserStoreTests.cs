@@ -86,5 +86,35 @@ namespace Nhs.Appointments.Persistance.UnitTests
             _cosmosStore.Verify(x => x.WriteAsync(It.IsAny<UserDocument>()), Times.Once);
             _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
         }
+
+        [Fact]
+        public async Task UpdateUserIcbPermissions_AddsNewUser()
+        {
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()))
+                .ReturnsAsync(null as Core.User);
+
+            await _sut.UpdateUserIcbPermissionsAsync("test.user@nhs.net", "icb:ICB1", [new() { Role = "system:icb-user", Scope = "icb:ICB1" }]);
+
+            _cosmosStore.Verify(x => x.WriteAsync(It.IsAny<UserDocument>()), Times.Once);
+            _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateUserIcbPermissions_UpdatesUserDocument()
+        {
+            var user = new Core.User
+            {
+                Id = "test.user@nhs.net",
+                RoleAssignments = [new() { Role = "system:icb-user", Scope = "icb:ICB1" }]
+            };
+
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
+            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
+
+            await _sut.UpdateUserIcbPermissionsAsync("test.user@nhs.net", "icb:ICB1", [new() { Role = "system:icb-user", Scope = "icb:ICB1" }]);
+
+            _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>("test.user@nhs.net"), Times.Once);
+            _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), "test.user@nhs.net", It.IsAny<PatchOperation[]>()), Times.Once);
+        }
     }
 }

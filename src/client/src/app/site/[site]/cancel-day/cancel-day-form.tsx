@@ -44,6 +44,11 @@ const CancelDayForm = ({
   const { replace } = useRouter();
   const parsedDate = parseToUkDatetime(date);
 
+  // ✅ State to track yes/no radio
+  const [cancelChoice, setCancelChoice] = useState<boolean | undefined>(
+    undefined,
+  );
+
   // ✅ State to track when user clicks "Continue"
   const [confirmStep, setConfirmStep] = useState(false);
 
@@ -59,7 +64,7 @@ const CancelDayForm = ({
     const payload: CancelDayRequest = {
       site: siteId,
       date: parsedDate.format(RFC3339Format),
-    };
+  };
 
     const response = await cancelDay(payload);
     replace(
@@ -122,20 +127,20 @@ const CancelDayForm = ({
             legend="Are you sure you want to cancel this day?"
             error=""
           >
-            <>
-              <ButtonGroup>
+          <>
+            <ButtonGroup>
                 <Button type="submit" styleType="warning">
-                  Cancel day
-                </Button>
-              </ButtonGroup>
-              <Link
-                href={`/site/${siteId}/view-availability/week?date=${date}`}
-                className="nhsuk-link"
-              >
-                No, go back
-              </Link>
-            </>
-          </FormGroup>
+                Cancel day
+              </Button>
+            </ButtonGroup>
+            <Link
+              href={`/site/${siteId}/view-availability/week?date=${date}`}
+              className="nhsuk-link"
+            >
+              No, go back
+            </Link>
+          </>
+        </FormGroup>
         </form>
       )}
     </>

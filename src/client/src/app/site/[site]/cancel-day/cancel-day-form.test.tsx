@@ -46,6 +46,9 @@ describe('CancelDayForm', () => {
 
   it('renders the session summary and inset text', () => {
     render(<CancelDayForm {...defaultProps} />);
+    expect(screen.getByTestId('session-summary')).toHaveTextContent(
+      'Sessions for Wednesday 1 January',
+    );
     expect(
       screen.getByText('Sessions for Wednesday 1 January'),
     ).toBeInTheDocument();
@@ -66,6 +69,10 @@ describe('CancelDayForm', () => {
     );
     const continueBtn = screen.getByRole('button', { name: 'Continue' });
 
+  it('allows selecting No and navigates back on Continue', () => {
+    render(<CancelDayForm {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText(/no, i don't want/i));
+    const continueBtn = screen.getByRole('button', { name: /continue/i });
     expect(continueBtn).toBeEnabled();
 
     await user.click(continueBtn);

@@ -196,4 +196,38 @@ describe('Session summary table', () => {
       }),
     ).toBeInTheDocument();
   });
+
+  it('it does not render unbooked column', () => {
+    mockUkNow.mockReturnValue(
+      parseToUkDatetime('2024-06-09T23:59:59', dateTimeFormat),
+    );
+
+    render(
+      <SessionSummaryTable
+        sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        showChangeSessionLink={{
+          siteId: 'TEST01',
+          ukDate: mockWeekAvailability__Summary[0].ukDate.format(RFC3339Format),
+        }}
+        clinicalServices={clinicalServices}
+        showUnbooked={false}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('columnheader', { name: 'Unbooked' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders a caption when tableCaption is provided', () => {
+    render(
+      <SessionSummaryTable
+        sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        clinicalServices={clinicalServices}
+        tableCaption="My custom caption"
+      />,
+    );
+
+    expect(screen.getByText('My custom caption')).toBeInTheDocument();
+  });
 });

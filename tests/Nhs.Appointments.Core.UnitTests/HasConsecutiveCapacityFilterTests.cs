@@ -1,3 +1,5 @@
+using Nhs.Appointments.Api.Availability;
+
 namespace Nhs.Appointments.Core.UnitTests;
 public class HasConsecutiveCapacityFilterTests
 {
@@ -7,6 +9,131 @@ public class HasConsecutiveCapacityFilterTests
     }
 
     private IHasConsecutiveCapacityFilter _sut;
+
+    private static DateTime AtTime(string timeInReadableFormat)
+    {
+        var hour = int.Parse(timeInReadableFormat.Split(':')[0]);
+        var minute = int.Parse(timeInReadableFormat.Split(':')[1]);
+
+        return new DateTime(2025, 4, 9, hour, minute, 0);
+    }
+
+    private static TimeSpan WithLength(int minutes) => TimeSpan.FromMinutes(minutes);
+
+    [Fact]
+    public void APPT_767_Scenario_One()
+    {
+        // In test scenario one for APPT-767, the following sessions exist:
+        // "sessions": [{
+        //     "from": "09:00",
+        //     "until": "10:00",
+        //     "services": ["RSV:Adult"],
+        //     "slotLength": 5,
+        //     "capacity": 1
+        // },{
+        //     "from": "09:00",
+        //     "until": "10:00",
+        //     "services": ["RSV:Adult"],
+        //     "slotLength": 5,
+        //     "capacity": 1
+        // }],
+
+        // This would be converted to slots as:
+        var sessions = new List<SessionInstance>
+        {
+            new(new TimePeriod(AtTime("09:00"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:05"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:10"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:15"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:20"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:25"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:30"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:35"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:40"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:45"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:50"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:55"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:00"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:05"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:10"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:15"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:20"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:25"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:30"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:35"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:40"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:45"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:50"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:55"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] }
+        };
+
+        var slotsAfterFilteringByConsecutive = _sut.SessionHasConsecutiveSessions(sessions, 2);
+
+        var availabilityGrouper = new SlotAvailabilityGrouper();
+        var groupedBlocks = availabilityGrouper.GroupAvailability(slotsAfterFilteringByConsecutive);
+
+        var nineFiftyFiveBlock = groupedBlocks.Single(block => block.from.Hour is 9 & block.from.Minute is 55);
+
+        // The final block should have capacity 0, because there are no slots after it to support a consecutive booking
+        nineFiftyFiveBlock.count.Should().Be(0);
+    }
+
+    [Fact]
+    public void APPT_767_Scenario_Two()
+    {
+        // In test scenario two for APPT-767, the following sessions exist:
+        // "sessions": [{
+        //     "from": "09:00",
+        //     "until": "10:00",
+        //     "services": ["RSV:Adult"],
+        //     "slotLength": 5,
+        //     "capacity": 1
+        // },{
+        //     "from": "09:00",
+        //     "until": "10:00",
+        //     "services": ["RSV:Adult"],
+        //     "slotLength": 5,
+        //     "capacity": 2
+        // }],
+
+        // This would be converted to slots as:
+        var sessions = new List<SessionInstance>
+        {
+            new(new TimePeriod(AtTime("09:00"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:05"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:10"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:15"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:20"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:25"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:30"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:35"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:40"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:45"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:50"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:55"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:00"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:05"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:10"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:15"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:20"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:25"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:30"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:35"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:40"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:45"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:50"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
+            new(new TimePeriod(AtTime("09:55"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] }
+        };
+
+        var slotsAfterFilteringByConsecutive = _sut.SessionHasConsecutiveSessions(sessions, 2);
+
+        var availabilityGrouper = new SlotAvailabilityGrouper();
+        var groupedBlocks = availabilityGrouper.GroupAvailability(slotsAfterFilteringByConsecutive).ToList();
+
+        groupedBlocks.Count.Should().Be(12);
+        groupedBlocks.Count(blocks => blocks.count == 3).Should().Be(11);
+        groupedBlocks.Count(blocks => blocks.count == 0).Should().Be(1);
+    }
 
     [Fact]
     public void SessionHasConsecutiveSessions_ReturnsAll_WhenConsecutive1()

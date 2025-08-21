@@ -36,11 +36,14 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         friendlyName={'NHS Mail'}
       />
       {oktaEnabledFlag.enabled && (
-        <LogInLink
-          redirectUrl={redirectUrl}
-          provider={'okta'}
-          friendlyName={'Other Email'}
-        />
+        <>
+          <br />
+          <LogInLink
+            redirectUrl={redirectUrl}
+            provider={'okta'}
+            friendlyName={'Other Email'}
+          />
+        </>
       )}
     </NhsAnonymousPage>
   );

@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+*.user
+*.suo
+*.pfx
+*.key
+*.secret

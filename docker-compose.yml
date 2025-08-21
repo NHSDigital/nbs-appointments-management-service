@@ -96,7 +96,6 @@ services:
       - "8010:443"
       - "8020:80"
     environment:
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "true"
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: https://+:443;http://+80
       ASPNETCORE_HTTPS_PORT: 8010

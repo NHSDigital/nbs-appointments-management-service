@@ -20,6 +20,7 @@ public class GetDailySummaryFunctionTests
     private readonly Mock<IMetricsRecorder> _mockMetricsRecorder = new();
     private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
     private readonly Mock<IValidator<GetDaySummaryRequest>> _mockValidator = new();
+    private readonly Mock<IFeatureToggleHelper> _mockFeatureToggleHelper = new();
 
     private readonly GetDailySummaryFunction _sut;
 
@@ -30,7 +31,8 @@ public class GetDailySummaryFunctionTests
             _mockValidator.Object,
             _mockUserContextProvider.Object,
             _mockLogger.Object,
-            _mockMetricsRecorder.Object
+            _mockMetricsRecorder.Object,
+            _mockFeatureToggleHelper.Object
         );
     }
 
@@ -40,12 +42,13 @@ public class GetDailySummaryFunctionTests
         //Arrange
         var validationResult = new ValidationResult
         {
-            Errors =
-            [
+            Errors = new List<ValidationFailure>
+            {
                 new ValidationFailure("Site", "Site is required.")
-            ]
+            }
         };
         var request = CreateRequest(from: "2024-12-01");
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultipleServices)).ReturnsAsync(true);
         _mockValidator
             .Setup(x => x.ValidateAsync(
                 It.Is<GetDaySummaryRequest>(r => string.IsNullOrEmpty(r.Site)),
@@ -74,6 +77,7 @@ public class GetDailySummaryFunctionTests
             ]
         };
         var request = CreateRequest(site: "Site01");
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultipleServices)).ReturnsAsync(true);
         _mockValidator
             .Setup(x => x.ValidateAsync(
                 It.Is<GetDaySummaryRequest>(r => string.IsNullOrEmpty(r.From)),
@@ -96,6 +100,7 @@ public class GetDailySummaryFunctionTests
         //Arrange
         var request = CreateRequest(site: "Site01", from: "2024-12-01");
         var daySummary = new Summary();
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultipleServices)).ReturnsAsync(true);
         _mockValidator
             .Setup(x => x.ValidateAsync(It.IsAny<GetDaySummaryRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

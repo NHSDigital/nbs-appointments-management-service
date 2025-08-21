@@ -68,7 +68,7 @@ public class UserDataImportHandler(
                 .Select(x => x.OdsCode.ToLower())
                 .ToList();
 
-            ValidateIcbCodes(userImportRows, report, validIcbCodes);
+            ValidateIcbCodes(icbUsers, report, validIcbCodes);
             CheckForDuplicatedPermissions(icbUsers, report, "ICB");
         }
 

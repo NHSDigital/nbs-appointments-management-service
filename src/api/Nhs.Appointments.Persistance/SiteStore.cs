@@ -7,7 +7,6 @@ namespace Nhs.Appointments.Persistance;
 
 public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : ISiteStore
 {
-    
     public Task<Site> GetSiteById(string siteId)
     {
         return GetOrDefault(siteId);
@@ -172,4 +171,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         await cosmosStore.PatchDocument(documentType, siteId, patchOperations);
         return new OperationResult(true);
     }
+
+    public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
+        => await cosmosStore.RunQueryAsync<Site>(s => s.DocumentType == "site" && s.IntegratedCareBoard == icb);
 }

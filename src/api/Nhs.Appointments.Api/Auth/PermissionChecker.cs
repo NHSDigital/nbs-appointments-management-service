@@ -15,6 +15,8 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     private const string RegionScopePrefix = $"{RegionScope}:";
     private const string SiteScope = "site";
     private const string SiteScopePrefix = $"{SiteScope}:";
+    private const string IcbScope = "icb";
+    private const string IcbScopePrefix = $"{IcbScope}:";
 
     public async Task<bool> HasPermissionAsync(string userId, IEnumerable<string> siteIds, string requiredPermission)
     {
@@ -45,6 +47,25 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
             }
         }
 
+        var icbPermissions = roleAssignments
+            .Where(ra => ra.Scope.StartsWith(IcbScopePrefix))
+            .Select(ra => ra.Scope)
+            .Distinct()
+            .ToList();
+
+        if (icbPermissions.Count > 0)
+        {
+            var sitesInIcb = await GetSitesInIcbs(icbPermissions);
+            if (sitesInIcb.Any(s => siteIds.Contains(s.Id)))
+            {
+                var sitePermissions = FilteredPermissions(roleAssignments, roles, ra => icbPermissions.Contains(ra.Scope));
+                if (sitePermissions.Contains(requiredPermission))
+                {
+                    return true;
+                }
+            }
+        }
+
         foreach (var siteId in siteIds)
         {
             var usersPermissions = FilteredPermissions(roleAssignments, roles, ra => ra.Scope == $"{SiteScopePrefix}{siteId}");
@@ -66,31 +87,8 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
     public async Task<IEnumerable<string>> GetPermissionsAsync(string userId, string siteId)
     {
-        var filter = GlobalOrSiteFilter(siteId);
-
-        if (string.IsNullOrEmpty(siteId))
-        {
-            filter = GlobalOnlyFilter();
-        } 
-        else if (siteId.Equals("*"))
-        {
-            filter = AnySiteFilter();
-        }
-        else
-        {
-            var regionalPermissions = await GetRegionPermissionsAsync(userId);
-            if (regionalPermissions.Any())
-            {
-                var sites = await GetSitesInRegions(regionalPermissions);
-                if (sites.Any(s => s.Id == siteId))
-                {
-                    filter = GlobalOrRegionalOrSiteFilter(regionalPermissions, siteId);
-                }
-            }
-        }
-        
+        var filter = await GetPermissionFilter(siteId, userId);
         var (roleAssignments, roles) = await GetUserPermissionsAsync(userId);
-
         return FilteredPermissions(roleAssignments, roles, filter);
     }
 
@@ -113,18 +111,57 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
         return sitesTask.Result.Where(site => ScopesAssignedToSite(scopeTask.Result, site));
     }
 
-    private bool ScopesAssignedToSite(IEnumerable<RoleAssignmentScope> scopes, Site site)
+    private async Task<Func<RoleAssignment, bool>> GetPermissionFilter(string siteId, string userId)
+    {
+        var filter = GlobalOrSiteFilter(siteId);
+
+        if (string.IsNullOrEmpty(siteId))
+        {
+            filter = GlobalOnlyFilter();
+        }
+        else if (siteId.Equals("*"))
+        {
+            filter = AnySiteFilter();
+        }
+        else
+        {
+            var regionalPermissions = await GetRegionPermissionsAsync(userId);
+            if (regionalPermissions.Any())
+            {
+                var sites = await GetSitesInRegions(regionalPermissions);
+                if (sites.Any(s => s.Id == siteId))
+                {
+                    filter = GlobalOrRegionalOrSiteFilter(regionalPermissions, siteId);
+                }
+            }
+
+            var icbPermissions = await GetIcbPermissionsAsync(userId);
+            if (icbPermissions.Any())
+            {
+                var sites = await GetSitesInIcbs(icbPermissions);
+                if (sites.Any(s => s.Id == siteId))
+                {
+                    filter = GlobalOrIcbOrSiteFilter(icbPermissions, siteId);
+                }
+            }
+        }
+
+        return filter;
+    }
+
+    private static bool ScopesAssignedToSite(IEnumerable<RoleAssignmentScope> scopes, Site site)
     {
         return scopes.Any(scope => ScopeAssignedToSite(scope, site));
     }
 
-    private bool ScopeAssignedToSite(RoleAssignmentScope scope, Site site)
+    private static bool ScopeAssignedToSite(RoleAssignmentScope scope, Site site)
     {
         return scope.Scope switch
         {
             GlobalScope => true,
             RegionScope => site.Region.Equals(scope.Value),
             SiteScope => site.Id.Equals(scope.Value),
+            IcbScope => site.IntegratedCareBoard.Equals(scope.Value),
             _ => false
         };
     }
@@ -208,7 +245,27 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
         return siteResults.SelectMany(s => s).Distinct();
     }
-    
+
+    private async Task<IEnumerable<Site>> GetSitesInIcbs(IEnumerable<string> icbPermissions)
+    {
+        var icbNames = icbPermissions
+            .Select(ip => ip.Replace(IcbScopePrefix, ""))
+            .Distinct();
+
+        var siteTasks = icbNames.Select(siteService.GetSitesInIcbAsync);
+        var siteResults = await Task.WhenAll(siteTasks);
+
+        return siteResults.SelectMany(s => s).Distinct();
+    }
+
+    private async Task<IEnumerable<string>> GetIcbPermissionsAsync(string userId)
+    {
+        var userRoleAssignments = await GetUserRoleAssignmentsAsync(userId);
+        return userRoleAssignments
+            .Where(ra => ra.Scope.StartsWith(IcbScopePrefix))
+            .Select(ra => ra.Scope)
+            .Distinct();
+    }
 
     private static Func<RoleAssignment, bool> GlobalOnlyFilter()
         => ra => ra.Scope == GlobalScope;
@@ -221,4 +278,7 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     
     private static Func<RoleAssignment, bool> AnySiteFilter()
         => ra => true;
+
+    private static Func<RoleAssignment, bool> GlobalOrIcbOrSiteFilter(IEnumerable<string> icbPermissions, string siteId)
+        => ra => ra.Scope == GlobalScope || ra.Scope == $"{SiteScopePrefix}{siteId}" || icbPermissions.Contains(ra.Scope);
 }

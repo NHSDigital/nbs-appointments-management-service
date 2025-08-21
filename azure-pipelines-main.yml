@@ -12,7 +12,7 @@ variables:
 parameters:
   - name: environments
     type: object
-    default: ["dev"]
+    default: ["dev", "pen", "perf"]
     values: ["dev", "pen", "perf"]
 
 stages:

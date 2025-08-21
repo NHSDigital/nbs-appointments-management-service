@@ -12,7 +12,7 @@ public class UserBulkImportFeatureSteps : BaseBulkImportFeatureSteps
     [When("I import the following users")]
     public async Task ImportUsers(DataTable dataTable)
     {
-        const string usersHeader = "User,FirstName,LastName,appointment-manager,availability-manager,site-details-manager,user-manager,Region,Site,ICB";
+        const string usersHeader = "User,FirstName,LastName,appointment-manager,availability-manager,site-details-manager,user-manager,Region,ICB,Site";
 
         var csv = BuildInputCsv(dataTable, usersHeader);
 

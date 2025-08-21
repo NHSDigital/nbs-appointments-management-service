@@ -16,12 +16,16 @@ type SessionSummaryTableProps = {
     ukDate: string;
   };
   clinicalServices: ClinicalService[];
+  showUnbooked?: boolean;
+  tableCaption?: string;
 };
 
 export const SessionSummaryTable = ({
   sessionSummaries,
   showChangeSessionLink,
   clinicalServices,
+  showUnbooked = true,
+  tableCaption,
 }: SessionSummaryTableProps) => {
   return (
     <Table
@@ -29,7 +33,7 @@ export const SessionSummaryTable = ({
         'Time',
         'Services',
         'Booked',
-        'Unbooked',
+        ...(showUnbooked ? ['Unbooked'] : []),
         ...(showChangeSessionLink ? ['Action'] : []),
       ]}
       rows={getSessionSummaryRows(
@@ -37,6 +41,7 @@ export const SessionSummaryTable = ({
         clinicalServices,
         showChangeSessionLink,
       )}
+      caption={tableCaption}
     />
   );
 };

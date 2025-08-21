@@ -73,7 +73,10 @@ export const DaySummaryCard = ({
 
   const futureCancelDayLink =
     cancelDayFlag && isFutureCalendarDate ? (
-      <Link className="nhsuk-link" href={`/site/${siteId}/cancel-day`}>
+      <Link
+        className="nhsuk-link"
+        href={`/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
+      >
         Cancel day
       </Link>
     ) : null;

@@ -469,6 +469,14 @@ export const fetchWeekSummaryV2 = async (site: string, from: string) => {
   return handleBodyResponse(response);
 };
 
+export const fetchDaySummary = async (site: string, from: string) => {
+  const response = await appointmentsApi.get<WeekSummaryV2>(
+    `day-summary?site=${site}&from=${from}`,
+  );
+
+  return handleBodyResponse(response);
+};
+
 export const fetchBooking = async (reference: string, site: string) => {
   const response = await appointmentsApi.get<Booking>(
     `booking/${reference}?site=${site}`,

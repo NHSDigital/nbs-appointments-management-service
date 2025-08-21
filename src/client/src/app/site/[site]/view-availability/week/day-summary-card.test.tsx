@@ -7,11 +7,13 @@ import {
   isFutureCalendarDateUk,
   parseToUkDatetime,
   ukNow,
+  RFC3339Format,
 } from '@services/timeService';
 import { clinicalServices } from '@types';
 import { cookies } from 'next/headers';
 import { fetchFeatureFlag } from '@services/appointmentsService';
 import { FeatureFlag } from '@types';
+
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
   return {
@@ -344,7 +346,7 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Cancel day' })).toHaveAttribute(
         'href',
-        '/site/mock-site/cancel-day',
+        `/site/mock-site/cancel-day?date=${mockDaySummaries[0].ukDate.format(RFC3339Format)}`,
       );
     });
 
@@ -365,7 +367,7 @@ describe('Day Summary Card', () => {
       expect(screen.queryByRole('link', { name: 'Cancel day' })).toBeNull();
     });
 
-    it.only('does not render "Cancel day" link if feature toggle is disabled', () => {
+    it('does not render "Cancel day" link if feature toggle is disabled', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
       fetchFeatureFlagMock.mockResolvedValue({
         enabled: false,
@@ -404,7 +406,7 @@ describe('Day Summary Card', () => {
       ).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Cancel day' })).toHaveAttribute(
         'href',
-        '/site/mock-site/cancel-day',
+        `/site/mock-site/cancel-day?date=${mockDaySummaries[0].ukDate.format(RFC3339Format)}`,
       );
     });
   });

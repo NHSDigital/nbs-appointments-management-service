@@ -29,7 +29,7 @@ import { sessionTestCases, weekTestCases } from '../../availability';
 import EditServicesPage from '../../page-objects/view-availability-appointment-pages/edit-services-page';
 import EditServicesConfirmedPage from '../../page-objects/view-availability-appointment-pages/edit-services-confirmed';
 
-test.describe.skip('Create Availability', () => {
+test.describe('Create Availability', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let siteSelectionPage: SiteSelectionPage;
@@ -65,7 +65,7 @@ test.describe.skip('Create Availability', () => {
       });
 
       test('Create single session of RSV availability', async ({ page }) => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
@@ -93,7 +93,7 @@ test.describe.skip('Create Availability', () => {
       test('Create single session of RSV and Covid availability', async ({
         page,
       }) => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
@@ -121,7 +121,7 @@ test.describe.skip('Create Availability', () => {
       });
 
       test('Create weekly session of RSV availability', async ({ page }) => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterFutureDate = getDateInFuture(dayIncrement + 1);
         await createAvailabilityPage.createAvailabilityButton.click();
@@ -159,7 +159,7 @@ test.describe.skip('Create Availability', () => {
       test('Create weekly session of RSV and Covid availability', async ({
         page,
       }) => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
 
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterFutureDate = getDateInFuture(dayIncrement + 1);
@@ -220,7 +220,7 @@ test.describe.skip('Create Availability', () => {
       });
 
       test('A user can navigate to the Create Availability flow validating weekly Session end date must be within the next year error', async () => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
         const futureDate = getDateInFuture(dayIncrement);
         const aYearFutureDate = getDateInFuture(dayIncrement + 365);
         await createAvailabilityPage.createAvailabilityButton.click();
@@ -244,7 +244,7 @@ test.describe.skip('Create Availability', () => {
       });
 
       test('Create weekly session of RSV availability check summary page links', async () => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterTomorrowDate = getDateInFuture(dayIncrement + 1);
         await createAvailabilityPage.createAvailabilityButton.click();
@@ -300,7 +300,7 @@ test.describe.skip('Create Availability', () => {
       });
 
       test('Create single session of RSV availability check summary page links', async () => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await expect(createAvailabilityPage.sessionTitle).toBeVisible();
@@ -346,7 +346,7 @@ test.describe.skip('Create Availability', () => {
   });
 });
 
-test.describe.skip('Update Session', () => {
+test.describe('Update Session', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let monthViewAvailabilityPage: MonthViewAvailabilityPage;
@@ -394,7 +394,7 @@ test.describe.skip('Update Session', () => {
       test('Verify user is able to add a session for future date', async ({
         page,
       }) => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -467,7 +467,7 @@ test.describe.skip('Update Session', () => {
       });
 
       test('Verify user is able to change availability', async ({ page }) => {
-        const dayIncrement = 29;
+        const dayIncrement = 76;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -523,7 +523,7 @@ test.describe.skip('Update Session', () => {
       test('Verify user is able to reduce services for availability', async ({
         page,
       }) => {
-        const dayIncrement = 40;
+        const dayIncrement = 77;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -646,7 +646,7 @@ test.describe.skip('Update Session', () => {
       });
 
       test('Verify user is able to cancel session', async ({ page }) => {
-        const dayIncrement = 34;
+        const dayIncrement = 78;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -701,7 +701,7 @@ test.describe.skip('Update Session', () => {
       });
 
       test('Verify session not canceled if not confirmed', async ({ page }) => {
-        const dayIncrement = 32;
+        const dayIncrement = 79;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -761,7 +761,7 @@ test.describe.skip('Update Session', () => {
       });
 
       test('Verify view daily appointment link displayed', async ({ page }) => {
-        const dayIncrement = 32;
+        const dayIncrement = 80;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -907,7 +907,7 @@ test.describe.skip('Update Session', () => {
   });
 });
 
-test.describe.skip('View Month Availability', () => {
+test.describe('View Month Availability', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let monthViewAvailabilityPage: MonthViewAvailabilityPage;
@@ -1073,7 +1073,7 @@ test.describe.skip('View Month Availability', () => {
   });
 });
 
-test.describe.skip('View Week Availability', () => {
+test.describe('View Week Availability', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let weekViewAvailabilityPage: WeekViewAvailabilityPage;

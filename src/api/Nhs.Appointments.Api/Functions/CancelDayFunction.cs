@@ -19,10 +19,10 @@ public class CancelDayFunction(
     IAvailabilityWriteService availabilityWriteService,
     IValidator<CancelDayRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<CancelDayFunction> logger,
+    ILogger<CancelSessionFunction> logger,
     IMetricsRecorder metricsRecorder) : BaseApiFunction<CancelDayRequest, CancelDayResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "CancelDay", tags: ["Availability", "Booking"], Summary = "Cancel all sessions and bookings on a given day")]
+    [OpenApiOperation(operationId: "CancelSession", tags: ["Availability"], Summary = "Cancel a session")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(CancelDayResponse),
         Description = "All Sessions and Bookings successfully cancelled for specified day")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
@@ -40,8 +40,8 @@ public class CancelDayFunction(
 
     protected override async Task<ApiResult<CancelDayResponse>> HandleRequest(CancelDayRequest request, ILogger logger)
     {
-        var (cancelledBookingCount, bookingsWithoutContactDetails) = await availabilityWriteService.CancelDayAsync(request.Site, request.Date);
+        var (cancelledBookingCount, bookingsWithouContactDetails) = await availabilityWriteService.CancelDayAsync(request.Site, request.Date);
 
-        return Success(new CancelDayResponse(cancelledBookingCount, bookingsWithoutContactDetails));
+        return Success(new CancelDayResponse(cancelledBookingCount, bookingsWithouContactDetails));
     }
 }

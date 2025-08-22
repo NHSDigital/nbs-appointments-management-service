@@ -10,4 +10,5 @@ public interface IAvailabilityStore
 
    Task<bool> SiteOffersServiceDuringPeriod(string siteId, string service,
        List<string> datesInPeriod);
+    Task CancelDayAsync(string site, DateOnly date);
 }

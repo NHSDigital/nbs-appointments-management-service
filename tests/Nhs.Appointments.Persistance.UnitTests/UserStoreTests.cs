@@ -196,5 +196,25 @@ namespace Nhs.Appointments.Persistance.UnitTests
             result.Count().Should().Be(1);
             result.First().Scope.Should().Be("icb:ICB1");
         }
+
+        [Fact]
+        public void DoesntRemoveConfictingPermission_IfRemovingScopedRole()
+        {
+
+            var newRoleAssignments = new List<Core.RoleAssignment> { new() { Role = IcbRole, Scope = "icb:ICB1" } };
+            var user = new Core.User
+            {
+                Id = "test.user@nhs.net",
+                RoleAssignments = [new() { Role = RegionRole, Scope = "region:R1" }, new() { Role = IcbRole, Scope = "icb:ICB1" }]
+            };
+
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
+            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
+
+            var result = _sut.GetUpdatedPermissions(user.RoleAssignments, "icb:ICB1", newRoleAssignments, IcbRole, RegionRole);
+
+            result.Count().Should().Be(1);
+            result.First().Scope.Should().Be("region:R1");
+        }
     }
 }

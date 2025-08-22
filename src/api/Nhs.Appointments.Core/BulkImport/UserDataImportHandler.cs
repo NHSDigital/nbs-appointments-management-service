@@ -12,6 +12,10 @@ public class UserDataImportHandler(
     IWellKnowOdsCodesService wellKnowOdsCodesService
 ) : IUserDataImportHandler
 {
+    private const string Icb = "icb";
+    private const string Region = "region";
+	private const string Site = "site";
+
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
         var oktaEnabled = await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled);
@@ -52,24 +56,24 @@ public class UserDataImportHandler(
         if (regionalUsers.Count > 0)
         {
             var validRegionCodes = wellKnownOdsCodes
-                .Where(ods => ods.Type.Equals("region", StringComparison.CurrentCultureIgnoreCase))
+                .Where(ods => ods.Type.Equals(Region, StringComparison.OrdinalIgnoreCase))
                 .Select(x => x.OdsCode.ToLower())
                 .ToList();
 
             ValidateRegionCodes(regionalUsers, report, validRegionCodes);
-            CheckForDuplicatedPermissions(regionalUsers, report, "region");
+            CheckForDuplicatedPermissions(regionalUsers, report, Region);
         }
 
         var icbUsers = userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Icb)).ToList();
         if (icbUsers.Count > 0)
         {
             var validIcbCodes = wellKnownOdsCodes
-                .Where(ods => ods.Type.Equals("icb", StringComparison.CurrentCultureIgnoreCase))
+                .Where(ods => ods.Type.Equals(Icb, StringComparison.OrdinalIgnoreCase))
                 .Select(x => x.OdsCode.ToLower())
                 .ToList();
 
             ValidateIcbCodes(icbUsers, report, validIcbCodes);
-            CheckForDuplicatedPermissions(icbUsers, report, "ICB");
+            CheckForDuplicatedPermissions(icbUsers, report, Icb.ToUpper());
         }
 
         if (report.Any(r => !r.Success))
@@ -96,17 +100,17 @@ public class UserDataImportHandler(
                 switch (permissionScope)
                 {
                     case UserPermissionScope.Region:
-                        await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"region:{userRow.Region}", userRow.RoleAssignments);
+                        await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"{Region}:{userRow.Region}", userRow.RoleAssignments);
                         break;
                     case UserPermissionScope.Site:
-                        var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"site:{userRow.SiteId}", userRow.RoleAssignments, false);
+                        var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"{Site}:{userRow.SiteId}", userRow.RoleAssignments, false);
                         if (!result.Success)
                         {
                             report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: '{string.Join('|', result.errorRoles)}'"));
                         }
                         break;
                     case UserPermissionScope.Icb:
-                        await userService.UpdateIcbUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"icb:{userRow.Icb}", userRow.RoleAssignments);
+                        await userService.UpdateIcbUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"{Icb}:{userRow.Icb}", userRow.RoleAssignments);
                         break;
                 }
             }

@@ -1,5 +1,3 @@
-using Nhs.Appointments.Api.Availability;
-
 namespace Nhs.Appointments.Core.UnitTests;
 public class HasConsecutiveCapacityFilterTests
 {
@@ -69,13 +67,9 @@ public class HasConsecutiveCapacityFilterTests
 
         var slotsAfterFilteringByConsecutive = _sut.SessionHasConsecutiveSessions(sessions, 2);
 
-        var availabilityGrouper = new SlotAvailabilityGrouper();
-        var groupedBlocks = availabilityGrouper.GroupAvailability(slotsAfterFilteringByConsecutive);
-
-        var nineFiftyFiveBlock = groupedBlocks.Single(block => block.from.Hour is 9 & block.from.Minute is 55);
-
-        // The final block should have capacity 0, because there are no slots after it to support a consecutive booking
-        nineFiftyFiveBlock.count.Should().Be(0);
+        slotsAfterFilteringByConsecutive
+            .Single(slot => slot.From.Hour is 9 & slot.From.Minute is 55)
+            .Capacity.Should().Be(0);
     }
 
     [Fact]
@@ -125,14 +119,14 @@ public class HasConsecutiveCapacityFilterTests
             new(new TimePeriod(AtTime("09:55"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] }
         };
 
-        var slotsAfterFilteringByConsecutive = _sut.SessionHasConsecutiveSessions(sessions, 2);
+        var slotsAfterFilteringByConsecutive = _sut.SessionHasConsecutiveSessions(sessions, 2).ToList();
 
-        var availabilityGrouper = new SlotAvailabilityGrouper();
-        var groupedBlocks = availabilityGrouper.GroupAvailability(slotsAfterFilteringByConsecutive).ToList();
+        slotsAfterFilteringByConsecutive.Count.Should().Be(12);
+        slotsAfterFilteringByConsecutive.Count(blocks => blocks.Capacity == 3).Should().Be(11);
 
-        groupedBlocks.Count.Should().Be(12);
-        groupedBlocks.Count(blocks => blocks.count == 3).Should().Be(11);
-        groupedBlocks.Count(blocks => blocks.count == 0).Should().Be(1);
+        slotsAfterFilteringByConsecutive
+            .Single(slot => slot.From.Hour is 9 & slot.From.Minute is 55)
+            .Capacity.Should().Be(0);
     }
 
     [Fact]

@@ -14,7 +14,7 @@ public class UserDataImportHandlerTests
     private readonly Mock<IWellKnowOdsCodesService> _wellKnownOdsCodesMock = new();
 
     private readonly UserDataImportHandler _sut;
-    private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager,Region";
+    private const string UsersHeader = "User,FirstName,LastName,Site,appointment-manager,availability-manager,site-details-manager,user-manager,Region,ICB";
 
     public UserDataImportHandlerTests()
     {
@@ -94,8 +94,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
-            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,,",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -130,10 +130,10 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
-            "test1@okta.net,,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
-            "test2@okta.net,Jane,,d3793464-b421-41f3-9bfa-53b06e7b3d19,,false,true,true,true,",
-            "test2@okta.net,,,9a06bacd-e916-4c10-8263-21451ca751b8,false,true,true,true,",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,,",
+            "test1@okta.net,,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,,",
+            "test2@okta.net,Jane,,d3793464-b421-41f3-9bfa-53b06e7b3d19,,false,true,true,true,,",
+            "test2@okta.net,,,9a06bacd-e916-4c10-8263-21451ca751b8,false,true,true,true,,",
         ];
     
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
@@ -219,8 +219,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true,",
-            "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true,",
+            "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, test, true, true,,",
+            "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, test, true,,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -241,8 +241,8 @@ public class UserDataImportHandlerTests
 
         string[] inputRows =
         [
-            "d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true,",
-            "308d515c-2002-450e-b248-4ba36f6667bb, true, false, true,"
+            "d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true,,",
+            "308d515c-2002-450e-b248-4ba36f6667bb, true, false, true,,"
         ];
 
         var input = CsvFileBuilder.BuildInputCsv(invalidHeaders, inputRows);
@@ -261,9 +261,9 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
-            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
-            "test3@okta-with-trailing-white-space.net ,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,,",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,,",
+            "test3@okta-with-trailing-white-space.net ,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -298,8 +298,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
-            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
+            "test1@okta.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,,",
+            "test2@okta.net,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -335,8 +335,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@invalid-domain.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
-            "test2@another-invalid-domain.com,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,",
+            "test1@invalid-domain.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,,",
+            "test2@another-invalid-domain.com,Jane,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -365,13 +365,16 @@ public class UserDataImportHandlerTests
         _oktaServiceMock.Verify(s => s.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
-    [Fact]
-    public async Task ReportsInvalidFile_WhenSiteAndRegionArePopulated()
+    [Theory]
+    [InlineData("d3793464-b421-41f3-9bfa-53b06e7b3d19", "R1", "ICB1", "Exactly one of Site, Region or ICB must be populated, but the populated fields were: 3: Site,Region,ICB")]
+    [InlineData("d3793464-b421-41f3-9bfa-53b06e7b3d19", "", "ICB1", "Exactly one of Site, Region or ICB must be populated, but the populated fields were: 2: Site,ICB")]
+    [InlineData("", "R1", "ICB1", "Exactly one of Site, Region or ICB must be populated, but the populated fields were: 2: Region,ICB")]
+    [InlineData("d3793464-b421-41f3-9bfa-53b06e7b3d19", "R1", "", "Exactly one of Site, Region or ICB must be populated, but the populated fields were: 2: Site,Region")]
+    public async Task ReportsInvalidFile_WhenSiteIcbAndRegionArePopulated(string site, string region, string icb, string expectedErrorMsg)
     {
         string[] inputRows =
         [
-            "test1@nhs.net,Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,R1",
-            "test2@nhs.net,John,Smith,308d515c-2002-450e-b248-4ba36f6667bb,true,false,false,true,R2",
+            $"test1@nhs.net,Jane,Smith,{site},false,true,true,true,{region},{icb}",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -379,18 +382,18 @@ public class UserDataImportHandlerTests
 
         var report = await _sut.ProcessFile(file);
 
-        report.Count().Should().Be(2);
+        report.Count().Should().Be(1);
         report.All(r => r.Success).Should().BeFalse();
-        report.First(r => !r.Success).Message.Should().Be("Exactly one of Site or Region must be populated.");
+        report.First(r => !r.Success).Message.Should().Be(expectedErrorMsg);
     }
 
     [Fact]
-    public async Task ReportsInvalidFile_WhenNeitherSiteNorRegionArePopulated()
+    public async Task ReportsInvalidFile_WhenNoneOfSiteRegionOrIcbArePopulated()
     {
         string[] inputRows =
         [
-            "test1@nhs.net,Jane,Smith,,false,true,true,true,",
-            "test2@nhs.net,John,Smith,,true,false,false,true,",
+            "test1@nhs.net,Jane,Smith,,false,true,true,true,,",
+            "test2@nhs.net,John,Smith,,true,false,false,true,,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -400,7 +403,7 @@ public class UserDataImportHandlerTests
 
         report.Count().Should().Be(2);
         report.All(r => r.Success).Should().BeFalse();
-        report.First(r => !r.Success).Message.Should().Be("Exactly one of Site or Region must be populated.");
+        report.First(r => !r.Success).Message.Should().Be("Exactly one of Site, Region or ICB must be populated, but none were provided.");
     }
 
     [Fact]
@@ -408,9 +411,9 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,Jane,Smith,,,,,,R1",
-            "test2@nhs.net,John,Smith,,,,,,R2",
-            "MiXed.CASE.email@nhs.net,John,Smith,,,,,,R2"
+            "test1@nhs.net,Jane,Smith,,,,,,R1,",
+            "test2@nhs.net,John,Smith,,,,,,R2,",
+            "MiXed.CASE.email@nhs.net,John,Smith,,,,,,R2,"
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -435,6 +438,8 @@ public class UserDataImportHandlerTests
 
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "region:R1", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
         _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "region:R2", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
+
+        _userServiceMock.Verify(u => u.UpdateIcbUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
     }
 
     [Fact]
@@ -442,8 +447,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,Jane,Smith,,,,,,R1",
-            "test2@nhs.net,John,Smith,,,,,,R66",
+            "test1@nhs.net,Jane,Smith,,,,,,R1,",
+            "test2@nhs.net,John,Smith,,,,,,R66,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -471,7 +476,7 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            $"{email},Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,",
+            $"{email},Jane,Smith,d3793464-b421-41f3-9bfa-53b06e7b3d19,false,true,true,true,,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -491,8 +496,8 @@ public class UserDataImportHandlerTests
     {
         string[] inputRows =
         [
-            "test1@nhs.net,Jane,Smith,,false,true,true,true,R1",
-            "test1@nhs.net,John,Smith,,true,false,false,true,R2",
+            "test1@nhs.net,Jane,Smith,,false,true,true,true,R1,",
+            "test1@nhs.net,John,Smith,,true,false,false,true,R2,",
         ];
         var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
@@ -510,6 +515,93 @@ public class UserDataImportHandlerTests
         report.First(r => !r.Success).Message.Should().Be("Users can only be added to one region per upload. User: 'test1@nhs.net' has been added multiple times for region scoped permissions.");
     }
 
+    [Fact]
+    public async Task ReadsUserData_AndReportsInvalidIcbCodes()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,Jane,Smith,,,,,,,ICB321",
+            "test2@nhs.net,John,Smith,,,,,,,ICB1",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
+        _wellKnownOdsCodesMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry> { new("ICB1", "ICB 1", "ICB") });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("Provided ICB: 'ICB321' not found in the well known ICB list.");
+    }
+
+    [Fact]
+    public async Task ReadsUserData_AndReportsDuplicateIcbScopedPermissionsAdded()
+    {
+        string[] inputRows =
+       [
+           "test1@nhs.net,Jane,Smith,,false,true,true,true,,ICB1",
+            "test1@nhs.net,John,Smith,,true,false,false,true,,ICB1",
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
+        _wellKnownOdsCodesMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry> { new("ICB1", "ICB 1", "ICB"), new("ICB2", "ICB 2", "ICB") });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(1);
+        report.All(r => r.Success).Should().BeFalse();
+        report.First(r => !r.Success).Message.Should().Be("Users can only be added to one ICB per upload. User: 'test1@nhs.net' has been added multiple times for ICB scoped permissions.");
+    }
+
+    [Fact]
+    public async Task CanReadUserData_AndSetsIcbScopedPermissions()
+    {
+        string[] inputRows =
+        [
+            "test1@nhs.net,Jane,Smith,,,,,,,ICB1",
+            "test2@nhs.net,John,Smith,,,,,,,ICB2",
+            "MiXed.CASE.email@nhs.net,John,Smith,,,,,,,ICB2"
+        ];
+        var input = CsvFileBuilder.BuildInputCsv(UsersHeader, inputRows);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _userServiceMock.Setup(x => x.UpdateUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), false))
+            .ReturnsAsync(new UpdateUserRoleAssignmentsResult(true, string.Empty, Array.Empty<string>()));
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(It.IsAny<string>())).ReturnsAsync(true);
+        _emailWhitelistStore.Setup(x => x.GetWhitelistedEmails())
+            .ReturnsAsync(["@nhs.net"]);
+        _wellKnownOdsCodesMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry> { new("ICB1", "ICB 1", "ICB"), new("ICB2", "ICB 2", "ICB") });
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(3);
+        report.All(r => r.Success).Should().BeTrue();
+
+        _userServiceMock.Verify(u => u.UpdateIcbUserRoleAssignmentsAsync("test1@nhs.net", "icb:ICB1", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateIcbUserRoleAssignmentsAsync("test2@nhs.net", "icb:ICB2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+        _userServiceMock.Verify(u => u.UpdateIcbUserRoleAssignmentsAsync("mixed.case.email@nhs.net", "icb:ICB2", It.IsAny<IEnumerable<RoleAssignment>>()), Times.Exactly(1));
+
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test1@nhs.net", "icb:R1", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
+        _userServiceMock.Verify(u => u.UpdateUserRoleAssignmentsAsync("test2@nhs.net", "icb:R2", It.IsAny<IEnumerable<RoleAssignment>>(), false), Times.Never);
+
+        _userServiceMock.Verify(u => u.UpdateRegionalUserRoleAssignmentsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>()), Times.Never);
+    }
+
     private List<Site> GetSites()
     {
         var sites = new List<Site>();
@@ -524,9 +616,9 @@ public class UserDataImportHandlerTests
 
     private readonly string[] InputRows =
     [
-        "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true,",
-        "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, false, true,",
-        "test2@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true,",
-        "test2@nhs.net,,,9a06bacd-e916-4c10-8263-21451ca751b8, false, true, true, true,",
+        "test1@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true,,",
+        "test1@nhs.net,,,308d515c-2002-450e-b248-4ba36f6667bb, true, false, false, true,,",
+        "test2@nhs.net,,,d3793464-b421-41f3-9bfa-53b06e7b3d19, false, true, true, true,,",
+        "test2@nhs.net,,,9a06bacd-e916-4c10-8263-21451ca751b8, false, true, true, true,,",
     ];
 }

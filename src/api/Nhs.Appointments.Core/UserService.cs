@@ -167,6 +167,9 @@ public class UserService(
 
     public async Task RemoveAdminUserAsync(string userId)
         => await userStore.RemoveAdminUserAsync(userId);
+
+    public async Task UpdateIcbUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+        => await userStore.UpdateUserIcbPermissionsAsync(userId, scope, roleAssignments);
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

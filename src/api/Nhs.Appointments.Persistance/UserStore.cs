@@ -104,36 +104,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
             return;
         }
 
-        var existingRoleAssignments = originalDocument.RoleAssignments;
-        var updatedRoleAssignments = existingRoleAssignments.AsEnumerable();
-
-        var hasRegionScopedPermission = updatedRoleAssignments.Any(ra => ra.Scope == scope);
-        var hasOtherRegionScopedPermission = updatedRoleAssignments.Any(ra => ra.Role == RegionalUserRole && ra.Scope != scope);
-        var hasIcbScopedPermission = updatedRoleAssignments.Any(ra => ra.Role == IcbUserRole);
-
-        // User already has this regional permission - therefore this is treated as a removal
-        if (hasRegionScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
-        }
-        // Update the user's regional permission - they're only allowed one at a time
-        else if (hasOtherRegionScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments
-                .Where(ra => ra.Role != RegionalUserRole)
-                .Concat(roleAssignments);
-        }
-        // No existing regional permission - add it
-        else
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Concat(roleAssignments);
-        }
-
-        // If a user has an existing ICB role, remove it unless we're removing the Regional role in this update
-        if (hasIcbScopedPermission && !hasRegionScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Role != IcbUserRole);
-        }
+        var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, RegionalUserRole, IcbUserRole);
 
         var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
         await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, regionalRolePatch);
@@ -188,38 +159,50 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
             return;
         }
 
-        var existingRoleAssignments = originalDocument.RoleAssignments;
-        var updatedRoleAssignments = existingRoleAssignments.AsEnumerable();
-
-        var hasIcbScopedPermission = updatedRoleAssignments.Any(ra => ra.Scope == scope);
-        var hasOtherIcbScopedPermission = updatedRoleAssignments.Any(ra => ra.Role == IcbUserRole && ra.Scope != scope);
-        var hasRegionalPermission = updatedRoleAssignments.Any(ra => ra.Role == RegionalUserRole);
-
-        // User already has this ICB permission - therefore this is treated as a removal
-        if (hasIcbScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
-        }
-        // Update the user's ICB permission - they're only allowed one at a time
-        else if (hasOtherIcbScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments
-                .Where(ra => ra.Role != IcbUserRole)
-                .Concat(roleAssignments);
-        }
-        // No existing ICB permission - add it
-        else
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Concat(roleAssignments);
-        }
-
-        // If a user has a regional role, remove it unless we're removing the ICB role in this update
-        if (hasRegionalPermission && !hasIcbScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Role != RegionalUserRole);
-        }
+        var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, IcbUserRole, RegionalUserRole);
 
         var icbRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
         await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, icbRolePatch);
     }
+
+    internal IEnumerable<RoleAssignment> GetUpdatedPermissions(
+        IEnumerable<RoleAssignment> existingRoleAssignments,
+        string scope,
+        IEnumerable<RoleAssignment> newRoleAssignments,
+        string primaryRole,
+        string conflictingRole)
+    {
+        var updatedRoleAssignments = existingRoleAssignments.AsEnumerable();
+
+        var hasPrimaryScopedPermission = updatedRoleAssignments.Any(ra => ra.Scope == scope);
+        var hasOtherPrimaryScopedPermission = updatedRoleAssignments.Any(ra => ra.Role == primaryRole && ra.Scope != scope);
+        var hasConflictingRole = updatedRoleAssignments.Any(ra => ra.Role == conflictingRole);
+
+        // User already has this primary permission - treat as removal
+        if (hasPrimaryScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
+        }
+        // Update the user's primary permission - only one allowed at a time
+        else if (hasOtherPrimaryScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments
+                .Where(ra => ra.Role != primaryRole)
+                .Concat(newRoleAssignments);
+        }
+        // No existing primary permission - add it
+        else
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Concat(newRoleAssignments);
+        }
+
+        // If user has conflicting role, remove it unless we're removing the primary role in this update
+        if (hasConflictingRole && !hasPrimaryScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Role != conflictingRole);
+        }
+
+        return updatedRoleAssignments;
+    }
+
 }

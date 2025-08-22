@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Persistance.Models;
 
@@ -9,6 +10,9 @@ namespace Nhs.Appointments.Persistance.UnitTests
         private readonly Mock<ITypedDocumentCosmosStore<UserDocument>> _cosmosStore = new();
         private readonly Mock<IMapper> _mapper = new();
         private readonly UserStore _sut;
+
+        private const string IcbRole = "system:icb-user";
+        private const string RegionRole = "system:regional-user";
 
         public UserStoreTests()
         {
@@ -63,13 +67,13 @@ namespace Nhs.Appointments.Persistance.UnitTests
             var user = new Core.User
             {
                 Id = "test.user@nhs.net",
-                RoleAssignments = [new() { Role = "system:regional-user", Scope = "region:Test" }]
+                RoleAssignments = [new() { Role = RegionRole, Scope = "region:Test" }]
             };
 
             _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
             _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
 
-            await _sut.UpdateUserRegionPermissionsAsync("test.user@nhs.net", "region:Test", [new() { Role = "system:regional-user", Scope = "region:Test" }]);
+            await _sut.UpdateUserRegionPermissionsAsync("test.user@nhs.net", "region:Test", [new() { Role = RegionRole, Scope = "region:Test" }]);
 
             _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>("test.user@nhs.net"), Times.Once);
             _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), "test.user@nhs.net", It.IsAny<PatchOperation[]>()), Times.Once);
@@ -81,7 +85,7 @@ namespace Nhs.Appointments.Persistance.UnitTests
             _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>()))
                 .ReturnsAsync(null as Core.User);
 
-            await _sut.UpdateUserRegionPermissionsAsync("test.user@nhs.net", "region:Test", [new() { Role = "system:regional-user", Scope = "region:Test" }]);
+            await _sut.UpdateUserRegionPermissionsAsync("test.user@nhs.net", "region:Test", [new() { Role = RegionRole, Scope = "region:Test" }]);
 
             _cosmosStore.Verify(x => x.WriteAsync(It.IsAny<UserDocument>()), Times.Once);
             _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
@@ -100,21 +104,97 @@ namespace Nhs.Appointments.Persistance.UnitTests
         }
 
         [Fact]
-        public async Task UpdateUserIcbPermissions_UpdatesUserDocument()
+        public async Task UpdateUserIcbPermissions_UpdatesUserDocument_AndRemovesExistingIcbRole()
         {
             var user = new Core.User
             {
                 Id = "test.user@nhs.net",
-                RoleAssignments = [new() { Role = "system:icb-user", Scope = "icb:ICB1" }]
+                RoleAssignments = [new() { Role = IcbRole, Scope = "icb:ICB1" }]
             };
 
             _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
             _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
 
-            await _sut.UpdateUserIcbPermissionsAsync("test.user@nhs.net", "icb:ICB1", [new() { Role = "system:icb-user", Scope = "icb:ICB1" }]);
+            await _sut.UpdateUserIcbPermissionsAsync("test.user@nhs.net", "icb:ICB1", [new() { Role = IcbRole, Scope = "icb:ICB1" }]);
 
             _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>("test.user@nhs.net"), Times.Once);
             _cosmosStore.Verify(x => x.PatchDocument(It.IsAny<string>(), "test.user@nhs.net", It.IsAny<PatchOperation[]>()), Times.Once);
+        }
+
+        [Fact]
+        public void ReturnsEmptyArrayForUpdatedPermissions_WhenUserAlreadyHasRole()
+        {
+            var roleAssigments = new List<Core.RoleAssignment> { new() { Role = "system:icb-user", Scope = "icb:ICB1" } };
+            var user = new Core.User
+            {
+                Id = "test.user@nhs.net",
+                RoleAssignments = [.. roleAssigments]
+            };
+
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
+            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
+
+            var result = _sut.GetUpdatedPermissions(user.RoleAssignments, "icb:ICB1", [.. roleAssigments], IcbRole, RegionRole);
+
+            result.Count().Should().Be(0);
+        }
+
+        [Fact]
+        public void ReturnsUpdateRole_WhenRoleHasChangedScope()
+        {
+            var roleAssigments = new List<Core.RoleAssignment> { new() { Role = IcbRole, Scope = "icb:ICB1" } };
+            var newRoleAssignments = new List<Core.RoleAssignment> { new() { Role = IcbRole, Scope = "icb:ICB2" } };
+            var user = new Core.User
+            {
+                Id = "test.user@nhs.net",
+                RoleAssignments = [.. roleAssigments]
+            };
+
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
+            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
+
+            var result = _sut.GetUpdatedPermissions(user.RoleAssignments, "icb:ICB2", newRoleAssignments, IcbRole, RegionRole);
+
+            result.Count().Should().Be(1);
+            result.First().Scope.Should().Be("icb:ICB2");
+        }
+
+        [Fact]
+        public void AddsUpdatedRole()
+        {
+            var newRoleAssignments = new List<Core.RoleAssignment> { new() { Role = IcbRole, Scope = "icb:ICB1" } };
+            var user = new Core.User
+            {
+                Id = "test.user@nhs.net",
+                RoleAssignments = []
+            };
+
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
+            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
+
+            var result = _sut.GetUpdatedPermissions(user.RoleAssignments, "icb:ICB1", newRoleAssignments, IcbRole, RegionRole);
+
+            result.Count().Should().Be(1);
+            result.First().Scope.Should().Be("icb:ICB1");
+        }
+
+        [Fact]
+        public void RemovesConflictingPermission()
+        {
+            var newRoleAssignments = new List<Core.RoleAssignment> { new() { Role = IcbRole, Scope = "icb:ICB1" } };
+            var user = new Core.User
+            {
+                Id = "test.user@nhs.net",
+                RoleAssignments = [new() { Role = RegionRole, Scope = "region:R1" }]
+            };
+
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(It.IsAny<string>())).ReturnsAsync(user);
+            _cosmosStore.Setup(x => x.GetDocumentType()).Returns("user");
+
+            var result = _sut.GetUpdatedPermissions(user.RoleAssignments, "icb:ICB1", newRoleAssignments, IcbRole, RegionRole);
+
+            result.Count().Should().Be(1);
+            result.First().Scope.Should().Be("icb:ICB1");
         }
     }
 }

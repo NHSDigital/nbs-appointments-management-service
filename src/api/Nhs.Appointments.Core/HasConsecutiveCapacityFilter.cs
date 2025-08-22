@@ -14,10 +14,21 @@ public class HasConsecutiveCapacityFilter : IHasConsecutiveCapacityFilter
 
         var consecutiveSlots = new List<SessionInstance>();
 
-        foreach (var slot in slots)
+        // There is an important assumption here that every slot in the slots argument passed into this function contains the same service.
+        // This code is only called when querying for a slot of 1 specific service type
+        var parallelSlots = slots
+            .GroupBy(slot =>
+                new { slot.From, slot.Duration, Services = string.Join(",", slot.Services.OrderBy(s => s)) })
+            .Select(group => new SessionInstance(new TimePeriod(group.Key.From, group.Key.Duration))
+            {
+                Capacity = group.Sum(slot => slot.Capacity), Services = group.First().Services
+            });
+
+        foreach (var slot in parallelSlots)
         {
             var consecutivePeriods = GenerateConsecutivePeriods(slot, consecutive);
-            var consecutiveCapacity = slots.Where(rs => consecutivePeriods.Any(cp => cp.From == rs.From && cp.Until == rs.Until));
+            var consecutiveCapacity = parallelSlots.Where(rs =>
+                consecutivePeriods.Any(cp => cp.From == rs.From && cp.Until == rs.Until));
 
             consecutiveSlots.Add(new SessionInstance(new TimePeriod(slot.From, slot.Duration))
             {

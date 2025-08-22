@@ -305,7 +305,7 @@ public class HasConsecutiveCapacityFilterTests
                 Capacity = 2,
                 Services = ["test"]
             },
-            new (new TimePeriod(new DateTime(2025, 1, 1, 9, 15, 0), TimeSpan.FromMinutes(5)))
+            new(new TimePeriod(new DateTime(2025, 1, 1, 9, 20, 0), TimeSpan.FromMinutes(5)))
             {
                 Capacity = 4,
                 Services = ["test"]

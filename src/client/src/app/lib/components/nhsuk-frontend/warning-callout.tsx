@@ -22,7 +22,7 @@ const WarningCallout = ({ title = 'Important', children }: Props) => {
           {title}
         </span>
       </h3>
-      <p>{children}</p>
+      {children}
     </div>
   );
 };

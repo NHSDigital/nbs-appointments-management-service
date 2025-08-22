@@ -14,7 +14,8 @@ using Xunit;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
 {
-    public abstract class ClinicalServicesBaseFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+    [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices.feature")]
+    public class ClinicalServicesBaseFeatureSteps : BaseFeatureSteps
     {
         private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
@@ -69,14 +70,4 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         [Then(@"the request should be Not Implemented")]
         public async Task AssertHttpNotImplemented() => _statusCode.Should().Be(HttpStatusCode.NotImplemented);
     }
-    
-    [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices_MultipleServicesEnabled.feature")]
-    [Collection("MultipleServicesSerialToggle")]
-    public class ClinicalServices_MultipleServicesEnabled()
-        : ClinicalServicesBaseFeatureSteps(Flags.MultipleServices, true);
-
-    [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices_MultipleServicesDisabled.feature")]
-    [Collection("MultipleServicesSerialToggle")]
-    public class ClinicalServices_MultipleServicesDisabled()
-        : ClinicalServicesBaseFeatureSteps(Flags.MultipleServices, false);
 }

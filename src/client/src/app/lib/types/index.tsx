@@ -373,11 +373,6 @@ type CancelSessionRequest = {
   capacity: number;
 };
 
-// TODO: Decide where this info should live and move it there
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-];
-
 type SiteStatus = 'Online' | 'Offline';
 
 type UpdateSiteStatusRequest = {
@@ -404,6 +399,7 @@ export type {
   CancelSessionRequest,
   ContactItem,
   DaySummary,
+  DaySummaryV2,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,
@@ -430,15 +426,14 @@ export type {
   UserProfile,
   Week,
   WeekSummary,
+  WeekSummaryV2,
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
-  WeekSummaryV2,
-  DaySummaryV2,
   ClinicalService,
   SiteStatus,
   UpdateSiteStatusRequest,
 };
 
-export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };
+export { MyaError, UnauthorizedError, daysOfTheWeek };

@@ -2,7 +2,11 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { mockSite } from '@testing/data';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 describe('Cancellation Confirmed Page', () => {
   it('renders the correct session in the table', () => {

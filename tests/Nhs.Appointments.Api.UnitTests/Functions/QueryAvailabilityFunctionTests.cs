@@ -20,7 +20,6 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 public class QueryAvailabilityFunctionTests
 {
     private static readonly DateOnly Date = new DateOnly(2077, 1, 1);
-    private readonly Mock<IAvailabilityCalculator> _availabilityCalculator = new();
     private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
     private readonly Mock<IAvailabilityGrouper> _availabilityGrouper = new();
     private readonly Mock<IAvailabilityGrouperFactory> _availabilityGrouperFactory = new();
@@ -35,7 +34,6 @@ public class QueryAvailabilityFunctionTests
     public QueryAvailabilityFunctionTests()
     {
         _sut = new QueryAvailabilityFunction(
-            _availabilityCalculator.Object,
             _bookingAvailabilityStateService.Object,
             _validator.Object,
             _availabilityGrouperFactory.Object,
@@ -60,11 +58,7 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x =>
-                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>()))
-            .ReturnsAsync(slots.AsEnumerable());
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
@@ -102,11 +96,7 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x =>
-                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>()))
-            .ReturnsAsync(slots.AsEnumerable());
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
@@ -132,11 +122,7 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x =>
-                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>()))
-            .ReturnsAsync(slots.AsEnumerable());
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
@@ -172,11 +158,7 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x =>
-                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>()))
-            .ReturnsAsync(slots.AsEnumerable());
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(true);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(true);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
@@ -210,11 +192,7 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x =>
-                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == "JointBookings"))).ReturnsAsync(false);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(blocks.AsEnumerable());
 
         var request = new QueryAvailabilityRequest(
@@ -235,46 +213,7 @@ public class QueryAvailabilityFunctionTests
     }
     
     [Fact]
-    public async Task RunAsync_CallsAvailabilityCalculator_WhenMultipleServicesDisabled()
-    {
-        var blocks = new[]
-        {
-            new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0), new DateTime(2077, 1, 1, 9, 5, 0)),
-            new SessionInstance(new DateTime(2077, 1, 2, 10, 0, 0), new DateTime(2077, 1, 2, 10, 5, 0)),
-            new SessionInstance(new DateTime(2077, 1, 3, 11, 0, 0), new DateTime(2077, 1, 3, 11, 5, 0)),
-        };
-        var responseBlocks = CreateAmPmResponseBlocks(12, 0);
-
-        _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
-            .Returns(responseBlocks);
-        _availabilityCalculator.Setup(x =>
-                x.CalculateAvailability(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateOnly>(),
-                    It.IsAny<DateOnly>()))
-            .ReturnsAsync(blocks.AsEnumerable());
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.MultipleServices))).ReturnsAsync(false);
-        
-        var request = new QueryAvailabilityRequest(
-            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
-            "COVID",
-            new DateOnly(2077, 01, 01),
-            new DateOnly(2077, 01, 03),
-            QueryType.Days, 
-            null);
-
-        var httpRequest = CreateRequest(request);
-
-        await _sut.RunAsync(httpRequest);
-        
-        _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
-                new DateOnly(2077, 01, 03)),
-            Times.Once);
-        _bookingAvailabilityStateService.Verify(x => x.GetAvailableSlots("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
-                new DateTime(2077, 01, 03, 23, 59, 59, 59)),
-            Times.Never);
-    }
-    
-    [Fact]
-    public async Task RunAsync_CallsBookingAvailabilityStateService_WhenMultipleServicesEnabled()
+    public async Task RunAsync_CallsBookingAvailabilityStateService()
     {
         var blocks = new[]
         {
@@ -290,7 +229,6 @@ public class QueryAvailabilityFunctionTests
                 x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(),
                     It.IsAny<DateTime>()))
             .ReturnsAsync(blocks.ToList());
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.MultipleServices))).ReturnsAsync(true);
         
         var request = new QueryAvailabilityRequest(
             ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
@@ -304,9 +242,6 @@ public class QueryAvailabilityFunctionTests
 
         await _sut.RunAsync(httpRequest);
         
-        _availabilityCalculator.Verify(x => x.CalculateAvailability("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "COVID", new DateOnly(2077, 01, 01),
-                new DateOnly(2077, 01, 03)),
-            Times.Never);
         _bookingAvailabilityStateService.Verify(x => x.GetAvailableSlots("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
                 new DateTime(2077, 01, 03, 23, 59, 59)),
             Times.Once);

@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import render from '@testing/render';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
-import { clinicalServices } from '@types';
+import { ClinicalService } from '@types';
+
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;

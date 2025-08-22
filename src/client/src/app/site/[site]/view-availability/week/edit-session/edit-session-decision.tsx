@@ -17,7 +17,6 @@ type EditSessionDecisionProps = {
   site: Site;
   sessionSummary: string;
   date: string;
-  multipleServicesEnabled: boolean;
   clinicalServices: ClinicalService[];
 };
 
@@ -29,7 +28,6 @@ export const EditSessionDecision = ({
   site,
   sessionSummary,
   date,
-  multipleServicesEnabled,
   clinicalServices,
 }: EditSessionDecisionProps) => {
   const router = useRouter();
@@ -91,18 +89,17 @@ export const EditSessionDecision = ({
                 required: { value: true, message: 'Select an option' },
               })}
             />
-            {multipleServicesEnabled &&
-              Object.keys(session.bookings).length > 1 && (
-                <Radio
-                  label="Remove services from this session"
-                  hint="Remove booked appointments for individual services"
-                  id="edit-services"
-                  value="edit-services"
-                  {...register('action', {
-                    required: { value: true, message: 'Select an option' },
-                  })}
-                />
-              )}
+            {Object.keys(session.bookings).length > 1 && (
+              <Radio
+                label="Remove services from this session"
+                hint="Remove booked appointments for individual services"
+                id="edit-services"
+                value="edit-services"
+                {...register('action', {
+                  required: { value: true, message: 'Select an option' },
+                })}
+              />
+            )}
             <Radio
               label="Cancel this session"
               hint="Cancel all booked appointments, and remove this session"

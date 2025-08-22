@@ -6,8 +6,14 @@ import { mockSite } from '@testing/data';
 import { useRouter } from 'next/navigation';
 import { ClinicalService } from '@types';
 
-const clinicalServices: ClinicalService[] = [
+const singleService: ClinicalService[] = [
   { label: 'RSV Adult', value: 'RSV:Adult' },
+];
+
+const multipleServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+  { label: 'FLU (2-3)', value: 'FLU:2-3' },
+  { label: 'COVID', value: 'COVID:19' },
 ];
 
 jest.mock('next/navigation');
@@ -30,8 +36,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={clinicalServices}
-        multipleServicesEnabled={false}
+        clinicalServices={singleService}
       />,
     );
 
@@ -42,48 +47,35 @@ describe('Edit Session Decision Page', () => {
     ).toBeInTheDocument();
   });
 
-  it.each([false, true])(
-    'renders 3 radio buttons when multiple services',
-    (multipleServicesEnabled: boolean) => {
-      const session = btoa(
-        JSON.stringify(mockWeekAvailability__Summary[1].sessions[0]),
-      );
-      render(
-        <EditSessionDecision
-          sessionSummary={session}
-          date="2025-01-15"
-          site={mockSite}
-          clinicalServices={clinicalServices}
-          multipleServicesEnabled={multipleServicesEnabled}
-        />,
-      );
+  it('renders 3 radio buttons', () => {
+    const session = btoa(
+      JSON.stringify(mockWeekAvailability__Summary[1].sessions[0]),
+    );
+    render(
+      <EditSessionDecision
+        sessionSummary={session}
+        date="2025-01-15"
+        site={mockSite}
+        clinicalServices={multipleServices}
+      />,
+    );
 
-      expect(
-        screen.getByRole('radio', {
-          name: 'Change the length or capacity of this session',
-        }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('radio', { name: 'Cancel this session' }),
-      ).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', {
+        name: 'Change the length or capacity of this session',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', { name: 'Cancel this session' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('radio', {
+        name: 'Remove services from this session',
+      }),
+    ).toBeInTheDocument();
+  });
 
-      if (multipleServicesEnabled) {
-        expect(
-          screen.queryByRole('radio', {
-            name: 'Remove services from this session',
-          }),
-        ).toBeInTheDocument();
-      } else {
-        expect(
-          screen.queryByRole('radio', {
-            name: 'Remove services from this session',
-          }),
-        ).not.toBeInTheDocument();
-      }
-    },
-  );
-
-  it('does not render the reduce services radio button when only one service in the session, despite MultipleServices enabled', () => {
+  it('does not render the reduce services radio button when only one service in the session', () => {
     const session = btoa(
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );
@@ -92,8 +84,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={clinicalServices}
-        multipleServicesEnabled
+        clinicalServices={singleService}
       />,
     );
 
@@ -113,90 +104,82 @@ describe('Edit Session Decision Page', () => {
     ).not.toBeInTheDocument();
   });
 
-  it.each([false, true])(
-    'toggles between the radio buttons',
-    async (multipleServicesEnabled: boolean) => {
-      const session = btoa(
-        JSON.stringify(mockWeekAvailability__Summary[1].sessions[0]),
-      );
-      const { user } = render(
-        <EditSessionDecision
-          sessionSummary={session}
-          date="2025-01-15"
-          site={mockSite}
-          clinicalServices={clinicalServices}
-          multipleServicesEnabled={multipleServicesEnabled}
-        />,
-      );
+  it('toggles between the radio buttons', async () => {
+    const session = btoa(
+      JSON.stringify(mockWeekAvailability__Summary[1].sessions[0]),
+    );
+    const { user } = render(
+      <EditSessionDecision
+        sessionSummary={session}
+        date="2025-01-15"
+        site={mockSite}
+        clinicalServices={singleService}
+      />,
+    );
 
-      await user.click(
-        screen.getByRole('radio', {
-          name: 'Change the length or capacity of this session',
-        }),
-      );
-      expect(
-        screen.getByRole('radio', {
-          name: 'Change the length or capacity of this session',
-        }),
-      ).toBeChecked();
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Change the length or capacity of this session',
+      }),
+    );
+    expect(
+      screen.getByRole('radio', {
+        name: 'Change the length or capacity of this session',
+      }),
+    ).toBeChecked();
 
-      expect(
-        screen.getByRole('radio', { name: 'Cancel this session' }),
-      ).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Cancel this session' }),
+    ).not.toBeChecked();
 
-      if (multipleServicesEnabled) {
-        expect(
-          screen.getByRole('radio', {
-            name: 'Remove services from this session',
-          }),
-        ).not.toBeChecked();
-      }
+    expect(
+      screen.getByRole('radio', {
+        name: 'Remove services from this session',
+      }),
+    ).not.toBeChecked();
 
-      await user.click(
-        screen.getByRole('radio', { name: 'Cancel this session' }),
-      );
+    await user.click(
+      screen.getByRole('radio', { name: 'Cancel this session' }),
+    );
 
-      expect(
-        screen.getByRole('radio', {
-          name: 'Change the length or capacity of this session',
-        }),
-      ).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', {
+        name: 'Change the length or capacity of this session',
+      }),
+    ).not.toBeChecked();
 
-      expect(
-        screen.getByRole('radio', { name: 'Cancel this session' }),
-      ).toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Cancel this session' }),
+    ).toBeChecked();
 
-      if (multipleServicesEnabled) {
-        expect(
-          screen.getByRole('radio', {
-            name: 'Remove services from this session',
-          }),
-        ).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', {
+        name: 'Remove services from this session',
+      }),
+    ).not.toBeChecked();
 
-        await user.click(
-          screen.getByRole('radio', {
-            name: 'Remove services from this session',
-          }),
-        );
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Remove services from this session',
+      }),
+    );
 
-        expect(
-          screen.getByRole('radio', {
-            name: 'Remove services from this session',
-          }),
-        ).toBeChecked();
+    expect(
+      screen.getByRole('radio', {
+        name: 'Remove services from this session',
+      }),
+    ).toBeChecked();
 
-        expect(
-          screen.getByRole('radio', {
-            name: 'Change the length or capacity of this session',
-          }),
-        ).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', {
+        name: 'Change the length or capacity of this session',
+      }),
+    ).not.toBeChecked();
 
-        expect(
-          screen.getByRole('radio', { name: 'Cancel this session' }),
-        ).not.toBeChecked();
-      }
-    },
-  );
+    expect(
+      screen.getByRole('radio', { name: 'Cancel this session' }),
+    ).not.toBeChecked();
+  });
 
   it('displays a validation error if no value is selected', async () => {
     const session = btoa(
@@ -207,8 +190,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={clinicalServices}
-        multipleServicesEnabled={false}
+        clinicalServices={singleService}
       />,
     );
 
@@ -240,8 +222,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={clinicalServices}
-        multipleServicesEnabled={false}
+        clinicalServices={singleService}
       />,
     );
 

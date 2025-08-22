@@ -1117,17 +1117,17 @@ test.describe('View Week Availability', () => {
 
   test(`View week page data is arranged according to greedy model allocation, and the data shuffles on session changes`, async () => {
     await page.goto(
-      `manage-your-appointments/site/${site.id}/view-availability/week?date=2025-08-20`,
+      `manage-your-appointments/site/${site.id}/view-availability/week?date=2026-08-20`,
     );
     await page.waitForURL(
-      `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+      `**/site/${site.id}/view-availability/week?date=2026-08-20`,
     );
     await page.waitForSelector('.nhsuk-loader', {
       state: 'detached',
     });
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
-      header: 'Wednesday 20 August',
+      header: 'Thursday 20 August',
       booked: 3,
       unbooked: 36,
       orphaned: 1,
@@ -1150,10 +1150,10 @@ test.describe('View Week Availability', () => {
 
     //create some new availability to show shuffling
     await page.goto(
-      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2026-08-20`,
     );
     await page.waitForURL(
-      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2026-08-20`,
     );
 
     await addSessionPage.addSession('10', '00', '12', '00', '2', '5');
@@ -1161,11 +1161,11 @@ test.describe('View Week Availability', () => {
     await checkSessionDetailsPage.saveSession();
 
     await page.waitForURL(
-      `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+      `**/site/${site.id}/view-availability/week?date=2026-08-20`,
     );
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
-      header: 'Wednesday 20 August',
+      header: 'Thursday 20 August',
       booked: 3,
       unbooked: 84,
       orphaned: 1,
@@ -1194,10 +1194,10 @@ test.describe('View Week Availability', () => {
 
     //create some new availability to show shuffling
     await page.goto(
-      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2026-08-20`,
     );
     await page.waitForURL(
-      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2025-08-20`,
+      `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=2026-08-20`,
     );
 
     await addSessionPage.addSession('11', '05', '11', '55', '2', '5');
@@ -1205,11 +1205,11 @@ test.describe('View Week Availability', () => {
     await checkSessionDetailsPage.saveSession();
 
     await page.waitForURL(
-      `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+      `**/site/${site.id}/view-availability/week?date=2026-08-20`,
     );
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
-      header: 'Wednesday 20 August',
+      header: 'Thursday 20 August',
       booked: 3,
       unbooked: 104,
       orphaned: 1,
@@ -1245,7 +1245,7 @@ test.describe('View Week Availability', () => {
     //remove the single Flu session
     const dayCard = page
       .getByRole('heading', {
-        name: 'Wednesday 20 August',
+        name: 'Thursday 20 August',
       })
       .locator('../..');
 
@@ -1261,7 +1261,7 @@ test.describe('View Week Availability', () => {
     await changeButton.click();
 
     await page.waitForURL(
-      `**/site/${site.id}/view-availability/week/edit-session?date=2025-08-20&session**`,
+      `**/site/${site.id}/view-availability/week/edit-session?date=2026-08-20&session**`,
     );
 
     await changeAvailabilityPage.selectChangeType('CancelSession');
@@ -1273,17 +1273,17 @@ test.describe('View Week Availability', () => {
     await changeAvailabilityPage.saveChanges();
 
     await page.goto(
-      `manage-your-appointments/site/${site.id}/view-availability/week?date=2025-08-20`,
+      `manage-your-appointments/site/${site.id}/view-availability/week?date=2026-08-20`,
     );
     await page.waitForURL(
-      `**/site/${site.id}/view-availability/week?date=2025-08-20`,
+      `**/site/${site.id}/view-availability/week?date=2026-08-20`,
     );
     await page.waitForSelector('.nhsuk-loader', {
       state: 'detached',
     });
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
-      header: 'Wednesday 20 August',
+      header: 'Thursday 20 August',
       booked: 3,
       unbooked: 56,
       orphaned: 1,

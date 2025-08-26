@@ -1,3 +1,8 @@
+variable "NHS_HOST_URL" {
+  type      = string
+  sensitive = false
+}
+
 variable "FUNC_APP_BASE_URI" {
   type      = string
   sensitive = false

@@ -48,6 +48,7 @@ module "mya_application_int" {
   okta_private_key_kid                            = var.OKTA_PRIVATE_KEY_KID
   okta_pem                                        = var.OKTA_PEM
   auth_provider_challenge_phrase                  = var.AUTH_PROVIDER_CHALLENGE_PHRASE
+  nhs_host_url                                    = var.NHS_HOST_URL
   func_app_base_uri                               = var.FUNC_APP_BASE_URI
   web_app_base_uri                                = var.WEB_APP_BASE_URI
   gov_notify_base_uri                             = var.GOV_NOTIFY_BASE_URI

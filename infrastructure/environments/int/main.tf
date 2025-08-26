@@ -61,7 +61,7 @@ module "mya_application_int" {
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL
   disable_query_availability_function             = false
-  create_high_load_function_app                   = false
+  create_high_load_function_app                   = true
   create_app_slot                                 = false
   create_autoscale_settings                       = false
   create_frontdoor                                = true

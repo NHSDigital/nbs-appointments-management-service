@@ -8,7 +8,7 @@ resource "azurerm_cdn_frontdoor_profile" "nbs_mya_frontdoor_profile" {
 
 resource "azurerm_cdn_frontdoor_endpoint" "nbs_mya_endpoint" {
   count                    = var.create_frontdoor ? 1 : 0
-  name                     = var.environment == "perf" || var.environment == "pen" ? "nbs-mya-${var.environment}" : "nbs-mya"
+  name                     = var.environment == "perf" || var.environment == "pen" || var.environment == "int" ? "nbs-mya-${var.environment}" : "nbs-mya"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.nbs_mya_frontdoor_profile[0].id
 }
 

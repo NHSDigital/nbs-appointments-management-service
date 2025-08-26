@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Gherkin.Ast;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Json;
 using Xunit.Gherkin.Quick;
@@ -21,7 +22,7 @@ public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : 
     private QueryAvailabilityResponse ActualResponse => _actualResponse;
     
     [Then(@"the following daily availability is returned")]
-    public void AssertDailyAvailability(Gherkin.Ast.DataTable expectedDailyAvailabilityTable)
+    public void AssertDailyAvailability(DataTable expectedDailyAvailabilityTable)
     {
         var expectedAvailability = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row => new QueryAvailabilityResponseInfo
         (
@@ -71,9 +72,37 @@ public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : 
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
+    [When(@"I check consecutive ([\w:]+) availability for '(.+)' between '(.+)' and '(.+)' with consecutive '(.+)'")]
+    public async Task CheckAvailability(string queryType, string service, string from, string until, string consecutive)
+    {
+        var convertedQueryType = queryType switch
+        {
+            "daily" => QueryType.Days,
+            "hourly" => QueryType.Hours,
+            "slot" => QueryType.Slots,
+            _ => throw new Exception($"{queryType} is not a valid queryType")
+        };
+
+        var payload = new
+        {
+            sites = new[] { GetSiteId() },
+            service,
+            from = ParseNaturalLanguageDateOnly(from),
+            until = ParseNaturalLanguageDateOnly(until),
+            queryType = convertedQueryType.ToString(),
+            consecutive = int.Parse(consecutive)
+        };
+
+        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability/query", payload);
+        _statusCode = _response.StatusCode;
+        (_, _actualResponse) =
+            await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(
+                await _response.Content.ReadAsStreamAsync());
+    }
+
     [Then(@"the following availability is returned for '(.+)'")]
     [And(@"the following availability is returned for '(.+)'")]
-    public void Assert(string date, Gherkin.Ast.DataTable expectedHourlyAvailabilityTable)
+    public void Assert(string date, DataTable expectedHourlyAvailabilityTable)
     {
         var expectedDate = ParseNaturalLanguageDateOnly(date);
         var expectedHourBlocks = expectedHourlyAvailabilityTable.Rows.Skip(1).Select(row =>

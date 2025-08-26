@@ -64,7 +64,7 @@ module "mya_application_int" {
   create_high_load_function_app                   = false
   create_app_slot                                 = false
   create_autoscale_settings                       = false
-  create_frontdoor                                = false
+  create_frontdoor                                = true
   create_cosmos_db                                = true
   create_app_config                               = true
   web_app_service_sku                             = "B1"

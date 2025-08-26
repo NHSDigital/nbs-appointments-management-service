@@ -1125,6 +1125,34 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "cancel/day",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"date\": \"2025-09-01\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/day/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "day", "cancel"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

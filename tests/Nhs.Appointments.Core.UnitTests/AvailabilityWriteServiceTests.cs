@@ -389,4 +389,18 @@ public class AvailabilityWriteServiceTests : FeatureToggledTests
         _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, date), Times.Once());
     }
+
+    [Fact]
+    public async Task CancelDayAsync_CallsAvailabilityStore_AndBookingWriteService()
+    {
+        var date = new DateOnly(2025, 1, 1);
+        _bookingsWriteService.Setup(x => x.CancelAllBookingsInDayAsync(It.IsAny<string>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync((5, 1));
+
+        var result = await _sut.CancelDayAsync("TEST_SITE_123", date);
+
+        result.Should().Be((5, 1));
+
+        _bookingsWriteService.Verify(x => x.CancelAllBookingsInDayAsync("TEST_SITE_123", date), Times.Once);
+    }
 }

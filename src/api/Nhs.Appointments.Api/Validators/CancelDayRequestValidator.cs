@@ -12,7 +12,7 @@ public class CancelDayRequestValidator : AbstractValidator<CancelDayRequest>
             .WithMessage("Provide a valid site.");
 
         RuleFor(x => x.Date)
-            .GreaterThanOrEqualTo(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
-            .WithMessage("From date must be in the future.");
+            .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
+            .WithMessage("Date must be in the future.");
     }
 }

@@ -19,7 +19,7 @@ public class CancelDayFunction(
     IAvailabilityWriteService availabilityWriteService,
     IValidator<CancelDayRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<CancelSessionFunction> logger,
+    ILogger<CancelDayFunction> logger,
     IMetricsRecorder metricsRecorder) : BaseApiFunction<CancelDayRequest, CancelDayResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "CancelSession", tags: ["Availability"], Summary = "Cancel a session")]

@@ -1,0 +1,389 @@
+﻿parameters:
+  - name: env
+    type: string
+  - name: myaPipelineBuildId
+    type: string
+  - name: variable_group
+    type: string
+  - name: httpFunctionAppName
+    type: string
+  - name: highLoadFunctionAppName
+    type: string
+  - name: serviceBusFunctionAppName
+    type: string
+  - name: timerFunctionAppName
+    type: string
+  - name: webServerName
+    type: string
+  - name: cosmosAccountName
+    type: string
+  - name: resourceGroup
+    type: string
+  - name: serviceConnectionName
+    type: string
+  - name: buildNumber
+    type: string
+  - name: isHotfix
+    type: boolean
+
+stages:
+  - stage: Deploy${{parameters.env}}
+    displayName: Deploy ${{parameters.env}}
+    condition: succeeded()
+    variables:
+      - group: ${{parameters.variable_group}}
+    jobs:
+      - job: RunTerraformPlan
+        displayName: "Run Terraform Plan"
+        dependsOn:
+          - ${{ if eq(parameters.env, 'prod') }}:
+              - EnterChangeRequest
+        steps:
+          - checkout: none
+          - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: "latest"
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download drop terraform artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_terraform"
+              targetPath: "$(Pipeline.Workspace)/drop_terraform"
+
+          - task: DownloadPipelineArtifact@2
+            displayName: Download drop scripts artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_scripts"
+              targetPath: "$(Pipeline.Workspace)/drop_scripts"
+
+          - task: AzureCLI@2
+            displayName: "Create Terraform State Container"
+            condition: eq('${{parameters.env}}', 'pen')
+            inputs:
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Pipeline.Workspace)/drop_scripts/storage-account/create-tfstate-container.ps1"
+              addSpnToEnvironment: true
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              ## TODO: When we create our 2nd sandbox onwards, we need to derive workloadType from the environment
+              arguments: "-workloadName 'mya' -workloadType 'nonprod' -workloadRegion 'uks' -tfstateContainerName 'tfstate'"
+
+          - task: AzureCLI@2
+            displayName: "Run Terraform Plan"
+            inputs:
+              scriptType: pscore
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              inlineScript: |
+                $env:ARM_CLIENT_ID=$env:servicePrincipalId
+                $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
+                $env:ARM_TENANT_ID=$env:tenantId
+                $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
+                cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
+                terraform init
+                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
+      - job: ApproveTerraformPlan
+        dependsOn: RunTerraformPlan
+        condition: ne('${{parameters.env}}', 'dev')
+        displayName: "Approve Terraform Plan"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            displayName: "Review Terraform Plan"
+            inputs:
+              notifyUsers: ""
+              instructions: Review plan and approve
+      - deployment: ApplyTerraform
+        dependsOn:
+          - ${{ if eq(parameters.env, 'dev') }}:
+              - RunTerraformPlan
+          - ${{ if ne(parameters.env, 'dev') }}:
+              - ApproveTerraformPlan
+        displayName: "Apply Terraform"
+        environment: nbs-mya-${{parameters.env}}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: none
+                - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: "latest"
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download drop terraform artifact
+                  inputs:
+                    buildType: "specific"
+                    project: "covid19.vaccine-booking"
+                    definition: "1785"
+                    buildVersionToDownload: "specific"
+                    pipelineId: ${{parameters.myaPipelineBuildId}}
+                    artifactName: "drop_terraform"
+                    targetPath: "$(Pipeline.Workspace)/drop_terraform"
+                - task: AzureCLI@2
+                  displayName: "Apply Terraform"
+                  name: ApplyTerraformTask
+                  inputs:
+                    scriptType: pscore
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    azureSubscription: ${{parameters.serviceConnectionName}}
+                    inlineScript: |
+                      $env:ARM_CLIENT_ID=$env:servicePrincipalId
+                      $env:ARM_CLIENT_SECRET=$env:servicePrincipalKey
+                      $env:ARM_TENANT_ID=$env:tenantId
+                      $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
+                      cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
+                      terraform init
+                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
+      - job: DeployWeb
+        dependsOn: ApplyTerraform
+        displayName: "Deploy webapp"
+        steps:
+          - checkout: none
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Web App artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_web"
+              targetPath: "$(Pipeline.Workspace)/drop_web"
+          - task: AzureWebApp@1
+            displayName: "Deploy Web App"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              appType: "webAppLinux"
+              appName: ${{parameters.webServerName}}
+              package: "$(Pipeline.Workspace)/drop_web/next.zip"
+              deploymentMethod: "auto"
+              startUpCommand: "node standalone/server.js"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+      - job: DeployHttpFunctionApp
+        dependsOn: ApplyTerraform
+        displayName: "Deploy http function app"
+        steps:
+          - checkout: none
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Web App artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_api"
+              targetPath: "$(Pipeline.Workspace)/drop_api"
+          - task: AzureFunctionApp@2
+            displayName: "Deploy"
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.httpFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+      - job: DeployHighLoadFunctionApp
+        dependsOn: ApplyTerraform
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'pen', 'perf', 'prod') }})
+        displayName: "Deploy high load function app"
+        steps:
+          - checkout: none
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Web App artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_api"
+              targetPath: "$(Pipeline.Workspace)/drop_api"
+          - task: AzureFunctionApp@2
+            displayName: "Deploy"
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.highLoadFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+      - job: DeployServiceBusFunctionApp
+        dependsOn: ApplyTerraform
+        displayName: "Deploy service bus function app"
+        steps:
+          - checkout: none
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Web App artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_api"
+              targetPath: "$(Pipeline.Workspace)/drop_api"
+          - task: AzureFunctionApp@2
+            displayName: "Deploy"
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.serviceBusFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+      - job: DeployTimerFunctionApp
+        dependsOn: ApplyTerraform
+        displayName: "Deploy timer function app"
+        steps:
+          - checkout: none
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Web App artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_api"
+              targetPath: "$(Pipeline.Workspace)/drop_api"
+
+          - task: AzureFunctionApp@2
+            displayName: "Deploy"
+            inputs:
+              connectedServiceNameARM: ${{parameters.serviceConnectionName}}
+              appType: "functionApp"
+              appName: ${{parameters.timerFunctionAppName}}
+              package: "$(Pipeline.Workspace)/drop_api/*.zip"
+              deploymentMethod: "auto"
+              ${{ if in(parameters.env, 'stag', 'prod') }}:
+                deployToSlotOrASE: true
+                slotName: "preview"
+      - job: UploadCosmosDocuments
+        displayName: "Upload documents to cosmosdb"
+        dependsOn:
+          - DeployWeb
+          - DeployHttpFunctionApp
+          - DeployServiceBusFunctionApp
+          - DeployTimerFunctionApp
+          - ${{ if in(parameters.env, 'stag', 'pen', 'perf', 'prod') }}:
+              - DeployHighLoadFunctionApp
+        variables:
+          environment: ${{parameters.env}}
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup ${{parameters.resourceGroup}} -cosmosAccountName ${{parameters.cosmosAccountName}}"
+          - task: DotNetCoreCLI@2
+            displayName: "Seed Cosmos DB containers"
+            inputs:
+              command: "run"
+              projects: "data/CosmosDbSeeder/CosmosDbSeeder.csproj"
+            env:
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+      - job: WaitForSlotApproval
+        dependsOn:
+          - UploadCosmosDocuments
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        displayName: "Wait for approval to swap slots"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            displayName: "Review deployment slots"
+            inputs:
+              notifyUsers: ""
+              instructions: Review deployment slots for web app / api and approve
+      - job: SwapWebAppSlots
+        displayName: "Swap web app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.webServerName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"
+      - job: SwapHttpFuncAppSlots
+        displayName: "Swap http function app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.httpFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"
+      - job: SwapHighLoadFuncAppSlots
+        displayName: "Swap high load function app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.highLoadFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"
+      - job: SwapServiceBusFuncAppSlots
+        displayName: "Swap servicebus function app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.serviceBusFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"
+      - job: SwapTimerFuncAppSlots
+        displayName: "Swap timer function app slots"
+        dependsOn: WaitForSlotApproval
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: none
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              Action: "Swap Slots"
+              WebAppName: ${{parameters.timerFunctionAppName}}
+              ResourceGroupName: ${{parameters.resourceGroup}}
+              SourceSlot: "preview"

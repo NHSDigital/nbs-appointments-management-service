@@ -10,11 +10,7 @@ import {
   fetchAvailabilityCreatedEvents,
   fetchClinicalServices,
 } from '@services/appointmentsService';
-import {
-  AvailabilityCreatedEvent,
-  ClinicalService,
-  clinicalServices,
-} from '@types';
+import { AvailabilityCreatedEvent, ClinicalService } from '@types';
 import { AvailabilityCreatedEventsTable } from './availabilityCreatedEventsTable';
 
 jest.mock('@services/appointmentsService');
@@ -98,7 +94,7 @@ describe('Availability Created Events Table', () => {
       mockAvailabilityCreatedEvents,
     );
     fetchClinicalServicesMock.mockReturnValue(
-      Promise.resolve(clinicalServices),
+      Promise.resolve([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
     );
   });
 

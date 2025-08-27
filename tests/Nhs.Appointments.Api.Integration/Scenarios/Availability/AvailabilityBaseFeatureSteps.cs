@@ -12,7 +12,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 
-public abstract class AvailabilityBaseFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
 {
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;

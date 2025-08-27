@@ -3,7 +3,6 @@
     "OktaEnabled": true,
     "TestFeatureEnabled": true,
     "JointBookings": false,
-    "MultipleServices": true,
     "SiteSummaryReport": true,
     "SiteStatus": false,
     "CancelDay": false,
@@ -45,7 +44,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }
@@ -76,7 +75,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }

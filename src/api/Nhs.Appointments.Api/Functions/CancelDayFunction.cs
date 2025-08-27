@@ -22,7 +22,7 @@ public class CancelDayFunction(
     ILogger<CancelDayFunction> logger,
     IMetricsRecorder metricsRecorder) : BaseApiFunction<CancelDayRequest, CancelDayResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "CancelSession", tags: ["Availability"], Summary = "Cancel a session")]
+    [OpenApiOperation(operationId: "CancelDay", tags: ["Availability", "Booking"], Summary = "Cancel all sessions and bookings on a given day")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(CancelDayResponse),
         Description = "All Sessions and Bookings successfully cancelled for specified day")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",

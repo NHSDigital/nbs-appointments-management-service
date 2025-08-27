@@ -30,6 +30,11 @@ describe('Edit Site Status Form', () => {
     render(<EditSiteStatusForm site={mockSite} />);
 
     expect(
+      screen.queryByText(
+        'Patients can currently book appointments at this site',
+      ),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('group', { name: 'What do you want to do?' }),
     ).toBeInTheDocument();
     expect(

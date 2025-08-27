@@ -121,7 +121,7 @@ public class AvailabilityDocumentStore(
         var document = await GetOrDefaultAsync(documentId, site)
             ?? throw new InvalidOperationException($"The requested Availability for site {site} could not be found on date: {date}.");
 
-        await documentStore.DeleteDocument(documentId, site);
+        await PatchAvailabilityDocument(documentId, [], site, document, false);
     }
 
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)

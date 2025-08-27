@@ -1,3 +1,4 @@
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 
@@ -24,7 +25,7 @@ public class AvailabilityDocumentStoreTests
     }
 
     [Fact]
-    public async Task CancelDayAsync_DeletesAvailabilityForTheDay()
+    public async Task CancelDayAsync_RemovesSessionsForTheDay()
     {
         var date = new DateOnly(2025, 1, 1);
         _documentStore.Setup(x => x.GetByIdOrDefaultAsync<DailyAvailabilityDocument>(It.IsAny<string>(), It.IsAny<string>()))
@@ -48,6 +49,6 @@ public class AvailabilityDocumentStoreTests
 
         await _sut.CancelDayAsync("TEST_SITE_123", date);
 
-        _documentStore.Verify(x => x.DeleteDocument(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _documentStore.Verify(x => x.PatchDocument("TEST_SITE_123", "20250101", It.IsAny<PatchOperation[]>()), Times.Once);
     }
 }

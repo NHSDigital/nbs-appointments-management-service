@@ -35,6 +35,10 @@ const EditSiteStatusForm = ({ site }: { site: Site }) => {
       : 'Make site online';
   const offlineLabel =
     site.status === 'Offline' ? 'Keep site offline' : 'Take site offline';
+  const statusLabel =
+    site.status === 'Online' || undefined
+      ? 'Patients can currently book appointments at this site'
+      : 'Patients can not currently book appointments at this site';
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
     await updateSiteStatus(site.id, form.siteStatus);
@@ -44,6 +48,7 @@ const EditSiteStatusForm = ({ site }: { site: Site }) => {
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
+      <p>{statusLabel}</p>
       <FormGroup
         legend="What do you want to do?"
         error={errors.siteStatus?.message}

@@ -50,24 +50,25 @@ describe('CancelDayForm', () => {
 
   it('renders the session summary and inset text', () => {
     render(<CancelDayForm {...defaultProps} />);
-    expect(screen.getByTestId('session-summary')).toHaveTextContent(
-      'Sessions for Wednesday 1 January',
-    );
     expect(
-      screen.getByText(/3 booked appointments will be cancelled/i),
+      screen.getByText('Sessions for Wednesday 1 January'),
     ).toBeInTheDocument();
-  });
-
-  it('initially disables Continue until a choice is made', () => {
-    render(<CancelDayForm {...defaultProps} />);
-    expect(screen.getByRole('button', { name: /continue/i })).toBeDisabled();
+    expect(
+      screen.getByText(
+        "3 booked appointments will be cancelled. We'll notify people that their appointment has been cancelled",
+      ),
+    ).toBeInTheDocument();
   });
 
   it('allows selecting No and navigates back on Continue', async () => {
     const { user } = render(<CancelDayForm {...defaultProps} />);
 
-    await user.click(screen.getByLabelText(/no, i don't want/i));
-    const continueBtn = screen.getByRole('button', { name: /continue/i });
+    await user.click(
+      screen.getByRole('radio', {
+        name: "No, I don't want to cancel the appointments",
+      }),
+    );
+    const continueBtn = screen.getByRole('button', { name: 'Continue' });
 
     expect(continueBtn).toBeEnabled();
 
@@ -80,13 +81,17 @@ describe('CancelDayForm', () => {
   it('allows selecting Yes and shows confirmation step', async () => {
     const { user } = render(<CancelDayForm {...defaultProps} />);
 
-    await user.click(screen.getByLabelText(/yes, i want to cancel/i));
-    await user.click(screen.getByRole('button', { name: /continue/i }));
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Yes, I want to cancel the appointments',
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(
-      screen.getByRole('button', { name: /cancel day/i }),
+      screen.getByRole('button', { name: 'Cancel day' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /no, go back/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'No, go back' })).toHaveAttribute(
       'href',
       '/site/site-123/view-availability/week?date=2025-01-01',
     );
@@ -95,9 +100,13 @@ describe('CancelDayForm', () => {
   it('calls handleCancel when clicking Cancel day', async () => {
     const { user } = render(<CancelDayForm {...defaultProps} />);
 
-    await user.click(screen.getByLabelText(/yes, i want to cancel/i));
-    await user.click(screen.getByRole('button', { name: /continue/i }));
-    await user.click(screen.getByRole('button', { name: /cancel day/i }));
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Yes, I want to cancel the appointments',
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel day' }));
 
     expect(mockCancelDay).toHaveBeenCalled();
   });

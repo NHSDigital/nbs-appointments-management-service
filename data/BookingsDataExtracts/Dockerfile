@@ -3,13 +3,11 @@
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
-USER $APP_UID
-WORKDIR /app
-
-FROM alpine
-
 RUN addgroup -S nonroot \
     && adduser -S nonroot -G nonroot
+
+USER nonroot
+WORKDIR /app
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -25,7 +23,10 @@ COPY ["src/libraries/Nbs.MeshClient/Nbs.MeshClient.csproj", "src/libraries/Nbs.M
 
 RUN dotnet restore "./data/BookingsDataExtracts/BookingsDataExtracts.csproj"
 
-COPY . .
+COPY Program.cs ./
+COPY BookingDataConverter.cs ./
+COPY BookingsDataExtractFields.cs ./
+COPY BookingsDataExtracts.cs ./
 
 WORKDIR "/src/data/BookingsDataExtracts"
 RUN dotnet build "./BookingsDataExtracts.csproj" -c $BUILD_CONFIGURATION -o /app/build
@@ -38,8 +39,9 @@ RUN dotnet publish "./BookingsDataExtracts.csproj" -c $BUILD_CONFIGURATION -o /a
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
+USER nonroot
 COPY --from=publish /app/publish .
 
-USER nonroot
+
 
 ENTRYPOINT ["dotnet", "BookingsDataExtracts.dll"]

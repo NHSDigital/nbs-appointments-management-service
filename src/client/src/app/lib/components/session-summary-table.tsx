@@ -39,6 +39,7 @@ export const SessionSummaryTable = ({
       rows={getSessionSummaryRows(
         sessionSummaries,
         clinicalServices,
+        showUnbooked,
         showChangeSessionLink,
       )}
       caption={tableCaption}
@@ -49,6 +50,7 @@ export const SessionSummaryTable = ({
 export const getSessionSummaryRows = (
   sessionSummaries: SessionSummary[],
   clinicalServices: ClinicalService[],
+  showUnbooked: boolean,
   showChangeSessionLinkProps?: {
     siteId: string;
     ukDate: string;
@@ -73,10 +75,14 @@ export const getSessionSummaryRows = (
         key={`session-${sessionIndex}-service-bookings`}
         sessionSummary={sessionSummary}
       />,
-      <SessionUnbookedCell
-        key={`session-${sessionIndex}-unbooked`}
-        sessionSummary={sessionSummary}
-      />,
+      ...(showUnbooked
+        ? [
+            <SessionUnbookedCell
+              key={`session-${sessionIndex}-unbooked`}
+              sessionSummary={sessionSummary}
+            />,
+          ]
+        : ['']),
       ...(showChangeSessionLinkProps &&
       isAfterCalendarDateUk(ukStartDatetime, ukNow())
         ? [

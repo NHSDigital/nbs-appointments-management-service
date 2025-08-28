@@ -12,8 +12,9 @@ import {
 import { SessionSummaryTable } from '@components/session-summary-table';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { parseToUkDatetime } from '@services/timeService';
-import { DaySummaryV2, ClinicalService } from '@types';
+import { parseToUkDatetime, RFC3339Format } from '@services/timeService';
+import { DaySummaryV2, ClinicalService, CancelDayRequest } from '@types';
+import { cancelDay } from '@services/appointmentsService';
 
 type Props = {
   date: string;
@@ -47,9 +48,14 @@ export default function CancelDayForm({
     }
   };
 
-  const handleCancel = () => {
-    // TODO: API call to cancel the day
-    console.log('Day cancelled!');
+  const handleCancel = async () => {
+    const payload: CancelDayRequest = {
+      site: siteId,
+      date: parsedDate.format(RFC3339Format),
+    };
+
+    await cancelDay(payload);
+    // TODO: APPT-1179 - use the response to the above & link to new page
   };
 
   return (

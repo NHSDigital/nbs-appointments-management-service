@@ -1,7 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import CancelDayForm from './cancel-day-form';
+import render from '@testing/render';
 import { useRouter } from 'next/navigation';
 import { parseToUkDatetime } from '@services/timeService';
+import * as appointmentsService from '@services/appointmentsService';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -16,6 +18,9 @@ jest.mock('@components/session-summary-table', () => ({
     <div data-testid="session-summary">{tableCaption}</div>
   ),
 }));
+
+jest.mock('@services/appointmentsService');
+const mockCancelDay = jest.spyOn(appointmentsService, 'cancelDay');
 
 const mockReplace = jest.fn();
 
@@ -58,21 +63,26 @@ describe('CancelDayForm', () => {
     expect(screen.getByRole('button', { name: /continue/i })).toBeDisabled();
   });
 
-  it('allows selecting No and navigates back on Continue', () => {
-    render(<CancelDayForm {...defaultProps} />);
-    fireEvent.click(screen.getByLabelText(/no, i don't want/i));
+  it('allows selecting No and navigates back on Continue', async () => {
+    const { user } = render(<CancelDayForm {...defaultProps} />);
+
+    await user.click(screen.getByLabelText(/no, i don't want/i));
     const continueBtn = screen.getByRole('button', { name: /continue/i });
+
     expect(continueBtn).toBeEnabled();
-    fireEvent.click(continueBtn);
+
+    await user.click(continueBtn);
     expect(mockReplace).toHaveBeenCalledWith(
       `/site/site-123/view-availability/week?date=2025-01-01`,
     );
   });
 
-  it('allows selecting Yes and shows confirmation step', () => {
-    render(<CancelDayForm {...defaultProps} />);
-    fireEvent.click(screen.getByLabelText(/yes, i want to cancel/i));
-    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+  it('allows selecting Yes and shows confirmation step', async () => {
+    const { user } = render(<CancelDayForm {...defaultProps} />);
+
+    await user.click(screen.getByLabelText(/yes, i want to cancel/i));
+    await user.click(screen.getByRole('button', { name: /continue/i }));
+
     expect(
       screen.getByRole('button', { name: /cancel day/i }),
     ).toBeInTheDocument();
@@ -82,12 +92,13 @@ describe('CancelDayForm', () => {
     );
   });
 
-  it('calls handleCancel when clicking Cancel day', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-    render(<CancelDayForm {...defaultProps} />);
-    fireEvent.click(screen.getByLabelText(/yes, i want to cancel/i));
-    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
-    fireEvent.click(screen.getByRole('button', { name: /cancel day/i }));
-    expect(consoleSpy).toHaveBeenCalledWith('Day cancelled!');
+  it('calls handleCancel when clicking Cancel day', async () => {
+    const { user } = render(<CancelDayForm {...defaultProps} />);
+
+    await user.click(screen.getByLabelText(/yes, i want to cancel/i));
+    await user.click(screen.getByRole('button', { name: /continue/i }));
+    await user.click(screen.getByRole('button', { name: /cancel day/i }));
+
+    expect(mockCancelDay).toHaveBeenCalled();
   });
 });

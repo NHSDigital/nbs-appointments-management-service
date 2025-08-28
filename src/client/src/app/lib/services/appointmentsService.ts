@@ -29,6 +29,8 @@ import {
   WeekSummaryV2,
   SiteStatus,
   UpdateSiteStatusRequest,
+  CancelDayRequest,
+  CancelDayResponse,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -602,4 +604,13 @@ export const updateSiteStatus = async (site: string, status: SiteStatus) => {
 
   handleEmptyResponse(response);
   revalidatePath(`/site/${site}/details`);
+};
+
+export const cancelDay = async (payload: CancelDayRequest) => {
+  const response = await appointmentsApi.post<CancelDayResponse>(
+    'day/cancel',
+    JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
 };

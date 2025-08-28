@@ -8,7 +8,7 @@ schedules:
     displayName: "Data extract schedule"
     branches:
       include:
-      - main
+        - main
     batch: false
     always: true
 
@@ -26,11 +26,11 @@ parameters:
     displayName: "Run Booking Data Extract"
     type: boolean
     default: true
-    
+
 variables:
   - group: covid19bookingkv${{parameters.env}}uks
   - group: mya-extract-${{parameters.env}}
-  - name: cosmosAccountName 
+  - name: cosmosAccountName
     value: nbs-mya-cdb-${{parameters.env}}-uks
   - name: resourceGroupName
     value: nbs-mya-rg-${{parameters.env}}-uks
@@ -59,12 +59,12 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
-              MESH_MAILBOX_DESTINATION: $(meshCapacityMailboxDestination)
-              MESH_WORKFLOW: $(meshCapacitysMailboxWorkflow)
+              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              MESH_WORKFLOW: $(meshCapacityWorkflowId)
               KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
-              KeyVault__TenantId: $(keyvaultTenantId)
-              KeyVault__ClientId: $(keyvaultClientId)
-              KeyVault__ClientSecret: $(keyvaultClientSecret)
+              KeyVault__TenantId: $(tenantId)
+              KeyVault__ClientId: $(ClientId)
+              KeyVault__ClientSecret: $(ClientSecret)
               MeshClientOptions__BaseUrl: $(meshApiBaseUri)
               MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
@@ -74,7 +74,7 @@ stages:
               MeshFileOptions__WorkflowId: $(meshCapacitysMailboxWorkflow)
               LocalFileOptions__TargetPath: $(localFileOptionsTargetPath)
               LocalFileOptions__Overwrite: $(localFileOptionsOverwrite)
-              BlobFileOptions__ContainerName: $(blobFileOptionsContainerName)  
+              BlobFileOptions__ContainerName: $(blobFileOptionsContainerName)
   - stage: "CreateBookingDailyExtract"
     displayName: "Create booking data extract"
     condition: eq('${{ parameters.runBooking }}', 'true')
@@ -98,12 +98,12 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
-              MESH_MAILBOX_DESTINATION: $(meshBookingsMailboxDestination)
-              MESH_WORKFLOW: $(meshBookingsMailboxWorkflow)
+              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              MESH_WORKFLOW: $(meshBookingWorkflowId)
               KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
-              KeyVault__TenantId: $(keyvaultTenantId)
-              KeyVault__ClientId: $(keyvaultClientId)
-              KeyVault__ClientSecret: $(keyvaultClientSecret)
+              KeyVault__TenantId: $(tenantId)
+              KeyVault__ClientId: $(ClientId)
+              KeyVault__ClientSecret: $(ClientSecret)
               MeshClientOptions__BaseUrl: $(meshApiBaseUri)
               MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               MeshAuthorizationOptions__CertificateName: $(meshCertificateName)

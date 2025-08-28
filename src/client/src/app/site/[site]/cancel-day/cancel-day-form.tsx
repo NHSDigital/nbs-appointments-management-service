@@ -38,7 +38,6 @@ const CancelDayForm = ({
   const {
     register,
     handleSubmit,
-    watch,
     formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<FormFields>();
 
@@ -47,7 +46,6 @@ const CancelDayForm = ({
 
   // ✅ State to track when user clicks "Continue"
   const [confirmStep, setConfirmStep] = useState(false);
-  const choice = watch('cancelChoice');
 
   const handleContinue = (data: FormFields) => {
     if (data.cancelChoice === 'true') {
@@ -111,11 +109,7 @@ const CancelDayForm = ({
           {isSubmitting || isSubmitSuccessful ? (
             <SmallSpinnerWithText text="Working..." />
           ) : (
-            <Button
-              type="submit"
-              styleType="primary"
-              disabled={choice === undefined}
-            >
+            <Button type="submit" styleType="primary">
               Continue
             </Button>
           )}

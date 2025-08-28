@@ -307,7 +307,7 @@ public class BookingCosmosDocumentStore(
         using (metricsRecorder.BeginScope("CancelAllBookingsInDay"))
         {
             var startOfDay = date.ToDateTime(TimeOnly.MinValue);
-            var endOfDay = date.AddDays(1).ToDateTime(TimeOnly.MinValue);
+            var endOfDay = date.AddDays(1).ToDateTime(TimeOnly.MinValue).AddTicks(-1);
 
             var bookings = await GetInDateRangeAsync(startOfDay, endOfDay, site);
 

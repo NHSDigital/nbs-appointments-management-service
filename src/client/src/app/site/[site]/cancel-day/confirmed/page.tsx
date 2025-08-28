@@ -2,6 +2,7 @@ import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 import CancellationConfirmed from './confirm-day-cancellation';
+import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { parseToUkDatetime } from '@services/timeService';
 import { CancelDayResponse } from '@types';
 

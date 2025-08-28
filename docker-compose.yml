@@ -82,6 +82,7 @@ services:
     container_name: splunk
     environment:
       - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_PASSWORD=Password1!
       - SPLUNK_HEC_SSL=false
     ports:
@@ -96,9 +97,10 @@ services:
       - "8010:443"
       - "8020:80"
     environment:
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: true
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: https://+:443;http://+80
-      ASPNETCORE_HTTPS_PORT: 8010
+      ASPNETCORE_HTTPS_PORT: 443
       ASPNETCORE_Kestrel__Certificates__Default__Password: password
       ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
       AUTHENTICATION:ISSUER: https://localhost:8010

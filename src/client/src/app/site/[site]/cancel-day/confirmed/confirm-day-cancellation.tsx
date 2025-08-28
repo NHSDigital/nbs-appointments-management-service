@@ -30,14 +30,14 @@ const CancellationConfirmed = ({
         provide contact details so they will not receive a notification.
       </p>
       {dayCancellationSummary.bookingsWithoutContactDetails > 0 && (
-        <div className="nhsuk-u-margin-top-4">
-          <Link
+      <div className="nhsuk-u-margin-top-4">
+        <Link
             href={`/site/${site}/cancel-day/cancelled-appointments?date=${date}&page=1`}
-            className="nhsuk-link nhsuk-u-display-block nhsuk-u-margin-bottom-2"
-          >
-            View bookings without contact details
-          </Link>
-        </div>
+          className="nhsuk-link nhsuk-u-display-block nhsuk-u-margin-bottom-2"
+        >
+          View bookings without contact details
+        </Link>
+      </div>
       )}
       <div className="nhsuk-u-margin-top-4">
         <Link

@@ -476,6 +476,17 @@ export const fetchDaySummary = async (
   return handleBodyResponse(response, data => data.daySummaries[0]);
 };
 
+export const fetchDayCancellationSummary = async (
+  site: string,
+  from: string,
+): Promise<DayCancellationSummary> => {
+  return {
+    ukDate: parseToUkDatetime(from),
+    cancelledAppointments: 600,
+    bookingsWithContactDetails: 512,
+  };
+};
+
 export const fetchBooking = async (reference: string, site: string) => {
   const response = await appointmentsApi.get<Booking>(
     `booking/${reference}?site=${site}`,

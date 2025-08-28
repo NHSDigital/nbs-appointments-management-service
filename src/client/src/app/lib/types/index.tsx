@@ -354,6 +354,12 @@ type WeekSummaryV2 = {
   totalOrphanedAppointments: number;
 };
 
+type DayCancellationSummary = {
+  ukDate: DayJsType;
+  cancelledAppointments: number;
+  bookingsWithContactDetails: number;
+};
+
 type ServiceInformation = {
   time: string;
   serviceDetails: ServiceBookingDetails[];

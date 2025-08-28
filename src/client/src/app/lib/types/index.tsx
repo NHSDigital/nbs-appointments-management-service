@@ -351,6 +351,12 @@ type DaySummaryV2 = {
   cancelledAppointments: number;
 };
 
+type DayCancellationSummary = {
+  ukDate: DayJsType;
+  cancelledAppointments: number;
+  bookingsWithContactDetails: number;
+};
+
 type ServiceInformation = {
   time: string;
   serviceDetails: ServiceBookingDetails[];
@@ -439,6 +445,7 @@ export type {
   ClinicalService,
   SiteStatus,
   UpdateSiteStatusRequest,
+  DayCancellationSummary,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

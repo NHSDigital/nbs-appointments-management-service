@@ -29,6 +29,7 @@ import {
   WeekSummaryV2,
   SiteStatus,
   UpdateSiteStatusRequest,
+  DayCancellationSummary,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -475,6 +476,17 @@ export const fetchDaySummary = async (site: string, from: string) => {
   );
 
   return handleBodyResponse(response);
+};
+
+export const fetchDayCancellationSummary = async (
+  site: string,
+  from: string,
+): Promise<DayCancellationSummary> => {
+  return {
+    ukDate: parseToUkDatetime(from),
+    cancelledAppointments: 600,
+    bookingsWithContactDetails: 512,
+  };
 };
 
 export const fetchBooking = async (reference: string, site: string) => {

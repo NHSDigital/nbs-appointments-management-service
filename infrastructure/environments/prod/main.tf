@@ -76,7 +76,7 @@ module "mya_application_prod" {
   app_service_plan_zone_redundancy_enabled        = true
   web_app_service_plan_min_worker_count           = 1
   web_app_service_plan_max_worker_count           = 20
-  web_app_service_plan_scale_out_worker_count     = 1
+  web_app_service_plan_scale_out_worker_count     = 3
   web_app_service_plan_scale_in_worker_count      = 1
   app_insights_sampling_percentage                = 12.5
   storage_account_replication_type                = "ZRS"

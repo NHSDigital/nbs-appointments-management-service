@@ -16,12 +16,16 @@ type SessionSummaryTableProps = {
     ukDate: string;
   };
   clinicalServices: ClinicalService[];
+  showUnbooked?: boolean;
+  tableCaption?: string;
 };
 
 export const SessionSummaryTable = ({
   sessionSummaries,
   showChangeSessionLink,
   clinicalServices,
+  showUnbooked = true,
+  tableCaption,
 }: SessionSummaryTableProps) => {
   return (
     <Table
@@ -29,14 +33,16 @@ export const SessionSummaryTable = ({
         'Time',
         'Services',
         'Booked',
-        'Unbooked',
+        ...(showUnbooked ? ['Unbooked'] : []),
         ...(showChangeSessionLink ? ['Action'] : []),
       ]}
       rows={getSessionSummaryRows(
         sessionSummaries,
         clinicalServices,
+        showUnbooked,
         showChangeSessionLink,
       )}
+      caption={tableCaption}
     />
   );
 };
@@ -44,6 +50,7 @@ export const SessionSummaryTable = ({
 export const getSessionSummaryRows = (
   sessionSummaries: SessionSummary[],
   clinicalServices: ClinicalService[],
+  showUnbooked: boolean,
   showChangeSessionLinkProps?: {
     siteId: string;
     ukDate: string;
@@ -68,10 +75,14 @@ export const getSessionSummaryRows = (
         key={`session-${sessionIndex}-service-bookings`}
         sessionSummary={sessionSummary}
       />,
-      <SessionUnbookedCell
-        key={`session-${sessionIndex}-unbooked`}
-        sessionSummary={sessionSummary}
-      />,
+      ...(showUnbooked
+        ? [
+            <SessionUnbookedCell
+              key={`session-${sessionIndex}-unbooked`}
+              sessionSummary={sessionSummary}
+            />,
+          ]
+        : ['']),
       ...(showChangeSessionLinkProps &&
       isAfterCalendarDateUk(ukStartDatetime, ukNow())
         ? [

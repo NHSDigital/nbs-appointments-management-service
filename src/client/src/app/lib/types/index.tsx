@@ -385,6 +385,16 @@ type UpdateSiteStatusRequest = {
   status: SiteStatus;
 };
 
+type CancelDayRequest = {
+  site: string;
+  date: string;
+};
+
+type CancelDayResponse = {
+  cancelledBookingCount: number;
+  bookingsWithoutContactDetails: number;
+};
+
 export type {
   ApplyAvailabilityTemplateRequest,
   ApiErrorResponse,
@@ -439,6 +449,8 @@ export type {
   ClinicalService,
   SiteStatus,
   UpdateSiteStatusRequest,
+  CancelDayRequest,
+  CancelDayResponse,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

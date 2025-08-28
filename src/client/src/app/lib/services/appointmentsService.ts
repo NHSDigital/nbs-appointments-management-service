@@ -29,6 +29,9 @@ import {
   WeekSummaryV2,
   SiteStatus,
   UpdateSiteStatusRequest,
+  CancelDayRequest,
+  CancelDayResponse,
+  DaySummaryV2,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -253,10 +256,10 @@ export async function assertAllPermissions(
   }
 }
 
-async function handleBodyResponse<T>(
+async function handleBodyResponse<T, Y = T>(
   response: ApiResponse<T>,
-  transformData = (data: T) => data,
-): Promise<T> {
+  transformData = (data: T) => data as unknown as Y,
+): Promise<Y> {
   if (!response.success) {
     if (response.httpStatusCode === 404) {
       notFound();
@@ -469,6 +472,17 @@ export const fetchWeekSummaryV2 = async (site: string, from: string) => {
   return handleBodyResponse(response);
 };
 
+export const fetchDaySummary = async (
+  site: string,
+  from: string,
+): Promise<DaySummaryV2> => {
+  const response = await appointmentsApi.get<WeekSummaryV2>(
+    `day-summary?site=${site}&from=${from}`,
+  );
+
+  return handleBodyResponse(response, data => data.daySummaries[0]);
+};
+
 export const fetchBooking = async (reference: string, site: string) => {
   const response = await appointmentsApi.get<Booking>(
     `booking/${reference}?site=${site}`,
@@ -594,4 +608,13 @@ export const updateSiteStatus = async (site: string, status: SiteStatus) => {
 
   handleEmptyResponse(response);
   revalidatePath(`/site/${site}/details`);
+};
+
+export const cancelDay = async (payload: CancelDayRequest) => {
+  const response = await appointmentsApi.post<CancelDayResponse>(
+    'day/cancel',
+    JSON.stringify(payload),
+  );
+
+  return handleBodyResponse(response);
 };

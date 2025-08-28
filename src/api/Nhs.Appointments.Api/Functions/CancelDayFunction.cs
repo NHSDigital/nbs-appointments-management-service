@@ -40,8 +40,8 @@ public class CancelDayFunction(
 
     protected override async Task<ApiResult<CancelDayResponse>> HandleRequest(CancelDayRequest request, ILogger logger)
     {
-        var (cancelledBookingCount, bookingsWithouContactDetails) = await availabilityWriteService.CancelDayAsync(request.Site, request.Date);
+        var (cancelledBookingCount, bookingsWithoutContactDetails) = await availabilityWriteService.CancelDayAsync(request.Site, request.Date);
 
-        return Success(new CancelDayResponse(cancelledBookingCount, bookingsWithouContactDetails));
+        return Success(new CancelDayResponse(cancelledBookingCount, bookingsWithoutContactDetails));
     }
 }

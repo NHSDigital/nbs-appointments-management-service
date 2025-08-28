@@ -303,4 +303,140 @@ public class BookingCosmosDocumentStoreTests
         capturedPatchOperations.Should().NotBeEmpty();
         capturedPatchOperations.Should().Contain(p => p.Path == "/cancellationReason");
     }
+
+    [Fact]
+    public async Task CancelAllBookingsInDay_UpdatesBookingStatuses_AndReturnsCorrectCount()
+    {
+        var bookings = new List<Booking>
+        {
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 12, 25, 0),
+                Status = AppointmentStatus.Booked
+            },
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 11, 25, 0),
+                Status = AppointmentStatus.Booked,
+                ContactDetails = [
+                    new () {
+                        Type = ContactItemType.Phone,
+                        Value = "1234567890"
+                    }
+                ]
+            },
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 10, 25, 0),
+                Status = AppointmentStatus.Booked,
+                ContactDetails = [
+                    new () {
+                        Type = ContactItemType.Phone,
+                        Value = "1234567890"
+                    }
+                ]
+            },
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 9, 25, 0),
+                Status = AppointmentStatus.Booked,
+                ContactDetails = [
+                    new () {
+                        Type = ContactItemType.Email,
+                        Value = "test.email@domain.com"
+                    }
+                ]
+            }
+        };
+        var bookingIndexDocuments = new List<BookingIndexDocument>
+        {
+            new()
+            {
+                Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                DocumentType = "booking_index",
+                Id = "01-76-000001",
+                NhsNumber = "9999999999",
+                Reference = "01-76-000001",
+                Status = AppointmentStatus.Booked
+            },
+            new()
+            {
+                Site = "34e990af-5dc9-43a6-8895-b9123216d699",
+                DocumentType = "booking_index",
+                Id = "02-76-000001",
+                NhsNumber = "9999999999",
+                Reference = "02-76-000001",
+                Status = AppointmentStatus.Booked
+            },
+            new()
+            {
+                Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                DocumentType = "booking_index",
+                Id = "01-76-000002",
+                NhsNumber = "9999999999",
+                Reference = "01-76-000002",
+                Status = AppointmentStatus.Booked
+            },
+            new()
+            {
+                Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                DocumentType = "booking_index",
+                Id = "01-76-000003",
+                NhsNumber = "9999999999",
+                Reference = "01-76-000003",
+                Status = AppointmentStatus.Booked
+            }
+        };
+
+        _bookingStore.Setup(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+            .ReturnsAsync(bookings);
+        _indexStore.SetupSequence(x => x.GetDocument<BookingIndexDocument>(It.IsAny<string>()))
+            .ReturnsAsync(bookingIndexDocuments[0])
+            .ReturnsAsync(bookingIndexDocuments[1])
+            .ReturnsAsync(bookingIndexDocuments[2])
+            .ReturnsAsync(bookingIndexDocuments[3]);
+
+        var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
+
+        result.Should().Be((4, 1));
+
+        _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(4));
+    }
+
+    [Fact]
+    public async Task CancelAllBookingsInDay_DoesNotUpdateBookingStatuses_WithNoBookings()
+    {
+        _bookingStore.Setup(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+            .ReturnsAsync(new List<Booking>());
+
+        var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
+
+        result.Should().Be((0, 0));
+
+        _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+    }
 }

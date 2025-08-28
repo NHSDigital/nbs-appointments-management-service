@@ -115,6 +115,15 @@ public class AvailabilityDocumentStore(
         }
     }
 
+    public async Task CancelDayAsync(string site, DateOnly date)
+    {
+        var documentId = date.ToString("yyyyMMdd");
+        var document = await GetOrDefaultAsync(documentId, site)
+            ?? throw new InvalidOperationException($"The requested Availability for site {site} could not be found on date: {date}.");
+
+        await PatchAvailabilityDocument(documentId, [], site, document, false);
+    }
+
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
     {
         var dayDocument = await GetOrDefaultAsync(documentId, site);

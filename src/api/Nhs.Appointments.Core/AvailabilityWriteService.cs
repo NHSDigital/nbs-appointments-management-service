@@ -1,3 +1,4 @@
+using Microsoft.Azure.Cosmos.Linq;
 using System.Globalization;
 
 namespace Nhs.Appointments.Core;
@@ -85,6 +86,18 @@ public class AvailabilityWriteService(
 
         await availabilityStore.CancelSession(site, date, sessionToCancel);
         await bookingWriteService.RecalculateAppointmentStatuses(site, date);
+    }
+
+    public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelDayAsync(string site, DateOnly date)
+    {
+        var cancelDayTask = availabilityStore.CancelDayAsync(site, date);
+        var cancelBookingsTask = bookingWriteService.CancelAllBookingsInDayAsync(site, date);
+
+        await Task.WhenAll(cancelDayTask, cancelBookingsTask);
+
+        var (cancelledBookingCount, bookingsWithoutContactDetailsCount) = cancelBookingsTask.Result;
+
+        return (cancelledBookingCount, bookingsWithoutContactDetailsCount);
     }
 
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)

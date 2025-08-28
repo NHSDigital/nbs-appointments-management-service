@@ -301,4 +301,33 @@ public class BookingCosmosDocumentStore(
         indexStore.DeleteDocument(reference, "booking_index"),
         bookingStore.DeleteDocument(reference, site)
     );
+
+    public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDay(string site, DateOnly date)
+    {
+        using (metricsRecorder.BeginScope("CancelAllBookingsInDay"))
+        {
+            var startOfDay = date.ToDateTime(TimeOnly.MinValue);
+            var endOfDay = date.AddDays(1).ToDateTime(TimeOnly.MinValue).AddTicks(-1);
+
+            var bookings = await GetInDateRangeAsync(startOfDay, endOfDay, site);
+
+            var successfulCancellations = 0;
+            var bookingsWithoutContactDetailsCount = 0;
+
+            foreach (var booking in bookings)
+            {
+                if (await UpdateStatus(booking.Reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledBySite))
+                {
+                    successfulCancellations++;
+                }
+
+                if (booking.ContactDetails is null || booking.ContactDetails.Length == 0)
+                {
+                    bookingsWithoutContactDetailsCount++;
+                }
+            }
+
+            return (successfulCancellations, bookingsWithoutContactDetailsCount);
+        }
+    }
 }    

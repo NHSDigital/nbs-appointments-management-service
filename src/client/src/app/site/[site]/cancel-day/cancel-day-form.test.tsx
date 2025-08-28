@@ -13,12 +13,6 @@ jest.mock('@services/timeService', () => ({
   parseToUkDatetime: jest.fn(),
 }));
 
-jest.mock('@components/session-summary-table', () => ({
-  SessionSummaryTable: ({ tableCaption }: { tableCaption: string }) => (
-    <div data-testid="session-summary">{tableCaption}</div>
-  ),
-}));
-
 jest.mock('@services/appointmentsService');
 const mockCancelDay = jest.spyOn(appointmentsService, 'cancelDay');
 

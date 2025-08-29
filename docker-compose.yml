@@ -115,7 +115,6 @@ services:
     volumes:
       - ./mock-oidc:/tmp/config:ro
       - ${PFX_CERT_PATH:-~/.aspnet/https}:/https:ro
-  
   bookingsdataextracts:
     build:
       context: .
@@ -157,7 +156,13 @@ services:
     depends_on:
       - mesh
   mesh:
-    image: mesh-sandbox
+    build:
+      context: https://github.com/NHSDigital/mesh-sandbox.git#refs/tags/v1.0.14
+    privileged: true
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
     ports:
       - 4030:80
     environment:

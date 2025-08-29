@@ -1,8 +1,11 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Api.Notifications.Options;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
@@ -54,6 +57,7 @@ public class NotificationsServiceProviderExtensionsTests
             .AddSingleton<ISiteSummaryAggregator, FakeSiteSummaryAggregator>()
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
+            .AddSingleton<IFeatureToggleHelper, FakeFeatureToggleHelper>()
             .BuildServiceProvider();
 
         var messageBus = serviceProvider.GetService(typeof(IMessageBus));
@@ -108,10 +112,51 @@ public class NotificationsServiceProviderExtensionsTests
         var notificationsClient = serviceProvider.GetService(typeof(ISendNotifications));
         notificationsClient.Should().BeOfType<GovNotifyClient>();
     }
+
+    [Fact(DisplayName = "Binds GovNotifyRetryOptions from configuration")]
+    public void NotificationsRegistration_BindsRetryOptions()
+    {
+        // Arrange: configuration for retry options
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string>
+            {
+            { "Notifications_Provider", "azure" },
+            { "GovNotifyBaseUri", "https://api.notifications.service.gov.uk" },
+            { "GovNotifyApiKey", "some-api-key-123abc" },
+            { "GovNotifyRetryOptions:MaxRetries", "5" },
+            { "GovNotifyRetryOptions:InitialDelayMs", "1000" },
+            { "GovNotifyRetryOptions:BackoffFactor", "2.0" }
+            })
+            .Build();
+
+        var serviceProvider = _serviceCollection
+            .AddDependenciesNotUnderTest()
+            .AddUserNotifications(configuration)
+            .BuildServiceProvider();
+
+        // Act
+        var options = serviceProvider.GetRequiredService<IOptions<GovNotifyRetryOptions>>().Value;
+
+        // Assert
+        options.MaxRetries.Should().Be(5);
+        options.InitialDelayMs.Should().Be(1000);
+        options.BackoffFactor.Should().Be(2.0);
+    }
+
+
 }
 
 
 public class FakeSiteSummaryAggregator : ISiteSummaryAggregator
 {
     public Task AggregateForSite(string site, DateOnly from, DateOnly to) => throw new NotImplementedException();
+}
+
+public class FakeFeatureToggleHelper : IFeatureToggleHelper
+{
+    public void ClearOverrides() => throw new NotImplementedException();
+    public Task<bool> IsFeatureEnabled(string featureFlag) => throw new NotImplementedException();
+    public Task<bool> IsFeatureEnabledForSite(string featureFlag, string siteId) => throw new NotImplementedException();
+    public Task<bool> IsFeatureEnabledForUser(string featureFlag, string userId) => throw new NotImplementedException();
+    public void SetOverride(string flagName, bool enabled) => throw new NotImplementedException();
 }

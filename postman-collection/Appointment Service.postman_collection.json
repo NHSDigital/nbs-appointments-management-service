@@ -1066,6 +1066,91 @@
           "host": ["{{baseUrl}}"],
           "path": ["api", "session", "cancel"]
         }
+      }
+    },
+    {
+      "name": "site-status",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"6877d86e-c2df-4def-8508-e1eccf0ea6be\",\r\n    \"status\": \"Online\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/site-status"
+      },
+      "response": []
+    },
+    {
+      "name": "day-summary",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/day-summary?site=6877d86e-c2df-4def-8508-e1eccf0ea6be&from=2025-08-15",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "day-summary"
+          ],
+          "query": [
+            {
+              "key": "site",
+              "value": "6877d86e-c2df-4def-8508-e1eccf0ea6be"
+            },
+            {
+              "key": "from",
+              "value": "2025-08-15"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "cancel/day",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"date\": \"2025-09-01\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/day/cancel",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "day", "cancel"]
+        }
       },
       "response": []
     }

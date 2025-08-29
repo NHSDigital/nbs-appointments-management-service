@@ -16,6 +16,11 @@ export type SummaryListItem = {
   title: string;
   value?: string | string[];
   action?: LinkActionProps | OnClickActionProps;
+  tag?: Tag;
+};
+
+type Tag = {
+  colour: string;
 };
 
 type Props = {
@@ -47,7 +52,13 @@ const SummaryList = ({ items, borders = true }: Props) => {
             </dt>
             {typeof item.value === 'string' ? (
               <dd className="nhsuk-summary-list__value" aria-label={item.value}>
-                {item.value}
+                {item.tag !== undefined ? (
+                  <span className={`nhsuk-tag nhsuk-tag--${item.tag?.colour}`}>
+                    {item.value}
+                  </span>
+                ) : (
+                  item.value
+                )}
               </dd>
             ) : (
               <dd
@@ -66,7 +77,9 @@ const SummaryList = ({ items, borders = true }: Props) => {
                 aria-label={`${item.action.text}`}
               >
                 {item.action.renderingStrategy === 'server' ? (
-                  <Link href={item.action.href}>{item.action.text}</Link>
+                  <Link href={item.action.href} prefetch={false}>
+                    {item.action.text}
+                  </Link>
                 ) : (
                   <Link href={''} onClick={item.action.onClick} role="button">
                     {item.action.text}

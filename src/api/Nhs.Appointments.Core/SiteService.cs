@@ -1,11 +1,14 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core;
 
 public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius,
-        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache);
+        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache, SiteSupportsServiceFilter siteSupportsServiceFilter = null);
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview();
@@ -19,14 +22,17 @@ public interface ISiteService
     Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type);
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null);
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
+    Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
+    Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
 }
 
-public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimeProvider time) : ISiteService
+public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
 {
     private const string CacheKey = "sites";
-    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false)
+    
+    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
@@ -36,6 +42,11 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
             sites = await GetAndCacheSites();
         }
 
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
+        {
+            sites = sites.Where(s => s.status is SiteStatus.Online or null);
+        }
+
         var sitesWithDistance = sites
             .Select(s => new SiteWithDistance(s,
                 CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
@@ -43,14 +54,90 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
             s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
             s => true;
+
+        if (siteSupportsServiceFilter == null)
+        {
+            return sitesWithDistance
+                .Where(s => s.Distance <= searchRadius)
+                .Where(filterPredicate)
+                .OrderBy(site => site.Distance)
+                .Take(maximumRecords);
+        }
         
-        return sitesWithDistance
+        var sitesInDistance = sitesWithDistance
             .Where(s => s.Distance <= searchRadius)
-            .Where(filterPredicate)
-            .OrderBy(site => site.Distance)
-            .Take(maximumRecords);
+            .Where(filterPredicate);
+        
+        return await GetSitesSupportingService(
+            sitesInDistance, 
+            siteSupportsServiceFilter.service, 
+            siteSupportsServiceFilter.from,
+            siteSupportsServiceFilter.until,
+            maximumRecords,
+            maximumRecords * 20);
     }
 
+    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, string service, DateOnly from, DateOnly to,
+        int maxRecords = 50, int batchSize = 1000)
+    {
+        var orderedSites = sites.OrderBy(site => site.Distance).ToList();
+        
+        var results = new List<SiteWithDistance>();
+
+        var iterations = 0;
+        
+        //while we are still short of the max, keep appending results
+        //ideally, the first batch would contain more than or equal to the max results, so won't need to iterate often...
+        while (results.Count < maxRecords)
+        {
+            var concurrentBatchResults = new ConcurrentBag<SiteWithDistance>();
+            
+            var orderedSiteBatch = orderedSites.Skip(iterations * batchSize).Take(batchSize).ToList();
+
+            //break out if no more sites to query, just have to return the built results, this is likely to be less than the maxResults
+            if (orderedSiteBatch.Count == 0)
+            {
+                break;
+            }
+
+            var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
+            {
+                var siteOffersServiceDuringPeriod = await GetSiteSupportingServiceInRange(swd.Site.Id, service, from, to);
+                if (siteOffersServiceDuringPeriod)
+                {
+                    concurrentBatchResults.Add(swd);
+                }
+            }).ToArray();
+
+            await Task.WhenAll(siteOffersServiceDuringPeriodTasks);
+            
+            //the concurrentBatchResults lose their original order, so we need to order the end result
+            results.AddRange(concurrentBatchResults.OrderBy(site => site.Distance).Take(maxRecords));
+            iterations++;
+        }
+        
+        logger.LogInformation("GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for service '{service}'", results.Count, iterations, service);
+
+        return results;
+    }
+    
+    private static List<string> GetDateStringsInRange(DateOnly from, DateOnly to)
+    {
+        var result = new List<string>();
+
+        if (to < from)
+        {
+            throw new ArgumentException("'to' date must be on or after 'from' date.");
+        }
+
+        for (var date = from; date <= to; date = date.AddDays(1))
+        {
+            result.Add(date.ToString("yyyyMMdd"));
+        }
+
+        return result;
+    }
+    
     public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")
     {
         var site = await siteStore.GetSiteById(siteId);
@@ -89,7 +176,7 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,
-        string region, Location location, IEnumerable<Accessibility> accessibilities, string type)
+        string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
             => await siteStore.SaveSiteAsync(
                 siteId,
                 odsCode,
@@ -100,7 +187,8 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
                 region,
                 location,
                 accessibilities,
-                type);
+                type,
+                siteStatus);
 
     public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
     {
@@ -123,6 +211,12 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
     {
         return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
     }
+
+    public async Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status)
+        => await siteStore.UpdateSiteStatusAsync(siteId, status);
+
+    public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
+        => await siteStore.GetSitesInIcbAsync(icb);
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
     {
@@ -153,5 +247,27 @@ public class SiteService(ISiteStore siteStore, IMemoryCache memoryCache, TimePro
         memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
 
         return sites;
+    }
+    
+    private async Task<bool> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from, DateOnly until)
+    {
+        var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, service, from, until);
+
+        if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
+        {
+            return siteSupportsService;
+        }
+        
+        var dateStringsInRange = GetDateStringsInRange(from, until);
+        var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
+        
+        memoryCache.Set(cacheKey, siteOffersServiceDuringPeriod, time.GetUtcNow().AddMinutes(15));
+        return siteOffersServiceDuringPeriod;
+    }
+
+    private string GetCacheSiteServiceSupportDateRangeKey(string siteId, string service, DateOnly from, DateOnly until)
+    {
+        var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
+        return $"site_{siteId}_supports_{service}_in_{dateRange}";
     }
 }

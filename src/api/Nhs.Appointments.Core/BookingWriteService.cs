@@ -25,6 +25,8 @@ public interface IBookingWriteService
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
 
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
+
+    Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDayAsync(string site, DateOnly day);
 }
 
 public class BookingWriteService(
@@ -121,6 +123,9 @@ public class BookingWriteService(
 
         await RecalculateAppointmentStatuses_SingleService(site, day);
     }
+
+    public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDayAsync(string site, DateOnly day)
+        => await bookingDocumentStore.CancelAllBookingsInDay(site, day);
 
     private async Task<(bool Success, string Reference)> MakeBooking_SingleService(Booking booking)
     {

@@ -1182,6 +1182,20 @@ namespace Nhs.Appointments.Core.UnitTests
                     MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>()),
                 Times.Never);
         }
+
+        [Fact]
+        public async Task CancelAllBookingsInDayAsync_CallsBookingStore()
+        {
+            var date = new DateOnly(2025, 1, 1);
+            _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
+                .ReturnsAsync((5, 1));
+
+            var result = await _sut.CancelAllBookingsInDayAsync("TEST_SITE_123", date);
+
+            result.Should().Be((5, 1));
+
+            _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
+        }
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

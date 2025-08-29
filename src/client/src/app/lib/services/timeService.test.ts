@@ -17,6 +17,7 @@ import {
   DayJsType,
   RFC3339Format,
   occurInOrder,
+  stringIsValidDate,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 
@@ -508,4 +509,17 @@ describe('Time Service', () => {
       },
     );
   });
+
+  it.each([
+    ['2025-03-10', true],
+    ['2025-05-25', true],
+    ['invalid', false],
+  ])(
+    'checks if a string is a valid date',
+    (dateStringToCheck: string, expectedOutcome: boolean) => {
+      const result = stringIsValidDate(dateStringToCheck, RFC3339Format);
+
+      expect(result).toBe(expectedOutcome);
+    },
+  );
 });

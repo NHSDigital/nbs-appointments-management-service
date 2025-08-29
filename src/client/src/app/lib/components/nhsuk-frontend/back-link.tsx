@@ -24,7 +24,12 @@ const BackLink = (props: Props) => {
   if (props.renderingStrategy === 'server') {
     return (
       <div className="nhsuk-back-link">
-        <Link role="link" className="nhsuk-back-link__link" href={props.href}>
+        <Link
+          role="link"
+          className="nhsuk-back-link__link"
+          href={props.href}
+          prefetch={false}
+        >
           <LeftChevron />
           {props.text}
         </Link>

@@ -9,7 +9,7 @@ const ContactUs = () =>
 
     //     <p>
     //       <strong>By email</strong> <br />
-    //       <Link href="enquiries@nhsdigital.nhs.uk">
+    //       <Link href="enquiries@nhsdigital.nhs.uk" prefetch={false}>
     //         enquiries@nhsdigital.nhs.uk
     //       </Link>
     //     </p>

@@ -23,35 +23,39 @@ public class CapacityDataExtract(
         
         await Task.WhenAll(availabilityTask, siteTask);
 
+        var sites = siteTask.Result.ToArray();
+
         var capacity = availabilityTask.Result.SelectMany(
             availability => availability.Sessions.Select(
-                s => new SiteSessionInstance(availability.Site, availability.Date.ToDateTime(s.From), availability.Date.ToDateTime(s.Until))
+                s => new SiteSessionInstance(sites.Single(x => x.Id == availability.Site), availability.Date.ToDateTime(s.From), availability.Date.ToDateTime(s.Until))
                 {
                     Services = s.Services,
                     SlotLength = s.SlotLength,
                     Capacity = s.Capacity
                 })).SelectMany(slot => slot.ToSiteSlots()).ToList();
 
-        var dataConverter = new CapacityDataConverter(siteTask.Result);
+        Console.WriteLine($"Preparing to parse {capacity.Count} report to rows - time: {timeProvider.GetUtcNow():HH:mm:ss}");
 
-        Console.WriteLine("Preparing to write");
-
-        using (Stream fs = outputFile.OpenWrite())
-        {
-            await ParquetSerializer.SerializeAsync(capacity.Select(
+        var rows = capacity.Select(
                 x => new SiteSessionParquet()
                 {
                     DATE = CapacityDataConverter.ExtractDate(x),
                     TIME = CapacityDataConverter.ExtractTime(x),
-                    ODS_CODE = dataConverter.ExtractOdsCode(x),
-                    LATITUDE = dataConverter.ExtractLatitude(x),
-                    LONGITUDE = dataConverter.ExtractLongitude(x),
+                    ODS_CODE = CapacityDataConverter.ExtractOdsCode(x),
+                    LATITUDE = CapacityDataConverter.ExtractLatitude(x),
+                    LONGITUDE = CapacityDataConverter.ExtractLongitude(x),
                     CAPACITY = CapacityDataConverter.ExtractCapacity(x),
-                    SITE_NAME = dataConverter.ExtractSiteName(x),
-                    REGION = dataConverter.ExtractRegion(x),
-                    ICB = dataConverter.ExtractICB(x),
+                    SITE_NAME = CapacityDataConverter.ExtractSiteName(x),
+                    REGION = CapacityDataConverter.ExtractRegion(x),
+                    ICB = CapacityDataConverter.ExtractICB(x),
                     SERVICE = CapacityDataConverter.ExtractService(x),
-                }), fs);
+                }).ToList();
+
+        Console.WriteLine($"Preparing to write {rows.Count} capacity records to {outputFile.FullName} - time: {timeProvider.GetUtcNow():HH:mm:ss}");
+
+        using (Stream fs = outputFile.OpenWrite())
+        {
+            await ParquetSerializer.SerializeAsync(rows, fs);
         }
 
         Console.WriteLine("done");

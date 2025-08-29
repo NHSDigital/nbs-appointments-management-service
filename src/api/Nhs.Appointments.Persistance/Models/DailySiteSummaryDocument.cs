@@ -8,7 +8,7 @@ public class DailySiteSummaryDocument : AggregatedDataCosmosDocument
     [JsonProperty("bookings")]
     public Dictionary<string, int> Bookings { get; set; }
     [JsonProperty("cancelled")]
-    public int Cancelled { get; }
+    public int Cancelled { get; set; }
     [JsonProperty("orphaned")]
     public Dictionary<string, int> Orphaned { set; get; }
     [JsonProperty("remainingCapacity")]

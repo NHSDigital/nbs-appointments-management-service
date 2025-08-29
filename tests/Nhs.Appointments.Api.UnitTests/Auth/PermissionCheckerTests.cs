@@ -39,7 +39,8 @@ public class PermissionCheckerTests
             "Icb",
             "Info",
             new List<Accessibility>(),
-            new Location("Location", new[] { 0.0 }));
+            new Location("Location", new[] { 0.0 }),
+            SiteStatus.Online);
 
     [Fact]
     public async Task HasPermissions_ReturnsTrue_WhenPermissionAssignedGloballyAndGeneralRequest()
@@ -470,7 +471,7 @@ public class PermissionCheckerTests
         _siteService.Setup(x => x.GetSitesInRegion(It.IsAny<string>()))
             .ReturnsAsync(new List<Site>
             {
-                new("1", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]))
+                new("1", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online)
             });
 
         var result = await _sut.HasPermissionAsync(userId, ["1"], "TestPermission");
@@ -500,7 +501,7 @@ public class PermissionCheckerTests
         _siteService.Setup(x => x.GetSitesInRegion(It.IsAny<string>()))
             .ReturnsAsync(new List<Site>
             {
-                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]))
+                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online)
             });
 
         var result = await _sut.GetPermissionsAsync(userId, "2");
@@ -530,5 +531,36 @@ public class PermissionCheckerTests
 
         result.Count(r => r == "region:R1").Should().Be(1);
         result.First().Should().Be("region:R1");
+    }
+
+    [Fact]
+    public async Task GetPermissionsAsync_FiltersPermissionsOnIcb()
+    {
+        const string userId = "test@test.com";
+        var roles = new List<Role>
+        {
+            new() { Id = "Role1", Name = "Role One", Permissions = ["TestPermission"] }
+        };
+        var userAssignments = new List<RoleAssignment>
+        {
+            new() { Role = "Role1", Scope = "icb:ICB1" },
+        };
+
+        _roleService.Setup(x => x.GetRoles())
+            .ReturnsAsync(roles);
+        _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId))
+            .ReturnsAsync(userAssignments);
+        _siteService.Setup(x => x.GetSitesInIcbAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB1", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online)
+            });
+
+        var result = await _sut.GetPermissionsAsync(userId, "2");
+
+        result.Count().Should().Be(1);
+        result.First().Should().Be("TestPermission");
+
+        _siteService.Verify(s => s.GetSitesInIcbAsync(It.IsAny<string>()), Times.Once());
     }
 }

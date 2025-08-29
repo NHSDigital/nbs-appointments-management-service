@@ -1,21 +1,20 @@
 using CapacityDataExtracts.Documents;
-using Nhs.Appointments.Persistance.Models;
 
 namespace CapacityDataExtracts;
 
-public class CapacityDataConverter(IEnumerable<SiteDocument> sites)
+public static class CapacityDataConverter
 {
-    public string ExtractICB(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).IntegratedCareBoard;
+    public static string ExtractICB(SiteSessionInstance document) => document.Site.IntegratedCareBoard;
 
-    public string ExtractRegion(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).Region;
+    public static string ExtractRegion(SiteSessionInstance document) => document.Site.Region;
 
-    public string ExtractSiteName(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).Name;
+    public static string ExtractSiteName(SiteSessionInstance document) => document.Site.Name;
 
-    public double ExtractLongitude(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).Location.Coordinates[0];
+    public static double ExtractLongitude(SiteSessionInstance document) => document.Site.Location.Coordinates[0];
 
-    public double ExtractLatitude(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).Location.Coordinates[1];
+    public static double ExtractLatitude(SiteSessionInstance document) => document.Site.Location.Coordinates[1];
 
-    public string ExtractOdsCode(SiteSessionInstance document) => sites.Single(s => s.Id == document.Site).OdsCode;
+    public static string ExtractOdsCode(SiteSessionInstance document) => document.Site.OdsCode;
 
     public static string ExtractDate(SiteSessionInstance document) => document.From.ToString("yyyy-MM-dd");
 

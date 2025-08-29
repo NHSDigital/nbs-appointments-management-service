@@ -160,6 +160,7 @@ type Site = {
   location: Location;
   accessibilities: Accessibility[];
   informationForCitizens: string;
+  status?: SiteStatus | null;
 };
 
 type Location = {
@@ -377,6 +378,23 @@ const clinicalServices: ClinicalService[] = [
   { label: 'RSV Adult', value: 'RSV:Adult' },
 ];
 
+type SiteStatus = 'Online' | 'Offline';
+
+type UpdateSiteStatusRequest = {
+  site: string;
+  status: SiteStatus;
+};
+
+type CancelDayRequest = {
+  site: string;
+  date: string;
+};
+
+type CancelDayResponse = {
+  cancelledBookingCount: number;
+  bookingsWithoutContactDetails: number;
+};
+
 export type {
   ApplyAvailabilityTemplateRequest,
   ApiErrorResponse,
@@ -429,6 +447,10 @@ export type {
   WeekSummaryV2,
   DaySummaryV2,
   ClinicalService,
+  SiteStatus,
+  UpdateSiteStatusRequest,
+  CancelDayRequest,
+  CancelDayResponse,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

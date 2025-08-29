@@ -31,7 +31,7 @@ const CancellationConfirmed = ({
       </p>
       <div className="nhsuk-u-margin-top-4">
         <Link
-          href={`/site/${site}/view-availability/daily-appointments?date=${date}&page=1&tab=2`}
+          href={`/site/${site}/cancel-day/cancelled-appointments?date=${date}&page=1`}
           className="nhsuk-link nhsuk-u-display-block nhsuk-u-margin-bottom-2"
         >
           View bookings without contact details

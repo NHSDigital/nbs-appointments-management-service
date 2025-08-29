@@ -25,6 +25,12 @@ public class BookingCosmosDocumentStore(
         }
     }
 
+    public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
+    {
+        return await bookingStore.RunQueryAsync<Booking>(bookingDocument =>
+            bookingDocument.DocumentType == "booking" && bookingDocument.IsMatchedBy(queryFilter));
+    }
+
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
     {
         if (statuses.Length == 0)

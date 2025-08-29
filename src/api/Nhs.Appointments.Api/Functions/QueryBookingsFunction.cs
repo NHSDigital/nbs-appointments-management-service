@@ -46,7 +46,14 @@ public class QueryBookingsFunction(
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request,
         ILogger logger)
     {
-        var booking = await bookingQueryService.GetBookings(request.from, request.to, request.site);
+        var filter = new BookingQueryFilter(request.from,
+            request.to,
+            request.site,
+            request.statuses,
+            request.cancellationReason,
+            request.cancellationNotificationStatuses);
+
+        var booking = await bookingQueryService.GetBookings(filter);
         return Success(booking);
     }
 }

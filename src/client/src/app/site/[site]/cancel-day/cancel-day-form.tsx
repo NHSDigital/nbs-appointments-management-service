@@ -61,8 +61,10 @@ const CancelDayForm = ({
       date: parsedDate.format(RFC3339Format),
     };
 
-    // TODO: APPT-1179 - use the response to the above & link to new page
-    await cancelDay(payload);
+    const response = await cancelDay(payload);
+    replace(
+      `/site/${siteId}/cancel-day/confirmed?date=${date}&cancelledBookingCount=${response.cancelledBookingCount}&bookingsWithoutContactDetails=${response.bookingsWithoutContactDetails}`,
+    );
   };
 
   return (

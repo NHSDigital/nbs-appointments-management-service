@@ -13,7 +13,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;

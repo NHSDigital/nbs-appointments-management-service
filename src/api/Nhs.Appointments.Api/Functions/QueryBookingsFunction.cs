@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -49,9 +51,10 @@ public class QueryBookingsFunction(
         var filter = new BookingQueryFilter(request.from,
             request.to,
             request.site,
-            request.statuses,
-            request.cancellationReason,
-            request.cancellationNotificationStatuses);
+            request.statuses.Select(Enum.Parse<AppointmentStatus>).ToArray(),
+            Enum.Parse<CancellationReason>(request.cancellationReason),
+            request.cancellationNotificationStatuses
+                .Select(Enum.Parse<CancellationNotificationStatus>).ToArray());
 
         var booking = await bookingQueryService.GetBookings(filter);
         return Success(booking);

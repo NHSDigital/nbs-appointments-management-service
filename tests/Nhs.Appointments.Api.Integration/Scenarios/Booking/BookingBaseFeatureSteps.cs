@@ -1,3 +1,9 @@
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
@@ -5,12 +11,6 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit.Gherkin.Quick;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
 using ContactItem = Nhs.Appointments.Core.ContactItem;
@@ -192,5 +192,12 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
         await AssertCancellationReasonByReference(bookingReference, expectedCancellationReason);
+    }
+
+    protected string ToRequestFormat(string naturalLanguageDateOnly, string naturalLanguageTime)
+    {
+        return DateTime.ParseExact(
+            $"{ParseNaturalLanguageDateOnly(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
+            "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
 }

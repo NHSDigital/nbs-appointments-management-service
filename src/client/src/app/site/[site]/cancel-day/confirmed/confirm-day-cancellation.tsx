@@ -1,11 +1,10 @@
-import { InsetText } from '@components/nhsuk-frontend';
-import { DayCancellationSummary } from '@types';
+import { CancelDayResponse } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
   site: string;
   date: string;
-  dayCancellationSummary: DayCancellationSummary;
+  dayCancellationSummary: CancelDayResponse;
 };
 
 //Should cancelled appointments include those cancelled prior to those already cancelled before ?
@@ -18,17 +17,17 @@ const CancellationConfirmed = ({
   return (
     <>
       <p className="nhsuk-body">
-        {dayCancellationSummary.cancelledAppointments} appointments
+        {dayCancellationSummary.cancelledBookingCount} appointments
         {'  '}
-        have been cancelled.
-        {dayCancellationSummary.bookingsWithContactDetails} people will be sent
-        a text message or email confirming their appointment has been cancelled.
+        have been cancelled.&nbsp;
+        {dayCancellationSummary.cancelledBookingCount -
+          dayCancellationSummary.cancelledBookingCount}{' '}
+        people will be sent a text message or email confirming their appointment
+        has been cancelled.
       </p>
       <p className="nhsuk-body">
-        {dayCancellationSummary.cancelledAppointments -
-          dayCancellationSummary.bookingsWithContactDetails}{' '}
-        people did not provide contact details so they will not receive a
-        notification.
+        {dayCancellationSummary.bookingsWithoutContactDetails} people did not
+        provide contact details so they will not receive a notification.
       </p>
       <div className="nhsuk-u-margin-top-4">
         <Link

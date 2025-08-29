@@ -30,6 +30,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nhs.Appointments.Api.Client.Integration", "tests\Nhs.Appointments.Api.Client.Integration\Nhs.Appointments.Api.Client.Integration.csproj", "{DFA538A6-9D01-417F-A0B3-D91102B9FA22}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "local-tools", "local-tools", "{22B97405-2671-42B1-BE08-E1D0E18A2F1F}"
+	ProjectSection(SolutionItems) = preProject
+		data\BookingsDataExtracts\.dockerignore = data\BookingsDataExtracts\.dockerignore
+		data\BookingsDataExtracts\Dockerfile = data\BookingsDataExtracts\Dockerfile
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nhs.Appointments.Api.Integration", "tests\Nhs.Appointments.Api.Integration\Nhs.Appointments.Api.Integration.csproj", "{6595832E-26F8-4463-A738-1874F4F2DAD9}"
 EndProject

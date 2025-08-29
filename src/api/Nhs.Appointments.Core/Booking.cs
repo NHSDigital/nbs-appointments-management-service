@@ -101,9 +101,14 @@ public enum CancellationNotificationStatus
 {
     Unknown,
     Unnotified,
+
+    // TODO: When requirement comes in to capture automatic notifications which fail,
+    // this is how that will be recorded
     AutomaticNotificationFailed,
-    // TODO: When the requirement comes in to "tick off" these appointments as the citizens have been manually notified, this is how that will be recorded
-    // ManuallyNotified
+
+    // TODO: When the requirement comes in to "tick off" these appointments as the citizens have been manually notified,
+    // this is how that will be recorded
+    ManuallyNotified
 }
 
 public enum CancellationReason

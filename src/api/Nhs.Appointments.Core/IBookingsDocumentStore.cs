@@ -6,6 +6,7 @@ public interface IBookingsDocumentStore
 {
     Task InsertAsync(Booking booking);
     Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site);
+    Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter);
     Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses);
     Task<Booking> GetByReferenceOrDefaultAsync(string bookingReference);
     Task<IEnumerable<Booking>> GetByNhsNumberAsync(string nhsNumber);

@@ -1,27 +1,19 @@
 ﻿namespace Nhs.Appointments.Core;
 
-public class BookingQueryFilter
+public class BookingQueryFilter(
+    DateTime from,
+    DateTime to,
+    string site,
+    AppointmentStatus[] statuses,
+    CancellationReason cancellationReason,
+    CancellationNotificationStatus[] cancellationNotificationStatuses)
 {
-    public BookingQueryFilter(DateTime from,
-        DateTime to,
-        string site,
-        string[] statuses,
-        string cancellationReason,
-        string[] cancellationNotificationStatuses)
-    {
-        StartsAtOrBefore = from;
-        StartsAtOrAfter = to;
-        Site = site;
-        Statuses = statuses.Select(status => Enum.Parse<AppointmentStatus>(status)).ToArray();
-        CancellationReason = Enum.Parse<CancellationReason>(cancellationReason);
-        CancellationNotificationStatuses = cancellationNotificationStatuses
-            .Select(status => Enum.Parse<CancellationNotificationStatus>(status)).ToArray();
-    }
+    public DateTime StartsAtOrAfter { get; init; } = to;
+    public DateTime StartsAtOrBefore { get; init; } = from;
+    public string Site { get; init; } = site;
+    public AppointmentStatus[] Statuses { get; init; } = statuses;
+    public CancellationReason? CancellationReason { get; init; } = cancellationReason;
 
-    public DateTime StartsAtOrAfter { get; set; }
-    public DateTime StartsAtOrBefore { get; set; }
-    public string Site { get; set; }
-    public AppointmentStatus[] Statuses { get; set; }
-    public CancellationReason? CancellationReason { get; set; }
-    public CancellationNotificationStatus[] CancellationNotificationStatuses { get; set; }
+    public CancellationNotificationStatus[] CancellationNotificationStatuses { get; init; } =
+        cancellationNotificationStatuses;
 }

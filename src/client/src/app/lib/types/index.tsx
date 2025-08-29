@@ -250,6 +250,9 @@ type FetchBookingsRequest = {
   from: string;
   to: string;
   site: string;
+  cancellationReason?: 'CancelledByCitizen' | 'CancelledBySite';
+  statuses?: string[];
+  cancellationNotificationStatuses?: string;
 };
 
 type Booking = {

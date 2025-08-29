@@ -59,22 +59,17 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
-              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
               MESH_WORKFLOW: $(meshCapacityWorkflowId)
               KeyVault__KeyVaultName: covid19bookingkv${{parameters.env}}uks
               KeyVault__TenantId: $(tenantId)
               KeyVault__ClientId: $(ClientId)
               KeyVault__ClientSecret: $(ClientSecret)
               MeshClientOptions__BaseUrl: $(meshApiBaseUri)
-              MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
               FileSenderOptions__Type: mesh
               MeshFileOptions__File: $(meshFileOptionsFile)
-              MeshFileOptions__DestinationMailboxId: $(meshCapacityMailboxDestination)
-              MeshFileOptions__WorkflowId: $(meshCapacitysMailboxWorkflow)
-              LocalFileOptions__TargetPath: $(localFileOptionsTargetPath)
-              LocalFileOptions__Overwrite: $(localFileOptionsOverwrite)
-              BlobFileOptions__ContainerName: $(blobFileOptionsContainerName)
+              MeshFileOptions__DestinationMailboxId: $(toMeshMailboxId)
+              MeshFileOptions__WorkflowId: $(fromMeshMailboxId)
   - stage: "CreateBookingDailyExtract"
     displayName: "Create booking data extract"
     condition: eq('${{ parameters.runBooking }}', 'true')
@@ -109,6 +104,3 @@ stages:
               MeshFileOptions__File: $(meshFileOptionsFile)
               MeshFileOptions__DestinationMailboxId: $(toMeshMailboxId)
               MeshFileOptions__WorkflowId: $(fromMeshMailboxId)
-              LocalFileOptions__TargetPath: $(localFileOptionsTargetPath)
-              LocalFileOptions__Overwrite: $(localFileOptionsOverwrite)
-              BlobFileOptions__ContainerName: $(blobFileOptionsContainerName)

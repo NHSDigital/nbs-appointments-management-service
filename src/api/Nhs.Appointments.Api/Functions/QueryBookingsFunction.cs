@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -21,7 +22,8 @@ public class QueryBookingsFunction(
     IValidator<QueryBookingsRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<QueryBookingsFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<QueryBookingsRequest, IEnumerable<Booking>>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -48,15 +50,23 @@ public class QueryBookingsFunction(
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request,
         ILogger logger)
     {
-        var filter = new BookingQueryFilter(request.from,
-            request.to,
-            request.site,
-            request.statuses.Select(Enum.Parse<AppointmentStatus>).ToArray(),
-            Enum.Parse<CancellationReason>(request.cancellationReason),
-            request.cancellationNotificationStatuses
-                .Select(Enum.Parse<CancellationNotificationStatus>).ToArray());
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.CancelDay))
+        {
+            var filter = new BookingQueryFilter(request.from,
+                request.to,
+                request.site,
+                request.statuses.Select(Enum.Parse<AppointmentStatus>).ToArray(),
+                Enum.Parse<CancellationReason>(request.cancellationReason),
+                request.cancellationNotificationStatuses
+                    .Select(Enum.Parse<CancellationNotificationStatus>).ToArray());
 
-        var booking = await bookingQueryService.GetBookings(filter);
-        return Success(booking);
+            var booking = await bookingQueryService.GetBookings(filter);
+            return Success(booking);
+        }
+        else
+        {
+            var booking = await bookingQueryService.GetBookings(request.from, request.to, request.site);
+            return Success(booking);
+        }
     }
 }

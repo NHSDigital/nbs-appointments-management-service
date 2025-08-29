@@ -4,9 +4,9 @@ public class BookingQueryFilter(
     DateTime from,
     DateTime to,
     string site,
-    AppointmentStatus[] statuses,
-    CancellationReason cancellationReason,
-    CancellationNotificationStatus[] cancellationNotificationStatuses)
+    AppointmentStatus[] statuses = null,
+    CancellationReason cancellationReason = default,
+    CancellationNotificationStatus[] cancellationNotificationStatuses = null)
 {
     public DateTime StartsAtOrAfter { get; init; } = to;
     public DateTime StartsAtOrBefore { get; init; } = from;

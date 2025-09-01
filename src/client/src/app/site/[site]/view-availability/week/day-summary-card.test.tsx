@@ -10,10 +10,7 @@ import {
   RFC3339Format,
 } from '@services/timeService';
 import { cookies } from 'next/headers';
-import { fetchFeatureFlag } from '@services/appointmentsService';
-import { FeatureFlag } from '@types';
-
-import { ClinicalService, FeatureFlag } from '@types';
+import { ClinicalService } from '@types';
 
 const clinicalServices: ClinicalService[] = [
   { label: 'RSV Adult', value: 'RSV:Adult' },
@@ -31,15 +28,9 @@ jest.mock('@services/timeService', () => {
 jest.mock('next/headers', () => ({
   cookies: jest.fn(),
 }));
-jest.mock('@services/appointmentsService', () => ({
-  fetchFeatureFlag: jest.fn(),
-}));
 
 const mockIsFutureCalendarDateUk = isFutureCalendarDateUk as jest.Mock<boolean>;
 const mockUkNow = ukNow as jest.Mock<DayJsType>;
-const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
-  Promise<FeatureFlag>
->;
 
 describe('Day Summary Card', () => {
   beforeEach(() => {
@@ -49,9 +40,6 @@ describe('Day Summary Card', () => {
     mockUkNow.mockReturnValue(parseToUkDatetime('2024-11-01'));
     (cookies as jest.Mock).mockReturnValue({
       get: jest.fn().mockReturnValue({ value: 'mock-token' }),
-    });
-    fetchFeatureFlagMock.mockResolvedValue({
-      enabled: true,
     });
   });
 
@@ -374,9 +362,6 @@ describe('Day Summary Card', () => {
 
     it.only('does not render "Cancel day" link if feature toggle is disabled', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
-      fetchFeatureFlagMock.mockResolvedValue({
-        enabled: false,
-      });
 
       render(
         <DaySummaryCard

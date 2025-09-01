@@ -323,6 +323,16 @@ type DaySummary = {
   remainingCapacity: number;
 };
 
+type DaySummaryV2 = {
+  date: string;
+  sessions: SessionSummary[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
+};
+
 type WeekSummary = {
   startDate: DayJsType;
   endDate: DayJsType;
@@ -339,16 +349,6 @@ type WeekSummaryV2 = {
   remainingCapacity: number;
   bookedAppointments: number;
   orphanedAppointments: number;
-};
-
-type DaySummaryV2 = {
-  date: string;
-  sessions: SessionSummary[];
-  maximumCapacity: number;
-  remainingCapacity: number;
-  bookedAppointments: number;
-  orphanedAppointments: number;
-  cancelledAppointments: number;
 };
 
 type ServiceInformation = {

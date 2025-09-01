@@ -1,13 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { DailyAppointmentsPage } from './daily-appointments-page';
-import { mockBookings } from '@testing/data';
+import { mockBookings, mockMultipleServices } from '@testing/data';
 import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { ReadonlyURLSearchParams } from 'next/navigation';
-
-const mockClinicalServices = [
-  { value: 'RSV:Adult', label: 'RSV Adult' },
-  { value: 'FLU:18_64', label: 'Flu 18-64+' },
-];
 
 describe('View Daily Appointments', () => {
   it('renders appointments', () => {
@@ -19,7 +14,7 @@ describe('View Daily Appointments', () => {
           bookings={mockBookings}
           site="TEST01"
           displayAction={true}
-          clinicalServices={mockClinicalServices}
+          clinicalServices={mockMultipleServices}
         />
       </SearchParamsContext.Provider>,
     );
@@ -36,7 +31,7 @@ describe('View Daily Appointments', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '09:34 Ian Goldsmith 9999999995 3 March 1973 Flu 18-64+ Cancel',
+        name: '09:34 Ian Goldsmith 9999999995 3 March 1973 FLU 18-64 Cancel',
       }),
     ).toBeInTheDocument();
 
@@ -53,7 +48,7 @@ describe('View Daily Appointments', () => {
           site="TEST01"
           displayAction={true}
           message="Test message"
-          clinicalServices={mockClinicalServices}
+          clinicalServices={mockMultipleServices}
         />
       </SearchParamsContext.Provider>,
     );
@@ -71,7 +66,7 @@ describe('View Daily Appointments', () => {
           site="TEST01"
           displayAction={true}
           message="Test message"
-          clinicalServices={mockClinicalServices}
+          clinicalServices={mockMultipleServices}
         />
       </SearchParamsContext.Provider>,
     );
@@ -91,7 +86,7 @@ describe('View Daily Appointments', () => {
           site="TEST01"
           displayAction={false}
           message="Test message"
-          clinicalServices={mockClinicalServices}
+          clinicalServices={mockMultipleServices}
         />
       </SearchParamsContext.Provider>,
     );

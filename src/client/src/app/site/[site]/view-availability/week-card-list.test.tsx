@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { mockSite } from '@testing/data';
+import { mockSingleService, mockSite } from '@testing/data';
 import { ClinicalService, WeekSummary } from '@types';
 import { WeekCardList } from './week-card-list';
 import { summariseWeek } from '@services/availabilityCalculatorService';
@@ -19,10 +19,6 @@ const mockSummariseWeek = summariseWeek as jest.Mock<Promise<WeekSummary>>;
 const mockClinicalServices = fetchClinicalServices as jest.Mock<
   Promise<ClinicalService[]>
 >;
-
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-];
 
 const mockWeeks: DayJsType[][] = [
   [
@@ -57,7 +53,7 @@ const mockWeeks: DayJsType[][] = [
 describe('Week Card List', () => {
   beforeEach(() => {
     mockSummariseWeek.mockReturnValue(Promise.resolve(mockWeekSummary));
-    mockClinicalServices.mockReturnValue(Promise.resolve(clinicalServices));
+    mockClinicalServices.mockReturnValue(Promise.resolve(mockSingleService));
   });
 
   it('renders', async () => {

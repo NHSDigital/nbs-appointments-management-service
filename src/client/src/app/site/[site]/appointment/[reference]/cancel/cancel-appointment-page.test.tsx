@@ -1,15 +1,10 @@
 import { screen } from '@testing-library/react';
 import CancelAppointmentPage from './cancel-appointment-page';
-import { mockBookings } from '@testing/data';
+import { mockBookings, mockSingleService } from '@testing/data';
 import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import render from '@testing/render';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
-import { ClinicalService } from '@types';
-
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-];
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -30,7 +25,7 @@ describe('Cancel Appointment Page', () => {
       <CancelAppointmentPage
         site="TEST01"
         booking={mockBookings[0]}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -51,7 +46,7 @@ describe('Cancel Appointment Page', () => {
       <CancelAppointmentPage
         site="TEST01"
         booking={mockBookings[0]}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -63,7 +58,7 @@ describe('Cancel Appointment Page', () => {
       <CancelAppointmentPage
         site="TEST01"
         booking={mockBookings[0]}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -84,7 +79,7 @@ describe('Cancel Appointment Page', () => {
         <CancelAppointmentPage
           site="TEST01"
           booking={mockBookings[0]}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
         />,
       );
 

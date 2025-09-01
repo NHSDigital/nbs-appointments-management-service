@@ -2,19 +2,12 @@ import { mockWeekAvailability__Summary } from '@testing/availability-and-booking
 import render from '@testing/render';
 import { EditSessionDecision } from './edit-session-decision';
 import { screen, waitFor } from '@testing-library/dom';
-import { mockSite } from '@testing/data';
+import {
+  mockMultipleServices,
+  mockSingleService,
+  mockSite,
+} from '@testing/data';
 import { useRouter } from 'next/navigation';
-import { ClinicalService } from '@types';
-
-const singleService: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-];
-
-const multipleServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-  { label: 'FLU (2-3)', value: 'FLU:2-3' },
-  { label: 'COVID', value: 'COVID:19' },
-];
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -36,7 +29,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={singleService}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -56,7 +49,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={multipleServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -84,7 +77,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={singleService}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -113,7 +106,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={singleService}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -190,7 +183,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={singleService}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -222,7 +215,7 @@ describe('Edit Session Decision Page', () => {
         sessionSummary={session}
         date="2025-01-15"
         site={mockSite}
-        clinicalServices={singleService}
+        clinicalServices={mockSingleService}
       />,
     );
 

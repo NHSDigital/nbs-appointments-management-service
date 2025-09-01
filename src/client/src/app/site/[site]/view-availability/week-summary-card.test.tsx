@@ -1,20 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import { WeekSummaryCard } from './week-summary-card';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
-import { ClinicalService } from '@types';
-
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-  { label: 'FLU 18-64', value: 'FLU:18_64' },
-  { label: 'COVID 75+', value: 'COVID:75+' },
-];
+import { mockMultipleServices } from '@testing/data';
 
 describe('Week Summary Card', () => {
   it('renders', () => {
     render(
       <WeekSummaryCard
         ukWeekSummary={mockWeekSummary}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -27,7 +21,7 @@ describe('Week Summary Card', () => {
     render(
       <WeekSummaryCard
         ukWeekSummary={mockWeekSummary}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -53,7 +47,7 @@ describe('Week Summary Card', () => {
     render(
       <WeekSummaryCard
         ukWeekSummary={mockWeekSummary}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -66,7 +60,7 @@ describe('Week Summary Card', () => {
     render(
       <WeekSummaryCard
         ukWeekSummary={{ ...mockWeekSummary, orphanedAppointments: 31 }}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -81,7 +75,7 @@ describe('Week Summary Card', () => {
     render(
       <WeekSummaryCard
         ukWeekSummary={mockWeekSummary}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 

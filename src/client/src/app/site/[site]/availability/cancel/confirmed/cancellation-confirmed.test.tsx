@@ -2,11 +2,7 @@ import { mockWeekAvailability__Summary } from '@testing/availability-and-booking
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import CancellationConfirmed from './cancellation-confirmed';
-import { ClinicalService } from '@types';
-
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-];
+import { mockSingleService } from '@testing/data';
 
 describe('Cancellation Confirmed Page', () => {
   it('renders the correct session in the table', () => {
@@ -18,7 +14,7 @@ describe('Cancellation Confirmed Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -36,7 +32,7 @@ describe('Cancellation Confirmed Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 

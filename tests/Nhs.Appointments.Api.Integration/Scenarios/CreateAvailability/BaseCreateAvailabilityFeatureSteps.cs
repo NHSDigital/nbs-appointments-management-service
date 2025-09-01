@@ -14,7 +14,7 @@ using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 
-public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabled) : AuditFeatureSteps(flag, enabled)
+public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
 {
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpResponseMessage _response;

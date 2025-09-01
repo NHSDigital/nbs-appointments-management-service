@@ -2,7 +2,6 @@
   "FeatureManagement": {
     "OktaEnabled": true,
     "JointBookings": false,
-    "MultipleServices": true,
     "SiteSummaryReport": true,
     "SiteStatus": false,
     "CancelDay": false

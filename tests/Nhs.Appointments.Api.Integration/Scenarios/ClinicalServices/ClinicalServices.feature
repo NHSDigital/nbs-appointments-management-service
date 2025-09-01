@@ -1,4 +1,4 @@
-Feature: Get Clinical Services for MultipleServices Enabled
+Feature: Get Clinical Services
 
   Scenario: Get Clinical Services Single Configured
     And I have Clinical Services
@@ -9,7 +9,7 @@ Feature: Get Clinical Services for MultipleServices Enabled
       | Service |
       | RSV     |
     Then the request should be successful
-  
+
   Scenario: Get Clinical Services
     And I have Clinical Services
       | Service |
@@ -23,5 +23,3 @@ Feature: Get Clinical Services for MultipleServices Enabled
       | Covid   |
       | Flu     |
     Then the request should be successful
-
-  

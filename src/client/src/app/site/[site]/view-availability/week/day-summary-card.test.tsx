@@ -1,7 +1,11 @@
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import { DaySummaryCard } from './day-summary-card';
-import { mockDaySummaries, mockEmptyDays } from '@testing/data';
+import {
+  mockDaySummaries,
+  mockEmptyDays,
+  mockSingleService,
+} from '@testing/data';
 import {
   DayJsType,
   isFutureCalendarDateUk,
@@ -9,10 +13,7 @@ import {
   ukNow,
   RFC3339Format,
 } from '@services/timeService';
-import { clinicalServices } from '@types';
 import { cookies } from 'next/headers';
-import { fetchFeatureFlag } from '@services/appointmentsService';
-import { FeatureFlag } from '@types';
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
@@ -26,15 +27,9 @@ jest.mock('@services/timeService', () => {
 jest.mock('next/headers', () => ({
   cookies: jest.fn(),
 }));
-jest.mock('@services/appointmentsService', () => ({
-  fetchFeatureFlag: jest.fn(),
-}));
 
 const mockIsFutureCalendarDateUk = isFutureCalendarDateUk as jest.Mock<boolean>;
 const mockUkNow = ukNow as jest.Mock<DayJsType>;
-const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
-  Promise<FeatureFlag>
->;
 
 describe('Day Summary Card', () => {
   beforeEach(() => {
@@ -45,9 +40,6 @@ describe('Day Summary Card', () => {
     (cookies as jest.Mock).mockReturnValue({
       get: jest.fn().mockReturnValue({ value: 'mock-token' }),
     });
-    fetchFeatureFlagMock.mockResolvedValue({
-      enabled: true,
-    });
   });
 
   it('renders', () => {
@@ -56,7 +48,7 @@ describe('Day Summary Card', () => {
         daySummary={mockDaySummaries[0]}
         siteId={'mock-site'}
         canManageAvailability={true}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
         canViewDailyAppointments={true}
         cancelDayFlag={true}
       />,
@@ -77,7 +69,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -101,7 +93,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -125,7 +117,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -151,7 +143,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -170,7 +162,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -187,7 +179,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -204,7 +196,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -221,7 +213,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -240,7 +232,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockDaySummaries[0], cancelledAppointments: 3 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -267,7 +259,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockDaySummaries[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -286,7 +278,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockDaySummaries[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -313,7 +305,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={false}
           cancelDayFlag={true}
         />,
@@ -335,7 +327,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -358,7 +350,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -369,16 +361,13 @@ describe('Day Summary Card', () => {
 
     it.only('does not render "Cancel day" link if feature toggle is disabled', () => {
       mockIsFutureCalendarDateUk.mockReturnValue(false);
-      fetchFeatureFlagMock.mockResolvedValue({
-        enabled: false,
-      });
 
       render(
         <DaySummaryCard
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={false}
         />,
@@ -395,7 +384,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -418,7 +407,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -439,7 +428,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -460,7 +449,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -479,7 +468,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -498,7 +487,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -515,7 +504,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 1 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -532,7 +521,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 0 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -549,7 +538,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 1 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -566,7 +555,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 0 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -583,7 +572,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -603,7 +592,7 @@ describe('Day Summary Card', () => {
           daySummary={mockDaySummaries[0]}
           siteId={'mock-site'}
           canManageAvailability={false}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -620,7 +609,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], cancelledAppointments: 3 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -647,7 +636,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -674,7 +663,7 @@ describe('Day Summary Card', () => {
           daySummary={{ ...mockEmptyDays[0], orphanedAppointments: 20 }}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,
@@ -695,7 +684,7 @@ describe('Day Summary Card', () => {
           daySummary={mockEmptyDays[0]}
           siteId={'mock-site'}
           canManageAvailability={true}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           canViewDailyAppointments={true}
           cancelDayFlag={true}
         />,

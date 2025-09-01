@@ -2,7 +2,7 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import {
   mockAvailabilityCreatedEvents,
-  mockClinicalServices,
+  mockMultipleServices,
   mockMultipleServicesAvailabilityCreatedEvents,
   mockSite,
 } from '@testing/data';
@@ -10,11 +10,7 @@ import {
   fetchAvailabilityCreatedEvents,
   fetchClinicalServices,
 } from '@services/appointmentsService';
-import {
-  AvailabilityCreatedEvent,
-  ClinicalService,
-  clinicalServices,
-} from '@types';
+import { AvailabilityCreatedEvent, ClinicalService } from '@types';
 import { AvailabilityCreatedEventsTable } from './availabilityCreatedEventsTable';
 
 jest.mock('@services/appointmentsService');
@@ -33,7 +29,7 @@ describe('Availability Created Events Table - multiple services', () => {
       mockMultipleServicesAvailabilityCreatedEvents,
     );
     fetchClinicalServicesMock.mockReturnValue(
-      Promise.resolve(mockClinicalServices),
+      Promise.resolve(mockMultipleServices),
     );
   });
 
@@ -68,13 +64,13 @@ describe('Availability Created Events Table - multiple services', () => {
 
     expect(
       screen.getByRole('row', {
-        name: '1 Jan 2024 - 28 Feb 2024 Mon, Tue RSV Adult, Test Weekly repeating',
+        name: '1 Jan 2024 - 28 Feb 2024 Mon, Tue RSV Adult, FLU 18-64, COVID Weekly repeating',
       }),
     );
 
     expect(
       screen.getByRole('row', {
-        name: '1 Jan 2025 Wed RSV Adult, Test Single date',
+        name: '1 Jan 2025 Wed RSV Adult, FLU 18-64, COVID Single date',
       }),
     );
 
@@ -98,7 +94,7 @@ describe('Availability Created Events Table', () => {
       mockAvailabilityCreatedEvents,
     );
     fetchClinicalServicesMock.mockReturnValue(
-      Promise.resolve(clinicalServices),
+      Promise.resolve([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
     );
   });
 

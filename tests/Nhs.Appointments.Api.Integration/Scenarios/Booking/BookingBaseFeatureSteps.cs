@@ -17,7 +17,7 @@ using ContactItem = Nhs.Appointments.Core.ContactItem;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
-public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : AuditFeatureSteps(flag, enabled)
+public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
 {
     protected HttpResponseMessage Response { get; set; }
     

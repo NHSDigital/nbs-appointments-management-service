@@ -3,7 +3,6 @@
     "OktaEnabled": true,
     "JointBookings": false,
     "BulkImport": true,
-    "MultipleServices": true,
     "SiteSummaryReport": true,
     "SiteStatus": false,
     "CancelDay": false

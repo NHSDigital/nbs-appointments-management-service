@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
 
@@ -55,6 +56,9 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
 
         Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
         _statusCode = Response.StatusCode;
+        (_, _actualResponse) =
+            await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(
+                await Response.Content.ReadAsStreamAsync());
     }
 
     [Then(@"the following bookings are returned")]

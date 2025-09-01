@@ -45,5 +45,5 @@ public class BookingDocument : BookingDataCosmosDocument
     public CancellationReason? CancellationReason { get; set; }
 
     [JsonProperty("cancellationNotificationStatus")]
-    public CancellationNotificationStatus CancellationNotificationStatus { get; set; }
+    public CancellationNotificationStatus? CancellationNotificationStatus { get; set; }
 }

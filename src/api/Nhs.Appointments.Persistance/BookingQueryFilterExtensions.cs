@@ -25,9 +25,19 @@ public static class BookingQueryFilterExtensions
         var statusMatch = filter.Statuses?.Contains(booking.Status) ?? true;
         var cancellationReasonMatch = filter.CancellationReason == null ||
                                       booking.CancellationReason == filter.CancellationReason;
-        var notificationStatusMatch =
-            filter.CancellationNotificationStatuses?.Contains(booking.CancellationNotificationStatus) ?? true;
+        var notificationStatusMatch = MatchCancellationNotificationStatus(booking, filter);
 
         return siteMatch && dateRangeMatch && statusMatch && cancellationReasonMatch && notificationStatusMatch;
+    }
+
+    private static bool MatchCancellationNotificationStatus(BookingDocument booking, BookingQueryFilter filter)
+    {
+        // Match any booking if not filtering by cancellationNotificationStatuses
+        if (filter.CancellationNotificationStatuses is null || filter.CancellationNotificationStatuses.Length == 0)
+        {
+            return true;
+        }
+
+        return filter.CancellationNotificationStatuses.Any(status => booking.CancellationNotificationStatus == status);
     }
 }

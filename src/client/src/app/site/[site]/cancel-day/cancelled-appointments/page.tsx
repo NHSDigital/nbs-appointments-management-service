@@ -9,7 +9,7 @@ import {
 import { parseToUkDatetime, RFC3339Format } from '@services/timeService';
 import { FetchBookingsRequest } from '@types';
 import { notFound } from 'next/navigation';
-import { DailyAppointmentsPage } from '../../view-availability/daily-appointments/daily-appointments-page';
+import CancelledAppointments from './cancelled-appointments';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -55,10 +55,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
       caption={site.name}
       originPage="cancel-day-confirmation"
     >
-      <DailyAppointmentsPage
+      <CancelledAppointments
         bookings={bookings}
         clinicalServices={clinicalServices}
-        displayAction={false}
         site={site.name}
       />
     </NhsPage>

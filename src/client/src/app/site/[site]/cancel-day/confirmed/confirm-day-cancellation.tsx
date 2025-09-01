@@ -21,7 +21,7 @@ const CancellationConfirmed = ({
         {'  '}
         have been cancelled.&nbsp;
         {dayCancellationSummary.cancelledBookingCount -
-          dayCancellationSummary.cancelledBookingCount}{' '}
+          dayCancellationSummary.bookingsWithoutContactDetails}{' '}
         people will be sent a text message or email confirming their appointment
         has been cancelled.
       </p>

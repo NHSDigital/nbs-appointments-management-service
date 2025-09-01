@@ -7,11 +7,7 @@ type Props = {
   site: string;
 };
 
-const CancelledAppointments = async ({
-  bookings,
-  clinicalServices,
-  site,
-}: Props) => {
+const CancelledAppointments = ({ bookings, clinicalServices, site }: Props) => {
   return (
     <DailyAppointmentsPage
       bookings={bookings}

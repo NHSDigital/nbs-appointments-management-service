@@ -6,7 +6,7 @@ import {
   fetchClinicalServices,
   fetchSite,
 } from '@services/appointmentsService';
-import { parseToUkDatetime, RFC3339Format } from '@services/timeService';
+import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 import { FetchBookingsRequest } from '@types';
 import { notFound } from 'next/navigation';
 import CancelledAppointments from './cancelled-appointments';
@@ -36,8 +36,8 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const toDate = fromDate.endOf('day');
 
   const fetchBookingsRequest: FetchBookingsRequest = {
-    from: fromDate.format(RFC3339Format),
-    to: toDate.format(RFC3339Format),
+    from: fromDate.format(dateTimeFormat),
+    to: toDate.format(dateTimeFormat),
     site: siteFromPath,
     statuses: ['Cancelled'],
     cancellationReason: 'CancelledBySite',

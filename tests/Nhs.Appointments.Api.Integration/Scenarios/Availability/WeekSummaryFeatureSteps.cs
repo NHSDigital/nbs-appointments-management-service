@@ -14,7 +14,8 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
 {
-    public abstract class WeekSummaryFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+    [FeatureFile("./Scenarios/Availability/WeekSummary.feature")]
+    public class WeekSummaryFeatureSteps : BaseFeatureSteps
     {
         private Summary _actualResponse;
         private HttpResponseMessage _response;
@@ -112,14 +113,4 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             return serviceBookings.Select(serviceBooking => serviceBooking.Trim().Split(':')).ToDictionary(parts => parts[0], parts => int.Parse(parts[1]));
         }
     }
-
-    [FeatureFile("./Scenarios/Availability/WeekSummary_MultipleServices.feature")]
-    [Collection("MultipleServicesSerialToggle")]
-    public class WeekSummaryFeatureSteps_MultipleServicesEnabled()
-        : WeekSummaryFeatureSteps(Flags.MultipleServices, true);
-
-    [FeatureFile("./Scenarios/Availability/WeekSummary_SingleService.feature")]
-    [Collection("MultipleServicesSerialToggle")]
-    public class WeekSummaryFeatureSteps_MultipleServicesDisabled()
-        : WeekSummaryFeatureSteps(Flags.MultipleServices, false);
 }

@@ -8,7 +8,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
-public abstract class AuditFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class AuditFeatureSteps : BaseFeatureSteps
 {
     [Then(@"an audit function document was created for user '(.+)' and function '(.+)'")]
     [And(@"an audit function document was created for user '(.+)' and function '(.+)'")]

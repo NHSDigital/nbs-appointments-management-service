@@ -19,7 +19,6 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class GetWeekSummaryFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
-    IFeatureToggleHelper featureToggleHelper,
     IValidator<GetWeekSummaryRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetWeekSummaryFunction> logger,
@@ -51,11 +50,6 @@ public class GetWeekSummaryFunction(
     protected override async Task<ApiResult<Summary>> HandleRequest(
         GetWeekSummaryRequest request, ILogger logger)
     {
-        if (!await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
-        {
-            return Failed(HttpStatusCode.NotImplemented, "Endpoint is only available when multiple services is enabled");
-        }
-        
         var weekSummary =
             await bookingAvailabilityStateService.GetWeekSummary(request.Site, request.FromDate);
 

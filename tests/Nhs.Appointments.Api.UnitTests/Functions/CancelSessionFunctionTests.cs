@@ -14,8 +14,7 @@ using Nhs.Appointments.Core.UnitTests;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-[MockedFeatureToggle(Flags.MultipleServices, false)]
-public class CancelSessionFunctionTests : FeatureToggledTests
+public class CancelSessionFunctionTests
 {
     private readonly Mock<IAvailabilityWriteService> _availabilityWriteService = new();
     private readonly Mock<ILogger<CancelSessionFunction>> _logger = new();
@@ -25,7 +24,7 @@ public class CancelSessionFunctionTests : FeatureToggledTests
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<CancelSessionRequest>> _validator = new();
 
-    public CancelSessionFunctionTests() : base(typeof(CancelSessionFunctionTests))
+    public CancelSessionFunctionTests()
     {
         _sut = new CancelSessionFunction(
             _availabilityWriteService.Object,

@@ -27,8 +27,18 @@ public class BookingCosmosDocumentStore(
 
     public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
     {
-        return await bookingStore.RunQueryAsync<Booking>(bookingDocument =>
-            bookingDocument.DocumentType == "booking" && bookingDocument.IsMatchedBy(queryFilter));
+        // TODO: Tweak this method until cosmos will let us pass down the filter as part of the original query
+        // return await bookingStore.RunQueryAsync<Booking>(bookingDocument =>
+        //     bookingDocument.DocumentType == "booking" && bookingDocument.IsMatchedBy(queryFilter));
+
+        using (metricsRecorder.BeginScope("QueryByFilter"))
+        {
+            var rawResults = await bookingStore.RunQueryAsync<Booking>(b =>
+                b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
+                b.From <= queryFilter.StartsAtOrBefore);
+
+            return rawResults.Where(booking => booking.IsMatchedBy(queryFilter));
+        }
     }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)

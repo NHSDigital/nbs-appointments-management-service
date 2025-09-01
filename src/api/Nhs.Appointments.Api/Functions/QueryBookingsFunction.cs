@@ -55,9 +55,9 @@ public class QueryBookingsFunction(
             var filter = new BookingQueryFilter(request.from,
                 request.to,
                 request.site,
-                request.statuses.Select(Enum.Parse<AppointmentStatus>).ToArray(),
-                Enum.Parse<CancellationReason>(request.cancellationReason),
-                request.cancellationNotificationStatuses
+                request.statuses?.Select(Enum.Parse<AppointmentStatus>).ToArray(),
+                request.cancellationReason != null ? Enum.Parse<CancellationReason>(request.cancellationReason) : null,
+                request.cancellationNotificationStatuses?
                     .Select(Enum.Parse<CancellationNotificationStatus>).ToArray());
 
             var booking = await bookingQueryService.GetBookings(filter);

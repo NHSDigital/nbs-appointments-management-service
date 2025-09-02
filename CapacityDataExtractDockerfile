@@ -1,0 +1,28 @@
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+WORKDIR /App
+
+COPY ./data/CapacityDataExtract ./data/CapacityDataExtract
+COPY ./data/DataExtract ./data/DataExtract
+COPY ./src/api/Nhs.Appointments.Api/ ./src/api/Nhs.Appointments.Api/
+COPY ./src/api/Nhs.Appointments.Audit/ ./src/api/Nhs.Appointments.Audit/
+COPY ./src/api/Nhs.Appointments.Persistance/ ./src/api/Nhs.Appointments.Persistance/
+COPY ./src/api/Nhs.Appointments.Core/ ./src/api/Nhs.Appointments.Core/
+COPY ./src/libraries/Nbs.MeshClient/ ./src/libraries/Nbs.MeshClient/
+RUN dotnet restore data/CapacityDataExtract/CapacityDataExtracts.csproj
+
+RUN dotnet publish data/CapacityDataExtract/CapacityDataExtracts.csproj -o out
+
+# This stage is used to publish the service project to be copied to the final stage
+FROM mcr.microsoft.com/dotnet/runtime:8.0
+WORKDIR /App
+COPY --from=build /App/out .
+
+ENTRYPOINT ["dotnet", "CapacityDataExtracts.dll"]

@@ -13,9 +13,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src/data/CapacityDataExtract/
 COPY ["CapacityDataExtracts.csproj", "CapacityDataExtract/"]
 
-COPY CapacityDataExtract/Program.cs ./CapacityDataExtract/
-COPY CapacityDataConverter.cs ./CapacityDataExtract/
-COPY CapacityDataExtract.cs ./CapacityDataExtract/
+COPY . ./
 
 RUN dotnet restore "./CapacityDataExtracts.csproj"
 

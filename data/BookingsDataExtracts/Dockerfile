@@ -13,10 +13,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src/data/BookingsDataExtracts
 COPY ["/BookingsDataExtracts.csproj", "/BookingsDataExtracts/"]
 
-COPY Program.cs ./BookingsDataExtracts/
-COPY BookingDataConverter.cs ./BookingsDataExtracts/
-COPY BookingsDataExtractFields.cs ./BookingsDataExtracts/
-COPY BookingsDataExtracts.cs ./BookingsDataExtracts/
+COPY . ./
 
 RUN dotnet restore "./BookingsDataExtracts.csproj"
 

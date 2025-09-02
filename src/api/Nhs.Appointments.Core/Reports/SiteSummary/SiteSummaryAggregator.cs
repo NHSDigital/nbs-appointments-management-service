@@ -24,20 +24,21 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             return;
         }
 
-        var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
+        // var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
         
         await store.CreateDailySiteSummary(new DailySiteSummary
         {
             Site = site,
             Date = day,
-            Bookings = clinicalServices.ToDictionary(
-                service => service, 
-                service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0)))),
-            Cancelled = summary.DaySummaries.Sum(daySummaries => daySummaries.TotalCancelledAppointments),
+            Bookings = summary.TotalSupportedAppointmentsByService,
+            // Bookings = clinicalServices.ToDictionary(
+            //     service => service, 
+            //     service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0)))),
+            // Cancelled = summary.DaySummaries.Sum(daySummaries => daySummaries.TotalCancelledAppointments),
             Orphaned = summary.TotalOrphanedAppointmentsByService,
-            RemainingCapacity = clinicalServices.ToDictionary(
-                service => service, 
-                service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.ContainsKey(service) ? x.RemainingCapacity : 0))),
+            // RemainingCapacity = clinicalServices.ToDictionary(
+            //     service => service, 
+            //     service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.ContainsKey(service) ? x.RemainingCapacity : 0))),
             GeneratedAtUtc = generatedAt,
             MaximumCapacity = summary.MaximumCapacity
         });

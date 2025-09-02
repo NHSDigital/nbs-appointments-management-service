@@ -7,7 +7,7 @@ public class BookingAvailabilityStateService(
     private readonly IReadOnlyList<AppointmentStatus> _liveStatuses =
         [AppointmentStatus.Booked, AppointmentStatus.Provisional];
 
-    public async Task<Summary> GetWeekSummary(string site, DateOnly from)
+    public async Task<AvailabilitySummary> GetWeekSummary(string site, DateOnly from)
     {
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = from.AddDays(6).ToDateTime(new TimeOnly(23, 59, 59));
@@ -16,7 +16,7 @@ public class BookingAvailabilityStateService(
             .Summary;
     }
 
-    public async Task<Summary> GetDaySummary(string site, DateOnly day)
+    public async Task<AvailabilitySummary> GetDaySummary(string site, DateOnly day)
     {
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59, 59));
@@ -50,10 +50,10 @@ public class BookingAvailabilityStateService(
         return (bookingsTask.Result, sessionsTask.Result.ToList());
     }
 
-    private static IEnumerable<SessionSummary> GetDailySessionSummaries(DateOnly date,
+    private static IEnumerable<SessionAvailabilitySummary> InitialiseDailySessionSummaries(DateOnly date,
         List<LinkedSessionInstance> sessionInstances)
     {
-        return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionSummary
+        return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionAvailabilitySummary
         {
             Id = x.InternalSessionId!.Value,
             UkStartDatetime = x.From,
@@ -77,7 +77,7 @@ public class BookingAvailabilityStateService(
         
         var liveBookings = bookings.Where(x => _liveStatuses.Contains(x.Status));
 
-        List<DaySummary> daySummaries = [];
+        List<DayAvailabilitySummary> daySummaries = [];
 
         if (returnType == BookingAvailabilityStateReturnType.Summary)
         {
@@ -108,7 +108,7 @@ public class BookingAvailabilityStateService(
 
                         var fromDate = DateOnly.FromDateTime(targetSlot.From);
                         var sessionToUpdate = daySummaries.Where(x => x.Date == fromDate)
-                            .SelectMany(x => x.Sessions)
+                            .SelectMany(x => x.SessionSummaries)
                             .Single(x => x.Id == targetSlot.InternalSessionId);
 
                         sessionToUpdate.TotalSupportedAppointmentsByService[booking.Service]++;
@@ -126,12 +126,20 @@ public class BookingAvailabilityStateService(
                 case BookingAvailabilityStateReturnType.AvailableSlots:
                     continue;
                 case BookingAvailabilityStateReturnType.Summary:
-                    if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
-                        booking.Status is AppointmentStatus.Booked)
+                    if (booking.Status is AppointmentStatus.Booked)
                     {
-                        booking.AvailabilityStatus = AvailabilityStatus.Orphaned;
+                        if (booking.AvailabilityStatus is AvailabilityStatus.Supported)
+                        {
+                            booking.AvailabilityStatus = AvailabilityStatus.Orphaned;
+                        }
+                        
+                        var dayToUpdate = daySummaries.Single(x => x.Date == DateOnly.FromDateTime(booking.From.Date));
+                        if (!dayToUpdate.TotalOrphanedAppointmentsByService.TryAdd(booking.Service, 1))
+                        {
+                            dayToUpdate.TotalOrphanedAppointmentsByService[booking.Service]++;
+                        }
                     }
-
+                    
                     continue;
                 case BookingAvailabilityStateReturnType.Recalculations:
                     state.BookingAvailabilityUpdates.AppendNoLongerSupportedBookings(booking);
@@ -160,71 +168,64 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private static Summary GenerateSummary(IEnumerable<Booking> bookings, List<DaySummary> daySummaries, Dictionary<string, int> totalOrphanedAppointmentsByService)
+    private static AvailabilitySummary GenerateSummary(IEnumerable<Booking> bookings, List<DayAvailabilitySummary> daySummaries)
     {
-        var supportedAppointmentsByService = new Dictionary<string, int>();
-        
         foreach (var daySummary in daySummaries)
         {
-            daySummary.MaximumCapacity = daySummary.Sessions.Sum(x => x.MaximumCapacity);
-            daySummary.RemainingCapacity = daySummary.Sessions.Sum(x => x.RemainingCapacity);
+            daySummary.MaximumCapacity = daySummary.SessionSummaries.Sum(x => x.MaximumCapacity);
+            daySummary.RemainingCapacity = daySummary.SessionSummaries.Sum(x => x.RemainingCapacity);
 
-            var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
+            // var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
 
-            foreach (var booking in bookingsOnDay)
-            {
-                switch (booking.Status)
-                {
-                    case AppointmentStatus.Booked:
-                        switch (booking.AvailabilityStatus)
-                        {
-                            case AvailabilityStatus.Supported:
-                                supportedAppointmentsByService[booking.Service] = supportedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                                daySummary.TotalSupportedAppointments++;
-                                break;
-                            case AvailabilityStatus.Orphaned:
-                                daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                                break;
-                        }
-
-                        break;
-                    case AppointmentStatus.Cancelled:
-                        daySummary.TotalCancelledAppointments++;
-                        break;
-                }
-            }
+            // foreach (var booking in bookingsOnDay)
+            // {
+            //     switch (booking.Status)
+            //     {
+            //         case AppointmentStatus.Booked:
+            //             switch (booking.AvailabilityStatus)
+            //             {
+            //                 case AvailabilityStatus.Supported:
+            //                     daySummary.TotalSupportedAppointmentsByService[booking.Service] = daySummary.TotalSupportedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
+            //                     break;
+            //                 case AvailabilityStatus.Orphaned:
+            //                     daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
+            //                     break;
+            //             }
+            //
+            //             break;
+            //         case AppointmentStatus.Cancelled:
+            //             daySummary.TotalCancelledAppointments++;
+            //             break;
+            //     }
+            // }
         }
         
-        var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
-
-        return new Summary
+        return new AvailabilitySummary()
         {
-            DaySummaries = daySummaries,
-            TotalOrphanedAppointmentsByService = orphanedAppointmentsByService,
-           
+            DaySummaries = daySummaries
         };
     }
     
-    private string[] DistinctClinicalServicesFromDaySummaries(List<DaySummary> daySummaries) =>
-        daySummaries.SelectMany(daySummary =>
-                daySummary.Sessions.SelectMany(session => session.Bookings.Select(bookings => bookings.Key)))
-            .Union(summary.OrphanedAppointments.Select(x => x.Key))
-            .Distinct().ToArray();
+    // private string[] DistinctClinicalServicesFromDaySummaries(List<DaySummary> daySummaries) =>
+    //     daySummaries.SelectMany(daySummary =>
+    //             daySummary.Sessions.SelectMany(session => session.Bookings.Select(bookings => bookings.Key)))
+    //         .Union(summary.OrphanedAppointments.Select(x => x.Key))
+    //         .Distinct().ToArray();
 
-    private static List<DaySummary> InitialiseDaySummaries(DateTime from, DateTime to,
+    private static List<DayAvailabilitySummary> InitialiseDaySummaries(DateTime from, DateTime to,
         List<LinkedSessionInstance> sessions)
     {
         var dayDate = DateOnly.FromDateTime(from.Date);
 
-        List<DaySummary> daySummaries =
+        List<DayAvailabilitySummary> daySummaries =
         [
-            new(dayDate, GetDailySessionSummaries(dayDate, sessions))
+            new(dayDate, InitialiseDailySessionSummaries(dayDate, sessions))
         ];
 
         while (dayDate < DateOnly.FromDateTime(to.Date))
         {
             dayDate = dayDate.AddDays(1);
-            daySummaries.Add(new DaySummary(dayDate, GetDailySessionSummaries(dayDate, sessions)));
+            daySummaries.Add(new DayAvailabilitySummary(dayDate, InitialiseDailySessionSummaries(dayDate, sessions)));
         }
 
         return daySummaries;
@@ -285,7 +286,7 @@ public class BookingAvailabilityState
 
     public IEnumerable<SessionInstance> AvailableSlots { get; set; } = [];
 
-    public Summary Summary { get; set; }
+    public AvailabilitySummary Summary { get; set; }
 }
 
 public enum BookingAvailabilityStateReturnType

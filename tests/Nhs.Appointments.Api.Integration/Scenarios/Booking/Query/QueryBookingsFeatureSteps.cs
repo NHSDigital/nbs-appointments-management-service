@@ -68,7 +68,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
             new Core.Booking
             {
                 Reference =
-                    row.Cells.ElementAtOrDefault(4)?.Value ??
+                    CreateCustomBookingReference(row.Cells.ElementAtOrDefault(4)?.Value) ??
                     BookingReferences.GetBookingReference(index, BookingType.Confirmed),
                 From =
                     DateTime.ParseExact(

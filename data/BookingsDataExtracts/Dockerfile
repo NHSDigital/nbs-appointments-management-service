@@ -8,13 +8,13 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 
-WORKDIR /src/data/BookingsDataExtracts
+WORKDIR /data/BookingsDataExtracts
 
 COPY . ./
 
 RUN dotnet restore "./BookingsDataExtracts.csproj"
 
-WORKDIR "/src/data/BookingsDataExtracts"
+WORKDIR /data/BookingsDataExtracts
 RUN dotnet build "./BookingsDataExtracts.csproj" -c $BUILD_CONFIGURATION -o /app/BookingsDataExtracts
 
 
@@ -22,7 +22,7 @@ RUN dotnet build "./BookingsDataExtracts.csproj" -c $BUILD_CONFIGURATION -o /app
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 
-WORKDIR "/src/data/BookingsDataExtracts"
+WORKDIR "/data/BookingsDataExtracts"
 RUN dotnet publish "./BookingsDataExtracts.csproj" -c $BUILD_CONFIGURATION -o /app/bookings /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)

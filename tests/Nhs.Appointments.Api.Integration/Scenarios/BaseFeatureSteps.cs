@@ -370,6 +370,9 @@ public abstract partial class BaseFeatureSteps : Feature
                 dataTable.GetEnumRowValue(row, "Availability Status", MapAvailabilityStatus(bookingType));
 
             var cancellationReason = dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation Reason");
+            var cancellationNotificationStatus =
+                dataTable.GetEnumRowValueOrDefault<CancellationNotificationStatus>(row,
+                    "Cancellation Notification Status");
 
             var booking = new BookingDocument
             {
@@ -383,6 +386,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 Status = status,
                 AvailabilityStatus = availabilityStatus,
                 CancellationReason = cancellationReason,
+                CancellationNotificationStatus = cancellationNotificationStatus,
                 Created = created,
                 StatusUpdated = created,
                 AttendeeDetails = new AttendeeDetails

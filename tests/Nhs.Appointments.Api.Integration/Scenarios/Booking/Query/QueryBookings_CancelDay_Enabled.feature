@@ -73,3 +73,46 @@
     Then the following bookings are returned
       | Reference | Cancellation Reason |
       | 3         | CancelledBySite     |
+
+  Scenario: Query by cancellation notification status
+    Given the following sessions
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
+    And the following bookings exist
+      | Reference | Cancellation Notification Status |
+      | 1         | Unknown                          |
+      | 2         | ManuallyNotified                 |
+      | 3         | AutomaticNotificationFailed      |
+      | 4         | Unnotified                       |
+      | 5         | ManuallyNotified                 |
+    When I query for bookings using the following parameters
+      | From (Day) | From (Time) | Until (Day) | Until (Time) | Cancellation Notification Status        |
+      | Tomorrow   | 09:00       | Tomorrow    | 17:30        | Unnotified, AutomaticNotificationFailed |
+    Then the following bookings are returned
+      | Reference | Cancellation Notification Status |
+      | 3         | AutomaticNotificationFailed      |
+      | 4         | Unnotified                       |
+
+  Scenario: Query by a combination of filters
+    Given the following sessions
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
+    And the following bookings exist
+      | Reference | Time  | Status      | Cancellation Reason  | Cancellation Notification Status |
+      | 1         | 09:00 | Cancelled   | CancelledBySite      | Unnotified                       |
+      | 2         | 09:00 | Provisional | null                 | Unknown                          |
+      | 3         | 09:10 | Booked      | null                 | Unknown                          |
+      | 4         | 09:20 | Cancelled   | RescheduledByCitizen | null                             |
+      | 5         | 09:30 | Cancelled   | CancelledByCitizen   | ManuallyNotified                 |
+      | 6         | 09:40 | Cancelled   | CancelledBySite      | Unknown                          |
+      | 7         | 09:50 | Cancelled   | CancelledBySite      | AutomaticNotificationFailed      |
+      | 8         | 09:50 | Cancelled   | CancelledBySite      | Unnotified                       |
+      | 9         | 10:00 | Booked      | null                 | Unknown                          |
+      | 10        | 10:10 | Cancelled   | CancelledBySite      | AutomaticNotificationFailed      |
+    When I query for bookings using the following parameters
+      | From (Day) | From (Time) | Until (Day) | Until (Time) | Statuses  | Cancellation Reason | Cancellation Notification Status        |
+      | Tomorrow   | 09:30       | Tomorrow    | 10:00        | Cancelled | CancelledBySite     | Unnotified, AutomaticNotificationFailed |
+    Then the following bookings are returned
+      | Reference | Time  | Status    | Cancellation Reason | Cancellation Notification Status |
+      | 7         | 09:50 | Cancelled | CancelledBySite     | AutomaticNotificationFailed      |
+      | 8         | 09:50 | Cancelled | CancelledBySite     | Unnotified                       |

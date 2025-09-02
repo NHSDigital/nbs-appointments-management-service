@@ -79,6 +79,9 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
                 dataTable.GetEnumRowValue(row, "Availability Status", MapAvailabilityStatus(bookingType));
 
             var cancellationReason = dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation Reason");
+            var cancellationNotificationStatus =
+                dataTable.GetEnumRowValueOrDefault<CancellationNotificationStatus>(row,
+                    "Cancellation Notification Status");
 
             var booking = new Core.Booking
             {
@@ -90,6 +93,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
                 Status = status,
                 AvailabilityStatus = availabilityStatus,
                 CancellationReason = cancellationReason,
+                CancellationNotificationStatus = cancellationNotificationStatus,
                 Created = created,
                 AttendeeDetails = new AttendeeDetails
                 {

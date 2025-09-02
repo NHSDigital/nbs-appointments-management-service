@@ -11,9 +11,9 @@ public static class DataTableExtensions
     {
         var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
             ?.Location.Column;
-        return columnLocation == null
-            ? defaultValue
-            : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value;
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
+
+        return HasValue(cell) ? cell : defaultValue;
     }
 
     public static T? GetEnumRowValueOrDefault<T>(this DataTable dataTable, TableRow row, string columnName)
@@ -21,10 +21,9 @@ public static class DataTableExtensions
     {
         var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
             ?.Location.Column;
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
 
-        return columnLocation == null
-            ? null
-            : Enum.Parse<T>(row.Cells.Single(cell => cell.Location.Column == columnLocation).Value);
+        return HasValue(cell) ? Enum.Parse<T>(cell) : null;
     }
 
     public static T GetEnumRowValue<T>(this DataTable dataTable, TableRow row, string columnName,
@@ -32,10 +31,9 @@ public static class DataTableExtensions
     {
         var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
             ?.Location.Column;
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
 
-        return columnLocation == null
-            ? defaultValue
-            : Enum.Parse<T>(row.Cells.Single(cell => cell.Location.Column == columnLocation).Value);
+        return HasValue(cell) ? Enum.Parse<T>(cell) : defaultValue;
     }
 
     public static string[] GetListRowValueOrDefault(this DataTable dataTable, TableRow row, string columnName,
@@ -43,10 +41,9 @@ public static class DataTableExtensions
     {
         var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
             ?.Location.Column;
-        return columnLocation == null
-            ? defaultValue
-            : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value.Split(',').Select(s => s.Trim())
-                .ToArray();
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
+
+        return HasValue(cell) ? cell.Split(',').Select(s => s.Trim()).ToArray() : defaultValue;
     }
 
     public static T[] GetEnumListRowValueOrDefault<T>(this DataTable dataTable, TableRow row, string columnName,
@@ -54,9 +51,10 @@ public static class DataTableExtensions
     {
         var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
             ?.Location.Column;
-        return columnLocation == null
-            ? defaultValue
-            : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value.Split(',')
-                .Select(s => Enum.Parse<T>(s.Trim())).ToArray();
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
+
+        return HasValue(cell) ? cell.Split(',').Select(s => Enum.Parse<T>(s.Trim())).ToArray() : defaultValue;
     }
+
+    private static bool HasValue(string candidate) => !string.IsNullOrEmpty(candidate) && candidate != "null";
 }

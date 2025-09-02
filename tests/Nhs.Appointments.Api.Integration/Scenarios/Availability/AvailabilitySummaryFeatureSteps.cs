@@ -10,7 +10,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 
-public class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
+public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
 {
     protected AvailabilitySummary _actualResponse;
     protected HttpResponseMessage _response;
@@ -28,8 +28,7 @@ public class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
                         .ToDateTime(TimeOnly.Parse(row.Cells.ElementAt(1).Value)),
                 UkEndDatetime = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value)
                     .ToDateTime(TimeOnly.Parse(row.Cells.ElementAt(2).Value)),
-                //TODO fix
-                // Bookings = GetServiceBookings(row.Cells.ElementAt(3).Value),
+                TotalSupportedAppointmentsByService = GetServiceBookings(row.Cells.ElementAt(3).Value),
                 Capacity = int.Parse(row.Cells.ElementAt(4).Value),
                 SlotLength = int.Parse(row.Cells.ElementAt(5).Value),
                 MaximumCapacity = int.Parse(row.Cells.ElementAt(6).Value)

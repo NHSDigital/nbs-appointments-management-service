@@ -132,13 +132,6 @@ public class BookingAvailabilityStateService(
                         {
                             booking.AvailabilityStatus = AvailabilityStatus.Orphaned;
                         }
-                        
-                        //TODO is this needed?
-                        // var dayToUpdate = daySummaries.Single(x => x.Date == DateOnly.FromDateTime(booking.From.Date));
-                        // if (!dayToUpdate.TotalOrphanedAppointmentsByService.TryAdd(booking.Service, 1))
-                        // {
-                        //     dayToUpdate.TotalOrphanedAppointmentsByService[booking.Service]++;
-                        // }
                     }
                     
                     continue;
@@ -190,7 +183,6 @@ public class BookingAvailabilityStateService(
                                 {
                                     daySummary.TotalOrphanedAppointmentsByService[booking.Service]++;
                                 }
-                                // daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
                                 break;
                         }
             

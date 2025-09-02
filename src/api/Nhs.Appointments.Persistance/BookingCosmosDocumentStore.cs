@@ -27,9 +27,11 @@ public class BookingCosmosDocumentStore(
 
     public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
     {
-        // TODO: Tweak this method until cosmos will let us pass down the filter as part of the original query
-        // return await bookingStore.RunQueryAsync<Booking>(bookingDocument =>
-        //     bookingDocument.DocumentType == "booking" && bookingDocument.IsMatchedBy(queryFilter));
+        // TODO: Rather than returning more results than we need then querying in memory, I wanted the filter
+        // to be passed in as the predicate like so:
+        // return await bookingStore.RunQueryAsync<Booking>(queryFilter.Matches);
+        // Unfortunately, CosmosDB throws a Method Unsupported error the second you throw anything precompiled at it.
+        // This will ONLY work if you write the predicate inline, at which point you lose testability and abstraction.
 
         using (metricsRecorder.BeginScope("QueryByFilter"))
         {
@@ -37,7 +39,7 @@ public class BookingCosmosDocumentStore(
                 b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
                 b.From <= queryFilter.StartsAtOrBefore);
 
-            return rawResults.Where(booking => booking.IsMatchedBy(queryFilter));
+            return rawResults.Where(queryFilter.Matches);
         }
     }
 

@@ -1,10 +1,6 @@
-﻿using FluentAssertions;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Persistance.Models;
+﻿namespace Nhs.Appointments.Core.UnitTests;
 
-namespace Nhs.Appointments.Persistance.UnitTests;
-
-public class BookingQueryFilterExtensionsTests
+public class BookingQueryFilterTests
 {
     private readonly string TestSiteId = "4F78B37D-C5A8-4BBD-9D66-FC78B8081651";
 
@@ -16,14 +12,12 @@ public class BookingQueryFilterExtensionsTests
         return new DateTime(2020, 6, 7, int.Parse(hour), int.Parse(minute), 0);
     }
 
-    private BookingDocument TestBooking(string reference, string time = null,
+    private Booking TestBooking(string reference, string time = null,
         AppointmentStatus? status = null, CancellationReason? cancellationReason = null,
         CancellationNotificationStatus? cancellationNotificationStatus = null)
     {
-        return new BookingDocument
+        return new Booking
         {
-            Id = reference,
-            DocumentType = "booking",
             Site = TestSiteId,
             Reference = reference,
             From = TestDateAt(time ?? "10:00"),
@@ -32,7 +26,6 @@ public class BookingQueryFilterExtensionsTests
             Created = new DateTime(2020, 05, 10, 10, 47, 32),
             Status = status ?? AppointmentStatus.Booked,
             AvailabilityStatus = AvailabilityStatus.Supported,
-            StatusUpdated = default,
             AttendeeDetails = null,
             ContactDetails = null,
             AdditionalData = null,
@@ -45,7 +38,7 @@ public class BookingQueryFilterExtensionsTests
     [Fact]
     public void FiltersBookingsByTime()
     {
-        var bookings = new List<BookingDocument>
+        var bookings = new List<Booking>
         {
             TestBooking("01", "09:00"),
             TestBooking("02", "09:10"),
@@ -57,7 +50,7 @@ public class BookingQueryFilterExtensionsTests
         var filter = new BookingQueryFilter(TestDateAt("09:10"), TestDateAt("09:30"),
             TestSiteId);
 
-        var result = bookings.Where(booking => booking.IsMatchedBy(filter)).ToList();
+        var result = bookings.Where(filter.Matches).ToList();
 
         result.Should().HaveCount(3);
 
@@ -71,7 +64,7 @@ public class BookingQueryFilterExtensionsTests
     [Fact]
     public void FiltersBookingsByStatus()
     {
-        var bookings = new List<BookingDocument>
+        var bookings = new List<Booking>
         {
             TestBooking("01", status: AppointmentStatus.Booked),
             TestBooking("02", status: AppointmentStatus.Cancelled),
@@ -83,7 +76,7 @@ public class BookingQueryFilterExtensionsTests
         var filter = new BookingQueryFilter(TestDateAt("09:00"), TestDateAt("17:30"),
             TestSiteId, new[] { AppointmentStatus.Cancelled, AppointmentStatus.Provisional });
 
-        var result = bookings.Where(booking => booking.IsMatchedBy(filter)).ToList();
+        var result = bookings.Where(filter.Matches).ToList();
 
         result.Should().HaveCount(2);
 
@@ -97,7 +90,7 @@ public class BookingQueryFilterExtensionsTests
     [Fact]
     public void FiltersBookingsByCancellationReason()
     {
-        var bookings = new List<BookingDocument>
+        var bookings = new List<Booking>
         {
             TestBooking("01", cancellationReason: CancellationReason.CancelledBySite),
             TestBooking("02", cancellationReason: CancellationReason.CancelledBySite),
@@ -109,7 +102,7 @@ public class BookingQueryFilterExtensionsTests
         var filter = new BookingQueryFilter(TestDateAt("09:00"), TestDateAt("17:30"),
             TestSiteId, cancellationReason: CancellationReason.RescheduledByCitizen);
 
-        var result = bookings.Where(booking => booking.IsMatchedBy(filter)).ToList();
+        var result = bookings.Where(filter.Matches).ToList();
 
         result.Should().HaveCount(1);
 
@@ -123,7 +116,7 @@ public class BookingQueryFilterExtensionsTests
     [Fact]
     public void FiltersBookingsByCancellationNotificationStatus()
     {
-        var bookings = new List<BookingDocument>
+        var bookings = new List<Booking>
         {
             TestBooking("01", cancellationNotificationStatus: CancellationNotificationStatus.Unknown),
             TestBooking("02", cancellationNotificationStatus: CancellationNotificationStatus.ManuallyNotified),
@@ -141,7 +134,7 @@ public class BookingQueryFilterExtensionsTests
                 CancellationNotificationStatus.AutomaticNotificationFailed
             });
 
-        var result = bookings.Where(booking => booking.IsMatchedBy(filter)).ToList();
+        var result = bookings.Where(filter.Matches).ToList();
 
         result.Should().HaveCount(2);
 
@@ -155,7 +148,7 @@ public class BookingQueryFilterExtensionsTests
     [Fact]
     public void FiltersBookingsByACombinationOfFilters()
     {
-        var bookings = new List<BookingDocument>
+        var bookings = new List<Booking>
         {
             // Cancelled booking at 09:00, requires manual notification
             TestBooking("01", "09:00", AppointmentStatus.Cancelled, CancellationReason.CancelledBySite,
@@ -196,7 +189,7 @@ public class BookingQueryFilterExtensionsTests
                 CancellationNotificationStatus.AutomaticNotificationFailed
             });
 
-        var result = bookings.Where(booking => booking.IsMatchedBy(filter)).ToList();
+        var result = bookings.Where(filter.Matches).ToList();
 
         result.Should().HaveCount(2);
 

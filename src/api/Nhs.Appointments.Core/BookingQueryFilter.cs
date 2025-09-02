@@ -16,4 +16,25 @@ public class BookingQueryFilter(
 
     public CancellationNotificationStatus[] CancellationNotificationStatuses { get; init; } =
         cancellationNotificationStatuses;
+
+    public bool Matches(Booking booking)
+    {
+        if (booking == null)
+        {
+            return false;
+        }
+
+        var siteMatch = booking.Site == Site;
+        var dateRangeMatch = booking.From >= StartsAtOrAfter &&
+                             booking.From <= StartsAtOrBefore;
+
+        var statusMatch = Statuses?.Contains(booking.Status) ?? true;
+        var cancellationReasonMatch = CancellationReason == null ||
+                                      booking.CancellationReason == CancellationReason;
+        var notificationStatusMatch = CancellationNotificationStatuses is null ||
+                                      CancellationNotificationStatuses.Any(status =>
+                                          booking.CancellationNotificationStatus == status);
+
+        return siteMatch && dateRangeMatch && statusMatch && cancellationReasonMatch && notificationStatusMatch;
+    }
 }

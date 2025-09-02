@@ -16,7 +16,6 @@ COPY ["CapacityDataExtracts.csproj", "CapacityDataExtract/"]
 COPY CapacityDataExtract/Program.cs ./CapacityDataExtract/
 COPY CapacityDataConverter.cs ./CapacityDataExtract/
 COPY CapacityDataExtract.cs ./CapacityDataExtract/
-COPY CapacityDataExtracts.cs ./CapacityDataExtract/
 
 RUN dotnet restore "./CapacityDataExtracts.csproj"
 

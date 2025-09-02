@@ -5,7 +5,7 @@
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |
-    And the following bookings have been made
+    And the following bookings exist
       | Date              | Time  | Duration | Service |
       | Tomorrow          | 09:00 | 5        | COVID   |
       | 2 days from today | 09:20 | 10       | FLU     |

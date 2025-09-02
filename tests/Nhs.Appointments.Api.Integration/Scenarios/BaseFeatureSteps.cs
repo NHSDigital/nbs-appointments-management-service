@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
@@ -338,6 +337,90 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following orphaned bookings exist for site '(.+)'")]
     public Task SetupOrphanedBookingsForSite(string site, DataTable dataTable) =>
         SetupBookings(site, dataTable, BookingType.Orphaned);
+
+    protected DateTime ParseDayAndTime(string day, string time) => DateTime.ParseExact(
+        $"{ParseNaturalLanguageDateOnly(day).ToString("yyyy-MM-dd")} {time}",
+        "yyyy-MM-dd HH:mm", null);
+
+    [And("the following bookings exist")]
+    public async Task CreateBookings(DataTable dataTable)
+    {
+        foreach (var indexAndRow in dataTable.Rows.Skip(1).Select((row, index) => new { index, row }))
+        {
+            var index = indexAndRow.index;
+            var row = indexAndRow.row;
+
+            var bookingType = dataTable.GetEnumRowValueOrDefault(row, "Booking Type", BookingType.Confirmed);
+            var reference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+                            BookingReferences.GetBookingReference(index, bookingType);
+            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
+            var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
+            var status = dataTable.GetEnumRowValueOrDefault(row, "Status", AppointmentStatus.Booked);
+
+            var day = dataTable.GetRowValueOrDefault(row, "Date", "Tomorrow");
+            var time = dataTable.GetRowValueOrDefault(row, "Time", "10:00");
+            var from = ParseDayAndTime(day, time);
+
+            var createdDay = dataTable.GetRowValueOrDefault(row, "Created Day");
+            var createdTime = dataTable.GetRowValueOrDefault(row, "Created Time");
+            var created = createdDay != null && createdTime != null
+                ? ParseDayAndTime(createdDay, createdTime)
+                : GetCreationDateTime(bookingType);
+
+            var duration = int.Parse(dataTable.GetRowValueOrDefault(row, "Duration", "10"));
+            var availabilityStatus =
+                dataTable.GetEnumRowValueOrDefault(row, "Availability Status", MapAvailabilityStatus(bookingType));
+
+            var booking = new BookingDocument
+            {
+                Id = reference,
+                DocumentType = "booking",
+                Reference = reference,
+                From = from,
+                Duration = duration,
+                Service = service,
+                Site = site,
+                Status = status,
+                AvailabilityStatus = availabilityStatus,
+                Created = created,
+                StatusUpdated = created,
+                AttendeeDetails = new AttendeeDetails
+                {
+                    NhsNumber = NhsNumber,
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    DateOfBirth = new DateOnly(2000, 1, 1)
+                },
+                ContactDetails =
+                [
+                    new ContactItem { Type = ContactItemType.Email, Value = GetContactInfo(ContactItemType.Email) },
+                    new ContactItem { Type = ContactItemType.Phone, Value = GetContactInfo(ContactItemType.Phone) },
+                    new ContactItem
+                    {
+                        Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
+                    }
+                ],
+                AdditionalData = new { IsAppBooking = true }
+            };
+
+            var bookingIndex = new BookingIndexDocument
+            {
+                Reference = reference,
+                Site = site,
+                DocumentType = "booking_index",
+                Id = reference,
+                NhsNumber = NhsNumber,
+                Status = MapStatus(bookingType),
+                Created = GetCreationDateTime(bookingType),
+                From = from
+            };
+
+            await Client.GetContainer("appts", "booking_data").CreateItemAsync(booking);
+            await Client.GetContainer("appts", "index_data").CreateItemAsync(bookingIndex);
+
+            MadeBookings.Add(booking);
+        }
+    }
 
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {

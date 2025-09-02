@@ -1,14 +1,16 @@
 using Microsoft.Extensions.Options;
 using Nbs.MeshClient;
+using Nbs.MeshClient.Auth;
 
 namespace DataExtract;
 
-public class MeshFileSender(IMeshMailbox meshMailbox, IOptions<MeshSendOptions> options) : IFileSender
+public class MeshFileSender(IMeshFactory meshFactory, IOptions<MeshSendOptions> sendOptions, IOptions<MeshAuthorizationOptions> meshAuthOptions) : IFileSender
 {
     private const int chunkSizeBytes = 100_000_000;
 
     public async Task SendFile(FileInfo file)
     {
+        var meshMailbox = meshFactory.GetMailbox(meshAuthOptions.Value.MailboxId);
         var messageId = string.Empty;
         var totalChunks = (int)Math.Ceiling(file.Length / (float)chunkSizeBytes);
         using (var fileStream = file.OpenRead())
@@ -21,8 +23,8 @@ public class MeshFileSender(IMeshMailbox meshMailbox, IOptions<MeshSendOptions> 
                 var content = new ByteArrayContent(data, 0, bytesRead);
                 if (chunksSent == 0)
                     messageId = await meshMailbox.SendMessageAsync(
-                        options.Value.DestinationMailboxId, 
-                        options.Value.WorkflowId, 
+                        sendOptions.Value.DestinationMailboxId, 
+                        sendOptions.Value.WorkflowId, 
                         content, 
                         totalChunks, 
                         file.Name);

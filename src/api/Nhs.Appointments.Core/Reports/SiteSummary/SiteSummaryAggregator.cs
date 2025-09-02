@@ -24,23 +24,27 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             return;
         }
 
-        // var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
+        var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
         
         await store.CreateDailySiteSummary(new DailySiteSummary
         {
             Site = site,
             Date = day,
+            MaximumCapacity = summary.MaximumCapacity,
             Bookings = summary.TotalSupportedAppointmentsByService,
-            // Bookings = clinicalServices.ToDictionary(
-            //     service => service, 
-            //     service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.GetValueOrDefault(service, 0)))),
-            // Cancelled = summary.DaySummaries.Sum(daySummaries => daySummaries.TotalCancelledAppointments),
             Orphaned = summary.TotalOrphanedAppointmentsByService,
-            // RemainingCapacity = clinicalServices.ToDictionary(
-            //     service => service, 
-            //     service => summary.DaySummaries.Sum(daySummaries => daySummaries.Sessions.Sum(x => x.Bookings.ContainsKey(service) ? x.RemainingCapacity : 0))),
-            GeneratedAtUtc = generatedAt,
-            MaximumCapacity = summary.MaximumCapacity
+            Cancelled = summary.TotalCancelledAppointments,
+            //TODO move to AvailabilitySummary.cs
+            RemainingCapacity = clinicalServices.ToDictionary(
+                service => service, 
+                service => summary.DaySummaries.Sum(daySummaries => daySummaries.SessionSummaries.Sum(x => x.TotalSupportedAppointmentsByService.ContainsKey(service) ? x.RemainingCapacity : 0))),
+            GeneratedAtUtc = generatedAt
         });
     }
+    
+    private static string[] DistinctClinicalServicesFromDaySummaries(AvailabilitySummary summary) =>
+        summary.DaySummaries.SelectMany(daySummary =>
+                daySummary.SessionSummaries.SelectMany(session => session.TotalSupportedAppointmentsByService.Select(bookings => bookings.Key)))
+            .Union(summary.TotalOrphanedAppointmentsByService.Select(x => x.Key))
+            .Distinct().ToArray();
 }

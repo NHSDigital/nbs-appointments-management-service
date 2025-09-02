@@ -30,18 +30,20 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
         var toTime = dataTable.GetRowValueOrDefault(row, "Until (Time)");
         var statuses = dataTable.GetListRowValueOrDefault(row, "Statuses");
         var cancellationReason =
-            dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation Reason");
+            dataTable.GetRowValueOrDefault(row, "Cancellation Reason");
 
         var cancellationNotificationStatuses =
-            dataTable.GetEnumListRowValueOrDefault<CancellationNotificationStatus>(row,
+            dataTable.GetListRowValueOrDefault(row,
                 "Cancellation Notification Status");
 
         object payload = new
         {
-            from = ToRequestFormat(fromDay, fromTime), to = ToRequestFormat(toDay, toTime), site = GetSiteId()
-            // statuses,
-            // cancellationReason,
-            // cancellationNotificationStatuses
+            from = ToRequestFormat(fromDay, fromTime),
+            to = ToRequestFormat(toDay, toTime),
+            site = GetSiteId(),
+            statuses,
+            cancellationReason,
+            cancellationNotificationStatuses
         };
 
         Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
@@ -76,6 +78,8 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
             var availabilityStatus =
                 dataTable.GetEnumRowValue(row, "Availability Status", MapAvailabilityStatus(bookingType));
 
+            var cancellationReason = dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation Reason");
+
             var booking = new Core.Booking
             {
                 Reference = reference,
@@ -85,6 +89,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
                 Site = site,
                 Status = status,
                 AvailabilityStatus = availabilityStatus,
+                CancellationReason = cancellationReason,
                 Created = created,
                 AttendeeDetails = new AttendeeDetails
                 {

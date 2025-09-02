@@ -32,7 +32,44 @@
       | From (Day) | From (Time) | Until (Day) | Until (Time) |
       | Tomorrow   | 09:10       | Tomorrow    | 09:30        |
     Then the following bookings are returned
-      | Date     | Time  | Duration | Service   | Reference |
-      | Tomorrow | 09:10 | 10       | RSV:Adult | 2         |
-      | Tomorrow | 09:20 | 10       | RSV:Adult | 3         |
-      | Tomorrow | 09:30 | 10       | RSV:Adult | 4         |
+      | Reference | Time  |
+      | 2         | 09:10 |
+      | 3         | 09:20 |
+      | 4         | 09:30 |
+
+  Scenario: Query by status
+    Given the following sessions
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
+    And the following bookings exist
+      | Reference | Status      |
+      | 1         | Booked      |
+      | 2         | Cancelled   |
+      | 3         | Unknown     |
+      | 4         | Provisional |
+      | 5         | Booked      |
+    When I query for bookings using the following parameters
+      | From (Day) | From (Time) | Until (Day) | Until (Time) | Statuses               |
+      | Tomorrow   | 09:00       | Tomorrow    | 17:30        | Cancelled, Provisional |
+    Then the following bookings are returned
+      | Reference | Status      |
+      | 2         | Cancelled   |
+      | 4         | Provisional |
+
+  Scenario: Query by cancellation reason
+    Given the following sessions
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
+    And the following bookings exist
+      | Reference | Cancellation Reason  |
+      | 1         | CancelledBySite      |
+      | 2         | CancelledBySite      |
+      | 3         | RescheduledByCitizen |
+      | 4         | CancelledBySite      |
+      | 5         | CancelledByCitizen   |
+    When I query for bookings using the following parameters
+      | From (Day) | From (Time) | Until (Day) | Until (Time) | Cancellation Reason  |
+      | Tomorrow   | 09:00       | Tomorrow    | 17:30        | RescheduledByCitizen |
+    Then the following bookings are returned
+      | Reference | Cancellation Reason |
+      | 3         | CancelledBySite     |

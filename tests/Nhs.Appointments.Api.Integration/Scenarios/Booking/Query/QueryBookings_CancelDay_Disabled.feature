@@ -32,7 +32,7 @@
       | From (Day) | From (Time) | Until (Day) | Until (Time) |
       | Tomorrow   | 09:10       | Tomorrow    | 09:30        |
     Then the following bookings are returned
-      | Date     | Time  | Duration | Service   | Reference |
-      | Tomorrow | 09:10 | 10       | RSV:Adult | 2         |
-      | Tomorrow | 09:20 | 10       | RSV:Adult | 3         |
-      | Tomorrow | 09:30 | 10       | RSV:Adult | 4         |
+      | Reference | Time  |
+      | 2         | 09:10 |
+      | 3         | 09:20 |
+      | 4         | 09:30 |

@@ -45,7 +45,8 @@ public static class DataTableExtensions
             ?.Location.Column;
         return columnLocation == null
             ? defaultValue
-            : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value.Split(',');
+            : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value.Split(',').Select(s => s.Trim())
+                .ToArray();
     }
 
     public static T[] GetEnumListRowValueOrDefault<T>(this DataTable dataTable, TableRow row, string columnName,
@@ -56,6 +57,6 @@ public static class DataTableExtensions
         return columnLocation == null
             ? defaultValue
             : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value.Split(',')
-                .Select(Enum.Parse<T>).ToArray();
+                .Select(s => Enum.Parse<T>(s.Trim())).ToArray();
     }
 }

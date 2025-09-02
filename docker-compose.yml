@@ -118,7 +118,7 @@ services:
   bookingsdataextracts:
     build:
       context: .
-      dockerfile: data/BookingsDataExtracts/Dockerfile
+      dockerfile: BookingDataExtractDockerfile
     environment:
       COSMOS__ENDPOINT: "https://localhost:8081/"
       COSMOS__KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
@@ -138,7 +138,7 @@ services:
   capacitydataextract:
     build:
       context: .
-      dockerfile: data/CapacityDataExtract/Dockerfile
+      dockerfile: CapacityDataExtractDockerfile
     environment:
       COSMOS__ENDPOINT: "https://localhost:8081/"
       COSMOS__KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="

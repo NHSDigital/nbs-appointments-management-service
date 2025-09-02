@@ -57,4 +57,27 @@ public class AggregateSiteSummaryConsumerTests
         _siteSummaryAggregator.Verify(x =>
             x.AggregateForSite(It.Is<string>(m => m.Equals(message.Site)), It.Is<DateOnly>(m => m.Equals(message.From)), It.Is<DateOnly>(m => m.Equals(message.To))), Times.Once);
     }
+
+    [Theory]
+    [InlineData("2025-05-01", "2025-01-01", "site-id")]
+    [InlineData("2025-01-01", "2025-01-01", "")]
+    public async Task When_MessageInvalid_DoesNotCallAggregateForSite(string from, string to, string site)
+    {
+        var message = new AggregateSiteSummaryEvent()
+        {
+            From = DateOnly.ParseExact(from, "yyyy-MM-dd"),
+            To = DateOnly.ParseExact(to, "yyyy-MM-dd"),
+            Site = site
+        };
+
+        _siteSummaryAggregator.Setup(x =>
+            x.AggregateForSite(It.Is<string>(m => m.Equals(message.Site)), It.Is<DateOnly>(m => m.Equals(message.From)), It.Is<DateOnly>(m => m.Equals(message.To))));
+        var ctx = new Mock<ConsumeContext<AggregateSiteSummaryEvent>>();
+
+        ctx.SetupGet(x => x.Message).Returns(message);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Consume(ctx.Object));
+
+        Assert.Equal($"{typeof(AggregateSiteSummaryEvent)} is not valid", ex.Message);
+    }
 }

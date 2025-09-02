@@ -21,12 +21,17 @@ public class SiteSummaryAggregatorTests
     [InlineData(2)]
     [InlineData(3)]
     public async Task When_DaysArePassed_IterateCorrectly(int days)
-         {
-             var site = "site-a";
-             var from = new DateOnly(2025, 1, 1);
-             var to = from.AddDays(days);
-     
-             _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.IsAny<DateOnly>())).ReturnsAsync(new Summary
+    {
+        var site = "site-a";
+        var from = new DateOnly(2025, 1, 1);
+        var to = from.AddDays(days);
+
+        var day1 = new DateOnly(2025, 1, 1);
+        var day2 = new DateOnly(2025, 1, 2);
+        var day3 = new DateOnly(2025, 1, 3);
+        var day4 = new DateOnly(2025, 1, 4);
+
+        _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.Is<DateOnly>(d => d == day1))).ReturnsAsync(new Summary
              {
                  BookedAppointments = 10,
                  MaximumCapacity = 20,
@@ -61,7 +66,32 @@ public class SiteSummaryAggregatorTests
                      })
                  }
              });
-             _dailySiteSummaryStore.Setup(x => x.CreateDailySiteSummary(It.IsAny<DailySiteSummary>()));
+
+        _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.Is<DateOnly>(d => d == day2))).ReturnsAsync(new Summary
+        {
+            BookedAppointments = 10,
+            MaximumCapacity = 20,
+            Orphaned = new Dictionary<string, int>(),
+            DaySummaries = new DaySummary[] {}
+        });
+        
+        _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.Is<DateOnly>(d => d == day3))).ReturnsAsync(new Summary
+        {
+            BookedAppointments = 10,
+            MaximumCapacity = 20,
+            Orphaned = new Dictionary<string, int>(),
+            DaySummaries = new DaySummary[] { }
+        });
+        
+        _bookingAvailabilityStateService.Setup(x => x.GetDaySummary(It.IsAny<string>(), It.Is<DateOnly>(d => d == day4))).ReturnsAsync(new Summary
+        {
+            BookedAppointments = 10,
+            MaximumCapacity = 20,
+            Orphaned = new Dictionary<string, int>(),
+            DaySummaries = new DaySummary[] { }
+        });
+
+        _dailySiteSummaryStore.Setup(x => x.CreateDailySiteSummary(It.IsAny<DailySiteSummary>()));
              _dailySiteSummaryStore.Setup(x => x.IfExistsDelete(It.IsAny<string>(), It.IsAny<DateOnly>()));
              _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 1, 1));
      

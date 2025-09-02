@@ -81,6 +81,7 @@ services:
     image: splunk/splunk:latest
     container_name: splunk
     environment:
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_PASSWORD=Password1!
       - SPLUNK_HEC_SSL=false

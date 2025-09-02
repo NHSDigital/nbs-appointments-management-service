@@ -367,7 +367,6 @@ public abstract partial class BaseFeatureSteps : Feature
 
             var duration = int.Parse(dataTable.GetRowValueOrDefault(row, "Duration", "10"));
             var availabilityStatus =
-
                 dataTable.GetEnumRowValue(row, "Availability Status", MapAvailabilityStatus(bookingType));
 
             var cancellationReason = dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation Reason");

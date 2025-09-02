@@ -10,8 +10,8 @@
       | Tomorrow          | 09:00 | 5        | COVID   |
       | 2 days from today | 09:20 | 10       | FLU     |
     When I query for bookings using the following parameters
-      | From     | At    | To                | At    |
-      | Tomorrow | 09:00 | 2 days from today | 09:20 |
+      | From (Day) | From (Time) | Until (Day)       | Until (Time) |
+      | Tomorrow   | 09:00       | 2 days from today | 09:20        |
     Then the following bookings are returned
       | Date              | Time  | Duration | Service |
       | Tomorrow          | 09:00 | 5        | COVID   |
@@ -29,8 +29,8 @@
       | 4         | 09:30 |
       | 5         | 09:40 |
     When I query for bookings using the following parameters
-      | From     | At    | To       | At    |
-      | Tomorrow | 09:10 | Tomorrow | 09:30 |
+      | From (Day) | From (Time) | Until (Day) | Until (Time) |
+      | Tomorrow   | 09:10       | Tomorrow    | 09:30        |
     Then the following bookings are returned
       | Date     | Time  | Duration | Service   | Reference |
       | Tomorrow | 09:10 | 10       | RSV:Adult | 2         |

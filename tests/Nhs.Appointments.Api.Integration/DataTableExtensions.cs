@@ -16,7 +16,18 @@ public static class DataTableExtensions
             : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value;
     }
 
-    public static T GetEnumRowValueOrDefault<T>(this DataTable dataTable, TableRow row, string columnName,
+    public static T? GetEnumRowValueOrDefault<T>(this DataTable dataTable, TableRow row, string columnName)
+        where T : struct
+    {
+        var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
+            ?.Location.Column;
+
+        return columnLocation == null
+            ? null
+            : Enum.Parse<T>(row.Cells.Single(cell => cell.Location.Column == columnLocation).Value);
+    }
+
+    public static T GetEnumRowValue<T>(this DataTable dataTable, TableRow row, string columnName,
         T defaultValue) where T : struct
     {
         var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
@@ -25,5 +36,26 @@ public static class DataTableExtensions
         return columnLocation == null
             ? defaultValue
             : Enum.Parse<T>(row.Cells.Single(cell => cell.Location.Column == columnLocation).Value);
+    }
+
+    public static string[] GetListRowValueOrDefault(this DataTable dataTable, TableRow row, string columnName,
+        string[] defaultValue = null)
+    {
+        var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
+            ?.Location.Column;
+        return columnLocation == null
+            ? defaultValue
+            : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value.Split(',');
+    }
+
+    public static T[] GetEnumListRowValueOrDefault<T>(this DataTable dataTable, TableRow row, string columnName,
+        T[] defaultValue = null) where T : struct
+    {
+        var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
+            ?.Location.Column;
+        return columnLocation == null
+            ? defaultValue
+            : row.Cells.Single(cell => cell.Location.Column == columnLocation).Value.Split(',')
+                .Select(Enum.Parse<T>).ToArray();
     }
 }

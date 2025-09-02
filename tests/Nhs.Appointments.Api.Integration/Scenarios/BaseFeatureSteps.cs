@@ -342,20 +342,18 @@ public abstract partial class BaseFeatureSteps : Feature
         $"{ParseNaturalLanguageDateOnly(day).ToString("yyyy-MM-dd")} {time}",
         "yyyy-MM-dd HH:mm", null);
 
-    [And("the following bookings exist")]
-    public async Task CreateBookings(DataTable dataTable)
+    protected IEnumerable<(BookingDocument booking, BookingIndexDocument bookingIndex)>
+        BuildBookingAndIndexDocumentsFromDataTable(
+            DataTable dataTable)
     {
-        foreach (var indexAndRow in dataTable.Rows.Skip(1).Select((row, index) => new { index, row }))
+        return dataTable.Rows.Skip(1).Select((row, index) =>
         {
-            var index = indexAndRow.index;
-            var row = indexAndRow.row;
-
-            var bookingType = dataTable.GetEnumRowValueOrDefault(row, "Booking Type", BookingType.Confirmed);
+            var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
             var reference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                             BookingReferences.GetBookingReference(index, bookingType);
             var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
-            var status = dataTable.GetEnumRowValueOrDefault(row, "Status", AppointmentStatus.Booked);
+            var status = dataTable.GetEnumRowValue(row, "Status", AppointmentStatus.Booked);
 
             var day = dataTable.GetRowValueOrDefault(row, "Date", "Tomorrow");
             var time = dataTable.GetRowValueOrDefault(row, "Time", "10:00");
@@ -369,7 +367,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
             var duration = int.Parse(dataTable.GetRowValueOrDefault(row, "Duration", "10"));
             var availabilityStatus =
-                dataTable.GetEnumRowValueOrDefault(row, "Availability Status", MapAvailabilityStatus(bookingType));
+                dataTable.GetEnumRowValue(row, "Availability Status", MapAvailabilityStatus(bookingType));
 
             var booking = new BookingDocument
             {
@@ -415,10 +413,19 @@ public abstract partial class BaseFeatureSteps : Feature
                 From = from
             };
 
-            await Client.GetContainer("appts", "booking_data").CreateItemAsync(booking);
-            await Client.GetContainer("appts", "index_data").CreateItemAsync(bookingIndex);
+            return (booking, bookingIndex);
+        });
+    }
+    
+    [And("the following bookings exist")]
+    public async Task CreateBookings(DataTable dataTable)
+    {
+        foreach (var bookingAndIndex in BuildBookingAndIndexDocumentsFromDataTable(dataTable))
+        {
+            await Client.GetContainer("appts", "booking_data").CreateItemAsync(bookingAndIndex.booking);
+            await Client.GetContainer("appts", "index_data").CreateItemAsync(bookingAndIndex.bookingIndex);
 
-            MadeBookings.Add(booking);
+            MadeBookings.Add(bookingAndIndex.booking);
         }
     }
 

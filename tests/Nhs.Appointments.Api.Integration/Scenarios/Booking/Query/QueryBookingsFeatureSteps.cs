@@ -20,39 +20,29 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
     private HttpStatusCode _statusCode;
 
     [When("I query for bookings using the following parameters")]
-    public async Task MakeBooking(DataTable dataTable)
+    public async Task QueryBookings(DataTable dataTable)
     {
-        var cells = dataTable.Rows.ElementAt(1).Cells;
+        var row = dataTable.Rows.ElementAt(1);
 
-        var fromDay = cells.ElementAt(0).Value;
-        var fromTime = cells.ElementAt(1).Value;
-        var toDay = cells.ElementAt(2).Value;
-        var toTime = cells.ElementAt(3).Value;
-        // var statuses = cells.ElementAtOrDefault(4)?.Value;
-        // var cancellationReason = cells.ElementAtOrDefault(5)?.Value;
-        // var cancellationNotificationStatuses = cells.ElementAtOrDefault(6)?.Value;
+        var fromDay = dataTable.GetRowValueOrDefault(row, "From (Day)");
+        var fromTime = dataTable.GetRowValueOrDefault(row, "From (Time)");
+        var toDay = dataTable.GetRowValueOrDefault(row, "Until (Day)");
+        var toTime = dataTable.GetRowValueOrDefault(row, "Until (Time)");
+        var statuses = dataTable.GetListRowValueOrDefault(row, "Statuses");
+        var cancellationReason =
+            dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation Reason");
+
+        var cancellationNotificationStatuses =
+            dataTable.GetEnumListRowValueOrDefault<CancellationNotificationStatus>(row,
+                "Cancellation Notification Status");
 
         object payload = new
         {
             from = ToRequestFormat(fromDay, fromTime), to = ToRequestFormat(toDay, toTime), site = GetSiteId()
+            // statuses,
+            // cancellationReason,
+            // cancellationNotificationStatuses
         };
-
-        // if (statuses is not null)
-        // {
-        //     payload.statuses = statuses.Split(',').Select(s => s.Trim()).ToArray();
-        // }
-        //
-        // if (cancellationReason is not null)
-        // {
-        //     payload.statuses = cancellationReason;
-        // }
-        //
-        // if (statuses is not null)
-        // {
-        //     payload.cancellationNotificationStatuses =
-        //         cancellationNotificationStatuses.Split(',').Select(s => s.Trim()).ToArray();
-        // }
-
 
         Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
         _statusCode = Response.StatusCode;
@@ -61,24 +51,41 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
                 await Response.Content.ReadAsStreamAsync());
     }
 
-    [Then(@"the following bookings are returned")]
-    public void Assert(DataTable expectedBookingDetailsTable)
+    private IEnumerable<Core.Booking> BuildBookingsFromDataTable(DataTable dataTable)
     {
-        var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select((row, index) =>
-            new Core.Booking
+        return dataTable.Rows.Skip(1).Select((row, index) =>
+        {
+            var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
+            var reference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+                            BookingReferences.GetBookingReference(index, bookingType);
+            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
+            var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
+            var status = dataTable.GetEnumRowValue(row, "Status", AppointmentStatus.Booked);
+
+            var day = dataTable.GetRowValueOrDefault(row, "Date", "Tomorrow");
+            var time = dataTable.GetRowValueOrDefault(row, "Time", "10:00");
+            var from = ParseDayAndTime(day, time);
+
+            var createdDay = dataTable.GetRowValueOrDefault(row, "Created Day");
+            var createdTime = dataTable.GetRowValueOrDefault(row, "Created Time");
+            var created = createdDay != null && createdTime != null
+                ? ParseDayAndTime(createdDay, createdTime)
+                : GetCreationDateTime(bookingType);
+
+            var duration = int.Parse(dataTable.GetRowValueOrDefault(row, "Duration", "10"));
+            var availabilityStatus =
+                dataTable.GetEnumRowValue(row, "Availability Status", MapAvailabilityStatus(bookingType));
+
+            var booking = new Core.Booking
             {
-                Reference =
-                    CreateCustomBookingReference(row.Cells.ElementAtOrDefault(4)?.Value) ??
-                    BookingReferences.GetBookingReference(index, BookingType.Confirmed),
-                From =
-                    DateTime.ParseExact(
-                        $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
-                        "yyyy-MM-dd HH:mm", null),
-                Duration = int.Parse(row.Cells.ElementAt(2).Value),
-                Service = row.Cells.ElementAt(3).Value,
-                Site = GetSiteId(),
-                Created = GetCreationDateTime(BookingType.Confirmed),
-                Status = AppointmentStatus.Booked,
+                Reference = reference,
+                From = from,
+                Duration = duration,
+                Service = service,
+                Site = site,
+                Status = status,
+                AvailabilityStatus = availabilityStatus,
+                Created = created,
                 AttendeeDetails = new AttendeeDetails
                 {
                     NhsNumber = NhsNumber,
@@ -96,16 +103,18 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
                     }
                 ],
                 AdditionalData = new { IsAppBooking = true }
-            }).ToList();
+            };
+
+            return booking;
+        });
+    }
+
+    [Then(@"the following bookings are returned")]
+    public void Assert(DataTable expectedBookingDetailsTable)
+    {
+        var expectedBookings = BuildBookingsFromDataTable(expectedBookingDetailsTable);
 
         _statusCode.Should().Be(HttpStatusCode.OK);
         BookingAssertions.BookingsAreEquivalent(_actualResponse, expectedBookings);
     }
-
-    // [Then(@"the request is successful and no bookings are returned")]
-    // public void AssertNoAvailability()
-    // {
-    //     _statusCode.Should().Be(HttpStatusCode.OK);
-    //     _actualResponse.Should().BeEmpty();
-    // }
 }

@@ -10,17 +10,12 @@ namespace BookingDataExtracts.Integration;
 
 public class TestableDataExtractWorker(
     IHostApplicationLifetime hostApplicationLifetime,
-    IOptions<MeshSendOptions> meshSendOptions,
-    IOptions<MeshAuthorizationOptions> meshAuthOptions,
-    IMeshFactory meshFactory,
     TimeProvider timeProvider,
-    BookingDataExtract bookingDataExtract,
     IOptions<FileOptions> fileOptions,
-    IOptions<FileSenderOptions> fileSenderOptions,
-    IFileSenderFactory fileSenderFactory,
-    IServiceProvider serviceProvider
-    ) : DataExtractWorker<BookingDataExtract>(hostApplicationLifetime, meshSendOptions, meshAuthOptions, meshFactory, timeProvider,
-        bookingDataExtract, fileOptions, fileSenderOptions, fileSenderFactory, serviceProvider)
+    IServiceProvider serviceProvider,
+    IFileSender fileSender
+    ) : DataExtractWorker<BookingDataExtract>(hostApplicationLifetime, timeProvider,
+        fileOptions, serviceProvider, fileSender)
 
 {
     public Task Test()

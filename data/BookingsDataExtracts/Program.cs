@@ -1,8 +1,6 @@
 using BookingsDataExtracts;
 using DataExtract;
 using DataExtract.Documents;
-using Microsoft.Extensions.Azure;
-using Nbs.MeshClient;
 using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -15,30 +13,10 @@ builder.Configuration
             .AddNbsAzureKeyVault();
 
 builder.Services
-    .AddDataExtractServices("booking", builder.Configuration, args.Contains("create-local-sample"))
+    .AddDataExtractServices("booking", builder.Configuration)
     .AddCosmosStore<NbsBookingDocument>()
     .AddCosmosStore<SiteDocument>()
-    .AddExtractWorker<BookingDataExtract>()
-    .Configure<FileSenderOptions>(
-        builder.Configuration.GetSection("FileSenderOptions"))
-    .Configure<MeshFileOptions>(
-        builder.Configuration.GetSection("MeshFileOptions"))
-    .Configure<LocalFileOptions>(
-        builder.Configuration.GetSection("LocalFileOptions"))
-    .Configure<BlobFileOptions>(
-        builder.Configuration.GetSection("BlobFileOptions"))
-    .AddScoped<IMeshMailbox>(sp =>
-    {
-        var logger = sp.GetRequiredService<ILogger<MeshMailbox>>();
-        var client = sp.GetRequiredService<IMeshClient>();
-        var mailboxId = builder.Configuration["FileSenderOptions:Mesh:DestinationMailboxId"];
-        return new MeshMailbox(mailboxId, logger, client);
-    })
-    .AddScoped<IFileSenderFactory, FileSenderFactory>()
-    .AddAzureClients(x =>
-    {
-        x.AddBlobServiceClient(builder.Configuration["BlobStorageConnectionString"]);
-    });
+    .AddExtractWorker<BookingDataExtract>();
 
 var host = builder.Build();
 host.Run();

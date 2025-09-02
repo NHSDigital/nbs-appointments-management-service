@@ -3,7 +3,7 @@ using Nbs.MeshClient;
 
 namespace DataExtract;
 
-public class MeshFileSender(IMeshMailbox meshMailbox, IOptions<MeshFileOptions> options) : IFileSender
+public class MeshFileSender(IMeshMailbox meshMailbox, IOptions<MeshSendOptions> options) : IFileSender
 {
     private const int chunkSizeBytes = 100_000_000;
 
@@ -25,7 +25,7 @@ public class MeshFileSender(IMeshMailbox meshMailbox, IOptions<MeshFileOptions> 
                         options.Value.WorkflowId, 
                         content, 
                         totalChunks, 
-                        options.Value.File.Name);
+                        file.Name);
                 else
                     await meshMailbox.SendMessagePartAsync(
                         messageId, 

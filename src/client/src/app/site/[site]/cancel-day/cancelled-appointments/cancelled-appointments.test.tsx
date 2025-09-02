@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import CancelledAppointments from './cancelled-appointments';
 import { mockBookings } from '@testing/availability-and-bookings-mock-data';
-import { mockClinicalServices } from '@testing/data';
+import { mockMultipleServices } from '@testing/data';
 import { SearchParamsContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { ReadonlyURLSearchParams } from 'next/navigation';
 
@@ -13,7 +13,7 @@ describe('Cancelled Appointments Without Contact Details Page', () => {
       >
         <CancelledAppointments
           bookings={mockBookings}
-          clinicalServices={mockClinicalServices}
+          clinicalServices={mockMultipleServices}
           site="TEST01"
         />
       </SearchParamsContext.Provider>,
@@ -31,7 +31,7 @@ describe('Cancelled Appointments Without Contact Details Page', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '09:10 Brian Smith 9999999995 1 February 1984 FLU:18_64',
+        name: '09:10 Brian Smith 9999999995 1 February 1984 FLU 18-64',
       }),
     ).toBeInTheDocument();
 
@@ -45,7 +45,7 @@ describe('Cancelled Appointments Without Contact Details Page', () => {
       >
         <CancelledAppointments
           bookings={mockBookings}
-          clinicalServices={mockClinicalServices}
+          clinicalServices={mockMultipleServices}
           site="TEST01"
         />
       </SearchParamsContext.Provider>,

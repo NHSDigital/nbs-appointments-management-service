@@ -13,7 +13,7 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Query;
 
 [FeatureFile("./Scenarios/Booking/Query/QueryBookings.feature")]
-public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : BookingBaseFeatureSteps(flag, enabled)
+public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private List<Core.Booking> _actualResponse;
     private HttpResponseMessage _response;
@@ -46,11 +46,18 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Boo
             cancellationNotificationStatuses
         };
 
-        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
-        _statusCode = Response.StatusCode;
+        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
+        _statusCode = _response.StatusCode;
         (_, _actualResponse) =
             await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(
-                await Response.Content.ReadAsStreamAsync());
+                await _response.Content.ReadAsStreamAsync());
+    }
+
+    protected string ToRequestFormat(string naturalLanguageDateOnly, string naturalLanguageTime)
+    {
+        return DateTime.ParseExact(
+            $"{ParseNaturalLanguageDateOnly(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
+            "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
 
     private IEnumerable<Core.Booking> BuildBookingsFromDataTable(DataTable dataTable)

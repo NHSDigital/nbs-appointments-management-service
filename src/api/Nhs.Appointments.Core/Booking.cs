@@ -108,7 +108,7 @@ public enum CancellationNotificationStatus
 
     // TODO: When the requirement comes in to "tick off" these appointments as the citizens have been manually notified,
     // this is how that will be recorded
-    ManuallyNotified
+    Notified
 }
 
 public enum CancellationReason

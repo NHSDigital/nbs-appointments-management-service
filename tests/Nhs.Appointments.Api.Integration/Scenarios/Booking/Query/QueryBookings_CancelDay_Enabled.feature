@@ -81,10 +81,10 @@
     And the following bookings exist
       | Reference | Cancellation Notification Status |
       | 1         | Unknown                          |
-      | 2         | ManuallyNotified                 |
+      | 2         | Notified                         |
       | 3         | AutomaticNotificationFailed      |
       | 4         | Unnotified                       |
-      | 5         | ManuallyNotified                 |
+      | 5         | Notified                         |
     When I query for bookings using the following parameters
       | From (Day) | From (Time) | Until (Day) | Until (Time) | Cancellation Notification Status        |
       | Tomorrow   | 09:00       | Tomorrow    | 17:30        | Unnotified, AutomaticNotificationFailed |
@@ -103,7 +103,7 @@
       | 2         | 09:00 | Provisional | null                 | Unknown                          |
       | 3         | 09:10 | Booked      | null                 | Unknown                          |
       | 4         | 09:20 | Cancelled   | RescheduledByCitizen | null                             |
-      | 5         | 09:30 | Cancelled   | CancelledByCitizen   | ManuallyNotified                 |
+      | 5         | 09:30 | Cancelled   | CancelledByCitizen   | Notified                         |
       | 6         | 09:40 | Cancelled   | CancelledBySite      | Unknown                          |
       | 7         | 09:50 | Cancelled   | CancelledBySite      | AutomaticNotificationFailed      |
       | 8         | 09:50 | Cancelled   | CancelledBySite      | Unnotified                       |

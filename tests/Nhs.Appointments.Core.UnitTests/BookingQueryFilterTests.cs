@@ -119,11 +119,11 @@ public class BookingQueryFilterTests
         var bookings = new List<Booking>
         {
             TestBooking("01", cancellationNotificationStatus: CancellationNotificationStatus.Unknown),
-            TestBooking("02", cancellationNotificationStatus: CancellationNotificationStatus.ManuallyNotified),
+            TestBooking("02", cancellationNotificationStatus: CancellationNotificationStatus.Notified),
             TestBooking("03",
                 cancellationNotificationStatus: CancellationNotificationStatus.AutomaticNotificationFailed),
             TestBooking("04", cancellationNotificationStatus: CancellationNotificationStatus.Unnotified),
-            TestBooking("05", cancellationNotificationStatus: CancellationNotificationStatus.ManuallyNotified)
+            TestBooking("05", cancellationNotificationStatus: CancellationNotificationStatus.Notified)
         };
 
         var filter = new BookingQueryFilter(TestDateAt("09:00"), TestDateAt("17:30"),
@@ -161,7 +161,7 @@ public class BookingQueryFilterTests
             TestBooking("04", "09:20", AppointmentStatus.Cancelled, CancellationReason.RescheduledByCitizen),
             // Cancelled booking at 09:30, by citizen
             TestBooking("05", "09:30", AppointmentStatus.Cancelled, CancellationReason.CancelledByCitizen,
-                CancellationNotificationStatus.ManuallyNotified),
+                CancellationNotificationStatus.Notified),
             // Cancelled booking at 09:40, automatically notified
             TestBooking("06", "09:40", AppointmentStatus.Cancelled, CancellationReason.CancelledBySite,
                 CancellationNotificationStatus.Unknown),

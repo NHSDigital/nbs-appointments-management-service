@@ -95,7 +95,7 @@ public class GetDailySummaryFunctionTests
     {
         //Arrange
         var request = CreateRequest(site: "Site01", from: "2024-12-01");
-        var daySummary = new AvailabilitySummary();
+        var daySummary = new AvailabilitySummary([]);
         _mockValidator
             .Setup(x => x.ValidateAsync(It.IsAny<GetDaySummaryRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());

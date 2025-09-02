@@ -90,7 +90,7 @@ public class QueryBookingsRequestValidatorTests
         var testRequest = new QueryBookingsRequest(
             DateTime.Today,
             DateTime.Today.AddDays(1),
-            "site", null, null, ["Unnotified", "ManuallyNotified"]);
+            "site", null, null, ["Unnotified", "Notified"]);
 
         var result = _sut.Validate(testRequest);
 
@@ -104,7 +104,7 @@ public class QueryBookingsRequestValidatorTests
         var testRequest = new QueryBookingsRequest(
             DateTime.Today,
             DateTime.Today.AddDays(1),
-            "site", null, null, ["Unnotified", "ManuallyNotified", "NOT A STATUS"]);
+            "site", null, null, ["Unnotified", "Notified", "NOT A STATUS"]);
 
         var result = _sut.Validate(testRequest);
 

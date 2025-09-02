@@ -2,15 +2,13 @@ using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
-[MockedFeatureToggle(Flags.MultipleServices, false)]
-public class AvailabilityQueryServiceTests : FeatureToggledTests
+public class AvailabilityQueryServiceTests
 {
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly AvailabilityQueryService _sut;
 
-    public AvailabilityQueryServiceTests() : base(typeof(AvailabilityQueryServiceTests)) =>
-        _sut = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+    public AvailabilityQueryServiceTests()  => _sut = new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
 
     [Fact]
     public async Task GetAvailabilityCreatedEvents_OrdersEventsByFromThenByTo()

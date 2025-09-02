@@ -8,14 +8,12 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
-    public abstract class QueryBookingByNhsNumber(string flag, bool enabled) : BookingBaseFeatureSteps(flag, enabled)
+    public class QueryBookingByNhsNumber : BookingBaseFeatureSteps
     {
         private List<Core.Booking> _actualResponse;
         private HttpResponseMessage _response;
@@ -80,12 +78,4 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             _actualResponse.Should().BeEmpty();
         }
     }
-
-    [Collection("MultipleServicesSerialToggle")]
-    public class QueryBookingByNhsNumber_MultipleServicesEnabled()
-        : QueryBookingByNhsNumber(Flags.MultipleServices, true);
-
-    [Collection("MultipleServicesSerialToggle")]
-    public class QueryBookingByNhsNumber_MultipleServicesDisabled()
-        : QueryBookingByNhsNumber(Flags.MultipleServices, false);
 }

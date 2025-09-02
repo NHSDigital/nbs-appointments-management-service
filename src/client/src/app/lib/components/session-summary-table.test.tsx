@@ -9,17 +9,11 @@ import {
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
-import { ClinicalService } from '@types';
+import { mockMultipleServices } from '@testing/data';
 
 jest.mock('@types', () => ({
   ...jest.requireActual('@types'),
 }));
-
-const clinicalServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-  { label: 'FLU 18-64', value: 'FLU:18_64' },
-  { label: 'COVID 75+', value: 'COVID:75+' },
-];
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
@@ -43,7 +37,7 @@ describe('Session summary table', () => {
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -58,7 +52,7 @@ describe('Session summary table', () => {
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -89,7 +83,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           ukDate: mockWeekAvailability__Summary[0].ukDate.format(RFC3339Format),
         }}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -133,7 +127,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           ukDate: mockWeekAvailability__Summary[0].ukDate.format(RFC3339Format),
         }}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -171,7 +165,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           ukDate: mockWeekAvailability__Summary[0].ukDate.format(RFC3339Format),
         }}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
       />,
     );
 
@@ -209,7 +203,7 @@ describe('Session summary table', () => {
           siteId: 'TEST01',
           ukDate: mockWeekAvailability__Summary[0].ukDate.format(RFC3339Format),
         }}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
         showUnbooked={false}
       />,
     );
@@ -223,7 +217,7 @@ describe('Session summary table', () => {
     render(
       <SessionSummaryTable
         sessionSummaries={mockWeekAvailability__Summary[0].sessions}
-        clinicalServices={clinicalServices}
+        clinicalServices={mockMultipleServices}
         tableCaption="My custom caption"
       />,
     );

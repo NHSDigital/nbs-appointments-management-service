@@ -34,8 +34,9 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             {
                 var siteValue = x.Row.GetField<string>("Site");
                 var regionValue = x.Row.GetField<string>("Region");
+                var icbValue = x.Row.GetField<string>("ICB");
 
-                ValidateSiteAndRegionFields(siteValue, regionValue);
+                ValidatePermissionScope(siteValue, regionValue, icbValue);
 
                 if (CsvFieldValidator.StringHasValue(siteValue))
                 {
@@ -51,8 +52,9 @@ public class UserImportRowMap : ClassMap<UserImportRow>
             {
                 var siteValue = x.Row.GetField<string>("Site");
                 var regionValue = x.Row.GetField<string>("Region");
+                var icbValue = x.Row.GetField<string>("ICB");
 
-                ValidateSiteAndRegionFields(siteValue, regionValue);
+                ValidatePermissionScope(siteValue, regionValue, icbValue);
 
                 return regionValue;
             });
@@ -62,6 +64,7 @@ public class UserImportRowMap : ClassMap<UserImportRow>
 
             var siteValue = x.Row.GetField<string>("Site");
             var regionValue = x.Row.GetField<string>("Region");
+            var icbValue = x.Row.GetField<string>("ICB");
 
             // No need to check again whether both or neither fields are populated here as that happens in the site / region mapping
             if (CsvFieldValidator.StringHasValue(siteValue))
@@ -70,16 +73,31 @@ public class UserImportRowMap : ClassMap<UserImportRow>
                 {
                     if (CsvFieldValidator.ParseUserEnteredBoolean(x.Row.GetField(role)))
                     {
-                        roleAssignemnts.Add(new RoleAssignment { Role = $"canned:{role}", Scope = $"site:{x.Row.GetField("Site")}" });
+                        roleAssignemnts.Add(new RoleAssignment { Role = $"canned:{role}", Scope = $"site:{siteValue}" });
                     }
                 }
 
                 return roleAssignemnts;
             }
 
-            roleAssignemnts.Add(new RoleAssignment { Role = "system:regional-user", Scope = $"region:{x.Row.GetField("Region")}" });
+            if (CsvFieldValidator.StringHasValue(regionValue))
+            {
+                roleAssignemnts.Add(new RoleAssignment { Role = "system:regional-user", Scope = $"region:{regionValue}" });
+                return roleAssignemnts;
+            }
 
+            roleAssignemnts.Add(new RoleAssignment { Role = "system:icb-user", Scope = $"icb:{icbValue}" });
             return roleAssignemnts;
+        });
+        Map(m => m.Icb).Convert(x =>
+        {
+            var siteValue = x.Row.GetField<string>("Site");
+            var regionValue = x.Row.GetField<string>("Region");
+            var icbValue = x.Row.GetField<string>("ICB");
+
+            ValidatePermissionScope(siteValue, regionValue, icbValue);
+
+            return icbValue;
         });
     }
 
@@ -117,13 +135,26 @@ public class UserImportRowMap : ClassMap<UserImportRow>
         return true;
     }
 
-    // Only one of the Site or Region fields can be populated
-    private static void ValidateSiteAndRegionFields(string siteValue, string regionValue)
+    // Only one of the Site, Region or ICB fields can be populated
+    private static void ValidatePermissionScope(string siteValue, string regionValue, string icbValue)
     {
-        var siteHasValue = CsvFieldValidator.StringHasValue(siteValue);
-        var regionHasValue = CsvFieldValidator.StringHasValue(regionValue);
+        var fields = new Dictionary<string, bool>
+        {
+            { "Site", CsvFieldValidator.StringHasValue(siteValue) },
+            { "Region", CsvFieldValidator.StringHasValue(regionValue) },
+            { "ICB", CsvFieldValidator.StringHasValue(icbValue) }
+        };
 
-        if (siteHasValue && regionHasValue || !siteHasValue && !regionHasValue)
-            throw new ArgumentException("Exactly one of Site or Region must be populated.");
+        var populatedFieldCount = fields.Count(f => f.Value);
+
+        if (populatedFieldCount != 1)
+        {
+            var populatedFields = fields.Where(f => f.Value).Select(f => f.Key);
+            var message = populatedFieldCount == 0
+                ? "Exactly one of Site, Region or ICB must be populated, but none were provided."
+                : $"Exactly one of Site, Region or ICB must be populated, but the populated fields were: {populatedFieldCount}: {string.Join(',', populatedFields)}";
+
+            throw new ArgumentException(message);
+        }
     }
 }

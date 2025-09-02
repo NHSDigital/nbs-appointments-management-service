@@ -310,7 +310,7 @@ const mockSession3: AvailabilitySession = {
 const mockSessionMultipleServices1: AvailabilitySession = {
   from: '09:00',
   until: '12:00',
-  services: ['RSV:Adult', 'TEST:COHORT'],
+  services: ['RSV:Adult', 'FLU:18_64', 'COVID:19'],
   capacity: 2,
   slotLength: 5,
 };
@@ -318,7 +318,7 @@ const mockSessionMultipleServices1: AvailabilitySession = {
 const mockSessionMultipleServices2: AvailabilitySession = {
   from: '13:00',
   until: '17:30',
-  services: ['RSV:Adult', 'TEST:COHORT'],
+  services: ['RSV:Adult', 'FLU:18_64', 'COVID:19'],
   capacity: 2,
   slotLength: 5,
 };
@@ -759,9 +759,14 @@ const mockWeekAvailability: DailyAvailability[] = [
   },
 ];
 
-const mockClinicalServices: ClinicalService[] = [
+const mockSingleService: ClinicalService[] = [
   { label: 'RSV Adult', value: 'RSV:Adult' },
-  { label: 'Test', value: 'TEST:COHORT' },
+];
+
+const mockMultipleServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+  { label: 'FLU 18-64', value: 'FLU:18_64' },
+  { label: 'COVID', value: 'COVID:19' },
 ];
 
 export {
@@ -788,6 +793,7 @@ export {
   mockWeekAvailability,
   mockWellKnownOdsCodeEntries,
   getMockOktaUserAssignments,
-  mockClinicalServices,
+  mockSingleService,
+  mockMultipleServices,
   mockOfflineSite,
 };

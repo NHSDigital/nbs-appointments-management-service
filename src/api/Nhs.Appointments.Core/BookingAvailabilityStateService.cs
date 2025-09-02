@@ -179,10 +179,7 @@ public class BookingAvailabilityStateService(
                                 daySummary.TotalSupportedAppointmentsByService[booking.Service] = daySummary.TotalSupportedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
                                 break;
                             case AvailabilityStatus.Orphaned:
-                                if (!daySummary.TotalOrphanedAppointmentsByService.TryAdd(booking.Service, 1))
-                                {
-                                    daySummary.TotalOrphanedAppointmentsByService[booking.Service]++;
-                                }
+                                daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
                                 break;
                         }
             

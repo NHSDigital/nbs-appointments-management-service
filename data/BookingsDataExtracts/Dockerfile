@@ -2,8 +2,6 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-RUN addgroup -S nonroot && adduser -S nonroot -G nonroot
-USER nonroot
 WORKDIR /app
 
 # This stage is used to build the service project
@@ -30,7 +28,6 @@ RUN dotnet publish "./BookingsDataExtracts.csproj" -c $BUILD_CONFIGURATION -o /a
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
-USER nonroot
 COPY --from=publish /app/bookings ./BookingsDataExtracts
 
 ENTRYPOINT ["dotnet", "BookingsDataExtracts.dll"]

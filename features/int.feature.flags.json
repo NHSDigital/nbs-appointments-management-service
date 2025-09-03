@@ -4,6 +4,6 @@
     "JointBookings": false,
     "MultipleServices": true,
     "SiteSummaryReport": true,
-    "SiteStatus": false
+    "SiteStatus": true
   }
 }

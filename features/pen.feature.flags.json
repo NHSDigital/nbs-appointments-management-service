@@ -4,7 +4,7 @@
     "JointBookings": false,
     "BulkImport": true,
     "SiteSummaryReport": true,
-    "SiteStatus": false,
+    "SiteStatus": true,
     "CancelDay": false
   }
 }

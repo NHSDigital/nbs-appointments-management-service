@@ -5,6 +5,6 @@
     "BulkImport": true,
     "MultipleServices": true,
     "SiteSummaryReport": true,
-    "SiteStatus": false
+    "SiteStatus": true
   }
 }

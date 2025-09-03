@@ -104,6 +104,9 @@ export const mapWeekSummary = (
     ...weekSummaryV2,
     startDate: ukWeekStart,
     endDate: ukWeekEnd,
+    remainingCapacity: weekSummaryV2.totalRemainingCapacity,
+    bookedAppointments: weekSummaryV2.totalSupportedAppointments,
+    orphanedAppointments: weekSummaryV2.totalOrphanedAppointments,
     daySummaries: mapDaySummaries(weekSummaryV2.daySummaries),
   };
 };
@@ -112,6 +115,11 @@ const mapDaySummaries = (daySummaries: DaySummaryV2[]): DaySummary[] => {
   return daySummaries.map(daySummaryV2 => {
     return {
       ...daySummaryV2,
+      sessions: daySummaryV2.sessionSummaries,
+      remainingCapacity: daySummaryV2.totalRemainingCapacity,
+      bookedAppointments: daySummaryV2.totalSupportedAppointments,
+      cancelledAppointments: daySummaryV2.totalCancelledAppointments,
+      orphanedAppointments: daySummaryV2.totalOrphanedAppointments,
       ukDate: parseToUkDatetime(daySummaryV2.date),
     };
   });
@@ -166,10 +174,12 @@ const summariseDay = (
       matchingSlot.capacity -= 1;
 
       // 2. Add the booking to the session's bookings
-      sessionSlotCameFrom.bookings[booking.service] += 1;
+      sessionSlotCameFrom.totalSupportedAppointmentsByService[
+        booking.service
+      ] += 1;
 
       // 3. Add the booking to the session's total bookings
-      sessionSlotCameFrom.totalBookings += 1;
+      sessionSlotCameFrom.totalSupportedAppointments += 1;
     }
   });
 
@@ -201,7 +211,7 @@ const buildDaySummary = (
       if (isBefore(aEnd, bEnd)) {
         return -1;
       }
-      if (a.bookings > b.bookings) {
+      if (a.totalSupportedAppointments > b.totalSupportedAppointments) {
         return -1;
       }
       return 0;
@@ -214,7 +224,8 @@ const buildDaySummary = (
   );
 
   const bookedAppointments = sessionSummaries.reduce(
-    (accumulator, sessionSummary) => accumulator + sessionSummary.totalBookings,
+    (accumulator, sessionSummary) =>
+      accumulator + sessionSummary.totalSupportedAppointments,
     0,
   );
 
@@ -302,8 +313,8 @@ const mapSessionsAndSlots = (
       ukStartDatetime: ukStartDatetime.format(dateTimeFormat),
       ukEndDatetime: ukEndDatetime.format(dateTimeFormat),
       maximumCapacity: slotsInSession.length * session.capacity,
-      totalBookings: 0,
-      bookings: bookingsByService,
+      totalSupportedAppointments: 0,
+      totalSupportedAppointmentsByService: bookingsByService,
       capacity: session.capacity,
       slotLength: session.slotLength,
     };

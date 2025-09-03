@@ -95,7 +95,7 @@ public class GetDailySummaryFunctionTests
     {
         //Arrange
         var request = CreateRequest(site: "Site01", from: "2024-12-01");
-        var daySummary = new Summary();
+        var daySummary = new AvailabilitySummary([]);
         _mockValidator
             .Setup(x => x.ValidateAsync(It.IsAny<GetDaySummaryRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -109,7 +109,7 @@ public class GetDailySummaryFunctionTests
         //Assert
         var contentResult = Assert.IsType<ContentResult>(result);
         contentResult.StatusCode.Should().Be(200);
-        var summary = JsonSerializer.Deserialize<Summary>(contentResult.Content);
+        var summary = JsonSerializer.Deserialize<AvailabilitySummary>(contentResult.Content);
         summary.Should().NotBeNull();
     }
 

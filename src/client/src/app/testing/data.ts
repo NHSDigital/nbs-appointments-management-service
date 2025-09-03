@@ -623,8 +623,8 @@ const mockDaySummaries: DaySummary[] = [
         ukStartDatetime: '2024-11-02T09:00:00',
         ukEndDatetime: '2024-11-02T17:00:00',
         maximumCapacity: 123,
-        totalBookings: 5,
-        bookings: {
+        totalSupportedAppointments: 5,
+        totalSupportedAppointmentsByService: {
           'RSV:Adult': mockBookings.length,
         },
         capacity: 2,
@@ -644,8 +644,8 @@ const mockDaySummaries: DaySummary[] = [
         ukStartDatetime: '2024-11-04T09:00:00',
         ukEndDatetime: '2024-11-04T17:00:00',
         maximumCapacity: 200,
-        totalBookings: 15,
-        bookings: {
+        totalSupportedAppointments: 15,
+        totalSupportedAppointmentsByService: {
           'COVID:75+': mockBookings.length,
         },
         capacity: 2,
@@ -665,8 +665,8 @@ const mockDaySummaries: DaySummary[] = [
         ukStartDatetime: '2024-11-05T09:00:00',
         ukEndDatetime: '2024-11-05T17:00:00',
         maximumCapacity: 200,
-        totalBookings: 20,
-        bookings: {
+        totalSupportedAppointments: 20,
+        totalSupportedAppointmentsByService: {
           'FLU:18_64': mockBookings.length,
         },
         capacity: 2,

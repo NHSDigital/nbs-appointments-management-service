@@ -128,15 +128,17 @@ export const SessionServicesCell = ({
 }) => {
   return (
     <>
-      {Object.keys(sessionSummary.bookings).map((service, serviceIndex) => {
-        return (
-          <span key={`service-name-${serviceIndex}`}>
-            {clinicalServices.find(cs => cs.value === service)?.label ??
-              service}
-            <br />
-          </span>
-        );
-      })}
+      {Object.keys(sessionSummary.totalSupportedAppointmentsByService).map(
+        (service, serviceIndex) => {
+          return (
+            <span key={`service-name-${serviceIndex}`}>
+              {clinicalServices.find(cs => cs.value === service)?.label ??
+                service}
+              <br />
+            </span>
+          );
+        },
+      )}
     </>
   );
 };
@@ -148,14 +150,17 @@ export const SessionBookingsCell = ({
 }) => {
   return (
     <>
-      {Object.keys(sessionSummary.bookings).map((service, serviceIndex) => {
-        return (
-          <span key={`service-bookings-${serviceIndex}`}>
-            {sessionSummary.bookings[service]} booked
-            <br />
-          </span>
-        );
-      })}
+      {Object.keys(sessionSummary.totalSupportedAppointmentsByService).map(
+        (service, serviceIndex) => {
+          return (
+            <span key={`service-bookings-${serviceIndex}`}>
+              {sessionSummary.totalSupportedAppointmentsByService[service]}{' '}
+              booked
+              <br />
+            </span>
+          );
+        },
+      )}
     </>
   );
 };
@@ -167,7 +172,9 @@ export const SessionUnbookedCell = ({
 }) => {
   return (
     <>
-      {sessionSummary.maximumCapacity - sessionSummary.totalBookings} unbooked
+      {sessionSummary.maximumCapacity -
+        sessionSummary.totalSupportedAppointments}{' '}
+      unbooked
     </>
   );
 };

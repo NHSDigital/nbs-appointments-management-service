@@ -56,7 +56,9 @@ const EditSessionTimeAndCapacityForm = ({
       sessionToEdit: {
         startTime: parseToTimeComponents(existingUkStartTime),
         endTime: parseToTimeComponents(existingUkEndTime),
-        services: Object.keys(existingSession.bookings).map(service => service),
+        services: Object.keys(
+          existingSession.totalSupportedAppointmentsByService,
+        ).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
       },
@@ -69,7 +71,9 @@ const EditSessionTimeAndCapacityForm = ({
           hour: existingUkEndTime.split(':')[0],
           minute: existingUkEndTime.split(':')[1],
         },
-        services: Object.keys(existingSession.bookings).map(service => service),
+        services: Object.keys(
+          existingSession.totalSupportedAppointmentsByService,
+        ).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
       },
@@ -154,9 +158,11 @@ const EditSessionTimeAndCapacityForm = ({
     <form onSubmit={handleSubmit(submitForm)}>
       <InsetText>
         <p>
-          {existingSession.totalBookings} booked appointments in this session.
+          {existingSession.totalSupportedAppointments} booked appointments in
+          this session.
           <br />
-          {existingSession.maximumCapacity - existingSession.totalBookings}{' '}
+          {existingSession.maximumCapacity -
+            existingSession.totalSupportedAppointments}{' '}
           unbooked appointments in this session.
         </p>
       </InsetText>

@@ -310,8 +310,8 @@ type SessionSummary = {
   ukStartDatetime: string;
   ukEndDatetime: string;
   maximumCapacity: number;
-  totalBookings: number;
-  bookings: Record<string, number>;
+  totalSupportedAppointments: number;
+  totalSupportedAppointmentsByService: Record<string, number>;
   capacity: number;
   slotLength: number;
 };
@@ -328,12 +328,12 @@ type DaySummary = {
 
 type DaySummaryV2 = {
   date: string;
-  sessions: SessionSummary[];
+  sessionSummaries: SessionSummary[];
   maximumCapacity: number;
-  remainingCapacity: number;
-  bookedAppointments: number;
-  orphanedAppointments: number;
-  cancelledAppointments: number;
+  totalRemainingCapacity: number;
+  totalSupportedAppointments: number;
+  totalOrphanedAppointments: number;
+  totalCancelledAppointments: number;
 };
 
 type WeekSummary = {
@@ -349,9 +349,9 @@ type WeekSummary = {
 type WeekSummaryV2 = {
   daySummaries: DaySummaryV2[];
   maximumCapacity: number;
-  remainingCapacity: number;
-  bookedAppointments: number;
-  orphanedAppointments: number;
+  totalRemainingCapacity: number;
+  totalSupportedAppointments: number;
+  totalOrphanedAppointments: number;
 };
 
 type ServiceInformation = {

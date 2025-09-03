@@ -2,16 +2,20 @@ import { screen } from '@testing-library/react';
 import CancelDayForm from './cancel-day-form';
 import render from '@testing/render';
 import { useRouter } from 'next/navigation';
-import { parseToUkDatetime } from '@services/timeService';
 import * as appointmentsService from '@services/appointmentsService';
+import { mockCancelDayResponse } from '@testing/data';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('@services/timeService', () => ({
-  parseToUkDatetime: jest.fn(),
-}));
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    ukNow: jest.fn(),
+  };
+});
 
 jest.mock('@services/appointmentsService');
 const mockCancelDay = jest.spyOn(appointmentsService, 'cancelDay');
@@ -36,9 +40,7 @@ const defaultProps = {
 describe('CancelDayForm', () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ replace: mockReplace });
-    (parseToUkDatetime as jest.Mock).mockReturnValue({
-      format: () => 'Wednesday 1 January',
-    });
+    mockCancelDay.mockReturnValue(Promise.resolve(mockCancelDayResponse));
     jest.clearAllMocks();
   });
 

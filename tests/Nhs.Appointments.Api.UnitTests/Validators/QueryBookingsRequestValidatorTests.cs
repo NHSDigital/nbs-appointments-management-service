@@ -37,7 +37,6 @@ public class QueryBookingsRequestValidatorTests
             "site", ["Cancelled", "Booked"]);
 
         var result = _sut.Validate(testRequest);
-
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);
     }

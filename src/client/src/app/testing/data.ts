@@ -21,6 +21,7 @@ import {
   WellKnownOdsEntry,
   RoleAssignment,
   ClinicalService,
+  CancelDayResponse,
 } from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
@@ -769,6 +770,11 @@ const mockMultipleServices: ClinicalService[] = [
   { label: 'COVID', value: 'COVID:19' },
 ];
 
+const mockCancelDayResponse: CancelDayResponse = {
+  bookingsWithoutContactDetails: 2,
+  cancelledBookingCount: 10,
+};
+
 export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
@@ -796,4 +802,5 @@ export {
   mockSingleService,
   mockMultipleServices,
   mockOfflineSite,
+  mockCancelDayResponse,
 };

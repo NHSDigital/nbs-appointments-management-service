@@ -61,14 +61,18 @@ const EditServicesForm = ({
       sessionToEdit: {
         startTime: parseToTimeComponents(existingUkStartTime),
         endTime: parseToTimeComponents(existingUkEndTime),
-        services: Object.keys(existingSession.bookings).map(service => service),
+        services: Object.keys(
+          existingSession.totalSupportedAppointmentsByService,
+        ).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
       },
       newSession: {
         startTime: parseToTimeComponents(existingUkStartTime),
         endTime: parseToTimeComponents(existingUkEndTime),
-        services: Object.keys(existingSession.bookings).map(service => service),
+        services: Object.keys(
+          existingSession.totalSupportedAppointmentsByService,
+        ).map(service => service),
         slotLength: existingSession.slotLength,
         capacity: existingSession.capacity,
       },
@@ -122,9 +126,9 @@ const EditServicesForm = ({
 
   const clinicalServicesInSession = clinicalServices.filter(
     service =>
-      Object.keys(existingSession.bookings).findIndex(
-        x => x === service.value,
-      ) !== -1,
+      Object.keys(
+        existingSession.totalSupportedAppointmentsByService,
+      ).findIndex(x => x === service.value) !== -1,
   );
 
   return (

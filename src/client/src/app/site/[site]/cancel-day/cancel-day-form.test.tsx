@@ -28,11 +28,11 @@ const defaultProps = {
   daySummary: {
     date: '2025-01-01',
     maximumCapacity: 10,
-    remainingCapacity: 7,
-    bookedAppointments: 3,
-    orphanedAppointments: 0,
-    cancelledAppointments: 0,
-    sessions: [],
+    totalRemainingCapacity: 7,
+    totalSupportedAppointments: 3,
+    totalOrphanedAppointments: 0,
+    totalCancelledAppointments: 0,
+    sessionSummaries: [],
   },
   clinicalServices: [],
 };

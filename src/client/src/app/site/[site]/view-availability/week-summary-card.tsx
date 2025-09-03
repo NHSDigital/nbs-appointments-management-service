@@ -18,12 +18,14 @@ export const WeekSummaryCard = ({
   const allBookingsInWeek = daySummaries.reduce(
     (acc, daySummary) => {
       daySummary.sessions.forEach(session => {
-        Object.entries(session.bookings).forEach(([key, value]) => {
-          if (!acc[key]) {
-            acc[key] = 0;
-          }
-          acc[key] = acc[key] + value;
-        });
+        Object.entries(session.totalSupportedAppointmentsByService).forEach(
+          ([key, value]) => {
+            if (!acc[key]) {
+              acc[key] = 0;
+            }
+            acc[key] = acc[key] + value;
+          },
+        );
       });
       return acc;
     },

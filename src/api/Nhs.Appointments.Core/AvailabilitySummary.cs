@@ -1,3 +1,5 @@
+using YamlDotNet.Serialization.NodeTypeResolvers;
+
 namespace Nhs.Appointments.Core
 {
     public class AvailabilitySummary(IEnumerable<DayAvailabilitySummary> daySummaries) : AvailabilityMetrics
@@ -105,7 +107,7 @@ namespace Nhs.Appointments.Core
 
         public int MaximumCapacity { get; init; }
 
-        private int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
+        public int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
 
         public int TotalRemainingCapacity => MaximumCapacity - TotalSupportedAppointments;
 

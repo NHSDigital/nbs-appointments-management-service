@@ -89,7 +89,8 @@ export const EditSessionDecision = ({
                 required: { value: true, message: 'Select an option' },
               })}
             />
-            {Object.keys(session.bookings).length > 1 && (
+            {Object.keys(session.totalSupportedAppointmentsByService).length >
+              1 && (
               <Radio
                 label="Remove services from this session"
                 hint="Remove booked appointments for individual services"

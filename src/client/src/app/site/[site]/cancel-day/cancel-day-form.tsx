@@ -70,14 +70,14 @@ const CancelDayForm = ({
   return (
     <>
       <SessionSummaryTable
-        sessionSummaries={daySummary.sessions}
+        sessionSummaries={daySummary.sessionSummaries}
         clinicalServices={clinicalServices}
         showUnbooked={false}
         tableCaption={`Sessions for ${parsedDate.format('dddd D MMMM')}`}
       />
       <InsetText>
-        {daySummary.bookedAppointments} booked appointments will be cancelled.
-        We'll notify people that their appointment has been cancelled
+        {daySummary.totalSupportedAppointments} booked appointments will be
+        cancelled. We'll notify people that their appointment has been cancelled
       </InsetText>
 
       {!confirmStep ? (

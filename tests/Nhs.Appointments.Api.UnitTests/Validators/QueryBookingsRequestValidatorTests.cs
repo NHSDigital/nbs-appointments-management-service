@@ -29,11 +29,86 @@ public class QueryBookingsRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_ReturnsSuccess_WhenRequestIsValid()
+    public void Validate_ReturnsSuccess_WhenRequestWithStatusesIsValid()
     {
-        var testRequest = new QueryBookingsRequest(DateTime.Today, DateTime.Today.AddDays(1), "site");
+        var testRequest = new QueryBookingsRequest(
+            DateTime.Today,
+            DateTime.Today.AddDays(1),
+            "site", ["Cancelled", "Booked"]);
+
         var result = _sut.Validate(testRequest);
+
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);
+    }
+
+    [Fact]
+    public void Validate_ReturnsError_WhenRequestWithStatusesIsInvalid()
+    {
+        var testRequest = new QueryBookingsRequest(
+            DateTime.Today,
+            DateTime.Today.AddDays(1),
+            "site", ["Cancelled", "Booked", "NOT A STATUS"]);
+
+        var result = _sut.Validate(testRequest);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Single().ErrorMessage.Should().Be("Provide valid appointment statuses");
+    }
+
+    [Fact]
+    public void Validate_ReturnsSuccess_WhenRequestWithCancellationReasonIsValid()
+    {
+        var testRequest = new QueryBookingsRequest(
+            DateTime.Today,
+            DateTime.Today.AddDays(1),
+            "site", null, "CancelledByCitizen");
+
+        var result = _sut.Validate(testRequest);
+
+        result.IsValid.Should().BeTrue();
+        result.Errors.Should().HaveCount(0);
+    }
+
+    [Fact]
+    public void Validate_ReturnsError_WhenRequestWithCancellationReasonIsInvalid()
+    {
+        var testRequest = new QueryBookingsRequest(
+            DateTime.Today,
+            DateTime.Today.AddDays(1),
+            "site", null, "NOT A CANCELLATION REASON");
+
+        var result = _sut.Validate(testRequest);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Single().ErrorMessage.Should().Be("Provide a valid cancellation reason");
+    }
+
+    [Fact]
+    public void Validate_ReturnsSuccess_WhenRequestWithCancellationNotificationStatusesIsValid()
+    {
+        var testRequest = new QueryBookingsRequest(
+            DateTime.Today,
+            DateTime.Today.AddDays(1),
+            "site", null, null, ["Unnotified", "Notified"]);
+
+        var result = _sut.Validate(testRequest);
+
+        result.IsValid.Should().BeTrue();
+        result.Errors.Should().HaveCount(0);
+    }
+
+    [Fact]
+    public void Validate_ReturnsError_WhenRequestWithCancellationNotificationStatusesIsInvalid()
+    {
+        var testRequest = new QueryBookingsRequest(
+            DateTime.Today,
+            DateTime.Today.AddDays(1),
+            "site", null, null, ["Unnotified", "Notified", "NOT A STATUS"]);
+
+        var result = _sut.Validate(testRequest);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Single().ErrorMessage.Should().Be("Provide valid cancellation notification statuses");
     }
 }

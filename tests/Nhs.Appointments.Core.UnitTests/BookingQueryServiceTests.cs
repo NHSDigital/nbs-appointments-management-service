@@ -290,4 +290,61 @@ public class BookingQueryServiceTests
             () => Assert.Equal("5", response.ToArray()[1].Reference),
             () => Assert.Equal("6", response.ToArray()[2].Reference));
     }
+
+    [Fact]
+    public async Task GetBookings_ByQuery_ReturnsOrderedBookingsForSite()
+    {
+        IEnumerable<Booking> bookings = new List<Booking>
+        {
+            new()
+            {
+                Created = new DateTime(2025, 01, 01, 09, 0, 0),
+                From = new DateTime(2025, 01, 01, 16, 0, 0),
+                Reference = "1",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" }
+            },
+            new()
+            {
+                Created = new DateTime(2025, 01, 01, 09, 0, 0),
+                From = new DateTime(2025, 01, 01, 14, 0, 0),
+                Reference = "2",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" }
+            },
+            new()
+            {
+                Created = new DateTime(2025, 01, 01, 09, 0, 0),
+                From = new DateTime(2025, 01, 01, 14, 0, 0),
+                Reference = "3",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Brown" }
+            },
+            new()
+            {
+                Created = new DateTime(2025, 01, 01, 09, 0, 0),
+                From = new DateTime(2025, 01, 01, 10, 0, 0),
+                Reference = "4",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Bob", LastName = "Dawson" }
+            }
+        };
+
+        _bookingsDocumentStore
+            .Setup(x => x.QueryByFilterAsync(It.IsAny<BookingQueryFilter>()))
+            .ReturnsAsync(bookings);
+
+        var queryFilter = new BookingQueryFilter(new DateTime(),
+            new DateTime(),
+            "some-site",
+            [AppointmentStatus.Booked, AppointmentStatus.Cancelled],
+            CancellationReason.CancelledBySite,
+            [CancellationNotificationStatus.Unnotified]);
+
+        var response = await _bookingQueryService.GetBookings(queryFilter);
+
+        Assert.Multiple(
+            () => Assert.Equal("4", response.ToArray()[0].Reference),
+            () => Assert.Equal("3", response.ToArray()[1].Reference),
+            () => Assert.Equal("2", response.ToArray()[2].Reference),
+            () => Assert.Equal("1", response.ToArray()[3].Reference));
+    }
+
+
 }

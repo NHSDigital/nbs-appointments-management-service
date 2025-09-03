@@ -25,6 +25,24 @@ public class BookingCosmosDocumentStore(
         }
     }
 
+    public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
+    {
+        // TODO: Rather than returning more results than we need then querying in memory, I wanted the filter
+        // to be passed in as the predicate like so:
+        // return await bookingStore.RunQueryAsync<Booking>(queryFilter.Matches);
+        // Unfortunately, CosmosDB throws a Method Unsupported error the second you throw anything precompiled at it.
+        // This will ONLY work if you write the predicate inline, at which point you lose testability and abstraction.
+
+        using (metricsRecorder.BeginScope("QueryByFilter"))
+        {
+            var rawResults = await bookingStore.RunQueryAsync<Booking>(b =>
+                b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
+                b.From <= queryFilter.StartsAtOrBefore);
+
+            return rawResults.Where(queryFilter.Matches);
+        }
+    }
+
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
     {
         if (statuses.Length == 0)

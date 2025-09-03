@@ -319,4 +319,8 @@ export default class WeekViewAvailabilityPage extends RootPage {
       .getByRole('link', { name: 'View daily appointments' })
       .click();
   }
+
+  async verifyCancelDayLinkDisplayed() {
+    await expect(this.cancelDayLink).toBeVisible();
+  }
 }

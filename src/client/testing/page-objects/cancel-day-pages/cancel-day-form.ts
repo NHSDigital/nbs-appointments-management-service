@@ -5,7 +5,7 @@ import { parseToUkDatetime } from '@services/timeService';
 
 export default class CancelDayForm extends RootPage {
   readonly cancelDayRadio: Locator;
-  readonly dontCacelDayRadio: Locator;
+  readonly dontCancelDayRadio: Locator;
   readonly continueButton: Locator;
   readonly cancelDayButton: Locator;
   readonly goBackLink: Locator;
@@ -16,8 +16,8 @@ export default class CancelDayForm extends RootPage {
     this.cancelDayRadio = page.getByRole('radio', {
       name: 'Yes, I want to cancel the appointments',
     });
-    this.dontCacelDayRadio = page.getByRole('radio', {
-      name: "No, I don't want to cancel the appointments",
+    this.dontCancelDayRadio = page.getByRole('radio', {
+      name: /^No, I don't want to cancel the appointments/,
     });
     this.continueButton = page.getByRole('button', {
       name: 'Continue',

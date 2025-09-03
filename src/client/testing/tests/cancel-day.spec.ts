@@ -27,6 +27,11 @@ let site: Site;
 
 test.describe.configure({ mode: 'serial' });
 
+const dayIncrement = 29;
+const date = daysFromToday(dayIncrement);
+const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
+const requiredWeekRange = weekHeaderText(date);
+
 test.beforeAll(async () => {
   await overrideFeatureFlag('CancelDay', true);
 });
@@ -50,13 +55,6 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
-});
-
-test('Cancel a day', async ({ page }) => {
-  const dayIncrement = 29;
-  const date = daysFromToday(dayIncrement);
-  const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
-  const requiredWeekRange = weekHeaderText(date);
 
   await page.goto(
     `/manage-your-appointments/site/${site.id}/view-availability?date=${date}`,
@@ -81,6 +79,10 @@ test('Cancel a day', async ({ page }) => {
   await checkSessionDetailsPage.saveSession();
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
+});
+
+test('Cancel a day', async ({ page }) => {
+  await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
 
   await weekViewAvailabilityPage.cancelDayLink.click();
   await page.waitForURL(`**/site/${site.id}/cancel-day?date=${date}`);
@@ -97,4 +99,31 @@ test('Cancel a day', async ({ page }) => {
   await confirmedCancellationPage.verifyViewCancelledApptWithoutContactDetailsVisibility(
     false,
   );
+});
+
+test('Selecting no does not cancel a day', async ({ page }) => {
+  await weekViewAvailabilityPage.cancelDayLink.click();
+  await page.waitForURL(`**/site/${site.id}/cancel-day?date=${date}`);
+  await cancelDayForm.verifyHeadingDisplayed(date);
+
+  await cancelDayForm.dontCancelDayRadio.click();
+  await cancelDayForm.continueButton.click();
+
+  await page.waitForURL('**/site/**/view-availability/week?date=**');
+
+  await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
+});
+
+test('Selecting go back does not cancel a day', async ({ page }) => {
+  await weekViewAvailabilityPage.cancelDayLink.click();
+  await page.waitForURL(`**/site/${site.id}/cancel-day?date=${date}`);
+  await cancelDayForm.verifyHeadingDisplayed(date);
+
+  await cancelDayForm.cancelDayRadio.click();
+  await cancelDayForm.continueButton.click();
+  await cancelDayForm.goBackLink.click();
+
+  await page.waitForURL('**/site/**/view-availability/week?date=**');
+
+  await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
 });

@@ -29,6 +29,10 @@ import {
   UpdateSiteStatusRequest,
   ServerActionResult,
   Accessibility,
+  DaySummaryV2,
+  SiteStatus,
+  CancelDayRequest,
+  CancelDayResponse,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -139,22 +143,12 @@ export const fetchFeatureFlag = async (
 
 export const fetchClinicalServices = async (): Promise<
   ServerActionResult<ClinicalService[]>
-> => {
-  const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
-  if (!canUseMultipleServices.success) {
-    return { success: false };
-  }
-
-  if (!canUseMultipleServices.data.enabled) {
-    return { success: true, data: clinicalServices };
-  }
-
-  return await appointmentsApi
+> =>
+  appointmentsApi
     .get<ClinicalService[]>(`clinical-services`, {
       cache: 'force-cache',
     })
     .then(response => handleBodyResponse(response));
-};
 
 export const fetchSiteAccessibilities = async (
   siteId: string,

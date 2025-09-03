@@ -69,7 +69,7 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
 
             actualDaySummary.Date.Should().Be(expectedDaySummary.Item1);
             actualDaySummary.MaximumCapacity.Should().Be(expectedDaySummary.Item2);
-            actualDaySummary.RemainingCapacity.Should().Be(expectedDaySummary.Item3);
+            actualDaySummary.TotalRemainingCapacity.Should().Be(expectedDaySummary.Item3);
             actualDaySummary.TotalSupportedAppointments.Should().Be(expectedDaySummary.Item4);
             actualDaySummary.TotalOrphanedAppointments.Should().Be(expectedDaySummary.Item5);
             actualDaySummary.TotalCancelledAppointments.Should().Be(expectedDaySummary.Item6);
@@ -84,7 +84,7 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
 
         // | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments |
         _actualResponse.MaximumCapacity.Should().Be(int.Parse(row.Cells.ElementAt(0).Value));
-        _actualResponse.RemainingCapacity.Should().Be(int.Parse(row.Cells.ElementAt(1).Value));
+        _actualResponse.TotalRemainingCapacity.Should().Be(int.Parse(row.Cells.ElementAt(1).Value));
         _actualResponse.TotalSupportedAppointments.Should().Be(int.Parse(row.Cells.ElementAt(2).Value));
         _actualResponse.TotalOrphanedAppointments.Should().Be(int.Parse(row.Cells.ElementAt(3).Value));
 

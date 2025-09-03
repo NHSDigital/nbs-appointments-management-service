@@ -23,8 +23,6 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             await store.IfExistsDelete(site, day);
             return;
         }
-
-        var clinicalServices = DistinctClinicalServicesFromDaySummaries(summary);
         
         await store.CreateDailySiteSummary(new DailySiteSummary
         {
@@ -34,17 +32,8 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
             Bookings = summary.TotalSupportedAppointmentsByService,
             Orphaned = summary.TotalOrphanedAppointmentsByService,
             Cancelled = summary.TotalCancelledAppointments,
-            //TODO move to AvailabilitySummary.cs
-            RemainingCapacity = clinicalServices.ToDictionary(
-                service => service, 
-                service => summary.DaySummaries.Sum(daySummaries => daySummaries.SessionSummaries.Sum(x => x.TotalSupportedAppointmentsByService.ContainsKey(service) ? x.RemainingCapacity : 0))),
+            RemainingCapacity = summary.TotalRemainingCapacityByService,
             GeneratedAtUtc = generatedAt
         });
     }
-    
-    private static string[] DistinctClinicalServicesFromDaySummaries(AvailabilitySummary summary) =>
-        summary.DaySummaries.SelectMany(daySummary =>
-                daySummary.SessionSummaries.SelectMany(session => session.TotalSupportedAppointmentsByService.Select(bookings => bookings.Key)))
-            .Union(summary.TotalOrphanedAppointmentsByService.Select(x => x.Key))
-            .Distinct().ToArray();
 }

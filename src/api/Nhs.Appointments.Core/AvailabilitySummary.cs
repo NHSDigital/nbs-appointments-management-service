@@ -4,18 +4,29 @@ namespace Nhs.Appointments.Core
     {
         public IEnumerable<DayAvailabilitySummary> DaySummaries { get; init; } = daySummaries;
 
-        public override Dictionary<string, int> TotalSupportedAppointmentsByService => DaySummaries.SelectMany(x => x.TotalSupportedAppointmentsByService)
+        public override Dictionary<string, int> TotalSupportedAppointmentsByService => DaySummaries
+            .SelectMany(x => x.TotalSupportedAppointmentsByService)
             .GroupBy(kv => kv.Key)
             .ToDictionary(
                 g => g.Key,
                 g => g.Sum(kv => kv.Value)
             );
-        
+
+        public override Dictionary<string, int> TotalRemainingCapacityByService => DaySummaries
+            .Select(x => x.TotalRemainingCapacityByService)
+            .SelectMany(dict => dict)
+            .GroupBy(kv => kv.Key)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Sum(kv => kv.Value)
+            );
+
         public new int MaximumCapacity => DaySummaries.Sum(x => x.MaximumCapacity);
-        
-        public new int RemainingCapacity => DaySummaries.Sum(x => x.RemainingCapacity);
-        
+
+        public override int TotalRemainingCapacity => DaySummaries.Sum(x => x.TotalRemainingCapacity);
+
         public override int TotalOrphanedAppointments => DaySummaries.Sum(x => x.TotalOrphanedAppointments);
+
         public override Dictionary<string, int> TotalOrphanedAppointmentsByService => DaySummaries
             .Select(x => x.TotalOrphanedAppointmentsByService)
             .SelectMany(dict => dict)
@@ -35,7 +46,7 @@ namespace Nhs.Appointments.Core
                 g => g.Key,
                 g => g.Sum(kv => kv.Value)
             );
-        
+
         public override int TotalCancelledAppointments => TotalCancelledAppointmentsByService.Sum(x => x.Value);
     }
 
@@ -57,6 +68,15 @@ namespace Nhs.Appointments.Core
                 g => g.Sum(kv => kv.Value)
             );
 
+        public override Dictionary<string, int> TotalRemainingCapacityByService => SessionSummaries
+            .Select(x => x.TotalRemainingCapacityByService)
+            .SelectMany(dict => dict)
+            .GroupBy(kv => kv.Key)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Sum(kv => kv.Value)
+            );
+
         public override int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
 
         public override int TotalOrphanedAppointments => TotalOrphanedAppointmentsByService.Sum(x => x.Value);
@@ -65,8 +85,8 @@ namespace Nhs.Appointments.Core
         public override Dictionary<string, int> TotalCancelledAppointmentsByService { get; } = new();
 
         public new int MaximumCapacity => SessionSummaries.Sum(x => x.MaximumCapacity);
-        
-        public new int RemainingCapacity => SessionSummaries.Sum(x => x.RemainingCapacity);
+
+        public override int TotalRemainingCapacity => SessionSummaries.Sum(x => x.TotalRemainingCapacity);
     }
 
     public class SessionAvailabilitySummary
@@ -87,19 +107,29 @@ namespace Nhs.Appointments.Core
 
         private int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
 
-        public int RemainingCapacity => MaximumCapacity - TotalSupportedAppointments;
+        public int TotalRemainingCapacity => MaximumCapacity - TotalSupportedAppointments;
+
+        /// <summary>
+        ///     This metric doesn't make much sense as capacity can be counted twice if a session supports multiple services
+        ///     i.e Summing all of these does NOT equal TotalRemainingCapacity
+        /// </summary>
+        public Dictionary<string, int> TotalRemainingCapacityByService => TotalSupportedAppointmentsByService.ToDictionary(g => g.Key, g => MaximumCapacity - g.Value);
     }
 
     public abstract class AvailabilityMetrics
     {
         public int MaximumCapacity { get; set; }
-        public int RemainingCapacity { get; set; }
+
+        public abstract int TotalRemainingCapacity { get; }
+
+        public abstract Dictionary<string, int> TotalRemainingCapacityByService { get; }
+
         public abstract int TotalSupportedAppointments { get; }
 
         public abstract Dictionary<string, int> TotalSupportedAppointmentsByService { get; }
         public abstract int TotalOrphanedAppointments { get; }
         public abstract Dictionary<string, int> TotalOrphanedAppointmentsByService { get; }
-        
+
         public abstract int TotalCancelledAppointments { get; }
         public abstract Dictionary<string, int> TotalCancelledAppointmentsByService { get; }
     }

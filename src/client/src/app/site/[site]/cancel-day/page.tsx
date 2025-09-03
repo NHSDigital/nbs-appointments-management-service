@@ -10,6 +10,7 @@ import { parseToUkDatetime } from '@services/timeService';
 import CancelDayForm from './cancel-day-form';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -30,9 +31,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
   if (!date) return notFound();
 
   const [daySummary, site, clinicalServices] = await Promise.all([
-    fetchDaySummary(siteFromPath, date),
-    fetchSite(siteFromPath),
-    fetchClinicalServices(),
+    fromServer(fetchDaySummary(siteFromPath, date)),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchClinicalServices()),
   ]);
 
   const parsedDate = parseToUkDatetime(date);

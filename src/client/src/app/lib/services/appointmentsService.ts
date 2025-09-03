@@ -23,14 +23,13 @@ import {
   Site,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  clinicalServices,
   BookingStatus,
   UserIdentityStatus,
   WeekSummaryV2,
-  UpdateSiteStatusRequest,
   SiteStatus,
-  CancelDayRequest,
-  CancelDayResponse,
-  DaySummaryV2,
+  UpdateSiteStatusRequest,
+  DayCancellationSummary,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -124,13 +123,19 @@ export const fetchFeatureFlag = async (featureFlag: string) => {
 };
 
 export const fetchClinicalServices = async () => {
-  const response = await appointmentsApi.get<ClinicalService[]>(
-    `clinical-services`,
-    {
-      cache: 'force-cache',
-    },
-  );
-  return handleBodyResponse(response);
+  const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
+
+  if (canUseMultipleServices.enabled) {
+    const response = await appointmentsApi.get<ClinicalService[]>(
+      `clinical-services`,
+      {
+        cache: 'force-cache',
+      },
+    );
+    return handleBodyResponse(response);
+  }
+
+  return clinicalServices;
 };
 
 export const fetchSiteAccessibilities = async (siteId: string) => {
@@ -249,10 +254,10 @@ export async function assertAllPermissions(
   }
 }
 
-async function handleBodyResponse<T, Y = T>(
+async function handleBodyResponse<T>(
   response: ApiResponse<T>,
-  transformData = (data: T) => data as unknown as Y,
-): Promise<Y> {
+  transformData = (data: T) => data,
+): Promise<T> {
   if (!response.success) {
     if (response.httpStatusCode === 404) {
       notFound();
@@ -465,15 +470,12 @@ export const fetchWeekSummaryV2 = async (site: string, from: string) => {
   return handleBodyResponse(response);
 };
 
-export const fetchDaySummary = async (
-  site: string,
-  from: string,
-): Promise<DaySummaryV2> => {
+export const fetchDaySummary = async (site: string, from: string) => {
   const response = await appointmentsApi.get<WeekSummaryV2>(
     `day-summary?site=${site}&from=${from}`,
   );
 
-  return handleBodyResponse(response, data => data.daySummaries[0]);
+  return handleBodyResponse(response);
 };
 
 export const fetchDayCancellationSummary = async (
@@ -579,7 +581,7 @@ export const cancelSession = async (
     date: ukStartDatetime.format(RFC3339Format),
     from: ukStartDatetime.format('HH:mm'),
     until: ukEndDatetime.format('HH:mm'),
-    services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
+    services: Object.keys(sessionSummary.bookings),
     capacity: sessionSummary.capacity,
     slotLength: sessionSummary.slotLength,
   };
@@ -612,13 +614,4 @@ export const updateSiteStatus = async (site: string, status: SiteStatus) => {
 
   handleEmptyResponse(response);
   revalidatePath(`/site/${site}/details`);
-};
-
-export const cancelDay = async (payload: CancelDayRequest) => {
-  const response = await appointmentsApi.post<CancelDayResponse>(
-    'day/cancel',
-    JSON.stringify(payload),
-  );
-
-  return handleBodyResponse(response);
 };

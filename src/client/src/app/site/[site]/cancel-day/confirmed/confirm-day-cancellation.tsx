@@ -1,10 +1,11 @@
-import { CancelDayResponse } from '@types';
+import { InsetText } from '@components/nhsuk-frontend';
+import { DayCancellationSummary } from '@types';
 import Link from 'next/link';
 
 type PageProps = {
   site: string;
   date: string;
-  dayCancellationSummary: CancelDayResponse;
+  dayCancellationSummary: DayCancellationSummary;
 };
 
 //Should cancelled appointments include those cancelled prior to those already cancelled before ?
@@ -17,28 +18,26 @@ const CancellationConfirmed = ({
   return (
     <>
       <p className="nhsuk-body">
-        {dayCancellationSummary.cancelledBookingCount} appointments
+        {dayCancellationSummary.cancelledAppointments} appointments
         {'  '}
-        have been cancelled.&nbsp;
-        {dayCancellationSummary.cancelledBookingCount -
-          dayCancellationSummary.bookingsWithoutContactDetails}{' '}
-        people will be sent a text message or email confirming their appointment
-        has been cancelled.
+        have been cancelled.
+        {dayCancellationSummary.bookingsWithContactDetails} people will be sent
+        a text message or email confirming their appointment has been cancelled.
       </p>
       <p className="nhsuk-body">
-        {dayCancellationSummary.bookingsWithoutContactDetails} people did not
-        provide contact details so they will not receive a notification.
+        {dayCancellationSummary.cancelledAppointments -
+          dayCancellationSummary.bookingsWithContactDetails}{' '}
+        people did not provide contact details so they will not receive a
+        notification.
       </p>
-      {dayCancellationSummary.bookingsWithoutContactDetails > 0 && (
       <div className="nhsuk-u-margin-top-4">
         <Link
-            href={`/site/${site}/cancel-day/cancelled-appointments?date=${date}&page=1`}
+          href={`/site/${site}/view-availability/daily-appointments?date=${date}&page=1&tab=2`}
           className="nhsuk-link nhsuk-u-display-block nhsuk-u-margin-bottom-2"
         >
           View bookings without contact details
         </Link>
       </div>
-      )}
       <div className="nhsuk-u-margin-top-4">
         <Link
           href={`/site/${site}/view-availability/week?date=${date}`}

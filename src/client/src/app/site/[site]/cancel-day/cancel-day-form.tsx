@@ -8,15 +8,12 @@ import {
   Radio,
   ButtonGroup,
   Button,
-  SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { parseToUkDatetime, RFC3339Format } from '@services/timeService';
-import { DaySummaryV2, ClinicalService, CancelDayRequest } from '@types';
-import { cancelDay } from '@services/appointmentsService';
-import { useForm } from 'react-hook-form';
+import { parseToUkDatetime } from '@services/timeService';
+import { DaySummaryV2, ClinicalService } from '@types';
 
 type Props = {
   date: string;
@@ -25,22 +22,12 @@ type Props = {
   clinicalServices: ClinicalService[];
 };
 
-type FormFields = {
-  cancelChoice: 'true' | 'false';
-};
-
-const CancelDayForm = ({
+export default function CancelDayForm({
   date,
   siteId,
   daySummary,
   clinicalServices,
-}: Props) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
-  } = useForm<FormFields>();
-
+}: Props) {
   const { replace } = useRouter();
   const parsedDate = parseToUkDatetime(date);
 
@@ -52,84 +39,72 @@ const CancelDayForm = ({
   // ✅ State to track when user clicks "Continue"
   const [confirmStep, setConfirmStep] = useState(false);
 
-  const handleContinue = (data: FormFields) => {
-    if (data.cancelChoice === 'true') {
-      setConfirmStep(true);
+  const handleContinue = () => {
+    if (cancelChoice === true) {
+      setConfirmStep(true); // show cancel day button
     } else {
       replace(`/site/${siteId}/view-availability/week?date=${date}`);
     }
   };
 
-  const handleCancel = async () => {
-    const payload: CancelDayRequest = {
-      site: siteId,
-      date: parsedDate.format(RFC3339Format),
-  };
-
-    const response = await cancelDay(payload);
-    replace(
-      `/site/${siteId}/cancel-day/confirmed?date=${date}&cancelledBookingCount=${response.cancelledBookingCount}&bookingsWithoutContactDetails=${response.bookingsWithoutContactDetails}`,
-    );
+  const handleCancel = () => {
+    // TODO: API call to cancel the day
+    console.log('Day cancelled!');
   };
 
   return (
     <>
       <SessionSummaryTable
-        sessionSummaries={daySummary.sessionSummaries}
+        sessionSummaries={daySummary.sessions}
         clinicalServices={clinicalServices}
         showUnbooked={false}
         tableCaption={`Sessions for ${parsedDate.format('dddd D MMMM')}`}
       />
       <InsetText>
-        {daySummary.totalSupportedAppointments} booked appointments will be
-        cancelled. We'll notify people that their appointment has been cancelled
+        {daySummary.bookedAppointments} booked appointments will be cancelled.
+        We'll notify people that their appointment has been cancelled
       </InsetText>
 
       {!confirmStep ? (
-        <form onSubmit={handleSubmit(handleContinue)}>
+        <form onSubmit={e => e.preventDefault()}>
           <FormGroup
             legend="Are you sure you want to cancel this day?"
-            error={errors.cancelChoice?.message}
+            error=""
           >
             <RadioGroup>
               <Radio
                 label="Yes, I want to cancel the appointments"
                 hint="Cancel day"
-                id="yes-cancel"
+                id="yes"
                 value="true"
-                {...register('cancelChoice', {
-                  required: { value: true, message: 'Select an option' },
-                })}
+                checked={cancelChoice === true}
+                onChange={() => setCancelChoice(true)}
               />
               <Radio
                 label="No, I don't want to cancel the appointments"
                 hint="I want to keep my day, do not cancel"
                 id="no"
                 value="false"
-                {...register('cancelChoice', {
-                  required: { value: true, message: 'Select an option' },
-                })}
+                checked={cancelChoice === false}
+                onChange={() => setCancelChoice(false)}
               />
             </RadioGroup>
           </FormGroup>
-
-          {isSubmitting || isSubmitSuccessful ? (
-            <SmallSpinnerWithText text="Working..." />
-          ) : (
-            <Button type="submit" styleType="primary">
+          <ButtonGroup>
+            <Button
+              type="button"
+              onClick={handleContinue}
+              disabled={cancelChoice === undefined}
+            >
               Continue
             </Button>
-          )}
+          </ButtonGroup>
         </form>
       ) : (
-        <form onSubmit={handleSubmit(handleCancel)}>
-          <FormGroup
-            legend="Are you sure you want to cancel this day?"
-            error=""
-          >
+        <FormGroup legend="Are you sure you want to cancel this day?" error="">
           <>
             <ButtonGroup>
-                <Button type="submit" styleType="warning">
+              <Button type="button" styleType="warning" onClick={handleCancel}>
                 Cancel day
               </Button>
             </ButtonGroup>
@@ -141,10 +116,7 @@ const CancelDayForm = ({
             </Link>
           </>
         </FormGroup>
-        </form>
       )}
     </>
   );
-};
-
-export default CancelDayForm;
+}

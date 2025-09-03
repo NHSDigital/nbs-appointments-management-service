@@ -21,17 +21,18 @@ public class GetDailySummaryFunction(
     IValidator<GetDaySummaryRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetDailySummaryFunction> logger,
-    IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<GetDaySummaryRequest, AvailabilitySummary>(validator, userContextProvider,
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
+    : BaseApiFunction<GetDaySummaryRequest, Summary>(validator, userContextProvider,
         logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetDaySummary", tags: ["Availability"],
-        Summary = "Get daily availability summary for a date and site")]
+        Summary = "Get daily availability summary for a day date and site")]
     [OpenApiParameter("site", In = ParameterLocation.Query, Required = true, Type = typeof(string),
-        Description = "The ID of the site from which to query availability")]
+        Description = "The ID of the site from which to query bookings and availability")]
     [OpenApiParameter("from", In = ParameterLocation.Query, Required = true, Type = typeof(double),
         Description = "The date for the selected day")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(AvailabilitySummary),
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(Summary),
         Description = "A daily summary for the availability and daily sessions")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
@@ -46,7 +47,7 @@ public class GetDailySummaryFunction(
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<AvailabilitySummary>> HandleRequest(
+    protected override async Task<ApiResult<Summary>> HandleRequest(
         GetDaySummaryRequest request, ILogger logger)
     {
         var daySummary =

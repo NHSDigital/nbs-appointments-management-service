@@ -1,24 +1,21 @@
-import { screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import CancelDayForm from './cancel-day-form';
-import render from '@testing/render';
 import { useRouter } from 'next/navigation';
-import * as appointmentsService from '@services/appointmentsService';
-import { mockCancelDayResponse } from '@testing/data';
+import { parseToUkDatetime } from '@services/timeService';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('@services/timeService', () => {
-  const originalModule = jest.requireActual('@services/timeService');
-  return {
-    ...originalModule,
-    ukNow: jest.fn(),
-  };
-});
+jest.mock('@services/timeService', () => ({
+  parseToUkDatetime: jest.fn(),
+}));
 
-jest.mock('@services/appointmentsService');
-const mockCancelDay = jest.spyOn(appointmentsService, 'cancelDay');
+jest.mock('@components/session-summary-table', () => ({
+  SessionSummaryTable: ({ tableCaption }: { tableCaption: string }) => (
+    <div data-testid="session-summary">{tableCaption}</div>
+  ),
+}));
 
 const mockReplace = jest.fn();
 
@@ -28,11 +25,11 @@ const defaultProps = {
   daySummary: {
     date: '2025-01-01',
     maximumCapacity: 10,
-    totalRemainingCapacity: 7,
-    totalSupportedAppointments: 3,
-    totalOrphanedAppointments: 0,
-    totalCancelledAppointments: 0,
-    sessionSummaries: [],
+    remainingCapacity: 7,
+    bookedAppointments: 3,
+    orphanedAppointments: 0,
+    cancelledAppointments: 0,
+    sessions: [],
   },
   clinicalServices: [],
 };
@@ -40,7 +37,9 @@ const defaultProps = {
 describe('CancelDayForm', () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ replace: mockReplace });
-    mockCancelDay.mockReturnValue(Promise.resolve(mockCancelDayResponse));
+    (parseToUkDatetime as jest.Mock).mockReturnValue({
+      format: () => 'Wednesday 1 January',
+    });
     jest.clearAllMocks();
   });
 
@@ -50,67 +49,45 @@ describe('CancelDayForm', () => {
       'Sessions for Wednesday 1 January',
     );
     expect(
-      screen.getByText('Sessions for Wednesday 1 January'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "3 booked appointments will be cancelled. We'll notify people that their appointment has been cancelled",
-      ),
+      screen.getByText(/3 booked appointments will be cancelled/i),
     ).toBeInTheDocument();
   });
 
-  it('allows selecting No and navigates back on Continue', async () => {
-    const { user } = render(<CancelDayForm {...defaultProps} />);
-
-    await user.click(
-      screen.getByRole('radio', {
-        name: "No, I don't want to cancel the appointments",
-      }),
-    );
-    const continueBtn = screen.getByRole('button', { name: 'Continue' });
+  it('initially disables Continue until a choice is made', () => {
+    render(<CancelDayForm {...defaultProps} />);
+    expect(screen.getByRole('button', { name: /continue/i })).toBeDisabled();
+  });
 
   it('allows selecting No and navigates back on Continue', () => {
     render(<CancelDayForm {...defaultProps} />);
     fireEvent.click(screen.getByLabelText(/no, i don't want/i));
     const continueBtn = screen.getByRole('button', { name: /continue/i });
     expect(continueBtn).toBeEnabled();
-
-    await user.click(continueBtn);
+    fireEvent.click(continueBtn);
     expect(mockReplace).toHaveBeenCalledWith(
       `/site/site-123/view-availability/week?date=2025-01-01`,
     );
   });
 
-  it('allows selecting Yes and shows confirmation step', async () => {
-    const { user } = render(<CancelDayForm {...defaultProps} />);
-
-    await user.click(
-      screen.getByRole('radio', {
-        name: 'Yes, I want to cancel the appointments',
-      }),
-    );
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-
+  it('allows selecting Yes and shows confirmation step', () => {
+    render(<CancelDayForm {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText(/yes, i want to cancel/i));
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
     expect(
-      screen.getByRole('button', { name: 'Cancel day' }),
+      screen.getByRole('button', { name: /cancel day/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'No, go back' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /no, go back/i })).toHaveAttribute(
       'href',
       '/site/site-123/view-availability/week?date=2025-01-01',
     );
   });
 
-  it('calls handleCancel when clicking Cancel day', async () => {
-    const { user } = render(<CancelDayForm {...defaultProps} />);
-
-    await user.click(
-      screen.getByRole('radio', {
-        name: 'Yes, I want to cancel the appointments',
-      }),
-    );
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-    await user.click(screen.getByRole('button', { name: 'Cancel day' }));
-
-    expect(mockCancelDay).toHaveBeenCalled();
+  it('calls handleCancel when clicking Cancel day', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    render(<CancelDayForm {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText(/yes, i want to cancel/i));
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+    fireEvent.click(screen.getByRole('button', { name: /cancel day/i }));
+    expect(consoleSpy).toHaveBeenCalledWith('Day cancelled!');
   });
 });

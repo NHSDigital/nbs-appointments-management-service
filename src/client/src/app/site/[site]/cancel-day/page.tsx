@@ -4,8 +4,6 @@ import {
   fetchSite,
   fetchDaySummary,
   fetchClinicalServices,
-  assertPermission,
-  assertFeatureEnabled,
 } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
 import CancelDayForm from './cancel-day-form';
@@ -24,9 +22,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { date } = { ...(await searchParams) };
 
-  await assertPermission(siteFromPath, 'availability:setup');
-  await assertFeatureEnabled('CancelDay');
-
   if (!date) return notFound();
 
   const [daySummary, site, clinicalServices] = await Promise.all([
@@ -34,7 +29,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchSite(siteFromPath),
     fetchClinicalServices(),
   ]);
-
   const parsedDate = parseToUkDatetime(date);
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
@@ -52,7 +46,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       <CancelDayForm
         date={date}
         siteId={site.id}
-        daySummary={daySummary}
+        daySummary={daySummary.daySummaries[0]}
         clinicalServices={clinicalServices}
       />
     </NhsPage>

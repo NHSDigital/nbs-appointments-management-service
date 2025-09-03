@@ -250,9 +250,6 @@ type FetchBookingsRequest = {
   from: string;
   to: string;
   site: string;
-  cancellationReason?: 'CancelledByCitizen' | 'CancelledBySite';
-  statuses?: string[];
-  cancellationNotificationStatuses?: string;
 };
 
 type Booking = {
@@ -310,8 +307,8 @@ type SessionSummary = {
   ukStartDatetime: string;
   ukEndDatetime: string;
   maximumCapacity: number;
-  totalSupportedAppointments: number;
-  totalSupportedAppointmentsByService: Record<string, number>;
+  totalBookings: number;
+  bookings: Record<string, number>;
   capacity: number;
   slotLength: number;
 };
@@ -324,16 +321,6 @@ type DaySummary = {
   cancelledAppointments: number;
   orphanedAppointments: number;
   remainingCapacity: number;
-};
-
-type DaySummaryV2 = {
-  date: string;
-  sessionSummaries: SessionSummary[];
-  maximumCapacity: number;
-  totalRemainingCapacity: number;
-  totalSupportedAppointments: number;
-  totalOrphanedAppointments: number;
-  totalCancelledAppointments: number;
 };
 
 type WeekSummary = {
@@ -349,9 +336,19 @@ type WeekSummary = {
 type WeekSummaryV2 = {
   daySummaries: DaySummaryV2[];
   maximumCapacity: number;
-  totalRemainingCapacity: number;
-  totalSupportedAppointments: number;
-  totalOrphanedAppointments: number;
+  remainingCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+};
+
+type DaySummaryV2 = {
+  date: string;
+  sessions: SessionSummary[];
+  maximumCapacity: number;
+  remainingCapacity: number;
+  bookedAppointments: number;
+  orphanedAppointments: number;
+  cancelledAppointments: number;
 };
 
 type DayCancellationSummary = {
@@ -382,21 +379,16 @@ type CancelSessionRequest = {
   capacity: number;
 };
 
+// TODO: Decide where this info should live and move it there
+const clinicalServices: ClinicalService[] = [
+  { label: 'RSV Adult', value: 'RSV:Adult' },
+];
+
 type SiteStatus = 'Online' | 'Offline';
 
 type UpdateSiteStatusRequest = {
   site: string;
   status: SiteStatus;
-};
-
-type CancelDayRequest = {
-  site: string;
-  date: string;
-};
-
-type CancelDayResponse = {
-  cancelledBookingCount: number;
-  bookingsWithoutContactDetails: number;
 };
 
 export type {
@@ -418,7 +410,6 @@ export type {
   CancelSessionRequest,
   ContactItem,
   DaySummary,
-  DaySummaryV2,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,
@@ -445,16 +436,16 @@ export type {
   UserProfile,
   Week,
   WeekSummary,
-  WeekSummaryV2,
   WellKnownOdsEntry,
   SetSiteDetailsRequest,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
+  WeekSummaryV2,
+  DaySummaryV2,
   ClinicalService,
   SiteStatus,
   UpdateSiteStatusRequest,
-  CancelDayRequest,
-  CancelDayResponse,
+  DayCancellationSummary,
 };
 
-export { MyaError, UnauthorizedError, daysOfTheWeek };
+export { MyaError, UnauthorizedError, daysOfTheWeek, clinicalServices };

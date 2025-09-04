@@ -342,28 +342,14 @@ variable "mesh_mailbox_workflow_booking" {
   default = ""
 }
 
-variable "mesh_bookings_mailbox_destination" {
-  type = string
-  default = ""
-  sensitive = true  
-}
-
-variable "mesh_bookings_mailbox_workflow" {
-  type = string
-  default = ""
-  sensitive = true  
-}
-
 variable "mesh_client_options_base_url" {
   type = string
   default = ""
-  sensitive = true    
 }
 
 variable "mesh_authorization_options_mailbox_id" {
   type = string
   default = ""
-  sensitive = true    
 }
 
 variable "mesh_authorization_options_mailbox_password" {
@@ -403,48 +389,6 @@ variable "keyvault_client_id" {
 }
 
 variable "keyvault_client_secret" {
-  type = string
-  default = ""
-  sensitive = true      
-}
-
-variable "file_sender_options_type" {
-  type = string
-  default = ""
-  sensitive = true      
-}
-
-variable "mesh_file_options_file" {
-  type = string
-  default = ""
-  sensitive = true      
-}
-
-variable "mesh_file_options_destination_mailbox_id" {
-  type = string
-  default = ""
-  sensitive = true      
-}
-
-variable "mesh_file_options__workflow_id" {
-  type = string
-  default = ""
-  sensitive = true      
-}
-
-variable "local_file_options_target_path" {
-  type = string
-  default = ""
-  sensitive = true      
-}
-
-variable "local_file_options_overwrite" {
-  type = string
-  default = ""
-  sensitive = true      
-}
-
-variable "blob_file_options_container_name" {
   type = string
   default = ""
   sensitive = true      

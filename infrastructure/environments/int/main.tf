@@ -61,7 +61,7 @@ module "mya_application_int" {
   site_summary_first_run_date                     = var.SITE_SUMMARY_FIRST_RUN_DATE
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL
-  data_extract_file_sender_options_type           = "blob"
+  data_extract_file_sender_options_type           = "mesh"
   mesh_mailbox_destination                        = //var.MESH_MAILBOX_DESTINATION
   mesh_mailbox_workflow_capacity                  = //var.MESH_MAILBOX_WORKFLOW_CAPACITY
   mesh_mailbox_workflow_bookings                  = //var.MESH_MAILBOX_WORKFLOW_BOOKINGS

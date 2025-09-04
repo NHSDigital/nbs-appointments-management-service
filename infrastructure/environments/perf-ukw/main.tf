@@ -67,6 +67,9 @@ module "mya_application_perf" {
   cosmos_endpoint                                 = var.COSMOS_ENDPOINT
   cosmos_token                                    = var.COSMOS_TOKEN
   app_config_connection                           = var.APP_CONFIG_CONNECTION
+  container_registry_server_url                   = var.CONTAINER_REGISTRY_SERVER_URL
+  container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
+  container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
   data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = false
   create_high_load_function_app                   = true

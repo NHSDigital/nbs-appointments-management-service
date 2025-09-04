@@ -45,7 +45,10 @@ const Tabs = ({
   ) as FunctionComponentElement<TabProps & InjectedTabProps>[];
 
   return (
-    <div className="nhsuk-tabs" data-module="nhsuk-tabs">
+    <div
+      className="nhsuk-tabs no-print has-printable-children"
+      data-module="nhsuk-tabs"
+    >
       {title && <h2 className="nhsuk-tabs__title">{title}</h2>}
 
       <ul className="nhsuk-tabs__list">
@@ -99,7 +102,7 @@ export const Tab = ({ title, children, ...rest }: TabProps) => {
   return (
     <div
       key={`tab-content-panel-${injectedTabProps.tabIndex}`}
-      className="nhsuk-tabs__panel"
+      className="nhsuk-tabs__panel always-print"
       id={`tab-content-panel-${injectedTabProps.tabIndex}`}
     >
       {children}

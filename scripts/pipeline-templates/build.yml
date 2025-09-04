@@ -1,6 +1,8 @@
 parameters:
   - name: prBuildServiceConnectionName
     type: string
+  - name: prDockerServiceConnectionName
+    type: string
 
 stages:
   - stage: Build
@@ -158,7 +160,7 @@ stages:
               command: buildAndPush
               repository: $(dockerRegistryUrl)/booking-extract
               dockerfile: $(bookingExtractDockerFilePath)
-              containerRegistry: ${{parameters.prBuildServiceConnectionName}}
+              containerRegistry: ${{parameters.prDockerServiceConnectionName}}
               tags: |
                 $(Build.BuildNumber)
           - task: Docker@2
@@ -167,7 +169,7 @@ stages:
               command: buildAndPush
               repository: $(dockerRegistryUrl)/capacity-extract
               dockerfile: $(capacityExtractDockerFilePath)
-              containerRegistry: ${{parameters.prBuildServiceConnectionName}}
+              containerRegistry: ${{parameters.prDockerServiceConnectionName}}
               tags: |
                 $(Build.BuildNumber)
           - task: PublishBuildArtifacts@1

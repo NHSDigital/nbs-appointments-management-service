@@ -67,6 +67,7 @@ module "mya_application_perf" {
   cosmos_endpoint                                 = var.COSMOS_ENDPOINT
   cosmos_token                                    = var.COSMOS_TOKEN
   app_config_connection                           = var.APP_CONFIG_CONNECTION
+  data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = false
   create_high_load_function_app                   = true
   create_app_slot                                 = false

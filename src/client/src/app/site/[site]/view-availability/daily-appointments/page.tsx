@@ -77,6 +77,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       caption={site.name}
       backLink={backLink}
       originPage="view-availability-daily-appointments"
+      site={site}
     >
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">

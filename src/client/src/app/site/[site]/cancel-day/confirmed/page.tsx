@@ -1,9 +1,9 @@
-import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 import CancellationConfirmed from './confirm-day-cancellation';
 import { parseToUkDatetime } from '@services/timeService';
 import { CancelDayResponse } from '@types';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -35,7 +35,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   };
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title={`${parseToUkDatetime(date).format('dddd D MMMM')} cancelled`}
       caption={`${site.name}`}
       originPage="edit-session"
@@ -45,7 +45,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site.id}
         dayCancellationSummary={dayCancellationSummary}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import RemoveUserPage from './remove-user-page';
 import {
   assertPermission,
@@ -8,6 +7,7 @@ import {
 } from '@services/appointmentsService';
 import { notFound, redirect } from 'next/navigation';
 import { notAuthorized } from '@services/authService';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 export type UserPageProps = {
   searchParams?: Promise<{
@@ -43,16 +43,9 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
   }
 
   return (
-    <NhsPage
-      title="Remove User"
-      breadcrumbs={[
-        { name: site.name, href: `/site/${site.id}` },
-        { name: 'Users', href: `/site/${site.id}/users` },
-      ]}
-      originPage="users-remove"
-    >
+    <NhsTransactionalPage title="Remove User" originPage="users-remove">
       <RemoveUserPage user={user} site={site} />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

@@ -44,7 +44,7 @@ const DownloadReportForm = ({
     <>
       <BackLink {...backLink} />
       <br />
-      <NhsHeading title="Select the dates and create a report" />
+      <NhsHeading title="Select the dates and run a report" />
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-one-third">
           <form onSubmit={handleSubmit(submitForm)}>

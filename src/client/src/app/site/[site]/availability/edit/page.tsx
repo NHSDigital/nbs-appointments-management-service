@@ -1,9 +1,9 @@
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
-import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -29,7 +29,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={'Edit session'}
       originPage="edit-session"
@@ -44,7 +44,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site}
         existingSession={sessionSummary}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

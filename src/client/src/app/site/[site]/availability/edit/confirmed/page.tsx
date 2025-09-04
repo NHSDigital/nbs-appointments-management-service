@@ -4,10 +4,10 @@ import {
   fetchSite,
 } from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
-import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -39,7 +39,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   );
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       originPage="edit-session"
       title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
@@ -55,7 +55,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         clinicalServices={clinicalServices}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

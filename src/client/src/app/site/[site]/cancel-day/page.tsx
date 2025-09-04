@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import { notFound } from 'next/navigation';
 import {
   fetchSite,
@@ -10,6 +9,7 @@ import {
 import { parseToUkDatetime } from '@services/timeService';
 import CancelDayForm from './cancel-day-form';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -43,7 +43,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   };
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title={`Cancel ${parsedDate.format('dddd D MMMM')}`}
       caption={site.name}
       originPage="cancel-day"
@@ -55,7 +55,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         daySummary={daySummary}
         clinicalServices={clinicalServices}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

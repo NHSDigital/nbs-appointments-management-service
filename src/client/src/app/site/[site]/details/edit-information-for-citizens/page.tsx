@@ -1,9 +1,9 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchPermissions,
 } from '@services/appointmentsService';
 import { EditInformationForCitizensPage } from './edit-information-for-citizens-page';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 export type PageProps = {
   params: Promise<{
@@ -18,13 +18,16 @@ const Page = async ({ params }: PageProps) => {
   const sitePermissions = await fetchPermissions(siteFromPath);
 
   return (
-    <NhsPage title="Site management" originPage="edit-information-for-citizens">
+    <NhsTransactionalPage
+      title="Site management"
+      originPage="edit-information-for-citizens"
+    >
       <h3>Manage information for citizens</h3>
       <EditInformationForCitizensPage
         permissions={sitePermissions}
         site={siteFromPath}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

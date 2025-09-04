@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchSite,
@@ -9,6 +8,7 @@ import {
 } from '@services/appointmentsService';
 import { notAuthorized } from '@services/authService';
 import SetUserRolesWizard from './set-user-roles-wizard';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 export type UserPageProps = {
   searchParams?: Promise<{
@@ -41,7 +41,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
   }
 
   return (
-    <NhsPage title="" originPage="users-manage">
+    <NhsTransactionalPage title="" originPage="users-manage">
       <SetUserRolesWizard
         site={site}
         roleOptions={roleOptions}
@@ -49,7 +49,7 @@ const AssignRolesPage = async ({ params, searchParams }: UserPageProps) => {
         userToEdit={userToEdit}
         oktaEnabled={oktaEnabled.enabled}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

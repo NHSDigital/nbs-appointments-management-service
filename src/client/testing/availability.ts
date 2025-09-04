@@ -1,5 +1,3 @@
-import { ClinicalService } from '@types';
-
 type ServiceOverview = {
   serviceName: string;
   bookedAppointments: number;

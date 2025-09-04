@@ -1,5 +1,5 @@
 import render from '@testing/render';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import DownloadReportConfirmation from './download-report-confirmation';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import { saveAs } from 'file-saver';
@@ -51,7 +51,7 @@ describe('Download Report Confirmation', () => {
     const fakeBlob = new Blob(['csv content'], { type: 'text/csv' });
     (downloadSiteSummaryReport as jest.Mock).mockResolvedValue(fakeBlob);
 
-    render(
+    const { user } = render(
       <DownloadReportConfirmation
         reportRequest={mockReportRequest}
         goBack={mockOnBack}
@@ -59,7 +59,7 @@ describe('Download Report Confirmation', () => {
     );
 
     const exportButton = screen.getByRole('button', { name: 'Export data' });
-    fireEvent.click(exportButton);
+    await user.click(exportButton);
 
     await waitFor(() => {
       expect(downloadSiteSummaryReport).toHaveBeenCalledWith(

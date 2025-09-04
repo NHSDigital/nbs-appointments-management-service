@@ -42,7 +42,7 @@ public static class ServiceRegistration
             })
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)
-            .AddFileSender(configuration)
+            .AddFileSender(configuration, fileName)
             .AddMesh(configuration);
 
 
@@ -81,7 +81,7 @@ public static class ServiceRegistration
     }
 
     private static IServiceCollection AddFileSender(this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration, string fileName)
     {
         var fileSenderType = configuration.GetSection("FileSenderOptions").Get<FileSenderOptions>();
         switch(fileSenderType?.Type)
@@ -125,7 +125,7 @@ public static class ServiceRegistration
                 services
                     .AddTransient<IFileSender, BlobFileSender>()
                     .Configure<BlobFileOptions>(opts =>
-                        opts.ContainerName = configuration["BlobStorageConnectionString"])
+                        opts.ContainerName = fileName)
                     .AddAzureClients(x =>
                     {
                         x.AddBlobServiceClient(configuration["BlobStorageConnectionString"]);

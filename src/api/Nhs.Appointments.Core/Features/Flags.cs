@@ -6,6 +6,7 @@ public static class Flags
     public const string JointBookings = "JointBookings";
     public const string SiteSummaryReport = "SiteSummaryReport";
     public const string SiteStatus = "SiteStatus";
+    public const string CancelDay = "CancelDay";
 
     #region TestFlags
     //a simple on/off global flag

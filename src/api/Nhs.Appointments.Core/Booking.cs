@@ -45,6 +45,9 @@ public class Booking
 
     [JsonProperty("cancellationReason")]
     public CancellationReason? CancellationReason { get; set; }
+
+    [JsonProperty("cancellationNotificationStatus")]
+    public CancellationNotificationStatus? CancellationNotificationStatus { get; set; }
 }
 
 public class AttendeeDetails
@@ -89,6 +92,23 @@ public enum AvailabilityStatus
     Unknown,
     Supported,
     Orphaned
+}
+
+/// <summary>
+/// If this booking has been cancelled, records whether the citizen has been notified of the cancellation.
+/// </summary>
+public enum CancellationNotificationStatus
+{
+    Unknown,
+    Unnotified,
+
+    // TODO: When requirement comes in to capture automatic notifications which fail,
+    // this is how that will be recorded
+    AutomaticNotificationFailed,
+
+    // TODO: When the requirement comes in to "tick off" these appointments as the citizens have been manually notified,
+    // this is how that will be recorded
+    Notified
 }
 
 public enum CancellationReason

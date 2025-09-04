@@ -33,7 +33,7 @@ export default class DailyAppointmentDetailsPage extends RootPage {
     await expect(this.page.getByText('Scheduled')).toBeVisible();
   }
 
-  async verifyTableExistsWithHeaders() {
+  async verifyTableExistsWithHeaders(displayAction = true) {
     await expect(this.appointmentsTable).toBeVisible();
     const headerRow = this.appointmentsTable.getByRole('row').first();
     const headers = await headerRow.getByRole('columnheader').all();
@@ -46,7 +46,10 @@ export default class DailyAppointmentDetailsPage extends RootPage {
     await expect(headers[2]).toHaveText('Date of birth');
     await expect(headers[3]).toHaveText('Contact details');
     await expect(headers[4]).toHaveText('Services');
-    await expect(headers[5]).toHaveText('Action');
+
+    if (displayAction) {
+      await expect(headers[5]).toHaveText('Action');
+    }
   }
 
   async verifyAllDailyAppointmentsTableInformationDisplayedCorrectly(

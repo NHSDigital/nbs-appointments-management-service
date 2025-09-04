@@ -7,6 +7,7 @@ public interface IBookingQueryService
 
     Task<IEnumerable<Booking>> GetBookedBookingsAcrossAllSites(DateTime from, DateTime to);
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
+    Task<IEnumerable<Booking>> GetBookings(BookingQueryFilter queryFilter);
     Task<IEnumerable<Booking>> GetOrderedBookings(string site, DateTime from, DateTime to, IEnumerable<AppointmentStatus> statuses);
 }
 
@@ -22,6 +23,14 @@ public class BookingQueryService(
     public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
     {
         var bookings = await bookingDocumentStore.GetInDateRangeAsync(from, to, site);
+        return bookings
+            .OrderBy(b => b.From)
+            .ThenBy(b => b.AttendeeDetails.LastName);
+    }
+
+    public async Task<IEnumerable<Booking>> GetBookings(BookingQueryFilter queryFilter)
+    {
+        var bookings = await bookingDocumentStore.QueryByFilterAsync(queryFilter);
         return bookings
             .OrderBy(b => b.From)
             .ThenBy(b => b.AttendeeDetails.LastName);

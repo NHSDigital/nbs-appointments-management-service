@@ -3,7 +3,7 @@
     "OktaEnabled": true,
     "JointBookings": false,
     "SiteSummaryReport": true,
-    "SiteStatus": false,
+    "SiteStatus": true,
     "CancelDay": false
   }
 }

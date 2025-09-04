@@ -7,6 +7,7 @@ export default class WeekViewAvailabilityPage extends RootPage {
   readonly previousButton: Locator;
   readonly backToMonthButton: Locator;
   readonly sessionSuccessMsg: Locator;
+  readonly cancelDayLink: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -23,6 +24,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
     this.sessionSuccessMsg = page.getByText(
       'You have successfully created availability for the current site.',
     );
+    this.cancelDayLink = page.getByRole('link', {
+      name: 'Cancel day',
+    });
   }
 
   async verifyViewNextWeekButtonDisplayed() {
@@ -314,5 +318,9 @@ export default class WeekViewAvailabilityPage extends RootPage {
       .filter({ has: this.page.getByText(`${appointmentDate}`) })
       .getByRole('link', { name: 'View daily appointments' })
       .click();
+  }
+
+  async verifyCancelDayLinkDisplayed() {
+    await expect(this.cancelDayLink).toBeVisible();
   }
 }

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-An appointment and booking api designed to support national vaccination bookings.
+An appointment and booking api designed to support national vaccination bookings, and a frontend for managing this booking availability.
 
 [Product Backlog](https://nhsd-jira.digital.nhs.uk/secure/RapidBoard.jspa?rapidView=7622&projectKey=APPT&view=planning.nodetail&selectedIssue=APPT-26&issueLimit=100#)
 
@@ -12,8 +12,8 @@ An appointment and booking api designed to support national vaccination bookings
 
 - Sponsor - James Spirit
 - Product Owner - Lauren Caveney
-- Development Team - Vincent Crowe, Sam Biram, Kim Crowe, Khurram Aziz, Saritha Lakkreddy, Ste Banks
-- Past Development Team - Joe Farina
+- Development Team - Sam Biram, Khurram Aziz, Saritha Lakkreddy, Ste Banks, Jonny Dyson, David Olsavsky, Paul Tallet, Glen Smith, David Callaghan
+- Past Development Team - Joe Farina, Vincent Crowe, Kim Crowe, Jonathan Rowlett
 
 ### Technologies
 
@@ -21,7 +21,7 @@ An appointment and booking api designed to support national vaccination bookings
 - C# V12
 - Azure Functions V4
 - Javascript/Typescript (React V18)
-- Next.js V14
+- Next.js V15
 - Cosmos document database
 
 ### Project Goal
@@ -49,9 +49,22 @@ Your workstation will need to be set up to use signed commits. Please follow thi
 
 \*At the time of writing this guide is missing a step in the Windows section. After running `git config --global commit.gpgsign true` you must then run `git config --global user.signingkey <key>` to actually tell git about the key you just created.
 
+## Contributing
+
+This is an open source repo. First and foremost, please remember that every commit made to this repo is visible to the wider public and reflects on the reputation of the NHS.
+
+Before contributing, please ensure that:
+
+- You have configured GIT to sign your commits (instructions for how to do this above)
+- Your machine is set up to run the solution locally
+- You have ran the various code quality assurance tools (i.e. lint, prettier, dotnet format etc.)
+- You have ran all the tests, which should all pass (tests include backend unit, gherkin integration, node unit, and node e2e)
+- Your branch is named after the ticket it addresses, e.g. "APPT-1234/create-booking-management-endpoint"
+- You are in the United Kingdom. The NHS has strict rules prohibiting overseas working.
+
 ## Running Locally
 
-### Setup
+### Required technologies
 
 - Install [Docker for Windows](https://docs.docker.com/desktop/install/windows-install/) (use Linux
   Containers)
@@ -60,34 +73,42 @@ Your workstation will need to be set up to use signed commits. Please follow thi
   Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-csharp)
 - Install [Node V20](https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager)
 - Install [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- (Recommended) Install [the Cosmos DB Emulator](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator). It is unfortunately not recommended to use the Cosmos DB docker image, as it has some major flaws and has not been supported for many years. It will work, but you will likely find the integration tests failing sporadically. The emulator is much more reliable.
 
 #### VS Code Setup (optional)
 
 If you are using VS Code, you may find it beneficial to open the repo by opening the `nbs-ams.code-workspace` file itself. This will open a workspace configured with several productivity boons:
 
 - The Explorer window is split into folders for convenience and to make navigating the repo quicker/easier
+- VS Code will prompt you to install several extensions listed as recommended by the workspace. These will make certain tasks much easier.
 - Terminals can be opened straight into any of these folders using the `ctrl-shift-'` command
 - Default build tasks have been configured for Dotnet and Typescript. You can run these with the `ctrl-shift-b` command
 - Non-build tasks have been configured for starting the docker, dotnet, and NextJS services. These are configured in `tasks.json` folders and can be ran through `Terminal` -> `Run Task...`
 
-### Running locally
+### Project overview
 
-Each of the following steps needs to be done in a separate terminal window
+The solution vaguely comprises the following moving parts:
 
-- Run containerised services
-  - From the root folder run `docker compose --profile local up --build -d `
-  - (OR if using VS Code) run the `Start local development containers` task
+- A Cosmos DB document store. This is our main form of persistence.
+- An Azure blob storage container. This is a secondary form of persistence, only used very lightly to support some business logic
+- One or more .NET runtimes, hosting our various Azure Functions. This is the backend API and the core solution.
+- An ID server for authorising requests. The live app uses NHS Mail and Okta; locally we use a docker image of Mock OIDC.
+- Azure Service Buses to collect out of process tasks (such as sending notifications). The live service uses real ones in Azure itself, locally we stub this code out and do not run a local equivalent or mock.
+- A node runtime hosting our frontend web app, written in React/NextJS. This is an optional frontend that customers can use to visually manage the availability created through the backend API.
 
-It is also possible to run next and api services locally **not** using docker:
+The solution can be ran locally a number of ways, but however you choose to run them you will need at minimum:
 
-- Start mock-api, mock-oidc-server and cosmos containers:
-  - run ` docker compose up --build -d mock-api oidc-server cosmos`
-- Run the API
-  - From the folder `/src/api/Nhs.Appointments.Api` run the command `func start`
-  - (OR if using VS Code) run the `Clean and Run API` task
-- Run the Web Application
-  - From the folder `/src/client/` run `npm install` and then run `npm run dev`
-  - (OR if using VS Code) run the `Run Client in Dev Mode` task
+- An ID server
+- A Cosmos DB
+- The backend API
+- The frontend Web App
+
+It is recommended to:
+
+- use the Cosmos DB emulator for Cosmos
+- create and run the mock oidc ID server in docker, through its docker-compose profile
+- run the backend API through your IDE, the VS Code one-click task, or in docker through its docker-compose profile
+- run the web app through its VS Code task, or in docker through its docker-compose profile
 
 ### Setting a cert for the OIDC server
 
@@ -98,10 +119,28 @@ or amend the command accordingly).
 
 `dotnet dev-certs https -ep .aspnet/https/aspnetapp.pfx -p password -t -v`
 
+### Running locally
+
+To run the DB, simply run the emulator on your machine. Its default configuration should be sufficient.
+
+To quickly start the services in docker, open a terminal at the root of the repo and enter
+`docker compose up --build -d oidc-server next-app api`. If you only wish to run the ID server in docker, simply run
+`docker compose up --build -d oidc-server`.
+
+To run the backend API:
+
+- From the folder `/src/api/Nhs.Appointments.Api` run the command `func start`
+- (OR if using VS Code) run the `Clean and Run API` task
+
+To run the frontend Web App:
+
+- Run the Web Application
+  - From the folder `/src/client/` run `npm install` and then run `npm run dev`
+  - (OR if using VS Code) run the `Run Client in Dev Mode` task
+
 ### Notes about configuration
 
 The API expects cosmos to be running at "https://localhost:8081"
-The API expects the mockapi to be running at "http://localhost:4011"
 The Web Application expects the API to be running at "http://localhost:7071"
 
 If your configuration causes any of these to be running differently then you will need to change the application

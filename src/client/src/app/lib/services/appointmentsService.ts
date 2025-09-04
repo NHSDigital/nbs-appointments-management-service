@@ -568,7 +568,7 @@ export const cancelSession = async (
     date: ukStartDatetime.format(RFC3339Format),
     from: ukStartDatetime.format('HH:mm'),
     until: ukEndDatetime.format('HH:mm'),
-    services: Object.keys(sessionSummary.bookings),
+    services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
     capacity: sessionSummary.capacity,
     slotLength: sessionSummary.slotLength,
   };

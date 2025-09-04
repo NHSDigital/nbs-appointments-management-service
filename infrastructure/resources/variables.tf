@@ -294,6 +294,19 @@ variable "disable_bulk_import_function" {
   type = bool
 }
 
+variable "container_registry_server" {
+  type = string
+}
+
+variable "container_registry_username" {
+  type = string
+}
+
+variable "container_registry_password" {
+  type = string
+  sensitive = true
+}
+
 variable "data_extract_timeout" {
   type = number
   default = 7200
@@ -309,16 +322,24 @@ variable "data_extract_schedule" {
   default = "0 2 * * *"
 }
 
-variable "mesh_capacity_mailbox_destination" {
+variable "data_extract_file_sender_options_type" {
   type = string
-  default = ""
-  sensitive = true  
+  default = "mesh"
 }
 
-variable "mesh_capacity_mailbox_workflow" {
+variable "mesh_mailbox_destination" {
   type = string
   default = ""
-  sensitive = true  
+}
+
+variable "mesh_mailbox_workflow_capacity" {
+  type = string
+  default = ""
+}
+
+variable "mesh_mailbox_workflow_booking" {
+  type = string
+  default = ""
 }
 
 variable "mesh_bookings_mailbox_destination" {

@@ -27,10 +27,15 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
     parallelism     = 1
   }
 
+  secret {
+    name  = "container-registry-password"
+    value = var.container_registry_password
+  }
+
   registry {
     server   = var.container_registry_server_url
     username = var.container_registry_username
-    password = var.container_registry_password
+    password_secret_name = "container-registry-password"
   }
 
   template {
@@ -122,10 +127,15 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
     parallelism     = 1
   }
 
+  secret {
+    name  = "container-registry-password"
+    value = var.container_registry_password
+  }
+
   registry {
     server   = var.container_registry_server_url
     username = var.container_registry_username
-    password = var.container_registry_password
+    password_secret_name = "container-registry-password"
   }
 
   template {

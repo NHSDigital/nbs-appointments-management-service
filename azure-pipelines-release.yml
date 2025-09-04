@@ -14,6 +14,9 @@ parameters:
     type: object
     default: ["int", "stag", "prod"]
     values: ["int", "stag", "prod", "pen", "perf"]
+  - name: ignoreIntDeployDependency
+    type: boolean
+    default: false
 
 stages:
   - template: scripts/pipeline-templates/build.yml
@@ -41,4 +44,4 @@ stages:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
           buildNumber: "$(Build.BuildNumber)"
-          isHotfix: false
+          ignoreIntDeployDependency: ${{ parameters.ignoreIntDeployDependency }}

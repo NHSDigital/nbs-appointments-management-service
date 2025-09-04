@@ -44,4 +44,4 @@ stages:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
           buildNumber: "$(Build.BuildNumber)"
-          isHotfix: false
+          ignoreIntDeployDependency: false

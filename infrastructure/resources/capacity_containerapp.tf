@@ -13,7 +13,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
   }
 
   registry {
-    server   = var.container_registry_server
+    server   = var.container_registry_server_url
     username = var.container_registry_username
     password = var.container_registry_password
   }

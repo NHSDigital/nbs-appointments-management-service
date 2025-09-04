@@ -294,7 +294,7 @@ variable "disable_bulk_import_function" {
   type = bool
 }
 
-variable "container_registry_server" {
+variable "container_registry_server_url" {
   type = string
 }
 

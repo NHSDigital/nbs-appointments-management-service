@@ -14,8 +14,7 @@ public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvail
 
     private async Task AggregateForSiteDay(string site, DateOnly day)
     {
-        var summary = await FetchSummary(bookingAvailabilityStateService, site, day);
-
+        var generatedAt = timeProvider.GetUtcNow();
         var summary = await bookingAvailabilityStateService.GetDaySummary(site, day);
         
         if (summary.MaximumCapacity <= 0 && summary.TotalOrphanedAppointmentsByService.All(x => x.Value <= 0) && summary.DaySummaries.All(x => x.TotalCancelledAppointments <= 0))

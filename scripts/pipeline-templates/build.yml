@@ -5,6 +5,8 @@ parameters:
 stages:
   - stage: Build
     displayName: Build
+    variables:
+      - group: nbs-mya-container-registry
     jobs:
       - job: "Build"
         variables:
@@ -17,6 +19,8 @@ stages:
           capacityExtractsTestProjectPath: "tests/CapacityDataExtracts.UnitTests/CapacityDataExtracts.UnitTests.csproj"
           apiClientUnitTestProjectPath: "tests/Nhs.Appointments.Api.Client.UnitTests/Nhs.Appointments.Api.Client.UnitTests.csproj"
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
+          bookingExtractDockerFilePath: "BookingDataExtractDockerfile"
+          capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
         steps:
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
@@ -148,6 +152,24 @@ stages:
               PathtoPublish: "$(Build.ArtifactStagingDirectory)/web"
               ArtifactName: "drop_web"
               publishLocation: "Container"
+          - task: Docker@2
+            displayName: Build and push booking extract image to container registry
+            inputs:
+              command: buildAndPush
+              repository: $(dockerRegistryUrl)/booking-extract
+              dockerfile: $(bookingExtractDockerFilePath)
+              containerRegistry: $(parameters.prBuildServiceConnectionName)
+              tags: |
+                $(Build.BuildNumber)
+          - task: Docker@2
+            displayName: Build and push capacity extract image to container registry
+            inputs:
+              command: buildAndPush
+              repository: $(dockerRegistryUrl)/capacity-extract
+              dockerfile: $(capacityExtractDockerFilePath)
+              containerRegistry: $(parameters.prBuildServiceConnectionName)
+              tags: |
+                $(Build.BuildNumber)
           - task: PublishBuildArtifacts@1
             displayName: "Publish Terraform"
             inputs:

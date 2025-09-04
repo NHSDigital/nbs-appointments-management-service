@@ -12,6 +12,7 @@ import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
+import PrintPageButton from '@components/print-page-button';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -79,6 +80,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       originPage="view-availability-daily-appointments"
       site={site}
     >
+      <PrintPageButton />
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">
           <DailyAppointmentsPage

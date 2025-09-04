@@ -140,8 +140,8 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
 
   template {
     container {
-      name   = "${var.container_registry_server_url}/nbs-mya-capacity-extracts"
-      image  = "capacity-extract:${var.build_number}"
+      name   = "nbs-mya-capacity-extracts"
+      image  = "${var.container_registry_server_url}/capacity-extract:${var.build_number}"
       cpu    = 1
       memory = "2Gi"
       env {

@@ -10,15 +10,16 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
+import { BackLinkProps } from '@components/nhsuk-frontend/back-link';
 
 type DownloadReportFormProps = {
   setReportRequest: (reportRequest: DownloadReportFormValues) => void;
-  goBackHref: string;
+  backLink: BackLinkProps;
 };
 
 const DownloadReportForm = ({
   setReportRequest,
-  goBackHref,
+  backLink,
 }: DownloadReportFormProps) => {
   const today = ukNow();
   const {
@@ -41,7 +42,7 @@ const DownloadReportForm = ({
 
   return (
     <>
-      <BackLink renderingStrategy={'server'} href={goBackHref} text={'Back'} />
+      <BackLink {...backLink} />
       <br />
       <NhsHeading title="Select the dates and create a report" />
       <div className="nhsuk-grid-row">

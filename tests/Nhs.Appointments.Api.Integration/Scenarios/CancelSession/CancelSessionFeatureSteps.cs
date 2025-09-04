@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core.Features;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 
-public abstract class CancelSessionBaseFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+[FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
+public class CancelSessionFeatureSteps : BaseFeatureSteps
 {
     private Core.Booking _actualResponse;
     private HttpResponseMessage _response;
@@ -77,17 +76,3 @@ public abstract class CancelSessionBaseFeatureSteps(string flag, bool enabled) :
     }
 }
 
-[FeatureFile("./Scenarios/CancelSession/CancelSession_SingleService.feature")]
-[Collection("MultipleServicesSerialToggle")]
-public class CancelSessionFeatureSteps_SingleService_MultipleServicesEnabled()
-    : CancelSessionBaseFeatureSteps(Flags.MultipleServices, true);
-
-[FeatureFile("./Scenarios/CancelSession/CancelSession_SingleService.feature")]
-[Collection("MultipleServicesSerialToggle")]
-public class CancelSessionFeatureSteps_SingleService_MultipleServicesDisabled()
-    : CancelSessionBaseFeatureSteps(Flags.MultipleServices, false);
-
-[FeatureFile("./Scenarios/CancelSession/CancelSession_MultipleServices.feature")]
-[Collection("MultipleServicesSerialToggle")]
-public class CancelSessionFeatureSteps_MultipleServices()
-    : CancelSessionBaseFeatureSteps(Flags.MultipleServices, true);

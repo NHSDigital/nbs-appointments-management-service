@@ -17,7 +17,7 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
 [FeatureFile("./Scenarios/Booking/ConfirmBooking.feature")]
-public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : BookingBaseFeatureSteps(flag, enabled)
+public class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
 {
     [When("I confirm the booking")]
     public async Task ConfirmBooking()
@@ -176,11 +176,3 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Bo
         secondActualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
     }
 }
-
-[Collection("MultipleServicesSerialToggle")]
-public class ConfirmBookingFeatureSteps_MultipleServicesEnabled()
-    : ConfirmBookingFeatureSteps(Flags.MultipleServices, true);
-
-[Collection("MultipleServicesSerialToggle")]
-public class ConfirmBookingFeatureSteps_MultipleServicesDisabled()
-    : ConfirmBookingFeatureSteps(Flags.MultipleServices, false);

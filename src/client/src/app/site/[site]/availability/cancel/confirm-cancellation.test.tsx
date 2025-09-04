@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
 import render from '@testing/render';
 import { cancelSession } from '@services/appointmentsService';
-import { clinicalServices } from '@types';
+import { mockSingleService } from '@testing/data';
 
 jest.mock('@services/appointmentsService');
 const mockCancelSession = cancelSession as jest.Mock;
@@ -29,7 +29,7 @@ describe('Confirm Cancellation Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -49,7 +49,7 @@ describe('Confirm Cancellation Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -72,7 +72,7 @@ describe('Confirm Cancellation Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -112,7 +112,7 @@ describe('Confirm Cancellation Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -144,7 +144,7 @@ describe('Confirm Cancellation Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 
@@ -171,7 +171,7 @@ describe('Confirm Cancellation Page', () => {
         session={session}
         date="2025-01-15"
         site="TEST01"
-        clinicalServices={clinicalServices}
+        clinicalServices={mockSingleService}
       />,
     );
 

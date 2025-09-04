@@ -22,7 +22,6 @@ public class GetClinicalServicesFunctionTests
     private readonly Mock<ILogger<GetClinicalServicesFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<IClinicalServiceProvider> _clinicalServiceProvider = new();
-    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
     public GetClinicalServicesFunctionTests()
     {
@@ -31,8 +30,7 @@ public class GetClinicalServicesFunctionTests
             _userContextProvider.Object,
             _logger.Object,
             _metricsRecorder.Object,
-            _clinicalServiceProvider.Object,
-            _featureToggleHelper.Object);
+            _clinicalServiceProvider.Object);
     }
 
     private static HttpRequest CreateRequest()
@@ -57,24 +55,8 @@ public class GetClinicalServicesFunctionTests
     };
 
     [Fact]
-    public async Task RunsAsync_Returns_501_WhenFeatureDisabled() 
+    public async Task RunsAsync_Returns_Services()
     {
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices)))).ReturnsAsync(false);
-        _clinicalServiceProvider.Setup(x => x.Get()).ReturnsAsync(MockServices);
-
-        var request = CreateRequest();
-
-        var result = await _sut.RunAsync(request) as ContentResult;
-        result?.StatusCode.Should().Be(501);
-
-        _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices))), Times.Once);
-        _clinicalServiceProvider.Verify(x => x.Get(), Times.Never);
-    }
-
-    [Fact]
-    public async Task RunsAsync_Returns_Services_WhenFeatureEnabled()
-    {
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices)))).ReturnsAsync(true);
         _clinicalServiceProvider.Setup(x => x.Get()).ReturnsAsync(MockServices);
 
         var request = CreateRequest();
@@ -85,7 +67,6 @@ public class GetClinicalServicesFunctionTests
         result?.StatusCode.Should().Be(200);
         Assert.Equivalent(MockServices, response);
 
-        _featureToggleHelper.Verify(x => x.IsFeatureEnabled(It.Is<string>(x => x.Equals(Flags.MultipleServices))), Times.Once);
         _clinicalServiceProvider.Verify(x => x.Get(), Times.Once);
     }
 

@@ -2,7 +2,6 @@ import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchClinicalServices,
-  fetchFeatureFlag,
   fetchSite,
 } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
@@ -28,9 +27,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   await assertPermission(siteFromPath, 'availability:setup');
 
-  const [site, multipleServicesFlag, clinicalServices] = await Promise.all([
+  const [site, clinicalServices] = await Promise.all([
     fetchSite(siteFromPath),
-    fetchFeatureFlag('MultipleServices'),
     fetchClinicalServices(),
   ]);
 
@@ -52,7 +50,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site}
         sessionSummary={session}
         date={date}
-        multipleServicesEnabled={multipleServicesFlag.enabled}
         clinicalServices={clinicalServices}
       ></EditSessionDecision>
     </NhsPage>

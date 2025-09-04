@@ -13,7 +13,7 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/Reschedule.feature")]
-    public abstract class RescheduleFeatureSteps(string flag, bool enabled) : BookingBaseFeatureSteps(flag, enabled)
+    public class RescheduleFeatureSteps : BookingBaseFeatureSteps
     {
         private string _reschduledBookingReference;
 
@@ -51,12 +51,4 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             actualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
         }
     }
-
-    [Collection("MultipleServicesSerialToggle")]
-    public class RescheduleFeatureSteps_MultipleServicesEnabled()
-        : RescheduleFeatureSteps(Flags.MultipleServices, true);
-
-    [Collection("MultipleServicesSerialToggle")]
-    public class RescheduleFeatureSteps_MultipleServicesDisabled()
-        : RescheduleFeatureSteps(Flags.MultipleServices, false);
 }

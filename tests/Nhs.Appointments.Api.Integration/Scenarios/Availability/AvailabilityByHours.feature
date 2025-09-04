@@ -1,5 +1,73 @@
-﻿Feature: Get hourly availability for multiple services
+﻿Feature: Get hourly availability
 
+    Scenario: Hourly availability is returned from session templates with 5 min appointments
+        Given the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow | 09:00 | 11:00 | COVID    | 5           | 1        |
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 09:00 | 10:00 | 12    |
+          | 10:00 | 11:00 | 12    |
+
+    Scenario: Hourly availability is returned from sessions with 5 min appointments and multiple capacity
+        Given the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 2        |
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 09:00 | 10:00 | 12    |
+          | 10:00 | 11:00 | 12    |
+
+    Scenario: Hourly availability is returned from overlapping sessions
+        Given the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 2        |
+          | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 3        |
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 09:00 | 10:00 | 30    |
+          | 10:00 | 11:00 | 30    |
+
+    Scenario: Hourly availability is returned for multiple days
+        Given the following sessions
+          | Date       | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow   | 09:00 | 13:00 | COVID    | 5           | 1        |
+          | 2 days from today | 09:00 | 13:00 | COVID    | 5           | 1        |
+          | 3 days from today | 09:00 | 13:00 | COVID    | 5           | 1        |
+        When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 09:00 | 10:00 | 12    |
+          | 10:00 | 11:00 | 12    |
+          | 11:00 | 12:00 | 12    |
+          | 12:00 | 13:00 | 12    |
+        And the following availability is returned for '2 days from today'
+          | From  | Until | Count |
+          | 09:00 | 10:00 | 12    |
+          | 10:00 | 11:00 | 12    |
+          | 11:00 | 12:00 | 12    |
+          | 12:00 | 13:00 | 12    |
+        And the following availability is returned for '3 days from today'
+          | From  | Until | Count |
+          | 09:00 | 10:00 | 12    |
+          | 10:00 | 11:00 | 12    |
+          | 11:00 | 12:00 | 12    |
+          | 12:00 | 13:00 | 12    |
+
+    Scenario: Hourly availability is returned in ascending order
+        Given the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+          | Tomorrow | 07:00 | 08:00 | COVID    | 5           | 1        |
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 07:00 | 08:00 | 12    |
+          | 09:00 | 10:00 | 12    |
+  
     Scenario: Hourly availability is only returned from sessions for that service
       Given the following sessions
         | Date              | From  | Until | Services      | Slot Length | Capacity |
@@ -21,7 +89,7 @@
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
         | 10:00 | 11:00 | 12    |
-
+  
     Scenario: Hourly availability is returned from overlapping sessions of different services
       Given the following sessions
         | Date     | From  | Until | Services    | Slot Length  | Capacity |
@@ -32,7 +100,7 @@
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 60    |
-
+  
     Scenario: Bookings of other services take up availability
       Given the following sessions
         | Date              | From  | Until | Services      | Slot Length | Capacity |
@@ -52,7 +120,7 @@
       And the following availability is returned for '3 days from today'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
-
+  
     Scenario: Provisional bookings of other services take up availability
       Given the following sessions
         | Date              | From  | Until | Services      | Slot Length | Capacity |
@@ -72,7 +140,7 @@
       And the following availability is returned for '3 days from today'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
-
+  
     Scenario: Expired provisional bookings of other services don't take up availability
       Given the following sessions
         | Date              | From  | Until | Services      | Slot Length | Capacity |
@@ -92,7 +160,7 @@
       And the following availability is returned for '3 days from today'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
-
+  
     Scenario: Cancelled bookings of other services don't take up availability
       Given the following sessions
         | Date              | From  | Until | Services      | Slot Length | Capacity |
@@ -112,11 +180,11 @@
       And the following availability is returned for '3 days from today'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
-      
-      
-#    In a best fit scenario, all 4 bookings at 9:20 would have a slot, however, due to sub-optimal greedy allocation, 
-#    the ABBA booking is orphaned, and the COVID/RSV 9:20 slot is still treated as available 
-#    Ideally, in this test, all services would return 22 slots remaining
+        
+        
+  #    In a best fit scenario, all 4 bookings at 9:20 would have a slot, however, due to sub-optimal greedy allocation, 
+  #    the ABBA booking is orphaned, and the COVID/RSV 9:20 slot is still treated as available 
+  #    Ideally, in this test, all services would return 22 slots remaining
     Scenario: Greedy allocation alphabetical - suboptimal - availability is affected
       Given the following sessions
         | Date        | From  | Until | Services | Slot Length | Capacity |
@@ -146,8 +214,8 @@
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      
-#   Due to optimal allocation, all the existing bookings are supported, so all services return 22 slots remaining
+        
+  #   Due to optimal allocation, all the existing bookings are supported, so all services return 22 slots remaining
     Scenario: Greedy allocation alphabetical - optimal - availability is affected
       Given the following sessions
         | Date        | From  | Until | Services | Slot Length | Capacity |
@@ -177,9 +245,9 @@
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      
-#    In a best fit scenario, all 4 bookings at 9:20 would have a slot, however, due to sub-optimal service length allocation, 
-#    the FLU-B booking is orphaned, and the COVID/RSV/FLU/FLU-C/FLU-D/FLU-E 9:20 slot is still treated as available
+        
+  #    In a best fit scenario, all 4 bookings at 9:20 would have a slot, however, due to sub-optimal service length allocation, 
+  #    the FLU-B booking is orphaned, and the COVID/RSV/FLU/FLU-C/FLU-D/FLU-E 9:20 slot is still treated as available
     Scenario: Greedy allocation service lengths - suboptimal - availability is affected
       Given the following sessions
         | Date        | From  | Until | Services                                  | Slot Length | Capacity |
@@ -221,8 +289,8 @@
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
-      
-#   Due to optimal allocation, all the existing bookings are supported, so all services return minimal slots remaining
+        
+  #   Due to optimal allocation, all the existing bookings are supported, so all services return minimal slots remaining
     Scenario: Greedy allocation service lengths - optimal - availability is affected
       Given the following sessions
         | Date        | From  | Until | Services                                  | Slot Length | Capacity |
@@ -264,4 +332,4 @@
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 11    |
-      
+        

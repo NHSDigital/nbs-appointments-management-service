@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,8 +18,7 @@ namespace Nhs.Appointments.Api.Functions
         IUserContextProvider userContextProvider,
         ILogger<GetClinicalServicesFunction> logger,
         IMetricsRecorder metricsRecorder,
-        IClinicalServiceProvider clinicalServiceProvider,
-        IFeatureToggleHelper featureToggleHelper)
+        IClinicalServiceProvider clinicalServiceProvider)
         : BaseApiFunction<EmptyRequest, IEnumerable<ClinicalServiceType>>(validator, userContextProvider, logger, metricsRecorder)
     {
         [OpenApiOperation(operationId: "GetServiceTypes", tags: ["serviceTypes"], 
@@ -34,9 +32,7 @@ namespace Nhs.Appointments.Api.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "clinical-services")]
             HttpRequest req)
         {
-            return !await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices)
-                ? ProblemResponse(HttpStatusCode.NotImplemented, null)
-                : await base.RunAsync(req);
+            return await base.RunAsync(req);
         }
 
         protected override async Task<ApiResult<IEnumerable<ClinicalServiceType>>> HandleRequest(EmptyRequest request, ILogger logger)

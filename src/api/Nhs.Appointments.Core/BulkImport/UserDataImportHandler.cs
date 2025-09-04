@@ -12,6 +12,10 @@ public class UserDataImportHandler(
     IWellKnowOdsCodesService wellKnowOdsCodesService
 ) : IUserDataImportHandler
 {
+    private const string Icb = "icb";
+    private const string Region = "region";
+	private const string Site = "site";
+
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
         var oktaEnabled = await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled);
@@ -46,11 +50,30 @@ public class UserDataImportHandler(
 
         await CheckForNonWhitelistedEmailDomains(userImportRows, report);
 
+        var wellKnownOdsCodes = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
+
         var regionalUsers = userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Region)).ToList();
         if (regionalUsers.Count > 0)
         {
-            await ValidateRegionCodes(regionalUsers, report);
-            CheckForDuplicateRegionPermissions(regionalUsers, report);
+            var validRegionCodes = wellKnownOdsCodes
+                .Where(ods => ods.Type.Equals(Region, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.OdsCode.ToLower())
+                .ToList();
+
+            ValidateRegionCodes(regionalUsers, report, validRegionCodes);
+            CheckForDuplicatedPermissions(regionalUsers, report, Region);
+        }
+
+        var icbUsers = userImportRows.Where(usr => !string.IsNullOrEmpty(usr.Icb)).ToList();
+        if (icbUsers.Count > 0)
+        {
+            var validIcbCodes = wellKnownOdsCodes
+                .Where(ods => ods.Type.Equals(Icb, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.OdsCode.ToLower())
+                .ToList();
+
+            ValidateIcbCodes(icbUsers, report, validIcbCodes);
+            CheckForDuplicatedPermissions(icbUsers, report, Icb.ToUpper());
         }
 
         if (report.Any(r => !r.Success))
@@ -72,18 +95,23 @@ public class UserDataImportHandler(
                     }
                 }
 
-                var isRegionPermission = !string.IsNullOrEmpty(userRow.Region);
-                if (isRegionPermission)
+                var permissionScope = GetUserPermissionScope(userRow);
+
+                switch (permissionScope)
                 {
-                    await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"region:{userRow.Region}", userRow.RoleAssignments);
-                }
-                else
-                {
-                    var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"site:{userRow.SiteId}", userRow.RoleAssignments, false);
-                    if (!result.Success)
-                    {
-                        report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: '{string.Join('|', result.errorRoles)}'"));
-                    }
+                    case UserPermissionScope.Region:
+                        await userService.UpdateRegionalUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"{Region}:{userRow.Region}", userRow.RoleAssignments);
+                        break;
+                    case UserPermissionScope.Site:
+                        var result = await userService.UpdateUserRoleAssignmentsAsync(userRow.UserId, $"{Site}:{userRow.SiteId}", userRow.RoleAssignments, false);
+                        if (!result.Success)
+                        {
+                            report.Add(new ReportItem(-1, userRow.UserId, false, $"Failed to update user roles. The following roles are not valid: '{string.Join('|', result.errorRoles)}'"));
+                        }
+                        break;
+                    case UserPermissionScope.Icb:
+                        await userService.UpdateIcbUserRoleAssignmentsAsync(userRow.UserId.ToLower(), $"{Icb}:{userRow.Icb}", userRow.RoleAssignments);
+                        break;
                 }
             }
             catch (Exception ex)
@@ -108,13 +136,10 @@ public class UserDataImportHandler(
         }
     }
 
-    private async Task ValidateRegionCodes(List<UserImportRow> userImportRows, List<ReportItem> report)
+    private static void ValidateRegionCodes(List<UserImportRow> userImportRows, List<ReportItem> report, List<string> validRegionCodes)
     {
-        var wellKnownOdsCodes = await wellKnowOdsCodesService.GetWellKnownOdsCodeEntries();
-        var regionCodes = wellKnownOdsCodes.Where(ods => ods.Type.Equals("region", StringComparison.CurrentCultureIgnoreCase)).Select(x => x.OdsCode.ToLower()).ToList();
-
         var invalidRegions = userImportRows
-            .Where(usr => !regionCodes.Contains(usr.Region.ToLower()))
+            .Where(usr => !validRegionCodes.Contains(usr.Region.ToLower()))
             .Select(usr => usr.Region)
             .ToList();
 
@@ -124,7 +149,7 @@ public class UserDataImportHandler(
         }
     }
 
-    private static void CheckForDuplicateRegionPermissions(List<UserImportRow> userImportRows, List<ReportItem> report)
+    private static void CheckForDuplicatedPermissions(List<UserImportRow> userImportRows, List<ReportItem> report, string scopeName)
     {
         var duplicateUsers = userImportRows
             .GroupBy(usr => usr.UserId)
@@ -135,10 +160,33 @@ public class UserDataImportHandler(
         {
             report.AddRange(duplicateUsers.Select(usr => new ReportItem(
                 -1,
-                "User added to multiple regions",
+                $"User added to multiple {scopeName}s",
                 false,
-                $"Users can only be added to one region per upload. User: '{usr.Key}' has been added multiple times for region scoped permissions.")));
+                $"Users can only be added to one {scopeName} per upload. User: '{usr.Key}' has been added multiple times for {scopeName} scoped permissions.")));
         }
+    }
+
+    private static void ValidateIcbCodes(List<UserImportRow> userImportRows, List<ReportItem> report, List<string> validIcbCodes)
+    {
+        var invalidIcbs = userImportRows
+            .Where(usr => !validIcbCodes.Contains(usr.Icb.ToLower()))
+            .Select(usr => usr.Icb)
+            .ToList();
+
+        if (invalidIcbs.Count > 0)
+        {
+            report.AddRange(invalidIcbs.Select(icb => new ReportItem(-1, "Invalid ICB", false, $"Provided ICB: '{icb}' not found in the well known ICB list.")));
+        }
+    }
+
+    private static UserPermissionScope GetUserPermissionScope(UserImportRow userRow)
+    {
+        if (!string.IsNullOrEmpty(userRow.SiteId))
+            return UserPermissionScope.Site;
+
+        return !string.IsNullOrEmpty(userRow.Region)
+            ? UserPermissionScope.Region
+            : UserPermissionScope.Icb;
     }
 
     public class UserImportRow
@@ -149,5 +197,13 @@ public class UserDataImportHandler(
         public string SiteId { get; set; }
         public IEnumerable<RoleAssignment> RoleAssignments { get; set; }
         public string Region { get; set; }
+        public string Icb {  get; set; }
+    }
+
+    private enum UserPermissionScope
+    {
+        Site,
+        Region,
+        Icb
     }
 }

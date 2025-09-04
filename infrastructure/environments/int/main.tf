@@ -48,6 +48,7 @@ module "mya_application_int" {
   okta_private_key_kid                            = var.OKTA_PRIVATE_KEY_KID
   okta_pem                                        = var.OKTA_PEM
   auth_provider_challenge_phrase                  = var.AUTH_PROVIDER_CHALLENGE_PHRASE
+  nhs_host_url                                    = var.NHS_HOST_URL
   func_app_base_uri                               = var.FUNC_APP_BASE_URI
   web_app_base_uri                                = var.WEB_APP_BASE_URI
   gov_notify_base_uri                             = var.GOV_NOTIFY_BASE_URI
@@ -60,7 +61,7 @@ module "mya_application_int" {
   site_summary_first_run_date                     = var.SITE_SUMMARY_FIRST_RUN_DATE
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL
-  disable_query_availability_function             = false
+  disable_query_availability_function             = true
   create_high_load_function_app                   = true
   create_app_slot                                 = false
   create_autoscale_settings                       = false

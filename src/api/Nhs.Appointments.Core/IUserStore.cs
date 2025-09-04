@@ -14,4 +14,5 @@ public interface IUserStore
     Task UpdateUserRegionPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task SaveAdminUserAsync(User adminUser);
     Task RemoveAdminUserAsync(string userId);
+    Task UpdateUserIcbPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
 }

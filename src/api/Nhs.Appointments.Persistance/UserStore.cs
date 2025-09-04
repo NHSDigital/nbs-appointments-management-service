@@ -9,6 +9,9 @@ namespace Nhs.Appointments.Persistance;
 
 public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMapper mapper) : IUserStore
 {
+    private const string IcbUserRole = "system:icb-user";
+    private const string RegionalUserRole = "system:regional-user";
+
     public async Task<string> GetApiUserSigningKey(string clientId)
     {
         var documentId = $"api@{clientId}";
@@ -101,29 +104,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
             return;
         }
 
-        const string regionalUserRole = "system:regional-user";
-        var updatedRoleAssignments = originalDocument.RoleAssignments.AsEnumerable();
-
-        var hasRegionScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Scope == scope);
-        var hasOtherRegionScopedPermission = originalDocument.RoleAssignments.Any(ra => ra.Role == regionalUserRole && ra.Scope != scope);
-
-        // User already has this regional permission - therefore this is treated as a removal
-        if (hasRegionScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
-        }
-        // Update the user's regional permission - they're only allowed one at a time
-        else if (hasOtherRegionScopedPermission)
-        {
-            updatedRoleAssignments = updatedRoleAssignments
-                .Where(ra => ra.Role != regionalUserRole)
-                .Concat(roleAssignments);
-        }
-        // No existing regional permission - add it
-        else
-        {
-            updatedRoleAssignments = updatedRoleAssignments.Concat(roleAssignments);
-        }
+        var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, RegionalUserRole, IcbUserRole);
 
         var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
         await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, regionalRolePatch);
@@ -163,4 +144,65 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task RemoveAdminUserAsync(string userId) =>
         await cosmosStore.DeleteDocument(userId, cosmosStore.GetDocumentType());
+
+    public async Task UpdateUserIcbPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+    {
+        var originalDocument = await GetOrDefaultAsync(userId);
+        if (originalDocument is null)
+        {
+            var user = new User
+            {
+                Id = userId,
+                RoleAssignments = roleAssignments.ToArray()
+            };
+            await InsertAsync(user);
+            return;
+        }
+
+        var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, IcbUserRole, RegionalUserRole);
+
+        var icbRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, icbRolePatch);
+    }
+
+    internal IEnumerable<RoleAssignment> GetUpdatedPermissions(
+        IEnumerable<RoleAssignment> existingRoleAssignments,
+        string scope,
+        IEnumerable<RoleAssignment> newRoleAssignments,
+        string primaryRole,
+        string conflictingRole)
+    {
+        var updatedRoleAssignments = existingRoleAssignments.AsEnumerable();
+
+        var hasPrimaryScopedPermission = updatedRoleAssignments.Any(ra => ra.Scope == scope);
+        var hasOtherPrimaryScopedPermission = updatedRoleAssignments.Any(ra => ra.Role == primaryRole && ra.Scope != scope);
+        var hasConflictingRole = updatedRoleAssignments.Any(ra => ra.Role == conflictingRole);
+
+        // User already has this primary permission - treat as removal
+        if (hasPrimaryScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Scope != scope);
+        }
+        // Update the user's primary permission - only one allowed at a time
+        else if (hasOtherPrimaryScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments
+                .Where(ra => ra.Role != primaryRole)
+                .Concat(newRoleAssignments);
+        }
+        // No existing primary permission - add it
+        else
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Concat(newRoleAssignments);
+        }
+
+        // If user has conflicting role, remove it unless we're removing the primary role in this update
+        if (hasConflictingRole && !hasPrimaryScopedPermission)
+        {
+            updatedRoleAssignments = updatedRoleAssignments.Where(ra => ra.Role != conflictingRole);
+        }
+
+        return updatedRoleAssignments;
+    }
+
 }

@@ -23,12 +23,11 @@ import {
   Site,
   SetSiteReferenceDetailsRequest,
   FeatureFlag,
-  clinicalServices,
   BookingStatus,
   UserIdentityStatus,
   WeekSummaryV2,
-  SiteStatus,
   UpdateSiteStatusRequest,
+  SiteStatus,
   CancelDayRequest,
   CancelDayResponse,
   DaySummaryV2,
@@ -125,19 +124,13 @@ export const fetchFeatureFlag = async (featureFlag: string) => {
 };
 
 export const fetchClinicalServices = async () => {
-  const canUseMultipleServices = await fetchFeatureFlag('MultipleServices');
-
-  if (canUseMultipleServices.enabled) {
-    const response = await appointmentsApi.get<ClinicalService[]>(
-      `clinical-services`,
-      {
-        cache: 'force-cache',
-      },
-    );
-    return handleBodyResponse(response);
-  }
-
-  return clinicalServices;
+  const response = await appointmentsApi.get<ClinicalService[]>(
+    `clinical-services`,
+    {
+      cache: 'force-cache',
+    },
+  );
+  return handleBodyResponse(response);
 };
 
 export const fetchSiteAccessibilities = async (siteId: string) => {
@@ -575,7 +568,7 @@ export const cancelSession = async (
     date: ukStartDatetime.format(RFC3339Format),
     from: ukStartDatetime.format('HH:mm'),
     until: ukEndDatetime.format('HH:mm'),
-    services: Object.keys(sessionSummary.bookings),
+    services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
     capacity: sessionSummary.capacity,
     slotLength: sessionSummary.slotLength,
   };

@@ -61,21 +61,23 @@ const CancelDayForm = ({
       date: parsedDate.format(RFC3339Format),
     };
 
-    // TODO: APPT-1179 - use the response to the above & link to new page
-    await cancelDay(payload);
+    const response = await cancelDay(payload);
+    replace(
+      `/site/${siteId}/cancel-day/confirmed?date=${date}&cancelledBookingCount=${response.cancelledBookingCount}&bookingsWithoutContactDetails=${response.bookingsWithoutContactDetails}`,
+    );
   };
 
   return (
     <>
       <SessionSummaryTable
-        sessionSummaries={daySummary.sessions}
+        sessionSummaries={daySummary.sessionSummaries}
         clinicalServices={clinicalServices}
         showUnbooked={false}
         tableCaption={`Sessions for ${parsedDate.format('dddd D MMMM')}`}
       />
       <InsetText>
-        {daySummary.bookedAppointments} booked appointments will be cancelled.
-        We'll notify people that their appointment has been cancelled
+        {daySummary.totalSupportedAppointments} booked appointments will be
+        cancelled. We'll notify people that their appointment has been cancelled
       </InsetText>
 
       {!confirmStep ? (

@@ -4,7 +4,7 @@ import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SummaryStep from './summary-step';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
-import { clinicalServices } from '@types';
+import { mockSingleService } from '@testing/data';
 
 const mockGoToNextStep = jest.fn();
 const mockGoToPreviousStep = jest.fn();
@@ -55,7 +55,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           returnRouteUponCancellation="/"
         />
       </MockForm>,
@@ -82,7 +82,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           returnRouteUponCancellation="/"
         />
       </MockForm>,
@@ -117,7 +117,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           returnRouteUponCancellation="/"
         />
       </MockForm>,
@@ -142,7 +142,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           returnRouteUponCancellation="/"
         />
       </MockForm>,
@@ -180,7 +180,7 @@ describe('Summary Step', () => {
           goToNextStep={mockGoToNextStep}
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
-          clinicalServices={clinicalServices}
+          clinicalServices={mockSingleService}
           returnRouteUponCancellation="/"
         />
       </MockForm>,

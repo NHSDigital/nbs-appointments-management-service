@@ -19,12 +19,11 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class GetWeekSummaryFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
-    IFeatureToggleHelper featureToggleHelper,
     IValidator<GetWeekSummaryRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetWeekSummaryFunction> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<GetWeekSummaryRequest, Summary>(validator, userContextProvider,
+    : BaseApiFunction<GetWeekSummaryRequest, AvailabilitySummary>(validator, userContextProvider,
         logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "GetWeekSummary", tags: ["Availability"],
@@ -33,7 +32,7 @@ public class GetWeekSummaryFunction(
         Description = "The ID of the site from which to query bookings and availability")]
     [OpenApiParameter("from", In = ParameterLocation.Query, Required = true, Type = typeof(double),
         Description = "The start of the week date")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(Summary),
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(AvailabilitySummary),
         Description = "A weekly summary for the availability and daily sessions")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
@@ -48,14 +47,9 @@ public class GetWeekSummaryFunction(
         return base.RunAsync(req);
     }
 
-    protected override async Task<ApiResult<Summary>> HandleRequest(
+    protected override async Task<ApiResult<AvailabilitySummary>> HandleRequest(
         GetWeekSummaryRequest request, ILogger logger)
     {
-        if (!await featureToggleHelper.IsFeatureEnabled(Flags.MultipleServices))
-        {
-            return Failed(HttpStatusCode.NotImplemented, "Endpoint is only available when multiple services is enabled");
-        }
-        
         var weekSummary =
             await bookingAvailabilityStateService.GetWeekSummary(request.Site, request.FromDate);
 

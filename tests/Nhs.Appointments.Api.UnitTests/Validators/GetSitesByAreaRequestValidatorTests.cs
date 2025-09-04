@@ -330,7 +330,7 @@ public class GetSitesByAreaRequestValidatorTests
             ["access_need_a", "access_need_b"],
             false,
             ["RSV:Adult"],
-            "2025-08-20",
+            "2026-08-20",
             null
         );
         
@@ -352,7 +352,7 @@ public class GetSitesByAreaRequestValidatorTests
             false,
             ["RSV:Adult"],
             null,
-            "2025-08-20"
+            "2026-08-20"
         );
         
         var result = _sut.Validate(request);
@@ -373,7 +373,7 @@ public class GetSitesByAreaRequestValidatorTests
             false,
             null,
             "2025-08-18",
-            "2025-08-20"
+            "2026-08-20"
         );
         
         var result = _sut.Validate(request);

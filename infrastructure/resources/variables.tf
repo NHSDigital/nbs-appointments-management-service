@@ -366,26 +366,22 @@ variable "mesh_authorization_options_shared_key" {
 
 variable "mesh_authorization_options_certificate_name" {
   type = string
-  default = ""
-  sensitive = true      
+  default = ""     
 }
 
 variable "keyvault_Name" {
   type = string
-  default = ""
-  sensitive = true      
+  default = ""   
 }
 
 variable "keyvault_tenant_id" {
   type = string
-  default = ""
-  sensitive = true      
+  default = ""   
 }
 
 variable "keyvault_client_id" {
   type = string
   default = ""
-  sensitive = true      
 }
 
 variable "keyvault_client_secret" {

@@ -41,7 +41,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
   template {
     container {
       name   = "nbs-mya-booking-extracts"
-      image  = "booking-extract:${var.build_number}"
+      image  = "${var.container_registry_server_url}/booking-extract:${var.build_number}"
       cpu    = 1
       memory = "2Gi"
       env {
@@ -140,7 +140,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
 
   template {
     container {
-      name   = "nbs-mya-capacity-extracts"
+      name   = "${var.container_registry_server_url}/nbs-mya-capacity-extracts"
       image  = "capacity-extract:${var.build_number}"
       cpu    = 1
       memory = "2Gi"

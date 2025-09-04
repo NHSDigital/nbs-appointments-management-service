@@ -7,7 +7,7 @@ import { AvailabilitySession } from '@types';
 import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
-import NhsTransactionalPage from '@components/nhs-transactional-page';
+import NhsPage from '@components/nhs-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -39,7 +39,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   );
 
   return (
-    <NhsTransactionalPage
+    <NhsPage
       originPage="edit-session"
       title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
@@ -55,7 +55,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         clinicalServices={clinicalServices}
       />
-    </NhsTransactionalPage>
+    </NhsPage>
   );
 };
 

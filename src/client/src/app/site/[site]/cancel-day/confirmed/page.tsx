@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import CancellationConfirmed from './confirm-day-cancellation';
 import { parseToUkDatetime } from '@services/timeService';
 import { CancelDayResponse } from '@types';
-import NhsTransactionalPage from '@components/nhs-transactional-page';
+import NhsPage from '@components/nhs-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -35,7 +35,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   };
 
   return (
-    <NhsTransactionalPage
+    <NhsPage
       title={`${parseToUkDatetime(date).format('dddd D MMMM')} cancelled`}
       caption={`${site.name}`}
       originPage="edit-session"
@@ -45,7 +45,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site.id}
         dayCancellationSummary={dayCancellationSummary}
       />
-    </NhsTransactionalPage>
+    </NhsPage>
   );
 };
 

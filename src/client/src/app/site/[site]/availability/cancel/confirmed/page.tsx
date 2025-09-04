@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import CancellationConfirmed from './cancellation-confirmed';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { parseToUkDatetime } from '@services/timeService';
-import NhsTransactionalPage from '@components/nhs-transactional-page';
+import NhsPage from '@components/nhs-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -40,7 +40,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   };
 
   return (
-    <NhsTransactionalPage
+    <NhsPage
       title={`Cancelled session for ${parseToUkDatetime(date).format('DD MMMM YYYY')}`}
       caption={`${site.name}`}
       originPage="edit-session"
@@ -52,7 +52,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site.id}
         clinicalServices={clinicalServices}
       />
-    </NhsTransactionalPage>
+    </NhsPage>
   );
 };
 

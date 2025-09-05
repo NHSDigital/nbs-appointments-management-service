@@ -1,0 +1,45 @@
+trigger:
+  branches:
+    include:
+      - main
+      - release/*
+      - hotfix/*
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  prBuildServiceConnectionName: "nbs-myacicd-rg-int"
+  prBuildResourceGroup: "nbs-myacicd-rg-int-uks"
+  acrName: nhsuk-integration
+  imageName: nbs-mya-data-extract
+  dockerfilePath: data/Dockerfile
+  buildContext: data
+  tag: $(Build.BuildId)
+  imageTag: $(Build.BuildId) # Use build ID as tag
+
+stages:
+  - stage: BuildAndPush
+    displayName: "Build and Push Docker Image"
+    jobs:
+      - job: DockerBuildPush
+        displayName: "Build and Push to ACR"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Login to ACR and Push Image"
+            inputs:
+              azureSubscription: $(prBuildServiceConnectionName)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                echo "Logging into ACR..."
+                az acr login --name $ACR_NAME
+
+                echo "Pushing Docker image..."
+                docker build -f $DOCKERFILE_PATH -t $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG $BUILD_CONTEXT
+
+                docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+            env:
+              ACR_NAME: $(acrName)
+              IMAGE_NAME: $(imageName)
+              IMAGE_TAG: $(imageTag)

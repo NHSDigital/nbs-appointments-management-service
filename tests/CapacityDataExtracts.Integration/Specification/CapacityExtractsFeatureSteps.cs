@@ -109,7 +109,8 @@ public sealed class CapacityExtractsFeatureSteps
             { "MeshAuthorizationOptions:MailboxPassword", "password" },
             { "MeshAuthorizationOptions:SharedKey", "TestKey" },
             { "MESH_MAILBOX_DESTINATION", targetMailboxId },
-            { "MESH_WORKFLOW", workflowId }
+            { "MESH_WORKFLOW", workflowId },
+            { "FileSenderOptions:Type", "mesh" }
         });
 
         _targetMailbox = SetupMailboxClient(targetMailboxId);

@@ -1,32 +1,28 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Nbs.MeshClient;
-using Nbs.MeshClient.Auth;
 
 namespace DataExtract;
 public class DataExtractWorker<TExtractor>(
     IHostApplicationLifetime hostApplicationLifetime,
-    IOptions<MeshSendOptions> meshSendOptions,
-    IOptions<MeshAuthorizationOptions> meshAuthOptions,
-    IMeshFactory meshFactory,
     TimeProvider timeProvider,
-    TExtractor dataExtract,
-    IOptions<FileOptions> fileOptions
+    IOptions<FileOptions> fileOptions,
+    IServiceProvider serviceProvider,
+    IFileSender fileSender
     ) : BackgroundService where TExtractor : class, IExtractor
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
+            using var scope = serviceProvider.CreateScope();
+
+            var dataExtract = scope.ServiceProvider.GetRequiredService<TExtractor>();
+
             var outputFile = new FileInfo(GenerateFileName());
             await dataExtract.RunAsync(outputFile);
 
-            if (fileOptions.Value.CreateSampleFile)
-            {
-                WriteFileLocally(outputFile);
-            }
-            
-            await SendViaMesh(outputFile);
+            await SendFile(outputFile);
         }
         catch (Exception ex)
         {
@@ -39,19 +35,10 @@ public class DataExtractWorker<TExtractor>(
         }
     }
 
-    private void WriteFileLocally(FileInfo outputFile) =>
-        outputFile.CopyTo($"{fileOptions.Value.FileName}-sample.parquet", true);
-
-    private async Task SendViaMesh(FileInfo fileToSend)
+    private async Task SendFile(
+        FileInfo fileToSend)
     {
-        if (string.IsNullOrEmpty(meshSendOptions.Value.DestinationMailboxId) == false)
-        {
-            var meshMailbox = meshFactory.GetMailbox(meshAuthOptions.Value.MailboxId);
-            var meshFileSender = new MeshFileSender(meshMailbox);
-            await meshFileSender.SendFile(fileToSend, meshSendOptions.Value.DestinationMailboxId, meshSendOptions.Value.WorkflowId);
-        }
-        else
-            throw new InvalidOperationException("Destination mailbox was not configured");
+        await fileSender.SendFile(fileToSend);
     }
 
     // Adding 00 as a replacement for time zone as the reporting consumers can't consume +/-

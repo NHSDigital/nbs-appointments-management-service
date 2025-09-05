@@ -14,7 +14,7 @@ builder.Configuration
             .AddNbsAzureKeyVault();
 
 builder.Services
-    .AddDataExtractServices("BookingCapacity", builder.Configuration, args.Contains("create-local-sample"))
+    .AddDataExtractServices("BookingCapacity", builder.Configuration)
     .AddCosmosStore<DailyAvailabilityDocument>()
     .AddCosmosStore<SiteDocument>()
     .AddExtractWorker<CapacityDataExtract>();

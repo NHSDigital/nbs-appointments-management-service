@@ -28,7 +28,6 @@ import {
   WeekSummaryV2,
   UpdateSiteStatusRequest,
   ServerActionResult,
-  Accessibility,
   DaySummaryV2,
   SiteStatus,
   CancelDayRequest,
@@ -85,7 +84,7 @@ export const assertEulaAcceptance = async (
     const eulaVersionResponse = await fetchEula();
 
     if (!eulaVersionResponse.success) {
-      return;
+      return Promise.reject('Failed to fetch EULA version');
     }
 
     if (
@@ -150,15 +149,6 @@ export const fetchClinicalServices = async (): Promise<
     })
     .then(response => handleBodyResponse(response));
 
-export const fetchSiteAccessibilities = async (
-  siteId: string,
-): Promise<ServerActionResult<Accessibility[]>> =>
-  appointmentsApi
-    .get<Site>(`sites/${siteId}?scope=*`)
-    .then(response =>
-      handleBodyResponse(response, site => site.accessibilities),
-    );
-
 export const fetchAccessibilityDefinitions = async (): Promise<
   ServerActionResult<AccessibilityDefinition[]>
 > =>
@@ -213,14 +203,6 @@ export const fetchEula = async (): Promise<ServerActionResult<EulaVersion>> =>
     })
     .then(handleBodyResponse);
 
-export const fetchSiteSummaryReport = async (
-  startDate: string,
-  endDate: string,
-): Promise<ServerActionResult<Blob>> =>
-  appointmentsApi
-    .get<Blob>(`report/site-summary?startDate=${startDate}&endDate=${endDate}`)
-    .then(response => handleBodyResponse(response));
-
 export const acceptEula = async (
   versionDate: string,
 ): Promise<ServerActionResult<void>> =>
@@ -243,7 +225,7 @@ export const assertPermission = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return { success: false };
+    return Promise.reject('Failed to fetch permissions');
   }
 
   if (!response.data.includes(permission)) {
@@ -258,7 +240,7 @@ export const assertFeatureEnabled = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchFeatureFlag(flag);
   if (!response.success) {
-    return { success: false };
+    return Promise.reject('Failed to fetch feature flag');
   }
 
   if (!response.data.enabled) {
@@ -274,7 +256,7 @@ export const assertAnyPermissions = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return { success: false };
+    return Promise.reject('Failed to fetch permissions');
   }
 
   if (!permissions.some(permission => response.data.includes(permission))) {
@@ -290,7 +272,7 @@ export const assertAllPermissions = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return { success: false };
+    return Promise.reject('Failed to fetch permissions');
   }
 
   if (!permissions.every(permission => response.data.includes(permission))) {
@@ -526,13 +508,10 @@ export const fetchWeekSummaryV2 = async (
 export const fetchDaySummary = async (
   site: string,
   from: string,
-): Promise<ServerActionResult<DaySummaryV2>> => {
-  const response = await appointmentsApi.get<WeekSummaryV2>(
-    `day-summary?site=${site}&from=${from}`,
-  );
-
-  return handleBodyResponse(response, data => data.daySummaries[0]);
-};
+): Promise<ServerActionResult<DaySummaryV2>> =>
+  appointmentsApi
+    .get<WeekSummaryV2>(`day-summary?site=${site}&from=${from}`)
+    .then(handleBodyResponse, data => data.daySummaries[0]);
 
 export const fetchBooking = async (
   reference: string,
@@ -632,44 +611,44 @@ export const cancelSession = async (
     .then(handleEmptyResponse);
 };
 
-export const updateSiteStatus = async (site: string, status: SiteStatus) => {
+export const updateSiteStatus = async (
+  site: string,
+  status: SiteStatus,
+): Promise<ServerActionResult<void>> => {
   const payload: UpdateSiteStatusRequest = {
     site,
     status,
   };
 
-  const response = await appointmentsApi.post(
-    'site-status',
-    JSON.stringify(payload),
-  );
-
-  const notificationType = 'ams-notification';
-  const notificationMessage =
-    status === 'Online'
-      ? 'The site is now online and is available for appointments.'
-      : 'The site is now offline and will not be available for appointments.';
-  await raiseNotification(notificationType, notificationMessage);
-
-  handleEmptyResponse(response);
-  revalidatePath(`/site/${site}/details`);
+  return appointmentsApi
+    .post('site-status', JSON.stringify(payload))
+    .then(handleEmptyResponse)
+    .then(async response => {
+      const notificationType = 'ams-notification';
+      const notificationMessage =
+        status === 'Online'
+          ? 'The site is now online and is available for appointments.'
+          : 'The site is now offline and will not be available for appointments.';
+      await raiseNotification(notificationType, notificationMessage);
+      return response;
+    })
+    .then(response => {
+      revalidatePath(`/site/${site}/details`);
+      return response;
+    });
 };
 
-export const cancelDay = async (payload: CancelDayRequest) => {
-  const response = await appointmentsApi.post<CancelDayResponse>(
-    'day/cancel',
-    JSON.stringify(payload),
-  );
-
-  return handleBodyResponse(response);
-};
+export const cancelDay = async (
+  payload: CancelDayRequest,
+): Promise<ServerActionResult<CancelDayResponse>> =>
+  appointmentsApi
+    .post<CancelDayResponse>('day/cancel', JSON.stringify(payload))
+    .then(handleBodyResponse);
 
 export const downloadSiteSummaryReport = async (
   startDate: string,
   endDate: string,
-) => {
-  const response = await appointmentsApi.get<Blob>(
-    `report/site-summary?startDate=${startDate}&endDate=${endDate}`,
-  );
-
-  return await handleBodyResponse(response);
-};
+): Promise<ServerActionResult<Blob>> =>
+  appointmentsApi
+    .get<Blob>(`report/site-summary?startDate=${startDate}&endDate=${endDate}`)
+    .then(handleBodyResponse);

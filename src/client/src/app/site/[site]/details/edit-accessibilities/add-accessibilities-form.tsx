@@ -17,6 +17,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { saveSiteAccessibilities } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
 
 type FormFields = {
   accessibilities: string[];
@@ -57,7 +58,7 @@ const AddAccessibilitiesForm = ({
               : 'false',
         })),
       };
-      await saveSiteAccessibilities(site, payload);
+      await fromServer(saveSiteAccessibilities(site, payload));
 
       replace(`/site/${site}/details`);
     });

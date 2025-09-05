@@ -3,6 +3,7 @@ import AddInformationForCitizensForm from './add-information-for-citizens-form';
 import render from '@testing/render';
 import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -19,6 +20,9 @@ describe('Add Information For Citizen Form', () => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
     });
+    mockSetSiteInformationForCitizen.mockResolvedValue(
+      asServerActionResult(undefined),
+    );
   });
 
   it('displays a text area to input the information for citizens', () => {

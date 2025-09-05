@@ -4,6 +4,7 @@ import render from '@testing/render';
 import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import { mockCancelDayResponse } from '@testing/data';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -40,7 +41,9 @@ const defaultProps = {
 describe('CancelDayForm', () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ replace: mockReplace });
-    mockCancelDay.mockReturnValue(Promise.resolve(mockCancelDayResponse));
+    mockCancelDay.mockResolvedValue(
+      asServerActionResult(mockCancelDayResponse),
+    );
     jest.clearAllMocks();
   });
 

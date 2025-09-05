@@ -22,6 +22,7 @@ import {
 } from '@services/timeService';
 import { ChangeEvent, useTransition } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
+import fromServer from '@server/fromServer';
 
 export type EditSessionFormValues = {
   sessionToEdit: Session;
@@ -127,13 +128,15 @@ const EditSessionTimeAndCapacityForm = ({
     form: EditSessionFormValues,
     updatedSession: AvailabilitySession,
   ) => {
-    await editSession({
-      date,
-      site: site.id,
-      mode: 'Edit',
-      sessions: [updatedSession],
-      sessionToEdit: toAvailabilitySession(form.sessionToEdit),
-    });
+    await fromServer(
+      editSession({
+        date,
+        site: site.id,
+        mode: 'Edit',
+        sessions: [updatedSession],
+        sessionToEdit: toAvailabilitySession(form.sessionToEdit),
+      }),
+    );
   };
 
   const toAvailabilitySession = (session: Session): AvailabilitySession => ({

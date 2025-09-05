@@ -18,6 +18,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTransition } from 'react';
+import fromServer from '@server/fromServer';
 
 type CancelFormValue = {
   cancellationReason?: 'CancelledByCitizen' | 'CancelledBySite';
@@ -48,10 +49,8 @@ const CancelAppointmentPage = ({
   ) => {
     startTransition(async () => {
       if (form.cancellationReason !== undefined) {
-        await cancelAppointment(
-          booking.reference,
-          site,
-          form.cancellationReason,
+        await fromServer(
+          cancelAppointment(booking.reference, site, form.cancellationReason),
         );
 
         const returnDate = parseToUkDatetime(booking.from).format(

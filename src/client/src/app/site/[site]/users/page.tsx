@@ -20,7 +20,9 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertAnyPermissions(siteFromPath, ['users:view', 'users:view']);
+  await fromServer(
+    assertAnyPermissions(siteFromPath, ['users:view', 'users:view']),
+  );
 
   const [userProfile, users, rolesResponse, site, permissions, oktaEnabled] =
     await Promise.all([

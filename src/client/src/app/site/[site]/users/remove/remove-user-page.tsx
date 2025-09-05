@@ -10,6 +10,7 @@ import {
   SmallSpinnerWithText,
 } from '@nhsuk-frontend-components';
 import { Site } from '@types';
+import fromServer from '@server/fromServer';
 
 const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
   const [pendingSubmit, startTransition] = useTransition();
@@ -21,7 +22,7 @@ const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
 
   const submitForm: SubmitHandler<object> = async () => {
     startTransition(async () => {
-      await removeUserFromSite(site.id, user);
+      await fromServer(removeUserFromSite(site.id, user));
     });
   };
 

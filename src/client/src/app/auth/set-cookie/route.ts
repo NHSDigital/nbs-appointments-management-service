@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   revalidateTag('user');
 
   // Implicitly checks EULA is accepted, handles if not
-  await fetchUserProfile(`${process.env.CLIENT_BASE_PATH}/eula`);
+  await fromServer(fetchUserProfile(`${process.env.CLIENT_BASE_PATH}/eula`));
 
   const previousPage = cookieStore.get('previousPage');
   if (previousPage) {

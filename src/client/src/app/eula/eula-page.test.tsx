@@ -4,6 +4,7 @@ import render from '@testing/render';
 import EulaPage from './page';
 import { fetchEula, acceptEula } from '@services/appointmentsService';
 import { useRouter } from 'next/navigation';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchEulaMock = fetchEula as jest.Mock<
@@ -17,10 +18,11 @@ const mockPush = jest.fn();
 
 describe('EULA page', () => {
   beforeEach(() => {
-    fetchEulaMock.mockResolvedValue({
-      success: true,
-      data: { versionDate: '2021-01-01' },
-    });
+    fetchEulaMock.mockResolvedValue(
+      asServerActionResult({ versionDate: '2021-01-01' }),
+    );
+    acceptEulaMock.mockResolvedValue(asServerActionResult(undefined));
+
     mockUseRouter.mockReturnValue({
       push: mockPush,
     });

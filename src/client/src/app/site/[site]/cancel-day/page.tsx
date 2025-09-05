@@ -25,8 +25,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { date } = { ...(await searchParams) };
 
-  await assertPermission(siteFromPath, 'availability:setup');
-  await assertFeatureEnabled('CancelDay');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
+  await fromServer(assertFeatureEnabled('CancelDay'));
 
   if (!date) return notFound();
 

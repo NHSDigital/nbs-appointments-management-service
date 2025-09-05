@@ -15,6 +15,7 @@ import {
   SetUserRolesFormValues,
 } from './set-user-roles-form';
 import { useTransition } from 'react';
+import fromServer from '@server/fromServer';
 
 type Props = {
   site: Site;
@@ -56,12 +57,14 @@ const SetUserRolesWizard = ({
 
   const submitForm: SubmitHandler<SetUserRolesFormValues> = async form => {
     startTransition(async () => {
-      await saveUserRoleAssignments(
-        site.id,
-        form.email,
-        form.firstName ?? '',
-        form.lastName ?? '',
-        form.roleIds,
+      await fromServer(
+        saveUserRoleAssignments(
+          site.id,
+          form.email,
+          form.firstName ?? '',
+          form.lastName ?? '',
+          form.roleIds,
+        ),
       );
 
       router.push(`/site/${site.id}/users`);

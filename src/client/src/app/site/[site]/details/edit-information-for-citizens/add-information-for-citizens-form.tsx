@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { SPECIAL_CHARACTER_REGEX, URL_REGEX } from '../../../../../constants';
 import { useTransition } from 'react';
+import fromServer from '@server/fromServer';
 
 type FormFields = {
   informationForCitizen: string;
@@ -50,7 +51,7 @@ const AddInformationForCitizensForm = ({
         informationForCitizens: form.informationForCitizen,
       };
 
-      await setSiteInformationForCitizen(site, payload);
+      await fromServer(setSiteInformationForCitizen(site, payload));
 
       replace(`/site/${site}/details`);
     });

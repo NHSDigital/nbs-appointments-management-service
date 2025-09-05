@@ -1,5 +1,5 @@
 import { DateComponents, TimeComponents } from '@types';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -122,6 +122,17 @@ export const parseDateComponentsToUkDatetime = ({
   }
   const inputString = `${toTwoDigitFormat(day)}-${toTwoDigitFormat(month)}-${year}`;
   return parseToUkDatetime(inputString, 'DD-MM-YYYY');
+};
+
+export const parseDateAndTimeComponentsToUkDateTime = (
+  date: string,
+  time: TimeComponents,
+): DayJsType => {
+  return dayjs(date)
+    .hour(Number(time.hour))
+    .minute(Number(time.minute))
+    .second(0)
+    .tz(ukTimezone);
 };
 
 //#endregion
@@ -360,4 +371,21 @@ export const addHoursAndMinutesToUkDatetime = (
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
   const newHour = addToUkDatetime(ukDatetime, hours, 'hour', dateTimeFormat);
   return addToUkDatetime(newHour, minutes, 'minute', dateTimeFormat);
+};
+
+export const getNearestAlignedTimes = (
+  requested: Dayjs,
+  slotLengthMinutes: number,
+): Dayjs[] => {
+  const minutes = requested.hour() * 60 + requested.minute();
+  const remainder = minutes % slotLengthMinutes;
+
+  if (remainder === 0) {
+    return [requested];
+  }
+
+  const floor = requested.subtract(remainder, 'minute');
+  const ceil = floor.add(slotLengthMinutes, 'minute');
+
+  return [floor, ceil];
 };

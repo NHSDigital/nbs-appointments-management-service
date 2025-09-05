@@ -108,9 +108,16 @@ const EditSessionTimeAndCapacityForm = ({
       },
     });
 
+    const updatedString = btoa(JSON.stringify(updatedSession));
+    const existingString = btoa(JSON.stringify(existingSession));
+
     router.push(
-      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+      `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
     );
+
+    // router.push(
+    //   `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+    // );
   };
 
   const handleTwoDigitPositiveBoundedNumberInput = (

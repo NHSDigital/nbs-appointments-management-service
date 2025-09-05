@@ -18,6 +18,7 @@ import {
   WellKnownOdsEntry,
 } from '@types';
 import { saveSiteReferenceDetails } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
 
 type FormFields = {
   odsCode: string;
@@ -72,7 +73,7 @@ const EditReferenceDetailsForm = ({
         icb: form.icb,
         region: form.region,
       };
-      await saveSiteReferenceDetails(site.id, payload);
+      await fromServer(saveSiteReferenceDetails(site.id, payload));
 
       replace(`/site/${site.id}/details`);
     });

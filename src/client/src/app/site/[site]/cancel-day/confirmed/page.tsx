@@ -4,6 +4,7 @@ import CancellationConfirmed from './confirm-day-cancellation';
 import { parseToUkDatetime } from '@services/timeService';
 import { CancelDayResponse } from '@types';
 import NhsPage from '@components/nhs-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -22,12 +23,12 @@ const Page = async ({ searchParams, params }: PageProps) => {
     ...(await searchParams),
   };
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   if (date === undefined) {
     notFound();
   }
 
-  const site = await fetchSite(siteFromPath);
+  const site = await fromServer(fetchSite(siteFromPath));
 
   const dayCancellationSummary: CancelDayResponse = {
     cancelledBookingCount: cancelledBookingCount ?? 0,

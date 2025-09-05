@@ -9,6 +9,7 @@ import render from '@testing/render';
 import * as appointmentsService from '@services/appointmentsService';
 import EditReferenceDetailsForm from './edit-reference-details-form';
 import { Site } from '@types';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 
@@ -26,6 +27,9 @@ describe('Edit Site Reference Details Form', () => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
     });
+    mockSaveSiteReferenceDetails.mockResolvedValue(
+      asServerActionResult(undefined),
+    );
   });
 
   it('renders', async () => {

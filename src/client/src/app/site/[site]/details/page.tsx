@@ -17,7 +17,9 @@ export type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertAllPermissions(siteFromPath, ['site:view', 'site:get-meta-data']);
+  await fromServer(
+    assertAllPermissions(siteFromPath, ['site:view', 'site:get-meta-data']),
+  );
 
   const [site, wellKnownOdsCodeEntries, sitePermissions] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),

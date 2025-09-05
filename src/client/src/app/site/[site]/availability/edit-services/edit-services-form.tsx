@@ -24,6 +24,7 @@ import {
   toTimeFormat,
 } from '@services/timeService';
 import { useTransition } from 'react';
+import fromServer from '@server/fromServer';
 
 export type RemoveServicesFormValues = {
   sessionToEdit: Session;
@@ -100,19 +101,21 @@ const EditServicesForm = ({
         services: remainingServices,
       };
 
-      await editSession({
-        date,
-        site: site.id,
-        mode: 'Edit',
-        sessions: [updatedSession],
-        sessionToEdit: {
-          from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-          until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-          slotLength: form.sessionToEdit.slotLength,
-          capacity: form.sessionToEdit.capacity,
-          services: form.sessionToEdit.services,
-        },
-      });
+      await fromServer(
+        editSession({
+          date,
+          site: site.id,
+          mode: 'Edit',
+          sessions: [updatedSession],
+          sessionToEdit: {
+            from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+            until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
+            slotLength: form.sessionToEdit.slotLength,
+            capacity: form.sessionToEdit.capacity,
+            services: form.sessionToEdit.services,
+          },
+        }),
+      );
 
       const servicesRemovedSession: AvailabilitySession = {
         from: toTimeFormat(form.newSession.startTime) ?? '',

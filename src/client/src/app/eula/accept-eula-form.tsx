@@ -5,6 +5,7 @@ import { EulaVersion } from '@types';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
+import fromServer from '@server/fromServer';
 
 type AcceptEulaFormProps = {
   eulaVersion: EulaVersion;
@@ -18,7 +19,7 @@ export const AcceptEulaForm = ({ eulaVersion }: AcceptEulaFormProps) => {
 
   const submitForm: SubmitHandler<Record<string, undefined>> = async () => {
     startTransition(async () => {
-      await acceptEula(eulaVersion.versionDate);
+      await fromServer(acceptEula(eulaVersion.versionDate));
       push('/sites');
     });
   };

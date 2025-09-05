@@ -8,6 +8,7 @@ import {
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
+import fromServer from '@server/fromServer';
 import { cancelSession } from '@services/appointmentsService';
 import { ClinicalService, SessionSummary } from '@types';
 import { useRouter } from 'next/navigation';
@@ -44,7 +45,7 @@ const ConfirmCancellation = ({
   ) => {
     startTransition(async () => {
       if (form.action === 'cancel-session') {
-        await cancelSession(sessionSummary, site);
+        await fromServer(cancelSession(sessionSummary, site));
         router.push(`cancel/confirmed?session=${session}&date=${date}`);
       } else {
         router.push(

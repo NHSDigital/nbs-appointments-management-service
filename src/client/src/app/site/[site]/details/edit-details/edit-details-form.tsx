@@ -21,6 +21,7 @@ import {
   editSiteDetailsFormSchema,
   EditSiteDetailsFormValues,
 } from './edit-site-details-form-schema';
+import fromServer from '@server/fromServer';
 
 const EditDetailsForm = ({ site }: { site: Site }) => {
   const [pendingSubmit, startTransition] = useTransition();
@@ -55,7 +56,7 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         latitude: `${form.latitude}`,
         longitude: `${form.longitude}`,
       };
-      await saveSiteDetails(site.id, payload);
+      await fromServer(saveSiteDetails(site.id, payload));
 
       replace(`/site/${site.id}/details`);
     });

@@ -7,9 +7,11 @@ import {
   RadioGroup,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
+import fromServer from '@server/fromServer';
 import { updateSiteStatus } from '@services/appointmentsService';
 import { Site, SiteStatus } from '@types';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type FormFields = {
@@ -17,10 +19,11 @@ type FormFields = {
 };
 
 const EditSiteStatusForm = ({ site }: { site: Site }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<FormFields>({
     defaultValues: {
       siteStatus: site.status ?? 'Online',
@@ -41,9 +44,11 @@ const EditSiteStatusForm = ({ site }: { site: Site }) => {
       : 'Patients can not currently book appointments at this site';
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    await updateSiteStatus(site.id, form.siteStatus);
+    startTransition(async () => {
+      await fromServer(updateSiteStatus(site.id, form.siteStatus));
 
-    replace(`/site/${site.id}/details`);
+      replace(`/site/${site.id}/details`);
+    });
   };
 
   return (
@@ -80,7 +85,7 @@ const EditSiteStatusForm = ({ site }: { site: Site }) => {
         </InsetText>
       </FormGroup>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button type="submit">Save and continue</Button>

@@ -5,6 +5,7 @@ import {
 } from '@services/appointmentsService';
 import { EditSiteStatusPage } from './edit-site-status-page';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 export type PageProps = {
   params: Promise<{
@@ -15,8 +16,8 @@ export type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'site:manage');
-  await assertFeatureEnabled('SiteStatus');
+  await fromServer(assertPermission(siteFromPath, 'site:manage'));
+  await fromServer(assertFeatureEnabled('SiteStatus'));
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',

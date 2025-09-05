@@ -1,6 +1,6 @@
 ﻿/* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import React from 'react';
+import React, { useTransition } from 'react';
 import {
   Button,
   FormGroup,
@@ -17,6 +17,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { saveSiteAccessibilities } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
 
 type FormFields = {
   accessibilities: string[];
@@ -31,12 +32,9 @@ const AddAccessibilitiesForm = ({
   site: string;
   accessibilities: Accessibility[];
 }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const { replace } = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful },
-  } = useForm<FormFields>({
+  const { register, handleSubmit } = useForm<FormFields>({
     defaultValues: {
       accessibilities: accessibilities
         .filter(ac => ac.value === 'true')
@@ -49,18 +47,21 @@ const AddAccessibilitiesForm = ({
   };
 
   const submitForm: SubmitHandler<FormFields> = async (form: FormFields) => {
-    const payload: SetAccessibilitiesRequest = {
-      accessibilities: accessibilityDefinitions.map(ad => ({
-        id: ad.id,
-        value:
-          form.accessibilities.find((fv: string) => ad.id === fv) !== undefined
-            ? 'true'
-            : 'false',
-      })),
-    };
-    await saveSiteAccessibilities(site, payload);
+    startTransition(async () => {
+      const payload: SetAccessibilitiesRequest = {
+        accessibilities: accessibilityDefinitions.map(ad => ({
+          id: ad.id,
+          value:
+            form.accessibilities.find((fv: string) => ad.id === fv) !==
+            undefined
+              ? 'true'
+              : 'false',
+        })),
+      };
+      await fromServer(saveSiteAccessibilities(site, payload));
 
-    replace(`/site/${site}/details`);
+      replace(`/site/${site}/details`);
+    });
   };
 
   return (
@@ -82,7 +83,7 @@ const AddAccessibilitiesForm = ({
         </CheckBoxes>
       </FormGroup>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
         <ButtonGroup>

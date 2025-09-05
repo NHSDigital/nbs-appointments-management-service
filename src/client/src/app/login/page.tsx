@@ -3,6 +3,7 @@ import LogInButton from './log-in-button';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { fetchFeatureFlag } from '@services/appointmentsService';
 import LogInLink from './log-in-link';
+import fromServer from '@server/fromServer';
 
 export type LoginPageProps = {
   searchParams?: Promise<{
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 const Page = async ({ searchParams }: LoginPageProps) => {
-  const oktaEnabledFlag = await fetchFeatureFlag('OktaEnabled');
+  const oktaEnabledFlag = await fromServer(fetchFeatureFlag('OktaEnabled'));
   const { redirectUrl } = { redirectUrl: '/', ...(await searchParams) };
 
   return (

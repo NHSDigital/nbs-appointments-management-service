@@ -14,6 +14,8 @@ import {
   setUserRolesFormSchema,
   SetUserRolesFormValues,
 } from './set-user-roles-form';
+import { useTransition } from 'react';
+import fromServer from '@server/fromServer';
 
 type Props = {
   site: Site;
@@ -30,6 +32,7 @@ const SetUserRolesWizard = ({
   userToEdit,
   oktaEnabled,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const methods = useForm<SetUserRolesFormValues>({
     defaultValues: {
       email: userToEdit?.id ?? '',
@@ -53,15 +56,19 @@ const SetUserRolesWizard = ({
     userIdentityStatus?.extantInIdentityProvider === false;
 
   const submitForm: SubmitHandler<SetUserRolesFormValues> = async form => {
-    await saveUserRoleAssignments(
-      site.id,
-      form.email,
-      form.firstName ?? '',
-      form.lastName ?? '',
-      form.roleIds,
-    );
+    startTransition(async () => {
+      await fromServer(
+        saveUserRoleAssignments(
+          site.id,
+          form.email,
+          form.firstName ?? '',
+          form.lastName ?? '',
+          form.roleIds,
+        ),
+      );
 
-    router.push(`/site/${site.id}/users`);
+      router.push(`/site/${site.id}/users`);
+    });
   };
 
   return (
@@ -74,6 +81,7 @@ const SetUserRolesWizard = ({
           onCompleteFinalStep={() => {
             methods.handleSubmit(submitForm);
           }}
+          pendingSubmit={pendingSubmit}
         >
           {userToEdit === undefined && (
             <WizardStep>

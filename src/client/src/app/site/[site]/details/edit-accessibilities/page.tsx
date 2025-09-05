@@ -4,6 +4,7 @@ import {
 } from '@services/appointmentsService';
 import EditAccessibilitiesPage from './edit-accessibilities-page';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 export type PageProps = {
   params: Promise<{
@@ -14,8 +15,8 @@ export type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'site:manage');
-  const sitePermissions = await fetchPermissions(siteFromPath);
+  await fromServer(assertPermission(siteFromPath, 'site:manage'));
+  const sitePermissions = await fromServer(fetchPermissions(siteFromPath));
 
   return (
     <NhsTransactionalPage

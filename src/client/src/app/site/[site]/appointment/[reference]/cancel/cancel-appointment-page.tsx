@@ -17,6 +17,8 @@ import {
 } from '@services/timeService';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useTransition } from 'react';
+import fromServer from '@server/fromServer';
 
 type CancelFormValue = {
   cancellationReason?: 'CancelledByCitizen' | 'CancelledBySite';
@@ -31,11 +33,12 @@ const CancelAppointmentPage = ({
   site: string;
   clinicalServices: ClinicalService[];
 }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const { replace } = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<CancelFormValue>({
     defaultValues: {},
   });
@@ -44,15 +47,21 @@ const CancelAppointmentPage = ({
   const submitForm: SubmitHandler<CancelFormValue> = async (
     form: CancelFormValue,
   ) => {
-    if (form.cancellationReason !== undefined) {
-      await cancelAppointment(booking.reference, site, form.cancellationReason);
+    startTransition(async () => {
+      if (form.cancellationReason !== undefined) {
+        await fromServer(
+          cancelAppointment(booking.reference, site, form.cancellationReason),
+        );
 
-      const returnDate = parseToUkDatetime(booking.from).format(RFC3339Format);
+        const returnDate = parseToUkDatetime(booking.from).format(
+          RFC3339Format,
+        );
 
-      replace(
-        `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
-      );
-    }
+        replace(
+          `/site/${site}/view-availability/daily-appointments?date=${returnDate}&tab=1&page=1`,
+        );
+      }
+    });
   };
 
   return (
@@ -83,7 +92,7 @@ const CancelAppointmentPage = ({
           </RadioGroup>
         </FormGroup>
 
-        {isSubmitting || isSubmitSuccessful ? (
+        {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
           <Button type="submit">Cancel appointment</Button>

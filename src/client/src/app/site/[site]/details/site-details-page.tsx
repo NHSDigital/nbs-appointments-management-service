@@ -1,4 +1,5 @@
 import { Card, SummaryList } from '@components/nhsuk-frontend';
+import fromServer from '@server/fromServer';
 import {
   fetchAccessibilityDefinitions,
   fetchFeatureFlag,
@@ -24,9 +25,9 @@ const SiteDetailsPage = async ({
   wellKnownOdsEntries,
 }: Props) => {
   const [accessibilityDefinitions, site, siteStatus] = await Promise.all([
-    fetchAccessibilityDefinitions(),
-    fetchSite(siteId),
-    fetchFeatureFlag('SiteStatus'),
+    fromServer(fetchAccessibilityDefinitions()),
+    fromServer(fetchSite(siteId)),
+    fromServer(fetchFeatureFlag('SiteStatus')),
   ]);
 
   const siteReferenceSummaryData = mapSiteReferenceSummaryData(

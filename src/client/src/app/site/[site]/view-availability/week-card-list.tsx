@@ -3,6 +3,7 @@ import { Site } from '@types';
 import { WeekSummaryCard } from './week-summary-card';
 import { fetchClinicalServices } from '@services/appointmentsService';
 import { DayJsType } from '@services/timeService';
+import fromServer from '@server/fromServer';
 
 type Props = {
   site: Site;
@@ -16,7 +17,7 @@ export const WeekCardList = async ({ site, ukWeeks }: Props) => {
     }),
   );
 
-  const clinicalServices = await fetchClinicalServices();
+  const clinicalServices = await fromServer(fetchClinicalServices());
 
   return (
     <ol className="card-list">

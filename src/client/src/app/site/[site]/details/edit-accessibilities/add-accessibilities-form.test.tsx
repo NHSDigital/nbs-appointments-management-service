@@ -7,6 +7,7 @@ import AddAccessibilitiesForm from './add-accessibilities-form';
 import { useRouter } from 'next/navigation';
 import render from '@testing/render';
 import * as appointmentsService from '@services/appointmentsService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -23,7 +24,12 @@ describe('Add Accessibilities Form', () => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
     });
+
+    mockSaveSiteAccessibilities.mockResolvedValue(
+      asServerActionResult(undefined),
+    );
   });
+
   it('displays a check box for each available role', () => {
     render(
       <AddAccessibilitiesForm

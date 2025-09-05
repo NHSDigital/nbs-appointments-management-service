@@ -8,6 +8,7 @@ import {
 import { notFound, redirect } from 'next/navigation';
 import { notAuthorized } from '@services/authService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 export type UserPageProps = {
   searchParams?: Promise<{
@@ -26,12 +27,12 @@ const Page = async ({ params, searchParams }: UserPageProps) => {
     redirect(`/site/${siteFromPath}/users`);
   }
 
-  await assertPermission(siteFromPath, 'users:manage');
+  await fromServer(assertPermission(siteFromPath, 'users:manage'));
 
   const [site, users, userProfile] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchUsers(siteFromPath),
-    fetchUserProfile(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchUsers(siteFromPath)),
+    fromServer(fetchUserProfile()),
   ]);
 
   if (users === undefined || !users.some(u => u.id === user.toLowerCase())) {

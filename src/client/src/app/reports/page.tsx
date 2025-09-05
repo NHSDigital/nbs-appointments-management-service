@@ -4,10 +4,11 @@ import {
 } from '@services/appointmentsService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import { ReportsPage } from './reports-page';
+import fromServer from '@server/fromServer';
 
 const Page = async () => {
-  await assertFeatureEnabled('SiteSummaryReport');
-  await assertPermission('*', 'reports:sitesummary');
+  await fromServer(assertFeatureEnabled('SiteSummaryReport'));
+  await fromServer(assertPermission('*', 'reports:sitesummary'));
 
   return (
     <NhsTransactionalPage originPage="reports">

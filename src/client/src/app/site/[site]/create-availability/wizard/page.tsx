@@ -5,6 +5,7 @@ import {
 } from '@services/appointmentsService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import AvailabilityTemplateWizard from './availability-template-wizard';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -19,14 +20,14 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { date } = { ...(await searchParams) };
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchClinicalServices()),
   ]);
 
-  await assertPermission(site.id, 'availability:setup');
+  await fromServer(assertPermission(site.id, 'availability:setup'));
 
   return (
     <NhsTransactionalPage originPage="create-availability-wizard">

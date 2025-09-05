@@ -38,7 +38,7 @@ public static class ServiceRegistration
             .Configure<CosmosStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<FileOptions>(opts =>
             {
-                opts.FileName = fileName;
+                opts.FileName = fileName.ToLower();
             })
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)

@@ -118,20 +118,11 @@ services:
   bookingsdataextracts:
     build:
       context: .
-      dockerfile: BookingDataExtractDockerfile
-    environment:
+      dockerfile: BookingDataExtractDockerfile    
+      environment:
       COSMOS__ENDPOINT: "https://localhost:8081/"
       COSMOS__KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-      MESH_MAILBOX_DESTINATION: "X26ABC1"
-      MESH_WORKFLOW: "MYA_INBOUND_NATIONAL_BOOKINGS_1"
-      KeyVault__KeyVaultName: "" 
-      KeyVault__TenantId: ""
-      KeyVault__ClientId: ""
-      KeyVault__ClientSecret: ""
-      MeshClientOptions__BaseUrl: "http://localhost:4030/"
-      MeshAuthorizationOptions__MailboxId: "X26ABC1"
-      MeshAuthorizationOptions__MailboxPassword: "password"
-      MeshAuthorizationOptions__SharedKey: "TestKey"
+      FileSenderOptions__Type: "local"
     command: dotnet BookingsDataExtracts.dll
     depends_on:
       - mesh
@@ -139,19 +130,10 @@ services:
     build:
       context: .
       dockerfile: CapacityDataExtractDockerfile
-    environment:
+      environment:
       COSMOS__ENDPOINT: "https://localhost:8081/"
       COSMOS__KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-      MESH_MAILBOX_DESTINATION: "X26ABC1"
-      MESH_WORKFLOW: "MYA_INBOUND_NATIONAL_BOOKINGS_1"
-      KeyVault__KeyVaultName: "" 
-      KeyVault__TenantId: ""
-      KeyVault__ClientId: ""
-      KeyVault__ClientSecret: ""
-      MeshClientOptions__BaseUrl: "http://localhost:4030/"
-      MeshAuthorizationOptions__MailboxId: "X26ABC1"
-      MeshAuthorizationOptions__MailboxPassword: "password"
-      MeshAuthorizationOptions__SharedKey: "TestKey"
+      FileSenderOptions__Type: "local"
     command: dotnet CapacityDataExtract.dll
     depends_on:
       - mesh

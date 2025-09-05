@@ -22,7 +22,7 @@ RUN dotnet publish data/BookingsDataExtracts/BookingsDataExtracts.csproj -o out
 
 
 # This stage is used to publish the service project to be copied to the final stage
-FROM mcr.microsoft.com/dotnet/runtime:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
 COPY --from=build /App/out .
 

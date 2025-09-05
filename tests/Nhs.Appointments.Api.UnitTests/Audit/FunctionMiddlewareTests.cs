@@ -74,7 +74,7 @@ public class FunctionMiddlewareTests
         await _sut.Invoke(_functionContext.Object, _functionExecutionDelegate.Object);
 
         //TODO refactor in a more robust way
-        await Task.Delay(100);
+        await Task.Delay(1000);
 
         _auditWriteService.Verify(
             x => x.RecordFunction(It.IsAny<string>(), It.IsAny<DateTime>(), user, functionType.Name,

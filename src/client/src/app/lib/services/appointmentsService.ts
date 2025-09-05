@@ -511,7 +511,9 @@ export const fetchDaySummary = async (
 ): Promise<ServerActionResult<DaySummaryV2>> =>
   appointmentsApi
     .get<WeekSummaryV2>(`day-summary?site=${site}&from=${from}`)
-    .then(handleBodyResponse, data => data.daySummaries[0]);
+    .then(response =>
+      handleBodyResponse(response, data => data.daySummaries[0]),
+    );
 
 export const fetchBooking = async (
   reference: string,

@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchBooking,
@@ -9,6 +8,7 @@ import CancelAppointmentPage from './cancel-appointment-page';
 import { notFound } from 'next/navigation';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { RFC3339Format, parseToUkDatetime } from '@services/timeService';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   params: Promise<{
@@ -40,19 +40,18 @@ const Page = async ({ params }: PageProps) => {
   };
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       caption="Cancel appointment"
       title="Are you sure you want to cancel this appointment?"
       originPage="appointment-cancel"
       backLink={backLink}
-      site={site}
     >
       <CancelAppointmentPage
         booking={booking}
         site={site.id}
         clinicalServices={clinicalServices}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

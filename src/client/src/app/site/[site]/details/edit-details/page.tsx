@@ -1,7 +1,7 @@
-import NhsPage from '@components/nhs-page';
 import { assertPermission } from '@services/appointmentsService';
 import { EditDetailsPage } from './edit-details-page';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 export type PageProps = {
   params: Promise<{
@@ -21,9 +21,9 @@ const Page = async ({ params }: PageProps) => {
   };
 
   return (
-    <NhsPage backLink={backLink} title="" originPage="edit">
+    <NhsTransactionalPage backLink={backLink} title="" originPage="edit">
       <EditDetailsPage siteId={siteFromPath} />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

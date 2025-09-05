@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchClinicalServices,
@@ -7,6 +6,7 @@ import {
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
 import { parseToUkDatetime } from '@services/timeService';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -35,10 +35,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const parsedDate = parseToUkDatetime(date);
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title={`Change availability for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
-      site={site}
       backLink={{
         renderingStrategy: 'server',
         href: `/site/${site.id}/view-availability/week/?date=${date}`,
@@ -52,7 +51,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         clinicalServices={clinicalServices}
       ></EditSessionDecision>
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

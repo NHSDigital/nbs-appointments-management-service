@@ -4,10 +4,10 @@ import {
   fetchSite,
 } from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
-import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
+import NhsPage from '@components/nhs-page';
 
 type PageProps = {
   searchParams?: Promise<{

@@ -4,10 +4,10 @@ import {
   fetchSite,
 } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
-import NhsPage from '@components/nhs-page';
 import { parseToUkDatetime } from '@services/timeService';
 import EditServicesForm from './edit-services-form';
 import { notFound } from 'next/navigation';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -38,7 +38,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title={`Remove services for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={'Remove services'}
       originPage="edit-session"
@@ -54,7 +54,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         existingSession={sessionSummary}
         clinicalServices={clinicalServices}
       ></EditServicesForm>
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

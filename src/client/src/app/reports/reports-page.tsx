@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import DownloadReportForm from './download-report-form';
 import DownloadReportConfirmation from './download-report-confirmation';
+import { useRouter } from 'next/navigation';
 
 export const ReportsPage = () => {
   // TODO: Atm this journey has 2 steps; one to select the dates and one to confirm the download.
@@ -12,13 +13,20 @@ export const ReportsPage = () => {
   const [reportRequest, setReportRequest] = useState<
     DownloadReportFormValues | undefined
   >(undefined);
+  const router = useRouter();
 
   return (
     <>
       {reportRequest === undefined ? (
         <DownloadReportForm
           setReportRequest={setReportRequest}
-          goBackHref={'/'}
+          backLink={{
+            renderingStrategy: 'client',
+            onClick: () => {
+              router.back();
+            },
+            text: 'Back',
+          }}
         />
       ) : (
         <DownloadReportConfirmation

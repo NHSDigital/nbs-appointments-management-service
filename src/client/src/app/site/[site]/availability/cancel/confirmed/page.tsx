@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchClinicalServices,
@@ -8,6 +7,7 @@ import { notFound } from 'next/navigation';
 import CancellationConfirmed from './cancellation-confirmed';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { parseToUkDatetime } from '@services/timeService';
+import NhsPage from '@components/nhs-page';
 
 type PageProps = {
   searchParams?: Promise<{

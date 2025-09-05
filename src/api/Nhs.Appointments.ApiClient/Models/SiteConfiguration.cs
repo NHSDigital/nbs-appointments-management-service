@@ -10,9 +10,6 @@ namespace Nhs.Appointments.ApiClient.Models
         [JsonPropertyName("informationForCitizen")]
         public string InformationForCitizen { get; set; }
 
-        [JsonPropertyName("referenceNumberGroup")]
-        public int ReferenceNumberGroup { get; set; }
-
         [JsonPropertyName("serviceConfiguration")]
         public IEnumerable<ServiceConfiguration> ServiceConfiguration { get; set; }
     }

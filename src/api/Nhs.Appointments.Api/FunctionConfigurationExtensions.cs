@@ -69,7 +69,6 @@ public static class FunctionConfigurationExtensions
 
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
-            .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
             .Configure<SiteSummaryOptions>(opts =>
             {
                 opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
@@ -79,7 +78,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
-            .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+            .AddTransient<IBookingReferenceDocumentStore, BookingReferenceCosmosDocumentStore>()
             .AddTransient<IEulaStore, EulaStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()

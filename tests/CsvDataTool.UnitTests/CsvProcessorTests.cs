@@ -159,7 +159,6 @@ public class CsvProcessorTests
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
                 Type = "Pharmacy",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "ICB1",
                 Region = "Yorkshire",
                 Accessibilities =
@@ -185,7 +184,6 @@ public class CsvProcessorTests
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
                 Type = "Pharmacy",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "ICB2",
                 Region = "Yorkshire",
                 Accessibilities =
@@ -211,7 +209,6 @@ public class CsvProcessorTests
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
                 Type = "Pharmacy",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "ICB3",
                 Region = "Yorkshire",
                 Accessibilities =
@@ -267,7 +264,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb1",
                 Region = "Yorkshire",
                 Accessibilities =
@@ -291,7 +287,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb2",
                 Region = "Yorkshire",
                 Accessibilities =
@@ -315,7 +310,6 @@ public class CsvProcessorTests
                 PhoneNumber = "01234 567890",
                 Location = new Location("Point", [1.0, 60.0]),
                 DocumentType = "site",
-                ReferenceNumberGroup = 0,
                 IntegratedCareBoard = "test icb3",
                 Region = "Yorkshire",
                 Accessibilities =

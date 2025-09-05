@@ -57,7 +57,10 @@ public class BookingWriteService(
         }
 
         booking.Created = time.GetUtcNow();
-        booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+        
+        //TODO re-add
+        // booking.Reference = await referenceNumberProvider.GetReferenceNumber();
+        
         booking.ReminderSent = false;
         booking.AvailabilityStatus = AvailabilityStatus.Supported;
         await bookingDocumentStore.InsertAsync(booking);

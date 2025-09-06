@@ -58,8 +58,8 @@ public partial class ReferenceNumberProvider(
         //divide total days into bucket length
         var dayPartition = (dtUtc.DayOfYear / PartitionBucketLengthInDays) + 1;
 
-        //i.e for 5th Jan 2025 will be 2502 (25 year, Jan 5th is within the 2nd partition of 4 days)
-        return (dtUtc.Year % 100).ToString("D2") + dayPartition.ToString("D2");
+        //i.e for 5th Jan 2025 will be 0225 (25 year, Jan 5th is within the 2nd partition of 4 days)
+        return dayPartition.ToString("D2") + (dtUtc.Year % 100).ToString("D2");
     }
 
     private string Generate(int sequenceNumber, DateTimeOffset utcNow, byte[] hmacSecretKey)

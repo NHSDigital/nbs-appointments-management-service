@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -25,7 +24,7 @@ public class ReferenceNumberProviderTests
 
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("3825-69268-6774");
     }
@@ -38,7 +37,7 @@ public class ReferenceNumberProviderTests
 
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("0170-73123-6791");
     }
@@ -63,9 +62,9 @@ public class ReferenceNumberProviderTests
 
             using var cache = new MemoryCache(new MemoryCacheOptions());
             var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-            
+
             var result = await sut.GetReferenceNumber(HmacSecretKey);
-            
+
             Assert.True(ReferenceNumberProvider.IsValidBookingReference(result));
             result.Should().StartWith($"{dayStep:00}25");
         }
@@ -79,9 +78,9 @@ public class ReferenceNumberProviderTests
 
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var result = await sut.GetReferenceNumber(HmacSecretKey);
-        
+
         Assert.True(ReferenceNumberProvider.IsValidBookingReference(result));
         result.Should().Be("9224-44976-9071");
     }
@@ -94,11 +93,11 @@ public class ReferenceNumberProviderTests
 
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("0177-00000-0006");
     }
-    
+
     [Fact]
     public async Task GetReferenceNumber_ChecksumDigitExists_MeansOnlyOneReferenceIsValid()
     {
@@ -107,23 +106,22 @@ public class ReferenceNumberProviderTests
 
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("4016-90927-6174");
         Assert.True(ReferenceNumberProvider.IsValidBookingReference(result));
-        
+
         //the other 9 numbers with a different final digit should NOT be valid references
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6171"));
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6172"));
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6173"));
-        
+
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6175"));
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6176"));
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6177"));
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6178"));
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6179"));
         Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6170"));
-        
     }
 
     [Fact]
@@ -134,7 +132,7 @@ public class ReferenceNumberProviderTests
 
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("0177-40950-2016");
     }
@@ -144,10 +142,10 @@ public class ReferenceNumberProviderTests
     {
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
-        
+
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var firstResult = await sut.GetReferenceNumber(HmacSecretKey);
         firstResult.Should().Be("4925-52301-3450");
 
@@ -157,20 +155,21 @@ public class ReferenceNumberProviderTests
         var secondResult = await sut.GetReferenceNumber(HmacSecretKey);
         secondResult.Should().Be("5025-82949-7652");
     }
-    
+
     /// <summary>
-    /// If we somehow cross 100 million booking reference generations within an exact 4-day period, it would end up reusing a reference.
-    /// Ideally this limit would never be hit, we are likely under a cyber-attack...
+    ///     If we somehow cross 100 million booking reference generations within an exact 4-day period, it would end up reusing
+    ///     a reference.
+    ///     Ideally this limit would never be hit, we are likely under a cyber-attack...
     /// </summary>
     [Fact]
     public async Task GetReferenceNumber_GeneratesSameReferenceNumber_SameSequenceNumber_WithinFourDays()
     {
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
-        
+
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var firstResult = await sut.GetReferenceNumber(HmacSecretKey);
         firstResult.Should().Be("4925-52301-3450");
 
@@ -178,9 +177,115 @@ public class ReferenceNumberProviderTests
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035 + 100000000);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
         var secondResult = await sut.GetReferenceNumber(HmacSecretKey);
-        
+
         //not desirable!
         secondResult.Should().Be(firstResult);
+    }
+    
+    /// <summary>
+    ///  If this value is ever changed/up-versioned the logic will need revisiting to ensure it still works.
+    /// </summary>
+    [Fact]
+    public void SequenceMax_Should_Equal_Hundred_Million()
+    {
+        ReferenceNumberProvider.SequenceMax.Should().Be(100_000_000);
+    }
+    
+    /// <summary>
+    /// If this value is ever changed/up-versioned the logic will need revisiting to ensure it still works.
+    /// </summary>
+    [Fact]
+    public void PartitionBucketLengthInDays_Should_Equal_Four()
+    {
+        ReferenceNumberProvider.PartitionBucketLengthInDays.Should().Be(4);
+    }
+
+    /// <summary>
+    ///     It is possible, but unlikely, that two different hmac keys produce the same stride value for the same partition key
+    ///     This is known and does not cause any issues with the logic.
+    ///     The hard-coded data for this test that proves scenario this was found by trial and error iteration.
+    /// </summary>
+    [Fact]
+    public void DeriveSequenceStride_DifferentKeys_CanProduce_SameStride_For_SamePartition()
+    {
+        byte[] hmacKey1 =
+        [
+            90,
+            159,
+            125,
+            18,
+            154,
+            250,
+            190,
+            52,
+            51,
+            120,
+            80,
+            115,
+            11,
+            62,
+            69,
+            54,
+            161,
+            157,
+            211,
+            45,
+            55,
+            82,
+            52,
+            185,
+            95,
+            137,
+            249,
+            15,
+            53,
+            136,
+            32,
+            185
+        ];
+
+        byte[] hmacKey2 =
+        [
+            174,
+            19,
+            165,
+            199,
+            34,
+            196,
+            194,
+            214,
+            251,
+            174,
+            100,
+            113,
+            20,
+            113,
+            180,
+            81,
+            128,
+            127,
+            174,
+            163,
+            13,
+            36,
+            148,
+            83,
+            195,
+            59,
+            237,
+            147,
+            62,
+            87,
+            75,
+            49
+        ];
+
+        const string samePartitionKey = "3125";
+
+        var stride1 = ReferenceNumberProvider.DeriveSequenceStride(samePartitionKey, hmacKey1);
+        var stride2 = ReferenceNumberProvider.DeriveSequenceStride(samePartitionKey, hmacKey2);
+
+        Assert.Equal(stride1, stride2);
     }
 
     /// <summary>
@@ -191,10 +296,10 @@ public class ReferenceNumberProviderTests
     {
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(93451340);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 1, 01, 17, 23, 00));
-        
+
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-        
+
         var normalResult = await sut.GetReferenceNumber(HmacSecretKey);
 
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2125, 1, 01, 17, 23, 00));
@@ -203,12 +308,13 @@ public class ReferenceNumberProviderTests
         hundredYearsResult.Should().Be(normalResult);
     }
 
-    [Fact(Skip = "Very slow test! Can change the value of SequenceMax to something smaller if you want to see a full run")]
+    [Fact(Skip =
+        "Very slow test! Can change the value of SequenceMax to something smaller if you want to see a full run")]
     // [Fact]
-    public async Task Generates_Unique_References_Within_Partition()
+    public async Task GetReferenceNumber_Unique_References_Within_Partition()
     {
-        var generatedReferences = new HashSet<long>();
-        
+        var generatedDigitReferences = new HashSet<long>();
+
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(DateTimeOffset.UtcNow.AddDays(67));
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
@@ -217,16 +323,21 @@ public class ReferenceNumberProviderTests
         {
             _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(i);
             var referenceNumber = await sut.GetReferenceNumber(HmacSecretKey);
-            
+
             var digitReference = long.Parse(referenceNumber.Replace("-", string.Empty));
-            
-            generatedReferences.Add(digitReference);
+
+            generatedDigitReferences.Add(digitReference);
         }
 
         //if the distinct list of generatedReferences is equal to its own count, that means it is a unique list
-        Assert.Equal(generatedReferences.Distinct().Count(), generatedReferences.Count);
+        Assert.Equal(generatedDigitReferences.Distinct().Count(), generatedDigitReferences.Count);
 
-        // every value 0..N-1 was hit exactly once
-        Assert.Equal(ReferenceNumberProvider.SequenceMax, generatedReferences.Count);
+        // every value 0,...,N-1 was hit exactly once
+        Assert.Equal(ReferenceNumberProvider.SequenceMax, generatedDigitReferences.Count);
+
+        //all generated references are valid
+        Assert.True(generatedDigitReferences.All(digitReference =>
+            ReferenceNumberProvider.IsValidBookingReference(
+                ReferenceNumberProvider.FormatBookingReference(digitReference.ToString()))));
     }
 }

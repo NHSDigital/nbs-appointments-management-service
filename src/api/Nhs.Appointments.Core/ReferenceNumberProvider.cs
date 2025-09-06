@@ -27,7 +27,7 @@ public partial class ReferenceNumberProvider(
     private const string HmacKeyVersion = "v1";
     
     //in generating the partition key, splitting the current day of the year into X buckets of this length
-    private const int PartitionBucketLengthInDays = 4;
+    internal const int PartitionBucketLengthInDays = 4;
     
     //the sequence max that rolls over. system can support this many references within X many days
     //i.e SequenceMax = 100 million, and PartitionBucketLengthInDays = 4
@@ -51,14 +51,12 @@ public partial class ReferenceNumberProvider(
     ///     Partition key so that a different unique key is generated every 'PartitionBucketLengthInDays' days
     ///     Lasts 100 years until a collision... Hello year 2125!
     /// </summary>
-    /// <param name="dtUtc"></param>
-    /// <returns></returns>
     private static string PartitionKey(DateTimeOffset dtUtc)
     {
         //divide total days into bucket length
         var dayPartition = (dtUtc.DayOfYear / PartitionBucketLengthInDays) + 1;
 
-        //i.e for 5th Jan 2025 will be 0225 (25 year, Jan 5th is within the 2nd partition of 4 days)
+        //i.e. on the 5th Jan 2025 will be 0225 (Jan 5th is within the 2nd partition of 4 days, 25 year part)
         return dayPartition.ToString("D2") + (dtUtc.Year % 100).ToString("D2");
     }
 
@@ -70,7 +68,7 @@ public partial class ReferenceNumberProvider(
             .ToString("D8");
         var partitionAndSequenceBijection = partitionKey + sequenceBijection;
 
-        //adds a simple check whether the booking reference is valid (all 12 digits have to satisfy a criteria)
+        //adds a simple check whether the booking reference is valid (all 13 digits have to satisfy the luhn criteria)
         //this can be guessed with 10% chance as it is a single digit,
         //but can help us detect brute force checks before DB hit
         var checkDigit = Luhn.CalculateCheckDigit(partitionAndSequenceBijection).ToString("D1");
@@ -110,15 +108,13 @@ public partial class ReferenceNumberProvider(
     }
 
     /// <summary>
-    ///     Derives the stride used for the bijection.
-    ///     Generates a coprime stride (with SequenceMax) using the partitionKey and a secret key.
-    ///     This doesn't have to generate unique results, two different partition keys can generate the same result
-    ///     it just needs to be deterministic and non-guessable and guarded by a secret.
+    ///     Derives the sequence stride used for the bijection.
+    ///     Generates a sequence stride that is COPRIME with SequenceMax, using the partitionKey and a secret key, and some manual manipulation to guarantee the value is coprime.
+    ///     This doesn't have to generate unique results, two different partition keys and secrets can generate the same result.
+    ///     This just needs to be deterministic and non-guessable and guarded by a secret.
+    ///     It is used for obfuscation of the sequencing, not for security.
     /// </summary>
-    /// <param name="partitionKey"></param>
-    /// <param name="hmacSecretKey"></param>
-    /// <returns></returns>
-    private static int DeriveSequenceStride(string partitionKey, byte[] hmacSecretKey)
+    internal static int DeriveSequenceStride(string partitionKey, byte[] hmacSecretKey)
     {
         using var h = new HMACSHA256(hmacSecretKey);
         var mac = h.ComputeHash(Encoding.ASCII.GetBytes(partitionKey));
@@ -174,7 +170,7 @@ public partial class ReferenceNumberProvider(
         return true;
     }
 
-    private static string FormatBookingReference(string raw)
+    internal static string FormatBookingReference(string raw)
     {
         return raw?.Length != 13
             ? throw new ArgumentException("Must be 13 digits")

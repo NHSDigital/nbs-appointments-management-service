@@ -126,9 +126,34 @@ public class ReferenceNumberProviderTests
 
         //sequence has passed 100 million and reset
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035 + 100000000);
-        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2026, 2, 04, 17, 23, 00));
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 17, 17, 23, 00));
         var secondResult = await sut.GetReferenceNumber(HmacSecretKey);
-        secondResult.Should().Be("0926-76539-8355");
+        secondResult.Should().Be("5025-82949-7652");
+    }
+    
+    /// <summary>
+    /// If we somehow cross 100 million booking reference generations within an exact 4-day period, it would end up reusing a reference.
+    /// Ideally this limit would never be hit, we are likely under a cyber-attack...
+    /// </summary>
+    [Fact]
+    public async Task GetReferenceNumber_GeneratesSameReferenceNumber_SameSequenceNumber_WithinFourDays()
+    {
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035);
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
+        
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var firstResult = await sut.GetReferenceNumber(HmacSecretKey);
+        firstResult.Should().Be("4925-52301-3450");
+
+        //sequence has passed 100 million and reset
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035 + 100000000);
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
+        var secondResult = await sut.GetReferenceNumber(HmacSecretKey);
+        
+        //not desirable!
+        secondResult.Should().Be(firstResult);
     }
 
     /// <summary>

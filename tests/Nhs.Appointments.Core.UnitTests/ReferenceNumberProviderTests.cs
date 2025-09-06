@@ -203,10 +203,10 @@ public class ReferenceNumberProviderTests
     /// <summary>
     ///     It is possible, but unlikely, that two different hmac keys produce the same stride value for the same partition key
     ///     This is known and does not cause any issues with the logic.
-    ///     The hard-coded data for this test that proves scenario this was found by trial and error iteration.
+    ///     The hard-coded data for this test that proves this scenario was found by trial and error iterations.
     /// </summary>
     [Fact]
-    public void DeriveSequenceStride_DifferentKeys_CanProduce_SameStride_For_SamePartition()
+    public void DeriveSequenceStride_DifferentHmacKeys_CanProduce_SameStride_For_SamePartitionKey()
     {
         byte[] hmacKey1 =
         [
@@ -284,6 +284,112 @@ public class ReferenceNumberProviderTests
 
         var stride1 = ReferenceNumberProvider.DeriveSequenceStride(samePartitionKey, hmacKey1);
         var stride2 = ReferenceNumberProvider.DeriveSequenceStride(samePartitionKey, hmacKey2);
+
+        Assert.Equal(stride1, stride2);
+    }
+    
+    /// <summary>
+    ///     It is possible, but unlikely, that two different hmac keys produce the same stride value for the same partition key
+    ///     This is known and does not cause any issues with the logic.
+    ///     The hard-coded data for this test that proves this scenario was found by trial and error iterations.
+    /// </summary>
+    [Fact]
+    public void DeriveSequenceStride_DifferentHmacKeys_CanProduce_SameStride_For_DifferentPartitionKeys()
+    {
+        byte[] hmacKey1 =
+        [
+            241,
+            74,
+            152,
+            165,
+            84,
+            109,
+            9,
+            73,
+            33,
+            8,
+            205,
+            218,
+            155,
+            55,
+            55,
+            216,
+            75,
+            56,
+            253,
+            24,
+            82,
+            174,
+            146,
+            70,
+            162,
+            194,
+            33,
+            57,
+            164,
+            252,
+            94,
+            6
+        ];
+
+        byte[] hmacKey2 =
+        [
+            247,
+            145,
+            228,
+            43,
+            7,
+            70,
+            65,
+            70,
+            122,
+            137,
+            180,
+            68,
+            32,
+            203,
+            250,
+            219,
+            115,
+            45,
+            112,
+            34,
+            112,
+            111,
+            241,
+            124,
+            41,
+            54,
+            169,
+            237,
+            158,
+            201,
+            230,
+            107
+        ];
+
+        var partitionKey1 = "5728"; //around about October 15th 2028
+        var partitionKey2 = "5837"; //around about August 20th 2037
+
+        var stride1 = ReferenceNumberProvider.DeriveSequenceStride(partitionKey1, hmacKey1);
+        var stride2 = ReferenceNumberProvider.DeriveSequenceStride(partitionKey2, hmacKey2);
+
+        Assert.Equal(stride1, stride2);
+    }
+    
+    /// <summary>
+    ///     It is possible, but unlikely, that two different partition keys produce the same stride value for the same hmac key
+    ///     This is known and does not cause any issues with the logic.
+    ///     The hard-coded data for this test that proves this scenario was found by trial and error iterations.
+    /// </summary>
+    [Fact]
+    public void DeriveSequenceStride_SameHmacKey_CanProduce_SameStride_For_DifferentPartitionKeys()
+    {
+        var partitionKey1 = "1947"; //around about March 18th 2047
+        var partitionKey2 = "2538"; //around about April 10th 2038
+        
+        var stride1 = ReferenceNumberProvider.DeriveSequenceStride(partitionKey1, HmacSecretKey);
+        var stride2 = ReferenceNumberProvider.DeriveSequenceStride(partitionKey2, HmacSecretKey);
 
         Assert.Equal(stride1, stride2);
     }

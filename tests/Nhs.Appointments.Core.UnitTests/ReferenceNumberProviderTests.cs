@@ -98,6 +98,33 @@ public class ReferenceNumberProviderTests
         var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("0177-00000-0006");
     }
+    
+    [Fact]
+    public async Task GetReferenceNumber_ChecksumDigitExists_MeansOnlyOneReferenceIsValid()
+    {
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2016, 6, 06, 17, 23, 00));
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(76543789);
+
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var result = await sut.GetReferenceNumber(HmacSecretKey);
+        result.Should().Be("4016-90927-6174");
+        Assert.True(ReferenceNumberProvider.IsValidBookingReference(result));
+        
+        //the other 9 numbers with a different final digit should NOT be valid references
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6171"));
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6172"));
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6173"));
+        
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6175"));
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6176"));
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6177"));
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6178"));
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6179"));
+        Assert.False(ReferenceNumberProvider.IsValidBookingReference("4016-90927-6170"));
+        
+    }
 
     [Fact]
     public async Task GetReferenceNumber_GeneratesCorrectlyFormattedNumber_MinSequenceNumber_1()

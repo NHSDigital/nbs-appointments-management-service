@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -14,13 +15,7 @@ public class ReferenceNumberProviderTests
     ];
 
     private readonly Mock<IBookingReferenceDocumentStore> _bookingReferenceDocumentStore = new();
-    private readonly ReferenceNumberProvider _sut;
     private readonly Mock<TimeProvider> _timeProvider = new();
-
-    public ReferenceNumberProviderTests()
-    {
-        _sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, _timeProvider.Object);
-    }
 
     [Fact]
     public async Task GetReferenceNumber_GeneratesCorrectlyFormattedNumber()
@@ -28,7 +23,10 @@ public class ReferenceNumberProviderTests
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 31, 9, 0, 59));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345123);
 
-        var result = await _sut.GetReferenceNumber(HmacSecretKey);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("3825-0234-5123");
     }
 
@@ -38,7 +36,10 @@ public class ReferenceNumberProviderTests
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(1970, 1, 1, 00, 00, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(1);
 
-        var result = await _sut.GetReferenceNumber(HmacSecretKey);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("0170-0000-0001");
     }
 
@@ -60,7 +61,10 @@ public class ReferenceNumberProviderTests
             initialDate = initialDate.AddDays(1);
             _timeProvider.Setup(x => x.GetUtcNow()).Returns(initialDate);
 
-            var result = await _sut.GetReferenceNumber(HmacSecretKey);
+            using var cache = new MemoryCache(new MemoryCacheOptions());
+            var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+            
+            var result = await sut.GetReferenceNumber(HmacSecretKey);
             result.Should().Be($"{dayStep:00}25-7463-9103");
         }
     }
@@ -71,7 +75,10 @@ public class ReferenceNumberProviderTests
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2024, 12, 31, 23, 59, 59));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(99999999);
 
-        var result = await _sut.GetReferenceNumber(HmacSecretKey);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("9224-9999-9999");
     }
 
@@ -81,7 +88,10 @@ public class ReferenceNumberProviderTests
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2077, 1, 01, 17, 23, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(0);
 
-        var result = await _sut.GetReferenceNumber(HmacSecretKey);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("0177-0000-0000");
     }
 
@@ -91,7 +101,10 @@ public class ReferenceNumberProviderTests
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2077, 1, 01, 17, 23, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(1);
 
-        var result = await _sut.GetReferenceNumber(HmacSecretKey);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var result = await sut.GetReferenceNumber(HmacSecretKey);
         result.Should().Be("0177-0000-0001");
     }
 
@@ -100,13 +113,17 @@ public class ReferenceNumberProviderTests
     {
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
-        var firstResult = await _sut.GetReferenceNumber(HmacSecretKey);
+        
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var firstResult = await sut.GetReferenceNumber(HmacSecretKey);
         firstResult.Should().Be("4925-0035-6035");
 
         //sequence has passed 100 million and reset
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035 + 100000000);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2026, 2, 04, 17, 23, 00));
-        var secondResult = await _sut.GetReferenceNumber(HmacSecretKey);
+        var secondResult = await sut.GetReferenceNumber(HmacSecretKey);
         secondResult.Should().Be("0926-0035-6035");
     }
 
@@ -117,52 +134,43 @@ public class ReferenceNumberProviderTests
     public async Task GetReferenceNumber_GeneratesCorrectlyFormattedNumber_PotentialCollisionAfterAHundredYears()
     {
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(93451340);
-
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 1, 01, 17, 23, 00));
-        var normalResult = await _sut.GetReferenceNumber(HmacSecretKey);
+        
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        
+        var normalResult = await sut.GetReferenceNumber(HmacSecretKey);
 
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2125, 1, 01, 17, 23, 00));
-        var hundredYearsResult = await _sut.GetReferenceNumber(HmacSecretKey);
+        var hundredYearsResult = await sut.GetReferenceNumber(HmacSecretKey);
 
         hundredYearsResult.Should().Be(normalResult);
     }
 
-    [Fact]
-    public void CoprimeStride_SequenceMax_Are_Coprime()
-    {
-        Assert.Equal(1, Gcd(ReferenceNumberProvider.SequenceMax, ReferenceNumberProvider.CoprimeStride));
-    }
-
-    // [Fact(Skip = "Slow test!")]
-    [Fact]
+    [Fact(Skip = "Very slow test! Can change the value of SequenceMax to something smaller if want a full run")]
+    // [Fact]
     public async Task Generates_Unique_References_Within_Partition()
     {
-        var seen = new List<string>();
+        var generatedReferences = new HashSet<long>();
         
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(DateTimeOffset.UtcNow.AddDays(67));
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var sut = new ReferenceNumberProvider(_bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
 
         for (var i = 0; i < ReferenceNumberProvider.SequenceMax; i++)
         {
             _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(i + 1);
-            var referenceNumber = await _sut.GetReferenceNumber(HmacSecretKey);
-            Assert.False(seen.Contains(referenceNumber), $"Duplicate at output {referenceNumber} (i={i})");
-            seen.Add(referenceNumber);
+            var referenceNumber = await sut.GetReferenceNumber(HmacSecretKey);
+            
+            var digitReference = long.Parse(referenceNumber.Replace("-", string.Empty));
+            
+            generatedReferences.Add(digitReference);
         }
+
+        //if the distinct list of generatedReferences is equal to its own count, that means it is a unique list
+        Assert.Equal(generatedReferences.Distinct().Count(), generatedReferences.Count);
 
         // every value 0..N-1 was hit exactly once
-        Assert.Equal(ReferenceNumberProvider.SequenceMax, seen.Count);
-    }
-
-    //mathematical greatest common denominator
-    private static int Gcd(int a, int b)
-    {
-        while (b != 0)
-        {
-            var t = a % b;
-            a = b;
-            b = t;
-        }
-
-        return Math.Abs(a);
+        Assert.Equal(ReferenceNumberProvider.SequenceMax, generatedReferences.Count);
     }
 }

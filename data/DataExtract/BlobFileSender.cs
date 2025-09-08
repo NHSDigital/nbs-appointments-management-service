@@ -9,9 +9,10 @@ public class BlobFileSender(
 
     public async Task SendFile(FileInfo file)
     {
-        await SendToBlob(file.Name, options.Value.ContainerName, file.FullName);
+        var container = options.Value.ContainerName.ToLower();
+        await SendToBlob(file.Name, container, file.FullName);
 
-        Console.WriteLine($"Uploaded {file.Name} to blob at {options.Value.ContainerName}");
+        Console.WriteLine($"Uploaded {file.Name} to blob at {container}");
     }
 
     private async Task SendToBlob(string fileName, string containerName, string localPath)

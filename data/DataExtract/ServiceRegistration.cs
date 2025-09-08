@@ -3,6 +3,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
 using Nhs.Appointments.Api.Json;
@@ -45,7 +46,10 @@ public static class ServiceRegistration
             .AddFileSender(configuration, fileName)
             .AddMesh(configuration);
 
-
+        services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.AddConsole();
+        });
 
         return services;
     }

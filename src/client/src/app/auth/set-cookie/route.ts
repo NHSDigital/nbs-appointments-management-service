@@ -13,11 +13,11 @@ export async function GET(request: NextRequest) {
   const provider = request.nextUrl.searchParams.get('provider');
   const cookieStore = await cookies();
 
-  if (code === null) {
+  if (code === null || code === '') {
     throw Error('No code found in request');
   }
 
-  if (provider === null) {
+  if (provider === null || provider === '') {
     throw Error('No provider found in request');
   }
 

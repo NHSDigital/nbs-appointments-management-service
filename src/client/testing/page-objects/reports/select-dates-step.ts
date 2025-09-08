@@ -11,7 +11,7 @@ export default class SelectDatesStep {
 
   constructor(page: Page) {
     this.stepTitle = page.getByRole('heading', {
-      name: 'Select the dates and create a report',
+      name: 'Select the dates and run a report',
     });
     this.goBackButton = page.getByRole('link', {
       name: 'Go back',

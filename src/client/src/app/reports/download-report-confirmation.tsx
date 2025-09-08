@@ -1,9 +1,11 @@
 import { parseToUkDatetime } from '@services/timeService';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import BackLink from '@components/nhsuk-frontend/back-link';
-import { Button, ButtonGroup } from '@components/nhsuk-frontend';
+import { Button } from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
-import Link from 'next/link';
+import { ukNow } from '@services/timeService';
+import { saveAs } from 'file-saver';
+import { downloadSiteSummaryReport } from '@services/appointmentsService';
 
 type DownloadReportConfirmationProps = {
   reportRequest: DownloadReportFormValues;
@@ -14,6 +16,15 @@ const DownloadReportConfirmation = ({
   reportRequest,
   goBack,
 }: DownloadReportConfirmationProps) => {
+  const handleDownload = async () => {
+    const blobResponse = await downloadSiteSummaryReport(
+      reportRequest.startDate,
+      reportRequest.endDate,
+    );
+
+    saveAs(blobResponse, `GeneralSiteSummaryReport-${ukNow().format()}.csv`);
+  };
+
   return (
     <>
       <BackLink renderingStrategy={'client'} onClick={goBack} text={'Back'} />
@@ -29,21 +40,9 @@ const DownloadReportConfirmation = ({
         Bookings, availability, and cancellations made today will not be
         included in this report
       </p>
-      <ButtonGroup>
-        <Link
-          href={{
-            pathname: 'reports/download',
-            query: {
-              startDate: reportRequest.startDate,
-              endDate: reportRequest.endDate,
-            },
-          }}
-          download
-          prefetch={false}
-        >
-          <Button styleType="secondary">Export data</Button>
-        </Link>
-      </ButtonGroup>
+      <Button styleType="secondary" onClick={handleDownload}>
+        Export data
+      </Button>
     </>
   );
 };

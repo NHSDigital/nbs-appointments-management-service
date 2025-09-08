@@ -2,6 +2,7 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import DownloadReportForm from './download-report-form';
 import { DayJsType, parseToUkDatetime, ukNow } from '@services/timeService';
+import { BackLinkProps } from '@components/nhsuk-frontend/back-link';
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
@@ -13,6 +14,13 @@ jest.mock('@services/timeService', () => {
 const mockUkNow = ukNow as jest.Mock<DayJsType>;
 const mockSetReportRequest = jest.fn();
 
+const mockGoBack = jest.fn();
+const goBackLinkProps: BackLinkProps = {
+  renderingStrategy: 'client',
+  text: 'Back',
+  onClick: mockGoBack,
+};
+
 describe('Download Report Confirmation', () => {
   beforeEach(() => {
     mockUkNow.mockReturnValue(parseToUkDatetime('2025-10-01'));
@@ -22,13 +30,13 @@ describe('Download Report Confirmation', () => {
     render(
       <DownloadReportForm
         setReportRequest={mockSetReportRequest}
-        goBackHref={'/some-mock-url'}
+        backLink={goBackLinkProps}
       />,
     );
 
     expect(
       screen.getByRole('heading', {
-        name: 'Select the dates and create a report',
+        name: 'Select the dates and run a report',
       }),
     ).toBeInTheDocument();
   });
@@ -37,7 +45,7 @@ describe('Download Report Confirmation', () => {
     const { user } = render(
       <DownloadReportForm
         setReportRequest={mockSetReportRequest}
-        goBackHref={'/some-mock-url'}
+        backLink={goBackLinkProps}
       />,
     );
 
@@ -54,15 +62,16 @@ describe('Download Report Confirmation', () => {
     });
   });
 
-  it('calls goBack when the back link is clicked', () => {
-    render(
+  it('calls goBack when the back link is clicked', async () => {
+    const { user } = render(
       <DownloadReportForm
         setReportRequest={mockSetReportRequest}
-        goBackHref={'/some-mock-url'}
+        backLink={goBackLinkProps}
       />,
     );
 
     const backLink = screen.getByRole('link', { name: 'Back' });
-    expect(backLink).toHaveAttribute('href', '/some-mock-url');
+    await user.click(backLink);
+    expect(mockGoBack).toHaveBeenCalledTimes(1);
   });
 });

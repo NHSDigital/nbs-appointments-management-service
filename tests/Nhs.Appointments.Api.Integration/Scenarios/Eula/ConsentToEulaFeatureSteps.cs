@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.ApiClient.Auth;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 using DataTable = Gherkin.Ast.DataTable;

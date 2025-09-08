@@ -611,3 +611,14 @@ export const cancelDay = async (payload: CancelDayRequest) => {
 
   return handleBodyResponse(response);
 };
+
+export const downloadSiteSummaryReport = async (
+  startDate: string,
+  endDate: string,
+) => {
+  const response = await appointmentsApi.get<Blob>(
+    `report/site-summary?startDate=${startDate}&endDate=${endDate}`,
+  );
+
+  return await handleBodyResponse(response);
+};

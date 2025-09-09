@@ -14,7 +14,7 @@
     "start": "next build && next start",
     "clean:next": "rimraf .next",
     "clean:full": "rimraf node_modules .next",
-    "lint": "eslint **/*.{ts,tsx}",
+    "lint": "eslint **/*.{ts,tsx} --max-warnings=0",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "test": "jest",

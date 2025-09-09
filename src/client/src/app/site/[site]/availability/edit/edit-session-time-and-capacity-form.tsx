@@ -17,6 +17,8 @@ import {
   parseToUkDatetime,
   parseToTimeComponents,
   toTimeFormat,
+  isValidStartTime,
+  parseDateAndTimeComponentsToUkDateTime,
 } from '@services/timeService';
 import { ChangeEvent } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
@@ -94,6 +96,40 @@ const EditSessionTimeAndCapacityForm = ({
       services: form.newSession.services,
     };
 
+    const sessionStart = parseDateAndTimeComponentsToUkDateTime(
+      date,
+      form.newSession.startTime,
+    );
+    const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
+      date,
+      form.newSession.endTime,
+    );
+
+    const validSessionStartTime = isValidStartTime(
+      sessionStart,
+      sessionEnd,
+      form.newSession.slotLength,
+    );
+
+    if (
+      existingSession.totalSupportedAppointments === 0 ||
+      validSessionStartTime
+    ) {
+      return await updateSession(form, updatedSession);
+    }
+
+    const updatedString = btoa(JSON.stringify(updatedSession));
+    const existingString = btoa(JSON.stringify(existingSession));
+
+    router.push(
+      `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
+    );
+  };
+
+  const updateSession = async (
+    form: EditSessionFormValues,
+    updatedSession: AvailabilitySession,
+  ) => {
     await editSession({
       date,
       site: site.id,
@@ -108,16 +144,9 @@ const EditSessionTimeAndCapacityForm = ({
       },
     });
 
-    const updatedString = btoa(JSON.stringify(updatedSession));
-    const existingString = btoa(JSON.stringify(existingSession));
-
     router.push(
-      `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
+      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
     );
-
-    // router.push(
-    //   `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
-    // );
   };
 
   const handleTwoDigitPositiveBoundedNumberInput = (

@@ -6,14 +6,15 @@ import {
   RadioGroup,
   Radio,
 } from '@components/nhsuk-frontend';
+import { editSession } from '@services/appointmentsService';
 import {
   getNearestAlignedTimes,
   parseDateAndTimeComponentsToUkDateTime,
   parseToTimeComponents,
-  parseToUkDatetime,
+  toTimeFormat,
 } from '@services/timeService';
 import { AvailabilitySession, SessionSummary, Site } from '@types';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 type EditSessionStartTimeFormValues = {
@@ -38,49 +39,53 @@ const EditSessionStartTimeForm = ({
     handleSubmit,
     formState: { isSubmitting, isSubmitSuccessful, errors },
   } = useForm<EditSessionStartTimeFormValues>();
+  const router = useRouter();
 
   const requestedStartTime = parseToTimeComponents(updatedSession.from);
-  const requestedEndTime = parseToTimeComponents(updatedSession.until);
-  const existingStart = parseToUkDatetime(existingSession.ukStartDatetime);
-  const existingEnd = parseToUkDatetime(existingSession.ukEndDatetime);
-
-  const existingStartTimeComponent = parseToTimeComponents(
-    `${existingStart.hour()}:${existingStart.minute()}`,
-  );
-  const existingEndTimeComponent = parseToTimeComponents(
-    `${existingEnd.hour()}:${existingEnd.minute()}`,
-  );
-
-  if (
-    requestedStartTime === undefined ||
-    requestedEndTime === undefined ||
-    existingStartTimeComponent === undefined ||
-    existingEndTimeComponent === undefined
-  ) {
-    notFound(); // TODO: temp solution to stop build errors
+  if (requestedStartTime === undefined) {
+    notFound();
   }
 
-  const requestedStart = parseDateAndTimeComponentsToUkDateTime(
+  const parsedStartTime = parseDateAndTimeComponentsToUkDateTime(
     date,
     requestedStartTime,
   );
 
   const nearestOptions = getNearestAlignedTimes(
-    requestedStart,
+    parsedStartTime,
     existingSession.slotLength,
   );
 
   const submitForm = async (form: EditSessionStartTimeFormValues) => {
-    alert('Hello');
+    const parsedTime = parseToTimeComponents(form.newStartTime) ?? '';
+    const session = { ...updatedSession, from: toTimeFormat(parsedTime) ?? '' };
+
+    await editSession({
+      date,
+      site: site.id,
+      mode: 'Edit',
+      sessions: [session],
+      sessionToEdit: {
+        from: session.from,
+        until: session.until,
+        capacity: session.capacity,
+        services: session.services,
+        slotLength: session.slotLength,
+      },
+    });
+
+    router.push(
+      `confirmed?updatedSession=${btoa(JSON.stringify(session))}&date=${date}`,
+    );
   };
 
   return (
     <>
       <p>
         There are booked appointments in this sessions which means the start
-        time cannot be changed to: {requestedStart.format('HH:mma')}
+        time cannot be changed to: {parsedStartTime.format('HH:mma')}
       </p>
-      <form>
+      <form onSubmit={handleSubmit(submitForm)}>
         <FormGroup
           legend="What time do you want the session to start?"
           error={errors.newStartTime?.message}
@@ -92,7 +97,7 @@ const EditSessionStartTimeForm = ({
                   label={`${option.format('HH:mma')}`}
                   id={`start-time-option-${index}`}
                   key={index}
-                  value={`${option.format('HH:mma')}`}
+                  value={`${option.format('HH:mm')}`}
                   {...register('newStartTime', {
                     required: { value: true, message: 'Select an option' },
                   })}

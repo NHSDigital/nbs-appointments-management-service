@@ -373,15 +373,27 @@ export const addHoursAndMinutesToUkDatetime = (
   return addToUkDatetime(newHour, minutes, 'minute', dateTimeFormat);
 };
 
+// Get nearest possible start times that align with slot length in a session that contains bookings
+// when the requested start time does not align with the slot length in the session
 export const getNearestAlignedTimes = (
   requested: Dayjs,
-  slotLengthMinutes: number,
+  slotLength: number,
 ): Dayjs[] => {
   const minutes = requested.hour() * 60 + requested.minute();
-  const remainder = minutes % slotLengthMinutes;
+  const remainder = minutes % slotLength;
 
   const floor = requested.subtract(remainder, 'minute');
-  const ceil = floor.add(slotLengthMinutes, 'minute');
+  const ceil = floor.add(slotLength, 'minute');
 
   return [floor, ceil];
+};
+
+// Checks if the session start time is divisible by the slot length
+export const isValidStartTime = (
+  sesionStart: Dayjs,
+  sessionEnd: Dayjs,
+  slotLength: number,
+): boolean => {
+  const duration = sessionEnd.diff(sesionStart, 'minute');
+  return duration % slotLength === 0;
 };

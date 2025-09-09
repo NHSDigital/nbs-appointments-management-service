@@ -55,9 +55,6 @@ const CancelDayForm = ({
     }
   };
 
-  console.log('This will cause a linting error');
-  const foo = 1;
-
   const handleCancel = async () => {
     const payload: CancelDayRequest = {
       site: siteId,

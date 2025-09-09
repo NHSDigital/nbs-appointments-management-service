@@ -380,10 +380,6 @@ export const getNearestAlignedTimes = (
   const minutes = requested.hour() * 60 + requested.minute();
   const remainder = minutes % slotLengthMinutes;
 
-  if (remainder === 0) {
-    return [requested];
-  }
-
   const floor = requested.subtract(remainder, 'minute');
   const ceil = floor.add(slotLengthMinutes, 'minute');
 

@@ -86,22 +86,19 @@ const EditSessionStartTimeForm = ({
           error={errors.newStartTime?.message}
         >
           <RadioGroup>
-            <Radio
-              label={'timeOption1'}
-              id="start-time-option-1"
-              value={'timeOption1'}
-              {...register('newStartTime', {
-                required: { value: true, message: 'Select an option' },
-              })}
-            />
-            <Radio
-              label={'timeOption2'}
-              id="start-time-option-2"
-              value={'timeOption2'}
-              {...register('newStartTime', {
-                required: { value: true, message: 'Select an option' },
-              })}
-            />
+            {nearestOptions.map((option, index) => {
+              return (
+                <Radio
+                  label={`${option.format('HH:mma')}`}
+                  id={`start-time-option-${index}`}
+                  key={index}
+                  value={`${option.format('HH:mma')}`}
+                  {...register('newStartTime', {
+                    required: { value: true, message: 'Select an option' },
+                  })}
+                />
+              );
+            })}
           </RadioGroup>
         </FormGroup>
 

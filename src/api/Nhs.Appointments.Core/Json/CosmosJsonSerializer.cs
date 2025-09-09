@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text;
 
-namespace Nhs.Appointments.Api.Json;
+namespace Nhs.Appointments.Core.Json;
 
 public class CosmosJsonSerializer : CosmosSerializer
 {

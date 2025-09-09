@@ -1,6 +1,5 @@
 using CapacityDataExtracts.Documents;
 using DataExtract;
-using DataExtract.Documents;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
-using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Parquet.Serialization;

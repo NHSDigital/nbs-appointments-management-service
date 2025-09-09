@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Nbs.MeshClient.Auth;
 using Nbs.MeshClient;
-using Nhs.Appointments.Api.Json;
 using Refit;
 using Xunit.Gherkin.Quick;
 using Microsoft.Extensions.DependencyInjection;

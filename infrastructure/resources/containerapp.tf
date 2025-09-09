@@ -1,16 +1,8 @@
-resource "azurerm_log_analytics_workspace" "nbs_mya_container_analytics_workspace" {
-  name                = "${var.application}-caws-${var.environment}-${var.loc}"
-  location            = var.location
-  resource_group_name = local.resource_group_name
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-}
-
 resource "azurerm_container_app_environment" "nbs_mya_container_enviroment" {
   name                       = "${var.application}-cae-${var.environment}-${var.loc}"
   location                   = var.location
   resource_group_name        = local.resource_group_name
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.nbs_mya_container_analytics_workspace.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.nbs_mya_log_analytics_workspace.id
 }
 
 resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {

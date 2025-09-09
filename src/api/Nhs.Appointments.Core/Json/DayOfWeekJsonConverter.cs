@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace Nhs.Appointments.Api.Json;
+namespace Nhs.Appointments.Core.Json;
 
-internal class DayOfWeekJsonConverter : JsonConverter<DayOfWeek>
+public class DayOfWeekJsonConverter : JsonConverter<DayOfWeek>
 {
     public override DayOfWeek ReadJson(JsonReader reader, Type objectType, DayOfWeek existingValue, bool hasExistingValue, JsonSerializer serializer)
     {

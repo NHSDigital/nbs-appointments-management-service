@@ -15,7 +15,6 @@ stages:
           csvDataToolTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
           capacityExtractsTestProjectPath: "tests/CapacityDataExtracts.UnitTests/CapacityDataExtracts.UnitTests.csproj"
-          apiClientUnitTestProjectPath: "tests/Nhs.Appointments.Api.Client.UnitTests/Nhs.Appointments.Api.Client.UnitTests.csproj"
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
         steps:
           - task: SonarCloudPrepare@3
@@ -77,12 +76,6 @@ stages:
               projects: $(capacityExtractsTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: DotNetCoreCLI@2
-            displayName: "Run API Client unit tests"
-            inputs:
-              command: "test"
-              projects: $(apiClientUnitTestProjectPath)
-              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
-          - task: DotNetCoreCLI@2
             displayName: "Run Cosmos Db Seeder tests"
             inputs:
               command: "test"
@@ -119,6 +112,16 @@ stages:
               npm run format:check
               npm run test:ci
             displayName: "Run Web App Tests"
+          - script: |
+              cd ./src/client
+              npm run tsc
+            displayName: "Check TypeScript Syntax"
+            continueOnError: false
+          - script: |
+              cd ./src/client
+              npm run lint
+            displayName: "Run ESLint"
+            continueOnError: false
           - task: PublishTestResults@2
             displayName: "Publish Web App Test Results"
             inputs:

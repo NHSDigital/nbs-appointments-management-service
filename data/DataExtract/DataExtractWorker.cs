@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DataExtract;
@@ -8,8 +9,8 @@ public class DataExtractWorker<TExtractor>(
     TimeProvider timeProvider,
     IOptions<FileOptions> fileOptions,
     IServiceProvider serviceProvider,
-    IFileSender fileSender
-    ) : BackgroundService where TExtractor : class, IExtractor
+    IFileSender fileSender,
+    ILogger<DataExtractWorker<TExtractor>> logger) : BackgroundService where TExtractor : class, IExtractor
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -26,7 +27,7 @@ public class DataExtractWorker<TExtractor>(
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            logger.LogError(ex,ex.ToString());
             Environment.ExitCode = -1;
         }
         finally

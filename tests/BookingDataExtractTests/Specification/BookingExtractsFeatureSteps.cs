@@ -144,6 +144,8 @@ public sealed class BookingExtractsFeatureSteps : Feature
             .AddCosmosStore<NbsBookingDocument>()
             .AddCosmosStore<SiteDocument>()
             .AddExtractWorker<BookingDataExtract>();
+        
+        serviceCollection.AddLogging(builder => builder.AddConsole());
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);

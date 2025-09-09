@@ -45,11 +45,6 @@ public static class ServiceRegistration
             .AddFileSender(configuration, fileName)
             .AddMesh(configuration);
 
-        services.AddLogging(loggingBuilder =>
-        {
-            loggingBuilder.AddConsole();
-        });
-
         return services;
     }
 

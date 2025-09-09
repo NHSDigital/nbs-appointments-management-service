@@ -128,6 +128,8 @@ public sealed class CapacityExtractsFeatureSteps
             .AddCosmosStore<DailyAvailabilityDocument>()
             .AddCosmosStore<SiteDocument>()
             .AddExtractWorker<CapacityDataExtract>();
+        
+        serviceCollection.AddLogging(builder => builder.AddConsole());
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);

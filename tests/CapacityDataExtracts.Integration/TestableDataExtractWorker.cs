@@ -1,6 +1,7 @@
 using CapacityDataExtracts;
 using DataExtract;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using FileOptions = DataExtract.FileOptions;
 
@@ -11,9 +12,10 @@ public class TestableDataExtractWorker(
     TimeProvider timeProvider,
     IOptions<FileOptions> fileOptions,
     IServiceProvider serviceProvider,
-    IFileSender fileSender
+    IFileSender fileSender,
+    ILogger<TestableDataExtractWorker> logger
 ) : DataExtractWorker<CapacityDataExtract>(hostApplicationLifetime, timeProvider,
-    fileOptions, serviceProvider, fileSender)
+    fileOptions, serviceProvider, fileSender, logger)
 
 {
     public Task Test()

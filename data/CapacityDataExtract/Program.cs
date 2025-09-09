@@ -2,6 +2,7 @@ using CapacityDataExtracts;
 using DataExtract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -12,6 +13,8 @@ builder.Configuration
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddEnvironmentVariables()
             .AddNbsAzureKeyVault();
+
+builder.Logging.AddConsole();
 
 builder.Services
     .AddDataExtractServices("BookingCapacity", builder.Configuration)

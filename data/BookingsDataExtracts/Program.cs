@@ -12,6 +12,8 @@ builder.Configuration
             .AddEnvironmentVariables()
             .AddNbsAzureKeyVault();
 
+builder.Logging.AddConsole();
+
 builder.Services
     .AddDataExtractServices("booking", builder.Configuration)
     .AddCosmosStore<NbsBookingDocument>()

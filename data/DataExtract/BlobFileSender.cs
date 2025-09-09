@@ -1,10 +1,12 @@
 using Azure.Storage.Blobs;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DataExtract;
 public class BlobFileSender(
         IOptions<BlobFileOptions> options,
-        BlobServiceClient blobServiceClient) : IFileSender
+        BlobServiceClient blobServiceClient,
+        ILogger<BlobFileSender> logger) : IFileSender
 {
 
     public async Task SendFile(FileInfo file)
@@ -12,7 +14,7 @@ public class BlobFileSender(
         var container = options.Value.ContainerName.ToLower();
         await SendToBlob(file.Name, container, file.FullName);
 
-        Console.WriteLine($"Uploaded {file.Name} to blob at {container}");
+        logger.LogInformation($"Uploaded {file.Name} to blob at {container}");
     }
 
     private async Task SendToBlob(string fileName, string containerName, string localPath)

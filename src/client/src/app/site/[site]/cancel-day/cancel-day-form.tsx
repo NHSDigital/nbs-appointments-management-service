@@ -57,8 +57,6 @@ const CancelDayForm = ({
 
   console.log('This will cause a linting error');
   const foo = 1;
-  // this will cause a tsc error
-  foo = 'hi';
 
   const handleCancel = async () => {
     const payload: CancelDayRequest = {

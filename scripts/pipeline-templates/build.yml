@@ -112,6 +112,16 @@ stages:
               npm run format:check
               npm run test:ci
             displayName: "Run Web App Tests"
+          - script: |
+              cd ./src/client
+              npm run tsc
+            displayName: "Check TypeScript Syntax"
+            continueOnError: false
+          - script: |
+              cd ./src/client
+              npm run lint
+            displayName: "Run ESLint"
+            continueOnError: false
           - task: PublishTestResults@2
             displayName: "Publish Web App Test Results"
             inputs:

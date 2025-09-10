@@ -23,6 +23,26 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
     name  = "container-registry-password"
     value = var.container_registry_password
   }
+  secret {
+    name  = "container-cosmos-password"
+    value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+  }
+  secret {
+    name  = "blob-connection-string"
+    value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : ""
+  }
+  secret {
+    name  = "mesh-mailbox-password"
+    value = var.mesh_authorization_options_mailbox_password
+  }
+  secret {
+    name  = "mesh-shared-key"
+    value = var.mesh_authorization_options_shared_key
+  }
+  secret {
+    name  = "key-vault-secret"
+    value = var.keyvault_client_secret
+  }
 
   registry {
     server   = var.container_registry_server_url
@@ -42,7 +62,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
       }
       env {
         name  = "COSMOS_TOKEN"
-        value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+        secret_name = "container-cosmos-password"
       }
       env {
         name = "FileSenderOptions__Type"
@@ -50,7 +70,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
       }
       env {
         name  = "BlobStorageConnectionString"
-        value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : ""
+        secret_name = "blob-connection-string"
       }
       env {
         name  = "MESH_MAILBOX_DESTINATION"
@@ -70,11 +90,11 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
       }
       env {
         name  = "MeshAuthorizationOptions__MailboxPassword"
-        value = var.mesh_authorization_options_mailbox_password
+        secret_name = "mesh-mailbox-password"
       }
       env {
         name  = "MeshAuthorizationOptions__SharedKey"
-        value = var.mesh_authorization_options_shared_key
+        secret_name = "mesh-shared-key"
       }
       env {
         name = "MeshAuthorizationOptions__CertificateName"
@@ -94,7 +114,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
       }
       env {
         name = "KeyVault__ClientSecret"
-        value = var.keyvault_client_secret
+        secret_name = "key-vault-secret"
       }
     }
   }
@@ -123,6 +143,26 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
     name  = "container-registry-password"
     value = var.container_registry_password
   }
+  secret {
+    name  = "container-cosmos-password"
+    value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+  }
+  secret {
+    name  = "blob-connection-string"
+    value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : ""
+  }
+  secret {
+    name  = "mesh-mailbox-password"
+    value = var.mesh_authorization_options_mailbox_password
+  }
+  secret {
+    name  = "mesh-shared-key"
+    value = var.mesh_authorization_options_shared_key
+  }
+  secret {
+    name  = "key-vault-secret"
+    value = var.keyvault_client_secret
+  }
 
   registry {
     server   = var.container_registry_server_url
@@ -142,7 +182,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       }
       env {
         name  = "COSMOS_TOKEN"
-        value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+        secret_name = "container-cosmos-password"
       }
       env {
         name = "FileSenderOptions__Type"
@@ -150,7 +190,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       }
       env {
         name  = "BlobStorageConnectionString"
-        value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : ""
+        secret_name = "blob-connection-string"
       }
       env {
         name  = "MESH_MAILBOX_DESTINATION"
@@ -158,7 +198,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       }
       env {
         name  = "MESH_WORKFLOW"
-        value = var.mesh_mailbox_workflow_capacity
+        value = var.mesh_mailbox_workflow_booking
       }
       env {
         name  = "MeshClientOptions__BaseUrl"
@@ -170,11 +210,11 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       }
       env {
         name  = "MeshAuthorizationOptions__MailboxPassword"
-        value = var.mesh_authorization_options_mailbox_password
+        secret_name = "mesh-mailbox-password"
       }
       env {
         name  = "MeshAuthorizationOptions__SharedKey"
-        value = var.mesh_authorization_options_shared_key
+        secret_name = "mesh-shared-key"
       }
       env {
         name = "MeshAuthorizationOptions__CertificateName"
@@ -194,7 +234,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       }
       env {
         name = "KeyVault__ClientSecret"
-        value = var.keyvault_client_secret
+        secret_name = "key-vault-secret"
       }
     }
   }

@@ -8,9 +8,11 @@ import {
 } from '@components/nhsuk-frontend';
 import { editSession } from '@services/appointmentsService';
 import {
+  dateTimeFormat,
   getNearestAlignedTimes,
   parseDateAndTimeComponentsToUkDateTime,
   parseToTimeComponents,
+  parseToUkDatetime,
   toTimeFormat,
 } from '@services/timeService';
 import { AvailabilitySession, SessionSummary, Site } from '@types';
@@ -60,17 +62,28 @@ const EditSessionStartTimeForm = ({
     const parsedTime = parseToTimeComponents(form.newStartTime) ?? '';
     const session = { ...updatedSession, from: toTimeFormat(parsedTime) ?? '' };
 
+    const existingUkStartTime = parseToUkDatetime(
+      existingSession.ukStartDatetime,
+      dateTimeFormat,
+    ).format('HH:mm');
+    const existingUkEndTime = parseToUkDatetime(
+      existingSession.ukEndDatetime,
+      dateTimeFormat,
+    ).format('HH:mm');
+
     await editSession({
       date,
       site: site.id,
       mode: 'Edit',
       sessions: [session],
       sessionToEdit: {
-        from: session.from,
-        until: session.until,
-        capacity: session.capacity,
-        services: session.services,
-        slotLength: session.slotLength,
+        from: existingUkStartTime,
+        until: existingUkEndTime,
+        capacity: existingSession.capacity,
+        services: Object.keys(
+          existingSession.totalSupportedAppointmentsByService,
+        ).map(service => service),
+        slotLength: existingSession.slotLength,
       },
     });
 

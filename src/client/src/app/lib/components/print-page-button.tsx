@@ -8,7 +8,11 @@ const PrintPageButton = () => {
   };
 
   return (
-    <Button className="no-print" onClick={() => onClick()}>
+    <Button
+      className="no-print"
+      styleType="secondary"
+      onClick={() => onClick()}
+    >
       Print page
     </Button>
   );

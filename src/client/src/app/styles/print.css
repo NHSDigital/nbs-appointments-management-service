@@ -50,3 +50,13 @@
     display: table-cell !important;
   }
 }
+
+.custom-print-button-wrapper {
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .custom-print-button-wrapper {
+    text-align: left;
+  }
+}

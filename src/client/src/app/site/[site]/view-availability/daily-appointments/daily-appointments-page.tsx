@@ -111,7 +111,7 @@ export const DailyAppointmentsPage = ({
 
   return (
     <>
-      {message && <p>{message}</p>}
+      {message && <p className="no-print">{message}</p>}
 
       {appointmentsTableData && (
         <Table {...appointmentsTableData} nonPrintableColumnIndices={[5]} />

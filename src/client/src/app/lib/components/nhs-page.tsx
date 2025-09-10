@@ -20,6 +20,7 @@ import {
 import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 import FeedbackBanner from '@components/feedback-banner';
 import BuildNumber from './build-number';
+import PrintPageButton from './print-page-button';
 
 type Props = {
   children: ReactNode;
@@ -29,6 +30,7 @@ type Props = {
   site?: Site;
   backLink?: NavigationByHrefProps;
   originPage: string;
+  showPrintButton?: boolean;
 } & NhsHeadingProps;
 
 const NhsPage = async ({
@@ -41,6 +43,7 @@ const NhsPage = async ({
   omitTitleFromBreadcrumbs,
   backLink,
   originPage,
+  showPrintButton = false,
 }: Props) => {
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
@@ -71,7 +74,20 @@ const NhsPage = async ({
             text={backLink.text}
           />
         )}
-        <NhsHeading title={title} caption={caption} />
+
+        <div className="nhsuk-grid-row">
+          <div className="nhsuk-grid-column-three-quarters">
+            <NhsHeading title={title} caption={caption} />
+          </div>
+          <div className="nhsuk-grid-column-one-quarter">
+            {showPrintButton && (
+              <div className="custom-print-button-wrapper nhsuk-u-padding-top-3">
+                <PrintPageButton />
+              </div>
+            )}
+          </div>
+        </div>
+
         <NotificationBanner notification={notification} />
         {children}
       </NhsMainContainer>

@@ -97,6 +97,35 @@ describe('Nhs Page', () => {
     expect(screen.getByRole('heading', { name: /Test title/i })).toBeVisible();
   });
 
+  it('displays the print button', async () => {
+    const jsx = await NhsPage({
+      title: 'Test title',
+      children: null,
+      breadcrumbs: [],
+      originPage: '',
+      showPrintButton: true,
+    });
+    render(jsx);
+
+    expect(
+      screen.getByRole('button', { name: 'Print page' }),
+    ).toBeInTheDocument();
+  });
+
+  it('hides the print button by default', async () => {
+    const jsx = await NhsPage({
+      title: 'Test title',
+      children: null,
+      breadcrumbs: [],
+      originPage: '',
+    });
+    render(jsx);
+
+    expect(
+      screen.queryByRole('button', { name: 'Print page' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('shows the correct breadcrumbs including title', async () => {
     const jsx = await NhsPage({
       title: 'Test title',

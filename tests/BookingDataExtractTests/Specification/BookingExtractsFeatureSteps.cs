@@ -16,6 +16,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using DataExtract.Documents;
 using BookingsDataExtracts;
 using DataExtract;
+using Nhs.Appointments.Core.Json;
 
 namespace BookingDataExtracts.Integration.Specification;
 

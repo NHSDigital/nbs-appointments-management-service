@@ -11,6 +11,7 @@ using Moq;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Persistance.Models;
 using Parquet.Serialization;
 using Refit;

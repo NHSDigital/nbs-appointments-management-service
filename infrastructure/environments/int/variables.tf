@@ -179,16 +179,6 @@ variable "MESH_AUTHORIZATION_OPTIONS_MAILBOX_ID" {
   type = string
 }
 
-variable "MESH_AUTHORIZATION_OPTIONS_MAILBOX_PASSWORD" {
-  type = string
-  sensitive = true
-}
-
-variable "MESH_AUTHORIZATION_OPTIONS_SHARED_KEY" {
-  type = string
-  sensitive = true
-}
-
 variable "MESH_AUTHORIZATION_OPTIONS_CERTIFICATE_NAME" {
   type = string
 }

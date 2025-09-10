@@ -66,10 +66,9 @@ stages:
               KeyVault__ClientSecret: $(ClientSecret)
               MeshClientOptions__BaseUrl: $(meshApiBaseUri)
               MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
+              MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               FileSenderOptions__Type: mesh
-              MeshFileOptions__File: $(meshFileOptionsFile)
-              MeshFileOptions__DestinationMailboxId: $(toMeshMailboxId)
-              MeshFileOptions__WorkflowId: $(fromMeshMailboxId)
+              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
   - stage: "CreateBookingDailyExtract"
     displayName: "Create booking data extract"
     condition: eq('${{ parameters.runBooking }}', 'true')
@@ -100,7 +99,7 @@ stages:
               KeyVault__ClientSecret: $(ClientSecret)
               MeshClientOptions__BaseUrl: $(meshApiBaseUri)
               MeshAuthorizationOptions__CertificateName: $(meshCertificateName)
+              MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               FileSenderOptions__Type: mesh
-              MeshFileOptions__File: $(meshFileOptionsFile)
-              MeshFileOptions__DestinationMailboxId: $(toMeshMailboxId)
-              MeshFileOptions__WorkflowId: $(fromMeshMailboxId)
+              MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              MESH_WORKFLOW: $(fromMeshMailboxId)

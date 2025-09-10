@@ -328,7 +328,6 @@ variable "data_extract_schedule" {
 
 variable "data_extract_file_sender_options_type" {
   type = string
-  default = "mesh"
 }
 
 variable "mesh_mailbox_destination" {

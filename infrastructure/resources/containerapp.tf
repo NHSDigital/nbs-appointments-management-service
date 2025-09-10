@@ -14,7 +14,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
   container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment[0].id
 
   replica_timeout_in_seconds = var.data_extract_timeout    
-  replica_retry_limit        = var.data_extract_retry_limit    
+  replica_retry_limit        = var.data_extract_retry_limit
 
   schedule_trigger_config {
     cron_expression = var.data_extract_schedule
@@ -32,14 +32,6 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
   secret {
     name  = "blob-connection-string"
     value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : ""
-  }
-  secret {
-    name  = "mesh-mailbox-password"
-    value = var.mesh_authorization_options_mailbox_password
-  }
-  secret {
-    name  = "mesh-shared-key"
-    value = var.mesh_authorization_options_shared_key
   }
   secret {
     name  = "key-vault-secret"
@@ -89,14 +81,6 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
       env {
         name  = "MeshAuthorizationOptions__MailboxId"
         value = var.mesh_authorization_options_mailbox_id
-      }
-      env {
-        name  = "MeshAuthorizationOptions__MailboxPassword"
-        secret_name = "mesh-mailbox-password"
-      }
-      env {
-        name  = "MeshAuthorizationOptions__SharedKey"
-        secret_name = "mesh-shared-key"
       }
       env {
         name = "MeshAuthorizationOptions__CertificateName"
@@ -155,14 +139,6 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
     value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : ""
   }
   secret {
-    name  = "mesh-mailbox-password"
-    value = var.mesh_authorization_options_mailbox_password
-  }
-  secret {
-    name  = "mesh-shared-key"
-    value = var.mesh_authorization_options_shared_key
-  }
-  secret {
     name  = "key-vault-secret"
     value = var.keyvault_client_secret
   }
@@ -201,7 +177,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       }
       env {
         name  = "MESH_WORKFLOW"
-        value = var.mesh_mailbox_workflow_booking
+        value = var.mesh_mailbox_workflow_capacity
       }
       env {
         name  = "MeshClientOptions__BaseUrl"
@@ -210,14 +186,6 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       env {
         name  = "MeshAuthorizationOptions__MailboxId"
         value = var.mesh_authorization_options_mailbox_id
-      }
-      env {
-        name  = "MeshAuthorizationOptions__MailboxPassword"
-        secret_name = "mesh-mailbox-password"
-      }
-      env {
-        name  = "MeshAuthorizationOptions__SharedKey"
-        secret_name = "mesh-shared-key"
       }
       env {
         name = "MeshAuthorizationOptions__CertificateName"

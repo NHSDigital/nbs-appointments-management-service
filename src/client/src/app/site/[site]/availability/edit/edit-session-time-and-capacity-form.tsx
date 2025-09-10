@@ -88,13 +88,7 @@ const EditSessionTimeAndCapacityForm = ({
   const submitForm: SubmitHandler<EditSessionFormValues> = async (
     form: EditSessionFormValues,
   ) => {
-    const updatedSession: AvailabilitySession = {
-      from: toTimeFormat(form.newSession.startTime) ?? '',
-      until: toTimeFormat(form.newSession.endTime) ?? '',
-      slotLength: form.newSession.slotLength,
-      capacity: form.newSession.capacity,
-      services: form.newSession.services,
-    };
+    const updatedSession = toAvailabilitySession(form.newSession);
 
     const sessionStart = parseDateAndTimeComponentsToUkDateTime(
       date,
@@ -135,19 +129,21 @@ const EditSessionTimeAndCapacityForm = ({
       site: site.id,
       mode: 'Edit',
       sessions: [updatedSession],
-      sessionToEdit: {
-        from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-        until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-        slotLength: form.sessionToEdit.slotLength,
-        capacity: form.sessionToEdit.capacity,
-        services: form.sessionToEdit.services,
-      },
+      sessionToEdit: toAvailabilitySession(form.sessionToEdit),
     });
 
     router.push(
       `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
     );
   };
+
+  const toAvailabilitySession = (session: Session): AvailabilitySession => ({
+    from: toTimeFormat(session.startTime) ?? '',
+    until: toTimeFormat(session.endTime) ?? '',
+    slotLength: session.slotLength,
+    capacity: session.capacity,
+    services: session.services,
+  });
 
   const handleTwoDigitPositiveBoundedNumberInput = (
     e: ChangeEvent<HTMLInputElement>,

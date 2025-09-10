@@ -31,9 +31,21 @@ public class GetAuthTokenFunction(
     {
         // need to resolve the correct auth config here
         var providerName = req.Query["provider"];
-        var authProvider = authOptions.Value.Providers.Single(p => p.Name == providerName);
+        var authProvider = authOptions.Value.Providers.SingleOrDefault(p => p.Name == providerName);
+        if (authProvider is null)
+        {
+            return new BadRequestObjectResult(new
+            {
+                message = "A valid provider must be present in the request parameters."
+            });
+        }
 
         var code = await req.ReadAsStringAsync();
+        if (string.IsNullOrEmpty(code))
+        {
+            return new BadRequestObjectResult(new { message = "An auth code must be present in the request body." });
+        }
+
         var formValues = new Dictionary<string, string>
         {
             { "client_id", authProvider.ClientId },
@@ -64,7 +76,7 @@ public class GetAuthTokenFunction(
         }
 
         throw new InvalidOperationException(
-            $"Failed to retrieve token from identity provide\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
+            $"Failed to retrieve token from identity provider\r\nReceived status code {response.StatusCode}\r\n{rawResponse}");
     }
 
     private async Task RecordAuditLogin(string idToken)

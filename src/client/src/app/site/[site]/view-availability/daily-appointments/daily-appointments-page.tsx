@@ -113,7 +113,9 @@ export const DailyAppointmentsPage = ({
     <>
       {message && <p>{message}</p>}
 
-      {appointmentsTableData && <Table {...appointmentsTableData}></Table>}
+      {appointmentsTableData && (
+        <Table {...appointmentsTableData} nonPrintableColumnIndices={[5]} />
+      )}
 
       <Pagination
         previous={

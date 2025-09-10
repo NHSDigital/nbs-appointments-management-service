@@ -323,30 +323,3 @@
   font-size: 1.1875rem;
   font-weight: 700;
 }
-
-@media print {
-  .no-print {
-    display: none;
-  }
-
-  /* Special class for containers that have always-print children */
-  .no-print.has-printable-children {
-    display: block;
-    visibility: hidden;
-    position: relative;
-  }
-
-  .no-print.has-printable-children .always-print {
-    visibility: visible !important;
-    display: block !important;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-  }
-
-  .no-print.has-printable-children .always-print * {
-    visibility: visible !important;
-    display: block !important;
-  }
-}

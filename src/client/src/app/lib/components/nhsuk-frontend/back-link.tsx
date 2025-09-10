@@ -40,7 +40,7 @@ const BackLink = (props: BackLinkProps) => {
   }
 
   return (
-    <div className="nhsuk-back-link">
+    <div className="nhsuk-back-link no-print">
       <Link
         role="link"
         className="nhsuk-back-link__link"

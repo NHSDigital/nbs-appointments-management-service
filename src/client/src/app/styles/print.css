@@ -1,0 +1,52 @@
+@media print {
+  @page {
+    size: A4 portait;
+    margin: 0.1in;
+  }
+
+  .no-print {
+    display: none;
+  }
+
+  .no-print.has-printable-children {
+    display: block;
+    visibility: hidden;
+    position: relative;
+  }
+
+  .no-print.has-printable-children .always-print {
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  .always-print .no-print,
+  .no-print.has-printable-children .always-print .no-print {
+    display: none !important;
+  }
+
+  .no-print.has-printable-children .always-print * {
+    visibility: visible !important;
+    display: block !important;
+  }
+
+  .no-print.has-printable-children .always-print table {
+    display: table !important;
+  }
+
+  .no-print.has-printable-children .always-print thead {
+    display: table-header-group !important;
+  }
+
+  .no-print.has-printable-children .always-print tbody {
+    display: table-row-group !important;
+  }
+
+  .no-print.has-printable-children .always-print tr {
+    display: table-row !important;
+  }
+
+  .no-print.has-printable-children .always-print th,
+  .no-print.has-printable-children .always-print td {
+    display: table-cell !important;
+  }
+}

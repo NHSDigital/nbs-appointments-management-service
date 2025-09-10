@@ -63,6 +63,7 @@ module "mya_application_dev" {
   container_registry_server_url                   = var.CONTAINER_REGISTRY_SERVER_URL
   container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
   container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
+  create_data_extracts                            = true
   data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = false
   create_high_load_function_app                   = false

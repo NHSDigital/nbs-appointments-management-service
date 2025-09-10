@@ -1,4 +1,5 @@
 resource "azurerm_container_app_environment" "nbs_mya_container_enviroment" {
+  count                      = var.create_data_extracts ? 1 : 0 
   name                       = "${var.application}-cae-${var.environment}-${var.loc}"
   location                   = var.location
   resource_group_name        = local.resource_group_name
@@ -6,10 +7,11 @@ resource "azurerm_container_app_environment" "nbs_mya_container_enviroment" {
 }
 
 resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
+  count                        = var.create_data_extracts ? 1 : 0 
   name                         = "${var.application}-bookjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location
-  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment.id
+  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment[0].id
 
   replica_timeout_in_seconds = var.data_extract_timeout    
   replica_retry_limit        = var.data_extract_retry_limit    
@@ -25,7 +27,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
   }
   secret {
     name  = "container-cosmos-password"
-    value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+    value = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
   }
   secret {
     name  = "blob-connection-string"
@@ -58,7 +60,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
       memory = "2Gi"
       env {
         name  = "COSMOS_ENDPOINT"
-        value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
+        value = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
       }
       env {
         name  = "COSMOS_TOKEN"
@@ -126,10 +128,11 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
 
 
 resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
+  count                        = var.create_data_extracts ? 1 : 0 
   name                         = "${var.application}-capjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location
-  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment.id
+  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment[0].id
 
   replica_timeout_in_seconds = var.data_extract_timeout    
   replica_retry_limit        = var.data_extract_retry_limit    
@@ -145,7 +148,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
   }
   secret {
     name  = "container-cosmos-password"
-    value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+    value = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
   }
   secret {
     name  = "blob-connection-string"
@@ -178,7 +181,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       memory = "2Gi"
       env {
         name  = "COSMOS_ENDPOINT"
-        value = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
+        value = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
       }
       env {
         name  = "COSMOS_TOKEN"

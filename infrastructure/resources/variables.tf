@@ -307,6 +307,10 @@ variable "container_registry_password" {
   sensitive = true
 }
 
+variable "create_data_extracts" {
+  type = bool
+}
+
 variable "data_extract_timeout" {
   type = number
   default = 7200

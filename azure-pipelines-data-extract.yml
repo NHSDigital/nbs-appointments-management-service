@@ -102,4 +102,3 @@ stages:
               MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               FileSenderOptions__Type: mesh
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
-              MESH_WORKFLOW: $(fromMeshMailboxId)

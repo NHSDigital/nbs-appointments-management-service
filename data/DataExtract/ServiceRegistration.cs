@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
+using Nhs.Appointments.Core.Json;
 
 namespace DataExtract;
 

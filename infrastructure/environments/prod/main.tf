@@ -71,11 +71,9 @@ module "mya_application_prod" {
   data_extract_file_sender_options_type           = "mesh"
   mesh_mailbox_destination                        = var.MESH_MAILBOX_DESTINATION
   mesh_mailbox_workflow_capacity                  = var.MESH_MAILBOX_WORKFLOW_CAPACITY
-  mesh_mailbox_workflow_bookings                  = var.MESH_MAILBOX_WORKFLOW_BOOKINGS
+  mesh_mailbox_workflow_booking                   = var.MESH_MAILBOX_WORKFLOW_BOOKINGS
   mesh_client_options_base_url                    = var.MESH_CLIENT_OPTIONS_BASE_URL
   mesh_authorization_options_mailbox_id           = var.MESH_AUTHORIZATION_OPTIONS_MAILBOX_ID
-  mesh_authorization_options_mailbox_password     = var.MESH_AUTHORIZATION_OPTIONS_MAILBOX_PASSWORD
-  mesh_authorization_options_shared_key           = var.MESH_AUTHORIZATION_OPTIONS_SHARED_KEY
   mesh_authorization_options_certificate_name     = var.MESH_AUTHORIZATION_OPTIONS_CERTIFICATE_NAME
   keyvault_Name                                   = var.KEYVAULT_NAME
   keyvault_tenant_id                              = var.KEYVAULT_TENANT_ID

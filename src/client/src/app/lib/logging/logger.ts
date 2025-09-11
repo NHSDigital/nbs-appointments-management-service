@@ -1,9 +1,9 @@
 type LogLevel = 'info' | 'warn' | 'error';
 
-export function logEvent(
+export function logEvent<T>(
   level: LogLevel,
   event: string,
-  payload: Record<string, any>,
+  payload: T,
   context = 'App',
 ) {
   if (process.env.NEXT_PUBLIC_ENV == 'production') return;

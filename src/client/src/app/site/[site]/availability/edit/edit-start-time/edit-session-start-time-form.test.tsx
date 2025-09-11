@@ -5,6 +5,7 @@ import EditSessionStartTimeForm from './edit-session-start-time-form';
 import { mockSession1, mockSite } from '@testing/data';
 import { screen } from '@testing-library/react';
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
+import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -42,17 +43,33 @@ describe('Edit Session Start Time Form', () => {
   });
 
   it('renders the correct nearest aligned start times', () => {
+    const existingSession = mockWeekAvailability__Summary[0].sessions[0];
+    const expectedFirstRadio = parseToUkDatetime(
+      existingSession.ukStartDatetime,
+      dateTimeFormat,
+    ).format('HH:mma');
+    const expectedSecondRadio = parseToUkDatetime(
+      existingSession.ukStartDatetime,
+      dateTimeFormat,
+    )
+      .add(5, 'minute')
+      .format('HH:mma');
+
     render(
       <EditSessionStartTimeForm
         date="2025-09-10"
         site={mockSite}
-        existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        existingSession={existingSession}
         updatedSession={mockSession1}
       />,
     );
 
-    expect(screen.getByRole('radio', { name: '09:00am' })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: '09:05am' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', { name: `${expectedFirstRadio}` }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', { name: `${expectedSecondRadio}` }),
+    ).toBeInTheDocument();
   });
 
   it('displays a validation message when no option selected', async () => {
@@ -75,18 +92,24 @@ describe('Edit Session Start Time Form', () => {
   });
 
   it('calls edit session when the form is valid', async () => {
+    const existingSession = mockWeekAvailability__Summary[0].sessions[0];
+    const secondRadio = parseToUkDatetime(
+      existingSession.ukStartDatetime,
+      dateTimeFormat,
+    ).add(5, 'minute');
     const date = '2025-09-10';
+
     const { user } = render(
       <EditSessionStartTimeForm
         date={date}
         site={mockSite}
-        existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        existingSession={existingSession}
         updatedSession={mockSession1}
       />,
     );
 
     const startTimeOptionRadio = screen.getByRole('radio', {
-      name: '09:05am',
+      name: `${secondRadio.format('HH:mma')}`,
     });
     await user.click(startTimeOptionRadio);
 
@@ -102,7 +125,7 @@ describe('Edit Session Start Time Form', () => {
       mode: 'Edit',
       sessions: [
         {
-          from: '09:05',
+          from: `${secondRadio.format('HH:mm')}`,
           until: '12:00',
           slotLength: 5,
           capacity: 2,

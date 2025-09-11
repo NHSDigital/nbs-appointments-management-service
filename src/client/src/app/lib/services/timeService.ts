@@ -128,11 +128,11 @@ export const parseDateAndTimeComponentsToUkDateTime = (
   date: string,
   time: TimeComponents,
 ): DayJsType => {
-  return dayjs(date)
+  return dayjs
+    .tz(date, ukTimezone)
     .hour(Number(time.hour))
     .minute(Number(time.minute))
-    .second(0)
-    .tz(ukTimezone);
+    .second(0);
 };
 
 //#endregion

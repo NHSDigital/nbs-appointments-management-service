@@ -27,4 +27,13 @@ public class CancelBookingRequestValidatorTests
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);
     }
+
+    [Fact]
+    public void Validate_ReturnsTrue_WhenRequestIsValid__CancellationReason()
+    {
+        var testRequest = new CancelBookingRequest("ref", string.Empty, CancellationReason.AutoCancelled);
+        var result = _sut.Validate(testRequest);
+        result.IsValid.Should().BeTrue();
+        result.Errors.Should().HaveCount(0);
+    }
 }

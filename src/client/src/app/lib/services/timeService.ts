@@ -388,7 +388,7 @@ export const getNearestAlignedTimes = (
   return [floor, ceil];
 };
 
-// Checks if the session start time is divisible by the slot length
+// Checks if the new session length is divisible by the slot length
 export const isValidStartTime = (
   sesionStart: Dayjs,
   sessionEnd: Dayjs,

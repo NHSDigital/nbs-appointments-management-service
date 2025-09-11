@@ -48,6 +48,13 @@ public class Booking
 
     [JsonProperty("cancellationNotificationStatus")]
     public CancellationNotificationStatus? CancellationNotificationStatus { get; set; }
+
+    /// <summary>
+    ///     When not null, indicates that this booking was made as a Joint Booking and records the number of bookings that were
+    ///     made jointly.
+    /// </summary>
+    [JsonProperty("bookingBatchSize")]
+    public int? BookingBatchSize { get; set; }
 }
 
 public class AttendeeDetails

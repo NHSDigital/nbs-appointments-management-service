@@ -33,9 +33,7 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static bool ExtractSelfReferral(NbsBookingDocument booking) => booking.AdditionalData?.ReferralType == "SelfReferred";
 
-    public static string ExtractSource(NbsBookingDocument booking) => booking.AdditionalData != null ? 
-        booking.AdditionalData.Source.Equals("NBS", StringComparison.OrdinalIgnoreCase) ? "NBS_Website" : booking.AdditionalData.Source.Replace(" ", "_")
-        : "Unknown";
+    public static string ExtractSource(NbsBookingDocument booking) => TransposeSource(booking.AdditionalData?.Source);
 
     public static string ExtractDateOfBirth(BookingDocument booking) => booking.AttendeeDetails.DateOfBirth.ToString("yyyy-MM-dd");
 
@@ -44,4 +42,19 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
     public static string ExtractService(BookingDocument booking) => booking.Service;
 
     public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("yyyy-MM-ddTHH:mm:sszzz") : null;
+
+    private static string TransposeSource(string source)
+    {
+        switch (source)
+        {
+            case "NBS":
+                return "NBS_Website";
+            case "NHSApp":
+                return "NHS_App";
+            case "NHSCallCentre":
+                return "NHS_Call_Centre";
+            default:
+                return "UNKNOWN";
+        }
+    }
 }

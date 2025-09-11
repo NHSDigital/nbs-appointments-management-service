@@ -118,6 +118,11 @@ public static class ServiceRegistration
 
                 break;
             case "local":
+                services.Configure<LocalFileOptions>(opts =>
+                {
+                    opts.Overwrite = configuration.GetValue<bool>("LocalFileOptions:Overwrite");
+                    opts.TargetPath = configuration.GetValue<string>("LocalFileOptions:TargetPath");
+                });
                 services.AddTransient<IFileSender, LocalFileSender>();
                 break;
             case "blob":

@@ -355,18 +355,6 @@ variable "mesh_authorization_options_mailbox_id" {
   default = ""
 }
 
-variable "mesh_authorization_options_mailbox_password" {
-  type = string
-  default = ""
-  sensitive = true  
-}
-
-variable "mesh_authorization_options_shared_key" {
-  type = string
-  default = ""
-  sensitive = true    
-}
-
 variable "mesh_authorization_options_certificate_name" {
   type = string
   default = ""     

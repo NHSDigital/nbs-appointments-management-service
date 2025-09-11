@@ -115,18 +115,18 @@ public class BookingDataConverterTests
     }
 
     [Theory]
-    [InlineData(false, false, "NBS_Website")]
-    [InlineData(true, false, "NHS_App")]
-    [InlineData(true, true, "NHS_App")]
-    [InlineData(false, true, "NHS_Call_Centre")]
-    public void ExtractSource_GetsCorrectData(bool isNhsApp, bool isCallCentre, string expectedData)
+    [InlineData("NBS", "NBS_Website")]
+    [InlineData("NHSApp", "NHS_App")]
+    [InlineData("", "UNKNOWN")]
+    [InlineData(null, "UNKNOWN")]
+    [InlineData("NHSCallCentre", "NHS_Call_Centre")]
+    public void ExtractSource_GetsCorrectData(string source, string expectedData)
     {
         var testDocument = new NbsBookingDocument
         {
             AdditionalData = new()
             {
-                IsAppBooking = isNhsApp,
-                IsCallCentreBooking = isCallCentre
+                Source = source
             }
         };
         var result = BookingDataConverter.ExtractSource(testDocument);

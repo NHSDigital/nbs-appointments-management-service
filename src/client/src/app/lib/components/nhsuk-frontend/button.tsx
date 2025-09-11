@@ -17,11 +17,14 @@ const Button = ({
   onClick,
   children,
   type = 'button',
+  className,
   ...rest
 }: Props) => {
   return (
     <button
-      className={getClassForType(styleType)}
+      className={
+        `${getClassForType(styleType)}` + (className ? ` ${className}` : '')
+      }
       data-module="nhsuk-button"
       onClick={onClick}
       type={type}

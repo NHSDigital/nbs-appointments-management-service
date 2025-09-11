@@ -514,6 +514,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Theory]
         [InlineData(CancellationReason.CancelledByCitizen, CancellationReason.CancelledByCitizen)]
         [InlineData(CancellationReason.CancelledBySite, CancellationReason.CancelledBySite)]
+        [InlineData(CancellationReason.AutoCancelled, CancellationReason.AutoCancelled)]
         public async Task CancelBooking_ValidCancellationReasonIsUsed(CancellationReason reason,
             CancellationReason expectedReason)
         {

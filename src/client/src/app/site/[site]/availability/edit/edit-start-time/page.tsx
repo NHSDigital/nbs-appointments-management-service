@@ -1,6 +1,6 @@
 import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
-import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
+import { parseToUkDatetime } from '@services/timeService';
 import { AvailabilitySession, SessionSummary } from '@types';
 import { notFound } from 'next/navigation';
 import EditSessionStartTimeForm from './edit-session-start-time-form';

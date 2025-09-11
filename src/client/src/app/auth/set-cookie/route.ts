@@ -7,6 +7,7 @@ import {
   fetchUserProfile,
 } from '@services/appointmentsService';
 import { revalidateTag } from 'next/cache';
+import fromServer from '@server/fromServer';
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
@@ -21,16 +22,13 @@ export async function GET(request: NextRequest) {
     throw Error('No provider found in request');
   }
 
-  const tokenResponse = await fetchAccessToken(code, provider);
-  if (tokenResponse === undefined) {
-    throw Error('No token found in response');
-  }
+  const token = await fromServer(fetchAccessToken(code, provider));
 
-  cookieStore.set('token', tokenResponse.token);
+  cookieStore.set('token', token);
   revalidateTag('user');
 
   // Implicitly checks EULA is accepted, handles if not
-  await fetchUserProfile(`${process.env.CLIENT_BASE_PATH}/eula`);
+  await fromServer(fetchUserProfile(`${process.env.CLIENT_BASE_PATH}/eula`));
 
   const previousPage = cookieStore.get('previousPage');
   if (previousPage) {

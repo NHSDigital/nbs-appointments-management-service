@@ -18,8 +18,9 @@ import {
   parseToTimeComponents,
   toTimeFormat,
 } from '@services/timeService';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useTransition } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
+import fromServer from '@server/fromServer';
 
 export type EditSessionFormValues = {
   sessionToEdit: Session;
@@ -37,6 +38,7 @@ const EditSessionTimeAndCapacityForm = ({
   existingSession,
   date,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
     existingSession.ukStartDatetime,
     dateTimeFormat,
@@ -50,7 +52,7 @@ const EditSessionTimeAndCapacityForm = ({
     handleSubmit,
     watch,
     control,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
@@ -86,31 +88,35 @@ const EditSessionTimeAndCapacityForm = ({
   const submitForm: SubmitHandler<EditSessionFormValues> = async (
     form: EditSessionFormValues,
   ) => {
-    const updatedSession: AvailabilitySession = {
-      from: toTimeFormat(form.newSession.startTime) ?? '',
-      until: toTimeFormat(form.newSession.endTime) ?? '',
-      slotLength: form.newSession.slotLength,
-      capacity: form.newSession.capacity,
-      services: form.newSession.services,
-    };
+    startTransition(async () => {
+      const updatedSession: AvailabilitySession = {
+        from: toTimeFormat(form.newSession.startTime) ?? '',
+        until: toTimeFormat(form.newSession.endTime) ?? '',
+        slotLength: form.newSession.slotLength,
+        capacity: form.newSession.capacity,
+        services: form.newSession.services,
+      };
 
-    await editSession({
-      date,
-      site: site.id,
-      mode: 'Edit',
-      sessions: [updatedSession],
-      sessionToEdit: {
-        from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-        until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-        slotLength: form.sessionToEdit.slotLength,
-        capacity: form.sessionToEdit.capacity,
-        services: form.sessionToEdit.services,
-      },
+      await fromServer(
+        editSession({
+          date,
+          site: site.id,
+          mode: 'Edit',
+          sessions: [updatedSession],
+          sessionToEdit: {
+            from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+            until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
+            slotLength: form.sessionToEdit.slotLength,
+            capacity: form.sessionToEdit.capacity,
+            services: form.sessionToEdit.services,
+          },
+        }),
+      );
+
+      router.push(
+        `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+      );
     });
-
-    router.push(
-      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
-    );
   };
 
   const handleTwoDigitPositiveBoundedNumberInput = (
@@ -399,7 +405,7 @@ const EditSessionTimeAndCapacityForm = ({
         />
       </FormGroup>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button type="submit">Continue</Button>

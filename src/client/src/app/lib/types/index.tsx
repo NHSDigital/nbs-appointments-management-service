@@ -14,6 +14,12 @@ interface ApiSuccessResponse<T> {
   data: T | null;
 }
 
+type ServerActionResult<T> =
+  | { data: T; success: true }
+  | {
+      success: false;
+    };
+
 type AccessibilityDefinition = {
   id: string;
   displayName: string;
@@ -419,6 +425,7 @@ export type {
   EditSessionRequest,
   ErrorType,
   FetchAvailabilityRequest,
+  ServerActionResult,
   FetchBookingsRequest,
   EulaVersion,
   IdentityProvider,

@@ -1,7 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { mockSite } from '@testing/data';
+import {
+  ClinicalService,
+  FeatureFlag,
+  ServerActionResult,
+  WeekSummaryV2,
+} from '@types';
 import { mockWeekSummaryV2 } from '@testing/availability-and-bookings-mock-data';
-import { ClinicalService, FeatureFlag, WeekSummaryV2 } from '@types';
 import { DayCardList } from './day-card-list';
 import {
   fetchClinicalServices,
@@ -10,6 +15,7 @@ import {
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/availabilityCalculatorService', () => {
   const originalModule = jest.requireActual(
@@ -28,34 +34,38 @@ jest.mock('@services/appointmentsService', () => ({
   fetchFeatureFlag: jest.fn(),
 }));
 
-const mockFetchPermissions = fetchPermissions as jest.Mock<Promise<string[]>>;
+const mockFetchPermissions = fetchPermissions as jest.Mock<
+  Promise<ServerActionResult<string[]>>
+>;
 const mockFetchFeatureFlag = fetchFeatureFlag as jest.Mock<
-  Promise<FeatureFlag>
+  Promise<ServerActionResult<FeatureFlag>>
 >;
 const mockFetchWeekSummaryV2 = fetchWeekSummaryV2 as jest.Mock<
-  Promise<WeekSummaryV2>
+  Promise<ServerActionResult<WeekSummaryV2>>
 >;
 
 const mockClinicalServices = fetchClinicalServices as jest.Mock<
-  Promise<ClinicalService[]>
+  Promise<ServerActionResult<ClinicalService[]>>
 >;
 
 describe('Day Card List', () => {
   beforeEach(() => {
-    mockFetchPermissions.mockReturnValue(
-      Promise.resolve(['availability:setup']),
+    mockFetchPermissions.mockResolvedValue(
+      asServerActionResult(['availability:setup']),
     );
-    mockClinicalServices.mockReturnValue(
-      Promise.resolve([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
+    mockClinicalServices.mockResolvedValue(
+      asServerActionResult([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
     );
 
-    mockFetchFeatureFlag.mockReturnValue(
-      Promise.resolve({
+    mockFetchFeatureFlag.mockResolvedValue(
+      asServerActionResult({
         enabled: false,
       }),
     );
 
-    mockFetchWeekSummaryV2.mockReturnValue(Promise.resolve(mockWeekSummaryV2));
+    mockFetchWeekSummaryV2.mockResolvedValue(
+      asServerActionResult(mockWeekSummaryV2),
+    );
   });
 
   it('renders', async () => {

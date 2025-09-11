@@ -5,6 +5,7 @@ import { screen } from '@testing-library/dom';
 import * as appointmentsService from '@services/appointmentsService';
 import render from '@testing/render';
 import { UserEvent } from '@testing-library/user-event';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 
@@ -24,6 +25,8 @@ describe('Edit Site Status Form', () => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
     });
+
+    mockUpdateSiteStatus.mockResolvedValue(asServerActionResult(undefined));
   });
 
   it('renders', async () => {

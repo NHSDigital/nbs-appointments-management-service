@@ -25,6 +25,7 @@
       ],
       "@types": ["./src/app/lib/types/index"],
       "@services/*": ["./src/app/lib/services/*"],
+      "@server/*": ["./src/app/lib/server/*"],
       "@testing/*": ["./src/app/testing/*"],
       "@sorting": ["./src/app/lib/sorting/index"],
       "@constants": ["./src/constants"],
@@ -35,4 +36,3 @@
   "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src"],
   "exclude": ["node_modules"]
 }
-

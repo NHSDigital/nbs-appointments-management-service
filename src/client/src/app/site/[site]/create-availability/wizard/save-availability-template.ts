@@ -14,6 +14,7 @@ import {
   toTimeFormat,
   parseDateComponentsToUkDatetime,
 } from '@services/timeService';
+import fromServer from '@server/fromServer';
 
 async function saveAvailabilityTemplate(
   formData: CreateAvailabilityFormValues,
@@ -51,7 +52,7 @@ async function saveAvailabilityTemplate(
       mode: 'Additive',
     };
 
-    await applyAvailabilityTemplate(request);
+    await fromServer(applyAvailabilityTemplate(request));
   } else {
     const request: SetAvailabilityRequest = {
       site: site.id,
@@ -68,7 +69,7 @@ async function saveAvailabilityTemplate(
       mode: 'Additive',
     };
 
-    await saveAvailability(request);
+    await fromServer(saveAvailability(request));
   }
 }
 

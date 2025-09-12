@@ -6,7 +6,7 @@ type Props = {
 
 const FeedbackBanner = ({ originPage }: Props) => {
   return (
-    <div className="feedback-banner">
+    <div className="feedback-banner no-print">
       <div className="feedback-banner__container">
         <Tag text="Feedback" />{' '}
         <a

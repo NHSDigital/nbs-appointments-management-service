@@ -97,9 +97,8 @@ public sealed class BookingExtractsFeatureSteps : Feature
                 },
                 AdditionalData = new NbsAdditionalData
                 {
-                    IsAppBooking = true,
-                    ReferralType = "",
-                    IsCallCentreBooking = false
+                    Source = "NHSApp",
+                    ReferralType = ""
                 }
             });
 

@@ -20,7 +20,7 @@ public class BookingAvailabilityStateService(
     {
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59, 59));
-        
+
         return (await BuildState(site, dayStart, dayEnd, BookingAvailabilityStateReturnType.Summary))
             .Summary;
     }
@@ -30,6 +30,13 @@ public class BookingAvailabilityStateService(
     {
         return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.Recalculations))
             .BookingAvailabilityUpdates;
+    }
+
+    public async Task<AvailabilityUpdateProposal> BuildRecalculations(string site, DateTime from,
+    DateTime to, Session matcher, Session replacement)
+    {
+        return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.Recalculations, matcher, replacement))
+            .UpdateProposal;
     }
 
     public async Task<IEnumerable<SessionInstance>> GetAvailableSlots(string site, DateTime from, DateTime to)
@@ -65,16 +72,14 @@ public class BookingAvailabilityStateService(
         }).ToList();
     }
 
-    private async Task<BookingAvailabilityState> BuildState(string site, DateTime from, DateTime to,
-        BookingAvailabilityStateReturnType returnType)
+    private async Task<BookingAvailabilityState> BuildState(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions,
+        BookingAvailabilityStateReturnType returnType, DateTime from, DateTime to)
     {
-        var (bookings, sessions) =
-            await FetchData(site, from, to, returnType);
         var state = new BookingAvailabilityState();
 
         //have to materialise to a list as we transform the data within
         var slotsList = sessions.SelectMany(session => session.ToSlots()).ToList();
-        
+
         var liveBookings = bookings.Where(x => _liveStatuses.Contains(x.Status));
 
         List<DayAvailabilitySummary> daySummaries = [];
@@ -133,7 +138,7 @@ public class BookingAvailabilityStateService(
                             booking.AvailabilityStatus = AvailabilityStatus.Orphaned;
                         }
                     }
-                    
+
                     continue;
                 case BookingAvailabilityStateReturnType.Recalculations:
                     state.BookingAvailabilityUpdates.AppendNoLongerSupportedBookings(booking);
@@ -154,6 +159,12 @@ public class BookingAvailabilityStateService(
                 state.Summary = GenerateSummary(bookings, daySummaries);
                 break;
             case BookingAvailabilityStateReturnType.Recalculations:
+                    state.UpdateProposal.UnaccommodatedBookingsCount =
+                        state.BookingAvailabilityUpdates.Count(x => 
+                            x.Action == AvailabilityUpdateAction.SetToOrphaned || 
+                            x.Action == AvailabilityUpdateAction.ProvisionalToDelete
+                        );
+                    state.UpdateProposal.ReallocatedBookingsCount = liveBookings.Count() - state.UpdateProposal.UnaccommodatedBookingsCount;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
@@ -162,6 +173,39 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
+    private async Task<BookingAvailabilityState> BuildState(string site, DateTime from, DateTime to,
+    BookingAvailabilityStateReturnType returnType, Session matcher = null, Session replacement = null)
+    {
+        var (bookings, sessions) =
+                await FetchData(site, from, to, returnType);
+
+        if (matcher is not null && replacement is not null)
+        {
+            var matchedSession = sessions.FirstOrDefault(s =>
+                s.From.TimeOfDay == matcher.From.ToTimeSpan() &&
+                s.Until.TimeOfDay == matcher.Until.ToTimeSpan() &&
+                matcher.Services.All(ms => s.Services.Contains(ms)));
+
+            if (matchedSession is not null)
+            {
+                sessions.Remove(matchedSession);
+
+                var replacementSession = new LinkedSessionInstance(
+                    from.Date.Add(replacement.From.ToTimeSpan()),
+                    from.Date.Add(replacement.Until.ToTimeSpan())
+                )
+                {
+                    Services = replacement.Services,
+                    Capacity = replacement.Capacity,
+                    SlotLength = replacement.SlotLength
+                };
+
+                sessions.Add(replacementSession);
+            }
+        }
+
+        return await BuildState(bookings, sessions, returnType, from, to);
+    }
     private static AvailabilitySummary GenerateSummary(IEnumerable<Booking> bookings, List<DayAvailabilitySummary> daySummaries)
     {
         foreach (var daySummary in daySummaries)
@@ -269,6 +313,14 @@ public class BookingAvailabilityState
     public IEnumerable<SessionInstance> AvailableSlots { get; set; } = [];
 
     public AvailabilitySummary Summary { get; set; }
+
+    public AvailabilityUpdateProposal UpdateProposal { get; set; } = new AvailabilityUpdateProposal();
+}
+
+public class AvailabilityUpdateProposal
+{
+    public int ReallocatedBookingsCount { get; set; }
+    public int UnaccommodatedBookingsCount { get; set; } 
 }
 
 public enum BookingAvailabilityStateReturnType

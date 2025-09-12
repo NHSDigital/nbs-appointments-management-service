@@ -11,8 +11,10 @@ pool:
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
+  prDockerServiceConnectionName: "nbs-mya-container-registry-sc"
 
 stages:
   - template: scripts/pipeline-templates/build.yml
     parameters:
       prBuildServiceConnectionName: $(prBuildServiceConnectionName)
+      prDockerServiceConnectionName: $(prDockerServiceConnectionName)

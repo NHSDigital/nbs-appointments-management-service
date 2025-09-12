@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Json;
 
 namespace Nhs.Appointments.Api.Tests.Functions
 {

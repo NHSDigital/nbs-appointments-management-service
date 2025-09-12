@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Json;
 
 namespace Nhs.Appointments.Api.Json;
 

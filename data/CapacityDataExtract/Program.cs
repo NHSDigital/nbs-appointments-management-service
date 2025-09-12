@@ -2,6 +2,7 @@ using CapacityDataExtracts;
 using DataExtract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -13,8 +14,10 @@ builder.Configuration
             .AddEnvironmentVariables()
             .AddNbsAzureKeyVault();
 
+builder.Logging.AddConsole();
+
 builder.Services
-    .AddDataExtractServices("BookingCapacity", builder.Configuration, args.Contains("create-local-sample"))
+    .AddDataExtractServices("BookingCapacity", builder.Configuration)
     .AddCosmosStore<DailyAvailabilityDocument>()
     .AddCosmosStore<SiteDocument>()
     .AddExtractWorker<CapacityDataExtract>();

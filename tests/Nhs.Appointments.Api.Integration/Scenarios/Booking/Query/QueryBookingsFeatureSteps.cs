@@ -12,7 +12,6 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Query;
 
-[FeatureFile("./Scenarios/Booking/Query/QueryBookings.feature")]
 public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private List<Core.Booking> _actualResponse;

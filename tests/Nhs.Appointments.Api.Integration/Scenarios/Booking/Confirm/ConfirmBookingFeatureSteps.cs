@@ -9,16 +9,16 @@ using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
-namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
+namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Confirm;
 
 [FeatureFile("./Scenarios/Booking/ConfirmBooking.feature")]
-public class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
+public class ConfirmBookingFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
+    private HttpResponseMessage _response;
+
     [When("I confirm the booking")]
     public async Task ConfirmBooking()
     {
@@ -30,7 +30,7 @@ public class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
        );
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", content);
+        _response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", content);
     }
 
     [When("I confirm the bookings")]
@@ -45,13 +45,13 @@ public class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
         );
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", content);
+        _response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", content);
     }
 
     [When("the provisional bookings are cleaned up")]
     public async Task CleanUpProvisionalBookings()
     {
-        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep",
+        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep",
             new StringContent(""));
     }
 
@@ -69,7 +69,8 @@ public class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
             },
         };
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", payload);
+        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm",
+            payload);
     }
 
     [When("I confirm bookings with the following contact information")]
@@ -88,14 +89,12 @@ public class ConfirmBookingFeatureSteps : BookingBaseFeatureSteps
             relatedBookings = new[] { relatedBookingReference }
         };
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", payload);
+        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm",
+            payload);
     }
 
     [Then("the call should be successful")]
-    public void AssertHttpOk()
-    {
-        Response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
+    public void AssertHttpOk() => _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
     [And("the booking is no longer marked as provisional")]
     public async Task AssertBookingNotProvisional()

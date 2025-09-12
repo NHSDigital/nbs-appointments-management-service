@@ -14,8 +14,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Confirm;
 
-[FeatureFile("./Scenarios/Booking/ConfirmBooking.feature")]
-public class ConfirmBookingFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage _response;
 
@@ -174,4 +173,7 @@ public class ConfirmBookingFeatureSteps(string flag, bool enabled) : FeatureTogg
         actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
         secondActualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
     }
+
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 }

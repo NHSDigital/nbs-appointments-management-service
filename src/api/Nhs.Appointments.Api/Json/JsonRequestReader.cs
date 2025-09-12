@@ -31,7 +31,8 @@ public static class JsonRequestReader
                 new DayOfWeekJsonConverter(), 
                 new NullableShortDateOnlyJsonConverter(),
                 new StrictBooleanJsonConverter(),
-                new NullableStringEnumConverter<CancellationReason>()
+                new NullableStringEnumConverter<CancellationReason>(),
+                new SessionOrWildcardConverter()
             },
 
         };

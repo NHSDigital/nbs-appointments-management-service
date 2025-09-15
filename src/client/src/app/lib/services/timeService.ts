@@ -1,5 +1,5 @@
 import { DateComponents, TimeComponents } from '@types';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -122,6 +122,17 @@ export const parseDateComponentsToUkDatetime = ({
   }
   const inputString = `${toTwoDigitFormat(day)}-${toTwoDigitFormat(month)}-${year}`;
   return parseToUkDatetime(inputString, 'DD-MM-YYYY');
+};
+
+export const parseDateAndTimeComponentsToUkDateTime = (
+  date: string,
+  time: TimeComponents,
+): DayJsType => {
+  return dayjs
+    .tz(date, ukTimezone)
+    .hour(Number(time.hour))
+    .minute(Number(time.minute))
+    .second(0);
 };
 
 //#endregion
@@ -360,4 +371,29 @@ export const addHoursAndMinutesToUkDatetime = (
   //as simply doing .add() in daysjs maintains the original timezone info (even if the operation crosses a DST)
   const newHour = addToUkDatetime(ukDatetime, hours, 'hour', dateTimeFormat);
   return addToUkDatetime(newHour, minutes, 'minute', dateTimeFormat);
+};
+
+// Get nearest possible start times that align with slot length in a session that contains bookings
+// when the requested start time does not align with the slot length in the session
+export const getNearestAlignedTimes = (
+  requested: Dayjs,
+  slotLength: number,
+): Dayjs[] => {
+  const minutes = requested.hour() * 60 + requested.minute();
+  const remainder = minutes % slotLength;
+
+  const floor = requested.subtract(remainder, 'minute');
+  const ceil = floor.add(slotLength, 'minute');
+
+  return [floor, ceil];
+};
+
+// Checks if the new session length is divisible by the slot length
+export const isValidStartTime = (
+  sesionStart: Dayjs,
+  sessionEnd: Dayjs,
+  slotLength: number,
+): boolean => {
+  const duration = sessionEnd.diff(sesionStart, 'minute');
+  return duration % slotLength === 0;
 };

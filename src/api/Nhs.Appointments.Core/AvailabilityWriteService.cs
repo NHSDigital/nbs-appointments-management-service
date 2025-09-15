@@ -100,6 +100,44 @@ public class AvailabilityWriteService(
         return (cancelledBookingCount, bookingsWithoutContactDetailsCount);
     }
 
+    public Task EditSessionAsync(string site, DateOnly from, DateOnly until, string sessionMatcher, Session? sessionReplacement)
+    {
+        if (sessionMatcher != "*")
+        {
+            throw new ArgumentException("Only '*' is allowed as a string value.", nameof(sessionMatcher));
+        }
+
+        if (sessionReplacement is null)
+        {
+            // Cancel all sessions in date range
+        }
+
+        throw new NotImplementedException();
+    }
+
+    public async Task EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session? sessionReplacement)
+    {
+        if (sessionReplacement is null && from != until)
+        {
+            await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher);
+            return;
+        }
+
+        if (from == until && sessionReplacement != null)
+        {
+            await availabilityStore.ApplyAvailabilityTemplate(site, from, [sessionReplacement], ApplyAvailabilityMode.Edit, sessionMatcher);
+            return;
+        }
+
+        if (from == until && sessionReplacement is null)
+        {
+            await availabilityStore.CancelDayAsync(site, from);
+            return;
+        }
+
+        throw new NotImplementedException();
+    }
+
     private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
     {
         var cursor = start;

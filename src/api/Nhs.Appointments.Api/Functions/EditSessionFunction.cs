@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -11,7 +10,6 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -21,7 +19,8 @@ public class EditSessionFunction(
     IValidator<EditSessionRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<BulkImportFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IAvailabilityWriteService availabilityWriteService)
     : BaseApiFunction<EditSessionRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {

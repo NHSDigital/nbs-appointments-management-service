@@ -1,7 +1,7 @@
-using System.Linq.Expressions;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -124,6 +124,25 @@ public class AvailabilityDocumentStore(
         await PatchAvailabilityDocument(documentId, [], site, document, false);
     }
 
+    public async Task EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session session)
+    {
+
+    }
+
+    public async Task CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher)
+    {
+        var docType = documentStore.GetDocumentType();
+        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
+
+        foreach (var document in documents)
+        {
+            var updatedSession = document.Sessions.Where(s => !SessionsMatch(s, sessionMatcher)).ToArray();
+
+            var documentId = document.Date.ToString("yyyyMMdd");
+            await PatchAvailabilityDocument(documentId, document.Sessions, site, document, false);
+        }
+    }
+
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
     {
         var dayDocument = await GetOrDefaultAsync(documentId, site);
@@ -189,5 +208,14 @@ public class AvailabilityDocumentStore(
             && session.Services.SequenceEqual(sessionToMatch.Services)
             && session.SlotLength == sessionToMatch.SlotLength
             && session.Capacity == sessionToMatch.Capacity);
+    }
+
+    private static bool SessionsMatch(Session session, Session sessionToMatch)
+    {
+        return session.From == sessionToMatch.From
+            && session.Until == sessionToMatch.Until
+            && session.SlotLength == sessionToMatch.SlotLength
+            && session.Capacity == sessionToMatch.Capacity
+            && session.Services.SequenceEqual(sessionToMatch.Services);
     }
 }

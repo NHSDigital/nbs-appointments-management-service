@@ -124,23 +124,32 @@ public class AvailabilityDocumentStore(
         await PatchAvailabilityDocument(documentId, [], site, document, false);
     }
 
-    public async Task EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session session)
+    public async Task<OperationResult> EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session session)
     {
-
+        return new OperationResult(true);
     }
 
-    public async Task CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher)
+    public async Task<OperationResult> CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher = null)
     {
         var docType = documentStore.GetDocumentType();
         var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
+        if (documents is null || !documents.Any())
+        {
+            return new OperationResult(false, $"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
+        }
+
         foreach (var document in documents)
         {
-            var updatedSession = document.Sessions.Where(s => !SessionsMatch(s, sessionMatcher)).ToArray();
+            var updatedSessions = sessionMatcher is null
+                ? []
+                : document.Sessions.Where(s => !SessionsMatch(s, sessionMatcher)).ToArray();
 
             var documentId = document.Date.ToString("yyyyMMdd");
-            await PatchAvailabilityDocument(documentId, document.Sessions, site, document, false);
+            await PatchAvailabilityDocument(documentId, updatedSessions, site, document, false);
         }
+
+        return new OperationResult(true);
     }
 
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)

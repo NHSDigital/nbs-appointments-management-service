@@ -10,6 +10,6 @@ public interface IAvailabilityStore
    Task<bool> SiteOffersServiceDuringPeriod(string siteId, string service,
        List<string> datesInPeriod);
     Task CancelDayAsync(string site, DateOnly date);
-    Task EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session session);
-    Task CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher);
+    Task<OperationResult> EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session session);
+    Task<OperationResult> CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher = null);
 }

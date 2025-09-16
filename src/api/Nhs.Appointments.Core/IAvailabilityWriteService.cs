@@ -8,6 +8,5 @@ public interface IAvailabilityWriteService
         string user, Session sessionToEdit = null);
     Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelDayAsync(string site, DateOnly date);
-    Task EditSessionAsync(string site, DateOnly from, DateOnly until, string sessionMatcher, Session? sessionReplacement);
-    Task EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session? sessionReplacement);
+    Task<OperationResult> EditSessionAsync(string site, DateOnly from, DateOnly until, Session? sessionMatcher, Session? sessionReplacement, bool isWildcard);
 }

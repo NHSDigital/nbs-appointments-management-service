@@ -72,7 +72,7 @@ export const DaySummaryCard = ({
   ].filter(p => p !== false);
 
   const futureCancelDayLink =
-    cancelDayFlag && isFutureCalendarDate ? (
+    cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
       <Link
         className="nhsuk-link"
         href={`/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}

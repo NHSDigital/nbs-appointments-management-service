@@ -12,19 +12,19 @@ using Nhs.Appointments.Core;
 using System.Text;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
-public class AvailabilityChangeProposalFunctionTests
+public class ProposeAvailabilityChangeFunctionTests
 {
-    private readonly Mock<ILogger<AvailabilityChangeProposalFunction>> _logger = new();
+    private readonly Mock<ILogger<ProposeAvailabilityChangeFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<AvailabilityChangeProposalRequest>> _validator = new();
 
-    private readonly AvailabilityChangeProposalFunction _sut;
+    private readonly ProposeAvailabilityChangeFunction _sut;
 
-    public AvailabilityChangeProposalFunctionTests()
+    public ProposeAvailabilityChangeFunctionTests()
     {
-        _sut = new AvailabilityChangeProposalFunction(
+        _sut = new ProposeAvailabilityChangeFunction(
             _bookingAvailabilityStateService.Object, 
             _validator.Object, 
             _userContextProvider.Object,
@@ -36,13 +36,13 @@ public class AvailabilityChangeProposalFunctionTests
     }
 
     [Fact]
-    public async Task RunAsync_ReturnsRecalculationsResult_WhenRequestedIsValid()
+    public async Task RunAsync_ReturnsRecalculationsResult_WhenRequestIsValid()
     {
         var request = BuildRequest();
         var response = new AvailabilityUpdateProposal()
         {
             SupportedBookingsCount = 1,
-            UnsupportedBookingsCount = 1,
+            UnsupportedBookingsCount = 1
         };
 
         _bookingAvailabilityStateService.Setup(x =>
@@ -63,6 +63,31 @@ public class AvailabilityChangeProposalFunctionTests
 
         deserialisedResponse.SupportedBookingsCount.Should().Be(response.SupportedBookingsCount);
         deserialisedResponse.UnsupportedBookingsCount.Should().Be(response.UnsupportedBookingsCount);
+    }
+
+    [Fact]
+    public async Task RunAsync_MatchingSessionNotFound_ResultIsBadRequest()
+    {
+        var request = BuildRequest();
+        var response = new AvailabilityUpdateProposal()
+        {
+            SupportedBookingsCount = 1,
+            UnsupportedBookingsCount = 1,
+            MatchingSessionNotFound = true
+        };
+
+        _bookingAvailabilityStateService.Setup(x =>
+        x.BuildRecalculations(
+            It.IsAny<string>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<Session>(),
+            It.IsAny<Session>())
+        ).ReturnsAsync(response);
+
+        var result = await _sut.RunAsync(request) as ContentResult;
+
+        result.StatusCode.Should().Be(400);
     }
 
     private static HttpRequest BuildRequest()

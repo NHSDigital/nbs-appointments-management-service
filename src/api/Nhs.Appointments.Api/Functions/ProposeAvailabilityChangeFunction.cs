@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Api.Functions;
-public class AvailabilityChangeProposalFunction(
+public class ProposeAvailabilityChangeFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
     IValidator<AvailabilityChangeProposalRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<AvailabilityChangeProposalFunction> logger,
+    ILogger<ProposeAvailabilityChangeFunction> logger,
     IMetricsRecorder metricsRecorder) 
     : BaseApiFunction<AvailabilityChangeProposalRequest, AvailabilityChangeProposalResponse>(
         validator, 
@@ -34,7 +34,7 @@ public class AvailabilityChangeProposalFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [Function("AvailabilityChangeProposalFunction")]
     public override Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "session/edit-proposal")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/propose-edit")]
         HttpRequest req)
     {
         return base.RunAsync(req);
@@ -49,6 +49,13 @@ public class AvailabilityChangeProposalFunction(
             request.ToDate,
             request.SessionMatcher,
             request.SessionReplacement);
+
+        if (recalculations.MatchingSessionNotFound)
+        {
+            return ApiResult<AvailabilityChangeProposalResponse>.Failed(
+                HttpStatusCode.BadRequest, "Matching session was not found"
+            );
+        }
 
         return ApiResult<AvailabilityChangeProposalResponse>.Success(
             new AvailabilityChangeProposalResponse(

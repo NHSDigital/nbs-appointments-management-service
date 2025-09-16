@@ -422,7 +422,9 @@ public class BookingCosmosDocumentStoreTests
 
         var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
 
-        result.Should().Be((4, 1));
+        result.cancelledBookingsCount.Should().Be(4);
+        result.bookingsWithoutContactDetailsCount.Should().Be(1);
+        result.bookingsWithContactDetails.Count.Should().Be(3);
 
         _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(4));
     }
@@ -435,7 +437,9 @@ public class BookingCosmosDocumentStoreTests
 
         var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
 
-        result.Should().Be((0, 0));
+        result.cancelledBookingsCount.Should().Be(0);
+        result.bookingsWithoutContactDetailsCount.Should().Be(0);
+        result.bookingsWithContactDetails.Should().BeEmpty();
 
         _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
     }

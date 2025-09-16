@@ -52,8 +52,8 @@ public class AvailabilityChangeProposalFunction(
 
         return ApiResult<AvailabilityChangeProposalResponse>.Success(
             new AvailabilityChangeProposalResponse(
-                recalculations.ReallocatedBookingsCount, 
-                recalculations.UnaccommodatedBookingsCount
+                recalculations.SupportedBookingsCount, 
+                recalculations.UnsupportedBookingsCount
             )
         );
     }

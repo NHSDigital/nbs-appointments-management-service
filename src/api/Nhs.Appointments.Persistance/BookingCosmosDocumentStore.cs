@@ -328,11 +328,13 @@ public class BookingCosmosDocumentStore(
             var endOfDay = date.AddDays(1).ToDateTime(TimeOnly.MinValue).AddTicks(-1);
 
             var bookings = await GetInDateRangeAsync(startOfDay, endOfDay, site);
+            // Filter out already cancelled bookings so we don't send duplicate notifications
+            var activeBookings = bookings.Where(b => b.Status != AppointmentStatus.Cancelled).ToList();
 
             var successfulCancellations = 0;
             var bookingsWithoutContactDetailsCount = 0;
 
-            foreach (var booking in bookings)
+            foreach (var booking in activeBookings)
             {
                 if (await UpdateStatus(booking.Reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledBySite))
                 {
@@ -345,7 +347,9 @@ public class BookingCosmosDocumentStore(
                 }
             }
 
-            return (successfulCancellations, bookingsWithoutContactDetailsCount, bookings.Where(b => b.ContactDetails is not null).ToList());
+            var bookingsWithContactDetails = activeBookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
+
+            return (successfulCancellations, bookingsWithoutContactDetailsCount, bookingsWithContactDetails);
         }
     }
 }    

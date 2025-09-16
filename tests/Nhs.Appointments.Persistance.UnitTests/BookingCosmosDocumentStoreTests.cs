@@ -305,7 +305,7 @@ public class BookingCosmosDocumentStoreTests
     }
 
     [Fact]
-    public async Task CancelAllBookingsInDay_UpdatesBookingStatuses_AndReturnsCorrectCount()
+    public async Task CancelAllBookingsInDay_UpdatesBookingStatuses_OfNonCancelledBookings_AndReturnsCorrectCount()
     {
         var bookings = new List<Booking>
         {
@@ -329,7 +329,7 @@ public class BookingCosmosDocumentStoreTests
                     LastName = "Bloggs"
                 },
                 From = new DateTime(2025, 1, 1, 11, 25, 0),
-                Status = AppointmentStatus.Booked,
+                Status = AppointmentStatus.Cancelled,
                 ContactDetails = [
                     new () {
                         Type = ContactItemType.Phone,
@@ -390,7 +390,7 @@ public class BookingCosmosDocumentStoreTests
                 Id = "02-76-000001",
                 NhsNumber = "9999999999",
                 Reference = "02-76-000001",
-                Status = AppointmentStatus.Booked
+                Status = AppointmentStatus.Cancelled
             },
             new()
             {
@@ -420,13 +420,13 @@ public class BookingCosmosDocumentStoreTests
             .ReturnsAsync(bookingIndexDocuments[2])
             .ReturnsAsync(bookingIndexDocuments[3]);
 
-        var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
+        var (cancelledBookingsCount, bookingsWithoutContactDetailsCount, bookingsWithContactDetails) = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
 
-        result.cancelledBookingsCount.Should().Be(4);
-        result.bookingsWithoutContactDetailsCount.Should().Be(1);
-        result.bookingsWithContactDetails.Count.Should().Be(3);
+        cancelledBookingsCount.Should().Be(3);
+        bookingsWithoutContactDetailsCount.Should().Be(1);
+        bookingsWithContactDetails.Count.Should().Be(2);
 
-        _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(4));
+        _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(3));
     }
 
     [Fact]
@@ -435,11 +435,11 @@ public class BookingCosmosDocumentStoreTests
         _bookingStore.Setup(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
             .ReturnsAsync(new List<Booking>());
 
-        var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
+        var (cancelledBookingsCount, bookingsWithoutContactDetailsCount, bookingsWithContactDetails) = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
 
-        result.cancelledBookingsCount.Should().Be(0);
-        result.bookingsWithoutContactDetailsCount.Should().Be(0);
-        result.bookingsWithContactDetails.Should().BeEmpty();
+        cancelledBookingsCount.Should().Be(0);
+        bookingsWithoutContactDetailsCount.Should().Be(0);
+        bookingsWithContactDetails.Should().BeEmpty();
 
         _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
     }

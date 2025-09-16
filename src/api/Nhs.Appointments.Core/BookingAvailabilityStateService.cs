@@ -180,6 +180,8 @@ public class BookingAvailabilityStateService(
             var matchedSession = sessions.FirstOrDefault(s =>
                 s.From.TimeOfDay == matcher.From.ToTimeSpan() &&
                 s.Until.TimeOfDay == matcher.Until.ToTimeSpan() &&
+                s.Duration == (matcher.Until - matcher.From) &&
+                s.Capacity == matcher.Capacity &&
                 matcher.Services.All(ms => s.Services.Contains(ms)));
 
             if (matchedSession is not null)
@@ -197,6 +199,10 @@ public class BookingAvailabilityStateService(
                 };
 
                 sessions.Add(replacementSession);
+            }
+            else
+            {
+                return new BookingAvailabilityState(matchingSessionNotFound: true);
             }
         }
 
@@ -304,6 +310,11 @@ public static class RecalculationExtensions
 
 public class BookingAvailabilityState
 {
+    public BookingAvailabilityState() {}
+    public BookingAvailabilityState(bool matchingSessionNotFound)
+    {
+        UpdateProposal = new AvailabilityUpdateProposal(matchingSessionNotFound);
+    }
     public readonly List<BookingAvailabilityUpdate> BookingAvailabilityUpdates = [];
 
     public IEnumerable<SessionInstance> AvailableSlots { get; set; } = [];
@@ -315,8 +326,14 @@ public class BookingAvailabilityState
 
 public class AvailabilityUpdateProposal
 {
+    public AvailabilityUpdateProposal(){}
+    public AvailabilityUpdateProposal(bool matchingSessionNotFound)
+    {
+        MatchingSessionNotFound = matchingSessionNotFound;
+    }
     public int SupportedBookingsCount { get; set; }
     public int UnsupportedBookingsCount { get; set; } 
+    public bool MatchingSessionNotFound { get; set; }
 }
 
 public enum BookingAvailabilityStateReturnType

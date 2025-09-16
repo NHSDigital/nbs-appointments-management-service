@@ -213,7 +213,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
         };
         var content = new StringContent(JsonConvert.SerializeObject(request, serializerSettings), Encoding.UTF8, "application/json");
 
-        _response = await Http.PostAsync($"http://localhost:7071/api/session/edit-proposal", content);
+        _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
         _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         (_, _availabilityChangeProposalResponse) =

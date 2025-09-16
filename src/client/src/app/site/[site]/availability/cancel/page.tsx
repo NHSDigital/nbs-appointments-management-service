@@ -5,8 +5,8 @@ import {
 } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 import ConfirmCancellation from './confirm-cancellation';
-import NhsPage from '@components/nhs-page';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -40,7 +40,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   };
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title="Are you sure you want to cancel this session?"
       caption="Cancel session"
       originPage="edit-session"
@@ -52,7 +52,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site.id}
         clinicalServices={clinicalServices}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

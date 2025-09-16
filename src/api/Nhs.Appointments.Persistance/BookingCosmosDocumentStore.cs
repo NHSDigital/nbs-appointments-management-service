@@ -322,19 +322,22 @@ public class BookingCosmosDocumentStore(
 
     public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date)
     {
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue);
+        var endOfDay = date.AddDays(1).ToDateTime(TimeOnly.MinValue).AddTicks(-1);
+        var bookingFilter = new BookingQueryFilter(
+            startOfDay,
+            endOfDay,
+            site,
+            [AppointmentStatus.Booked]);
+
         using (metricsRecorder.BeginScope("CancelAllBookingsInDay"))
         {
-            var startOfDay = date.ToDateTime(TimeOnly.MinValue);
-            var endOfDay = date.AddDays(1).ToDateTime(TimeOnly.MinValue).AddTicks(-1);
-
-            var bookings = await GetInDateRangeAsync(startOfDay, endOfDay, site);
-            // Filter out already cancelled bookings so we don't send duplicate notifications
-            var activeBookings = bookings.Where(b => b.Status != AppointmentStatus.Cancelled).ToList();
+            var bookings = await QueryByFilterAsync(bookingFilter);
 
             var successfulCancellations = 0;
             var bookingsWithoutContactDetailsCount = 0;
 
-            foreach (var booking in activeBookings)
+            foreach (var booking in bookings)
             {
                 if (await UpdateStatus(booking.Reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledBySite))
                 {
@@ -347,7 +350,7 @@ public class BookingCosmosDocumentStore(
                 }
             }
 
-            var bookingsWithContactDetails = activeBookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
+            var bookingsWithContactDetails = bookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
 
             return (successfulCancellations, bookingsWithoutContactDetailsCount, bookingsWithContactDetails);
         }

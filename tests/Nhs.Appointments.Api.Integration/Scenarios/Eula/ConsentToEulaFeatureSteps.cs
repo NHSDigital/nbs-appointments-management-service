@@ -66,7 +66,7 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
         var userAssignments = new UserDocument()
         {
             
-            Id = "api@eulaTestUser",
+            Id = "api@eulatestuser",
             ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
             RoleAssignments = [

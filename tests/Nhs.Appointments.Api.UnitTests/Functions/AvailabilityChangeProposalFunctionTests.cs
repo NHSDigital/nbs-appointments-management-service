@@ -41,8 +41,8 @@ public class AvailabilityChangeProposalFunctionTests
         var request = BuildRequest();
         var response = new AvailabilityUpdateProposal()
         {
-            ReallocatedBookingsCount = 1,
-            UnaccommodatedBookingsCount = 1,
+            SupportedBookingsCount = 1,
+            UnsupportedBookingsCount = 1,
         };
 
         _bookingAvailabilityStateService.Setup(x =>
@@ -61,8 +61,8 @@ public class AvailabilityChangeProposalFunctionTests
         var body = await new StringReader(result.Content).ReadToEndAsync();
         var deserialisedResponse = JsonConvert.DeserializeObject<AvailabilityUpdateProposal>(body);
 
-        deserialisedResponse.ReallocatedBookingsCount.Should().Be(response.ReallocatedBookingsCount);
-        deserialisedResponse.UnaccommodatedBookingsCount.Should().Be(response.UnaccommodatedBookingsCount);
+        deserialisedResponse.SupportedBookingsCount.Should().Be(response.SupportedBookingsCount);
+        deserialisedResponse.UnsupportedBookingsCount.Should().Be(response.UnsupportedBookingsCount);
     }
 
     private static HttpRequest BuildRequest()

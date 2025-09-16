@@ -102,6 +102,7 @@ public class BookingAvailabilityStateService(
                         break;
                     case BookingAvailabilityStateReturnType.Recalculations:
                         state.BookingAvailabilityUpdates.AppendNewlySupportedBooking(booking);
+                        state.UpdateProposal.SupportedBookingsCount++;
                         break;
                     case BookingAvailabilityStateReturnType.Summary:
                         //update status if not already supported
@@ -159,12 +160,7 @@ public class BookingAvailabilityStateService(
                 state.Summary = GenerateSummary(bookings, daySummaries);
                 break;
             case BookingAvailabilityStateReturnType.Recalculations:
-                    state.UpdateProposal.UnaccommodatedBookingsCount =
-                        state.BookingAvailabilityUpdates.Count(x => 
-                            x.Action == AvailabilityUpdateAction.SetToOrphaned || 
-                            x.Action == AvailabilityUpdateAction.ProvisionalToDelete
-                        );
-                    state.UpdateProposal.ReallocatedBookingsCount = liveBookings.Count() - state.UpdateProposal.UnaccommodatedBookingsCount;
+                state.UpdateProposal.UnsupportedBookingsCount = liveBookings.Count() - state.UpdateProposal.SupportedBookingsCount;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
@@ -319,8 +315,8 @@ public class BookingAvailabilityState
 
 public class AvailabilityUpdateProposal
 {
-    public int ReallocatedBookingsCount { get; set; }
-    public int UnaccommodatedBookingsCount { get; set; } 
+    public int SupportedBookingsCount { get; set; }
+    public int UnsupportedBookingsCount { get; set; } 
 }
 
 public enum BookingAvailabilityStateReturnType

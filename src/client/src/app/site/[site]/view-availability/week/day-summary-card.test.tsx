@@ -398,6 +398,23 @@ describe('Day Summary Card', () => {
         `/site/mock-site/cancel-day?date=${mockDaySummaries[0].ukDate.format(RFC3339Format)}`,
       );
     });
+
+    it('hides the "Cancel Day" link when the user lacks permission', () => {
+      mockIsFutureCalendarDateUk.mockReturnValue(true);
+
+      render(
+        <DaySummaryCard
+          daySummary={mockDaySummaries[0]}
+          siteId={'mock-site'}
+          canManageAvailability={false}
+          clinicalServices={mockSingleService}
+          canViewDailyAppointments={true}
+          cancelDayFlag={true}
+        />,
+      );
+
+      expect(screen.queryByRole('link', { name: 'Cancel day' })).toBeNull();
+    });
   });
 
   describe('when there is no availability', () => {

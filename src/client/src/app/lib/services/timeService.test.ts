@@ -18,6 +18,9 @@ import {
   RFC3339Format,
   occurInOrder,
   stringIsValidDate,
+  isValidStartTime,
+  getNearestAlignedTimes,
+  parseDateAndTimeComponentsToUkDateTime,
 } from '@services/timeService';
 import { TimeComponents } from '@types';
 
@@ -518,6 +521,73 @@ describe('Time Service', () => {
     'checks if a string is a valid date',
     (dateStringToCheck: string, expectedOutcome: boolean) => {
       const result = stringIsValidDate(dateStringToCheck, RFC3339Format);
+
+      expect(result).toBe(expectedOutcome);
+    },
+  );
+
+  it.each([
+    [
+      parseToUkDatetime('2025-09-10T09:00:00Z', dateTimeFormat),
+      parseToUkDatetime('2025-09-10T12:00:00Z', dateTimeFormat),
+      10,
+      true,
+    ],
+    [
+      parseToUkDatetime('2025-09-10T09:00:00Z', dateTimeFormat),
+      parseToUkDatetime('2025-09-10T10:00:00Z', dateTimeFormat),
+      7,
+      false,
+    ],
+  ])(
+    'correctly determines if a start time is valid for the session using slot length',
+    (
+      sessionStart: DayJsType,
+      sessionEnd: DayJsType,
+      slotLength: number,
+      expectedOutcome: boolean,
+    ) => {
+      const result = isValidStartTime(sessionStart, sessionEnd, slotLength);
+      expect(result).toBe(expectedOutcome);
+    },
+  );
+
+  it.each([
+    [
+      parseToUkDatetime('2025-09-10T09:06:00Z', dateTimeFormat),
+      10,
+      parseToUkDatetime('2025-09-10T09:00:00Z', dateTimeFormat),
+      parseToUkDatetime('2025-09-10T09:10:00Z', dateTimeFormat),
+    ],
+    [
+      parseToUkDatetime('2025-09-10T09:06:00Z', dateTimeFormat),
+      5,
+      parseToUkDatetime('2025-09-10T09:05:00Z', dateTimeFormat),
+      parseToUkDatetime('2025-09-10T09:10:00Z', dateTimeFormat),
+    ],
+  ])(
+    'correctly gets nearest aligned start times',
+    (
+      requested: DayJsType,
+      slotLength: number,
+      expectedFloor: DayJsType,
+      expectedCeil: DayJsType,
+    ) => {
+      const [floor, ceil] = getNearestAlignedTimes(requested, slotLength);
+      expect(floor.format('HH:mma')).toBe(expectedFloor.format('HH:mma'));
+      expect(ceil.format('HH:mma')).toBe(expectedCeil.format('HH:mma'));
+    },
+  );
+
+  it.each([
+    ['2025-09-10', { hour: 9, minute: 0 }, '2025-09-10T08:00:00.000Z'],
+    ['2025-10-08', { hour: 11, minute: 15 }, '2025-10-08T10:15:00.000Z'],
+    ['2025-12-13', { hour: 11, minute: 15 }, '2025-12-13T11:15:00.000Z'],
+  ])(
+    'correctly parses date string and time components into UK date time object',
+    (date: string, time: TimeComponents, expectedOutcome: string) => {
+      const parsedDateTime = parseDateAndTimeComponentsToUkDateTime(date, time);
+      const result = parsedDateTime.toISOString();
 
       expect(result).toBe(expectedOutcome);
     },

@@ -320,7 +320,7 @@ public class BookingCosmosDocumentStore(
         bookingStore.DeleteDocument(reference, site)
     );
 
-    public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDay(string site, DateOnly date)
+    public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date)
     {
         using (metricsRecorder.BeginScope("CancelAllBookingsInDay"))
         {
@@ -345,7 +345,7 @@ public class BookingCosmosDocumentStore(
                 }
             }
 
-            return (successfulCancellations, bookingsWithoutContactDetailsCount);
+            return (successfulCancellations, bookingsWithoutContactDetailsCount, bookings.Where(b => b.ContactDetails is not null).ToList());
         }
     }
 }    

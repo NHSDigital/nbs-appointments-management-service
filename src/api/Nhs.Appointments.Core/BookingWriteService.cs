@@ -185,7 +185,17 @@ public class BookingWriteService(
     }
 
     public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDayAsync(string site, DateOnly day)
-        => await bookingDocumentStore.CancelAllBookingsInDay(site, day);
+    {
+        var (cancelledBookingsCount, bookingsWithoutContactDetailsCount, bookingsWithContactDetails) = await bookingDocumentStore.CancelAllBookingsInDay(site, day);
+
+        foreach (var booking in bookingsWithContactDetails)
+        {
+            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
+            await bus.Send(bookingCancelledEvents);
+        }
+
+        return (cancelledBookingsCount, bookingsWithoutContactDetailsCount);
+    }
 
     private Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
         bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);

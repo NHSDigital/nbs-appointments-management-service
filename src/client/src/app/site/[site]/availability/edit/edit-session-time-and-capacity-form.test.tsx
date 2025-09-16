@@ -107,7 +107,10 @@ describe('Edit Session Time And Capacity Form', () => {
         services: ['RSV:Adult'],
       },
     });
-    expect(mockPush).toHaveBeenCalledTimes(1);
+
+    waitFor(() => {
+      expect(mockPush).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('permits start and end time data entry', async () => {

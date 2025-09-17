@@ -123,5 +123,5 @@ public enum CancellationReason
     CancelledByCitizen,
     CancelledBySite,
     RescheduledByCitizen,
-    AutoCancelled
+    CancelledByService
 }

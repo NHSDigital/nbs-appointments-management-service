@@ -31,7 +31,7 @@ public class CancelBookingRequestValidatorTests
     [Fact]
     public void Validate_ReturnsTrue_WhenRequestIsValid__CancellationReason()
     {
-        var testRequest = new CancelBookingRequest("ref", string.Empty, CancellationReason.AutoCancelled);
+        var testRequest = new CancelBookingRequest("ref", string.Empty, CancellationReason.CancelledByService);
         var result = _sut.Validate(testRequest);
         result.IsValid.Should().BeTrue();
         result.Errors.Should().HaveCount(0);

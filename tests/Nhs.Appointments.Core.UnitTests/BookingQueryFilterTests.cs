@@ -97,7 +97,7 @@ public class BookingQueryFilterTests
             TestBooking("03", cancellationReason: CancellationReason.RescheduledByCitizen),
             TestBooking("04", cancellationReason: CancellationReason.CancelledBySite),
             TestBooking("05", cancellationReason: CancellationReason.CancelledByCitizen),
-            TestBooking("05", cancellationReason: CancellationReason.AutoCancelled)
+            TestBooking("05", cancellationReason: CancellationReason.CancelledByService)
         };
 
         var filter = new BookingQueryFilter(TestDateAt("09:00"), TestDateAt("17:30"),
@@ -178,7 +178,7 @@ public class BookingQueryFilterTests
             // Cancelled booking at 10:10, automatically notified but notification failed
             TestBooking("10", "10:10", AppointmentStatus.Cancelled, CancellationReason.CancelledBySite,
                 CancellationNotificationStatus.AutomaticNotificationFailed),
-            TestBooking("11", "10:10", AppointmentStatus.Cancelled, CancellationReason.AutoCancelled,
+            TestBooking("11", "10:10", AppointmentStatus.Cancelled, CancellationReason.CancelledByService,
                 CancellationNotificationStatus.Unknown)
         };
 

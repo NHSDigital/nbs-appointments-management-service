@@ -67,9 +67,9 @@ Feature: Appointment cancellation
     And the following bookings have been made
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
-    When I cancel the appointment with cancellation reason 'AutoCancelled'
+    When I cancel the appointment with cancellation reason 'CancelledByService'
     Then the booking has been 'Cancelled'
-    And 'AutoCancelled' cancellation reason has been used
+    And 'CancelledByService' cancellation reason has been used
 
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment of a different service
     Given the following sessions

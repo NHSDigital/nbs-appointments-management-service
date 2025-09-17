@@ -17,7 +17,7 @@
     "lint": "eslint **/*.{ts,tsx} --max-warnings=0",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,html}\"",
-    "test": "jest",
+    "test": "jest --maxWorkers=1",
     "test:utc:tz": "TZ=UTC jest",
     "test:ci": "jest --reporters=jest-junit --reporters=default",
     "test:e2e": "playwright test",

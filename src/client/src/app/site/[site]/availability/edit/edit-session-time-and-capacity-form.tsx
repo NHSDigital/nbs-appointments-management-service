@@ -112,7 +112,8 @@ const EditSessionTimeAndCapacityForm = ({
         existingSession.totalSupportedAppointments === 0 ||
         validSessionStartTime
       ) {
-        return await updateSession(form, updatedSession);
+        await updateSession(form, updatedSession);
+        return;
       }
 
       const updatedString = btoa(JSON.stringify(updatedSession));
@@ -136,6 +137,10 @@ const EditSessionTimeAndCapacityForm = ({
         sessions: [updatedSession],
         sessionToEdit: toAvailabilitySession(form.sessionToEdit),
       }),
+    );
+
+    router.push(
+      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
     );
   };
 

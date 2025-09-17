@@ -6,6 +6,7 @@ import {
   RadioGroup,
   Radio,
 } from '@components/nhsuk-frontend';
+import fromServer from '@server/fromServer';
 import { editSession } from '@services/appointmentsService';
 import {
   dateTimeFormat,
@@ -77,21 +78,23 @@ const EditSessionStartTimeForm = ({
         dateTimeFormat,
       ).format('HH:mm');
 
-      await editSession({
-        date,
-        site: site.id,
-        mode: 'Edit',
-        sessions: [session],
-        sessionToEdit: {
-          from: existingUkStartTime,
-          until: existingUkEndTime,
-          capacity: existingSession.capacity,
-          services: Object.keys(
-            existingSession.totalSupportedAppointmentsByService,
-          ).map(service => service),
-          slotLength: existingSession.slotLength,
-        },
-      });
+      await fromServer(
+        editSession({
+          date,
+          site: site.id,
+          mode: 'Edit',
+          sessions: [session],
+          sessionToEdit: {
+            from: existingUkStartTime,
+            until: existingUkEndTime,
+            capacity: existingSession.capacity,
+            services: Object.keys(
+              existingSession.totalSupportedAppointmentsByService,
+            ).map(service => service),
+            slotLength: existingSession.slotLength,
+          },
+        }),
+      );
 
       router.push(
         `confirmed?updatedSession=${btoa(JSON.stringify(session))}&date=${date}`,

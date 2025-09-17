@@ -17,6 +17,7 @@ import {
 } from '@services/timeService';
 import { AvailabilitySession, SessionSummary, Site } from '@types';
 import { notFound, useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
 type EditSessionStartTimeFormValues = {
@@ -36,10 +37,11 @@ const EditSessionStartTimeForm = ({
   existingSession,
   updatedSession,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<EditSessionStartTimeFormValues>();
   const router = useRouter();
 
@@ -59,37 +61,42 @@ const EditSessionStartTimeForm = ({
   );
 
   const submitForm = async (form: EditSessionStartTimeFormValues) => {
-    const parsedTime = parseToTimeComponents(form.newStartTime) ?? '';
-    const session = { ...updatedSession, from: toTimeFormat(parsedTime) ?? '' };
+    startTransition(async () => {
+      const parsedTime = parseToTimeComponents(form.newStartTime) ?? '';
+      const session = {
+        ...updatedSession,
+        from: toTimeFormat(parsedTime) ?? '',
+      };
 
-    const existingUkStartTime = parseToUkDatetime(
-      existingSession.ukStartDatetime,
-      dateTimeFormat,
-    ).format('HH:mm');
-    const existingUkEndTime = parseToUkDatetime(
-      existingSession.ukEndDatetime,
-      dateTimeFormat,
-    ).format('HH:mm');
+      const existingUkStartTime = parseToUkDatetime(
+        existingSession.ukStartDatetime,
+        dateTimeFormat,
+      ).format('HH:mm');
+      const existingUkEndTime = parseToUkDatetime(
+        existingSession.ukEndDatetime,
+        dateTimeFormat,
+      ).format('HH:mm');
 
-    await editSession({
-      date,
-      site: site.id,
-      mode: 'Edit',
-      sessions: [session],
-      sessionToEdit: {
-        from: existingUkStartTime,
-        until: existingUkEndTime,
-        capacity: existingSession.capacity,
-        services: Object.keys(
-          existingSession.totalSupportedAppointmentsByService,
-        ).map(service => service),
-        slotLength: existingSession.slotLength,
-      },
+      await editSession({
+        date,
+        site: site.id,
+        mode: 'Edit',
+        sessions: [session],
+        sessionToEdit: {
+          from: existingUkStartTime,
+          until: existingUkEndTime,
+          capacity: existingSession.capacity,
+          services: Object.keys(
+            existingSession.totalSupportedAppointmentsByService,
+          ).map(service => service),
+          slotLength: existingSession.slotLength,
+        },
+      });
+
+      router.push(
+        `confirmed?updatedSession=${btoa(JSON.stringify(session))}&date=${date}`,
+      );
     });
-
-    router.push(
-      `confirmed?updatedSession=${btoa(JSON.stringify(session))}&date=${date}`,
-    );
   };
 
   return (
@@ -120,7 +127,7 @@ const EditSessionStartTimeForm = ({
           </RadioGroup>
         </FormGroup>
 
-        {isSubmitting || isSubmitSuccessful ? (
+        {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
           <Button type="submit">Change session</Button>

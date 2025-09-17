@@ -75,27 +75,28 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         actualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
     }
 
-    [And("the bookings are no longer marked as provisional")]
-    public async Task AssertBookingsNotProvisional()
+    [And("the following bookings are no longer marked as provisional")]
+    public async Task AssertBookingsNotProvisional(DataTable dataTable)
     {
         var siteId = GetSiteId();
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var secondBookingReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
-        var actualBooking = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
-        var secondActualBooking = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(secondBookingReference, new PartitionKey(siteId));
+        var defaultReferenceOffset = 0;
 
-        actualBooking.Resource.Status.Should().Be(AppointmentStatus.Booked);
-        secondActualBooking.Resource.Status.Should().Be(AppointmentStatus.Booked);
+        foreach (var row in dataTable.Rows.Skip(1))
+        {
+            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+                                   BookingReferences.GetBookingReference(defaultReferenceOffset,
+                                       BookingType.Provisional);
+            defaultReferenceOffset += 1;
 
-        var actualBookingIndex = await Client.GetContainer("appts", "index_data")
-            .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index"));
-        var secondActualBookingIndex = await Client.GetContainer("appts", "index_data")
-            .ReadItemAsync<BookingIndexDocument>(secondBookingReference, new PartitionKey("booking_index"));
 
-        actualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
-        secondActualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
+            var booking = await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+            booking.Resource.Status.Should().Be(AppointmentStatus.Booked);
+
+            var bookingIndex = await Client.GetContainer("appts", "index_data")
+                .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index"));
+            bookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
+        }
     }
 
     [And("following bookings should have the following contact details")]
@@ -129,10 +130,8 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         var primaryReference = CreateCustomBookingReference(table.GetRowValueOrDefault(row, "Reference")) ??
                                BookingReferences.GetBookingReference(0, BookingType.Provisional);
 
-        var relatedBookings = table.GetListRowValueOrDefault(row, "Related Bookings")?.Select(booking =>
-            CreateCustomBookingReference(
-                BookingReferences.GetBookingReference(int.Parse(booking),
-                    BookingType.Provisional)).ToString()).ToArray();
+        var relatedBookings = table.GetListRowValueOrDefault(row, "Related bookings")
+            ?.Select(CreateCustomBookingReference).ToArray();
 
         var bookingToReschedule = table.GetRowValueOrDefault(row, "Booking to Reschedule");
 

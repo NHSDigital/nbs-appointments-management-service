@@ -26,12 +26,12 @@ describe('Cancelled Appointments Without Contact Details Page', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '09:00 John Smith 9999999990 1 February 1979 RSV Adult',
+        name: '09:00 John Smith 9999999990 1 February 1979 Not provided RSV Adult',
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '09:10 Brian Smith 9999999995 1 February 1984 FLU 18-64',
+        name: '09:10 Brian Smith 9999999995 1 February 1984 Not provided FLU 18-64',
       }),
     ).toBeInTheDocument();
 

@@ -28,8 +28,8 @@ public class GovNotifyClientTests
                 null,
                 null
             ))
-            .ThrowsAsync(new NotifyClientException("first fail"))
-            .ThrowsAsync(new NotifyClientException("second fail"))
+            .ThrowsAsync(new NotifyClientException("Status code 429 first fail"))
+            .ThrowsAsync(new NotifyClientException("Status code 429 second fail"))
             .ReturnsAsync(new EmailNotificationResponse());
 
         var retryOptions = Options.Create(new GovNotifyRetryOptions

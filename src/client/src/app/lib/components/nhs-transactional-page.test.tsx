@@ -2,10 +2,12 @@ import { render, screen } from '@testing-library/react';
 import { fetchPermissions } from '@services/appointmentsService';
 import { mockAllPermissions } from '@testing/data';
 import NhsTransactionalPage from './nhs-transactional-page';
+import { ServerActionResult } from '@types';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchPermissionsMock = fetchPermissions as jest.Mock<
-  Promise<string[] | undefined>
+  Promise<ServerActionResult<string[]>>
 >;
 
 jest.mock('@components/nhs-header-log-out', () => {
@@ -47,12 +49,14 @@ jest.mock('@components/close-notification-form', () => {
 
 describe('Nhs Page', () => {
   beforeEach(() => {
-    fetchPermissionsMock.mockResolvedValue([
-      'availability:query',
-      'availability:setup',
-      'site:manage',
-      'users:view',
-    ]);
+    fetchPermissionsMock.mockResolvedValue(
+      asServerActionResult([
+        'availability:query',
+        'availability:setup',
+        'site:manage',
+        'users:view',
+      ]),
+    );
   });
 
   afterEach(() => {
@@ -100,7 +104,9 @@ describe('Nhs Page', () => {
   });
 
   it('Does not display any navigation links even if all permissions are present', async () => {
-    fetchPermissionsMock.mockResolvedValue(mockAllPermissions);
+    fetchPermissionsMock.mockResolvedValue(
+      asServerActionResult(mockAllPermissions),
+    );
 
     const jsx = await NhsTransactionalPage({
       title: 'Test title',
@@ -126,7 +132,7 @@ describe('Nhs Page', () => {
   });
 
   it('displays the back link with the correct title and URL', async () => {
-    fetchPermissionsMock.mockResolvedValue([]);
+    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const jsx = await NhsTransactionalPage({
       title: 'Test title',

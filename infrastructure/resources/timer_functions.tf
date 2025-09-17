@@ -40,6 +40,9 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     Notifications_Provider                                                 = var.environment == "perf" ? "azure-throttled" : "azure"
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
+    "GovNotifyRetryOptions:MaxRetries"                                     = var.gov_notify_retry_options_max_retries
+    "GovNotifyRetryOptions:InitialDelayMs"                                 = var.gov_notify_retry_options_initial_delay_ms    
+    "GovNotifyRetryOptions:BackoffFactor"                                  = var.gov_notify_retry_options_backoff_factor
     ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
@@ -155,7 +158,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     Notifications_Provider                                                 = "none"
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
-    BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
+    "GovNotifyRetryOptions:MaxRetries"                                     = var.gov_notify_retry_options_max_retries
+    "GovNotifyRetryOptions:InitialDelayMs"                                 = var.gov_notify_retry_options_initial_delay_ms    
+    "GovNotifyRetryOptions:BackoffFactor"                                  = var.gov_notify_retry_options_backoff_factor    BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
     DailySiteSummaryAggregationCronSchedule                                = var.daily_site_summary_aggregation_cron_schedule
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward

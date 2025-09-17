@@ -5,13 +5,14 @@ using Notify.Exceptions;
 using Notify.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
 public class GovNotifyClient(IAsyncNotificationClient client, IPrivacyUtil privacy, IOptions<GovNotifyRetryOptions> retryOptions) : ISendNotifications
 {
-    private async Task RetryAsync(Func<Task> action)
+    private async Task RetryOnExceptionAsync<TException>(Func<Task> action) where TException : Exception
     {
         var delay = retryOptions.Value.InitialDelayMs;
         for (var attempt = 1; attempt <= retryOptions.Value.MaxRetries; attempt++)
@@ -21,10 +22,24 @@ public class GovNotifyClient(IAsyncNotificationClient client, IPrivacyUtil priva
                 await action();
                 return;
             }
-            catch (NotifyClientException) when (attempt < retryOptions.Value.MaxRetries)
+            catch (TException ex) when (attempt < retryOptions.Value.MaxRetries)
             {
-                await Task.Delay(delay);
-                delay = (int)(delay * retryOptions.Value.BackoffFactor);
+                // the following pattern is from GovNotify
+                // error handling suggestions:
+                // https://docs.notifications.service.gov.uk/net.html#error-handling
+                var pattern = """(?<=Status code )([0-9]+)""";
+                var r = new Regex(pattern, RegexOptions.IgnoreCase);
+                var match = r.Match(ex.Message);
+                var statusCode = int.Parse(match.Value);
+                if (statusCode == 429)
+                {
+                    await Task.Delay(delay);
+                    delay = (int)(delay * retryOptions.Value.BackoffFactor);
+                }
+                else 
+                {
+                    throw;
+                }
             }
         }
     }
@@ -36,7 +51,7 @@ public class GovNotifyClient(IAsyncNotificationClient client, IPrivacyUtil priva
 
         try
         {
-            await RetryAsync(() =>
+            await RetryOnExceptionAsync<NotifyClientException>(() =>
                 client.SendEmailAsync(emailAddress, templateId, templateValues)
             );
         }
@@ -57,7 +72,7 @@ public class GovNotifyClient(IAsyncNotificationClient client, IPrivacyUtil priva
 
         try
         {
-            await RetryAsync(() =>
+            await RetryOnExceptionAsync<NotifyClientException>(() =>
                 client.SendSmsAsync(phoneNumber, templateId, templateValues)
             );
         }

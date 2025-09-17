@@ -249,22 +249,22 @@ public class BookingCosmosDocumentStore(
         IEnumerable<ContactItem> contactDetails, int? bookingBatchSize = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
-        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
-        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+        
+        var patches = new []
+        {
+            updateStatusPatch,
+            PatchOperation.Replace("/statusUpdated", time.GetUtcNow()),
+            PatchOperation.Add("/contactDetails", contactDetails)
+        };
 
         await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, updateStatusPatch);
 
         if (bookingBatchSize.HasValue)
         {
-            var bookingBatchSizePatch = PatchOperation.Add("/bookingBatchSize", bookingBatchSize);
-            await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference,
-                updateStatusPatch, statusUpdatedPatch, addContactDetailsPath, bookingBatchSizePatch);
+            patches = patches.Append(PatchOperation.Add("/bookingBatchSize", bookingBatchSize)).ToArray();
         }
-        else
-        {
-            await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference,
-                updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
-        }
+        
+        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, patches);
     }
 
     private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document) 

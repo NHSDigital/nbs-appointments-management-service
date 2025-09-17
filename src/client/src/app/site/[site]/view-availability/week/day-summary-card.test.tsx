@@ -415,6 +415,28 @@ describe('Day Summary Card', () => {
 
       expect(screen.queryByRole('link', { name: 'Cancel day' })).toBeNull();
     });
+
+    it('hides the view appointments links when the user lacks permission', () => {
+      mockIsFutureCalendarDateUk.mockReturnValue(true);
+
+      render(
+        <DaySummaryCard
+          daySummary={mockDaySummaries[0]}
+          siteId={'mock-site'}
+          canManageAvailability={false}
+          clinicalServices={mockSingleService}
+          canViewDailyAppointments={false}
+          cancelDayFlag={true}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('link', { name: 'View Cancelled Appointments' }),
+      ).toBeNull();
+      expect(
+        screen.queryByRole('link', { name: 'View Manual Cancellations' }),
+      ).toBeNull();
+    });
   });
 
   describe('when there is no availability', () => {

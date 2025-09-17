@@ -72,7 +72,7 @@ public class BookingAvailabilityStateService(
         }).ToList();
     }
 
-    private async Task<BookingAvailabilityState> BuildState(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions,
+    private BookingAvailabilityState BuildState(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions,
         BookingAvailabilityStateReturnType returnType, DateTime from, DateTime to)
     {
         var state = new BookingAvailabilityState();
@@ -177,7 +177,7 @@ public class BookingAvailabilityStateService(
 
         if (matcher is not null && replacement is not null)
         {
-            var matchedSession = sessions.FirstOrDefault(s =>
+            var matchedSession = sessions.First(s =>
                 s.From.TimeOfDay == matcher.From.ToTimeSpan() &&
                 s.Until.TimeOfDay == matcher.Until.ToTimeSpan() &&
                 s.Duration == (matcher.Until - matcher.From) &&
@@ -206,7 +206,7 @@ public class BookingAvailabilityStateService(
             }
         }
 
-        return await BuildState(bookings, sessions, returnType, from, to);
+        return BuildState(bookings, sessions, returnType, from, to);
     }
     private static AvailabilitySummary GenerateSummary(IEnumerable<Booking> bookings, List<DayAvailabilitySummary> daySummaries)
     {

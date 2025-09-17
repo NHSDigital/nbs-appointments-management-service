@@ -418,9 +418,6 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
             TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
         };
         SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedReallocatedBookings = 1;
-        var expectedUnaccommodatedBookings = 2;
-
 
         var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, replacement));
 

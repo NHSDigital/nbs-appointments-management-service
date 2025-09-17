@@ -192,6 +192,7 @@ public class BookingCosmosDocumentStore(
 
     public async Task<BookingConfirmationResult> ConfirmProvisionals(string[] bookingReferences, IEnumerable<ContactItem> contactDetails)
     {
+        var bookingBatchSize = bookingReferences.Length;
         var bookingDocuments = new List<BookingIndexDocument>();
 
         foreach (var reference in bookingReferences) 
@@ -209,7 +210,7 @@ public class BookingCosmosDocumentStore(
 
         foreach (var document in bookingDocuments) 
         {
-            await PatchProvisionalToConfirmed(document, contactDetails);
+            await PatchProvisionalToConfirmed(document, contactDetails, bookingBatchSize);
         }
 
         return BookingConfirmationResult.Success;
@@ -244,13 +245,26 @@ public class BookingCosmosDocumentStore(
         return BookingConfirmationResult.Success;
     }
 
-    private async Task PatchProvisionalToConfirmed(BookingIndexDocument bookingIndexDocument, IEnumerable<ContactItem> contactDetails) 
+    private async Task PatchProvisionalToConfirmed(BookingIndexDocument bookingIndexDocument,
+        IEnumerable<ContactItem> contactDetails, int? bookingBatchSize = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
-        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
-        var addContactDetailsPath = PatchOperation.Add("/contactDetails", contactDetails);
+        
+        var patches = new []
+        {
+            updateStatusPatch,
+            PatchOperation.Replace("/statusUpdated", time.GetUtcNow()),
+            PatchOperation.Add("/contactDetails", contactDetails)
+        };
+
         await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, updateStatusPatch);
-        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
+
+        if (bookingBatchSize.HasValue)
+        {
+            patches = patches.Append(PatchOperation.Add("/bookingBatchSize", bookingBatchSize)).ToArray();
+        }
+        
+        await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, patches);
     }
 
     private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document) 

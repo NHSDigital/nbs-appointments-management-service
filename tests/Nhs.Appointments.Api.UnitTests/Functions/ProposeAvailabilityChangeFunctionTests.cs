@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using System.Text;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
@@ -19,6 +20,7 @@ public class ProposeAvailabilityChangeFunctionTests
     private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<AvailabilityChangeProposalRequest>> _validator = new();
+    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
     private readonly ProposeAvailabilityChangeFunction _sut;
 
@@ -29,7 +31,8 @@ public class ProposeAvailabilityChangeFunctionTests
             _validator.Object, 
             _userContextProvider.Object,
             _logger.Object, 
-            _metricsRecorder.Object
+            _metricsRecorder.Object,
+            _featureToggleHelper.Object
         );
         _validator.Setup(x => x.ValidateAsync(It.IsAny<AvailabilityChangeProposalRequest>(), It.IsAny<CancellationToken>()))
          .ReturnsAsync(new ValidationResult());
@@ -53,6 +56,8 @@ public class ProposeAvailabilityChangeFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>())
         ).ReturnsAsync(response);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
+            .ReturnsAsync(true);
 
         var result = await _sut.RunAsync(request) as ContentResult;
 
@@ -84,10 +89,39 @@ public class ProposeAvailabilityChangeFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>())
         ).ReturnsAsync(response);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
+            .ReturnsAsync(true);
 
         var result = await _sut.RunAsync(request) as ContentResult;
 
         result.StatusCode.Should().Be(400);
+    }
+
+    [Fact]
+    public async Task RunAsync_FeatureToggleDisabled_ResultIsNotFound()
+    {
+        var request = BuildRequest();
+        var response = new AvailabilityUpdateProposal()
+        {
+            SupportedBookingsCount = 1,
+            UnsupportedBookingsCount = 1,
+            MatchingSessionNotFound = true
+        };
+
+        _bookingAvailabilityStateService.Setup(x =>
+        x.BuildRecalculations(
+            It.IsAny<string>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<Session>(),
+            It.IsAny<Session>())
+        ).ReturnsAsync(response);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
+            .ReturnsAsync(false);
+
+        var result = await _sut.RunAsync(request) as ContentResult;
+
+        result.StatusCode.Should().Be(404);
     }
 
     private static HttpRequest BuildRequest()

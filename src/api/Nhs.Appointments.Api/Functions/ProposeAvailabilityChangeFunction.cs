@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using System.Net;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -17,7 +18,8 @@ public class ProposeAvailabilityChangeFunction(
     IValidator<AvailabilityChangeProposalRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<ProposeAvailabilityChangeFunction> logger,
-    IMetricsRecorder metricsRecorder) 
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper) 
     : BaseApiFunction<AvailabilityChangeProposalRequest, AvailabilityChangeProposalResponse>(
         validator, 
         userContextProvider,
@@ -43,25 +45,34 @@ public class ProposeAvailabilityChangeFunction(
     protected override async Task<ApiResult<AvailabilityChangeProposalResponse>> HandleRequest(AvailabilityChangeProposalRequest request,
         ILogger logger)
     {
-        var recalculations = await bookingAvailabilityStateService.BuildRecalculations(
-            request.Site, 
-            request.FromDate, 
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
+        {
+            var recalculations = await bookingAvailabilityStateService.BuildRecalculations(
+            request.Site,
+            request.FromDate,
             request.ToDate,
             request.SessionMatcher,
             request.SessionReplacement);
 
-        if (recalculations.MatchingSessionNotFound)
-        {
-            return ApiResult<AvailabilityChangeProposalResponse>.Failed(
-                HttpStatusCode.BadRequest, "Matching session was not found"
+            if (recalculations.MatchingSessionNotFound)
+            {
+                return ApiResult<AvailabilityChangeProposalResponse>.Failed(
+                    HttpStatusCode.BadRequest, "Matching session was not found"
+                );
+            }
+
+            return ApiResult<AvailabilityChangeProposalResponse>.Success(
+                new AvailabilityChangeProposalResponse(
+                    recalculations.SupportedBookingsCount,
+                    recalculations.UnsupportedBookingsCount
+                )
             );
         }
-
-        return ApiResult<AvailabilityChangeProposalResponse>.Success(
-            new AvailabilityChangeProposalResponse(
-                recalculations.SupportedBookingsCount, 
-                recalculations.UnsupportedBookingsCount
-            )
-        );
+        else
+        {
+            return ApiResult<AvailabilityChangeProposalResponse>.Failed(
+                HttpStatusCode.NotFound, "Availability change proposal function is not available."
+            );
+        }
     }
 }

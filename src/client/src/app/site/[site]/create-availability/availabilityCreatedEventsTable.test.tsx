@@ -10,26 +10,31 @@ import {
   fetchAvailabilityCreatedEvents,
   fetchClinicalServices,
 } from '@services/appointmentsService';
-import { AvailabilityCreatedEvent, ClinicalService } from '@types';
+import {
+  AvailabilityCreatedEvent,
+  ClinicalService,
+  ServerActionResult,
+} from '@types';
 import { AvailabilityCreatedEventsTable } from './availabilityCreatedEventsTable';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchAvailabilityCreatedEventsMock =
   fetchAvailabilityCreatedEvents as jest.Mock<
-    Promise<AvailabilityCreatedEvent[]>
+    Promise<ServerActionResult<AvailabilityCreatedEvent[]>>
   >;
 
 const fetchClinicalServicesMock = fetchClinicalServices as jest.Mock<
-  Promise<ClinicalService[]>
+  Promise<ServerActionResult<ClinicalService[]>>
 >;
 
 describe('Availability Created Events Table - multiple services', () => {
   beforeEach(() => {
     fetchAvailabilityCreatedEventsMock.mockResolvedValue(
-      mockMultipleServicesAvailabilityCreatedEvents,
+      asServerActionResult(mockMultipleServicesAvailabilityCreatedEvents),
     );
-    fetchClinicalServicesMock.mockReturnValue(
-      Promise.resolve(mockMultipleServices),
+    fetchClinicalServicesMock.mockResolvedValue(
+      asServerActionResult(mockMultipleServices),
     );
   });
 
@@ -91,10 +96,10 @@ describe('Availability Created Events Table - multiple services', () => {
 describe('Availability Created Events Table', () => {
   beforeEach(() => {
     fetchAvailabilityCreatedEventsMock.mockResolvedValue(
-      mockAvailabilityCreatedEvents,
+      asServerActionResult(mockAvailabilityCreatedEvents),
     );
-    fetchClinicalServicesMock.mockReturnValue(
-      Promise.resolve([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
+    fetchClinicalServicesMock.mockResolvedValue(
+      asServerActionResult([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
     );
   });
 

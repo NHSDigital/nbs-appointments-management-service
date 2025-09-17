@@ -6,6 +6,7 @@ import { mockSession1, mockSite } from '@testing/data';
 import { screen } from '@testing-library/react';
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
 import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -23,6 +24,8 @@ describe('Edit Session Start Time Form', () => {
       replace: mockReplace,
       push: mockPush,
     });
+
+    editSessionMock.mockResolvedValue(asServerActionResult(undefined));
   });
 
   it('renders', () => {

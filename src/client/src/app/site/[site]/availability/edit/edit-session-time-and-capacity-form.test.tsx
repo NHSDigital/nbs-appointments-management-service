@@ -5,6 +5,8 @@ import { mockSite } from '@testing/data';
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
 import { editSession } from '@services/appointmentsService';
 import { useRouter } from 'next/navigation';
+import { ServerActionResult } from '@types';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -12,7 +14,9 @@ const mockReplace = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock('@services/appointmentsService');
-const editSessionMock = editSession as jest.Mock;
+const editSessionMock = editSession as jest.Mock<
+  Promise<ServerActionResult<void>>
+>;
 
 describe('Edit Session Time And Capacity Form', () => {
   beforeEach(() => {
@@ -22,6 +26,7 @@ describe('Edit Session Time And Capacity Form', () => {
       replace: mockReplace,
       push: mockPush,
     });
+    editSessionMock.mockResolvedValue(asServerActionResult(undefined));
   });
 
   it('renders', async () => {
@@ -102,7 +107,10 @@ describe('Edit Session Time And Capacity Form', () => {
         services: ['RSV:Adult'],
       },
     });
-    expect(mockPush).toHaveBeenCalledTimes(1);
+
+    waitFor(() => {
+      expect(mockPush).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('permits start and end time data entry', async () => {

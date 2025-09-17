@@ -5,19 +5,20 @@ import {
   fetchPermissions,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { FeatureFlag, UserProfile } from '@types';
+import { FeatureFlag, ServerActionResult, UserProfile } from '@types';
 import { mockAllPermissions, mockSite } from '@testing/data';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchUserProfileMock = fetchUserProfile as jest.Mock<
-  Promise<UserProfile | undefined>
+  Promise<ServerActionResult<UserProfile>>
 >;
 const fetchPermissionsMock = fetchPermissions as jest.Mock<
-  Promise<string[] | undefined>
+  Promise<ServerActionResult<string[]>>
 >;
 
 const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
-  Promise<FeatureFlag | undefined>
+  Promise<ServerActionResult<FeatureFlag>>
 >;
 
 jest.mock('@components/nhs-header-log-in', () => {
@@ -66,20 +67,26 @@ jest.mock('@components/close-notification-form', () => {
 
 describe('Nhs Page', () => {
   beforeEach(() => {
-    fetchUserProfileMock.mockResolvedValue({
-      emailAddress: 'test@nhs.net',
-      hasSites: true,
-    });
-    fetchPermissionsMock.mockResolvedValue([
-      'availability:query',
-      'availability:setup',
-      'site:manage',
-      'users:view',
-    ]);
+    fetchUserProfileMock.mockResolvedValue(
+      asServerActionResult({
+        emailAddress: 'test@nhs.net',
+        hasSites: true,
+      }),
+    );
+    fetchPermissionsMock.mockResolvedValue(
+      asServerActionResult([
+        'availability:query',
+        'availability:setup',
+        'site:manage',
+        'users:view',
+      ]),
+    );
 
-    fetchFeatureFlagMock.mockResolvedValue({
-      enabled: true,
-    });
+    fetchFeatureFlagMock.mockResolvedValue(
+      asServerActionResult({
+        enabled: true,
+      }),
+    );
   });
 
   afterEach(() => {
@@ -209,7 +216,9 @@ describe('Nhs Page', () => {
   ])(
     'displays the correct cards when permissions are present',
     async (permission: string, cardTitle: string, path: string) => {
-      fetchPermissionsMock.mockResolvedValue([permission]);
+      fetchPermissionsMock.mockResolvedValue(
+        asServerActionResult([permission]),
+      );
 
       const jsx = await NhsPage({
         title: 'Test title',
@@ -256,7 +265,7 @@ describe('Nhs Page', () => {
   });
 
   it('Does not display any navigation links if no permissions are present', async () => {
-    fetchPermissionsMock.mockResolvedValue([]);
+    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const jsx = await NhsPage({
       title: 'Test title',
@@ -303,7 +312,9 @@ describe('Nhs Page', () => {
     'hides the correct links when permissions are lacking',
     async (permissions: string[], cardTitle: string) => {
       fetchPermissionsMock.mockResolvedValue(
-        mockAllPermissions.filter(p => !permissions.includes(p)),
+        asServerActionResult(
+          mockAllPermissions.filter(p => !permissions.includes(p)),
+        ),
       );
 
       const jsx = await NhsPage({
@@ -326,7 +337,7 @@ describe('Nhs Page', () => {
   );
 
   it('Displays a Change Site link if a site is provided', async () => {
-    fetchPermissionsMock.mockResolvedValue([]);
+    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const jsx = await NhsPage({
       title: 'Test title',
@@ -357,7 +368,7 @@ describe('Nhs Page', () => {
   });
 
   it('Does not display a Change Site link if no site is provided', async () => {
-    fetchPermissionsMock.mockResolvedValue([]);
+    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const jsx = await NhsPage({
       title: 'Test title',
@@ -371,7 +382,7 @@ describe('Nhs Page', () => {
   });
 
   it('displays the back link with the correct title and URL', async () => {
-    fetchPermissionsMock.mockResolvedValue([]);
+    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const jsx = await NhsPage({
       title: 'Test title',

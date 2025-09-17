@@ -10,6 +10,7 @@ import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 import { FetchBookingsRequest } from '@types';
 import { notFound } from 'next/navigation';
 import CancelledAppointments from './cancelled-appointments';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -29,8 +30,8 @@ const Page = async ({ params, searchParams }: PageProps) => {
     return notFound();
   }
 
-  await assertFeatureEnabled('CancelDay');
-  await assertPermission(siteFromPath, 'booking:view-detail');
+  await fromServer(assertFeatureEnabled('CancelDay'));
+  await fromServer(assertPermission(siteFromPath, 'booking:view-detail'));
 
   const fromDate = parseToUkDatetime(date);
   const toDate = fromDate.endOf('day');
@@ -44,9 +45,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
   };
 
   const [site, bookings, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchBookings(fetchBookingsRequest, ['Cancelled']),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchBookings(fetchBookingsRequest, ['Cancelled'])),
+    fromServer(fetchClinicalServices()),
   ]);
 
   return (

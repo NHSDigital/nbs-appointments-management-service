@@ -5,6 +5,7 @@ import { mockWeekAvailability__Summary } from '@testing/availability-and-booking
 import render from '@testing/render';
 import { cancelSession } from '@services/appointmentsService';
 import { mockSingleService } from '@testing/data';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const mockCancelSession = cancelSession as jest.Mock;
@@ -18,6 +19,7 @@ describe('Confirm Cancellation Page', () => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
     });
+    mockCancelSession.mockResolvedValue(asServerActionResult(undefined));
   });
 
   it('renders the correct session in the table', () => {

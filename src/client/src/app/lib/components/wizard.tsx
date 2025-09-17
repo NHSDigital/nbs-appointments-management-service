@@ -17,6 +17,7 @@ export interface InjectedWizardProps {
   goToPreviousStep(): void;
   goToLastStep(): void;
   returnRouteUponCancellation: string;
+  pendingSubmit?: boolean;
 }
 
 interface Props {
@@ -26,6 +27,7 @@ interface Props {
   id: string;
   returnRouteUponCancellation: string;
   onCompleteFinalStep: () => void;
+  pendingSubmit?: boolean;
 }
 
 const Wizard = ({
@@ -34,6 +36,7 @@ const Wizard = ({
   id,
   returnRouteUponCancellation,
   onCompleteFinalStep,
+  pendingSubmit,
 }: Props) => {
   const router = useRouter();
   const [activeStep, setActiveStepState] = useState(initialStep);
@@ -79,6 +82,7 @@ const Wizard = ({
           async goToLastStep() {
             await setActiveStep(lastStep);
           },
+          pendingSubmit,
         });
       })}
     </div>

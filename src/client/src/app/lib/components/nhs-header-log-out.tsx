@@ -1,9 +1,10 @@
 'use server';
 import { fetchUserProfile } from '@services/appointmentsService';
 import { signOut } from '../../auth/signOut';
+import fromServer from '@server/fromServer';
 
 const NhsHeaderLogOut = async () => {
-  const userProfile = await fetchUserProfile();
+  const userProfile = await fromServer(fetchUserProfile());
 
   return (
     <>

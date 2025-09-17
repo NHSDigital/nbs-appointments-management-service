@@ -265,11 +265,6 @@ public class BookingCosmosDocumentStore(
             await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference,
                 updateStatusPatch, statusUpdatedPatch, addContactDetailsPath);
         }
-
-        // TODO: Once integration tests are in place, try this instead of the if statement:
-        // await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference,
-        //     updateStatusPatch, statusUpdatedPatch, addContactDetailsPath,
-        //     bookingBatchSize.HasValue ? PatchOperation.Add("/bookingBatchSize", bookingBatchSize) : null);
     }
 
     private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document) 

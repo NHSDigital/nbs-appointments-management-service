@@ -42,7 +42,8 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     "GovNotifyRetryOptions:MaxRetries"                                     = var.gov_notify_retry_options_max_retries
     "GovNotifyRetryOptions:InitialDelayMs"                                 = var.gov_notify_retry_options_initial_delay_ms    
-    "GovNotifyRetryOptions:BackoffFactor"                                  = var.gov_notify_retry_options_backoff_factor    ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
+    "GovNotifyRetryOptions:BackoffFactor"                                  = var.gov_notify_retry_options_backoff_factor    
+    ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
@@ -157,8 +158,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     "GovNotifyRetryOptions:MaxRetries"                                     = var.gov_notify_retry_options_max_retries
     "GovNotifyRetryOptions:InitialDelayMs"                                 = var.gov_notify_retry_options_initial_delay_ms    
-    "GovNotifyRetryOptions:BackoffFactor"                                  = var.gov_notify_retry_options_backoff_factor    SPLUNK_HOST_URL                                                        = var.splunk_host_url
+    "GovNotifyRetryOptions:BackoffFactor"                                  = var.gov_notify_retry_options_backoff_factor    
     ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
+    SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
     SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size

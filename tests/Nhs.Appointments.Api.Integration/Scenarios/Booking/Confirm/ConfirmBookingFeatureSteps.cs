@@ -120,6 +120,27 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         }
     }
 
+    [And("following bookings should have the following batch size")]
+    public async Task AssertBookingsBatchSize(DataTable dataTable)
+    {
+        var siteId = GetSiteId();
+        var defaultReferenceOffset = 0;
+
+        foreach (var row in dataTable.Rows.Skip(1))
+        {
+            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+                                   BookingReferences.GetBookingReference(defaultReferenceOffset,
+                                       BookingType.Provisional);
+            defaultReferenceOffset += 1;
+
+            var expectedBatchSize = dataTable.GetIntRowValueOrDefault(row, "Booking batch size", int.MinValue);
+
+            var booking = await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+            booking.Resource.BookingBatchSize.Should().Be(expectedBatchSize);
+        }
+    }
+
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 

@@ -164,3 +164,23 @@ Feature: Book an appointment
        | Reference | Related bookings |
        | 1         | 2                |
      Then the call should fail with 410
+
+  Scenario: JB:Confirmation can record batch size
+    Given the site is configured for MYA
+    And the following sessions
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
+    And the following bookings exist
+      | Reference | Booking Type |
+      | 1         | Provisional  |
+      | 2         | Provisional  |
+      | 3         | Provisional  |
+    When I confirm the following bookings
+      | Reference | Related bookings | Email         | Phone         | Landline    |
+      | 1         | 2, 3             | test@test.com | 07654 3210987 | 00001234567 |
+    Then the call should be successful
+    And following bookings should have the following batch size
+      | Reference | Booking batch size |
+      | 1         | 3                  |
+      | 2         | 3                  |
+      | 3         | 3                  |

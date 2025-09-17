@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapacityDataExtracts.UnitTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDbSeederTests", "tests\CosmosDbSeederTests\CosmosDbSeederTests.csproj", "{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Asp", "src\api\Nhs.Appointments.Asp\Nhs.Appointments.Asp.csproj", "{F401AC0A-D8DE-40A6-99A5-5B37B92F03AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,10 @@ Global
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F401AC0A-D8DE-40A6-99A5-5B37B92F03AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F401AC0A-D8DE-40A6-99A5-5B37B92F03AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F401AC0A-D8DE-40A6-99A5-5B37B92F03AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F401AC0A-D8DE-40A6-99A5-5B37B92F03AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -178,6 +184,7 @@ Global
 		{4EAEDFEA-533A-4C5B-B165-D61DD2AEA095} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
+		{F401AC0A-D8DE-40A6-99A5-5B37B92F03AD} = {6F9747AA-DE8B-43B4-B77F-4DDD959BB94C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

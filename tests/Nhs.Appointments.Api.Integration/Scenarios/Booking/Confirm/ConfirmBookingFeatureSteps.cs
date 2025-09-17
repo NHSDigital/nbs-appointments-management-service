@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -11,40 +12,40 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
+using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Confirm;
 
 public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage _response;
+    private HttpStatusCode _responseCode;
+    private string _responseBody;
 
     [When("I confirm the booking")]
     public async Task ConfirmBooking()
     {
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var payload = new ConfirmBookingRequestPayload(
-           contactDetails: [],
-           relatedBookings: [],
-           bookingToReschedule: string.Empty
-       );
+        var (url, payload) = BuildConfirmBookingPayload();
+
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        _response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", content);
+
+        _response = await Http.PostAsync(url, content);
+        _responseCode = _response.StatusCode;
+        _responseBody = await _response.Content.ReadAsStringAsync();
     }
 
-    [When("I confirm the bookings")]
-    public async Task ConfirmBookings()
+    [When("I confirm the following bookings")]
+    public async Task ConfirmBookingsTwo(DataTable dataTable)
     {
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var relatedBookingsReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
-        var payload = new ConfirmBookingRequestPayload(
-            contactDetails: [],
-            relatedBookings: new[] { relatedBookingsReference },
-            bookingToReschedule: "test-booking-to-reschedule"
-        );
+        var (url, payload) = BuildConfirmBookingPayload(dataTable);
+
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        _response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm", content);
+
+        _response = await Http.PostAsync(url, content);
+        _responseCode = _response.StatusCode;
+        _responseBody = await _response.Content.ReadAsStringAsync();
     }
 
     [When("the provisional bookings are cleaned up")]
@@ -52,44 +53,8 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
     {
         _response = await Http.PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep",
             new StringContent(""));
-    }
-
-    [When("I confirm the booking with the following contact information")]
-    public async Task ConfirmBookingWithContactDetails(DataTable dataTable)
-    {
-        var cells = dataTable.Rows.ElementAt(1).Cells;
-        var payload = new
-        {
-            contactDetails = new[]
-            {
-                new { type = "Email", value = cells.ElementAt(0).Value },
-                new { type = "Phone", value = cells.ElementAt(1).Value },
-                new { type = "Landline", value = cells.ElementAt(2).Value }
-            },
-        };
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm",
-            payload);
-    }
-
-    [When("I confirm bookings with the following contact information")]
-    public async Task ConfirmBookingsWithContactDetails(DataTable dataTable)
-    {
-        var cells = dataTable.Rows.ElementAt(1).Cells;
-        var relatedBookingReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
-        var payload = new
-        {
-            contactDetails = new[]
-            {
-                new { type = "Email", value = cells.ElementAt(0).Value },
-                new { type = "Phone", value = cells.ElementAt(1).Value },
-                new { type = "Landline", value = cells.ElementAt(2).Value }
-            },
-            relatedBookings = new[] { relatedBookingReference }
-        };
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{bookingReference}/confirm",
-            payload);
+        _responseCode = _response.StatusCode;
+        _responseBody = await _response.Content.ReadAsStringAsync();
     }
 
     [Then("the call should be successful")]
@@ -100,6 +65,7 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
     {
         var siteId = GetSiteId();
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
+
         var actualBooking = await Client.GetContainer("appts", "booking_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
         actualBooking.Resource.Status.Should().Be(AppointmentStatus.Booked);
@@ -132,48 +98,125 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         secondActualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
     }
 
-    [And("the booking should have stored my contact details as follows")]
-    public async Task AssertBookingContactDetails(DataTable dataTable)
-    {
-        var cells = dataTable.Rows.ElementAt(1).Cells;
-
-        var expectedContactDetails = new[]
-        {
-            new ContactItem { Type = ContactItemType.Email, Value = cells.ElementAt(0).Value },
-            new ContactItem { Type = ContactItemType.Phone, Value = cells.ElementAt(1).Value },
-            new ContactItem { Type = ContactItemType.Landline, Value = cells.ElementAt(2).Value }
-        };
-
-        var siteId = GetSiteId();
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var actualBooking = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
-        actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
-    }
-
-    [And("all bookings should have stored contact details as follows")]
+    [And("following bookings should have the following contact details")]
     public async Task AssertBookingsContactDetails(DataTable dataTable)
     {
-        var cells = dataTable.Rows.ElementAt(1).Cells;
-
-        var expectedContactDetails = new[]
-        {
-            new ContactItem { Type = ContactItemType.Email, Value = cells.ElementAt(0).Value },
-            new ContactItem { Type = ContactItemType.Phone, Value = cells.ElementAt(1).Value },
-            new ContactItem { Type = ContactItemType.Landline, Value = cells.ElementAt(2).Value }
-        };
-
         var siteId = GetSiteId();
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
-        var secondBookingReference = BookingReferences.GetBookingReference(1, BookingType.Provisional);
-        var actualBooking = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
-        var secondActualBooking = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(secondBookingReference, new PartitionKey(siteId));
-        actualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
-        secondActualBooking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
+        var defaultReferenceOffset = 0;
+
+        foreach (var row in dataTable.Rows.Skip(1))
+        {
+            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+                                   BookingReferences.GetBookingReference(defaultReferenceOffset,
+                                       BookingType.Provisional);
+            defaultReferenceOffset += 1;
+
+            var expectedContactDetails = BuildExpectedContactItems(dataTable, row);
+
+            var booking = await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+            booking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
+        }
     }
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    private (string url, object payload) BuildConfirmBookingPayload(DataTable table)
+    {
+        var row = table.Rows.ElementAt(1);
+
+        var primaryReference = CreateCustomBookingReference(table.GetRowValueOrDefault(row, "Reference")) ??
+                               BookingReferences.GetBookingReference(0, BookingType.Provisional);
+
+        var relatedBookings = table.GetListRowValueOrDefault(row, "Related Bookings")?.Select(booking =>
+            CreateCustomBookingReference(
+                BookingReferences.GetBookingReference(int.Parse(booking),
+                    BookingType.Provisional)).ToString()).ToArray();
+
+        var bookingToReschedule = table.GetRowValueOrDefault(row, "Booking to Reschedule");
+
+        var contactDetails = BuildRequestContactItems(table, row);
+
+        var payload = new Dictionary<string, object>();
+        if (relatedBookings != null)
+        {
+            payload["relatedBookings"] = relatedBookings;
+        }
+
+        if (bookingToReschedule != null)
+        {
+            payload["bookingToReschedule"] = bookingToReschedule;
+        }
+
+        if (contactDetails != null)
+        {
+            payload["contactDetails"] = contactDetails;
+        }
+
+        return ($"http://localhost:7071/api/booking/{primaryReference}/confirm", payload);
+    }
+
+    private (string url, object payload) BuildConfirmBookingPayload()
+    {
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
+
+        var payload = new ConfirmBookingRequestPayload(
+            [],
+            [],
+            string.Empty
+        );
+
+        return ($"http://localhost:7071/api/booking/{bookingReference}/confirm", payload);
+    }
+
+    private object[] BuildRequestContactItems(DataTable dataTable, TableRow row)
+    {
+        var email = dataTable.GetRowValueOrDefault(row, "Email");
+        var phone = dataTable.GetRowValueOrDefault(row, "Phone");
+        var landline = dataTable.GetRowValueOrDefault(row, "Landline");
+
+        var details = new List<object>();
+        if (!string.IsNullOrEmpty(email))
+        {
+            details.Add(new { Type = "Email", Value = email });
+        }
+
+        if (!string.IsNullOrEmpty(phone))
+        {
+            details.Add(new { Type = "Phone", Value = phone });
+        }
+
+        if (!string.IsNullOrEmpty(landline))
+        {
+            details.Add(new { Type = "Landline", Value = landline });
+        }
+
+        return details.ToArray();
+    }
+
+    private ContactItem[] BuildExpectedContactItems(DataTable dataTable, TableRow row)
+    {
+        var email = dataTable.GetRowValueOrDefault(row, "Email");
+        var phone = dataTable.GetRowValueOrDefault(row, "Phone");
+        var landline = dataTable.GetRowValueOrDefault(row, "Landline");
+
+        var details = new List<ContactItem>();
+        if (!string.IsNullOrEmpty(email))
+        {
+            details.Add(new ContactItem { Type = ContactItemType.Email, Value = email });
+        }
+
+        if (!string.IsNullOrEmpty(phone))
+        {
+            details.Add(new ContactItem { Type = ContactItemType.Phone, Value = phone });
+        }
+
+        if (!string.IsNullOrEmpty(landline))
+        {
+            details.Add(new ContactItem { Type = ContactItemType.Landline, Value = landline });
+        }
+
+        return details.ToArray();
+    }
 }

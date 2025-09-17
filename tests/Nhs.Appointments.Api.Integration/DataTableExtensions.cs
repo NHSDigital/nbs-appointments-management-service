@@ -26,6 +26,16 @@ public static class DataTableExtensions
         return HasValue(cell) ? Enum.Parse<T>(cell) : null;
     }
 
+    public static int GetIntRowValueOrDefault(this DataTable dataTable, TableRow row, string columnName,
+        int defaultValue)
+    {
+        var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
+            ?.Location.Column;
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
+
+        return HasValue(cell) ? int.Parse(cell) : defaultValue;
+    }
+
     public static T GetEnumRowValue<T>(this DataTable dataTable, TableRow row, string columnName,
         T defaultValue) where T : struct
     {

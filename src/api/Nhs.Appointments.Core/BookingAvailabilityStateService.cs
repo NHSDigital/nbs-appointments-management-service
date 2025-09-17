@@ -177,7 +177,7 @@ public class BookingAvailabilityStateService(
 
         if (matcher is not null && replacement is not null)
         {
-            var matchedSession = sessions.First(s =>
+            var matchedSession = sessions.FirstOrDefault(s =>
                 s.From.TimeOfDay == matcher.From.ToTimeSpan() &&
                 s.Until.TimeOfDay == matcher.Until.ToTimeSpan() &&
                 s.Duration == (matcher.Until - matcher.From) &&

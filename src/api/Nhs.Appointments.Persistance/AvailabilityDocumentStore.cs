@@ -124,8 +124,22 @@ public class AvailabilityDocumentStore(
         await PatchAvailabilityDocument(documentId, [], site, document, false);
     }
 
-    public async Task<OperationResult> EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session session)
+    public async Task<OperationResult> EditSessionsAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement)
     {
+        var docType = documentStore.GetDocumentType();
+        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
+
+        if (documents == null || !documents.Any())
+        {
+            return new OperationResult(false, $"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
+        }
+
+        foreach (var document in documents)
+        {
+
+            await ReplaceSessionAndPatchAsync(document, site, sessionMatcher, sessionReplacement);
+        }
+
         return new OperationResult(true);
     }
 
@@ -134,7 +148,7 @@ public class AvailabilityDocumentStore(
         var docType = documentStore.GetDocumentType();
         var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
-        if (documents is null || !documents.Any())
+        if (documents == null || !documents.Any())
         {
             return new OperationResult(false, $"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
         }
@@ -155,22 +169,7 @@ public class AvailabilityDocumentStore(
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
     {
         var dayDocument = await GetOrDefaultAsync(documentId, site);
-        var extantSessions = dayDocument.Sessions.ToList();
-
-        var firstMatchingSession = FindMatchingSession(extantSessions, sessionToEdit);
-        if (firstMatchingSession is null)
-        {
-            throw new InvalidOperationException(
-                "The requested Session to edit could not be found in the sessions for that day.");
-        }
-
-        extantSessions.Remove(firstMatchingSession);
-
-        var patchedSessions = extantSessions
-            .Append(newSession)
-            .ToArray();
-
-        await PatchAvailabilityDocument(documentId, patchedSessions, site, dayDocument, false);
+        await ReplaceSessionAndPatchAsync(dayDocument, site, sessionToEdit, newSession);
     }
 
     private async Task WriteDocument(DateOnly date, string documentType, string documentId, Session[] sessions,
@@ -217,6 +216,26 @@ public class AvailabilityDocumentStore(
             && session.Services.SequenceEqual(sessionToMatch.Services)
             && session.SlotLength == sessionToMatch.SlotLength
             && session.Capacity == sessionToMatch.Capacity);
+    }
+
+    private async Task ReplaceSessionAndPatchAsync(DailyAvailabilityDocument document, string site, Session sessionMatcher, Session sessionReplacement)
+    {
+        var extantSessions = document.Sessions.ToList();
+
+        var firstMatchingSession = FindMatchingSession(extantSessions, sessionMatcher);
+        if (firstMatchingSession is null)
+        {
+            throw new InvalidOperationException(
+                "The requested Session to edit could not be found in the sessions for that day.");
+        }
+
+        extantSessions.Remove(firstMatchingSession);
+
+        var patchedSessions = extantSessions
+            .Append(sessionReplacement)
+            .ToArray();
+
+        await PatchAvailabilityDocument(document.Id, patchedSessions, site, document, false);
     }
 
     private static bool SessionsMatch(Session session, Session sessionToMatch)

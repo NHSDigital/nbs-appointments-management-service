@@ -41,6 +41,14 @@ public class EditSessionFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EditSessionRequest request, ILogger logger)
     {
+        var result = await availabilityWriteService.EditSessionAsync(
+            request.Site,
+            request.From,
+            request.To,
+            request.SessionMatcher.Session,
+            request.SessionReplacement,
+            request.SessionMatcher.IsWildcard);
+
         return Success(new EmptyResponse());
     }
 

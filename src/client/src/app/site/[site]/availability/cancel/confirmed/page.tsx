@@ -41,6 +41,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <NhsPage
+      site={site}
       title={`Cancelled session for ${parseToUkDatetime(date).format('DD MMMM YYYY')}`}
       caption={`${site.name}`}
       originPage="edit-session"

@@ -305,7 +305,7 @@ public class BookingCosmosDocumentStoreTests
     }
 
     [Fact]
-    public async Task CancelAllBookingsInDay_UpdatesBookingStatuses_AndReturnsCorrectCount()
+    public async Task CancelAllBookingsInDay_UpdatesBookingStatuses_OfNonCancelledBookings_AndReturnsCorrectCount()
     {
         var bookings = new List<Booking>
         {
@@ -318,7 +318,8 @@ public class BookingCosmosDocumentStoreTests
                     LastName = "Bloggs"
                 },
                 From = new DateTime(2025, 1, 1, 12, 25, 0),
-                Status = AppointmentStatus.Booked
+                Status = AppointmentStatus.Booked,
+                Site = "TEST_SITE_123"
             },
             new()
             {
@@ -329,13 +330,14 @@ public class BookingCosmosDocumentStoreTests
                     LastName = "Bloggs"
                 },
                 From = new DateTime(2025, 1, 1, 11, 25, 0),
-                Status = AppointmentStatus.Booked,
+                Status = AppointmentStatus.Cancelled,
                 ContactDetails = [
                     new () {
                         Type = ContactItemType.Phone,
                         Value = "1234567890"
                     }
-                ]
+                ],
+                Site = "TEST_SITE_123"
             },
             new()
             {
@@ -352,7 +354,8 @@ public class BookingCosmosDocumentStoreTests
                         Type = ContactItemType.Phone,
                         Value = "1234567890"
                     }
-                ]
+                ],
+                Site = "TEST_SITE_123"
             },
             new()
             {
@@ -363,20 +366,21 @@ public class BookingCosmosDocumentStoreTests
                     LastName = "Bloggs"
                 },
                 From = new DateTime(2025, 1, 1, 9, 25, 0),
-                Status = AppointmentStatus.Booked,
+                Status = AppointmentStatus.Provisional,
                 ContactDetails = [
                     new () {
                         Type = ContactItemType.Email,
                         Value = "test.email@domain.com"
                     }
-                ]
+                ],
+                Site = "TEST_SITE_123"
             }
         };
         var bookingIndexDocuments = new List<BookingIndexDocument>
         {
             new()
             {
-                Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                Site = "TEST_SITE_123",
                 DocumentType = "booking_index",
                 Id = "01-76-000001",
                 NhsNumber = "9999999999",
@@ -385,16 +389,16 @@ public class BookingCosmosDocumentStoreTests
             },
             new()
             {
-                Site = "34e990af-5dc9-43a6-8895-b9123216d699",
+                Site = "TEST_SITE_123",
                 DocumentType = "booking_index",
                 Id = "02-76-000001",
                 NhsNumber = "9999999999",
                 Reference = "02-76-000001",
-                Status = AppointmentStatus.Booked
+                Status = AppointmentStatus.Cancelled
             },
             new()
             {
-                Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                Site = "TEST_SITE_123",
                 DocumentType = "booking_index",
                 Id = "01-76-000002",
                 NhsNumber = "9999999999",
@@ -403,12 +407,12 @@ public class BookingCosmosDocumentStoreTests
             },
             new()
             {
-                Site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                Site = "TEST_SITE_123",
                 DocumentType = "booking_index",
                 Id = "01-76-000003",
                 NhsNumber = "9999999999",
                 Reference = "01-76-000003",
-                Status = AppointmentStatus.Booked
+                Status = AppointmentStatus.Provisional
             }
         };
 
@@ -420,13 +424,13 @@ public class BookingCosmosDocumentStoreTests
             .ReturnsAsync(bookingIndexDocuments[2])
             .ReturnsAsync(bookingIndexDocuments[3]);
 
-        var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
+        var (cancelledBookingsCount, bookingsWithoutContactDetailsCount, bookingsWithContactDetails) = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
 
-        result.cancelledBookingsCount.Should().Be(4);
-        result.bookingsWithoutContactDetailsCount.Should().Be(1);
-        result.bookingsWithContactDetails.Count.Should().Be(3);
+        cancelledBookingsCount.Should().Be(2);
+        bookingsWithoutContactDetailsCount.Should().Be(1);
+        bookingsWithContactDetails.Count.Should().Be(1);
 
-        _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(4));
+        _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -435,11 +439,11 @@ public class BookingCosmosDocumentStoreTests
         _bookingStore.Setup(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
             .ReturnsAsync(new List<Booking>());
 
-        var result = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
+        var (cancelledBookingsCount, bookingsWithoutContactDetailsCount, bookingsWithContactDetails) = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
 
-        result.cancelledBookingsCount.Should().Be(0);
-        result.bookingsWithoutContactDetailsCount.Should().Be(0);
-        result.bookingsWithContactDetails.Should().BeEmpty();
+        cancelledBookingsCount.Should().Be(0);
+        bookingsWithoutContactDetailsCount.Should().Be(0);
+        bookingsWithContactDetails.Should().BeEmpty();
 
         _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
     }

@@ -31,7 +31,7 @@ const defaultProps = {
     maximumCapacity: 10,
     totalRemainingCapacity: 7,
     totalSupportedAppointments: 3,
-    totalOrphanedAppointments: 0,
+    totalOrphanedAppointments: 1,
     totalCancelledAppointments: 0,
     sessionSummaries: [],
   },
@@ -54,7 +54,7 @@ describe('CancelDayForm', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "3 booked appointments will be cancelled. We'll notify people that their appointment has been cancelled",
+        "4 booked appointments will be cancelled. We'll notify people that their appointment has been cancelled",
       ),
     ).toBeInTheDocument();
   });

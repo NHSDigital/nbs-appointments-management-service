@@ -81,9 +81,9 @@ export const DailyAppointmentsPage = ({
         toTimeFormat(booking.from),
         mapNameAndNHSNumber(booking.attendeeDetails),
         jsDateFormat(booking.attendeeDetails.dateOfBirth),
-        booking.contactDetails
+        booking.contactDetails && booking.contactDetails.length > 0
           ? mapContactDetails(booking.contactDetails)
-          : null,
+          : 'Not provided',
         clinicalServices.find(c => c.value === booking.service)?.label ??
           booking.service,
       ];

@@ -1,5 +1,6 @@
 using Microsoft.Azure.Cosmos.Linq;
 using System.Globalization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Core;
 
@@ -111,46 +112,91 @@ public class AvailabilityWriteService(
         }
     }
 
-    public async Task<OperationResult> EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, bool isWildcard)
+    public async Task<(bool editSuccessful, string message)> EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, bool isWildcard)
     {
-        var cancelMultipleSessions = from != until;
+        var multipleDays = from != until;
+        var hasReplacement = sessionReplacement is not null;
 
         if (isWildcard)
         {
-            if (cancelMultipleSessions)
+            if (multipleDays)
             {
-                return await availabilityStore.CancelMultipleSessions(site, from, until);
+                var result = await availabilityStore.CancelMultipleSessions(site, from, until);
+                if (!result.Success)
+                {
+                    return (false, result.Message);
+                }
+
+                for (var date = from; date <= until; date = date.AddDays(1))
+                {
+                    await bookingWriteService.RecalculateAppointmentStatuses(site, date);
+                }
+
+                return (true, string.Empty);
             }
 
             await availabilityStore.CancelDayAsync(site, from);
-            return new OperationResult(true);
+            await bookingWriteService.RecalculateAppointmentStatuses(site, from);
+
+            return (true, string.Empty);
         }
-        else
+
+        if (!hasReplacement && multipleDays)
         {
-            if (sessionReplacement is null && cancelMultipleSessions)
+            var result = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
+            if (!result.Success)
             {
-                return await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
+                return (false, result.Message);
             }
 
-            if (!cancelMultipleSessions && sessionReplacement is not null)
+            for (var date = from; date <= until; date = date.AddDays(1))
             {
-                await availabilityStore.ApplyAvailabilityTemplate(
-                    site,
-                    from,
-                    [sessionReplacement],
-                    ApplyAvailabilityMode.Edit,
-                    sessionMatcher!);
-                return new OperationResult(true);
+                await bookingWriteService.RecalculateAppointmentStatuses(site, date);
             }
 
-            if (!cancelMultipleSessions && sessionReplacement is null)
-            {
-                await availabilityStore.CancelDayAsync(site, from);
-                return new OperationResult(true);
-            }
-
-            await availabilityStore.CancelSession(site, from, sessionMatcher!);
-            return new OperationResult(true);
+            return (true, string.Empty);
         }
+
+        if (hasReplacement && !multipleDays)
+        {
+            await availabilityStore.ApplyAvailabilityTemplate(
+                site,
+                from,
+                [sessionReplacement],
+                ApplyAvailabilityMode.Edit,
+                sessionMatcher!);
+            await bookingWriteService.RecalculateAppointmentStatuses(site, from);
+
+            return (true, string.Empty);
+        }
+
+        if (hasReplacement && multipleDays)
+        {
+            var result = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
+            if (!result.Success)
+            {
+                return (false, result.Message);
+            }
+
+            for (var date = from; date <= until; date = date.AddDays(1))
+            {
+                await bookingWriteService.RecalculateAppointmentStatuses(site, date);
+            }
+
+            return (true, string.Empty);
+        }
+
+        if (!hasReplacement && !multipleDays)
+        {
+            await availabilityStore.CancelDayAsync(site, from);
+            await bookingWriteService.RecalculateAppointmentStatuses(site, from);
+
+            return (true, string.Empty);
+        }
+
+        await availabilityStore.CancelSession(site, from, sessionMatcher!);
+        await bookingWriteService.RecalculateAppointmentStatuses(site, from);
+
+        return (true, string.Empty);
     }
 }

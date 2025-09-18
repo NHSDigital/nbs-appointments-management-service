@@ -5,6 +5,7 @@ import { AvailabilitySession, SessionSummary } from '@types';
 import { notFound } from 'next/navigation';
 import EditSessionStartTimeForm from './edit-session-start-time-form';
 import fromServer from '@server/fromServer';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -37,7 +38,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const updated: AvailabilitySession = JSON.parse(atob(updatedSession));
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
       originPage="edit-session-start-time"
@@ -53,7 +54,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         updatedSession={updated}
         site={site}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

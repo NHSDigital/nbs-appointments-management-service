@@ -56,6 +56,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage
+      site={site}
       title={fromDate.format('dddd D MMMM')}
       caption={site.name}
       originPage="cancel-day-confirmation"

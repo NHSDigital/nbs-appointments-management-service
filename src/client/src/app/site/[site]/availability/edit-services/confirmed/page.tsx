@@ -44,6 +44,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <NhsPage
+      site={site}
       originPage="edit-session"
       title={`Services removed for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}

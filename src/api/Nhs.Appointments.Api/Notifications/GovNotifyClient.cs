@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Notifications.Options;
 using Notify.Client;
@@ -10,7 +11,11 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Notifications;
 
-public class GovNotifyClient(IAsyncNotificationClient client, IPrivacyUtil privacy, IOptions<GovNotifyRetryOptions> retryOptions) : ISendNotifications
+public class GovNotifyClient(
+    IAsyncNotificationClient client, 
+    IPrivacyUtil privacy, 
+    IOptions<GovNotifyRetryOptions> retryOptions,    
+    ILogger<GovNotifyClient> logger) : ISendNotifications
 {
     private async Task RetryOnExceptionAsync<TException>(Func<Task> action) where TException : Exception
     {
@@ -24,21 +29,33 @@ public class GovNotifyClient(IAsyncNotificationClient client, IPrivacyUtil priva
             }
             catch (TException ex) when (attempt < retryOptions.Value.MaxRetries)
             {
+
                 // the following pattern is from GovNotify
                 // error handling suggestions:
                 // https://docs.notifications.service.gov.uk/net.html#error-handling
                 var pattern = """(?<=Status code )([0-9]+)""";
                 var r = new Regex(pattern, RegexOptions.IgnoreCase);
                 var match = r.Match(ex.Message);
-                var statusCode = int.Parse(match.Value);
-                if (statusCode == 429)
+                if (match.Success && int.TryParse(match.Value, out var statusCode))
                 {
-                    await Task.Delay(delay);
-                    delay = (int)(delay * retryOptions.Value.BackoffFactor);
+                    if (statusCode == 429)
+                    {
+#pragma warning disable S6667 // Logging in a catch clause should pass the caught exception as a parameter.
+                        logger.LogWarning(ex, "Received 429 Too Many Requests. Retrying...");
+#pragma warning restore S6667 // Logging in a catch clause should pass the caught exception as a parameter.
+                        await Task.Delay(delay);
+                        delay = (int)(delay * retryOptions.Value.BackoffFactor);
+                    }
+                    else
+                    {
+                        logger.LogError(ex, "Non-retryable status code. Aborting.");
+                        break;
+                    }
                 }
-                else 
+                else
                 {
-                    throw;
+                    logger.LogError(ex, "Could not parse status code from exception message. Aborting.");
+                    break;
                 }
             }
         }

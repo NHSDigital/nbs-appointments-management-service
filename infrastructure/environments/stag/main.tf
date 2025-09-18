@@ -55,6 +55,9 @@ module "mya_application_stag" {
   web_app_slot_base_uri                           = var.WEB_APP_SLOT_BASE_URI
   gov_notify_base_uri                             = var.GOV_NOTIFY_BASE_URI
   gov_notify_api_key                              = var.GOV_NOTIFY_API_KEY
+  gov_notify_retry_options_max_retries            = var.gov_notify_retry_options_max_retries
+  gov_notify_retry_options_initial_delay_ms       = var.gov_notify_retry_options_initial_delay_ms    
+  gov_notify_retry_options_backoff_factor         = var.gov_notify_retry_options_backoff_factor
   booking_reminders_cron_schedule                 = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule  = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   daily_site_summary_aggregation_cron_schedule    = var.DAILY_SITE_SUMMARY_AGGREGATION_CRON_SCHEDULE

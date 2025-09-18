@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
 import { AvailabilitySession, SessionSummary } from '@types';

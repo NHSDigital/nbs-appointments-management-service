@@ -76,8 +76,10 @@ const CancelDayForm = ({
         tableCaption={`Sessions for ${parsedDate.format('dddd D MMMM')}`}
       />
       <InsetText>
-        {daySummary.totalSupportedAppointments} booked appointments will be
-        cancelled. We'll notify people that their appointment has been cancelled
+        {daySummary.totalSupportedAppointments +
+          daySummary.totalOrphanedAppointments}{' '}
+        booked appointments will be cancelled. We'll notify people that their
+        appointment has been cancelled
       </InsetText>
 
       {!confirmStep ? (

@@ -3,11 +3,13 @@
 namespace Nhs.Appointments.Asp.Controllers;
 
 [ApiController]
+[Route("availability")]
 public class AvailabilityController : ControllerBase
 {
-    [Route("availability/query")]
+    [HttpGet("query")]
     public IActionResult Query()
     {
+        //QueryAvailabilityFunction
         return Ok();
     }
 }

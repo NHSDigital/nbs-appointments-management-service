@@ -34,7 +34,8 @@ public class GovNotifyClient(
                 // error handling suggestions:
                 // https://docs.notifications.service.gov.uk/net.html#error-handling
                 var pattern = """(?<=Status code )([0-9]+)""";
-                var r = new Regex(pattern, RegexOptions.IgnoreCase);
+                var timeout = TimeSpan.FromSeconds(2);
+                var r = new Regex(pattern, RegexOptions.IgnoreCase, timeout);
                 var match = r.Match(ex.Message);
                 if (match.Success && int.TryParse(match.Value, out var statusCode))
                 {

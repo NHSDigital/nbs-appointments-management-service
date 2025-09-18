@@ -102,6 +102,18 @@ variable "GOV_NOTIFY_API_KEY" {
   sensitive = true
 }
 
+variable "gov_notify_retry_options_max_retries" {
+  type      = string
+}
+
+variable "gov_notify_retry_options_initial_delay_ms" {
+  type      = string
+}
+
+variable "gov_notify_retry_options_backoff_factor" {
+  type      = string
+}
+
 variable "BOOKING_REMINDERS_CRON_SCHEDULE" {
   type      = string
   sensitive = false

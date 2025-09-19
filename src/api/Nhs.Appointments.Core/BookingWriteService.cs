@@ -1,5 +1,5 @@
+using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
@@ -9,7 +9,8 @@ public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
 
-    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site,
+        CancellationReason cancellationReason, object additionalData);
 
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
@@ -73,7 +74,8 @@ public class BookingWriteService(
         return (true, booking.Reference);
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site,
+        CancellationReason cancellationReason, object additionalData = null)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -82,11 +84,14 @@ public class BookingWriteService(
             return BookingCancellationResult.NotFound;
         }
 
+        var mergedAdditionalData = MergeAdditionalData(booking.AdditionalData, additionalData);
+
         await bookingDocumentStore.UpdateStatus(
             bookingReference, 
             AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown, 
-            cancellationReason
+            AvailabilityStatus.Unknown,
+            cancellationReason,
+            mergedAdditionalData
         );
 
         await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
@@ -99,7 +104,41 @@ public class BookingWriteService(
 
         return BookingCancellationResult.Success;
     }
-    
+
+    private object ConvertJTokensBackToDictionaries(JToken token)
+    {
+        switch (token.Type)
+        {
+            case JTokenType.Object:
+                return token.Children<JProperty>()
+                    .ToDictionary(prop => prop.Name, prop => ConvertJTokensBackToDictionaries(prop.Value));
+            case JTokenType.Array:
+                return token.Select(ConvertJTokensBackToDictionaries).ToList();
+            case JTokenType.Null:
+                return null;
+            default:
+                return ((JValue)token).Value;
+        }
+    }
+
+    public object MergeAdditionalData(object currentAdditionalData, object incomingAdditionalData)
+    {
+        var current = currentAdditionalData != null
+            ? JObject.FromObject(currentAdditionalData)
+            : new JObject();
+
+        var incoming = incomingAdditionalData != null
+            ? JObject.FromObject(incomingAdditionalData)
+            : new JObject();
+
+        current.Merge(incoming, new JsonMergeSettings
+        {
+            MergeArrayHandling = MergeArrayHandling.Replace, MergeNullValueHandling = MergeNullValueHandling.Merge
+        });
+
+        return current.HasValues ? ConvertJTokensBackToDictionaries(current) : null;
+    }
+
     public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences,
         IEnumerable<ContactItem> contactDetails)
     {

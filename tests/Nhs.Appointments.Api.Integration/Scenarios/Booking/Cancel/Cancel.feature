@@ -60,6 +60,17 @@ Feature: Appointment cancellation
     Then the booking has been 'Cancelled'
     And 'CancelledBySite' cancellation reason has been used
 
+  Scenario: Cancel a booking appointment with AutoCancelled cancellation reason
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service |
+      | Tomorrow | 09:20 | 5        | COVID   |
+    When I cancel the appointment with cancellation reason 'CancelledByService'
+    Then the booking has been 'Cancelled'
+    And 'CancelledByService' cancellation reason has been used
+
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment of a different service
     Given the following sessions
       | Date     | From  | Until | Services   | Slot Length | Capacity |

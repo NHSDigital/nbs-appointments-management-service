@@ -10,14 +10,13 @@ using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Cancel;
 
-[FeatureFile("./Scenarios/Booking/Cancel/Cancel.feature")]
-public class CancelFeatureSteps : BookingBaseFeatureSteps
+public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
 {
     private HttpResponseMessage _response;
     private HttpStatusCode _responseCode;
     private string _responseBody;
 
-    [When("I confirm the following bookings")]
+    [When("I cancel the following bookings")]
     public async Task ConfirmBookingsTwo(DataTable dataTable)
     {
         var (url, payload) = BuildCancelBookingPayload(dataTable);

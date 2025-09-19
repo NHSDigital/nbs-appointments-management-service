@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
@@ -104,31 +105,38 @@ public class BookingWriteService(
         return BookingCancellationResult.Success;
     }
 
+    private object ConvertJTokensBackToDictionaries(JToken token)
+    {
+        switch (token.Type)
+        {
+            case JTokenType.Object:
+                return token.Children<JProperty>()
+                    .ToDictionary(prop => prop.Name, prop => ConvertJTokensBackToDictionaries(prop.Value));
+            case JTokenType.Array:
+                return token.Select(ConvertJTokensBackToDictionaries).ToList();
+            case JTokenType.Null:
+                return null;
+            default:
+                return ((JValue)token).Value;
+        }
+    }
+
     public object MergeAdditionalData(object currentAdditionalData, object incomingAdditionalData)
     {
-        var mergedAdditionalData = new Dictionary<string, object>();
-        if (currentAdditionalData != null)
-        {
-            foreach (var prop in currentAdditionalData.GetType().GetProperties())
-            {
-                mergedAdditionalData[prop.Name] = prop.GetValue(currentAdditionalData);
-            }
-        }
+        var current = currentAdditionalData != null
+            ? JObject.FromObject(currentAdditionalData)
+            : new JObject();
 
-        if (incomingAdditionalData != null)
-        {
-            foreach (var prop in incomingAdditionalData.GetType().GetProperties())
-            {
-                mergedAdditionalData[prop.Name] = prop.GetValue(incomingAdditionalData);
-            }
-        }
+        var incoming = incomingAdditionalData != null
+            ? JObject.FromObject(incomingAdditionalData)
+            : new JObject();
 
-        if (mergedAdditionalData.Count > 0)
+        current.Merge(incoming, new JsonMergeSettings
         {
-            return mergedAdditionalData;
-        }
+            MergeArrayHandling = MergeArrayHandling.Replace, MergeNullValueHandling = MergeNullValueHandling.Merge
+        });
 
-        return null;
+        return current.HasValues ? ConvertJTokensBackToDictionaries(current) : null;
     }
 
     public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences,

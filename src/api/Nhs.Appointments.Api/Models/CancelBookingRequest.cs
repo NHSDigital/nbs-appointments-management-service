@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Newtonsoft.Json;
 using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Api.Models;
@@ -9,6 +8,6 @@ public record CancelBookingRequest(
     string site,
     [property: JsonPropertyName("cancellationReason")]
     CancellationReason? cancellationReason,
-    [property: JsonProperty("additionalData")]
+    [property: JsonPropertyName("additionalData")]
     object additionalData = null
 );

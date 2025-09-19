@@ -76,7 +76,7 @@ public class CancelBookingFunction(
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
         var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
         var cancellationReason = CancellationReason.CancelledByCitizen;
-
+        object additionalData = null;
         if (req.Body != null)
         {
             var (errors, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
@@ -90,9 +90,11 @@ public class CancelBookingFunction(
             {
                 cancellationReason = (CancellationReason)payload.cancellationReason;
             }
+
+            additionalData = payload?.additionalData;
         }
 
-        var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason);
+        var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason, additionalData);
 
         return await Task.FromResult((ErrorMessageResponseItem.None, requestModel));
     }

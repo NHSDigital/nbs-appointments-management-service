@@ -10,6 +10,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
@@ -473,7 +474,7 @@ public abstract partial class BaseFeatureSteps : Feature
             var additionalData = BuildAdditionalDataFromDataTable(dataTable, row);
             if (additionalData != null)
             {
-                booking.Resource.AdditionalData.Should().Be(additionalData);
+                booking.Resource.AdditionalData.Should().BeEquivalentTo(JObject.FromObject(additionalData));
             }
         }
     }

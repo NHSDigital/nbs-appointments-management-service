@@ -458,7 +458,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
                 .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown,
-                    CancellationReason.CancelledByCitizen, It.IsAny<object>))
+                    CancellationReason.CancelledByCitizen, null))
                 .ReturnsAsync(true).Verifiable();
 
             await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
@@ -529,7 +529,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(reference)).ReturnsAsync(booking);
             _bookingsDocumentStore.Setup(x =>
                     x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason,
-                        It.IsAny<object>))
+                        null))
                 .ReturnsAsync(true)
                 .Verifiable();
 
@@ -872,6 +872,14 @@ namespace Nhs.Appointments.Core.UnitTests
             };
 
             result.Should().BeEquivalentTo(expectedMergedResult);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData__Both_Null()
+        {
+            var result = _sut.MergeAdditionalData(null, null);
+
+            result.Should().BeNull();
         }
     }
 

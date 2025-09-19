@@ -123,7 +123,12 @@ public class BookingWriteService(
             }
         }
 
-        return mergedAdditionalData;
+        if (mergedAdditionalData.Count > 0)
+        {
+            return mergedAdditionalData;
+        }
+
+        return null;
     }
 
     public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences,

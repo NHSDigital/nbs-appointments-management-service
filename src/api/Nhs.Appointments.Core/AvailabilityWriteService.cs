@@ -116,6 +116,7 @@ public class AvailabilityWriteService(
     {
         var multipleDays = from != until;
         var hasReplacement = sessionReplacement is not null;
+        (bool editSuccessful, string message) editResult;
 
         if (isWildcard)
         {
@@ -126,38 +127,19 @@ public class AvailabilityWriteService(
                 {
                     return (false, result.Message);
                 }
-
-                for (var date = from; date <= until; date = date.AddDays(1))
-                {
-                    await bookingWriteService.RecalculateAppointmentStatuses(site, date);
-                }
-
-                return (true, string.Empty);
             }
 
             await availabilityStore.CancelDayAsync(site, from);
-            await bookingWriteService.RecalculateAppointmentStatuses(site, from);
-
-            return (true, string.Empty);
+            editResult = (true, string.Empty);
         }
-
-        if (!hasReplacement && multipleDays)
+        else if (!hasReplacement && multipleDays)
         {
             var result = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
-            if (!result.Success)
-            {
-                return (false, result.Message);
-            }
-
-            for (var date = from; date <= until; date = date.AddDays(1))
-            {
-                await bookingWriteService.RecalculateAppointmentStatuses(site, date);
-            }
-
-            return (true, string.Empty);
+            editResult = result.Success
+                ? (true, string.Empty)
+                : (false, result.Message);
         }
-
-        if (hasReplacement && !multipleDays)
+        else if (hasReplacement && !multipleDays)
         {
             await availabilityStore.ApplyAvailabilityTemplate(
                 site,
@@ -165,38 +147,27 @@ public class AvailabilityWriteService(
                 [sessionReplacement],
                 ApplyAvailabilityMode.Edit,
                 sessionMatcher!);
-            await bookingWriteService.RecalculateAppointmentStatuses(site, from);
 
-            return (true, string.Empty);
+            editResult = (true, string.Empty);
         }
-
-        if (hasReplacement && multipleDays)
+        else if (hasReplacement && multipleDays)
         {
             var result = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
-            if (!result.Success)
-            {
-                return (false, result.Message);
-            }
-
-            for (var date = from; date <= until; date = date.AddDays(1))
-            {
-                await bookingWriteService.RecalculateAppointmentStatuses(site, date);
-            }
-
-            return (true, string.Empty);
+            editResult = result.Success
+                ? (true, string.Empty)
+                : (false, result.Message);
         }
-
-        if (!hasReplacement && !multipleDays)
+        else // !hasReplacement && !multipleDays
         {
             await availabilityStore.CancelDayAsync(site, from);
-            await bookingWriteService.RecalculateAppointmentStatuses(site, from);
-
-            return (true, string.Empty);
+            editResult = (true, string.Empty);
         }
 
-        await availabilityStore.CancelSession(site, from, sessionMatcher!);
-        await bookingWriteService.RecalculateAppointmentStatuses(site, from);
+        for (var date = from; date <= until; date = date.AddDays(1))
+        {
+            await bookingWriteService.RecalculateAppointmentStatuses(site, date);
+        }
 
-        return (true, string.Empty);
+        return editResult;
     }
 }

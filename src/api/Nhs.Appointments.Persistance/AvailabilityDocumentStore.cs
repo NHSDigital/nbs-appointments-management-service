@@ -136,7 +136,6 @@ public class AvailabilityDocumentStore(
 
         foreach (var document in documents)
         {
-
             await ReplaceSessionAndPatchAsync(document, site, sessionMatcher, sessionReplacement);
         }
 

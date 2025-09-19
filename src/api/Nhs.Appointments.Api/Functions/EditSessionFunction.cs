@@ -36,6 +36,7 @@ public class EditSessionFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "session/edit")]
         HttpRequest req)
     {
+        // TODO: Add check on the cancel session uplift feature flag
         return base.RunAsync(req);
     }
 

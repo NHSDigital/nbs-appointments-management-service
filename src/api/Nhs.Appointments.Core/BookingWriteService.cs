@@ -1,5 +1,4 @@
 using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
@@ -9,7 +8,8 @@ public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
 
-    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site,
+        CancellationReason cancellationReason, object additionalData);
 
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
@@ -73,7 +73,8 @@ public class BookingWriteService(
         return (true, booking.Reference);
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site,
+        CancellationReason cancellationReason, object additionalData = null)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -82,11 +83,14 @@ public class BookingWriteService(
             return BookingCancellationResult.NotFound;
         }
 
+        var mergedAdditionalData = MergeAdditionalData(booking.AdditionalData, additionalData);
+
         await bookingDocumentStore.UpdateStatus(
             bookingReference, 
             AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown, 
-            cancellationReason
+            AvailabilityStatus.Unknown,
+            cancellationReason,
+            mergedAdditionalData
         );
 
         await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
@@ -99,7 +103,29 @@ public class BookingWriteService(
 
         return BookingCancellationResult.Success;
     }
-    
+
+    public object MergeAdditionalData(object currentAdditionalData, object incomingAdditionalData)
+    {
+        var mergedAdditionalData = new Dictionary<string, object>();
+        if (currentAdditionalData != null)
+        {
+            foreach (var prop in currentAdditionalData.GetType().GetProperties())
+            {
+                mergedAdditionalData[prop.Name] = prop.GetValue(currentAdditionalData);
+            }
+        }
+
+        if (incomingAdditionalData != null)
+        {
+            foreach (var prop in incomingAdditionalData.GetType().GetProperties())
+            {
+                mergedAdditionalData[prop.Name] = prop.GetValue(incomingAdditionalData);
+            }
+        }
+
+        return mergedAdditionalData;
+    }
+
     public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences,
         IEnumerable<ContactItem> contactDetails)
     {

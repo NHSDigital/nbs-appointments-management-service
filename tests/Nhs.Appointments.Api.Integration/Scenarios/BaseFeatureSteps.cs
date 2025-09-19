@@ -437,6 +437,44 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
+    [Then("the following bookings are now in the following state")]
+    public async Task AssertBookings(DataTable dataTable)
+    {
+        var siteId = GetSiteId();
+        var defaultReferenceOffset = 0;
+
+        foreach (var row in dataTable.Rows.Skip(1))
+        {
+            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+                                   BookingReferences.GetBookingReference(defaultReferenceOffset,
+                                       BookingType.Confirmed);
+            defaultReferenceOffset += 1;
+
+
+            var booking = await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+
+            booking.Should().NotBeNull();
+
+            var status = dataTable.GetEnumRowValueOrDefault<AppointmentStatus>(row, "Status");
+            if (status != null)
+            {
+                booking.Resource.Status.Should().Be(status);
+            }
+
+            var cancellationReason = dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation reason");
+            if (cancellationReason != null)
+            {
+                booking.Resource.CancellationReason.Should().Be(cancellationReason);
+            }
+
+            var additionalData = BuildAdditionalDataFromDataTable(dataTable, row);
+            if (additionalData != null)
+            {
+                booking.Resource.AdditionalData.Should().Be(additionalData);
+            }
+        }
+    }
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
@@ -788,6 +826,28 @@ public abstract partial class BaseFeatureSteps : Feature
             ]
         };
         await Client.GetContainer("appts", "core_data").UpsertItemAsync(roles);
+    }
+
+    protected Dictionary<string, string> BuildAdditionalDataFromDataTable(DataTable table, TableRow row)
+    {
+        var keyValuePairs = new Dictionary<string, string>();
+        for (var i = 1; i < 4; i++)
+        {
+            var additionalData = table.GetRowValueOrDefault(row, $"AdditionalData ${i}");
+            if (additionalData != null)
+            {
+                var key = additionalData.Split(',')[0];
+                var value = additionalData.Split(',')[1];
+                keyValuePairs[key] = value;
+            }
+        }
+
+        if (keyValuePairs.Count == 0)
+        {
+            return null;
+        }
+
+        return keyValuePairs;
     }
 
     private async Task SetUpNotificationConfiguration()

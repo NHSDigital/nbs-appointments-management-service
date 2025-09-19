@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +17,6 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -55,7 +55,8 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site, (CancellationReason)request.cancellationReason);
+        var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site,
+            (CancellationReason)request.cancellationReason, request.additionalData);
 
         switch (result)
         {

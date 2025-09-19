@@ -458,7 +458,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
                 .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown,
-                    CancellationReason.CancelledByCitizen))
+                    CancellationReason.CancelledByCitizen, It.IsAny<object>))
                 .ReturnsAsync(true).Verifiable();
 
             await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
@@ -503,7 +503,8 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null))
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null,
+                    It.IsAny<object>))
                 .ReturnsAsync(true).Verifiable();
 
             var result = await _sut.CancelBooking(bookingRef, "some-other-site", CancellationReason.CancelledByCitizen);
@@ -527,7 +528,8 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(reference)).ReturnsAsync(booking);
             _bookingsDocumentStore.Setup(x =>
-                    x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason))
+                    x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason,
+                        It.IsAny<object>))
                 .ReturnsAsync(true)
                 .Verifiable();
 
@@ -726,7 +728,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _bookingsDocumentStore.Verify(
                 x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
-                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>()),
+                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
                 Times.Never);
         }
 
@@ -808,6 +810,68 @@ namespace Nhs.Appointments.Core.UnitTests
             _messageBus.Verify(
                 x => x.Send(It.Is<BookingCancelled>(e => e.Reference == booking.Reference)),
                 Times.Once);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData()
+        {
+            var currentAdditionalData = new
+            {
+                selfReferralOccupation = "Clinician",
+                isAppBooking = false,
+                favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
+            };
+
+            var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
+
+            var result = _sut.MergeAdditionalData(currentAdditionalData, newAdditionalData);
+
+            var expectedMergedResult = new Dictionary<string, object>
+            {
+                { "selfReferralOccupation", "Doctor" },
+                { "isAppBooking", false },
+                { "someNewProperty", "some new value" },
+                { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
+            };
+
+            result.Should().BeEquivalentTo(expectedMergedResult);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData__Old_Is_Null()
+        {
+            var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
+
+            var result = _sut.MergeAdditionalData(null, newAdditionalData);
+
+            var expectedMergedResult = new Dictionary<string, object>
+            {
+                { "selfReferralOccupation", "Doctor" }, { "someNewProperty", "some new value" }
+            };
+
+            result.Should().BeEquivalentTo(expectedMergedResult);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData__New_Is_Null()
+        {
+            var currentAdditionalData = new
+            {
+                selfReferralOccupation = "Clinician",
+                isAppBooking = false,
+                favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
+            };
+
+            var result = _sut.MergeAdditionalData(currentAdditionalData, null);
+
+            var expectedMergedResult = new Dictionary<string, object>
+            {
+                { "selfReferralOccupation", "Clinician" },
+                { "isAppBooking", false },
+                { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
+            };
+
+            result.Should().BeEquivalentTo(expectedMergedResult);
         }
     }
 

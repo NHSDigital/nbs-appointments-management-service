@@ -17,7 +17,7 @@ public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
     private string _responseBody;
 
     [When("I cancel the following bookings")]
-    public async Task ConfirmBookingsTwo(DataTable dataTable)
+    public async Task CancelBookings(DataTable dataTable)
     {
         var (url, payload) = BuildCancelBookingPayload(dataTable);
 

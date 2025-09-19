@@ -375,6 +375,8 @@ public abstract partial class BaseFeatureSteps : Feature
 
             var nhsNumber = dataTable.GetRowValueOrDefault(row, "Nhs Number", NhsNumber);
 
+            var additionalData = BuildAdditionalDataFromDataTable(dataTable, row);
+
             var booking = new BookingDocument
             {
                 Id = reference,
@@ -406,7 +408,7 @@ public abstract partial class BaseFeatureSteps : Feature
                         Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
                     }
                 ],
-                AdditionalData = new { IsAppBooking = true }
+                AdditionalData = additionalData
             };
 
             var bookingIndex = new BookingIndexDocument
@@ -833,7 +835,8 @@ public abstract partial class BaseFeatureSteps : Feature
         var keyValuePairs = new Dictionary<string, string>();
         for (var i = 1; i < 4; i++)
         {
-            var additionalData = table.GetRowValueOrDefault(row, $"AdditionalData ${i}");
+            var columnName = $"AdditionalData {i}";
+            var additionalData = table.GetRowValueOrDefault(row, columnName);
             if (additionalData != null)
             {
                 var key = additionalData.Split(',')[0];

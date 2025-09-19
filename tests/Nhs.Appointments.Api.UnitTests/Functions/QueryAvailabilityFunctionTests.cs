@@ -13,6 +13,8 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using System.Text;
+using Nhs.Appointments.Core.Json;
+
 #pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 
 namespace Nhs.Appointments.Api.Tests.Functions;

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Net;
 using Newtonsoft.Json.Serialization;
+using Nhs.Appointments.Core.Json;
 
 namespace Nhs.Appointments.Api.Json;
 

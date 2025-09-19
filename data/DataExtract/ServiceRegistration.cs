@@ -1,23 +1,23 @@
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
-using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core.Json;
 
 namespace DataExtract;
 
 public static class ServiceRegistration
 {
     public static IServiceCollection AddDataExtractServices(this IServiceCollection services, string fileName,
-        IConfigurationBuilder configurationBuilder, bool createSampleFile = false)
+        IConfigurationBuilder configurationBuilder)
     {
         var configuration = configurationBuilder.Build();
         var cosmosEndpoint = configuration["COSMOS_ENDPOINT"];
         var cosmosToken = configuration["COSMOS_TOKEN"];
-        var destinationMailbox = configuration["MESH_MAILBOX_DESTINATION"];
-        var meshWorkflow = configuration["MESH_WORKFLOW"];
 
         CosmosClientOptions options = new()
         {
@@ -37,35 +37,14 @@ public static class ServiceRegistration
 
         services
             .Configure<CosmosStoreOptions>(opts => opts.DatabaseName = "appts")
-            .Configure<MeshSendOptions>(opts =>
-            {
-                opts.DestinationMailboxId = destinationMailbox;
-                opts.WorkflowId = meshWorkflow;
-            })
             .Configure<FileOptions>(opts =>
-            { 
+            {
                 opts.FileName = fileName;
-                opts.CreateSampleFile = createSampleFile;
             })
             .AddSingleton(TimeProvider.System)
             .AddSingleton(cosmos)
+            .AddFileSender(configuration, fileName)
             .AddMesh(configuration);
-
-        var azureKeyVaultConfig = configuration.GetSection("KeyVault")?.Get<AzureKeyVaultConfiguration>();
-        if (!string.IsNullOrEmpty(azureKeyVaultConfig?.KeyVaultName))
-        {
-            Console.WriteLine("Adding key vault and cert provider");
-            services.Configure<AzureKeyVaultConfiguration>(opts =>
-            {
-                opts.KeyVaultName = azureKeyVaultConfig.KeyVaultName;
-                opts.ClientId = azureKeyVaultConfig.ClientId;
-                opts.TenantId = azureKeyVaultConfig.TenantId;
-                opts.ClientSecret = azureKeyVaultConfig.ClientSecret;
-            });
-            services.AddSingleton<ICertificateProvider, KeyVaultCertificateProvider>();
-        }
-        else
-            Console.WriteLine("Key vault configuration not set up");
 
         return services;
     }
@@ -98,6 +77,69 @@ public static class ServiceRegistration
     public static AzureKeyVaultConfiguration? GetAzureKeyVaultConfiguration(this IConfiguration configuration, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
     {
         return configuration.GetSection(configSectionName)?.Get<AzureKeyVaultConfiguration>();
+    }
+
+    private static IServiceCollection AddFileSender(this IServiceCollection services,
+        IConfiguration configuration, string fileName)
+    {
+        var fileSenderType = configuration.GetSection("FileSenderOptions").Get<FileSenderOptions>();
+        switch(fileSenderType?.Type)
+        {
+            case "mesh":
+                var destinationMailbox = configuration["MESH_MAILBOX_DESTINATION"];
+                var meshWorkflow = configuration["MESH_WORKFLOW"];
+                var azureKeyVaultConfig = configuration.GetSection("KeyVault")?.Get<AzureKeyVaultConfiguration>();
+                
+                services
+                    .AddTransient<IFileSender, MeshFileSender>()
+                    .Configure<MeshSendOptions>(opts =>
+                    {
+                        opts.DestinationMailboxId = destinationMailbox;
+                        opts.WorkflowId = meshWorkflow;
+                    })
+                    .AddMesh(configuration);
+                
+                if (!string.IsNullOrEmpty(azureKeyVaultConfig?.KeyVaultName))
+                {
+                    Console.WriteLine("Adding key vault and cert provider");
+                    services.Configure<AzureKeyVaultConfiguration>(opts =>
+                    {
+                        opts.KeyVaultName = azureKeyVaultConfig.KeyVaultName;
+                        opts.ClientId = azureKeyVaultConfig.ClientId;
+                        opts.TenantId = azureKeyVaultConfig.TenantId;
+                        opts.ClientSecret = azureKeyVaultConfig.ClientSecret;
+                    });
+                    services.AddSingleton<ICertificateProvider, KeyVaultCertificateProvider>();
+                }
+                else
+                {
+                    Console.WriteLine("Key vault configuration not set up");
+                }
+
+                break;
+            case "local":
+                services.Configure<LocalFileOptions>(opts =>
+                {
+                    opts.Overwrite = configuration.GetValue<bool>("LocalFileOptions:Overwrite");
+                    opts.TargetPath = configuration.GetValue<string>("LocalFileOptions:TargetPath");
+                });
+                services.AddTransient<IFileSender, LocalFileSender>();
+                break;
+            case "blob":
+                services
+                    .AddTransient<IFileSender, BlobFileSender>()
+                    .Configure<BlobFileOptions>(opts =>
+                        opts.ContainerName = fileName)
+                    .AddAzureClients(x =>
+                    {
+                        x.AddBlobServiceClient(configuration["BlobStorageConnectionString"]);
+                    });
+                break;
+            default:
+                throw new ArgumentException($"Unknown sender type: {fileSenderType}");
+        }
+
+        return services;
     }
 
     public static IServiceCollection AddExtractWorker<TExtractor>(this IServiceCollection services) where TExtractor : class, IExtractor 

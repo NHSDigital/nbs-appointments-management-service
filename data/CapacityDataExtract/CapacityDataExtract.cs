@@ -1,5 +1,6 @@
 using CapacityDataExtracts.Documents;
 using DataExtract;
+using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Persistance.Models;
 using Parquet.Serialization;
 
@@ -8,7 +9,8 @@ namespace CapacityDataExtracts;
 public class CapacityDataExtract(
     CosmosStore<DailyAvailabilityDocument> availabilityStore,
     CosmosStore<SiteDocument> sitesStore,
-    TimeProvider timeProvider) : IExtractor
+    TimeProvider timeProvider,
+    ILogger<CapacityDataExtract> logger) : IExtractor
 {
     public async Task RunAsync(FileInfo outputFile)
     {
@@ -34,7 +36,7 @@ public class CapacityDataExtract(
                     Capacity = s.Capacity
                 })).SelectMany(slot => slot.ToSiteSlots()).ToList();
 
-        Console.WriteLine($"Preparing to parse {capacity.Count} report to rows - time: {timeProvider.GetUtcNow():HH:mm:ss}");
+        logger.LogInformation($"Preparing to parse {capacity.Count} report to rows - time: {timeProvider.GetUtcNow():HH:mm:ss}");
 
         var rows = capacity.Select(
                 x => new SiteSessionParquet()
@@ -51,13 +53,13 @@ public class CapacityDataExtract(
                     SERVICE = CapacityDataConverter.ExtractService(x),
                 }).ToList();
 
-        Console.WriteLine($"Preparing to write {rows.Count} capacity records to {outputFile.FullName} - time: {timeProvider.GetUtcNow():HH:mm:ss}");
+        logger.LogInformation($"Preparing to write {rows.Count} capacity records to {outputFile.FullName} - time: {timeProvider.GetUtcNow():HH:mm:ss}");
 
         using (Stream fs = outputFile.OpenWrite())
         {
             await ParquetSerializer.SerializeAsync(rows, fs);
         }
 
-        Console.WriteLine("done");
+        logger.LogInformation("done");
     }
 }

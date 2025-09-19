@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Nhs.Appointments.Api.Json;
+namespace Nhs.Appointments.Core.Json;
 
 public class StrictBooleanJsonConverter : JsonConverter<Boolean>
 {

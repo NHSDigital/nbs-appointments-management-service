@@ -112,34 +112,38 @@ public class AvailabilityWriteService(
         }
     }
 
-    public async Task<(bool editSuccessful, string message)> EditSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, bool isWildcard)
+    public async Task<(bool editSuccessful, string message)> EditOrCancelSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, bool isWildcard)
     {
         var multipleDays = from != until;
         var hasReplacement = sessionReplacement is not null;
-        (bool editSuccessful, string message) editResult;
+
+        (bool success, string message) result;
 
         if (isWildcard)
         {
             if (multipleDays)
             {
-                var result = await availabilityStore.CancelMultipleSessions(site, from, until);
-                if (!result.Success)
+                var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until);
+                if (!cancelResult.Success)
                 {
-                    return (false, result.Message);
+                    return (false, cancelResult.Message);
                 }
             }
 
             await availabilityStore.CancelDayAsync(site, from);
-            editResult = (true, string.Empty);
+            result = (true, string.Empty);
         }
         else if (!hasReplacement && multipleDays)
         {
-            var result = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
-            editResult = result.Success
-                ? (true, string.Empty)
-                : (false, result.Message);
+            var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
+            result = (cancelResult.Success, cancelResult.Message);
         }
-        else if (hasReplacement && !multipleDays)
+        else if (hasReplacement && multipleDays)
+        {
+            var editResult = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
+            result = (editResult.Success, editResult.Message);
+        }
+        else if (hasReplacement) // single-day replacement
         {
             await availabilityStore.ApplyAvailabilityTemplate(
                 site,
@@ -148,26 +152,19 @@ public class AvailabilityWriteService(
                 ApplyAvailabilityMode.Edit,
                 sessionMatcher!);
 
-            editResult = (true, string.Empty);
+            result = (true, string.Empty);
         }
-        else if (hasReplacement && multipleDays)
-        {
-            var result = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
-            editResult = result.Success
-                ? (true, string.Empty)
-                : (false, result.Message);
-        }
-        else // !hasReplacement && !multipleDays
+        else // single-day cancellation
         {
             await availabilityStore.CancelDayAsync(site, from);
-            editResult = (true, string.Empty);
+            result = (true, string.Empty);
         }
 
-        for (var date = from; date <= until; date = date.AddDays(1))
-        {
-            await bookingWriteService.RecalculateAppointmentStatuses(site, date);
-        }
+        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1)
+            .Select(offset => bookingWriteService.RecalculateAppointmentStatuses(site, from.AddDays(offset)));
 
-        return editResult;
+        await Task.WhenAll(days);
+
+        return result;
     }
 }

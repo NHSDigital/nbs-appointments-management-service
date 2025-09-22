@@ -5,9 +5,11 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 using System.Collections.Generic;
 using System.Net;
@@ -18,9 +20,10 @@ namespace Nhs.Appointments.Api.Functions;
 public class EditSessionFunction(
     IValidator<EditSessionRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<BulkImportFunction> logger,
+    ILogger<EditSessionFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IAvailabilityWriteService availabilityWriteService)
+    IAvailabilityWriteService availabilityWriteService,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<EditSessionRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -32,12 +35,13 @@ public class EditSessionFunction(
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.SetupAvailability, typeof(SiteFromBodyInspector))]
     [Function("EditSessionFunction")]
-    public override Task<IActionResult> RunAsync(
+    public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "session/edit")]
         HttpRequest req)
     {
-        // TODO: Add check on the cancel session uplift feature flag
-        return base.RunAsync(req);
+        return await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney)
+            ? await base.RunAsync(req)
+            : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EditSessionRequest request, ILogger logger)

@@ -20,5 +20,10 @@ public class EditSessionRequestValidator : AbstractValidator<EditSessionRequest>
             .WithMessage("To date must be after From date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
             .WithMessage("Date must be in the future.");
+        RuleFor(x => x.SessionMatcher)
+            .SetValidator(new SessionOrWildcardValidator());
+        RuleFor(x => x.SessionReplacement)
+            .SetValidator(new SessionValidator())
+            .When(x => x.SessionReplacement is not null);
     }
 }

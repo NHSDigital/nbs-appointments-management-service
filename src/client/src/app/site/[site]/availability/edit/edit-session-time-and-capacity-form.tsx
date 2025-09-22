@@ -94,6 +94,14 @@ const EditSessionTimeAndCapacityForm = ({
       services: form.newSession.services,
     };
 
+    const originalSession: AvailabilitySession = {
+      from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+      until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
+      slotLength: form.sessionToEdit.slotLength,
+      capacity: form.sessionToEdit.capacity,
+      services: form.sessionToEdit.services,
+    };
+
     await editSession({
       date,
       site: site.id,

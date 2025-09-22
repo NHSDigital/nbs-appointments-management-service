@@ -341,3 +341,84 @@ export const sessionLengthInMinutes = (
 
   return endMinutes - startMinutes;
 };
+
+export function isBookingOrphaned(
+  booking: Booking,
+  slots: AvailabilitySlot[],
+  session: AvailabilitySession,
+): boolean {
+  const bookingTime = parseToUkDatetime(booking.from, dateTimeFormat);
+  const startTime = parseToUkDatetime(session.from, dateTimeFormat);
+  const slotLength = session.slotLength;
+
+  // Check if booking aligns with new slot grid
+  const offset = bookingTime.diff(startTime, 'minute') % slotLength;
+  const isAligned = offset === 0;
+
+  if (!isAligned) return false;
+
+  // Find a matching slot
+  const matchingSlot = slots.find(
+    slot =>
+      slot.capacity > 0 &&
+      slot.length === booking.duration &&
+      slot.services.includes(booking.service) &&
+      slot.from.isSame(bookingTime),
+  );
+
+  return !!matchingSlot;
+}
+
+export const evaluateSessionChangeImpact = (
+  updatedSession: AvailabilitySession,
+  bookings: Booking[],
+  ukDate: DayJsType,
+): {
+  orphanedBookings: Booking[];
+  orphanedCount: number;
+  canShortenWithoutImpact: boolean;
+} => {
+  const start = parseToTimeComponents(updatedSession.from);
+  const end = parseToTimeComponents(updatedSession.until);
+
+  const newStart = addHoursAndMinutesToUkDatetime(
+    ukDate,
+    Number(start?.hour),
+    Number(start?.minute),
+  );
+
+  const newEnd = addHoursAndMinutesToUkDatetime(
+    ukDate,
+    Number(end?.hour),
+    Number(end?.minute),
+  );
+
+  const newSlots = divideSessionIntoSlots(0, newStart, newEnd, updatedSession);
+
+  const orphaned: Booking[] = [];
+
+  bookings.forEach(booking => {
+    const bookingTime = parseToUkDatetime(booking.from, dateTimeFormat);
+    const offset =
+      bookingTime.diff(newStart, 'minute') % updatedSession.slotLength;
+    const isAligned = offset === 0;
+
+    const matchingSlot = newSlots.find(
+      slot =>
+        isAligned &&
+        slot.from.isSame(bookingTime) &&
+        slot.length === booking.duration &&
+        slot.services.includes(booking.service),
+    );
+
+    if (!matchingSlot) {
+      orphaned.push(booking);
+    }
+  });
+
+  return {
+    orphanedBookings: orphaned,
+    orphanedCount: orphaned.length,
+    canShortenWithoutImpact: orphaned.length === 0,
+  };
+};

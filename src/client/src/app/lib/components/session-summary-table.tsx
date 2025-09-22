@@ -17,6 +17,7 @@ type SessionSummaryTableProps = {
   };
   clinicalServices: ClinicalService[];
   showUnbooked?: boolean;
+  showBooked?: boolean;
   tableCaption?: string;
 };
 
@@ -25,6 +26,7 @@ export const SessionSummaryTable = ({
   showChangeSessionLink,
   clinicalServices,
   showUnbooked = true,
+  showBooked = true,
   tableCaption,
 }: SessionSummaryTableProps) => {
   return (
@@ -32,7 +34,7 @@ export const SessionSummaryTable = ({
       headers={[
         'Time',
         'Services',
-        'Booked',
+        ...(showBooked ? ['Booked'] : []),
         ...(showUnbooked ? ['Unbooked'] : []),
         ...(showChangeSessionLink ? ['Action'] : []),
       ]}
@@ -40,6 +42,7 @@ export const SessionSummaryTable = ({
         sessionSummaries,
         clinicalServices,
         showUnbooked,
+        showBooked,
         showChangeSessionLink,
       )}
       caption={tableCaption}
@@ -51,6 +54,7 @@ export const getSessionSummaryRows = (
   sessionSummaries: SessionSummary[],
   clinicalServices: ClinicalService[],
   showUnbooked: boolean,
+  showBooked: boolean,
   showChangeSessionLinkProps?: {
     siteId: string;
     ukDate: string;
@@ -71,10 +75,14 @@ export const getSessionSummaryRows = (
         sessionSummary={sessionSummary}
         clinicalServices={clinicalServices}
       />,
-      <SessionBookingsCell
-        key={`session-${sessionIndex}-service-bookings`}
-        sessionSummary={sessionSummary}
-      />,
+      ...(showBooked
+        ? [
+            <SessionBookingsCell
+              key={`session-${sessionIndex}-service-bookings`}
+              sessionSummary={sessionSummary}
+            />,
+          ]
+        : ['']),
       ...(showUnbooked
         ? [
             <SessionUnbookedCell

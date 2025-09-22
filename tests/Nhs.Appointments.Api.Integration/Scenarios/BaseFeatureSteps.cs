@@ -738,6 +738,7 @@ public abstract partial class BaseFeatureSteps : Feature
             bookingIndex += 1;
         }
     }
+
     [And("there are no sessions for '(.+)'")]
     public async Task AssertSessionNoLongerExists(string dateString)
     {

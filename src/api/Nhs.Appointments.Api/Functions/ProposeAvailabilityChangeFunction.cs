@@ -52,8 +52,8 @@ public class ProposeAvailabilityChangeFunction(
     {
         if (await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
         {
-            var recalculations = await bookingAvailabilityStateService.BuildRecalculations(
-            request.Site,
+        var recalculations = await bookingAvailabilityStateService.BuildRecalculations(
+            request.Site, 
             request.From.ToDateTime(TimeOnly.MinValue),
             request.To.ToDateTime(new TimeOnly(23, 59, 59)),
             request.SessionMatcher.Session,
@@ -67,20 +67,20 @@ public class ProposeAvailabilityChangeFunction(
                 );
             }
 
-            return ApiResult<AvailabilityChangeProposalResponse>.Success(
-                new AvailabilityChangeProposalResponse(
-                    recalculations.SupportedBookingsCount,
-                    recalculations.UnsupportedBookingsCount
-                )
-            );
+        return ApiResult<AvailabilityChangeProposalResponse>.Success(
+            new AvailabilityChangeProposalResponse(
+                recalculations.SupportedBookingsCount, 
+                recalculations.UnsupportedBookingsCount
+            )
+        );
         }
         else
         {
             return ApiResult<AvailabilityChangeProposalResponse>.Failed(
                 HttpStatusCode.NotFound, "Availability change proposal function is not available."
             );
-        }
     }
+}
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, AvailabilityChangeProposalRequest request)> ReadRequestAsync(HttpRequest req)
     {

@@ -4,7 +4,7 @@ using System;
 namespace Nhs.Appointments.Api.Models;
 
 public record AvailabilityChangeProposalRequest(
-    string Site,
+    string Site, 
     DateOnly From,
     DateOnly To,
     SessionOrWildcard SessionMatcher,

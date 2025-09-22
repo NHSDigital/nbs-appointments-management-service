@@ -28,6 +28,7 @@ import {
   WeekSummary,
   WeekSummaryV2,
 } from '@types';
+import fromServer from '@server/fromServer';
 
 export const summariseWeek = async (
   ukWeekStart: DayJsType,
@@ -35,18 +36,22 @@ export const summariseWeek = async (
   siteId: string,
 ): Promise<WeekSummary> => {
   const [dailyAvailability, dailyBookings] = await Promise.all([
-    fetchDailyAvailability(
-      siteId,
-      ukWeekStart.format(RFC3339Format),
-      ukWeekEnd.format(RFC3339Format),
+    fromServer(
+      fetchDailyAvailability(
+        siteId,
+        ukWeekStart.format(RFC3339Format),
+        ukWeekEnd.format(RFC3339Format),
+      ),
     ),
-    fetchBookings(
-      {
-        from: ukWeekStart.format(dateTimeFormat),
-        to: ukWeekEnd.endOf('day').format(dateTimeFormat),
-        site: siteId,
-      },
-      ['Booked', 'Cancelled'],
+    fromServer(
+      fetchBookings(
+        {
+          from: ukWeekStart.format(dateTimeFormat),
+          to: ukWeekEnd.endOf('day').format(dateTimeFormat),
+          site: siteId,
+        },
+        ['Booked', 'Cancelled'],
+      ),
     ),
   ]);
 

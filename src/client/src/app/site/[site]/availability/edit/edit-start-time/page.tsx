@@ -1,9 +1,10 @@
-import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
 import { AvailabilitySession, SessionSummary } from '@types';
 import { notFound } from 'next/navigation';
 import EditSessionStartTimeForm from './edit-session-start-time-form';
+import fromServer from '@server/fromServer';
+import NhsTransactionalPage from '@components/nhs-transactional-page';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -28,15 +29,15 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   const parsedDate = parseToUkDatetime(date);
-  const site = await fetchSite(siteFromPath);
+  const site = await fromServer(fetchSite(siteFromPath));
 
   const existing: SessionSummary = JSON.parse(atob(existingSession));
   const updated: AvailabilitySession = JSON.parse(atob(updatedSession));
 
   return (
-    <NhsPage
+    <NhsTransactionalPage
       title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
       originPage="edit-session-start-time"
@@ -52,7 +53,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         updatedSession={updated}
         site={site}
       />
-    </NhsPage>
+    </NhsTransactionalPage>
   );
 };
 

@@ -5,6 +5,7 @@ import render from '@testing/render';
 import EditDetailsForm from './edit-details-form';
 import * as appointmentsService from '@services/appointmentsService';
 import { UserEvent } from '@testing-library/user-event';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 
@@ -21,6 +22,8 @@ describe('Edit Site Details Form', () => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
     });
+
+    mockSaveSiteDetails.mockResolvedValue(asServerActionResult(undefined));
 
     mockSite.address = 'A new house, on a new road, in a new city';
 

@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import SiteDetailsPage from './site-details-page';
-import { AccessibilityDefinition, FeatureFlag, Site } from '@types';
+import {
+  AccessibilityDefinition,
+  FeatureFlag,
+  ServerActionResult,
+  Site,
+} from '@types';
 import {
   fetchAccessibilityDefinitions,
   fetchFeatureFlag,
@@ -12,30 +17,33 @@ import {
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchAccessibilityDefinitionsMock =
   fetchAccessibilityDefinitions as jest.Mock<
-    Promise<AccessibilityDefinition[]>
+    Promise<ServerActionResult<AccessibilityDefinition[]>>
   >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<ServerActionResult<Site>>>;
 
 jest.mock('@services/appointmentsService');
 const fetchFeatureFlagMock = fetchFeatureFlag as jest.Mock<
-  Promise<FeatureFlag>
+  Promise<ServerActionResult<FeatureFlag>>
 >;
 
 describe('Site Details Page', () => {
   beforeEach(() => {
     fetchAccessibilityDefinitionsMock.mockResolvedValue(
-      mockAccessibilityDefinitions,
+      asServerActionResult(mockAccessibilityDefinitions),
     );
-    fetchSiteMock.mockResolvedValue(mockSite);
-    fetchFeatureFlagMock.mockResolvedValue({
-      enabled: true,
-    });
+    fetchSiteMock.mockResolvedValue(asServerActionResult(mockSite));
+    fetchFeatureFlagMock.mockResolvedValue(
+      asServerActionResult({
+        enabled: true,
+      }),
+    );
   });
 
   it('renders', async () => {
@@ -246,9 +254,11 @@ describe('Site Details Page', () => {
   });
 
   it('hides the change site status link when feature toggle is disabled', async () => {
-    fetchFeatureFlagMock.mockResolvedValue({
-      enabled: false,
-    });
+    fetchFeatureFlagMock.mockResolvedValue(
+      asServerActionResult({
+        enabled: false,
+      }),
+    );
 
     const jsx = await SiteDetailsPage({
       siteId: mockSite.id,

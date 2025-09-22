@@ -1,20 +1,26 @@
 ﻿import { render, screen } from '@testing-library/react';
 import EditAccessibilitiesPage from './edit-accessibilities-page';
-import { AccessibilityDefinition, Accessibility, Site } from '@types';
+import {
+  AccessibilityDefinition,
+  Accessibility,
+  Site,
+  ServerActionResult,
+} from '@types';
 import {
   fetchAccessibilityDefinitions,
   fetchSite,
 } from '@services/appointmentsService';
 import { mockAccessibilityDefinitions, mockSite } from '@testing/data';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchAccessibilityDefinitionsMock =
   fetchAccessibilityDefinitions as jest.Mock<
-    Promise<AccessibilityDefinition[]>
+    Promise<ServerActionResult<AccessibilityDefinition[]>>
   >;
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<ServerActionResult<Site>>>;
 
 jest.mock('./add-accessibilities-form', () => {
   const MockForm = ({
@@ -51,9 +57,9 @@ const mockPermissions = ['site:manage', 'site:view'];
 describe('Manage Accessibilities Page', () => {
   beforeEach(() => {
     fetchAccessibilityDefinitionsMock.mockResolvedValue(
-      mockAccessibilityDefinitions,
+      asServerActionResult(mockAccessibilityDefinitions),
     );
-    fetchSiteMock.mockResolvedValue(mockSite);
+    fetchSiteMock.mockResolvedValue(asServerActionResult(mockSite));
   });
 
   it('renders', async () => {

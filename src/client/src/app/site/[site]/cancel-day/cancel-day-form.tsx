@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import {
   InsetText,
   FormGroup,
@@ -17,6 +17,7 @@ import { parseToUkDatetime, RFC3339Format } from '@services/timeService';
 import { DaySummaryV2, ClinicalService, CancelDayRequest } from '@types';
 import { cancelDay } from '@services/appointmentsService';
 import { useForm } from 'react-hook-form';
+import fromServer from '@server/fromServer';
 
 type Props = {
   date: string;
@@ -35,10 +36,11 @@ const CancelDayForm = ({
   daySummary,
   clinicalServices,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<FormFields>();
 
   const { replace } = useRouter();
@@ -56,15 +58,17 @@ const CancelDayForm = ({
   };
 
   const handleCancel = async () => {
-    const payload: CancelDayRequest = {
-      site: siteId,
-      date: parsedDate.format(RFC3339Format),
-    };
+    startTransition(async () => {
+      const payload: CancelDayRequest = {
+        site: siteId,
+        date: parsedDate.format(RFC3339Format),
+      };
 
-    const response = await cancelDay(payload);
-    replace(
-      `/site/${siteId}/cancel-day/confirmed?date=${date}&cancelledBookingCount=${response.cancelledBookingCount}&bookingsWithoutContactDetails=${response.bookingsWithoutContactDetails}`,
-    );
+      const response = await fromServer(cancelDay(payload));
+      replace(
+        `/site/${siteId}/cancel-day/confirmed?date=${date}&cancelledBookingCount=${response.cancelledBookingCount}&bookingsWithoutContactDetails=${response.bookingsWithoutContactDetails}`,
+      );
+    });
   };
 
   return (
@@ -76,8 +80,10 @@ const CancelDayForm = ({
         tableCaption={`Sessions for ${parsedDate.format('dddd D MMMM')}`}
       />
       <InsetText>
-        {daySummary.totalSupportedAppointments} booked appointments will be
-        cancelled. We'll notify people that their appointment has been cancelled
+        {daySummary.totalSupportedAppointments +
+          daySummary.totalOrphanedAppointments}{' '}
+        booked appointments will be cancelled. We'll notify people that their
+        appointment has been cancelled
       </InsetText>
 
       {!confirmStep ? (
@@ -108,7 +114,7 @@ const CancelDayForm = ({
             </RadioGroup>
           </FormGroup>
 
-          {isSubmitting || isSubmitSuccessful ? (
+          {pendingSubmit ? (
             <SmallSpinnerWithText text="Working..." />
           ) : (
             <Button type="submit" styleType="primary">
@@ -124,9 +130,13 @@ const CancelDayForm = ({
           >
             <>
               <ButtonGroup>
-                <Button type="submit" styleType="warning">
-                  Cancel day
-                </Button>
+                {pendingSubmit ? (
+                  <SmallSpinnerWithText text="Working..." />
+                ) : (
+                  <Button type="submit" styleType="warning">
+                    Cancel day
+                  </Button>
+                )}
               </ButtonGroup>
               <Link
                 href={`/site/${siteId}/view-availability/week?date=${date}`}

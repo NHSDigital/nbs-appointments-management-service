@@ -21,6 +21,7 @@ import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 import FeedbackBanner from '@components/feedback-banner';
 import BuildNumber from './build-number';
 import PrintPageButton from './print-page-button';
+import fromServer from '@server/fromServer';
 
 type Props = {
   children: ReactNode;
@@ -101,9 +102,9 @@ const getLinksForSite = async (
 ): Promise<NavigationLink[]> => {
   const [permissionsAtSite, permissionsAtAnySite, siteSummaryFlag] =
     await Promise.all([
-      fetchPermissions(site?.id),
-      fetchPermissions('*'),
-      fetchFeatureFlag('SiteSummaryReport'),
+      fromServer(fetchPermissions(site?.id)),
+      fromServer(fetchPermissions('*')),
+      fromServer(fetchFeatureFlag('SiteSummaryReport')),
     ]);
 
   const navigationLinks: NavigationLink[] = [];

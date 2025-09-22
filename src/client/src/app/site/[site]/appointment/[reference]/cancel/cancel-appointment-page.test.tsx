@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import render from '@testing/render';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -18,6 +19,8 @@ describe('Cancel Appointment Page', () => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
     });
+
+    mockCancelBooking.mockResolvedValue(asServerActionResult(undefined));
   });
 
   it('renders', () => {

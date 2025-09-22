@@ -4,6 +4,7 @@ import DownloadReportConfirmation from './download-report-confirmation';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import { saveAs } from 'file-saver';
 import { downloadSiteSummaryReport } from '@services/appointmentsService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 const mockOnBack = jest.fn();
 const mockReportRequest: DownloadReportFormValues = {
@@ -14,11 +15,17 @@ const mockReportRequest: DownloadReportFormValues = {
 jest.mock('file-saver', () => ({
   saveAs: jest.fn(),
 }));
-jest.mock('@services/appointmentsService', () => ({
-  downloadSiteSummaryReport: jest.fn(),
-}));
+
+jest.mock('@services/appointmentsService');
+const mockDownloadSiteSummaryReport = downloadSiteSummaryReport as jest.Mock;
 
 describe('Download Report Confirmation', () => {
+  beforeEach(() => {
+    mockDownloadSiteSummaryReport.mockResolvedValue(
+      asServerActionResult(new Blob(['csv content'], { type: 'text/csv' })),
+    );
+  });
+
   it('renders', () => {
     render(
       <DownloadReportConfirmation
@@ -48,9 +55,6 @@ describe('Download Report Confirmation', () => {
   });
 
   it('calls download and saveAs when export button is clicked', async () => {
-    const fakeBlob = new Blob(['csv content'], { type: 'text/csv' });
-    (downloadSiteSummaryReport as jest.Mock).mockResolvedValue(fakeBlob);
-
     const { user } = render(
       <DownloadReportConfirmation
         reportRequest={mockReportRequest}

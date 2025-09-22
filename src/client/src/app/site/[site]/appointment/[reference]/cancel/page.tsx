@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { RFC3339Format, parseToUkDatetime } from '@services/timeService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   params: Promise<{
@@ -20,12 +21,12 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath, reference } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'booking:cancel');
+  await fromServer(assertPermission(siteFromPath, 'booking:cancel'));
 
   const [site, booking, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchBooking(reference, siteFromPath),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchBooking(reference, siteFromPath)),
+    fromServer(fetchClinicalServices()),
   ]);
 
   if (!booking || booking.status === 'Cancelled') {

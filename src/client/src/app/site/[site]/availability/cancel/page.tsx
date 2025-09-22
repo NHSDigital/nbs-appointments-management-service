@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import ConfirmCancellation from './confirm-cancellation';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -26,11 +27,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
     notFound();
   }
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchClinicalServices()),
   ]);
 
   const backLink: NavigationByHrefProps = {

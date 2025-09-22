@@ -4,6 +4,7 @@ import render from '@testing/render';
 import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import { mockCancelDayResponse } from '@testing/data';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -30,7 +31,7 @@ const defaultProps = {
     maximumCapacity: 10,
     totalRemainingCapacity: 7,
     totalSupportedAppointments: 3,
-    totalOrphanedAppointments: 0,
+    totalOrphanedAppointments: 1,
     totalCancelledAppointments: 0,
     sessionSummaries: [],
   },
@@ -40,7 +41,9 @@ const defaultProps = {
 describe('CancelDayForm', () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({ replace: mockReplace });
-    mockCancelDay.mockReturnValue(Promise.resolve(mockCancelDayResponse));
+    mockCancelDay.mockResolvedValue(
+      asServerActionResult(mockCancelDayResponse),
+    );
     jest.clearAllMocks();
   });
 
@@ -51,7 +54,7 @@ describe('CancelDayForm', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "3 booked appointments will be cancelled. We'll notify people that their appointment has been cancelled",
+        "4 booked appointments will be cancelled. We'll notify people that their appointment has been cancelled",
       ),
     ).toBeInTheDocument();
   });

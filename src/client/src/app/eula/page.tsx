@@ -2,9 +2,10 @@ import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { fetchEula } from '@services/appointmentsService';
 import Link from 'next/link';
 import { AcceptEulaForm } from './accept-eula-form';
+import fromServer from '@server/fromServer';
 
 const Page = async () => {
-  const latestVersion = await fetchEula();
+  const latestVersion = await fromServer(fetchEula());
 
   return (
     <NhsAnonymousPage title="Agree to the terms of use" originPage="eula">

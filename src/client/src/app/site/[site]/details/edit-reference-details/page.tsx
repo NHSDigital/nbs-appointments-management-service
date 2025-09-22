@@ -2,6 +2,7 @@ import { assertPermission } from '@services/appointmentsService';
 import { EditReferenceDetailsPage } from './edit-reference-details-page';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 export type PageProps = {
   params: Promise<{
@@ -12,7 +13,7 @@ export type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'site:manage:admin');
+  await fromServer(assertPermission(siteFromPath, 'site:manage:admin'));
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',

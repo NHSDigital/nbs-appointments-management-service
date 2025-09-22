@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
 import { parseToUkDatetime } from '@services/timeService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -25,11 +26,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
 
   const [site, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchClinicalServices()),
   ]);
 
   const parsedDate = parseToUkDatetime(date);

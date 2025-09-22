@@ -352,7 +352,7 @@ public abstract partial class BaseFeatureSteps : Feature
                             BookingReferences.GetBookingReference(index, bookingType);
             var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
-            var status = dataTable.GetEnumRowValue(row, "Status", AppointmentStatus.Booked);
+            var status = dataTable.GetEnumRowValueOrDefault<AppointmentStatus>(row, "Status") ?? MapStatus(bookingType);
 
             var day = dataTable.GetRowValueOrDefault(row, "Date", "Tomorrow");
             var time = dataTable.GetRowValueOrDefault(row, "Time", "10:00");
@@ -373,6 +373,8 @@ public abstract partial class BaseFeatureSteps : Feature
                 dataTable.GetEnumRowValueOrDefault<CancellationNotificationStatus>(row,
                     "Cancellation Notification Status");
 
+            var nhsNumber = dataTable.GetRowValueOrDefault(row, "Nhs Number", NhsNumber);
+
             var booking = new BookingDocument
             {
                 Id = reference,
@@ -390,7 +392,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 StatusUpdated = created,
                 AttendeeDetails = new AttendeeDetails
                 {
-                    NhsNumber = NhsNumber,
+                    NhsNumber = nhsNumber,
                     FirstName = "FirstName",
                     LastName = "LastName",
                     DateOfBirth = new DateOnly(2000, 1, 1)
@@ -413,9 +415,9 @@ public abstract partial class BaseFeatureSteps : Feature
                 Site = site,
                 DocumentType = "booking_index",
                 Id = reference,
-                NhsNumber = NhsNumber,
-                Status = MapStatus(bookingType),
-                Created = GetCreationDateTime(bookingType),
+                NhsNumber = nhsNumber,
+                Status = status,
+                Created = created,
                 From = from
             };
 

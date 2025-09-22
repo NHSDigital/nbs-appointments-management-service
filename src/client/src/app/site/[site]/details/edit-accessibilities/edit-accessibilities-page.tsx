@@ -3,6 +3,7 @@ import {
   fetchSite,
 } from '@services/appointmentsService';
 import AddAccessibilitiesForm from './add-accessibilities-form';
+import fromServer from '@server/fromServer';
 
 type Props = {
   site: string;
@@ -10,11 +11,13 @@ type Props = {
 };
 
 const EditAccessibilitiesPage = async ({ site }: Props) => {
-  const AccessibilityDefinitions = await fetchAccessibilityDefinitions();
+  const AccessibilityDefinitions = await fromServer(
+    fetchAccessibilityDefinitions(),
+  );
   const accessibilityAccessibilityDefinitions = AccessibilityDefinitions.filter(
     ad => ad.id.startsWith('accessibility'),
   );
-  const siteDetails = await fetchSite(site);
+  const siteDetails = await fromServer(fetchSite(site));
 
   return (
     <>

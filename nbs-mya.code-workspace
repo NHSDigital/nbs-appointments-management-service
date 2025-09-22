@@ -35,7 +35,9 @@
     "recommendations": [
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
-      "adamviola.parquet-explorer"
+      "adamviola.parquet-explorer",
+      "ms-vscode.vscode-node-azure-pack",
+      "HashiCorp.terraform"
     ]
   }
 }

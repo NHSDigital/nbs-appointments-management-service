@@ -2,17 +2,18 @@ import {
   fetchInformationForCitizens,
   fetchSite,
 } from '@services/appointmentsService';
-import { Site } from '@types';
+import { ServerActionResult, Site } from '@types';
 import { EditInformationForCitizensPage } from './edit-information-for-citizens-page';
 import { render, screen } from '@testing-library/react';
 import { mockSite } from '@testing/data';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<ServerActionResult<Site>>>;
 
 jest.mock('@services/appointmentsService');
 const fetchInformationForCitizensMock =
-  fetchInformationForCitizens as jest.Mock<Promise<string>>;
+  fetchInformationForCitizens as jest.Mock<Promise<ServerActionResult<string>>>;
 
 jest.mock('./add-information-for-citizens-form', () => {
   const MockForm = ({ information }: { information: string }) => {
@@ -31,9 +32,9 @@ const mockPermissions = ['site:manage', 'site:view'];
 
 describe('Manage Information For Citizen Form', () => {
   beforeEach(() => {
-    fetchSiteMock.mockResolvedValue(mockSite);
+    fetchSiteMock.mockResolvedValue(asServerActionResult(mockSite));
     fetchInformationForCitizensMock.mockResolvedValue(
-      mockSite.informationForCitizens,
+      asServerActionResult(mockSite.informationForCitizens),
     );
   });
 

@@ -771,13 +771,42 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             var date = new DateOnly(2025, 1, 1);
             _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
-                .ReturnsAsync((5, 1));
+                .ReturnsAsync((5, 1, new List<Booking>()));
 
             var result = await _sut.CancelAllBookingsInDayAsync("TEST_SITE_123", date);
 
             result.Should().Be((5, 1));
 
             _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
+        }
+
+        [Fact]
+        public async Task CancelAllBookingsInDayAsync_SendsNotifications()
+        {
+            var date = new DateOnly(2025, 1, 1);
+            var booking = new Booking
+            {
+                From = new DateTime(2025, 01, 01, 9, 0, 0),
+                Reference = "1",
+                ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890" }],
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Duration = 10,
+                Site = MockSite,
+                Service = "RSV:Adult"
+            };
+
+            _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
+                .ReturnsAsync((5, 1, new List<Booking> { booking }));
+
+            var result = await _sut.CancelAllBookingsInDayAsync("TEST_SITE_123", date);
+
+            result.Should().Be((5, 1));
+
+            _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
+            _messageBus.Verify(
+                x => x.Send(It.Is<BookingCancelled>(e => e.Reference == booking.Reference)),
+                Times.Once);
         }
     }
 

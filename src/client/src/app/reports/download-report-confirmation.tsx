@@ -1,11 +1,13 @@
 import { parseToUkDatetime } from '@services/timeService';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import BackLink from '@components/nhsuk-frontend/back-link';
-import { Button } from '@components/nhsuk-frontend';
+import { Button, SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import { ukNow } from '@services/timeService';
 import { saveAs } from 'file-saver';
 import { downloadSiteSummaryReport } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
+import { useTransition } from 'react';
 
 type DownloadReportConfirmationProps = {
   reportRequest: DownloadReportFormValues;
@@ -16,13 +18,18 @@ const DownloadReportConfirmation = ({
   reportRequest,
   goBack,
 }: DownloadReportConfirmationProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const handleDownload = async () => {
-    const blobResponse = await downloadSiteSummaryReport(
-      reportRequest.startDate,
-      reportRequest.endDate,
-    );
+    startTransition(async () => {
+      const blobResponse = await fromServer(
+        downloadSiteSummaryReport(
+          reportRequest.startDate,
+          reportRequest.endDate,
+        ),
+      );
 
-    saveAs(blobResponse, `GeneralSiteSummaryReport-${ukNow().format()}.csv`);
+      saveAs(blobResponse, `GeneralSiteSummaryReport-${ukNow().format()}.csv`);
+    });
   };
 
   return (
@@ -40,9 +47,13 @@ const DownloadReportConfirmation = ({
         Bookings, availability, and cancellations made today will not be
         included in this report
       </p>
-      <Button styleType="secondary" onClick={handleDownload}>
-        Export data
-      </Button>
+      {pendingSubmit ? (
+        <SmallSpinnerWithText text="Working..." />
+      ) : (
+        <Button styleType="secondary" onClick={handleDownload}>
+          Export data
+        </Button>
+      )}
     </>
   );
 };

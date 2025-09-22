@@ -803,4 +803,5 @@ export {
   mockMultipleServices,
   mockOfflineSite,
   mockCancelDayResponse,
+  mockSession1,
 };

@@ -4,6 +4,7 @@ import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfUkWeek, startOfUkWeek } from '@services/timeService';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { notFound } from 'next/navigation';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -22,8 +23,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     notFound();
   }
 
-  await assertPermission(siteFromPath, 'availability:query');
-  const site = await fetchSite(siteFromPath);
+  await fromServer(assertPermission(siteFromPath, 'availability:query'));
+  const site = await fromServer(fetchSite(siteFromPath));
 
   const ukWeekStart = startOfUkWeek(date);
   const ukWeekEnd = endOfUkWeek(date);

@@ -4,6 +4,6 @@
     "JointBookings": false,
     "SiteSummaryReport": true,
     "SiteStatus": true,
-    "CancelDay": false
+    "CancelDay": true
   }
 }

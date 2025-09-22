@@ -1,6 +1,7 @@
 import './styles/custom-nhsuk.scss';
 import './styles/global.css';
 import './styles/cookie-banner.css';
+import './styles/print.css';
 import { Inter } from 'next/font/google';
 import CookieBanner from '@components/cookie-banner';
 

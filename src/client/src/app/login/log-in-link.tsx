@@ -13,7 +13,7 @@ const LogInLink = ({
 }: LogInButtonProps) => {
   return (
     <Link
-      href={`auth/login/${provider}?redirectUrl=${redirectUrl}`}
+      href={`auth/login/${provider}?redirectUrl=${encodeURIComponent(redirectUrl)}`}
       aria-label={`Sign in to service with ${friendlyName}`}
       prefetch={false}
     >

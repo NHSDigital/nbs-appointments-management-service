@@ -1,6 +1,6 @@
 ﻿/* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import React from 'react';
+import React, { useTransition } from 'react';
 import {
   Button,
   FormGroup,
@@ -21,13 +21,15 @@ import {
   editSiteDetailsFormSchema,
   EditSiteDetailsFormValues,
 } from './edit-site-details-form-schema';
+import fromServer from '@server/fromServer';
 
 const EditDetailsForm = ({ site }: { site: Site }) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors },
   } = useForm<EditSiteDetailsFormValues>({
     defaultValues: {
       name: site.name,
@@ -45,17 +47,19 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
   const submitForm: SubmitHandler<EditSiteDetailsFormValues> = async (
     form: EditSiteDetailsFormValues,
   ) => {
-    const payload: SetSiteDetailsRequest = {
-      name: form.name.trim(),
-      //remove the line breaks and save back
-      address: form.address.replace(/\n/g, ' ').trim(),
-      phoneNumber: form.phoneNumber?.trim(),
-      latitude: `${form.latitude}`,
-      longitude: `${form.longitude}`,
-    };
-    await saveSiteDetails(site.id, payload);
+    startTransition(async () => {
+      const payload: SetSiteDetailsRequest = {
+        name: form.name.trim(),
+        //remove the line breaks and save back
+        address: form.address.replace(/\n/g, ' ').trim(),
+        phoneNumber: form.phoneNumber?.trim(),
+        latitude: `${form.latitude}`,
+        longitude: `${form.longitude}`,
+      };
+      await fromServer(saveSiteDetails(site.id, payload));
 
-    replace(`/site/${site.id}/details`);
+      replace(`/site/${site.id}/details`);
+    });
   };
 
   return (
@@ -105,7 +109,7 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
         errors={errors}
       />
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Updating details..." />
       ) : (
         <ButtonGroup>

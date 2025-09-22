@@ -4,6 +4,7 @@ import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-for
 import { parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -22,9 +23,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   const parsedDate = parseToUkDatetime(date);
-  const site = await fetchSite(siteFromPath);
+  const site = await fromServer(fetchSite(siteFromPath));
 
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
 

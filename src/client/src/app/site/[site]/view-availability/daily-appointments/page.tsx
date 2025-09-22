@@ -12,6 +12,7 @@ import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -31,7 +32,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
     return notFound();
   }
 
-  await assertPermission(siteFromPath, 'booking:view-detail');
+  await fromServer(assertPermission(siteFromPath, 'booking:view-detail'));
 
   const fromDate = parseToUkDatetime(date);
   const toDate = fromDate.endOf('day');
@@ -43,9 +44,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
   };
 
   const [site, bookings, clinicalServices] = await Promise.all([
-    fetchSite(siteFromPath),
-    fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled']),
-    fetchClinicalServices(),
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled'])),
+    fromServer(fetchClinicalServices()),
   ]);
 
   const scheduledBookings = bookings.filter(
@@ -67,9 +68,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
     text: 'Back to week view',
   };
 
-  const canCancelBookings = (await fetchPermissions(site.id)).includes(
-    'booking:cancel',
-  );
+  const canCancelBookings = (
+    await fromServer(fetchPermissions(site.id))
+  ).includes('booking:cancel');
 
   return (
     <NhsPage
@@ -78,6 +79,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       backLink={backLink}
       originPage="view-availability-daily-appointments"
       site={site}
+      showPrintButton
     >
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">

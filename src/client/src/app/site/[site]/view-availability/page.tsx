@@ -2,6 +2,7 @@ import NhsPage from '@components/nhs-page';
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { ViewAvailabilityPage } from './view-availability-page';
 import { RFC3339Format, parseToUkDatetime, ukNow } from '@services/timeService';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -16,8 +17,8 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const { date } = { ...(await searchParams) };
   const { site: siteFromPath } = { ...(await params) };
 
-  await assertPermission(siteFromPath, 'availability:query');
-  const site = await fetchSite(siteFromPath);
+  await fromServer(assertPermission(siteFromPath, 'availability:query'));
+  const site = await fromServer(fetchSite(siteFromPath));
 
   const searchMonth = date ? parseToUkDatetime(date, RFC3339Format) : ukNow();
 

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { mockSite } from '@testing/data';
 import render from '@testing/render';
 import * as appointmentsService from '@services/appointmentsService';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -20,6 +21,10 @@ describe('Remove User Page', () => {
     mockUseRouter.mockReturnValue({
       replace: mockReplace,
     });
+
+    mockSaveUserRoleAssignments.mockResolvedValue(
+      asServerActionResult(undefined),
+    );
   });
 
   it('renders', () => {

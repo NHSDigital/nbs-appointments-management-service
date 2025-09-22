@@ -18,7 +18,7 @@ public interface IBookingsDocumentStore
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
     Task DeleteBooking(string reference, string site);
     Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
-    Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDay(string site, DateOnly date);
+    Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date);
 }
 
 public interface IRolesStore

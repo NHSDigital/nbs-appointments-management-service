@@ -1,24 +1,25 @@
 import { fetchSite } from '@services/appointmentsService';
 import { mockOfflineSite, mockSite } from '@testing/data';
-import { Site } from '@types';
+import { ServerActionResult, Site } from '@types';
 import { EditSiteStatusPage } from './edit-site-status-page';
 import { render, screen } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
 const mockPush = jest.fn();
 
 jest.mock('@services/appointmentsService');
-const fetchSiteMock = fetchSite as jest.Mock<Promise<Site>>;
+const fetchSiteMock = fetchSite as jest.Mock<Promise<ServerActionResult<Site>>>;
 
 describe('Edit Site Status Page', () => {
   beforeEach(() => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
     });
-    fetchSiteMock.mockResolvedValue(mockSite);
+    fetchSiteMock.mockResolvedValue(asServerActionResult(mockSite));
   });
 
   it('renders', async () => {
@@ -54,7 +55,7 @@ describe('Edit Site Status Page', () => {
   });
 
   it('displays the correct status and radio button labels for offline site', async () => {
-    fetchSiteMock.mockResolvedValue(mockOfflineSite);
+    fetchSiteMock.mockResolvedValue(asServerActionResult(mockOfflineSite));
     const jsx = await EditSiteStatusPage({
       siteId: mockOfflineSite.id,
     });

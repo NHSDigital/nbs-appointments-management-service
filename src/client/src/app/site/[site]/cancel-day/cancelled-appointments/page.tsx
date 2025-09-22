@@ -50,14 +50,19 @@ const Page = async ({ params, searchParams }: PageProps) => {
     fromServer(fetchClinicalServices()),
   ]);
 
+  const bookingsWithoutContactDetails = bookings.filter(
+    b => b.contactDetails === null || b.contactDetails?.length === 0,
+  );
+
   return (
     <NhsPage
+      site={site}
       title={fromDate.format('dddd D MMMM')}
       caption={site.name}
       originPage="cancel-day-confirmation"
     >
       <CancelledAppointments
-        bookings={bookings}
+        bookings={bookingsWithoutContactDetails}
         clinicalServices={clinicalServices}
         site={site.name}
       />

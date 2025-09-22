@@ -323,3 +323,9 @@
   font-size: 1.1875rem;
   font-weight: 700;
 }
+
+.cards-wrapper {
+  display: flex;
+  gap: 1rem;
+  margin-top: 20px;
+}

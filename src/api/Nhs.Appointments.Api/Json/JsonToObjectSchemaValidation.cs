@@ -1,10 +1,10 @@
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Nhs.Appointments.Http;
 
 namespace Nhs.Appointments.Api.Json
 {

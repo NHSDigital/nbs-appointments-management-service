@@ -5,6 +5,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Http;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement

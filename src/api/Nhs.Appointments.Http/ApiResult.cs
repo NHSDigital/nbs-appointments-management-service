@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Nhs.Appointments.Api.Functions;
+namespace Nhs.Appointments.Http;
 
 public class ApiResult<TResponse>
 {

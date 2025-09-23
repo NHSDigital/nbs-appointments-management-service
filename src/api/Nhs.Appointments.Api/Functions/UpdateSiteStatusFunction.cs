@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Nhs.Appointments.Http;
 
 namespace Nhs.Appointments.Api.Functions;
 

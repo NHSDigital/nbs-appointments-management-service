@@ -6,6 +6,7 @@ using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Http;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 

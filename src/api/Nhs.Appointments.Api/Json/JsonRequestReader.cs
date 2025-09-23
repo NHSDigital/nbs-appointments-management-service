@@ -4,8 +4,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
-using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Http;
 
 namespace Nhs.Appointments.Api.Json;
 

@@ -13,6 +13,8 @@ using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Http;
+using Nhs.Appointments.Http.Extensions;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -88,15 +90,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 
     protected virtual async Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(TRequest request)
     {
-        var validationResult = await validator.ValidateAsync(request);
-        if (!validationResult.IsValid)
-        {
-            return
-                validationResult.Errors
-                    .Select(x => new ErrorMessageResponseItem { Message = x.ErrorMessage, Property = x.PropertyName });
-        }
-
-        return [];
+        return await validator.RunValidator(request);
     }
 
     protected IActionResult ProblemResponse(HttpStatusCode status, object errorDetails)

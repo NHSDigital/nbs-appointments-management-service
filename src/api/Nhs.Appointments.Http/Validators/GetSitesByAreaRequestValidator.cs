@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using FluentValidation;
-using Nhs.Appointments.Api.Models;
+﻿using FluentValidation;
 
-namespace Nhs.Appointments.Api.Validators;
+namespace Nhs.Appointments.Http.Validators;
 
 public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesByAreaRequest>
 {

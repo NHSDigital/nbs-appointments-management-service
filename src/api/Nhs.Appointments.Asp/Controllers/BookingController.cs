@@ -10,41 +10,41 @@ public class BookingController : ControllerBase
     public ActionResult Query()
     {
         //QueryBookingsFunction
-        return Ok();
+        throw new NotImplementedException();
     }
     
     [HttpGet]
     public ActionResult QueryByReference()
     {
         //QueryBookingByReferenceFunction
-        return Ok();
+        throw new NotImplementedException();
     }
     
     [HttpGet]
     public ActionResult QueryByNhsNumber()
     {
         //QueryBookingByNhsNumberFunction
-        return Ok();
+        throw new NotImplementedException();
     }
     
     [HttpPost]
     public ActionResult MakeBooking()
     {
         //MakeBookingFunction
-        return Ok();
+        throw new NotImplementedException();
     }
     
     [HttpPost]
     public ActionResult SetStatus()
     {
         //SetBookingStatusFunction
-        return Ok();
+        throw new NotImplementedException();
     }
     
     [HttpPost]
     public ActionResult Cancel()
     {
         //CancelBookingFunction
-        return Ok();
+        throw new NotImplementedException();
     }
 }

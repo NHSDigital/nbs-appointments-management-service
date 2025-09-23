@@ -13,6 +13,7 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Http;
 
 namespace Nhs.Appointments.Api.Functions;
 

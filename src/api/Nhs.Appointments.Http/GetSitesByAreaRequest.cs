@@ -1,6 +1,6 @@
 using System;
 
-namespace Nhs.Appointments.Api.Models;
+namespace Nhs.Appointments.Http;
 
 public record GetSitesByAreaRequest(
     double Longitude,

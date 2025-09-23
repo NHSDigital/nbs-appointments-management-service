@@ -1,6 +1,7 @@
 using Nhs.Appointments.Api.Models;
 using System.Collections.Generic;
 using System.Threading;
+using Nhs.Appointments.Http;
 
 namespace Nhs.Appointments.Api.Json;
 public static class JsonDeserializationContext

@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Nhs.Appointments.Api.Models;
+namespace Nhs.Appointments.Http;
 
 public class ErrorMessageResponseItem
 {

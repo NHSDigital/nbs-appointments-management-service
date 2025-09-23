@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using System.Collections.Generic;
+using Nhs.Appointments.Http;
 
 namespace Nhs.Appointments.Api.Functions;
 

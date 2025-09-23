@@ -10,6 +10,7 @@ using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Http;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 using Location = Nhs.Appointments.Core.Location;

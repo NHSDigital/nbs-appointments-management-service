@@ -30,16 +30,4 @@ public class CancelDayFeatureSteps : BaseFeatureSteps
         Response = await Http.PostAsync("http://localhost:7071/api/day/cancel", content);
         Response.EnsureSuccessStatusCode();
     }
-
-    [And("there are no sessions for '(.+)'")]
-    public async Task AssertSessionNoLongerExists(string dateString)
-    {
-        var date = ParseNaturalLanguageDateOnly(dateString);
-        var documentId = date.ToString("yyyyMMdd");
-
-        var dayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<DailyAvailabilityDocument>(documentId, new PartitionKey(GetSiteId()));
-
-        dayAvailabilityDocument.Resource.Sessions.Length.Should().Be(0);
-    }
 }

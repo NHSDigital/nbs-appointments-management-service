@@ -119,17 +119,8 @@ public class AvailabilityWriteService(
 
         if (isWildcard)
         {
-            if (multipleDays)
-            {
-                var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until);
-                if (!cancelResult.Success)
-                {
-                    return (false, cancelResult.Message);
-                }
-            }
-
-            await availabilityStore.CancelDayAsync(site, from);
-            result = (true, string.Empty);
+            await CancelAllSessionInDateRange(site, from, until);
+            return (true, string.Empty);
         }
         else if (!hasReplacement && multipleDays)
         {
@@ -154,7 +145,7 @@ public class AvailabilityWriteService(
         }
         else // single-day cancellation
         {
-            await availabilityStore.CancelDayAsync(site, from);
+            await CancelDayAsync(site, from);
             result = (true, string.Empty);
         }
 
@@ -169,5 +160,13 @@ public class AvailabilityWriteService(
         await Task.WhenAll(days);
 
         return result;
+    }
+
+    private async Task CancelAllSessionInDateRange(string site, DateOnly from, DateOnly until)
+    {
+        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1)
+                .Select(offset => CancelDayAsync(site, from.AddDays(offset)));
+
+        await Task.WhenAll(days);
     }
 }

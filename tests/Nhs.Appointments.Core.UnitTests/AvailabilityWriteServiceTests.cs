@@ -423,31 +423,7 @@ public class AvailabilityWriteServiceTests
 
         editSuccessful.Should().BeTrue();
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Exactly(6));
-    }
-
-    [Fact]
-    public async Task EditOrCancelSession_ReturnsFailure_ForWildcardMultipleDays()
-    {
-        var site = "TEST123";
-        var from = new DateOnly(2025, 10, 10);
-        var until = new DateOnly(2025, 10, 15);
-
-        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
-            .ReturnsAsync(new OperationResult(false, "Something went wrong."));
-
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
-            site,
-            from,
-            until,
-            null,
-            null,
-            true);
-
-        editSuccessful.Should().BeFalse();
-        message.Should().Be("Something went wrong.");
-
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Never);
+        _availabilityStore.Verify(x => x.CancelDayAsync(site, It.IsAny<DateOnly>()), Times.Exactly(6));
     }
 
     [Fact]
@@ -468,7 +444,6 @@ public class AvailabilityWriteServiceTests
         editSuccessful.Should().BeTrue();
 
         _availabilityStore.Verify(x => x.CancelDayAsync(site, from), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Once);
     }
 
     [Fact]
@@ -486,7 +461,7 @@ public class AvailabilityWriteServiceTests
             SlotLength = 5
         };
 
-        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
+        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, sessionMatcher))
             .ReturnsAsync(new OperationResult(true));
 
         var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
@@ -517,7 +492,7 @@ public class AvailabilityWriteServiceTests
             SlotLength = 5
         };
 
-        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
+        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, sessionMatcher))
             .ReturnsAsync(new OperationResult(false, "Something went wrong."));
 
         var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(

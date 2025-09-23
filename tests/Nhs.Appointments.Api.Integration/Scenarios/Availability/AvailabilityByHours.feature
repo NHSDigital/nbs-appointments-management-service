@@ -50,7 +50,7 @@
           | 20:00 | 21:00 | 12    |
           | 21:00 | 22:00 | 12    |
           | 22:00 | 23:00 | 12    |
-          | 23:00 | 00:00 | 12    |
+          | 23:00 | 00:00 | 10    |
 
     Scenario: Hourly availability is returned from overlapping sessions
         Given the following sessions

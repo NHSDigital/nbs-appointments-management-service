@@ -101,6 +101,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
   }
 
   sticky_settings {
@@ -213,6 +214,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
   }
 
   identity {

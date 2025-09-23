@@ -402,4 +402,275 @@ public class AvailabilityWriteServiceTests
 
         _bookingsWriteService.Verify(x => x.CancelAllBookingsInDayAsync("TEST_SITE_123", date), Times.Once);
     }
+
+    [Fact]
+    public async Task EditOrCancelSession_CancelsMultipleSessions_ForWildcardMultipleDays()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 15);
+
+        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
+            .ReturnsAsync(new OperationResult(true));
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            null,
+            null,
+            true);
+
+        editSuccessful.Should().BeTrue();
+
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Exactly(6));
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_ReturnsFailure_ForWildcardMultipleDays()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 15);
+
+        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
+            .ReturnsAsync(new OperationResult(false, "Something went wrong."));
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            null,
+            null,
+            true);
+
+        editSuccessful.Should().BeFalse();
+        message.Should().Be("Something went wrong.");
+
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_CancelsDay_ForWildcardSingleDay()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 10);
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            null,
+            null,
+            true);
+
+        editSuccessful.Should().BeTrue();
+
+        _availabilityStore.Verify(x => x.CancelDayAsync(site, from), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_CancelsMultipleSessions_ForMultipleDaysButNoReplacement()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 15);
+        var sessionMatcher = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
+
+        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
+            .ReturnsAsync(new OperationResult(true));
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            sessionMatcher,
+            null,
+            false);
+
+        editSuccessful.Should().BeTrue();
+
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Exactly(6));
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_ReturnsFailure_ForMultipleDaysButNoReplacement()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 15);
+        var sessionMatcher = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
+
+        _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
+            .ReturnsAsync(new OperationResult(false, "Something went wrong."));
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            sessionMatcher,
+            null,
+            false);
+
+        editSuccessful.Should().BeFalse();
+        message.Should().Be("Something went wrong.");
+
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_EditsSessions_ForMultipleDaysWithReplacementSession()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 15);
+        var sessionMatcher = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
+        var sessionReplacement = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 12, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 15, 0, 0)),
+            Services = ["RSV"],
+            SlotLength = 5
+        };
+
+        _availabilityStore.Setup(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement))
+            .ReturnsAsync(new OperationResult(true));
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            sessionMatcher,
+            sessionReplacement,
+            false);
+
+        editSuccessful.Should().BeTrue();
+
+        _availabilityStore.Verify(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Exactly(6));
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_ReturnsFailure_ForMultipleDaysWithReplacementSession()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 15);
+        var sessionMatcher = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
+        var sessionReplacement = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 12, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 15, 0, 0)),
+            Services = ["RSV"],
+            SlotLength = 5
+        };
+
+        _availabilityStore.Setup(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement))
+            .ReturnsAsync(new OperationResult(false, "Something went wrong."));
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            sessionMatcher,
+            sessionReplacement,
+            false);
+
+        editSuccessful.Should().BeFalse();
+        message.Should().Be("Something went wrong.");
+
+        _availabilityStore.Verify(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_AppliesNewTemplate_ForSingleSessionOnSingleDay()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 10);
+        var sessionMatcher = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
+        var sessionReplacement = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 12, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 15, 0, 0)),
+            Services = ["RSV"],
+            SlotLength = 5
+        };
+        var sessionReplacements = new Session[] { sessionReplacement };
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            sessionMatcher,
+            sessionReplacement,
+            false);
+
+        editSuccessful.Should().BeTrue();
+
+        _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, from, sessionReplacements, ApplyAvailabilityMode.Edit, sessionMatcher), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task EditOrCancelSession_CancelsDay_ForSingleDayCancellation()
+    {
+        var site = "TEST123";
+        var from = new DateOnly(2025, 10, 10);
+        var until = new DateOnly(2025, 10, 10);
+
+        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+            site,
+            from,
+            until,
+            null,
+            null,
+            false);
+
+        editSuccessful.Should().BeTrue();
+
+        _availabilityStore.Verify(x => x.CancelDayAsync(site, from), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Once);
+    }
 }

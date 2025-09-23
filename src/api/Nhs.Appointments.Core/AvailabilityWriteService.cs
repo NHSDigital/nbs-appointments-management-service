@@ -1,6 +1,4 @@
-using Microsoft.Azure.Cosmos.Linq;
 using System.Globalization;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Core;
 
@@ -158,6 +156,11 @@ public class AvailabilityWriteService(
         {
             await availabilityStore.CancelDayAsync(site, from);
             result = (true, string.Empty);
+        }
+
+        if (!result.success)
+        {
+            return result;
         }
 
         var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1)

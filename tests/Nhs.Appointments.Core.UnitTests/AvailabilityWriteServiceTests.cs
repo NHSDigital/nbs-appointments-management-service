@@ -629,23 +629,31 @@ public class AvailabilityWriteServiceTests
     }
 
     [Fact]
-    public async Task EditOrCancelSession_CancelsDay_ForSingleDayCancellation()
+    public async Task EditOrCancelSession_CancelsSingleSession()
     {
         var site = "TEST123";
         var from = new DateOnly(2025, 10, 10);
         var until = new DateOnly(2025, 10, 10);
+        var sessionMatcher = new Session
+        {
+            Capacity = 1,
+            From = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 9, 0, 0)),
+            Until = TimeOnly.FromDateTime(new DateTime(2025, 10, 10, 16, 0, 0)),
+            Services = ["RSV", "COVID"],
+            SlotLength = 5
+        };
 
         var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
-            null,
+            sessionMatcher,
             null,
             false);
 
         editSuccessful.Should().BeTrue();
 
-        _availabilityStore.Verify(x => x.CancelDayAsync(site, from), Times.Once);
+        _availabilityStore.Verify(x => x.CancelSession(site, from, sessionMatcher), Times.Once);
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>()), Times.Once);
     }
 }

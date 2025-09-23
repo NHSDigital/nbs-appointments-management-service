@@ -132,7 +132,7 @@ public class AvailabilityWriteService(
             var editResult = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
             result = (editResult.Success, editResult.Message);
         }
-        else if (hasReplacement) // single-day replacement
+        else if (hasReplacement)
         {
             await availabilityStore.ApplyAvailabilityTemplate(
                 site,
@@ -143,9 +143,9 @@ public class AvailabilityWriteService(
 
             result = (true, string.Empty);
         }
-        else // single-day cancellation
+        else
         {
-            await CancelDayAsync(site, from);
+            await availabilityStore.CancelSession(site, from, sessionMatcher);
             result = (true, string.Empty);
         }
 

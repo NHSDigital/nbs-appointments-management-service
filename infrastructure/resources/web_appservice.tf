@@ -82,7 +82,94 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
       maximum = var.web_app_service_plan_max_worker_count
     }
 
-    # CPU auto scale rule
+    # Scale out rules for MYA
+
+    # Memory scaling
+    rule {
+      metric_trigger {
+        metric_name        = "MemoryPercentage"
+        metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT3M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 70
+        metric_namespace   = "microsoft.web/serverfarms"
+      }
+
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = var.web_app_service_plan_scale_out_worker_count
+        cooldown  = "PT10M"
+      }
+    }
+
+    rule {
+      metric_trigger {
+        metric_name        = "MemoryPercentage"
+        metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 55
+        metric_namespace   = "microsoft.web/serverfarms"
+      }
+
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = var.web_app_service_plan_scale_out_worker_count
+        cooldown  = "PT15M"
+      }
+    }
+
+    rule {
+      metric_trigger {
+        metric_name        = "MemoryPercentage"
+        metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT10M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 40
+        metric_namespace   = "microsoft.web/serverfarms"
+      }
+
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = var.web_app_service_plan_scale_out_worker_count
+        cooldown  = "PT20M"
+      }
+    }    
+
+    # CPU scaling
+    rule {
+      metric_trigger {
+        metric_name        = "CpuPercentage"
+        metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT3M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 60
+        metric_namespace   = "microsoft.web/serverfarms"
+      }
+
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = var.web_app_service_plan_scale_out_worker_count
+        cooldown  = "PT10M"
+      }
+    }
+
     rule {
       metric_trigger {
         metric_name        = "CpuPercentage"
@@ -100,9 +187,9 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         direction = "Increase"
         type      = "ChangeCount"
         value     = var.web_app_service_plan_scale_out_worker_count
-        cooldown  = "PT5M"
+        cooldown  = "PT15M"
       }
-    }
+    }    
 
     rule {
       metric_trigger {
@@ -110,73 +197,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
         time_grain         = "PT1M"
         statistic          = "Average"
-        time_window        = "PT5M"
-        time_aggregation   = "Average"
-        operator           = "LessThan"
-        threshold          = 30
-        metric_namespace   = "microsoft.web/serverfarms"
-      }
-
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_in_worker_count
-        cooldown  = "PT10M"
-      }
-    }
-
-    # Memory auto scale rule
-    rule {
-      metric_trigger {
-        metric_name        = "MemoryPercentage"
-        metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT5M"
-        time_aggregation   = "Average"
-        operator           = "GreaterThan"
-        threshold          = 50
-        metric_namespace   = "microsoft.web/serverfarms"
-      }
-
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_out_worker_count
-        cooldown  = "PT5M"
-      }
-    }
-
-
-    rule {
-      metric_trigger {
-        metric_name        = "MemoryPercentage"
-        metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT5M"
-        time_aggregation   = "Average"
-        operator           = "LessThan"
-        threshold          = 40
-        metric_namespace   = "microsoft.web/serverfarms"
-      }
-
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_in_worker_count
-        cooldown  = "PT10M"
-      }
-    }
-
-    # HttpQueueLength auto scale rule
-    rule {
-      metric_trigger {
-        metric_name        = "HttpQueueLength"
-        metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT5M"
+        time_window        = "PT10M"
         time_aggregation   = "Average"
         operator           = "GreaterThan"
         threshold          = 20
@@ -187,18 +208,17 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         direction = "Increase"
         type      = "ChangeCount"
         value     = var.web_app_service_plan_scale_out_worker_count
-        cooldown  = "PT5M"
+        cooldown  = "PT20M"
       }
-    }
-
+    }    
 
     rule {
       metric_trigger {
-        metric_name        = "HttpQueueLength"
+        metric_name        = "CpuPercentage"
         metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
         time_grain         = "PT1M"
         statistic          = "Average"
-        time_window        = "PT5M"
+        time_window        = "PT45M"
         time_aggregation   = "Average"
         operator           = "LessThan"
         threshold          = 10
@@ -209,7 +229,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         direction = "Decrease"
         type      = "ChangeCount"
         value     = var.web_app_service_plan_scale_in_worker_count
-        cooldown  = "PT10M"
+        cooldown  = "PT40M"
       }
     }
   }

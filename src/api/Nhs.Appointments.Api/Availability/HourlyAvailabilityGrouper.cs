@@ -13,7 +13,10 @@ public class HourlyAvailabilityGrouper : IAvailabilityGrouper
 
         return slots            
             .GroupBy(sl => sl.From.Hour)
-            .Select(dataItem => new QueryAvailabilityResponseBlock(new TimeOnly(dataItem.Key, 0), new TimeOnly(dataItem.Key + 1, 0), dataItem.Sum(i => i.Capacity)))
+            .Select(dataItem => new QueryAvailabilityResponseBlock(
+                new TimeOnly(dataItem.Key, 0), 
+                dataItem.Key == 23 ? new TimeOnly(0, 0) : new TimeOnly(dataItem.Key + 1, 0), // if its 23 then set midnight as 24 errors
+                dataItem.Sum(i => i.Capacity)))
             .OrderBy(x => x.from)
             .ToList();
     }

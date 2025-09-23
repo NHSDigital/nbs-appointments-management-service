@@ -20,6 +20,36 @@
           | 09:00 | 10:00 | 12    |
           | 10:00 | 11:00 | 12    |
 
+    Scenario: Hourly availability is returned when sessions cover every hour
+        Given the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow | 00:01 | 23:59 | COVID    | 10          | 2        |
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 00:00 | 01:00 | 30    |
+          | 01:00 | 02:00 | 30    |
+          | 02:00 | 03:00 | 30    |
+          | 03:00 | 04:00 | 30    |
+          | 05:00 | 06:00 | 30    |
+          | 06:00 | 07:00 | 30    |
+          | 07:00 | 08:00 | 30    |
+          | 08:00 | 09:00 | 30    |
+          | 09:00 | 10:00 | 30    |
+          | 10:00 | 11:00 | 30    |
+          | 11:00 | 12:00 | 30    |
+          | 12:00 | 13:00 | 30    |
+          | 13:00 | 14:00 | 30    |
+          | 14:00 | 15:00 | 30    |
+          | 16:00 | 17:00 | 30    |
+          | 17:00 | 18:00 | 30    |
+          | 18:00 | 19:00 | 30    |
+          | 19:00 | 20:00 | 30    |
+          | 20:00 | 21:00 | 30    |
+          | 21:00 | 22:00 | 30    |
+          | 22:00 | 23:00 | 30    |
+          | 23:00 | 00:00 | 30    |
+
     Scenario: Hourly availability is returned from overlapping sessions
         Given the following sessions
           | Date     | From  | Until | Services | Slot Length | Capacity |

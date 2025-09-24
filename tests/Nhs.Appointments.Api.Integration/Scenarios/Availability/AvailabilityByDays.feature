@@ -9,6 +9,19 @@
         When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
         Then the following daily availability is returned
           | Date        | Am | Pm |
+          | Tomorrow    | 72 | 71 |
+          | 2 days from today | 72 | 71 |
+          | 3 days from today | 72 | 71 |
+          
+    Scenario: Dates and availability are returned from sessions where sessions cover all hours
+        Given the following sessions
+          | Date        | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow    | 00:01 | 23:59 | COVID    | 5           | 1        |
+          | 2 days from today | 00:01 | 23:59 | COVID    | 5           | 1        |
+          | 3 days from today | 00:01 | 23:59 | COVID    | 5           | 1        |
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        Then the following daily availability is returned
+          | Date        | Am | Pm |
           | Tomorrow    | 36 | 60 |
           | 2 days from today | 36 | 60 |
           | 3 days from today | 36 | 60 |

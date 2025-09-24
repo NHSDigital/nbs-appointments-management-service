@@ -12,7 +12,7 @@ public class HourlyAvailabilityGrouper : IAvailabilityGrouper
     {
         if (slots == null) throw new ArgumentNullException(nameof(slots));
 
-        var blocks = slots
+        return slots
             .GroupBy(sl => sl.From.Hour)
             .Select(dataItem => new QueryAvailabilityResponseBlock(
                 new TimeOnly(dataItem.Key, 0),
@@ -22,10 +22,5 @@ public class HourlyAvailabilityGrouper : IAvailabilityGrouper
                 dataItem.Sum(i => i.Capacity)))
             .OrderBy(x => x.from)
             .ToList();
-
-        Console.WriteLine(JsonConvert.SerializeObject(slots));
-        Console.WriteLine(JsonConvert.SerializeObject(blocks));
-        
-        return blocks;
     }
 }

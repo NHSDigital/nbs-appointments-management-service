@@ -101,7 +101,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
       scale_action {
         direction = "Increase"
         type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_out_worker_count
+        value     = var.web_app_service_plan_scale_out_worker_count_max
         cooldown  = "PT10M"
       }
     }
@@ -122,7 +122,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
       scale_action {
         direction = "Increase"
         type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_out_worker_count
+        value     = var.web_app_service_plan_scale_out_worker_count_max
         cooldown  = "PT15M"
       }
     }
@@ -143,7 +143,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
       scale_action {
         direction = "Increase"
         type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_out_worker_count
+        value     = var.web_app_service_plan_scale_out_worker_count_min
         cooldown  = "PT20M"
       }
     }    
@@ -165,7 +165,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
       scale_action {
         direction = "Increase"
         type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_out_worker_count
+        value     = var.web_app_service_plan_scale_out_worker_count_max
         cooldown  = "PT10M"
       }
     }
@@ -186,7 +186,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
       scale_action {
         direction = "Increase"
         type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_out_worker_count
+        value     = var.web_app_service_plan_scale_out_worker_count_max
         cooldown  = "PT15M"
       }
     }    
@@ -207,7 +207,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
       scale_action {
         direction = "Increase"
         type      = "ChangeCount"
-        value     = var.web_app_service_plan_scale_out_worker_count
+        value     = var.web_app_service_plan_scale_out_worker_count_min
         cooldown  = "PT20M"
       }
     }    

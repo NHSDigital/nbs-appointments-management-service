@@ -214,7 +214,12 @@ variable "web_app_service_plan_max_worker_count" {
   default = 1
 }
 
-variable "web_app_service_plan_scale_out_worker_count" {
+variable "web_app_service_plan_scale_out_worker_count_max" {
+  type    = number
+  default = 1
+}
+
+variable "web_app_service_plan_scale_out_worker_count_min" {
   type    = number
   default = 1
 }

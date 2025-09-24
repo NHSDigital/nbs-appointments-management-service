@@ -110,43 +110,43 @@ public class AvailabilityWriteService(
         }
     }
 
-    public async Task<(bool editSuccessful, string message)> EditOrCancelSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, bool isWildcard)
+    public async Task<(bool updateSuccessful, string message)> EditOrCancelSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, bool isWildcard)
     {
         var multipleDays = from != until;
         var hasReplacement = sessionReplacement is not null;
 
+        var updateAction = DetermineSessionUpdateAction(isWildcard, multipleDays, hasReplacement);
+
         (bool success, string message) result;
 
-        if (isWildcard)
+        switch (updateAction)
         {
-            await CancelAllSessionInDateRange(site, from, until);
-            return (true, string.Empty);
-        }
-        else if (!hasReplacement && multipleDays)
-        {
-            var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
-            result = (cancelResult.Success, cancelResult.Message);
-        }
-        else if (hasReplacement && multipleDays)
-        {
-            var editResult = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
-            result = (editResult.Success, editResult.Message);
-        }
-        else if (hasReplacement)
-        {
-            await availabilityStore.ApplyAvailabilityTemplate(
-                site,
-                from,
-                [sessionReplacement],
-                ApplyAvailabilityMode.Edit,
-                sessionMatcher!);
+            case SessionUpdateAction.CancelAll:
+                await CancelAllSessionInDateRange(site, from, until);
+                return (true, string.Empty);
+            case SessionUpdateAction.CancelMultiple:
+                var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
+                result = (cancelResult.Success, cancelResult.Message);
+                break;
+            case SessionUpdateAction.EditMultiple:
+                var editResult = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
+                result = (editResult.Success, editResult.Message);
+                break;
+            case SessionUpdateAction.EditSingle:
+                await availabilityStore.ApplyAvailabilityTemplate(
+                    site,
+                    from,
+                    [sessionReplacement],
+                    ApplyAvailabilityMode.Edit,
+                    sessionMatcher!);
 
-            result = (true, string.Empty);
-        }
-        else
-        {
-            await availabilityStore.CancelSession(site, from, sessionMatcher);
-            result = (true, string.Empty);
+                result = (true, string.Empty);
+                break;
+            case SessionUpdateAction.CancelSingle:
+            default:
+                await availabilityStore.CancelSession(site, from, sessionMatcher);
+                result = (true, string.Empty);
+                break;
         }
 
         if (!result.success)
@@ -168,5 +168,25 @@ public class AvailabilityWriteService(
                 .Select(offset => CancelDayAsync(site, from.AddDays(offset)));
 
         await Task.WhenAll(days);
+    }
+
+    private static SessionUpdateAction DetermineSessionUpdateAction(bool isWildcard, bool isMultipleDays, bool hasReplacement)
+    {
+        if (isWildcard)
+        {
+            return SessionUpdateAction.CancelAll;
+        }
+
+        if (!hasReplacement && isMultipleDays)
+        {
+            return SessionUpdateAction.CancelMultiple;
+        }
+
+        if (hasReplacement && isMultipleDays)
+        {
+            return SessionUpdateAction.EditMultiple;
+        }
+
+        return hasReplacement ? SessionUpdateAction.EditSingle : SessionUpdateAction.CancelSingle;
     }
 }

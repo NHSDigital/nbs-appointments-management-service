@@ -13,6 +13,61 @@ Feature: Get available appointment slots
           | 09:15 | 09:20 | 1     |
           | 09:20 | 09:25 | 1     |
           | 09:25 | 09:30 | 1     |
+          
+    Scenario: Slot availability is returned from all day session
+        Given the following sessions
+          | Date     | From  | Until | Services | Slot Length | Capacity |
+          | Tomorrow | 00:01 | 23:59 | COVID    | 30          | 1        |
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        Then the following availability is returned for 'Tomorrow'
+          | From  | Until | Count |
+          | 00:01 | 00:31 | 1     |
+          | 00:31 | 01:01 | 1     |
+          | 01:01 | 01:31 | 1     |
+          | 01:31 | 02:01 | 1     |
+          | 02:01 | 02:31 | 1     |
+          | 02:31 | 03:01 | 1     |
+          | 03:01 | 03:31 | 1     |
+          | 03:31 | 04:01 | 1     |
+          | 04:01 | 04:31 | 1     |
+          | 04:31 | 05:01 | 1     |
+          | 05:01 | 05:31 | 1     |
+          | 05:31 | 06:01 | 1     |
+          | 06:01 | 06:31 | 1     |
+          | 06:31 | 07:01 | 1     |
+          | 07:01 | 07:31 | 1     |
+          | 07:31 | 08:01 | 1     |
+          | 08:01 | 08:31 | 1     |
+          | 08:31 | 09:01 | 1     |
+          | 09:01 | 09:31 | 1     |
+          | 09:31 | 10:01 | 1     |
+          | 10:01 | 10:31 | 1     |
+          | 10:31 | 11:01 | 1     |
+          | 11:01 | 11:31 | 1     |
+          | 11:31 | 12:01 | 1     |
+          | 12:01 | 12:31 | 1     |
+          | 12:31 | 13:01 | 1     |
+          | 13:01 | 13:31 | 1     |
+          | 13:31 | 14:01 | 1     |
+          | 14:01 | 14:31 | 1     |
+          | 14:31 | 15:01 | 1     |
+          | 15:01 | 15:31 | 1     |
+          | 15:31 | 16:01 | 1     |
+          | 16:01 | 16:31 | 1     |
+          | 16:31 | 17:01 | 1     |
+          | 17:01 | 17:31 | 1     |
+          | 17:31 | 18:01 | 1     |
+          | 18:01 | 18:31 | 1     |
+          | 18:31 | 19:01 | 1     |
+          | 19:01 | 19:31 | 1     |
+          | 19:31 | 20:01 | 1     |
+          | 20:01 | 20:31 | 1     |
+          | 20:31 | 21:01 | 1     |
+          | 21:01 | 21:31 | 1     |
+          | 21:31 | 22:01 | 1     |
+          | 22:01 | 22:31 | 1     |
+          | 22:31 | 23:01 | 1     |
+          | 23:01 | 23:31 | 1     |
 
     Scenario: Slot availability is returned from sessions with 5 min appointments and multiple capacity
         Given the following sessions

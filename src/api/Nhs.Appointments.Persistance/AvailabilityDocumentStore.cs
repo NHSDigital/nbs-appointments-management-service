@@ -1,7 +1,6 @@
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Persistance;
 

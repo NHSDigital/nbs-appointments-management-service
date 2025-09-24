@@ -310,3 +310,90 @@ variable "app_config_connection" {
 variable "disable_bulk_import_function" {
   type = bool
 }
+
+variable "container_registry_server_url" {
+  type = string
+}
+
+variable "container_registry_username" {
+  type = string
+}
+
+variable "container_registry_password" {
+  type = string
+  sensitive = true
+}
+
+variable "create_data_extracts" {
+  type = bool
+}
+
+variable "data_extract_timeout" {
+  type = number
+  default = 7200
+}
+
+variable "data_extract_retry_limit" {
+  type = number
+  default = 0
+}
+
+variable "data_extract_schedule" {
+  type = string
+  default = "0 2 * * *"
+}
+
+variable "data_extract_file_sender_options_type" {
+  type = string
+}
+
+variable "mesh_mailbox_destination" {
+  type = string
+  default = ""
+}
+
+variable "mesh_mailbox_workflow_capacity" {
+  type = string
+  default = ""
+}
+
+variable "mesh_mailbox_workflow_booking" {
+  type = string
+  default = ""
+}
+
+variable "mesh_client_options_base_url" {
+  type = string
+  default = ""
+}
+
+variable "mesh_authorization_options_mailbox_id" {
+  type = string
+  default = ""
+}
+
+variable "mesh_authorization_options_certificate_name" {
+  type = string
+  default = ""     
+}
+
+variable "keyvault_Name" {
+  type = string
+  default = ""   
+}
+
+variable "keyvault_tenant_id" {
+  type = string
+  default = ""   
+}
+
+variable "keyvault_client_id" {
+  type = string
+  default = ""
+}
+
+variable "keyvault_client_secret" {
+  type = string
+  default = ""
+  sensitive = true      
+}

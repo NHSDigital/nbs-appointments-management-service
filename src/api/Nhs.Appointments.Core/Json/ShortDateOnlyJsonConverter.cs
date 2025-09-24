@@ -2,7 +2,7 @@
 using System;
 using System.Globalization;
 
-namespace Nhs.Appointments.Api.Json;
+namespace Nhs.Appointments.Core.Json;
 
 public class ShortDateOnlyJsonConverter : JsonConverter<DateOnly>
 {

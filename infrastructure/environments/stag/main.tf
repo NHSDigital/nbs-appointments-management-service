@@ -67,6 +67,11 @@ module "mya_application_stag" {
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL
   autoscale_notification_email_address            = var.AUTOSCALE_NOTIFICATION_EMAIL_ADDRESS
+  container_registry_server_url                   = var.CONTAINER_REGISTRY_SERVER_URL
+  container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
+  container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
+  create_data_extracts                            = false
+  data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = true
   create_high_load_function_app                   = true
   create_app_slot                                 = true

@@ -5,6 +5,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataExtract\DataExtract.csproj" />
-    <ProjectReference Include="..\..\src\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -186,3 +186,57 @@ variable "APP_CONFIG_CONNECTION" {
   type      = string
   sensitive = true
 }
+
+variable "CONTAINER_REGISTRY_SERVER_URL" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_USERNAME" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_PASSWORD" {
+  type = string
+  sensitive = true
+}
+
+variable "MESH_MAILBOX_DESTINATION" {
+  type = string
+}
+
+variable "MESH_MAILBOX_WORKFLOW_CAPACITY" {
+  type = string
+}
+
+variable "MESH_MAILBOX_WORKFLOW_BOOKINGS" {
+  type = string
+}
+
+variable "MESH_CLIENT_OPTIONS_BASE_URL" {
+  type = string
+}
+
+variable "MESH_AUTHORIZATION_OPTIONS_MAILBOX_ID" {
+  type = string
+}
+
+variable "MESH_AUTHORIZATION_OPTIONS_CERTIFICATE_NAME" {
+  type = string
+}
+
+variable "KEYVAULT_NAME" {
+  type = string
+}
+
+variable "KEYVAULT_TENANT_ID" {
+  type = string
+}
+
+variable "KEYVAULT_CLIENT_ID" {
+  type = string
+}
+
+variable "KEYVAULT_CLIENT_SECRET" {
+  type = string
+  sensitive = true
+}

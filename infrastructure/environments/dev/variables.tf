@@ -152,3 +152,16 @@ variable "SPLUNK_HEC_TOKEN" {
 variable "BUILD_NUMBER" {
   type = string
 }
+
+variable "CONTAINER_REGISTRY_SERVER_URL" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_USERNAME" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_PASSWORD" {
+  type = string
+  sensitive = true
+}

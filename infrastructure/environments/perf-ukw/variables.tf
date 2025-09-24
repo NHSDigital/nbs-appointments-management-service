@@ -186,3 +186,16 @@ variable "APP_CONFIG_CONNECTION" {
   type      = string
   sensitive = true
 }
+
+variable "CONTAINER_REGISTRY_SERVER_URL" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_USERNAME" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_PASSWORD" {
+  type = string
+  sensitive = true
+}

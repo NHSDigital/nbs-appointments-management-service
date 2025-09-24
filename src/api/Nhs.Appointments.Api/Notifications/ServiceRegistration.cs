@@ -110,7 +110,10 @@ public static class ServiceRegistration
                 cfg.AddConsumer<BookingMadeConsumer>();
                 cfg.AddConsumer<BookingCancelledConsumer>();
                 cfg.AddConsumer<BookingRescheduledConsumer>();
-                cfg.AddConsumer<AggregateSiteSummaryConsumer>();
+                cfg.AddConsumer<AggregateSiteSummaryConsumer>(config =>
+                {
+                    config.ConcurrentMessageLimit = 1;
+                });
             },
             "ServiceBusConnectionString");
         return services;

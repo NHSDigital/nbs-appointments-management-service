@@ -72,11 +72,12 @@ module "mya_application_perf" {
   create_cosmos_db                                = true
   create_app_config                               = true
   web_app_service_sku                             = "P1v3"
-  web_app_service_plan_default_worker_count       = 3
+  web_app_service_plan_default_worker_count       = 6
   app_service_plan_zone_redundancy_enabled        = true
-  web_app_service_plan_min_worker_count           = 1
+  web_app_service_plan_min_worker_count           = 4
   web_app_service_plan_max_worker_count           = 20
-  web_app_service_plan_scale_out_worker_count     = 3
+  web_app_service_plan_scale_out_worker_count_max = 3
+  web_app_service_plan_scale_out_worker_count_min = 2
   web_app_service_plan_scale_in_worker_count      = 1
   app_insights_sampling_percentage                = 12.5
   storage_account_replication_type                = "ZRS"

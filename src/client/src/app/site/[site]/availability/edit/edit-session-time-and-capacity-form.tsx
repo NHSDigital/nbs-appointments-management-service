@@ -33,12 +33,14 @@ type Props = {
   date: string;
   site: Site;
   existingSession: SessionSummary;
+  changeSessionFlag: boolean;
 };
 
 const EditSessionTimeAndCapacityForm = ({
   site,
   existingSession,
   date,
+  changeSessionFlag,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
@@ -91,39 +93,42 @@ const EditSessionTimeAndCapacityForm = ({
     form: EditSessionFormValues,
   ) => {
     startTransition(async () => {
-      //const updatedSession = toAvailabilitySession(form.newSession);
+      if (changeSessionFlag) {
+        const reroute = `/site/${site.id}/availability/edit/confirmation?session=${btoa(JSON.stringify(existingSession))}&date=${date}`;
+        router.push(reroute);
+      } else {
+        const updatedSession = toAvailabilitySession(form.newSession);
 
-      //const sessionStart = parseDateAndTimeComponentsToUkDateTime(
-      //  date,
-      //  form.newSession.startTime,
-      //);
-      //const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
-      //  date,
-      //  form.newSession.endTime,
-      //);
+        const sessionStart = parseDateAndTimeComponentsToUkDateTime(
+          date,
+          form.newSession.startTime,
+        );
+        const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
+          date,
+          form.newSession.endTime,
+        );
 
-      //const validSessionStartTime = isValidStartTime(
-      //  sessionStart,
-      //  sessionEnd,
-      //  form.newSession.slotLength,
-      //);
+        const validSessionStartTime = isValidStartTime(
+          sessionStart,
+          sessionEnd,
+          form.newSession.slotLength,
+        );
 
-      //if (
-      //  existingSession.totalSupportedAppointments === 0 ||
-      //  validSessionStartTime
-      //) {
-      //  await updateSession(form, updatedSession);
-      //  return;
-      //}
+        if (
+          existingSession.totalSupportedAppointments === 0 ||
+          validSessionStartTime
+        ) {
+          await updateSession(form, updatedSession);
+          return;
+        }
 
-      //const updatedString = btoa(JSON.stringify(updatedSession));
-      //const existingString = btoa(JSON.stringify(existingSession));
+        const updatedString = btoa(JSON.stringify(updatedSession));
+        const existingString = btoa(JSON.stringify(existingSession));
 
-      //router.push(
-      //  `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
-      //);
-      const reroute = `/site/${site.id}/availability/edit/confirmation?session=${btoa(JSON.stringify(existingSession))}&date=${date}`;
-      router.push(reroute);
+        router.push(
+          `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
+        );
+      }
     });
   };
 
@@ -141,29 +146,9 @@ const EditSessionTimeAndCapacityForm = ({
       }),
     );
 
-    // const updatedSession: AvailabilitySession = {
-    //   from: toTimeFormat(form.newSession.startTime) ?? '',
-    //   until: toTimeFormat(form.newSession.endTime) ?? '',
-    //   slotLength: form.newSession.slotLength,
-    //   capacity: form.newSession.capacity,
-    //   services: form.newSession.services,
-    // };
-    // await editSession({
-    //   date,
-    //   site: site.id,
-    //   mode: 'Edit',
-    //   sessions: [updatedSession],
-    //   sessionToEdit: {
-    //     from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-    //     until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-    //     slotLength: form.sessionToEdit.slotLength,
-    //     capacity: form.sessionToEdit.capacity,
-    //     services: form.sessionToEdit.services,
-    //   },
-    // });
-    // router.push(
-    //   `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`, //TODO///////////////////////////////////////////////
-    // );
+    router.push(
+      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+    );
   };
 
   const toAvailabilitySession = (session: Session): AvailabilitySession => ({

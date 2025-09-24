@@ -5,6 +5,7 @@ import { parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
+import { fetchFeatureFlag } from '@services/appointmentsService';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -19,6 +20,10 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { session, date } = { ...(await searchParams) };
+  const changeSessionUpliftedJourneyFlag = await fromServer(
+    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
+  );
+
   if (session === undefined || date === undefined) {
     return notFound();
   }
@@ -44,6 +49,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         site={site}
         existingSession={sessionSummary}
+        changeSessionFlag={changeSessionUpliftedJourneyFlag.enabled}
       />
     </NhsTransactionalPage>
   );

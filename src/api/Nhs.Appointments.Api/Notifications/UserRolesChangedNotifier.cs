@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Core;
 using System;
 using System.Collections.Generic;

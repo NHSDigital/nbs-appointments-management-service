@@ -125,6 +125,18 @@ variable "gov_notify_api_key" {
   sensitive = true
 }
 
+variable "gov_notify_retry_options_max_retries" {
+  type      = string
+}
+
+variable "gov_notify_retry_options_initial_delay_ms" {
+  type      = string
+}
+
+variable "gov_notify_retry_options_backoff_factor" {
+  type      = string
+}
+
 variable "unconfirmed_provisional_bookings_cron_schedule" {
   type = string
 }

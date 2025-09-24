@@ -7,6 +7,7 @@ using Nhs.Appointments.Api.Notifications;
 using Notify.Models.Responses;
 using Notify.Interfaces;
 using Nhs.Appointments.Api.Notifications.Options;
+using Microsoft.Extensions.Logging;
 
 namespace Nhs.Appointments.Api.Tests.Notifications;
 
@@ -17,6 +18,7 @@ public class GovNotifyClientTests
     {
         // Arrange
         var mockClient = new Mock<IAsyncNotificationClient>();
+        var mockLogger = new Mock<ILogger<GovNotifyClient>>();
 
         // Simulate: 2 failures then success
         mockClient
@@ -28,8 +30,8 @@ public class GovNotifyClientTests
                 null,
                 null
             ))
-            .ThrowsAsync(new NotifyClientException("first fail"))
-            .ThrowsAsync(new NotifyClientException("second fail"))
+            .ThrowsAsync(new NotifyClientException("Status code 429 first fail"))
+            .ThrowsAsync(new NotifyClientException("Status code 429 second fail"))
             .ReturnsAsync(new EmailNotificationResponse());
 
         var retryOptions = Options.Create(new GovNotifyRetryOptions
@@ -40,7 +42,7 @@ public class GovNotifyClientTests
         });
 
         var privacyUtil = Mock.Of<IPrivacyUtil>();
-        var client = new GovNotifyClient(mockClient.Object, privacyUtil, retryOptions);
+        var client = new GovNotifyClient(mockClient.Object, privacyUtil, retryOptions, mockLogger.Object);
 
         // Act
         await client.SendEmailAsync("test@tempuri.org", "email-template", new());

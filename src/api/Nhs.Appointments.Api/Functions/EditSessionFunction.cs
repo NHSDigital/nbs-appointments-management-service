@@ -31,6 +31,8 @@ public class EditSessionFunction(
         typeof(ErrorMessageResponseItem), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.UnprocessableEntity, "application/json", typeof(string),
+        Description = "Update to session failed due to no matching session or no day document")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.SetupAvailability, typeof(SiteFromBodyInspector))]

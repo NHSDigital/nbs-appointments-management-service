@@ -46,7 +46,7 @@ public class EditSessionFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EditSessionRequest request, ILogger logger)
     {
-        var result = await availabilityWriteService.EditOrCancelSessionAsync(
+        var (updateSuccessful, message) = await availabilityWriteService.EditOrCancelSessionAsync(
             request.Site,
             request.From,
             request.To,
@@ -54,7 +54,9 @@ public class EditSessionFunction(
             request.SessionReplacement,
             request.SessionMatcher.IsWildcard);
 
-        return Success(new EmptyResponse());
+        return updateSuccessful
+            ? Success(new EmptyResponse())
+            : Failed(HttpStatusCode.UnprocessableContent, message);
     }
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, EditSessionRequest request)> ReadRequestAsync(HttpRequest req)

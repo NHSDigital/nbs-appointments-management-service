@@ -90,6 +90,39 @@ public class EditSessionFunctionTests
             false), Times.Once);
     }
 
+    [Fact]
+    public async Task RunAsync_ReturnsUnprocessableContent_WhenUpdateWasUnsuccessful()
+    {
+        var editSessionRequest = new EditSessionRequest(
+            "TEST123",
+            new DateOnly(2025, 10, 10),
+            new DateOnly(2025, 10, 12),
+            new SessionOrWildcard { IsWildcard = true, Session = null },
+            null);
+        var request = BuildRequest(editSessionRequest);
+
+        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
+            .ReturnsAsync(true);
+        _mockAvailabilityWriteService.Setup(x => x.EditOrCancelSessionAsync(
+            It.IsAny<string>(),
+            It.IsAny<DateOnly>(),
+            It.IsAny<DateOnly>(),
+            It.IsAny<Session>(),
+            It.IsAny<Session>(),
+            It.IsAny<bool>())).ReturnsAsync((false, "Something went wrong"));
+
+        var result = await _sut.RunAsync(request) as ContentResult;
+        result.StatusCode.Should().Be(422);
+
+        _mockAvailabilityWriteService.Verify(x => x.EditOrCancelSessionAsync(
+            editSessionRequest.Site,
+            editSessionRequest.From,
+            editSessionRequest.To,
+            It.IsAny<Session>(),
+            null,
+            false), Times.Once);
+    }
+
     private static HttpRequest BuildRequest(EditSessionRequest requestBody)
     {
         var body = JsonConvert.SerializeObject(requestBody);

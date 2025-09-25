@@ -46,15 +46,7 @@ public class CancelSessionFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger)
     {
-        if(await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
-        {
-            return ApiResult<EmptyResponse>.Failed(
-                HttpStatusCode.NotFound, "Cancel session function is not available."
-            );
-        }
-        else
-        {
-            await availabilityWriteService.CancelSession(
+        await availabilityWriteService.CancelSession(
                 request.Site,
                 request.Date,
                 request.From,
@@ -64,7 +56,6 @@ public class CancelSessionFunction(
                 request.Capacity
             );
 
-            return Success(new EmptyResponse());
-        }
+        return Success(new EmptyResponse());
     }
 }

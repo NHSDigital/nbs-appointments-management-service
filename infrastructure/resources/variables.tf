@@ -394,6 +394,6 @@ variable "keyvault_client_id" {
 
 variable "keyvault_client_secret" {
   type = string
-  default = ""
+  default = "UNSET"
   sensitive = true      
 }

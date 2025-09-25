@@ -112,15 +112,15 @@ variable "GOV_NOTIFY_API_KEY" {
   sensitive = true
 }
 
-variable "gov_notify_retry_options_max_retries" {
+variable "GOV_NOTIFY_RETRY_OPTIONS_MAX_RETRIES" {
   type      = string
 }
 
-variable "gov_notify_retry_options_initial_delay_ms" {
+variable "GOV_NOTIFY_RETRY_OPTIONS_INITIAL_DELAY_MS" {
   type      = string
 }
 
-variable "gov_notify_retry_options_backoff_factor" {
+variable "GOV_NOTIFY_RETRY_OPTIONS_BACKOFF_FACTOR" {
   type      = string
 }
 

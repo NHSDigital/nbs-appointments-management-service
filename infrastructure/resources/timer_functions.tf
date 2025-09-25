@@ -111,6 +111,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.EditSessionFunction.Disabled"                            = true
   }
 
   sticky_settings {
@@ -228,6 +229,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.EditSessionFunction.Disabled"                            = true
   }
 
   identity {

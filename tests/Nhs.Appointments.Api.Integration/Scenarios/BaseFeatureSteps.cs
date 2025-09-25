@@ -645,6 +645,18 @@ public abstract partial class BaseFeatureSteps : Feature
         await AssertAvailabilityStatusByReference(customId, expectedStatus, false);
     }
 
+    [And("there are no sessions for '(.+)'")]
+    public async Task AssertSessionNoLongerExists(string dateString)
+    {
+        var date = ParseNaturalLanguageDateOnly(dateString);
+        var documentId = date.ToString("yyyyMMdd");
+
+        var dayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")
+            .ReadItemAsync<DailyAvailabilityDocument>(documentId, new PartitionKey(GetSiteId()));
+
+        dayAvailabilityDocument.Resource.Sessions.Length.Should().Be(0);
+    }
+
     private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,
         bool expectStatusToHaveChanged = true)
     {

@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import { parseToUkDatetime } from '@services/timeService';
+import fromServer from '@server/fromServer';
 
 type PageProps = {
   params: Promise<{
@@ -21,13 +22,13 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath, date, bookingsCount } = await params;
 
-  await assertPermission(siteFromPath, 'booking:bulk-cancel');
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
 
   const parsedDate = parseToUkDatetime(date);
-  const [daySummary, site, clinicalServices] = await Promise.all([
-    fetchDaySummary(siteFromPath, date),
-    fetchSite(siteFromPath),
-    fetchClinicalServices(),
+  const [site, clinicalServices, daySummary] = await Promise.all([
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchClinicalServices()),
+    fromServer(fetchDaySummary(siteFromPath, date)),
   ]);
 
   const affectedCount = parseInt(bookingsCount, 10);

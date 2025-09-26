@@ -10,12 +10,13 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 
-[FeatureFile("./Scenarios/AvailabilityCalculations/BestFit.feature")]
-public class BestFitFeatureSteps : BaseFeatureSteps
+public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage _response;
     private List<Core.Booking> _getBookingsResponse;
@@ -58,6 +59,7 @@ public class BestFitFeatureSteps : BaseFeatureSteps
         }
     }
 
+    [When("I cancel the following sessions")]
     [Then("I cancel the following sessions")]
     public async Task CancelSession(DataTable dataTable)
     {
@@ -71,16 +73,20 @@ public class BestFitFeatureSteps : BaseFeatureSteps
             object payload = new
             {
                 site = GetSiteId(),
-                date = DateOnly.FromDateTime(date),
-                until = cells.ElementAt(2).Value,
-                from = cells.ElementAt(1).Value,
-                services = cells.ElementAt(3).Value.Split(',').Select(s => s.Trim()).ToArray(),
-                slotLength = int.Parse(cells.ElementAt(4).Value),
-                capacity = int.Parse(cells.ElementAt(5).Value)
+                from = DateOnly.FromDateTime(date),
+                to = DateOnly.FromDateTime(date),
+                sessionMatcher = new
+                {
+                    from = cells.ElementAt(1).Value,
+                    until = cells.ElementAt(2).Value,
+                    services = cells.ElementAt(3).Value.Split(',').Select(s => s.Trim()).ToArray(),
+                    slotLength = int.Parse(cells.ElementAt(4).Value),
+                    capacity = int.Parse(cells.ElementAt(5).Value)
+                },
+                sessionReplacement = null as Session
             };
 
-            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/cancel", payload);
-            _response.StatusCode.Should().Be(HttpStatusCode.OK);
+            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
         }
     }
 
@@ -156,4 +162,15 @@ public class BestFitFeatureSteps : BaseFeatureSteps
             bookingIndex += 1;
         }
     }
+
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit.feature")]
+    public class BestFitFeatureSteps_ChangeSessionUplift_Enabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
+
+    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftDisabled.feature")]
+    public class BestFitFeatureSteps_ChangeSessionUplift_Disabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

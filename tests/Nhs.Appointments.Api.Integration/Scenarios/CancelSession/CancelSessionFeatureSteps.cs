@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 
 [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
-public class CancelSessionFeatureSteps : BaseFeatureSteps
+public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private Core.Booking _actualResponse;
     private HttpResponseMessage _response;
@@ -29,15 +32,20 @@ public class CancelSessionFeatureSteps : BaseFeatureSteps
         object payload = new
         {
             site = GetSiteId(),
-            date = DateOnly.FromDateTime(date),
-            until = cells.ElementAt(2).Value,
-            from = cells.ElementAt(1).Value,
-            services = services.Split(',').Select(s => s.Trim()).ToArray(),
-            slotLength = int.Parse(cells.ElementAt(4).Value),
-            capacity = int.Parse(cells.ElementAt(5).Value)
+            from = DateOnly.FromDateTime(date),
+            to = DateOnly.FromDateTime(date),
+            sessionMatcher = new
+            {
+                from = cells.ElementAt(1).Value,
+                until = cells.ElementAt(2).Value,
+                services = services.Split(',').Select(s => s.Trim()).ToArray(),
+                slotLength = int.Parse(cells.ElementAt(4).Value),
+                capacity = int.Parse(cells.ElementAt(5).Value)
+            },
+            sessionReplacement = null as Session
         };
 
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/cancel", payload);
+        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
     }
 
     [When("I query for a booking with the reference number '(.+)'")]
@@ -74,5 +82,16 @@ public class CancelSessionFeatureSteps : BaseFeatureSteps
         _actualResponse.Service.Should().Be(expectedBooking.Service);
         _actualResponse.Site.Should().Be(expectedBooking.Site);
     }
+
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
+    public class CancelSessionFeatureSteps_Enabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
+
+    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [FeatureFile("./Scenarios/CancelSession/CancelSession_Disabled.feature")]
+    public class CancelSessionFeatureSteps_Disabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }
 

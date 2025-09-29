@@ -1,4 +1,8 @@
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchFeatureFlag,
+  fetchSite,
+} from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
 import { parseToUkDatetime } from '@services/timeService';
@@ -26,6 +30,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
+  const changeSessionUpliftedJourney = await fromServer(
+    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
+  );
 
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
@@ -44,6 +51,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         site={site}
         existingSession={sessionSummary}
+        changeSessionUpliftedJourneyEnabled={
+          changeSessionUpliftedJourney.enabled
+        }
       />
     </NhsTransactionalPage>
   );

@@ -33,12 +33,14 @@ type Props = {
   date: string;
   site: Site;
   existingSession: SessionSummary;
+  changeSessionUpliftedJourneyEnabled: boolean;
 };
 
 const EditSessionTimeAndCapacityForm = ({
   site,
   existingSession,
   date,
+  changeSessionUpliftedJourneyEnabled,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
@@ -110,7 +112,8 @@ const EditSessionTimeAndCapacityForm = ({
 
       if (
         existingSession.totalSupportedAppointments === 0 ||
-        validSessionStartTime
+        validSessionStartTime ||
+        !changeSessionUpliftedJourneyEnabled
       ) {
         await updateSession(form, updatedSession);
         return;

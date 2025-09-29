@@ -63,6 +63,35 @@ public class CancelSessionFunctionTests
             cancelSessionRequest.Capacity), Times.Once());
     }
 
+    [Fact]
+    public async Task RunAsync_ReturnsNotFound_WhenChangeSessionUpliftedJourneyFlagIsOn()
+    {
+        var cancelSessionRequest = new CancelSessionRequest(
+            "TEST01",
+            new DateOnly(2025, 1, 10),
+            "09:00",
+            "12:00",
+            ["RSV:Adult"],
+            5, 
+            2
+        );
+        var request = BuildRequest(cancelSessionRequest);
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney)).ReturnsAsync(true);
+
+        var response = await _sut.RunAsync(request) as ContentResult;
+
+        response.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+        _availabilityWriteService.Verify(x => x.CancelSession(
+            cancelSessionRequest.Site,
+            It.IsAny<DateOnly>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            cancelSessionRequest.Services,
+            cancelSessionRequest.SlotLength,
+            cancelSessionRequest.Capacity
+        ), Times.Never());
+    }
+
     private static HttpRequest BuildRequest(CancelSessionRequest requestBody)
     {
         var body = JsonConvert.SerializeObject(requestBody);

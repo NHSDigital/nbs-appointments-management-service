@@ -21,12 +21,12 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task<User> GetUserAsync(string userId)
     {
-        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
+        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower());
     }
 
     public async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
     {
-        var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId);
+        var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId.ToLower());
         return userDocument is not null ? userDocument.RoleAssignments.Select(mapper.Map<RoleAssignment>) : Array.Empty<RoleAssignment>();
     }
 
@@ -58,7 +58,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
                 .Where(ra => ra.Scope != scope)
                 .Concat(roleAssignments);
             var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
-            await cosmosStore.PatchDocument(documentType, userId, userDocumentPatch);
+            await cosmosStore.PatchDocument(documentType, userId.ToLower(), userDocumentPatch);
         }
     }
 
@@ -86,7 +86,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         }
 
         var userDocumentPatch = PatchOperation.Add("/roleAssignments", roleAssignmentsWithSiteRemoved);
-        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, userDocumentPatch);
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId.ToLower(), userDocumentPatch);
         return new OperationResult(true);
     }
 
@@ -119,7 +119,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         }
 
         var updateEulaPatch = PatchOperation.Set("/latestAcceptedEulaVersion", $"{versionDate:yyyy-MM-dd}");
-        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, updateEulaPatch);
+        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId.ToLower(), updateEulaPatch);
         return new OperationResult(true);
     }
 
@@ -136,14 +136,14 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task<User> GetOrDefaultAsync(string userId)
     {
-        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId);
+        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower());
     }
 
     public async Task SaveAdminUserAsync(User adminUser)
         => await InsertAsync(adminUser);
 
     public async Task RemoveAdminUserAsync(string userId) =>
-        await cosmosStore.DeleteDocument(userId, cosmosStore.GetDocumentType());
+        await cosmosStore.DeleteDocument(userId.ToLower(), cosmosStore.GetDocumentType());
 
     public async Task UpdateUserIcbPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {

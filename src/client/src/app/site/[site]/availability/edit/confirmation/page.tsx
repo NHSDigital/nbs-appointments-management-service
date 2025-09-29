@@ -4,9 +4,13 @@ import {
   availabilityChangeProposal,
   fetchClinicalServices,
 } from '@services/appointmentsService';
-import { AvailabilityChangeProposalRequest, SessionSummary } from '@types';
+import {
+  AvailabilityChangeProposalRequest,
+  SessionSummary,
+  Session,
+} from '@types';
 import { EditSessionConfirmation } from './edit-session-confirmation';
-import { parseToUkDatetime } from '@services/timeService';
+import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
@@ -15,6 +19,7 @@ type PageProps = {
   searchParams?: Promise<{
     date: string;
     session: string;
+    sessionToEdit: string;
   }>;
   params: Promise<{
     site: string;
@@ -23,7 +28,7 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { session, date } = { ...(await searchParams) };
+  const { session, date, sessionToEdit } = { ...(await searchParams) };
   if (session === undefined || date === undefined) {
     return notFound();
   }
@@ -31,26 +36,28 @@ const Page = async ({ searchParams, params }: PageProps) => {
   await assertPermission(siteFromPath, 'availability:setup');
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
+  const sessionSummary: SessionSummary = JSON.parse(atob(session));
+  const newSessionDetails: Session = JSON.parse(atob(sessionToEdit!));
   const availabilityRequest: AvailabilityChangeProposalRequest = {
-    //TODO create actual request
-    from: '2025-10-26',
-    to: '2025-10-26',
-    site: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+    from: date,
+    to: date,
+    site: siteFromPath,
     sessionMatcher: {
-      from: '10:00',
-      until: '17:00',
-      services: ['RSV:Adult'],
-      slotLength: 5,
-      capacity: 5,
+      from: toTimeFormat(sessionSummary.ukStartDatetime) ?? '',
+      until: toTimeFormat(sessionSummary.ukEndDatetime) ?? '',
+      services: newSessionDetails.services,
+      slotLength: sessionSummary.slotLength,
+      capacity: sessionSummary.capacity,
     },
     sessionReplacement: {
-      from: '12:00',
-      until: '14:00',
-      services: ['RSV:Adult', 'COVID:5_11'],
-      slotLength: 5,
-      capacity: 5,
+      from: `${newSessionDetails.startTime.hour.toString().padStart(2, '0')}:${newSessionDetails.startTime.minute.toString().padStart(2, '0')}`,
+      until: `${newSessionDetails.endTime.hour.toString().padStart(2, '0')}:${newSessionDetails.endTime.minute.toString().padStart(2, '0')}`,
+      services: newSessionDetails.services,
+      slotLength: newSessionDetails.slotLength,
+      capacity: newSessionDetails.capacity,
     },
   };
+
   const availabilityProposal = await fromServer(
     availabilityChangeProposal(availabilityRequest),
   );

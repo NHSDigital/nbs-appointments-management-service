@@ -49,7 +49,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         site={site}
         existingSession={sessionSummary}
-        changeSessionFlag={changeSessionUpliftedJourneyFlag.enabled}
+        changeSessionUpliftedJourneyFlag={
+          changeSessionUpliftedJourneyFlag.enabled
+        }
       />
     </NhsTransactionalPage>
   );

@@ -33,14 +33,14 @@ type Props = {
   date: string;
   site: Site;
   existingSession: SessionSummary;
-  changeSessionFlag: boolean;
+  changeSessionUpliftedJourneyFlag: boolean;
 };
 
 const EditSessionTimeAndCapacityForm = ({
   site,
   existingSession,
   date,
-  changeSessionFlag,
+  changeSessionUpliftedJourneyFlag,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
@@ -93,8 +93,8 @@ const EditSessionTimeAndCapacityForm = ({
     form: EditSessionFormValues,
   ) => {
     startTransition(async () => {
-      if (changeSessionFlag) {
-        const reroute = `/site/${site.id}/availability/edit/confirmation?session=${btoa(JSON.stringify(existingSession))}&date=${date}`;
+      if (changeSessionUpliftedJourneyFlag) {
+        const reroute = `/site/${site.id}/availability/edit/confirmation?session=${btoa(JSON.stringify(existingSession))}&date=${date}&sessionToEdit=${btoa(JSON.stringify(form.newSession))}`;
         router.push(reroute);
       } else {
         const updatedSession = toAvailabilitySession(form.newSession);

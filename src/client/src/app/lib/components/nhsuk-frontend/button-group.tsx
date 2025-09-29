@@ -17,7 +17,7 @@ const ButtonGroup = ({ children, vertical = false }: Props) => {
       style={{
         display: 'flex',
         flexDirection: vertical ? 'column' : 'row',
-        gap: '0.5rem', // spacing between items
+        gap: '0.5rem',
         padding: 0,
         margin: 0,
         listStyle: 'none',

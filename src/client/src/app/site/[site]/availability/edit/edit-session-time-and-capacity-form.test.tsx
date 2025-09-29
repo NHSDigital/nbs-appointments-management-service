@@ -35,6 +35,7 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -49,6 +50,7 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -119,6 +121,7 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -175,6 +178,7 @@ describe('Edit Session Time And Capacity Form', () => {
           date={'2024-06-10 07:00:00'}
           site={mockSite}
           existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+          changeSessionUpliftedJourneyFlag={false}
         />,
       );
 
@@ -218,6 +222,7 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -237,6 +242,7 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -256,6 +262,7 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -284,6 +291,7 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -315,5 +323,31 @@ describe('Edit Session Time And Capacity Form', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(editSessionMock).not.toHaveBeenCalled();
+  });
+
+  it('navigates directly to new information page when changeSessionUpliftedJourneyFlag is true', async () => {
+    const date = '2024-06-10 07:00:00';
+    const { user } = render(
+      <EditSessionTimeAndCapacityForm
+        date={date}
+        site={mockSite}
+        existingSession={mockWeekAvailability__Summary[0].sessions[0]}
+        changeSessionUpliftedJourneyFlag={true}
+      />,
+    );
+    const capacityInput = screen.getByRole('spinbutton', {
+      name: 'How many vaccinators or vaccination spaces do you have?',
+    });
+    await user.clear(capacityInput);
+    await user.type(capacityInput, '1');
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      const url = mockPush.mock.calls[0][0];
+      const params = new URLSearchParams(url.split('?')[1]);
+      expect(params.get('date')).toBe(date);
+      expect(params.get('session')).toBeTruthy();
+      expect(params.get('sessionToEdit')).toBeTruthy();
+    });
   });
 });

@@ -213,6 +213,29 @@ describe('Session summary table', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('it does not render booked column', () => {
+    mockUkNow.mockReturnValue(
+      parseToUkDatetime('2024-06-09T23:59:59', dateTimeFormat),
+    );
+
+    render(
+      <SessionSummaryTable
+        sessionSummaries={mockWeekAvailability__Summary[0].sessions}
+        showChangeSessionLink={{
+          siteId: 'TEST01',
+          ukDate: mockWeekAvailability__Summary[0].ukDate.format(RFC3339Format),
+        }}
+        clinicalServices={mockMultipleServices}
+        showUnbooked={false}
+        showBooked={false}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('columnheader', { name: 'Booked' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders a caption when tableCaption is provided', () => {
     render(
       <SessionSummaryTable

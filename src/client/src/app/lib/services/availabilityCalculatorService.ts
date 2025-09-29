@@ -8,6 +8,7 @@ import {
   isBefore,
   isBeforeOrEqual,
   isEqual,
+  isInBetween,
   isOnTheSameUkDay,
   parseToUkDatetime,
   parseToTimeComponents,
@@ -403,6 +404,8 @@ export const evaluateSessionChangeImpact = (
   const orphaned: Booking[] = [];
 
   bookings.forEach(booking => {
+    if (booking.status != 'Booked') return;
+
     const bookingTime = parseToUkDatetime(booking.from, dateTimeFormat);
     const offset =
       bookingTime.diff(newStart, 'minute') % updatedSession.slotLength;
@@ -425,5 +428,77 @@ export const evaluateSessionChangeImpact = (
     orphanedBookings: orphaned,
     orphanedCount: orphaned.length,
     canShortenWithoutImpact: orphaned.length === 0,
+  };
+};
+
+export const summariseDayWithImpact = async (
+  siteId: string,
+  ukDateString: string,
+  originalSession: AvailabilitySession,
+  updatedSession: AvailabilitySession,
+): Promise<{
+  bookings: Booking[];
+  orphanedBookings: Booking[];
+  orphanedCount: number;
+  totalBookings: number;
+}> => {
+  const ukDate = parseToUkDatetime(ukDateString);
+
+  if (!siteId || !ukDate || !originalSession || !updatedSession) {
+    console.warn('Missing input to summariseDayWithImpact');
+    return {
+      bookings: [],
+      orphanedBookings: [],
+      orphanedCount: 0,
+      totalBookings: 0,
+    };
+  }
+
+  const isoDate = ukDate.format(RFC3339Format);
+
+  const [dailyAvailability, bookings] = await Promise.all([
+    fromServer(fetchDailyAvailability(siteId, isoDate, isoDate)),
+    fromServer(
+      fetchBookings(
+        {
+          from: ukDate.startOf('day').format(dateTimeFormat),
+          to: ukDate.endOf('day').format(dateTimeFormat),
+          site: siteId,
+        },
+        ['Booked'],
+      ),
+    ),
+  ]);
+
+  // Filter bookings to match the original session
+  const sessionBookings = bookings.filter(booking => {
+    const bookingTime = parseToUkDatetime(booking.from, dateTimeFormat);
+    const sessionStartParts = parseToTimeComponents(originalSession.from);
+    const sessionEndParts = parseToTimeComponents(originalSession.until);
+    const sessionStart = addHoursAndMinutesToUkDatetime(
+      ukDate,
+      Number(sessionStartParts?.hour),
+      Number(sessionStartParts?.minute),
+    );
+
+    const sessionEnd = addHoursAndMinutesToUkDatetime(
+      ukDate,
+      Number(sessionEndParts?.hour),
+      Number(sessionEndParts?.minute),
+    );
+    return isInBetween(bookingTime, sessionStart, sessionEnd, '[)');
+  });
+
+  const { orphanedBookings, orphanedCount } = evaluateSessionChangeImpact(
+    updatedSession,
+    sessionBookings,
+    ukDate,
+  );
+
+  return {
+    bookings: sessionBookings,
+    orphanedBookings,
+    orphanedCount,
+    totalBookings: sessionBookings.length,
   };
 };

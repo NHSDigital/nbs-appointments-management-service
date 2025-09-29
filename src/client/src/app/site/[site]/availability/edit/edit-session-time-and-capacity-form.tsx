@@ -21,7 +21,7 @@ import {
 import { ChangeEvent } from 'react';
 import {
   sessionLengthInMinutes,
-  evaluateSessionChangeImpact,
+  summariseDayWithImpact,
 } from '@services/availabilityCalculatorService';
 
 export type EditSessionFormValues = {
@@ -36,9 +36,9 @@ type Props = {
 };
 
 const EditSessionTimeAndCapacityForm = ({
+  date,
   site,
   existingSession,
-  date,
 }: Props) => {
   const existingUkStartTime = parseToUkDatetime(
     existingSession.ukStartDatetime,
@@ -111,32 +111,47 @@ const EditSessionTimeAndCapacityForm = ({
     const encodedOriginal = encodeURIComponent(
       btoa(JSON.stringify(originalSession)),
     );
-    const orphanedCount = 10; //existingSession.totalOrphanedAppointments;
 
-    router.push(
-      `/site/${site.id}/availability/edit/change-session-time-and-capacity` +
-        `?date=${date}` +
-        `&orphanedCount=${orphanedCount}` +
-        `&updatedSession=${encodedUpdated}` +
-        `&originalSession=${encodedOriginal}`,
-    );
-    //await editSession({
-    //  date,
-    //  site: site.id,
-    //  mode: 'Edit',
-    //  sessions: [updatedSession],
-    //  sessionToEdit: {
-    //    from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-    //    until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-    //    slotLength: form.sessionToEdit.slotLength,
-    //    capacity: form.sessionToEdit.capacity,
-    //    services: form.sessionToEdit.services,
-    //  },
-    //});
+    const { orphanedCount, totalBookings, bookings } =
+      await summariseDayWithImpact(
+        site.id,
+        date,
+        originalSession,
+        updatedSession,
+      );
 
-    //router.push(
-    //  `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
-    //);
+    const encodedBookings = encodeURIComponent(btoa(JSON.stringify(bookings)));
+
+    console.error('bookings: ', bookings[0].reference);
+    if (orphanedCount === 0) {
+      await editSession({
+        date,
+        site: site.id,
+        mode: 'Edit',
+        sessions: [updatedSession],
+        sessionToEdit: {
+          from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+          until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
+          slotLength: form.sessionToEdit.slotLength,
+          capacity: form.sessionToEdit.capacity,
+          services: form.sessionToEdit.services,
+        },
+      });
+
+      router.push(
+        'edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}',
+      );
+    } else {
+      router.push(
+        '/site/${site.id}/availability/edit/change-session-time-and-capacity' +
+          '?date=${date}' +
+          '&orphanedCount=${orphanedCount}' +
+          '&bookingCount=${totalBookings}' +
+          '&bookings=${encodedBookings}' +
+          '&updatedSession=${encodedUpdated}' +
+          '&originalSession=${encodedOriginal}',
+      );
+    }
   };
 
   const handleTwoDigitPositiveBoundedNumberInput = (
@@ -149,14 +164,14 @@ const EditSessionTimeAndCapacityForm = ({
     }
 
     if (asNumber > upperBound) {
-      return `0${e.target.value.slice(-1)}`;
+      return '0${e.target.value.slice(-1)}';
     }
 
     switch (e.target.value.length) {
       case 0:
-        return `00`;
+        return '00';
       case 1:
-        return `0${e.target.value}`;
+        return '0${e.target.value}';
       case 2:
         return e.target.value;
       default:

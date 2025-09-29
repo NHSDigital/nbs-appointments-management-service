@@ -1,7 +1,7 @@
 import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
-import { parseToUkDatetime } from '@services/timeService';
+import { RFC3339Format, parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
@@ -41,7 +41,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
     >
       <EditSessionTimeAndCapacityForm
-        date={date}
+        date={parsedDate.format(RFC3339Format)}
         site={site}
         existingSession={sessionSummary}
       />

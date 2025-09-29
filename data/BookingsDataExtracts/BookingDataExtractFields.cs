@@ -20,5 +20,6 @@ public static class BookingDataExtractFields
     public static string BookingSystem => "BOOKING_SYSTEM";
     public static string CancelledDateTime => "CANCELLED_DATE_TIME";
     public static string CancellationReason => "CANCELLATION_REASON";
+    public static string BatchSize => "BATCH_SIZE";
 
 }

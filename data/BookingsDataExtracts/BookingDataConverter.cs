@@ -42,6 +42,8 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
     public static string ExtractService(BookingDocument booking) => booking.Service;
 
     public static string ExtractCancelledDateTime(BookingDocument booking) => booking.Status == AppointmentStatus.Cancelled ? booking.StatusUpdated.ToString("yyyy-MM-ddTHH:mm:sszzz") : null;
+
+    public static int? ExtractBatchSize(BookingDocument booking) => booking.BookingBatchSize ?? null;
     
     private static string TransposeSource(string source)
     {

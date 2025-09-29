@@ -48,6 +48,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
+            new DataFactory<BookingDocument, int?>(BookingDataExtractFields.BatchSize, BookingDataConverter.ExtractBatchSize),
         };
            
         logger.LogInformation("Preparing to write");

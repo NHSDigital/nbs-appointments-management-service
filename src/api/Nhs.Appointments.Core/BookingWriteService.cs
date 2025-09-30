@@ -82,6 +82,15 @@ public class BookingWriteService(
             return BookingCancellationResult.NotFound;
         }
 
+        if (booking.Status == AppointmentStatus.Provisional) 
+        {
+            await bookingDocumentStore.DeleteBooking(
+                bookingReference,
+                booking.Site);
+
+            return BookingCancellationResult.Success;
+        }
+
         await bookingDocumentStore.UpdateStatus(
             bookingReference, 
             AppointmentStatus.Cancelled,

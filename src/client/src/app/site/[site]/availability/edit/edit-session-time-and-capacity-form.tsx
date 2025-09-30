@@ -120,9 +120,14 @@ const EditSessionTimeAndCapacityForm = ({
         updatedSession,
       );
 
-    const encodedBookings = encodeURIComponent(btoa(JSON.stringify(bookings)));
+    const referencesToCancel = bookings
+      .filter(b => b.status === 'Booked')
+      .map(b => b.reference);
 
-    console.error('bookings: ', bookings[0].reference);
+    const encodedBookings = encodeURIComponent(
+      btoa(JSON.stringify(referencesToCancel)),
+    );
+
     if (orphanedCount === 0) {
       await editSession({
         date,
@@ -139,17 +144,17 @@ const EditSessionTimeAndCapacityForm = ({
       });
 
       router.push(
-        'edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}',
+        `/site/${site.id}/availability/edit/confirmed?updatedSession=${encodedUpdated}&date=${date}`,
       );
     } else {
       router.push(
-        '/site/${site.id}/availability/edit/change-session-time-and-capacity' +
-          '?date=${date}' +
-          '&orphanedCount=${orphanedCount}' +
-          '&bookingCount=${totalBookings}' +
-          '&bookings=${encodedBookings}' +
-          '&updatedSession=${encodedUpdated}' +
-          '&originalSession=${encodedOriginal}',
+        `/site/${site.id}/availability/edit/change-session-time-and-capacity?` +
+          `date=${date}` +
+          `&orphanedCount=${orphanedCount}` +
+          `&bookingCount=${totalBookings}` +
+          `&bookings=${encodedBookings}` +
+          `&updatedSession=${encodedUpdated}` +
+          `&originalSession=${encodedOriginal}`,
       );
     }
   };

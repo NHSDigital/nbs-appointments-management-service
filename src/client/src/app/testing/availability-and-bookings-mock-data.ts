@@ -4,6 +4,7 @@ import {
   parseToUkDatetime,
 } from '@services/timeService';
 import {
+  AvailabilitySession,
   Booking,
   DailyAvailability,
   DaySummary,
@@ -543,6 +544,14 @@ const mockWeekSummaryV2: WeekSummaryV2 = {
   totalRemainingCapacity: 476,
 };
 
+const mockAvailabilitySummary: AvailabilitySession = {
+  from: '2024-06-10T09:00:00',
+  until: '2024-06-10T12:00:00',
+  capacity: 72,
+  slotLength: 5,
+  services: ['RSV:Adult'],
+};
+
 export {
   mockBookings,
   mockWeekAvailability,
@@ -551,4 +560,5 @@ export {
   sundayThe16thOfJune2024,
   mockWeekSummary,
   mockWeekSummaryV2,
+  mockAvailabilitySummary,
 };

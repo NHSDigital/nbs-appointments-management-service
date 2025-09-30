@@ -402,9 +402,11 @@ export const evaluateSessionChangeImpact = (
   const newSlots = divideSessionIntoSlots(0, newStart, newEnd, updatedSession);
 
   const orphaned: Booking[] = [];
+  const provisionalBookings: Booking[] = [];
+  let orphanedCount = 0;
 
   bookings.forEach(booking => {
-    if (booking.status != 'Booked') return;
+    if (booking.status != 'Booked' && booking.status != 'Provisional') return;
 
     const bookingTime = parseToUkDatetime(booking.from, dateTimeFormat);
     const offset =
@@ -420,14 +422,18 @@ export const evaluateSessionChangeImpact = (
     );
 
     if (!matchingSlot) {
+      if (booking.status === 'Booked') {
+        orphanedCount++;
+        return;
+      }
       orphaned.push(booking);
     }
   });
 
   return {
     orphanedBookings: orphaned,
-    orphanedCount: orphaned.length,
-    canShortenWithoutImpact: orphaned.length === 0,
+    orphanedCount: orphanedCount,
+    canShortenWithoutImpact: orphanedCount === 0,
   };
 };
 
@@ -465,7 +471,7 @@ export const summariseDayWithImpact = async (
           to: ukDate.endOf('day').format(dateTimeFormat),
           site: siteId,
         },
-        ['Booked'],
+        ['Booked', 'Provisional'],
       ),
     ),
   ]);

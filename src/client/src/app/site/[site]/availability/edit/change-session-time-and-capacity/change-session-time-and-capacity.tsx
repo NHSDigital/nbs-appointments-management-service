@@ -61,19 +61,20 @@ export default function ChangeSessionTimeAndCapacityPage({
 
   const submitForm: SubmitHandler<CancelDecisionFormData> = async form => {
     const { actionIntent } = form;
+    const cancellationReason = 'CancelledBySite';
 
     let reroute = `/site/${site.id}/availability/`;
 
     if (actionIntent === 'cancel-and-update') {
       await Promise.all(
         bookingReferences.map(ref =>
-          fromServer(cancelAppointment(ref, site.id, 'Cancelled By Site')),
+          fromServer(cancelAppointment(ref, site.id, cancellationReason)),
         ),
       );
 
-      reroute += `edit/confirmed??updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`;
+      reroute += `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`;
     } else {
-      reroute += `edit/confirmed??updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`;
+      reroute += `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`;
     }
 
     await editSession({

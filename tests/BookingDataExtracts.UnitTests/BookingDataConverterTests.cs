@@ -229,6 +229,27 @@ public class BookingDataConverterTests
         result.Should().Be(expectedData);
     }
 
+    [Fact]
+    public void ExtractBatchSize_IsNull_WhenBatchSizeNoPresent()
+    {
+        var testDocument = new NbsBookingDocument();
+        var converter = new BookingDataConverter(TestSites);
+        var result = BookingDataConverter.ExtractBatchSize(testDocument);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void ExtractBatchSize_ReturnsCorrectSize()
+    {
+        var testDocument = new NbsBookingDocument
+        {
+            BookingBatchSize = 2
+        };
+        var result = BookingDataConverter.ExtractBatchSize(testDocument);
+
+        result.Should().Be(2);
+    }
 
     private IEnumerable<SiteDocument> TestSites => new[]
     {

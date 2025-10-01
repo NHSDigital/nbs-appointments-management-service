@@ -92,7 +92,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
     [Collection("ChangeSessionUpliftedJourneyToggle")]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit.feature")]
+    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftEnabled.feature")]
     public class BestFitFeatureSteps_ChangeSessionUplift_Enabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
     [Collection("ChangeSessionUpliftedJourneyToggle")]

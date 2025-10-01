@@ -200,6 +200,16 @@ public abstract partial class BaseFeatureSteps : Feature
 
     public static DateOnly ParseNaturalLanguageDateOnly(string dateString)
     {
+        // First, check if it matches a "Today [+/- N]" pattern
+        var todayPlusNMatch = Regex.Match(dateString, @"^Today(\s*([+-]\d+))?$", RegexOptions.IgnoreCase);
+        if (todayPlusNMatch.Success)
+        {
+
+            int.TryParse(todayPlusNMatch.Groups[2].Value, out int dayOffset);
+
+            return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(dayOffset);
+        }
+
         var match = NaturalLanguageRelativeDate().Match(dateString);
         if (!match.Success)
         {

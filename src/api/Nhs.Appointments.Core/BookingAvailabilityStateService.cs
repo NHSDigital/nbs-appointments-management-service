@@ -33,9 +33,16 @@ public class BookingAvailabilityStateService(
     }
 
     public async Task<AvailabilityUpdateProposal> BuildRecalculations(string site, DateTime from,
-    DateTime to, Session matcher, Session replacement)
+    DateTime to, Session matcher, Session replacement, bool isWildCard)
     {
-        return (await BuildState(site, from, to, BookingAvailabilityStateReturnType.Recalculations, matcher, replacement))
+        return (await BuildState(
+            site, 
+            from, 
+            to, 
+            BookingAvailabilityStateReturnType.Recalculations, 
+            matcher, 
+            replacement,
+            isWildCard))
             .UpdateProposal;
     }
 
@@ -169,44 +176,95 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private async Task<BookingAvailabilityState> BuildState(string site, DateTime from, DateTime to,
-    BookingAvailabilityStateReturnType returnType, Session matcher = null, Session replacement = null)
+    private async Task<BookingAvailabilityState> BuildState(
+        string site, 
+        DateTime from, 
+        DateTime to,
+        BookingAvailabilityStateReturnType returnType, 
+        Session matcher = null, 
+        Session replacement = null,
+        bool? isWildCard = null)
     {
         var (bookings, sessions) =
                 await FetchData(site, from, to, returnType);
 
-        if (matcher is not null && replacement is not null)
+        var proposalAction = DetermineAvailabilityUpdateProposalAction(isWildcard: isWildCard ?? false, (matcher != null && replacement != null));
+
+        for (var day = from.Date; day <= to.Date; day = day.AddDays(1))
         {
-            var matchedSession = sessions.FirstOrDefault(s =>
-                s.From.TimeOfDay == matcher.From.ToTimeSpan() &&
-                s.Until.TimeOfDay == matcher.Until.ToTimeSpan() &&
-                s.Duration == (matcher.Until - matcher.From) &&
-                s.Capacity == matcher.Capacity &&
-                matcher.Services.All(ms => s.Services.Contains(ms)));
+            var sessionsForDay = sessions.Where(s => s.From.Date == day).ToList();
 
-            if (matchedSession is not null)
+            switch (proposalAction)
             {
-                sessions.Remove(matchedSession);
+                case AvailabilityUpdateProposalAction.CancelAll:
+                    foreach (var s in sessionsForDay)
+                        sessions.Remove(s);
+                    break;
 
-                var replacementSession = new LinkedSessionInstance(
-                    from.Date.Add(replacement.From.ToTimeSpan()),
-                    from.Date.Add(replacement.Until.ToTimeSpan())
-                )
-                {
-                    Services = replacement.Services,
-                    Capacity = replacement.Capacity,
-                    SlotLength = replacement.SlotLength
-                };
+                case AvailabilityUpdateProposalAction.CancelSingle:
+                    if (matcher is null)
+                        break;
 
-                sessions.Add(replacementSession);
-            }
-            else
-            {
-                return new BookingAvailabilityState(matchingSessionNotFound: true);
+                    var matchedSession = sessionsForDay.FindMatchingSession(matcher);
+
+                    if (matchedSession is null)
+                        return new BookingAvailabilityState(matchingSessionNotFound: true);
+
+                    sessions.Remove(matchedSession);
+                    break;
+
+                case AvailabilityUpdateProposalAction.Edit:
+                    if (matcher is null || replacement is null)
+                        break;
+
+                    var matched = sessionsForDay.FindMatchingSession(matcher);
+
+                    if (matched is null)
+                        return new BookingAvailabilityState(matchingSessionNotFound: true);
+
+                    sessions.Remove(matched);
+
+                    var replacementSession = new LinkedSessionInstance(
+                        day.Add(replacement.From.ToTimeSpan()),
+                        day.Add(replacement.Until.ToTimeSpan())
+                    )
+                    {
+                        Services = replacement.Services,
+                        Capacity = replacement.Capacity,
+                        SlotLength = replacement.SlotLength
+                    };
+
+                    sessions.Add(replacementSession);
+                    break;
             }
         }
-
+        
         return BuildState(bookings, sessions, returnType, from, to);
+    }
+
+
+
+    private static AvailabilityUpdateProposalAction DetermineAvailabilityUpdateProposalAction(bool isWildcard, bool hasMatcherAndReplacementSessions)
+    {
+        if (hasMatcherAndReplacementSessions)
+        {
+            return AvailabilityUpdateProposalAction.Edit;
+        }
+
+        if (isWildcard)
+        {
+            return AvailabilityUpdateProposalAction.CancelAll;
+        }
+        else {
+            return AvailabilityUpdateProposalAction.CancelSingle;
+        }
+    }
+
+    public enum AvailabilityUpdateProposalAction
+    {
+        CancelAll,
+        CancelSingle,
+        Edit,
     }
     private static AvailabilitySummary GenerateSummary(IEnumerable<Booking> bookings, List<DayAvailabilitySummary> daySummaries)
     {
@@ -240,7 +298,9 @@ public class BookingAvailabilityStateService(
         return new AvailabilitySummary(daySummaries);
     }
 
-    private static List<DayAvailabilitySummary> InitialiseDaySummaries(DateTime from, DateTime to,
+    private static List<DayAvailabilitySummary> InitialiseDaySummaries(
+        DateTime from, 
+        DateTime to,
         List<LinkedSessionInstance> sessions)
     {
         var dayDate = DateOnly.FromDateTime(from.Date);
@@ -276,6 +336,7 @@ public class BookingAvailabilityStateService(
             .FirstOrDefault();
 }
 
+
 public static class RecalculationExtensions
 {
     public static void AppendNewlySupportedBooking(this List<BookingAvailabilityUpdate> recalculations, Booking booking)
@@ -305,6 +366,17 @@ public static class RecalculationExtensions
         {
             recalculations.Add(new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.ProvisionalToDelete));
         }
+    }
+
+    public static LinkedSessionInstance? FindMatchingSession(this List<LinkedSessionInstance> sessions, Session matcher)
+    {
+        return sessions.FirstOrDefault(s =>
+                        s.From.TimeOfDay == matcher.From.ToTimeSpan() &&
+                        s.Until.TimeOfDay == matcher.Until.ToTimeSpan() &&
+                        s.Duration == (matcher.Until - matcher.From) &&
+                        s.Capacity == matcher.Capacity &&
+                        matcher.Services.All(ms => s.Services.Contains(ms))
+                    );
     }
 }
 

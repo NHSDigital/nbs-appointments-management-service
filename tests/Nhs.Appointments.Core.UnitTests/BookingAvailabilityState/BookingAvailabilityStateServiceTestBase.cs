@@ -27,9 +27,15 @@ public class BookingAvailabilityStateServiceTestBase
         return new DateTime(date.Year, date.Month, date.Day, hour, minute, 0);
     }
 
-    protected static Booking TestBooking(string reference, string service, string from = "09:00",
-        int duration = 10, string avStatus = "Orphaned", string status = "Booked",
-        int creationOrder = 1, DateTime? creationDate = null) =>
+    protected static Booking TestBooking(
+        string reference, 
+        string service, 
+        string from = "09:00",
+        int duration = 10, 
+        string avStatus = "Orphaned", 
+        string status = "Booked",
+        int creationOrder = 1, 
+        DateTime? creationDate = null) =>
         new()
         {
             Reference = reference,
@@ -41,7 +47,28 @@ public class BookingAvailabilityStateServiceTestBase
             Status = Enum.Parse<AppointmentStatus>(status),
             Created = creationDate ?? new DateTime(2024, 11, 15, 9, 45, creationOrder)
         };
-    
+
+    protected static Booking TestBooking(
+    string reference,
+    string service,
+    DateTime? from,
+    int duration = 10,
+    string avStatus = "Orphaned",
+    string status = "Booked",
+    int creationOrder = 1,
+    DateTime? creationDate = null) =>
+    new()
+    {
+        Reference = reference,
+        Service = service,
+        From = from ?? new DateTime(2025, 1, 1, 9, 0, 0),
+        Duration = duration,
+        AvailabilityStatus = Enum.Parse<AvailabilityStatus>(avStatus),
+        AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+        Status = Enum.Parse<AppointmentStatus>(status),
+        Created = creationDate ?? new DateTime(2024, 11, 15, 9, 45, creationOrder)
+    };
+
     protected static Booking TestBooking(string reference, string service, DateOnly date, string from = "09:00",
         int duration = 10, string avStatus = "Orphaned", string status = "Booked",
         int creationOrder = 1, DateTime? creationDate = null) =>
@@ -60,7 +87,11 @@ public class BookingAvailabilityStateServiceTestBase
     protected static LinkedSessionInstance TestSession(string start, string end, string[] services, int slotLength = 10,
         int capacity = 1) =>
         new(TestDateAt(start), TestDateAt(end)) { Services = services, SlotLength = slotLength, Capacity = capacity };
-    
+
+    protected static LinkedSessionInstance TestSession(DateTime start, DateTime end, string[] services, int slotLength = 10,
+    int capacity = 1) =>
+    new(start, end) { Services = services, SlotLength = slotLength, Capacity = capacity };
+
     protected static LinkedSessionInstance TestSession(DateOnly date, string start, string end, string[] services, int slotLength = 10,
         int capacity = 1, Guid? internalSessionId = null) =>
         new(TestDateAt(date, start), TestDateAt(date, end)) { InternalSessionId = internalSessionId, Services = services, SlotLength = slotLength, Capacity = capacity };

@@ -24,7 +24,6 @@ public class Session
     [JsonProperty("capacity")]
     [JsonPropertyName("capacity")]
     public int Capacity { get; set; }
-    
 }
 
 public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, until)

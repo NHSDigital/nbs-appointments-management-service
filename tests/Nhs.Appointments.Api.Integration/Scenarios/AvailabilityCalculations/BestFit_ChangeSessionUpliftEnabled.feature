@@ -155,4 +155,3 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Green   | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |
       | Tomorrow | 09:00 | 10       | Blue    | Supported |
-

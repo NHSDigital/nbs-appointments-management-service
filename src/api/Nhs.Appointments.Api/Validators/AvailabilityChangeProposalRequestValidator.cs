@@ -3,10 +3,10 @@ using Nhs.Appointments.Api.Models;
 using System;
 
 namespace Nhs.Appointments.Api.Validators;
-public class EditSessionRequestValidator
-    : AbstractValidator<EditSessionRequest>
+public class AvailabilityChangeProposalRequestValidator
+    : AbstractValidator<AvailabilityChangeProposalRequest>
 {
-    public EditSessionRequestValidator(TimeProvider timeProvider)
+    public AvailabilityChangeProposalRequestValidator(TimeProvider timeProvider)
     {
         Include(new BaseSessionRequestValidator(timeProvider));
     }

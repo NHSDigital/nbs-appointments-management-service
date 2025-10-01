@@ -132,6 +132,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
   }
 
@@ -269,6 +270,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
+    "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
   }
 
   identity {

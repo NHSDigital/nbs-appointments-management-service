@@ -3,7 +3,7 @@ using System;
 
 namespace Nhs.Appointments.Api.Models;
 
-public record EditSessionRequest(
+public record AvailabilityChangeProposalRequest(
     string Site,
     DateOnly From,
     DateOnly To,

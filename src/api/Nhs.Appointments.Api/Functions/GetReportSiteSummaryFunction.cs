@@ -85,20 +85,22 @@ public class GetReportSiteSummaryFunction(
         foreach (var row in rows)
         {
             await csvWriter.WriteLineAsync(string.Join(',', [
-                SiteReportMap.SiteName(row),
-                SiteReportMap.ICB(row),
-                SiteReportMap.Region(row),
-                SiteReportMap.OdsCode(row),
-                SiteReportMap.Longitude(row),
-                SiteReportMap.Latitude(row),
-                string.Join(',', distinctServices.Select(service => SiteReportMap.BookingsCount(row, service))),
-                SiteReportMap.TotalBookings(row).ToString(),
-                SiteReportMap.Cancelled(row).ToString(),
-                SiteReportMap.MaximumCapacity(row).ToString(),
-                string.Join(',', distinctServices.Select(service => SiteReportMap.CapacityCount(row, service)))
+                CsvValue(SiteReportMap.SiteName(row)),
+                CsvValue(SiteReportMap.ICB(row)),
+                CsvValue(SiteReportMap.Region(row)),
+                CsvValue(SiteReportMap.OdsCode(row)),
+                CsvValue(SiteReportMap.Longitude(row)),
+                CsvValue(SiteReportMap.Latitude(row)),
+                string.Join(',', distinctServices.Select(service => CsvValue(SiteReportMap.BookingsCount(row, service)))),
+                CsvValue(SiteReportMap.TotalBookings(row).ToString()),
+                CsvValue(SiteReportMap.Cancelled(row).ToString()),
+                CsvValue(SiteReportMap.MaximumCapacity(row).ToString()),
+                string.Join(',', distinctServices.Select(service => CsvValue(SiteReportMap.CapacityCount(row, service))))
             ]));
         }
     }
+    
+    private static string CsvValue(object value) => "\"" + value + "\"";
 
     protected override
         Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SiteReportRequest request)>

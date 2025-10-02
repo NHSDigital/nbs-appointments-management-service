@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.5.3" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="2.1.0" />
+  <PackageReference Include="Microsoft.Extensions.Azure" Version="1.13.0" />
+  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9" />
+  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+  <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.3.0" />
+  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>Nhs.Appointments.Persistance.UnitTests</_Parameter1>
     </AssemblyAttribute>

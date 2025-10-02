@@ -348,33 +348,6 @@ export const sessionLengthInMinutes = (
   return endMinutes - startMinutes;
 };
 
-export function isBookingOrphaned(
-  booking: Booking,
-  slots: AvailabilitySlot[],
-  session: AvailabilitySession,
-): boolean {
-  const bookingTime = parseToUkDatetime(booking.from, dateTimeFormat);
-  const startTime = parseToUkDatetime(session.from, dateTimeFormat);
-  const slotLength = session.slotLength;
-
-  // Check if booking aligns with new slot grid
-  const offset = bookingTime.diff(startTime, 'minute') % slotLength;
-  const isAligned = offset === 0;
-
-  if (!isAligned) return false;
-
-  // Find a matching slot
-  const matchingSlot = slots.find(
-    slot =>
-      slot.capacity > 0 &&
-      slot.length === booking.duration &&
-      slot.services.includes(booking.service) &&
-      slot.from.isSame(bookingTime),
-  );
-
-  return !!matchingSlot;
-}
-
 export const evaluateSessionChangeImpact = (
   updatedSession: AvailabilitySession,
   bookings: Booking[],
@@ -402,7 +375,6 @@ export const evaluateSessionChangeImpact = (
   const newSlots = divideSessionIntoSlots(0, newStart, newEnd, updatedSession);
 
   const orphaned: Booking[] = [];
-  const provisionalBookings: Booking[] = [];
   let orphanedCount = 0;
 
   bookings.forEach(booking => {
@@ -451,7 +423,6 @@ export const summariseDayWithImpact = async (
   const ukDate = parseToUkDatetime(ukDateString);
 
   if (!siteId || !ukDate || !originalSession || !updatedSession) {
-    console.warn('Missing input to summariseDayWithImpact');
     return {
       bookings: [],
       orphanedBookings: [],

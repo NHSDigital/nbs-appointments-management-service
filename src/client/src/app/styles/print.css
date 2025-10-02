@@ -63,6 +63,10 @@
     clip-path: none !important;
     clip-path: none !important;
   }
+
+  .no-print.has-printable-children .always-print td {
+    text-align: left;
+  }
 }
 
 @media (max-width: 768px) {

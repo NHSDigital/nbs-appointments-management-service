@@ -85,10 +85,10 @@ public class GetReportSiteSummaryFunction(
         foreach (var row in rows)
         {
             await csvWriter.WriteLineAsync(string.Join(',', [
-                SiteReportMap.SiteName(row),
-                SiteReportMap.ICB(row),
-                SiteReportMap.Region(row),
-                SiteReportMap.OdsCode(row),
+                CsvStringValue(SiteReportMap.SiteName(row)),
+                CsvStringValue(SiteReportMap.ICB(row)),
+                CsvStringValue(SiteReportMap.Region(row)),
+                CsvStringValue(SiteReportMap.OdsCode(row)),
                 SiteReportMap.Longitude(row),
                 SiteReportMap.Latitude(row),
                 string.Join(',', distinctServices.Select(service => SiteReportMap.BookingsCount(row, service))),
@@ -99,6 +99,8 @@ public class GetReportSiteSummaryFunction(
             ]));
         }
     }
+    
+    private static string CsvStringValue(string value) => "\"" + value + "\"";
 
     protected override
         Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, SiteReportRequest request)>

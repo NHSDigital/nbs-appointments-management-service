@@ -17,7 +17,6 @@ services:
     restart: always
     ports:
       - 3000:3000
-
   api:
     container_name: api
     build:
@@ -76,7 +75,6 @@ services:
       - SITE_SUMMARY_DAYS_FORWARD=30
       - SITE_SUMMARY_DAYS_CHUNK_SIZE=365
       - SITE_SUMMARY_FIRST_RUN_DATE=2025-06-01
-
   splunk:
     image: splunk/splunk:latest
     container_name: splunk
@@ -90,7 +88,6 @@ services:
       - "8088:8088" # Splunk HEC
     volumes:
       - splunk-data:/opt/splunk/var
-
   oidc-server:
     image: soluto/oidc-server-mock:latest
     ports:
@@ -116,63 +113,5 @@ services:
     volumes:
       - ./mock-oidc:/tmp/config:ro
       - ${PFX_CERT_PATH:-~/.aspnet/https}:/https:ro
-  bookingsdataextracts:
-    build:
-      context: .
-      dockerfile: BookingDataExtractDockerfile
-    environment:
-      COSMOS__ENDPOINT: "https://localhost:8081/"
-      COSMOS__KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-      MESH_MAILBOX_DESTINATION: "X26ABC1"
-      MESH_WORKFLOW: "MYA_INBOUND_NATIONAL_BOOKINGS_1"
-      KeyVault__KeyVaultName: ""
-      KeyVault__TenantId: ""
-      KeyVault__ClientId: ""
-      KeyVault__ClientSecret: ""
-      MeshClientOptions__BaseUrl: "http://localhost:4030/"
-      MeshAuthorizationOptions__MailboxId: "X26ABC1"
-      MeshAuthorizationOptions__MailboxPassword: "password"
-      MeshAuthorizationOptions__SharedKey: "TestKey"
-    command: dotnet BookingsDataExtracts.dll
-    depends_on:
-      - mesh
-  capacitydataextract:
-    build:
-      context: .
-      dockerfile: CapacityDataExtractDockerfile
-    environment:
-      COSMOS__ENDPOINT: "https://localhost:8081/"
-      COSMOS__KEY: "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-      MESH_MAILBOX_DESTINATION: "X26ABC1"
-      MESH_WORKFLOW: "MYA_INBOUND_NATIONAL_BOOKINGS_1"
-      KeyVault__KeyVaultName: ""
-      KeyVault__TenantId: ""
-      KeyVault__ClientId: ""
-      KeyVault__ClientSecret: ""
-      MeshClientOptions__BaseUrl: "http://localhost:4030/"
-      MeshAuthorizationOptions__MailboxId: "X26ABC1"
-      MeshAuthorizationOptions__MailboxPassword: "password"
-      MeshAuthorizationOptions__SharedKey: "TestKey"
-    command: dotnet CapacityDataExtract.dll
-    depends_on:
-      - mesh
-  mesh:
-    build:
-      context: https://github.com/NHSDigital/mesh-sandbox.git#refs/tags/v1.0.14
-    privileged: true
-    deploy:
-      restart_policy:
-        condition: on-failure
-        max_attempts: 3
-    ports:
-      - 4030:80
-    environment:
-      - SHARED_KEY=TestKey
-      - SSL=no
-      - STORE_MODE=file
-    healthcheck:
-      test: curl --fail http://localhost:80/health || exit 1
-      interval: 10s
-
 volumes:
   splunk-data:

@@ -22,7 +22,6 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
 {
     private List<Core.Booking> _getBookingsResponse;
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
-    private readonly Dictionary<int, string> _bookingReferences = new();
 
     [When("I cancel the following sessions")]
     [Then("I cancel the following sessions")]
@@ -71,7 +70,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
         var bookingIndex = 0;
         foreach (var row in expectedBookingDetailsTable.Rows.Skip(1))
         {
-            var expectedBookingReference = _bookingReferences[bookingIndex];
+            var expectedBookingReference = _getBookingsResponse[bookingIndex].Reference;
 
             var expectedFrom = DateTime.ParseExact(
                 $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",

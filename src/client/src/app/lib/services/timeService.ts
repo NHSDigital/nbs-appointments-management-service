@@ -397,3 +397,8 @@ export const isValidStartTime = (
   const duration = sessionEnd.diff(sesionStart, 'minute');
   return duration % slotLength === 0;
 };
+
+// Returns current UK date & time as formatted string
+export const GetCurrentDateTime = (format = 'YYYY-MM-DD HH:mm:ss'): string => {
+  return ukNow().format(format);
+};

@@ -30,7 +30,9 @@ export default class DailyAppointmentDetailsPage extends RootPage {
   }
 
   async verifyDailyAppointmentDetailsPageDisplayed() {
-    await expect(this.page.getByText('Scheduled')).toBeVisible();
+    await expect(
+      this.page.locator('a.nhsuk-tabs__tab', { hasText: 'Scheduled' }),
+    ).toBeVisible();
   }
 
   async verifyTableExistsWithHeaders(displayAction = true) {

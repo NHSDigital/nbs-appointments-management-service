@@ -74,3 +74,13 @@
     text-align: left;
   }
 }
+
+.print-out-data {
+  display: none;
+}
+
+@media print {
+  .print-out-data {
+    display: block;
+  }
+}

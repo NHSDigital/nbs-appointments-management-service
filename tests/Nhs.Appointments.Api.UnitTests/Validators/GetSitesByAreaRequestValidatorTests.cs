@@ -192,7 +192,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3'");     
+        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3' or  'COVID:5_11' or 'COVID:12_17'");     
     }
     
     [Fact]

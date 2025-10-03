@@ -126,7 +126,9 @@ public class GetSitesByAreaRequestValidatorTests
     
     [Theory]
     [InlineData("RSV:Adult")]
-    [InlineData("FLU:2_3")]
+    [InlineData("FLU:2_3")]    
+    [InlineData("COVID:5_11")]
+    [InlineData("COVID:12_17")]
     public void Validate_ReturnsSuccess_WhenRequestIsValid_SiteSupportService(string service)
     {
         var request = new GetSitesByAreaRequest(

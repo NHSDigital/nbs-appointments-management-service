@@ -13,7 +13,7 @@ import { CancelDayFromValues } from '../cancel-day-wizard';
 import CancelDaySummary from '../cancel-day-summary';
 import { DaySummaryV2, ClinicalService, Site } from '@types';
 
-type CancelChoiceStepProps = {
+export type CancelChoiceStepProps = {
   site: Site;
   date: string;
   daySummary: DaySummaryV2;
@@ -44,6 +44,7 @@ const CancelChoiceStep = ({
 
     if (cancelChoiceWatch === 'false') {
       router.push(`/site/${site.id}/view-availability/week?date=${date}`);
+      return;
     }
 
     goToNextStep();

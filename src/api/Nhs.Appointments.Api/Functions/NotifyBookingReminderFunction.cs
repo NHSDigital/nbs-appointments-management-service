@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Azure.Functions.Worker;
 using Azure.Messaging.ServiceBus;

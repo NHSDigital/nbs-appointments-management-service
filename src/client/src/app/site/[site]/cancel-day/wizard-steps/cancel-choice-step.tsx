@@ -10,19 +10,23 @@ import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { CancelDayFromValues } from '../cancel-day-wizard';
+import CancelDaySummary from '../cancel-day-summary';
+import { DaySummaryV2, ClinicalService, Site } from '@types';
 
 type CancelChoiceStepProps = {
-  siteName: string;
-  siteId: string;
+  site: Site;
   date: string;
+  daySummary: DaySummaryV2;
+  clinicalServices: ClinicalService[];
 };
 
 const CancelChoiceStep = ({
   goToNextStep,
   goToPreviousStep,
-  siteName,
-  siteId,
+  site,
   date,
+  daySummary,
+  clinicalServices,
 }: InjectedWizardProps & CancelChoiceStepProps) => {
   const router = useRouter();
   const { formState, register, trigger, setValue, watch } =
@@ -39,7 +43,7 @@ const CancelChoiceStep = ({
     setValue('cancelChoice', cancelChoiceWatch);
 
     if (cancelChoiceWatch === 'false') {
-      router.push(`/site/${siteId}/view-availability/week?date=${date}`);
+      router.push(`/site/${site.id}/view-availability/week?date=${date}`);
     }
 
     goToNextStep();
@@ -52,7 +56,13 @@ const CancelChoiceStep = ({
         renderingStrategy="client"
         text="Back"
       />
-      <NhsHeading title={`Cancel ${date}`} caption={siteName} />
+      <NhsHeading title={`Cancel ${date}`} caption={site.name} />
+
+      <CancelDaySummary
+        clinicalServices={clinicalServices}
+        date={date}
+        daySummary={daySummary}
+      />
 
       <FormGroup
         legend="Are you sure you want to cancel this day?"

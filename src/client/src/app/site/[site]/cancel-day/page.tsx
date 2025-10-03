@@ -7,10 +7,10 @@ import {
   assertFeatureEnabled,
 } from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
-import CancelDayForm from './cancel-day-form';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
+import CancelDayWizard from './cancel-day-wizard';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -50,9 +50,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
       originPage="cancel-day"
       backLink={backLink}
     >
-      <CancelDayForm
+      <CancelDayWizard
         date={date}
-        siteId={site.id}
+        site={site}
         daySummary={daySummary}
         clinicalServices={clinicalServices}
       />

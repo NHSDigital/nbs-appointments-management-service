@@ -661,4 +661,44 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
         recalculations.SupportedBookingsCount.Should().Be(expectedReallocatedBookings);
         recalculations.UnsupportedBookingsCount.Should().Be(expectedUnaccommodatedBookings);
     }
+
+    [Fact]
+    public async Task AvailabilityChangeProposal_MatchingSessionNotFound()
+    {
+        var matcher = new Session()
+        {
+            From = new TimeOnly(9, 30, 0),
+            Until = new TimeOnly(10, 0, 0),
+            Services = ["Green", "Blue"],
+            SlotLength = 10,
+            Capacity = 1
+        };
+        var replacement = new Session()
+        {
+            From = new TimeOnly(9, 0, 0),
+            Until = new TimeOnly(10, 0, 0),
+            Services = ["Green"],
+            SlotLength = 10,
+            Capacity = 1
+        };
+        var from = new DateTime(2025, 1, 1, 9, 0, 0);
+        var to = new DateTime(2025, 1, 1, 9, 10, 0);
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
+            TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
+            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
+        };
+        var sessions = new List<LinkedSessionInstance>
+        {
+            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
+            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
+        };
+        SetupAvailabilityAndBookings(bookings, sessions);
+
+        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, replacement, false));
+
+        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
+        recalculations.MatchingSessionNotFound.Should().BeTrue();
+    }
 }

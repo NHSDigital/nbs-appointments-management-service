@@ -325,7 +325,7 @@ describe('Edit Session Time And Capacity Form', () => {
     expect(editSessionMock).not.toHaveBeenCalled();
   });
 
-  it('does not navigate to the edit start time page when the change session uplift feature flag is disabled', async () => {
+  it('navigates to the edit start time page when the feature flag is disabled and start time is invalid', async () => {
     const { user } = render(
       <EditSessionTimeAndCapacityForm
         date={'2024-06-10 07:00:00'}
@@ -362,6 +362,6 @@ describe('Edit Session Time And Capacity Form', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(editSessionMock).toHaveBeenCalled();
+    expect(editSessionMock).not.toHaveBeenCalled();
   });
 });

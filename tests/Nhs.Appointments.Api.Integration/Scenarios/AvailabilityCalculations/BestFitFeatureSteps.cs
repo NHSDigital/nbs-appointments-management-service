@@ -21,6 +21,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private List<Core.Booking> _getBookingsResponse;
+    private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
     [When("I cancel the following sessions")]
     [Then("I cancel the following sessions")]
@@ -69,7 +70,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
         var bookingIndex = 0;
         foreach (var row in expectedBookingDetailsTable.Rows.Skip(1))
         {
-            var expectedBookingReference = _bookingReferences[bookingIndex];
+            var expectedBookingReference = _getBookingsResponse[bookingIndex].Reference;
 
             var expectedFrom = DateTime.ParseExact(
                 $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
@@ -86,6 +87,74 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
 
             bookingIndex += 1;
         }
+    }
+
+    [When(@"I request the availability proposal for potential availability change")]
+    public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
+    {
+        var sessions = new List<Session>{ };
+
+        foreach (var row in proposalSessions.Rows.Skip(1))
+        {
+            var session = new Session
+            {
+                From = TimeOnly.Parse(row.Cells.ElementAt(0).Value),
+                Until = TimeOnly.Parse(row.Cells.ElementAt(1).Value),
+                Services = row.Cells.ElementAt(2).Value.Split(','),
+                SlotLength = int.Parse(row.Cells.ElementAt(3).Value),
+                Capacity = int.Parse(row.Cells.ElementAt(4).Value),
+            };
+
+            sessions.Add(session);
+        }
+
+        var request = new { 
+        
+            site = GetSiteId(),
+            from = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
+            to = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
+            sessionMatcher = new
+            {
+                from = sessions[0].From,
+                until = sessions[0].Until,
+                services = sessions[0].Services,
+                slotLength = sessions[0].SlotLength,
+                capacity = sessions[0].Capacity
+            },
+            sessionReplacement = new
+            {
+                from = sessions[1].From,
+                until = sessions[1].Until,
+                services = sessions[1].Services,
+                slotLength = sessions[1].SlotLength,
+                capacity = sessions[1].Capacity
+            }
+        };
+        var serializerSettings = new JsonSerializerSettings
+        {
+            Converters = { new ShortTimeOnlyJsonConverter() },
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(request, serializerSettings), Encoding.UTF8, "application/json");
+
+        _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        (_, _availabilityChangeProposalResponse) =
+            await JsonRequestReader.ReadRequestAsync<AvailabilityChangeProposalResponse>(await _response.Content.ReadAsStreamAsync());
+    }
+
+    [Then(@"the following count is returned")]
+    public async Task AssertAvailabilityCount(DataTable expectedCounts)
+    {
+        var counts = new List<int>();
+
+        foreach (var row in expectedCounts.Rows)
+        {
+            counts.Add(int.Parse(row.Cells.ElementAt(1).Value));
+        }
+
+        _availabilityChangeProposalResponse.SupportedBookingsCount.Should().Be(counts[0]);
+        _availabilityChangeProposalResponse.UnsupportedBookingsCount.Should().Be(counts[1]);
     }
 
     [Then(@"the call should fail with (\d*)")]

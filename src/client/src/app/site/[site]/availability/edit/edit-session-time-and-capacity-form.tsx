@@ -93,38 +93,42 @@ const EditSessionTimeAndCapacityForm = ({
     form: EditSessionFormValues,
   ) => {
     startTransition(async () => {
-      const updatedSession = toAvailabilitySession(form.newSession);
+      if (changeSessionUpliftedJourneyEnabled) {
+        const reroute = `/site/${site.id}/availability/edit/confirmation?session=${btoa(JSON.stringify(existingSession))}&date=${date}&sessionToEdit=${btoa(JSON.stringify(form.newSession))}`;
+        router.push(reroute);
+      } else {
+        const updatedSession = toAvailabilitySession(form.newSession);
 
-      const sessionStart = parseDateAndTimeComponentsToUkDateTime(
-        date,
-        form.newSession.startTime,
-      );
-      const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
-        date,
-        form.newSession.endTime,
-      );
+        const sessionStart = parseDateAndTimeComponentsToUkDateTime(
+          date,
+          form.newSession.startTime,
+        );
+        const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
+          date,
+          form.newSession.endTime,
+        );
 
-      const validSessionStartTime = isValidStartTime(
-        sessionStart,
-        sessionEnd,
-        form.newSession.slotLength,
-      );
+        const validSessionStartTime = isValidStartTime(
+          sessionStart,
+          sessionEnd,
+          form.newSession.slotLength,
+        );
 
-      if (
-        existingSession.totalSupportedAppointments === 0 ||
-        validSessionStartTime ||
-        !changeSessionUpliftedJourneyEnabled
-      ) {
-        await updateSession(form, updatedSession);
-        return;
+        if (
+          existingSession.totalSupportedAppointments === 0 ||
+          validSessionStartTime
+        ) {
+          await updateSession(form, updatedSession);
+          return;
+        }
+
+        const updatedString = btoa(JSON.stringify(updatedSession));
+        const existingString = btoa(JSON.stringify(existingSession));
+
+        router.push(
+          `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
+        );
       }
-
-      const updatedString = btoa(JSON.stringify(updatedSession));
-      const existingString = btoa(JSON.stringify(existingSession));
-
-      router.push(
-        `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
-      );
     });
   };
 

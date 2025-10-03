@@ -399,48 +399,71 @@ type CancelDayResponse = {
   bookingsWithoutContactDetails: number;
 };
 
+type AvailabilityChangeProposalResponse = {
+  supportedBookingsCount: number;
+  unsupportedBookingsCount: number;
+};
+
+type AvailabilityChangeProposalRequest = {
+  from: string;
+  to: string;
+  site: string;
+  sessionMatcher: AvailabilitySession;
+  sessionReplacement: AvailabilitySession;
+};
+
 export type {
-  ApplyAvailabilityTemplateRequest,
+  Accessibility,
+  AccessibilityDefinition,
   ApiErrorResponse,
   ApiResponse,
   ApiSuccessResponse,
+  ApplyAvailabilityTemplateRequest,
   AttendeeDetails,
-  AccessibilityDefinition,
-  Accessibility,
   Availability,
   AvailabilityBlock,
-  AvailabilityResponse,
+  AvailabilityChangeProposalRequest,
+  AvailabilityChangeProposalResponse,
   AvailabilityCreatedEvent,
+  AvailabilityResponse,
   AvailabilitySession,
   AvailabilitySlot,
   AvailabilityTemplate,
   Booking,
+  CancelDayRequest,
+  CancelDayResponse,
   CancelSessionRequest,
+  ClinicalService,
   ContactItem,
-  DaySummary,
-  DaySummaryV2,
   DailyAvailability,
   DateComponents,
   DayAvailabilityDetails,
+  DaySummary,
+  DaySummaryV2,
   EditSessionRequest,
   ErrorType,
-  FetchAvailabilityRequest,
-  ServerActionResult,
-  FetchBookingsRequest,
   EulaVersion,
+  FeatureFlag,
+  FetchAvailabilityRequest,
+  FetchBookingsRequest,
   IdentityProvider,
   NhsMyaCookieConsent,
   Role,
   RoleAssignment,
-  ServiceInformation,
+  ServerActionResult,
   ServiceBookingDetails,
+  ServiceInformation,
   Session,
   SessionSummary,
   SetAccessibilitiesRequest,
   SetAvailabilityRequest,
   SetInformationForCitizensRequest,
+  SetSiteDetailsRequest,
+  SetSiteReferenceDetailsRequest,
   Site,
+  SiteStatus,
   TimeComponents,
+  UpdateSiteStatusRequest,
   User,
   UserIdentityStatus,
   UserProfile,
@@ -448,14 +471,6 @@ export type {
   WeekSummary,
   WeekSummaryV2,
   WellKnownOdsEntry,
-  SetSiteDetailsRequest,
-  SetSiteReferenceDetailsRequest,
-  FeatureFlag,
-  ClinicalService,
-  SiteStatus,
-  UpdateSiteStatusRequest,
-  CancelDayRequest,
-  CancelDayResponse,
 };
 
 export { MyaError, UnauthorizedError, daysOfTheWeek };

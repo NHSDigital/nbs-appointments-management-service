@@ -23,6 +23,10 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { session, date } = { ...(await searchParams) };
+  const changeSessionUpliftedJourneyFlag = await fromServer(
+    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
+  );
+
   if (session === undefined || date === undefined) {
     return notFound();
   }
@@ -30,9 +34,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
-  const changeSessionUpliftedJourney = await fromServer(
-    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
-  );
 
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
@@ -52,7 +53,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site}
         existingSession={sessionSummary}
         changeSessionUpliftedJourneyEnabled={
-          changeSessionUpliftedJourney.enabled
+          changeSessionUpliftedJourneyFlag.enabled
         }
       />
     </NhsTransactionalPage>

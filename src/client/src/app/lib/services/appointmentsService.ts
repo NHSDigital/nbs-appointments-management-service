@@ -3,35 +3,37 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { notFound, redirect } from 'next/navigation';
 import {
   AccessibilityDefinition,
-  Role,
-  SetAccessibilitiesRequest,
   ApplyAvailabilityTemplateRequest,
-  User,
-  UserProfile,
-  SetAvailabilityRequest,
+  AvailabilityChangeProposalRequest,
+  AvailabilityChangeProposalResponse,
   AvailabilityCreatedEvent,
-  FetchBookingsRequest,
   Booking,
-  DailyAvailability,
-  EulaVersion,
-  WellKnownOdsEntry,
-  EditSessionRequest,
-  CancelSessionRequest,
-  SessionSummary,
-  SetSiteDetailsRequest,
-  SetInformationForCitizensRequest,
-  Site,
-  SetSiteReferenceDetailsRequest,
-  FeatureFlag,
   BookingStatus,
-  UserIdentityStatus,
-  WeekSummaryV2,
-  UpdateSiteStatusRequest,
-  ServerActionResult,
-  DaySummaryV2,
-  SiteStatus,
   CancelDayRequest,
   CancelDayResponse,
+  CancelSessionRequest,
+  DailyAvailability,
+  DaySummaryV2,
+  EditSessionRequest,
+  EulaVersion,
+  FeatureFlag,
+  FetchBookingsRequest,
+  Role,
+  ServerActionResult,
+  SessionSummary,
+  SetAccessibilitiesRequest,
+  SetAvailabilityRequest,
+  SetInformationForCitizensRequest,
+  SetSiteDetailsRequest,
+  SetSiteReferenceDetailsRequest,
+  Site,
+  SiteStatus,
+  UpdateSiteStatusRequest,
+  User,
+  UserIdentityStatus,
+  UserProfile,
+  WeekSummaryV2,
+  WellKnownOdsEntry,
 } from '@types';
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
@@ -653,4 +655,14 @@ export const downloadSiteSummaryReport = async (
 ): Promise<ServerActionResult<Blob>> =>
   appointmentsApi
     .get<Blob>(`report/site-summary?startDate=${startDate}&endDate=${endDate}`)
+    .then(handleBodyResponse);
+
+export const availabilityChangeProposal = async (
+  payload: AvailabilityChangeProposalRequest,
+): Promise<ServerActionResult<AvailabilityChangeProposalResponse>> =>
+  appointmentsApi
+    .post<AvailabilityChangeProposalResponse>(
+      'availability/propose-edit',
+      JSON.stringify(payload),
+    )
     .then(handleBodyResponse);

@@ -10,7 +10,11 @@ import { DailyAppointmentsPage } from './daily-appointments-page';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
-import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
+import {
+  dateTimeFormat,
+  parseToUkDatetime,
+  GetCurrentDateTime,
+} from '@services/timeService';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
 
@@ -81,8 +85,11 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
       showPrintButton
     >
+      <span className="print-out-data">Generated: {GetCurrentDateTime()}</span>
+
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">
+          <h3 className="print-out-data">Scheduled Appointments</h3>
           <DailyAppointmentsPage
             bookings={scheduledBookings}
             site={site.id}
@@ -91,6 +98,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           />
         </Tab>
         <Tab title="Cancelled">
+          <h3 className="print-out-data">Cancelled Appointments</h3>
           <DailyAppointmentsPage
             bookings={cancelledBookings}
             site={site.id}
@@ -99,6 +107,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           />
         </Tab>
         <Tab title="Manual Cancellations">
+          <h3 className="print-out-data">Manual Cancellations</h3>
           <DailyAppointmentsPage
             bookings={orphanedAppointments}
             site={site.id}

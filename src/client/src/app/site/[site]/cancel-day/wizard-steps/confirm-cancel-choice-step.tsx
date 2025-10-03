@@ -1,24 +1,29 @@
 import NhsHeading from '@components/nhs-heading';
-import { BackLink, Button, FormGroup } from '@components/nhsuk-frontend';
+import {
+  BackLink,
+  Button,
+  ButtonGroup,
+  FormGroup,
+} from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import CancelDaySummary from '../cancel-day-summary';
+import { DaySummaryV2, ClinicalService, Site } from '@types';
 
 type ConfirmCancelChoiceStepProps = {
-  siteName: string;
-  siteId: string;
+  site: Site;
   date: string;
+  daySummary: DaySummaryV2;
+  clinicalServices: ClinicalService[];
 };
 
 export const ConfirmCancelChoiceStep = ({
-  setCurrentStep,
   goToPreviousStep,
-  siteName,
-  siteId,
+  site,
   date,
+  daySummary,
+  clinicalServices,
 }: InjectedWizardProps & ConfirmCancelChoiceStepProps) => {
-  const router = useRouter();
-
   return (
     <>
       <BackLink
@@ -26,20 +31,26 @@ export const ConfirmCancelChoiceStep = ({
         renderingStrategy="client"
         text="Back"
       />
-      <NhsHeading title={`Cancel ${date}`} caption={siteName} />
+      <NhsHeading title={`Cancel ${date}`} caption={site.name} />
+
+      <CancelDaySummary
+        clinicalServices={clinicalServices}
+        date={date}
+        daySummary={daySummary}
+      />
 
       <FormGroup legend="Are you sure you want to cancel this day?" error="">
-        <form>
+        <ButtonGroup>
           <Button type="submit" styleType="warning">
             Cancel day
           </Button>
-          <Link
-            href={`/site/${siteId}/view-availability/week?date=${date}`}
-            className="nhsuk-link"
-          >
-            No, go back
-          </Link>
-        </form>
+        </ButtonGroup>
+        <Link
+          href={`/site/${site.id}/view-availability/week?date=${date}`}
+          className="nhsuk-link"
+        >
+          No, go back
+        </Link>
       </FormGroup>
     </>
   );

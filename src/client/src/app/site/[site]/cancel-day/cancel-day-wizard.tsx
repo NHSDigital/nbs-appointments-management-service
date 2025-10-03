@@ -1,17 +1,19 @@
 'use client';
-import { InsetText } from '@components/nhsuk-frontend';
-import { SessionSummaryTable } from '@components/session-summary-table';
+import Wizard from '@components/wizard';
+import WizardStep from '@components/wizard-step';
 import fromServer from '@server/fromServer';
 import { cancelDay } from '@services/appointmentsService';
 import { parseToUkDatetime, RFC3339Format } from '@services/timeService';
-import { CancelDayRequest, ClinicalService, DaySummaryV2 } from '@types';
+import { CancelDayRequest, ClinicalService, DaySummaryV2, Site } from '@types';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import CancelChoiceStep from './wizard-steps/cancel-choice-step';
+import { ConfirmCancelChoiceStep } from './wizard-steps/confirm-cancel-choice-step';
 
 type Props = {
   date: string;
-  siteId: string;
+  site: Site;
   daySummary: DaySummaryV2;
   clinicalServices: ClinicalService[];
 };
@@ -22,7 +24,7 @@ export type CancelDayFromValues = {
 
 const CancelDayWizard = ({
   date,
-  siteId,
+  site,
   daySummary,
   clinicalServices,
 }: Props) => {
@@ -38,36 +40,55 @@ const CancelDayWizard = ({
   const submitForm = async () => {
     startTransition(async () => {
       const payload: CancelDayRequest = {
-        site: siteId,
+        site: site.id,
         date: parsedDate.format(RFC3339Format),
       };
 
       const response = await fromServer(cancelDay(payload));
       replace(
-        `/site/${siteId}/cancel-day/confirmed?date=${date}&cancelledBookingCount=${response.cancelledBookingCount}&bookingsWithoutContactDetails=${response.bookingsWithoutContactDetails}`,
+        `/site/${site.id}/cancel-day/confirmed?date=${date}&cancelledBookingCount=${response.cancelledBookingCount}&bookingsWithoutContactDetails=${response.bookingsWithoutContactDetails}`,
       );
     });
   };
 
   return (
-    <>
-      <SessionSummaryTable
-        sessionSummaries={daySummary.sessionSummaries}
-        clinicalServices={clinicalServices}
-        showUnbooked={false}
-        tableCaption={`Sessions for ${parsedDate.format('dddd D MMMM')}`}
-      />
-      <InsetText>
-        {daySummary.totalSupportedAppointments +
-          daySummary.totalOrphanedAppointments}{' '}
-        booked appointments will be cancelled. We'll notify people that their
-        appointment has been cancelled
-      </InsetText>
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(submitForm)}>
+        <Wizard
+          id="cancel-day-wizard"
+          initialStep={1}
+          returnRouteUponCancellation={`/site/${site.id}/view-availability/week?date=${date}`}
+          onCompleteFinalStep={() => {
+            methods.handleSubmit(submitForm);
+          }}
+          pendingSubmit={pendingSubmit}
+        >
+          <WizardStep>
+            {stepProps => (
+              <CancelChoiceStep
+                {...stepProps}
+                clinicalServices={clinicalServices}
+                date={date}
+                daySummary={daySummary}
+                site={site}
+              />
+            )}
+          </WizardStep>
 
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(submitForm)}></form>
-      </FormProvider>
-    </>
+          <WizardStep>
+            {stepProps => (
+              <ConfirmCancelChoiceStep
+                {...stepProps}
+                clinicalServices={clinicalServices}
+                date={date}
+                daySummary={daySummary}
+                site={site}
+              />
+            )}
+          </WizardStep>
+        </Wizard>
+      </form>
+    </FormProvider>
   );
 };
 

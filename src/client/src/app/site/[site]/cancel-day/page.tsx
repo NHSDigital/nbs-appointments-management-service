@@ -6,8 +6,6 @@ import {
   assertPermission,
   assertFeatureEnabled,
 } from '@services/appointmentsService';
-import { parseToUkDatetime } from '@services/timeService';
-import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
 import CancelDayWizard from './cancel-day-wizard';
@@ -36,20 +34,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fromServer(fetchClinicalServices()),
   ]);
 
-  const parsedDate = parseToUkDatetime(date);
-  const backLink: NavigationByHrefProps = {
-    renderingStrategy: 'server',
-    href: `/site/${site.id}/view-availability/week?date=${date}`,
-    text: 'Back',
-  };
-
   return (
-    <NhsTransactionalPage
-      title={`Cancel ${parsedDate.format('dddd D MMMM')}`}
-      caption={site.name}
-      originPage="cancel-day"
-      backLink={backLink}
-    >
+    <NhsTransactionalPage title="" originPage="cancel-day">
       <CancelDayWizard
         date={date}
         site={site}

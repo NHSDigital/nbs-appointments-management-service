@@ -9,6 +9,7 @@ public interface IBookingQueryService
     Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site);
     Task<IEnumerable<Booking>> GetBookings(BookingQueryFilter queryFilter);
     Task<IEnumerable<Booking>> GetOrderedBookings(string site, DateTime from, DateTime to, IEnumerable<AppointmentStatus> statuses);
+    Task<IEnumerable<Booking>> GetCancelledBookingsAcrossAllSites(DateTime from, DateTime to);
 }
 
 public class BookingQueryService(
@@ -56,6 +57,9 @@ public class BookingQueryService(
 
         return bookings;
     }
+
+    public Task<IEnumerable<Booking>> GetCancelledBookingsAcrossAllSites(DateTime from, DateTime to)
+        => bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Cancelled);
 
     private bool IsExpiredProvisional(Booking b) =>
         b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);

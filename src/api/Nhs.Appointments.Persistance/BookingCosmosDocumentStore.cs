@@ -376,4 +376,10 @@ public class BookingCosmosDocumentStore(
             return (successfulCancellations, bookingsWithoutContactDetailsCount, bookingsWithContactDetails);
         }
     }
+
+    public async Task SetAutoCancellationNotified(string bookingReference, string site)
+    {
+        var patch = PatchOperation.Set("/cancellationNotificationStatus", "Notified");
+        await bookingStore.PatchDocument(site, bookingReference, patch);
+    }
 }    

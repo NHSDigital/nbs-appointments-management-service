@@ -20,6 +20,7 @@ public interface IBookingsDocumentStore
     Task DeleteBooking(string reference, string site);
     Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date);
+    Task SetAutoCancellationNotified(string bookingReference, string site);
 }
 
 public interface IRolesStore

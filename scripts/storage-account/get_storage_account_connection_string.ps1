@@ -11,9 +11,7 @@ $StorageAccount = $storageAccount
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$connectionObject =
-az storage account show-connection-string -g $ResourceGroup -n $StorageAccount
-
-$connectionString = $connectionObject.ConnectionString
+$connectionString =
+az storage account show-connection-string -g $ResourceGroup -n $StorageAccount --output tsv
 
 Write-Host "##vso[task.setvariable variable=BlobStorageConnectionString;issecret=true]$connectionString"

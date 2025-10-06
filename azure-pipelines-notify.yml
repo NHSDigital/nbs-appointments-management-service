@@ -19,8 +19,6 @@ parameters:
     default: true
 
 variables:
-  - group: covid19bookingkv${{parameters.env}}uks
-  - group: mya-extract-${{parameters.env}}
   - name: cosmosAccountName
     value: nbs-mya-cdb-${{parameters.env}}-uks  
   - name: storageAccountName

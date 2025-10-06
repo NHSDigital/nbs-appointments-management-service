@@ -1,0 +1,107 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+parameters:
+  - name: env
+    displayName: "Environment to import data into"
+    type: string
+    default: "int"
+    values: ["int"]
+  - name: runCapacity
+    displayName: "Run Capacity Data Extract"
+    type: boolean
+    default: true
+  - name: runBooking
+    displayName: "Run Booking Data Extract"
+    type: boolean
+    default: true
+
+variables:
+  - group: covid19bookingkv${{parameters.env}}uks
+  - group: mya-extract-${{parameters.env}}
+  - name: cosmosAccountName
+    value: nbs-mya-cdb-${{parameters.env}}-uks  
+  - name: storageAccountName
+    value: nbsmyastrgimportsintuks
+  - name: resourceGroupName
+    value: nbs-mya-rg-${{parameters.env}}-uks
+
+stages:
+  - stage: "ExportBookingsToBeNotified"
+    displayName: "Export Bookings to be notified"
+    jobs:
+      - job: "ExportBookings"
+        displayName: "Export Bookings"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Get Cosmos DB account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: AzureCLI@2
+            displayName: "Get Storage account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/get_storage_account_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(storageAccountName)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run tool to create booking extract"
+            inputs:
+              command: "run"
+              projects: "data/JobRunner/JobRunner.csproj"
+            env:
+              Job: BookingExtract
+              COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
+              COSMOS_TOKEN: $(COSMOS_TOKEN)
+              FileSenderOptions__Type: blob
+              BlobStorageConnectionString: $(BlobStorageConnectionString)
+              BookingQueryServices: RSV:Adult,COVID:5_11,COVID:12_17,COVID:18+,FLU:18_64,FLU:65+,COVID_FLU:18_64,COVID_FLU:65+,FLU:2_3
+              BookingQueryFrom: 2025-10-01
+              BookingQueryTo: 2025-10-31
+  - stage: "SendNotifications"
+    displayName: "Export Bookings to be notified"
+    jobs:
+      - job: ApproveNotifications
+        displayName: "Approve Notifications"
+        pool: server
+        steps:
+          - task: ManualValidation@0
+            displayName: "Review booking extract"
+            inputs:
+              notifyUsers: ""
+              instructions: Review extract and place into file notify/bookings_to_notify.parquet
+      - job: "NotifyBookings"
+        displayName: "Notify Bookings"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Get Storage account connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/get_storage_account_connection_string.ps1"
+              arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(storageAccountName)"
+          - task: DotNetCoreCLI@2
+            displayName: "Run tool to create capacity data extract"
+            inputs:
+              command: "run"
+              projects: "data/JobRunner/JobRunner.csproj"
+            env:
+              Job: Notify
+              BlobStorageMode: blob
+              Notifications_Provider: local
+              NotificationsConfig__GovNotifyBaseUri: ToDo
+              NotificationsConfig__GovNotifyApiKey: ToDo
+              PhoneTemplateId: ToDo
+              EmailTemplateId: ToDo
+              BlobStorageConnectionString: $(BlobStorageConnectionString)
+              BookingQueryServices: RSV:Adult,COVID:5_11,COVID:12_17,COVID:18+,FLU:18_64,FLU:65+,COVID_FLU:18_64,COVID_FLU:65+,FLU:2_3
+              BookingQueryFrom: 2025-10-01
+              BookingQueryTo: 2025-10-31

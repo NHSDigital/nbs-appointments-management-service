@@ -56,7 +56,9 @@ stages:
               BookingQueryFrom: 2025-10-01
               BookingQueryTo: 2025-10-31
   - stage: "SendNotifications"
-    displayName: "Export Bookings to be notified"
+    displayName: "Send Notifications"
+    dependsOn:
+      - ExportBookingsToBeNotified
     jobs:
       - job: ApproveNotifications
         displayName: "Approve Notifications"
@@ -69,6 +71,8 @@ stages:
               instructions: Review extract and place into file notify/bookings_to_notify.parquet
       - job: "NotifyBookings"
         displayName: "Notify Bookings"
+        dependsOn:
+          - ApproveNotifications
         steps:
           - task: AzureCLI@2
             displayName: "Get Storage account connection string"
@@ -85,7 +89,7 @@ stages:
               projects: "data/JobRunner/JobRunner.csproj"
             env:
               Job: Notify
-              BlobStorageMode: blob
+              BlobStorageMode: azure
               Notifications_Provider: local
               NotificationsConfig__GovNotifyBaseUri: ToDo
               NotificationsConfig__GovNotifyApiKey: ToDo

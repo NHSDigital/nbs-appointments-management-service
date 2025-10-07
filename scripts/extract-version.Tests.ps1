@@ -27,7 +27,7 @@ Describe "extract-version.ps1" {
         $result = & "./extract-version.ps1" -branchName $branchName -buildNumber $buildNumber 6>&1
         $lines = $result -split "`r?`n"
 
-        $lines | Should -Contain "##vso[task.setvariable variable=extractedBuildNumber]1.2.3.78"
+        $lines | Should -Contain "##vso[task.setvariable variable=extractedBuildNumber;isOutput=true]1.2.3.78"
     }
 
     It "Writes a warning if the branch name does not contain 'release/' or 'hotfix/'" {

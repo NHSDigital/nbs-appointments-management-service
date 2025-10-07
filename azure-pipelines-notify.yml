@@ -8,7 +8,7 @@ parameters:
     displayName: "Environment to import data into"
     type: string
     default: "int"
-    values: ["int"]
+    values: ["int", "prod"]
   - name: notificationProvider
     displayName: "Version of notifications to run"
     type: string

@@ -55,5 +55,4 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: ${{variables.ExtractedBuildNumber}}
           isHotfix: false

@@ -1,5 +1,3 @@
-$scriptPath = Join-Path $PSScriptRoot 'extract-version.ps1'
-
 Describe "extract-version.ps1" {
 
     $testCases = @(
@@ -17,7 +15,7 @@ Describe "extract-version.ps1" {
     It "Extracts <expectedVersion> from branch <branchName> and buildNumber <buildNumber>" -TestCases $testCases {
         param($branchName, $buildNumber, $expectedVersion)
 
-        $result = & $scriptPath -branchName $branchName -buildNumber $buildNumber
+        $result = & "./extract-version.ps1" -branchName $branchName -buildNumber $buildNumber
 
         $result | Should -Be $expectedVersion
     }
@@ -26,7 +24,7 @@ Describe "extract-version.ps1" {
         $branchName = "release/1.2.3"
         $buildNumber = "78"
 
-        $result = & $scriptPath -branchName $branchName -buildNumber $buildNumber 6>&1
+        $result = & "./extract-version.ps1" -branchName $branchName -buildNumber $buildNumber 6>&1
         $lines = $result -split "`r?`n"
 
         $lines | Should -Contain "##vso[task.setvariable variable=buildNumber]1.2.3.78"
@@ -36,7 +34,7 @@ Describe "extract-version.ps1" {
         $branchName = "some-branch/feature/some-feature"
         $buildNumber = "45"
 
-        $result = & $scriptPath -branchName $branchName -buildNumber $buildNumber 3>&1
+        $result = & "./extract-version.ps1" -branchName $branchName -buildNumber $buildNumber 3>&1
         $lines = $result -split "`r?`n"
 
         $lines | Should -Contain "Branch name some-branch/feature/some-feature does not contain 'release/' or 'hotfix/'. Assuming version to be 0.0.0."

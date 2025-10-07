@@ -22,8 +22,6 @@ public class BookingDataExtract(
         
         var allBookings = await bookingsStore.RunQueryAsync(
             b => b.DocumentType == "booking" 
-                 && b.Status != AppointmentStatus.Provisional 
-                 && b.Status != AppointmentStatus.Cancelled
                  && b.From >= bookingQueryOptions.Value.From.ToDateTime(new TimeOnly(0,0))
                  && b.From <= bookingQueryOptions.Value.To.ToDateTime(new TimeOnly(0,0))
                  && validServices.Contains(b.Service)
@@ -31,7 +29,10 @@ public class BookingDataExtract(
             b => b
         );
         
-        var bookings = allBookings.ToList();
+        var bookings = allBookings.Where(
+            b => 
+                b.Status != AppointmentStatus.Provisional && 
+                b.Status != AppointmentStatus.Cancelled).ToList();
 
         var dataFactories = new List<DataFactory>
         {

@@ -1,6 +1,5 @@
 import { InsetText } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { parseToUkDatetime } from '@services/timeService';
 import { DaySummaryV2, ClinicalService } from '@types';
 
 type Props = {
@@ -10,15 +9,13 @@ type Props = {
 };
 
 const CancelDaySummary = ({ date, daySummary, clinicalServices }: Props) => {
-  const parsedDate = parseToUkDatetime(date);
-
   return (
     <>
       <SessionSummaryTable
         sessionSummaries={daySummary.sessionSummaries}
         clinicalServices={clinicalServices}
         showUnbooked={false}
-        tableCaption={`Sessions for ${parsedDate.format('dddd D MMMM')}`}
+        tableCaption={`Sessions for ${date}`}
       />
       <InsetText>
         {daySummary.totalSupportedAppointments +

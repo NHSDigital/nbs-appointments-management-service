@@ -12,10 +12,11 @@ import { useFormContext } from 'react-hook-form';
 import { CancelDayFromValues } from '../cancel-day-wizard';
 import CancelDaySummary from '../cancel-day-summary';
 import { DaySummaryV2, ClinicalService, Site } from '@types';
+import { DayJsType, RFC3339Format } from '@services/timeService';
 
 export type CancelChoiceStepProps = {
   site: Site;
-  date: string;
+  date: DayJsType;
   daySummary: DaySummaryV2;
   clinicalServices: ClinicalService[];
 };
@@ -43,7 +44,9 @@ const CancelChoiceStep = ({
     setValue('cancelChoice', cancelChoiceWatch);
 
     if (cancelChoiceWatch === 'false') {
-      router.push(`/site/${site.id}/view-availability/week?date=${date}`);
+      router.push(
+        `/site/${site.id}/view-availability/week?date=${date.format(RFC3339Format)}`,
+      );
       return;
     }
 
@@ -57,11 +60,14 @@ const CancelChoiceStep = ({
         renderingStrategy="client"
         text="Back"
       />
-      <NhsHeading title={`Cancel ${date}`} caption={site.name} />
+      <NhsHeading
+        title={`Cancel ${date.format('dddd D MMMM')}`}
+        caption={site.name}
+      />
 
       <CancelDaySummary
         clinicalServices={clinicalServices}
-        date={date}
+        date={date.format('dddd D MMMM')}
         daySummary={daySummary}
       />
 

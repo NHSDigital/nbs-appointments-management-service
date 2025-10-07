@@ -5,6 +5,7 @@ import render from '@testing/render';
 import { InjectedWizardProps } from '@components/wizard';
 import { mockSite } from '@testing/data';
 import MockForm from '@testing/mockForm';
+import { parseToUkDatetime } from '@services/timeService';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -27,7 +28,7 @@ const mockGoToLastStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
 const defaultProps: InjectedWizardProps & CancelChoiceStepProps = {
-  date: '2025-01-01',
+  date: parseToUkDatetime('2025-01-01'),
   site: mockSite,
   daySummary: {
     date: '2025-01-01',

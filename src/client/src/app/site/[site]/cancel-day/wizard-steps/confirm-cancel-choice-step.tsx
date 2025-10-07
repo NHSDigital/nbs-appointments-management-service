@@ -9,10 +9,11 @@ import { InjectedWizardProps } from '@components/wizard';
 import Link from 'next/link';
 import CancelDaySummary from '../cancel-day-summary';
 import { DaySummaryV2, ClinicalService, Site } from '@types';
+import { DayJsType, RFC3339Format } from '@services/timeService';
 
-type ConfirmCancelChoiceStepProps = {
+export type ConfirmCancelChoiceStepProps = {
   site: Site;
-  date: string;
+  date: DayJsType;
   daySummary: DaySummaryV2;
   clinicalServices: ClinicalService[];
 };
@@ -31,11 +32,14 @@ export const ConfirmCancelChoiceStep = ({
         renderingStrategy="client"
         text="Back"
       />
-      <NhsHeading title={`Cancel ${date}`} caption={site.name} />
+      <NhsHeading
+        title={`Cancel ${date.format('dddd D MMMM')}`}
+        caption={site.name}
+      />
 
       <CancelDaySummary
         clinicalServices={clinicalServices}
-        date={date}
+        date={date.format('dddd D MMMM')}
         daySummary={daySummary}
       />
 
@@ -46,7 +50,7 @@ export const ConfirmCancelChoiceStep = ({
           </Button>
         </ButtonGroup>
         <Link
-          href={`/site/${site.id}/view-availability/week?date=${date}`}
+          href={`/site/${site.id}/view-availability/week?date=${date.format(RFC3339Format)}`}
           className="nhsuk-link"
         >
           No, go back

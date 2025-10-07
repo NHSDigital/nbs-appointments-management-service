@@ -68,7 +68,7 @@ const CancelDayWizard = ({
               <CancelChoiceStep
                 {...stepProps}
                 clinicalServices={clinicalServices}
-                date={date}
+                date={parsedDate}
                 daySummary={daySummary}
                 site={site}
               />
@@ -80,7 +80,7 @@ const CancelDayWizard = ({
               <ConfirmCancelChoiceStep
                 {...stepProps}
                 clinicalServices={clinicalServices}
-                date={date}
+                date={parsedDate}
                 daySummary={daySummary}
                 site={site}
               />

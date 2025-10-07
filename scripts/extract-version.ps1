@@ -26,5 +26,5 @@ $patch = if ($semverComponents[2]) { $semverComponents[2] } else { '0' }
 
 $version = "$major.$minor.$patch.$buildNumber"
 Write-Host "Extracted version: $version"
-Write-Host "##vso[task.setvariable variable=buildNumber]$version"
+Write-Host "##vso[task.setvariable variable=extractedBuildNumber]$version"
 Write-Output $version

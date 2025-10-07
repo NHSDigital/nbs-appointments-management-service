@@ -17,6 +17,15 @@ parameters:
     values: ["dev", "pen", "perf"]
 
 stages:
+  - stage: SetBuildNumber
+    displayName: "Set Build Number"
+    jobs:
+      - job: SetBuildNumberJob
+        steps:
+          - powershell: |
+              .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
+            displayName: "Extract version from branch name"
+
   - template: scripts/pipeline-templates/build.yml
     parameters:
       prBuildServiceConnectionName: $(prBuildServiceConnectionName)
@@ -45,5 +54,5 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: "$(Build.BuildNumber)"
+          buildNumber: "$(extractedBuildNumber)"
           isHotfix: false

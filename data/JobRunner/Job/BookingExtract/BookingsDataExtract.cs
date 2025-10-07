@@ -31,8 +31,7 @@ public class BookingDataExtract(
         
         var bookings = allBookings.Where(
             b => 
-                b.Status != AppointmentStatus.Provisional && 
-                b.Status != AppointmentStatus.Cancelled).ToList();
+                b.Status == AppointmentStatus.Booked).ToList();
 
         var dataFactories = new List<DataFactory>
         {

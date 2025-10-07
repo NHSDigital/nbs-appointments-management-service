@@ -55,5 +55,5 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: $[ stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersion.ExtractedBuildNumber'] ]
+          buildNumber: $(ExtractVersion.ExtractedBuildNumber)
           isHotfix: false

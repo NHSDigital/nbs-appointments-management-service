@@ -374,17 +374,17 @@ variable "mesh_authorization_options_mailbox_id" {
 
 variable "mesh_authorization_options_certificate_name" {
   type = string
-  default = ""     
+  default = ""
 }
 
 variable "keyvault_Name" {
   type = string
-  default = ""   
+  default = ""
 }
 
 variable "keyvault_tenant_id" {
   type = string
-  default = ""   
+  default = ""
 }
 
 variable "keyvault_client_id" {
@@ -395,5 +395,9 @@ variable "keyvault_client_id" {
 variable "keyvault_client_secret" {
   type = string
   default = "UNSET"
-  sensitive = true      
+  sensitive = true
+}
+
+variable "auto_cancelled_bookings_cron_schedule" {
+  type = string
 }

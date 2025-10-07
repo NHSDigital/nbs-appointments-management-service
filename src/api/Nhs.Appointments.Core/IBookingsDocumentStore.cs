@@ -21,6 +21,7 @@ public interface IBookingsDocumentStore
     Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date);
     Task SetAutoCancellationNotified(string bookingReference, string site);
+    Task<IEnumerable<Booking>> GetRecentlyUpdatedBookingsCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses);
 }
 
 public interface IRolesStore

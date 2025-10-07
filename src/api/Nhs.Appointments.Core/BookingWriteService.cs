@@ -244,7 +244,7 @@ public class BookingWriteService(
         var windowStart = now.AddDays(-1);
         var windowEnd = now;
 
-        var bookingsCancelledByService = (await bookingQueryService.GetCancelledBookingsAcrossAllSites(windowStart, windowEnd)).Where(
+        var bookingsCancelledByService = (await bookingQueryService.GetRecentlyUpdatedBookingsCrossSiteAsync(windowStart, windowEnd)).Where(
             b => b.CancellationReason == CancellationReason.CancelledByService &&
             (b.CancellationNotificationStatus == CancellationNotificationStatus.Unnotified || b.CancellationNotificationStatus is null) &&
             b.ContactDetails is not null &&

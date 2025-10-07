@@ -203,3 +203,8 @@ variable "CONTAINER_REGISTRY_PASSWORD" {
   type = string
   sensitive = true
 }
+
+variable "AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE" {
+  type = string
+  sensitive = false
+}

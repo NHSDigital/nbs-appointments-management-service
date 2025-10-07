@@ -382,4 +382,33 @@ public class BookingCosmosDocumentStore(
         var patch = PatchOperation.Set("/cancellationNotificationStatus", "Notified");
         await bookingStore.PatchDocument(site, bookingReference, patch);
     }
+
+    public async Task<IEnumerable<Booking>> GetRecentlyUpdatedBookingsCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
+    {
+        if (statuses.Length == 0)
+        {
+            throw new ArgumentException("You must specify one or more statuses");
+        }
+
+        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.DocumentType == "booking_index" && i.StatusUpdated >= from && i.StatusUpdated <= to);
+        var siteGroupedBookings = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
+
+        var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
+
+        await Parallel.ForEachAsync(siteGroupedBookings, async (group, _) =>
+        {
+            var bookings = await GetInStatusUpdatedRange(group.Min(g => g.From), group.Max(g => g.From), group.Key);
+            concurrentResults.Add(bookings);
+        });
+
+        return concurrentResults.SelectMany(x => x);
+    }
+
+    private async Task<IEnumerable<Booking>> GetInStatusUpdatedRange(DateTime from, DateTime to, string site)
+    {
+        using (metricsRecorder.BeginScope("GetInStatusUpdatedRange"))
+        {
+            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.StatusUpdated >= from && b.StatusUpdated <= to);
+        }
+    }
 }    

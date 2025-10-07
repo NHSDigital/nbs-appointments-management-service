@@ -23,9 +23,9 @@ public class BookingDataExtract(
         var allBookings = await bookingsStore.RunQueryAsync(
             b => b.DocumentType == "booking" 
                  && b.From >= bookingQueryOptions.Value.From.ToDateTime(new TimeOnly(0,0))
-                 && b.From <= bookingQueryOptions.Value.To.ToDateTime(new TimeOnly(0,0))
+                 && b.From <= bookingQueryOptions.Value.To.ToDateTime(new TimeOnly(23,59))
                  && validServices.Contains(b.Service)
-                 && (b.AdditionalData.ReferralType == "SelfReferred" || b.AttendeeDetails.DateOfBirth >= new DateOnly(1951, 01,01)), 
+                 && b.AttendeeDetails.DateOfBirth > new DateOnly(1951, 01,31), 
             b => b
         );
         
@@ -38,7 +38,6 @@ public class BookingDataExtract(
         {
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentDateTime, BookingDataConverter.ExtractAppointmentDateTime),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.AppointmentStatus, BookingDataConverter.ExtractAppointmentStatus),
-            new DataFactory<NbsBookingDocument, bool>(BookingDataExtractFields.SelfReferral, BookingDataConverter.ExtractSelfReferral),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.DateOfBirth, BookingDataConverter.ExtractDateOfBirth),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingReferenceNumber, BookingDataConverter.ExtractBookingReference),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.Service, BookingDataConverter.ExtractService),

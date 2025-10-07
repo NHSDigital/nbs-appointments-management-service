@@ -40,6 +40,7 @@ stages:
               script: |
                 Set-Location ./scripts
                 Invoke-Pester
+              pwsh: true
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"
             inputs:

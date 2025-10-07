@@ -113,6 +113,6 @@ stages:
               command: "run"
               projects: "data/JobRunner/JobRunner.csproj"
             env:
-              Job: Notify
+              Job: ParquetToCSV
               BlobStorageMode: azure
               BlobStorageConnectionString: $(BlobStorageConnectionString)

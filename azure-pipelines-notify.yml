@@ -108,7 +108,7 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/get_storage_account_connection_string.ps1"
               arguments: "-resourceGroup $(resourceGroupName) -storageAccount $(storageAccountName)"
           - task: DotNetCoreCLI@2
-            displayName: "Run tool to create capacity data extract"
+            displayName: "Run tool to notify bookings"
             inputs:
               command: "run"
               projects: "data/JobRunner/JobRunner.csproj"

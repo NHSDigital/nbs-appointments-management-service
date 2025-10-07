@@ -25,7 +25,7 @@ public class BookingDataExtract(
                  && b.From >= bookingQueryOptions.Value.From.ToDateTime(new TimeOnly(0,0))
                  && b.From <= bookingQueryOptions.Value.To.ToDateTime(new TimeOnly(0,0))
                  && validServices.Contains(b.Service)
-                 && (b.AdditionalData.ReferralType == "SelfReferred" || b.AttendeeDetails.DateOfBirth > new DateOnly(1950, 01,01)), 
+                 && (b.AdditionalData.ReferralType == "SelfReferred" || b.AttendeeDetails.DateOfBirth > new DateOnly(1951, 01,01)), 
             b => b
         );
         

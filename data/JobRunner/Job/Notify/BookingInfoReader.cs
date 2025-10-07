@@ -14,7 +14,6 @@ public class BookingInfo
 {
     public string BOOKING_REFERENCE_NUMBER { get; set; }
     public string FIRST_NAME { get; set; }
-    public string LAST_NAME { get; set; }
     public string PHONE_NUMBER { get; set; }
     public string EMAIL { get; set; }
 }

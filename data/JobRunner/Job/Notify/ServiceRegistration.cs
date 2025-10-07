@@ -72,6 +72,7 @@ public static class ServiceRegistration
                         config.GetSection("GovNotifyRetryOptions")
                     )
                     .AddTransient<IPrivacyUtil, PrivacyUtil>()
+                    .AddTransient<ISendNotifications, GovNotifyClient>()
                     .AddScoped<IAsyncNotificationClient>(x =>
                         new NotificationClient(
                             notificationsConfig.GovNotifyBaseUri,

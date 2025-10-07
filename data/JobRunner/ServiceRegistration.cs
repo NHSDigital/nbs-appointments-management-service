@@ -1,5 +1,6 @@
 ﻿using JobRunner.Job.BookingExtract;
 using JobRunner.Job.Notify;
+using JobRunner.Job.ParquetToCsv;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,9 @@ public static class ServiceRegistration
                 break;
             case "Notify":
                 services.AddNotifyJob(configurationBuilder);
+                break;
+            case "ParquetToCSV":
+                services.AddParquetToCSV(configurationBuilder);
                 break;
             default:
                 throw new InvalidOperationException($"Job {job} is not recognized");

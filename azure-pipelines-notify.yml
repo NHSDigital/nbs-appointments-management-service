@@ -115,12 +115,4 @@ stages:
             env:
               Job: Notify
               BlobStorageMode: azure
-              Notifications_Provider: ${{parameters.notificationProvider}}
-              GovNotifyBaseUri: $(TF_VAR_GOV_NOTIFY_BASE_URI)
-              GovNotifyApiKey: $(GOV_NOTIFY_API_KEY)
-              GovNotifyRetryOptions__MaxRetries: $(TF_VAR_GOV_NOTIFY_RETRY_OPTIONS_MAX_RETRIES)
-              GovNotifyRetryOptions__InitialDelayMs: $(TF_VAR_GOV_NOTIFY_RETRY_OPTIONS_INITIAL_DELAY_MS)
-              GovNotifyRetryOptions__BackoffFactor: $(TF_VAR_GOV_NOTIFY_RETRY_OPTIONS_BACKOFF_FACTOR)
-              PhoneTemplateId: ${{parameters.smsTemplateId}}
-              EmailTemplateId: ${{parameters.emailTemplateId}}
               BlobStorageConnectionString: $(BlobStorageConnectionString)

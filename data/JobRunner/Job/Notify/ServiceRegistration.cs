@@ -30,7 +30,7 @@ public static class ServiceRegistration
         return services;
     }
 
-    private static IServiceCollection AddAzureBlobStorage(this IServiceCollection services,
+    public static IServiceCollection AddAzureBlobStorage(this IServiceCollection services,
         IConfiguration configuration)
     {
         var mode = configuration["BlobStorageMode"];

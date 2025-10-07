@@ -45,8 +45,7 @@ public class Worker(
                     logger.LogInformation($"Sending notifications for {bookingInfo.BOOKING_REFERENCE_NUMBER}");
                     var templateValues = new Dictionary<string, dynamic>()
                     {
-                        { "first_name", bookingInfo.FIRST_NAME },
-                        { "last_name", bookingInfo.LAST_NAME }
+                        { "firstName", bookingInfo.FIRST_NAME }
                     };
 
                     var tasks = new List<Task>

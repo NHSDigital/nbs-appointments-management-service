@@ -11,15 +11,19 @@ public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
     private const string ContainerName = "notify";
     private List<BlobTrackerModel> _tracker = new();
 
+    private bool _changesPersisted = false;
+
     public async Task RefreshState(string file)
     {
         _tracker = new();
-        
+
         var stream = await azureBlobStorage.GetBlob(ContainerName, file);
         if (stream is not null)
         {
             _tracker = (await ParquetSerializer.DeserializeAsync<BlobTrackerModel>(stream)).ToList();
         }
+
+        _changesPersisted = false;
     }
     
 
@@ -48,10 +52,16 @@ public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
     {
         var stream = await azureBlobStorage.GetBlobUploadStream(ContainerName, file);
         await WriteAsync(stream);
+        _changesPersisted = true;
     }
 
     private async Task WriteAsync(Stream stream)
     {
+        if (_changesPersisted)
+        {
+            return;
+        }
+
         var dataFactories = new List<DataFactory>
         {
             new DataFactory<BlobTrackerModel, string>(NofityFields.Reference, document => document.REFERENCE),

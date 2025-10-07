@@ -9,6 +9,29 @@ parameters:
     type: string
     default: "int"
     values: ["int"]
+  - name: notificationProvider
+    displayName: "Version of notifications to run"
+    type: string
+    default: "local"
+    values: ["local", "live"]
+  - name: servicesFilter
+    displayName: "Services filter to extract"
+    type: string
+    default: "RSV:Adult,COVID:5_11,COVID:12_17,COVID:18+,FLU:18_64,FLU:65+,COVID_FLU:18_64,COVID_FLU:65+,FLU:2_3"
+  - name: fromFilter
+    displayName: "Date from filter to extract"
+    type: string
+    default: "2025-10-01"
+  - name: toFilter
+    displayName: "Date to filter to extract"
+    type: string
+    default: "2025-10-31"
+  - name: smsTemplateId
+    displayName: "SMS Template ID"
+    type: string
+  - name: emailTemplateId
+    displayName: "Email Template ID"
+    type: string
 
 variables:
   - name: cosmosAccountName
@@ -52,13 +75,15 @@ stages:
               COSMOS_TOKEN: $(COSMOS_TOKEN)
               FileSenderOptions__Type: blob
               BlobStorageConnectionString: $(BlobStorageConnectionString)
-              BookingQueryServices: RSV:Adult,COVID:5_11,COVID:12_17,COVID:18+,FLU:18_64,FLU:65+,COVID_FLU:18_64,COVID_FLU:65+,FLU:2_3
-              BookingQueryFrom: 2025-10-01
-              BookingQueryTo: 2025-10-31
+              BookingQueryServices: ${{parameters.servicesFilter}}
+              BookingQueryFrom: ${{parameters.fromFilter}}
+              BookingQueryTo: ${{parameters.toFilter}}
   - stage: "SendNotifications"
     displayName: "Send Notifications"
     dependsOn:
       - ExportBookingsToBeNotified
+    variables:
+      - group: nbs-mya-${{parameters.env}}
     jobs:
       - job: ApproveNotifications
         displayName: "Approve Notifications"
@@ -90,12 +115,12 @@ stages:
             env:
               Job: Notify
               BlobStorageMode: azure
-              Notifications_Provider: local
-              NotificationsConfig__GovNotifyBaseUri: ToDo
-              NotificationsConfig__GovNotifyApiKey: ToDo
-              PhoneTemplateId: ToDo
-              EmailTemplateId: ToDo
+              Notifications_Provider: ${{parameters.notificationProvider}}
+              GovNotifyBaseUri: $(TF_VAR_GOV_NOTIFY_BASE_URI)
+              GovNotifyApiKey: $(GOV_NOTIFY_API_KEY)
+              GovNotifyRetryOptions__MaxRetries: $(TF_VAR_GOV_NOTIFY_RETRY_OPTIONS_MAX_RETRIES)
+              GovNotifyRetryOptions__InitialDelayMs: $(TF_VAR_GOV_NOTIFY_RETRY_OPTIONS_INITIAL_DELAY_MS)
+              GovNotifyRetryOptions__BackoffFactor: $(TF_VAR_GOV_NOTIFY_RETRY_OPTIONS_BACKOFF_FACTOR)
+              PhoneTemplateId: ${{parameters.smsTemplateId}}
+              EmailTemplateId: ${{parameters.emailTemplateId}}
               BlobStorageConnectionString: $(BlobStorageConnectionString)
-              BookingQueryServices: RSV:Adult,COVID:5_11,COVID:12_17,COVID:18+,FLU:18_64,FLU:65+,COVID_FLU:18_64,COVID_FLU:65+,FLU:2_3
-              BookingQueryFrom: 2025-10-01
-              BookingQueryTo: 2025-10-31

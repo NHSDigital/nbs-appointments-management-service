@@ -42,9 +42,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.DateOfBirth, BookingDataConverter.ExtractDateOfBirth),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingReferenceNumber, BookingDataConverter.ExtractBookingReference),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.Service, BookingDataConverter.ExtractService),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.Service, BookingDataConverter.ExtractService),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.FirstName, document => document.AttendeeDetails.FirstName),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.LastName, document => document.AttendeeDetails.LastName),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.PhoneNumber, document => document.ContactDetails.SingleOrDefault(x => x.Type.Equals(ContactItemType.Phone))?.Value ?? string.Empty),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.Email, document => document.ContactDetails.SingleOrDefault(x => x.Type.Equals(ContactItemType.Email))?.Value ?? string.Empty),
         };

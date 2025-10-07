@@ -36,9 +36,10 @@ stages:
           - task: PowerShell@2
             displayName: "Run script tests"
             inputs:
-              targetType: "filePath"
-              filePath: "$(Build.SourcesDirectory)/scripts/extract-version.Tests.ps1"
-              pwsh: true
+              targetType: "inline"
+              script: |
+                Set-Location ./scripts
+                Invoke-Pester
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"
             inputs:

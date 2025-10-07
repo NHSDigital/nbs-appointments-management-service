@@ -30,7 +30,7 @@ public class Worker(
             
             logger.LogInformation($"Downloaded booking info, total bookings to notify - {bookingInfos.Length}");
 
-            var batches = bookingInfos.Chunk(1000);
+            var batches = bookingInfos.Chunk(3);
             var totalBatches = batches.Count();
             var iterations = 1;
             

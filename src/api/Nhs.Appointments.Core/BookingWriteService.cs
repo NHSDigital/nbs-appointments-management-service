@@ -263,11 +263,12 @@ public class BookingWriteService(
             }
 
             var type = b.AdditionalData.GetType();
-            return type.GetProperty("AutoCancelled") != null;
+            return type.GetProperty("AutoCancellation") != null;
         });
 
         foreach (var booking in autoCancelledBookings)
         {
+            // TODO: Add check to ensure AutoCancellation is set to true
             var notifcations = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
             await bus.Send(notifcations);
             booking.CancellationNotificationStatus = CancellationNotificationStatus.Notified;

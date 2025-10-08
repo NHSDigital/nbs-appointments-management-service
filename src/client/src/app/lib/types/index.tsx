@@ -409,7 +409,7 @@ type AvailabilityChangeProposalRequest = {
   to: string;
   site: string;
   sessionMatcher: AvailabilitySession;
-  sessionReplacement: AvailabilitySession;
+  sessionReplacement: AvailabilitySession | null;
 };
 
 export type {

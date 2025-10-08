@@ -6,6 +6,7 @@
     "SiteSummaryReport": true,
     "SiteStatus": true,
     "CancelDay": true,
-    "ChangeSessionUpliftedJourney": false
+    "ChangeSessionUpliftedJourney": false,
+    "CancelSessionUpliftedJourney": false
   }
 }

@@ -21,6 +21,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
     application_stack {
       node_version = "20-lts"
     }
+    health_check_path = "/manage-your-appointments/login"
   }
 
   app_settings = {
@@ -50,6 +51,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
     application_stack {
       node_version = "20-lts"
     }
+    health_check_path = "/manage-your-appointments/login"
   }
 
   app_settings = {

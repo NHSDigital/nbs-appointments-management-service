@@ -52,7 +52,8 @@
     "DailySiteSummaryAggregationCronSchedule": "0 */5 * * * *",
     "SITE_SUMMARY_DAYS_FORWARD": 30,
     "SITE_SUMMARY_DAYS_CHUNK_SIZE": 365,
-    "SITE_SUMMARY_FIRST_RUN_DATE": "2025-06-01"
+    "SITE_SUMMARY_FIRST_RUN_DATE": "2025-06-01",
+    "AutoCancelledBookingsCronSchedule": "0 8 * * *"
   },
   "Host": { "CORS": "*" }
 }

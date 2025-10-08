@@ -263,7 +263,10 @@ public class BookingWriteService(
             }
 
             var type = b.AdditionalData.GetType();
-            return type.GetProperty("AutoCancellation") != null;
+            var autoCancellationProp = type.GetProperty("AutoCancellation", typeof(bool));
+            return autoCancellationProp is not null &&
+                   autoCancellationProp.GetValue(b.AdditionalData) is bool value &&
+                   value;
         });
 
         if (!autoCancelledBookings.Any())
@@ -273,7 +276,6 @@ public class BookingWriteService(
 
         foreach (var booking in autoCancelledBookings)
         {
-            // TODO: Add check to ensure AutoCancellation is set to true
             var notifcations = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
             await bus.Send(notifcations);
             booking.CancellationNotificationStatus = CancellationNotificationStatus.Notified;

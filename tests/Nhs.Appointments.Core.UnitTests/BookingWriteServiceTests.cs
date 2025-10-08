@@ -935,7 +935,11 @@ namespace Nhs.Appointments.Core.UnitTests
                     Site = "Test Site 123",
                     Status = AppointmentStatus.Cancelled,
                     CancellationReason = CancellationReason.CancelledByService,
-                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified
+                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
+                    AdditionalData = new
+                    {
+                        AutoCancellation = false
+                    }
                 },
                 new()
                 {

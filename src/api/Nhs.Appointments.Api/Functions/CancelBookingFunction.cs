@@ -30,14 +30,27 @@ public class CancelBookingFunction(
         metricsRecorder)
 {
     [OpenApiOperation(operationId: "CancelBooking", tags: ["Booking"], Summary = "Cancel a booking")]
-    [OpenApiParameter("bookingReference", Required = true, In = ParameterLocation.Path,
-        Description = "The booking reference of the booking to cancel")]
+    [OpenApiRequestBody("application/json", typeof(CancelBookingOpenApiRequest),
+        Required = false,
+        Example = typeof(CancelBookingOpenApiRequest))]
+    [OpenApiParameter("bookingReference",
+        Required = true,
+        In = ParameterLocation.Path,
+        Description = "The booking reference of the booking to cancel",
+        Type = typeof(string))]
+    [OpenApiParameter("site",
+        Required = false,
+        In = ParameterLocation.Query,
+        Description =
+            "The site at which the booking is scheduled. Optional; if provided an additional check will be made to validate that the booking is scheduled at the specified site.",
+        Type = typeof(string))]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(CancelBookingResponse),
         Description = "Booking successfully cancelled")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, "application/json", typeof(string),
-        Description = "Requested site not configured for appointments")]
+        Description =
+            "A scheduled booking with a matching reference could not be found. Or, if site was provided, the booking's site did not match the site provided by the caller.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),

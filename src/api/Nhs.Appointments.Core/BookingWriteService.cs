@@ -266,6 +266,11 @@ public class BookingWriteService(
             return type.GetProperty("AutoCancellation") != null;
         });
 
+        if (!autoCancelledBookings.Any())
+        {
+            return;
+        }
+
         foreach (var booking in autoCancelledBookings)
         {
             // TODO: Add check to ensure AutoCancellation is set to true

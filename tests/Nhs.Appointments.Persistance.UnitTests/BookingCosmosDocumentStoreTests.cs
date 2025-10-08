@@ -447,4 +447,141 @@ public class BookingCosmosDocumentStoreTests
 
         _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
     }
+
+    [Fact]
+    public async Task GetRecentlyUpdatedBookingsCrossSiteAsync_ThrowsException_WhenNoStatusesPassedIn()
+    {
+        var act = async () => await _sut.GetRecentlyUpdatedBookingsCrossSiteAsync(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(1));
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("You must specify one or more statuses.");
+    }
+
+    [Fact]
+    public async Task GetRecentlyUpdatedBookingsCrossSiteAsync_ReturnsBookings()
+    {
+        var statusUpdated = DateTime.Now.AddDays(-1);
+        var bookingIndexDocuments = new List<BookingIndexDocument>
+        {
+            new()
+            {
+                Site = "TEST_SITE_123",
+                DocumentType = "booking_index",
+                Id = "01-76-000001",
+                NhsNumber = "9999999999",
+                Reference = "01-76-000001",
+                Status = AppointmentStatus.Cancelled,
+                StatusUpdated = statusUpdated
+            },
+            new()
+            {
+                Site = "TEST_SITE_123",
+                DocumentType = "booking_index",
+                Id = "02-76-000001",
+                NhsNumber = "9999999999",
+                Reference = "02-76-000001",
+                Status = AppointmentStatus.Cancelled,
+                StatusUpdated = statusUpdated
+            },
+            new()
+            {
+                Site = "ANOTHER_TEST_SITE",
+                DocumentType = "booking_index",
+                Id = "01-76-000002",
+                NhsNumber = "9999999999",
+                Reference = "01-76-000002",
+                Status = AppointmentStatus.Cancelled,
+                StatusUpdated = statusUpdated
+            },
+            new()
+            {
+                Site = "ANOTHER_TEST_SITE",
+                DocumentType = "booking_index",
+                Id = "01-76-000003",
+                NhsNumber = "9999999999",
+                Reference = "01-76-000003",
+                Status = AppointmentStatus.Cancelled,
+                StatusUpdated = statusUpdated
+            }
+        };
+        var bookings = new List<Booking>
+        {
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 12, 25, 0),
+                Status = AppointmentStatus.Booked,
+                Site = "TEST_SITE_123"
+            },
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 11, 25, 0),
+                Status = AppointmentStatus.Cancelled,
+                ContactDetails = [
+                    new () {
+                        Type = ContactItemType.Phone,
+                        Value = "1234567890"
+                    }
+                ],
+                Site = "TEST_SITE_123"
+            },
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 10, 25, 0),
+                Status = AppointmentStatus.Booked,
+                ContactDetails = [
+                    new () {
+                        Type = ContactItemType.Phone,
+                        Value = "1234567890"
+                    }
+                ],
+                Site = "ANOTHER_TEST_SITE"
+            },
+            new()
+            {
+                AttendeeDetails = new()
+                {
+                    NhsNumber = "9999999999",
+                    FirstName = "John",
+                    LastName = "Bloggs"
+                },
+                From = new DateTime(2025, 1, 1, 9, 25, 0),
+                Status = AppointmentStatus.Provisional,
+                ContactDetails = [
+                    new () {
+                        Type = ContactItemType.Email,
+                        Value = "test.email@domain.com"
+                    }
+                ],
+                Site = "ANOTHER_TEST_SITE"
+            }
+        };
+
+        _indexStore.Setup(x => x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+            .ReturnsAsync(bookingIndexDocuments);
+        _bookingStore.SetupSequence(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+            .ReturnsAsync(bookings.Take(2))
+            .ReturnsAsync(bookings.Skip(2).Take(2));
+
+
+        var result = await _sut.GetRecentlyUpdatedBookingsCrossSiteAsync(statusUpdated, statusUpdated.AddDays(1), AppointmentStatus.Cancelled);
+
+        result.Count().Should().Be(4);
+    }
 }

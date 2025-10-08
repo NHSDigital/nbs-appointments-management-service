@@ -387,7 +387,7 @@ public class BookingCosmosDocumentStore(
     {
         if (statuses.Length == 0)
         {
-            throw new ArgumentException("You must specify one or more statuses");
+            throw new ArgumentException("You must specify one or more statuses.");
         }
 
         var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.DocumentType == "booking_index" && i.StatusUpdated >= from && i.StatusUpdated <= to);

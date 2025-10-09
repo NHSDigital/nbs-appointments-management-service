@@ -62,7 +62,6 @@ stages:
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
         dependsOn:
-          - PrintVersion
           - ${{ if eq(parameters.env, 'prod') }}:
               - EnterChangeRequest
         steps:

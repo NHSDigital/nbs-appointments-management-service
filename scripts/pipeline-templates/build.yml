@@ -33,7 +33,7 @@ stages:
             inputs:
               targetType: "inline"
               script: |
-                Write-Host "Building MYA version: $(extractedBuildNumber)"
+                Write-Host "Building MYA version: $(ExtractVersionStep.extractedBuildNumber)"
               pwsh: true
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
@@ -157,7 +157,7 @@ stages:
               mv .next/static .next/standalone/.next/static
             displayName: "Build Web App"
             env:
-              BUILD_NUMBER: "$(extractedBuildNumber)"
+              BUILD_NUMBER: "$(ExtractVersionStep.extractedBuildNumber)"
           - task: ArchiveFiles@2
             displayName: Zip Web Client
             inputs:
@@ -179,7 +179,7 @@ stages:
               dockerfile: $(bookingExtractDockerFilePath)
               containerRegistry: ${{parameters.prDockerServiceConnectionName}}
               tags: |
-                $(extractedBuildNumber)
+                $(ExtractVersionStep.extractedBuildNumber)
           - task: Docker@2
             displayName: Build and push capacity extract image to container registry
             inputs:
@@ -188,7 +188,7 @@ stages:
               dockerfile: $(capacityExtractDockerFilePath)
               containerRegistry: ${{parameters.prDockerServiceConnectionName}}
               tags: |
-                $(extractedBuildNumber)
+                $(ExtractVersionStep.extractedBuildNumber)
           - task: PublishBuildArtifacts@1
             displayName: "Publish Terraform"
             inputs:
@@ -247,7 +247,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
-              BUILD_NUMBER: "$(extractedBuildNumber)"
+              BUILD_NUMBER: "$(ExtractVersionStep.extractedBuildNumber)"
           - task: DotNetCoreCLI@2
             displayName: "Run Booking Data Extract Integration Tests"
             inputs:
@@ -336,7 +336,7 @@ stages:
             env:
               CI: "true"
               SEED_COSMOS_BEFORE_RUN: "false"
-              BUILD_NUMBER: "$(extractedBuildNumber)"
+              BUILD_NUMBER: "$(ExtractVersionStep.extractedBuildNumber)"
           - task: PublishTestResults@2
             displayName: "Publish E2E test results"
             condition: succeededOrFailed()

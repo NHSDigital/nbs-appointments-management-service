@@ -20,8 +20,6 @@ parameters:
     type: string
   - name: serviceConnectionName
     type: string
-  - name: buildNumber
-    type: string
   - name: isHotfix
     type: boolean
 

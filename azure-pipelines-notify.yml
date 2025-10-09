@@ -9,11 +9,11 @@ parameters:
     type: string
     default: "int"
     values: ["int", "prod"]
-  - name: notificationProvider
-    displayName: "Version of notifications to run"
+  - name: notificationType
+    displayName: "Notification being sent"
     type: string
-    default: "local"
-    values: ["local", "live"]
+    default: "eligibility"
+    values: ["eligibility"]
   - name: servicesFilter
     displayName: "Services filter to extract"
     type: string
@@ -26,12 +26,6 @@ parameters:
     displayName: "Date to filter to extract"
     type: string
     default: "2025-10-31"
-  - name: smsTemplateId
-    displayName: "SMS Template ID"
-    type: string
-  - name: emailTemplateId
-    displayName: "Email Template ID"
-    type: string
 
 variables:
   - name: cosmosAccountName
@@ -116,3 +110,5 @@ stages:
               Job: ParquetToCSV
               BlobStorageMode: azure
               BlobStorageConnectionString: $(BlobStorageConnectionString)
+              Environment: ${{parameters.env}}
+              Notification: ${{parameters.notificationType}}

@@ -27,16 +27,6 @@ stages:
             name: ExtractVersionStep
             displayName: "Extract version from branch name"
 
-  - stage: PrintBuildNumber
-    displayName: "Print Build Number"
-    dependsOn: SetBuildNumber
-    variables:
-      ExtractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
-    jobs:
-      - job: PrintBuildNumberJob
-        steps:
-          - script: echo $(ExtractedBuildNumber)
-
   - template: scripts/pipeline-templates/build.yml
     parameters:
       prBuildServiceConnectionName: $(prBuildServiceConnectionName)
@@ -65,5 +55,4 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
           isHotfix: false

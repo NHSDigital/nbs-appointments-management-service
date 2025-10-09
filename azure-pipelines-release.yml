@@ -24,7 +24,7 @@ stages:
         steps:
           - powershell: |
               .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
-            name: ExtractVersion
+            name: ExtractVersionStep
             displayName: "Extract version from branch name"
 
   - template: scripts/pipeline-templates/build.yml
@@ -52,5 +52,4 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: ${{ExtractedBuildNumber}}
           isHotfix: false

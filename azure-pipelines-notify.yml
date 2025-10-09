@@ -94,11 +94,11 @@ stages:
           - task: AzureCLI@2
             displayName: "Get Storage account connection string"
             inputs:
-              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              azureSubscription: "nbs-mya-rg-int"
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/storage-account/get_storage_account_connection_string.ps1"
-              arguments: "-resourceGroup $(resourceGroupName) -storageAccount $(storageAccountName)"
+              arguments: "-resourceGroup nbs-mya-rg-int-uks -storageAccount $(storageAccountName)"
           - task: DotNetCoreCLI@2
             displayName: "Run tool to notify bookings"
             inputs:

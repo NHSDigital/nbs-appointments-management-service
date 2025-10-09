@@ -62,9 +62,7 @@ public class ParquetToCsvWorker(
         
         foreach (var notification in notifications)
         {
-            var stream = await azureBlobStorage.GetBlobUploadStream("csvnotify", $"{(notificationType == NotificationType.Sms ? "sms" : "email")}-notifications-{iterator}.csv");
-            await using var streamWriter = new StreamWriter(stream);
-            tasks.Add(WriteToCsv(streamWriter, notificationType, notification));
+            tasks.Add(WriteToCsv($"{(notificationType == NotificationType.Sms ? "sms" : "email")}-notifications-{iterator}.csv", notificationType, notification));
             iterator++;
         }
         
@@ -93,8 +91,11 @@ public class ParquetToCsvWorker(
         }
     }
 
-    private async Task WriteToCsv(TextWriter csvWriter, NotificationType type, Notification[] rows)
+    private async Task WriteToCsv(string csvName, NotificationType type, Notification[] rows)
     {
+        var stream = await azureBlobStorage.GetBlobUploadStream("csvnotify", csvName);
+        await using var csvWriter = new StreamWriter(stream) as TextWriter;
+        
         var typeAsString = type == NotificationType.Email ? "Email" : type == NotificationType.Sms ? "Sms" : "Unknown";
         await csvWriter.WriteLineAsync(string.Join(',', [$"{(type == NotificationType.Sms ? "phone number" : "email address")}", "firstName"]));
         foreach (var row in rows)

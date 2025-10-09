@@ -28,10 +28,12 @@ public class ParquetToCsvWorker(
             
             var bookings = (await bookingInfoReader.ReadStreamAsync(bookingFileStream)).ToArray();
 
-            await ProcessBookings(NotificationType.Sms, bookings);
-            await ProcessBookings(NotificationType.Email, bookings);
+            var tasks = new List<Task>()
+            {
+                ProcessBookings(NotificationType.Sms, bookings), ProcessBookings(NotificationType.Email, bookings)
+            };
             
-            await sendTracker.Persist($"{jobOptions.Value.Environment}-{jobOptions.Value.Notification}-tracker.parquet");
+            await Task.WhenAll(tasks);
         }
         catch (Exception ex)
         {
@@ -40,6 +42,7 @@ public class ParquetToCsvWorker(
         }
         finally
         {
+            await sendTracker.Persist($"{jobOptions.Value.Environment}-{jobOptions.Value.Notification}-tracker.parquet");
             hostApplicationLifetime.StopApplication();
         }
     }

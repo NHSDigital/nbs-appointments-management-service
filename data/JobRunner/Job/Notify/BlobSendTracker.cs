@@ -30,8 +30,6 @@ public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
 
     public Task RecordSend(string reference, string type, string templateId, bool success, string message)
     {
-        _tracker.RemoveAll(x => x.REFERENCE == reference && x.TEMPLATE_ID == type && x.TEMPLATE_ID == templateId);
-        
         _tracker.Add(new BlobTrackerModel()
         {
             REFERENCE = reference,

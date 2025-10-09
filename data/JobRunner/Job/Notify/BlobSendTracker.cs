@@ -1,4 +1,4 @@
-﻿using Azure.Storage.Blobs;
+﻿using System.Collections.Concurrent;
 using DataExtract;
 using Parquet;
 using Parquet.Schema;
@@ -9,7 +9,7 @@ namespace JobRunner.Job.Notify;
 public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
 {
     private const string ContainerName = "notify";
-    private List<BlobTrackerModel> _tracker = new();
+    private ConcurrentBag<BlobTrackerModel> _tracker = new();
 
     public async Task RefreshState(string file)
     {
@@ -18,7 +18,7 @@ public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
         var stream = await azureBlobStorage.GetBlob(ContainerName, file);
         if (stream is not null)
         {
-            _tracker = (await ParquetSerializer.DeserializeAsync<BlobTrackerModel>(stream)).ToList();
+            _tracker = new ConcurrentBag<BlobTrackerModel>(await ParquetSerializer.DeserializeAsync<BlobTrackerModel>(stream));
         }
     }
     

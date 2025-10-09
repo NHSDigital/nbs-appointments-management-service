@@ -44,8 +44,6 @@ stages:
 
   - ${{ each env in parameters.environments }}:
       - template: scripts/pipeline-templates/deploy.yml
-        variables:
-          ExtractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
         parameters:
           env: ${{env}}
           variable_group: nbs-mya-${{env}}
@@ -67,5 +65,5 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: ${{variables.ExtractedBuildNumber}}
+          buildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
           isHotfix: false

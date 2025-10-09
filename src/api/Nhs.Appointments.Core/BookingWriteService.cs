@@ -24,7 +24,7 @@ public interface IBookingWriteService
 
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
 
-    Task RecalculateAppointmentStatuses(string site, DateOnly day);
+    Task RecalculateAppointmentStatuses(string site, DateOnly day, bool CancelOrphaned = false);
 
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDayAsync(string site, DateOnly day);
 }
@@ -159,7 +159,7 @@ public class BookingWriteService(
         return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
     }
 
-    public async Task RecalculateAppointmentStatuses(string site, DateOnly day)
+    public async Task RecalculateAppointmentStatuses(string site, DateOnly day, bool CancelOrphaned = false)
     {
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
@@ -177,6 +177,12 @@ public class BookingWriteService(
                     break;
 
                 case AvailabilityUpdateAction.SetToOrphaned:
+                    if (CancelOrphaned)
+                    {
+                        await CancelBooking(update.Booking.Reference, update.Booking.Site, CancellationReason.CancelledBySite);
+                        break;
+                    }
+                    
                     await UpdateAvailabilityStatus(update.Booking.Reference,
                         AvailabilityStatus.Orphaned);
                     break;

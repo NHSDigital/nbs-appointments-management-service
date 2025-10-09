@@ -343,3 +343,9 @@
   font-size: 1.1875rem;
   font-weight: 700;
 }
+
+.margin-top-bottom {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  font-size: 1.1875rem;
+}

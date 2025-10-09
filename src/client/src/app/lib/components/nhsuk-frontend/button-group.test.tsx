@@ -20,4 +20,28 @@ describe('ButtonGroup', () => {
       screen.getByRole('button', { name: 'Click Me (two)' }),
     ).toBeInTheDocument();
   });
+
+  it('renders horizontally by default', () => {
+    render(
+      <ButtonGroup>
+        <Button>Horizontal 1</Button>
+        <Button>Horizontal 2</Button>
+      </ButtonGroup>,
+    );
+
+    const list = screen.getByRole('list');
+    expect(list).toHaveStyle({ flexDirection: 'row' });
+  });
+
+  it('renders vertically when vertical is true', () => {
+    render(
+      <ButtonGroup vertical>
+        <Button>Vertical 1</Button>
+        <Button>Vertical 2</Button>
+      </ButtonGroup>,
+    );
+
+    const list = screen.getByRole('list');
+    expect(list).toHaveStyle({ flexDirection: 'column' });
+  });
 });

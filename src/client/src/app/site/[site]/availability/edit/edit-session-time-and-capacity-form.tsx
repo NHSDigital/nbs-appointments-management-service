@@ -17,12 +17,12 @@ import {
   parseToUkDatetime,
   parseToTimeComponents,
   toTimeFormat,
+  isValidStartTime,
+  parseDateAndTimeComponentsToUkDateTime,
 } from '@services/timeService';
-import { ChangeEvent } from 'react';
-import {
-  sessionLengthInMinutes,
-  summariseDayWithImpact,
-} from '@services/availabilityCalculatorService';
+import { ChangeEvent, useTransition } from 'react';
+import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
+import fromServer from '@server/fromServer';
 
 export type EditSessionFormValues = {
   sessionToEdit: Session;
@@ -33,13 +33,16 @@ type Props = {
   date: string;
   site: Site;
   existingSession: SessionSummary;
+  changeSessionUpliftedJourneyEnabled: boolean;
 };
 
 const EditSessionTimeAndCapacityForm = ({
-  date,
   site,
   existingSession,
+  date,
+  changeSessionUpliftedJourneyEnabled,
 }: Props) => {
+  const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
     existingSession.ukStartDatetime,
     dateTimeFormat,
@@ -53,7 +56,7 @@ const EditSessionTimeAndCapacityForm = ({
     handleSubmit,
     watch,
     control,
-    formState: { isSubmitting, isSubmitSuccessful, errors },
+    formState: { errors },
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
@@ -89,75 +92,72 @@ const EditSessionTimeAndCapacityForm = ({
   const submitForm: SubmitHandler<EditSessionFormValues> = async (
     form: EditSessionFormValues,
   ) => {
-    const updatedSession: AvailabilitySession = {
-      from: toTimeFormat(form.newSession.startTime) ?? '',
-      until: toTimeFormat(form.newSession.endTime) ?? '',
-      slotLength: form.newSession.slotLength,
-      capacity: form.newSession.capacity,
-      services: form.newSession.services,
-    };
+    startTransition(async () => {
+      if (changeSessionUpliftedJourneyEnabled) {
+        const reroute = `/site/${site.id}/availability/edit/confirmation?session=${btoa(JSON.stringify(existingSession))}&date=${date}&updatedSession=${btoa(JSON.stringify(form.newSession))}&sessionToEdit=${btoa(JSON.stringify(form.sessionToEdit))}`;
+        router.push(reroute);
+      } else {
+        const updatedSession = toAvailabilitySession(form.newSession);
 
-    const originalSession: AvailabilitySession = {
-      from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-      until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-      slotLength: form.sessionToEdit.slotLength,
-      capacity: form.sessionToEdit.capacity,
-      services: form.sessionToEdit.services,
-    };
+        const sessionStart = parseDateAndTimeComponentsToUkDateTime(
+          date,
+          form.newSession.startTime,
+        );
+        const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
+          date,
+          form.newSession.endTime,
+        );
 
-    const encodedUpdated = encodeURIComponent(
-      btoa(JSON.stringify(updatedSession)),
-    );
-    const encodedOriginal = encodeURIComponent(
-      btoa(JSON.stringify(originalSession)),
-    );
+        const validSessionStartTime = isValidStartTime(
+          sessionStart,
+          sessionEnd,
+          form.newSession.slotLength,
+        );
 
-    const { orphanedCount, totalBookings, bookings } =
-      await summariseDayWithImpact(
-        site.id,
-        date,
-        originalSession,
-        updatedSession,
-      );
+        if (
+          existingSession.totalSupportedAppointments === 0 ||
+          validSessionStartTime
+        ) {
+          await updateSession(form, updatedSession);
+          return;
+        }
 
-    const referencesToCancel = bookings
-      .filter(b => b.status === 'Booked')
-      .map(b => b.reference);
+        const updatedString = btoa(JSON.stringify(updatedSession));
+        const existingString = btoa(JSON.stringify(existingSession));
 
-    const encodedBookings = encodeURIComponent(
-      btoa(JSON.stringify(referencesToCancel)),
-    );
+        router.push(
+          `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
+        );
+      }
+    });
+  };
 
-    if (orphanedCount === 0) {
-      await editSession({
+  const updateSession = async (
+    form: EditSessionFormValues,
+    updatedSession: AvailabilitySession,
+  ) => {
+    await fromServer(
+      editSession({
         date,
         site: site.id,
         mode: 'Edit',
         sessions: [updatedSession],
-        sessionToEdit: {
-          from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-          until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-          slotLength: form.sessionToEdit.slotLength,
-          capacity: form.sessionToEdit.capacity,
-          services: form.sessionToEdit.services,
-        },
-      });
+        sessionToEdit: toAvailabilitySession(form.sessionToEdit),
+      }),
+    );
 
-      router.push(
-        `/site/${site.id}/availability/edit/confirmed?updatedSession=${encodedUpdated}&date=${date}`,
-      );
-    } else {
-      router.push(
-        `/site/${site.id}/availability/edit/change-session-time-and-capacity?` +
-          `date=${date}` +
-          `&orphanedCount=${orphanedCount}` +
-          `&bookingCount=${totalBookings}` +
-          `&bookings=${encodedBookings}` +
-          `&updatedSession=${encodedUpdated}` +
-          `&originalSession=${encodedOriginal}`,
-      );
-    }
+    router.push(
+      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+    );
   };
+
+  const toAvailabilitySession = (session: Session): AvailabilitySession => ({
+    from: toTimeFormat(session.startTime) ?? '',
+    until: toTimeFormat(session.endTime) ?? '',
+    slotLength: session.slotLength,
+    capacity: session.capacity,
+    services: session.services,
+  });
 
   const handleTwoDigitPositiveBoundedNumberInput = (
     e: ChangeEvent<HTMLInputElement>,
@@ -169,14 +169,14 @@ const EditSessionTimeAndCapacityForm = ({
     }
 
     if (asNumber > upperBound) {
-      return '0${e.target.value.slice(-1)}';
+      return `0${e.target.value.slice(-1)}`;
     }
 
     switch (e.target.value.length) {
       case 0:
-        return '00';
+        return `00`;
       case 1:
-        return '0${e.target.value}';
+        return `0${e.target.value}`;
       case 2:
         return e.target.value;
       default:
@@ -445,7 +445,7 @@ const EditSessionTimeAndCapacityForm = ({
         />
       </FormGroup>
 
-      {isSubmitting || isSubmitSuccessful ? (
+      {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <Button type="submit">Continue</Button>

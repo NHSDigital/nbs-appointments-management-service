@@ -45,14 +45,14 @@ public class AvailabilityWriteService(
     }
 
     public async Task ApplySingleDateSessionAsync(DateOnly date, string site, Session[] sessions,
-        ApplyAvailabilityMode mode, string user, Session sessionToEdit = null)
+        ApplyAvailabilityMode mode, string user, Session sessionToEdit = null, bool CancelOrphaned = false)
     {
-        await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit);
+        await SetAvailabilityAsync(date, site, sessions, mode, sessionToEdit, CancelOrphaned);
         await availabilityCreatedEventStore.LogSingleDateSessionCreated(site, date, sessions, user);
     }
 
     public async Task SetAvailabilityAsync(DateOnly date, string site, Session[] sessions, ApplyAvailabilityMode mode,
-        Session sessionToEdit = null)
+        Session sessionToEdit = null, bool CancelOrphaned = false)
     {
         if (string.IsNullOrEmpty(site))
         {
@@ -70,7 +70,7 @@ public class AvailabilityWriteService(
         }
 
         await availabilityStore.ApplyAvailabilityTemplate(site, date, sessions, mode, sessionToEdit);
-        await bookingWriteService.RecalculateAppointmentStatuses(site, date);
+        await bookingWriteService.RecalculateAppointmentStatuses(site, date, CancelOrphaned);
     }
 
     public async Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity)

@@ -6,7 +6,8 @@
     "MultipleServices": false,
     "SiteSummaryReport": false,
     "SiteStatus": false,
-    "CancelDay":  false,
+    "CancelDay": false,
+    "ChangeSessionUpliftedJourney": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

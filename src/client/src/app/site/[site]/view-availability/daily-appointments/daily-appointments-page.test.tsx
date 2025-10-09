@@ -26,12 +26,12 @@ describe('View Daily Appointments', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '14:05 John Smith 9999999990 1 February 1979 RSV Adult Cancel',
+        name: '14:05 John Smith 9999999990 1 February 1979 Not provided RSV Adult Cancel',
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: '09:34 Ian Goldsmith 9999999995 3 March 1973 FLU 18-64 Cancel',
+        name: '09:34 Ian Goldsmith 9999999995 3 March 1973 Not provided FLU 18-64 Cancel',
       }),
     ).toBeInTheDocument();
 

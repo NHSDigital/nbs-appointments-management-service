@@ -1,20 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
 using Feature = Xunit.Gherkin.Quick.Feature;
@@ -38,6 +41,8 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly HttpClient Http;
     protected readonly Mapper Mapper;
     protected List<BookingDocument> MadeBookings = new List<BookingDocument>();
+    protected readonly Dictionary<int, string> _bookingReferences = new();
+    protected HttpResponseMessage _response { get; set; }
 
     public BaseFeatureSteps()
     {
@@ -352,7 +357,7 @@ public abstract partial class BaseFeatureSteps : Feature
                             BookingReferences.GetBookingReference(index, bookingType);
             var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
-            var status = dataTable.GetEnumRowValue(row, "Status", AppointmentStatus.Booked);
+            var status = dataTable.GetEnumRowValueOrDefault<AppointmentStatus>(row, "Status") ?? MapStatus(bookingType);
 
             var day = dataTable.GetRowValueOrDefault(row, "Date", "Tomorrow");
             var time = dataTable.GetRowValueOrDefault(row, "Time", "10:00");
@@ -373,6 +378,8 @@ public abstract partial class BaseFeatureSteps : Feature
                 dataTable.GetEnumRowValueOrDefault<CancellationNotificationStatus>(row,
                     "Cancellation Notification Status");
 
+            var nhsNumber = dataTable.GetRowValueOrDefault(row, "Nhs Number", NhsNumber);
+
             var booking = new BookingDocument
             {
                 Id = reference,
@@ -390,7 +397,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 StatusUpdated = created,
                 AttendeeDetails = new AttendeeDetails
                 {
-                    NhsNumber = NhsNumber,
+                    NhsNumber = nhsNumber,
                     FirstName = "FirstName",
                     LastName = "LastName",
                     DateOfBirth = new DateOnly(2000, 1, 1)
@@ -413,9 +420,9 @@ public abstract partial class BaseFeatureSteps : Feature
                 Site = site,
                 DocumentType = "booking_index",
                 Id = reference,
-                NhsNumber = NhsNumber,
-                Status = MapStatus(bookingType),
-                Created = GetCreationDateTime(bookingType),
+                NhsNumber = nhsNumber,
+                Status = status,
+                Created = created,
                 From = from
             };
 
@@ -602,6 +609,83 @@ public abstract partial class BaseFeatureSteps : Feature
         await AssertAvailabilityStatusByReference(customId, expectedStatus, false);
     }
 
+    [When(@"I create the following availability")]
+    public async Task CreateAvailability(DataTable dataTable)
+    {
+        foreach (var row in dataTable.Rows.Skip(1))
+        {
+            var cells = row.Cells.ToList();
+
+            var date = cells.ElementAt(0).Value;
+            var from = cells.ElementAt(1).Value;
+            var until = cells.ElementAt(2).Value;
+            var slotLength = cells.ElementAt(3).Value;
+            var capacity = cells.ElementAt(4).Value;
+            var services = cells.ElementAt(5).Value;
+
+            var payload = new
+            {
+                date = ParseNaturalLanguageDateOnly(date).ToString("yyyy-MM-dd"),
+                site = GetSiteId(),
+                sessions = new[]
+                {
+                    new
+                    {
+                        from,
+                        until,
+                        slotLength = int.Parse(slotLength),
+                        capacity = int.Parse(capacity),
+                        services = services.Split(',').Select(s => s.Trim()).ToArray()
+                    }
+                },
+                mode = "additive"
+            };
+
+            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
+            _response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+    }
+
+    [Then("I make the following bookings")]
+    public async Task MakeBookings(DataTable dataTable)
+    {
+        var bookingIndex = 0;
+        foreach (var row in dataTable.Rows.Skip(1))
+        {
+            var cells = row.Cells.ToList();
+            var date = cells.ElementAt(0).Value;
+            var time = cells.ElementAt(1).Value;
+            var duration = cells.ElementAt(2).Value;
+            var service = cells.ElementAt(3).Value;
+
+            object payload = new
+            {
+                from = DateTime.ParseExact(
+                    $"{ParseNaturalLanguageDateOnly(date):yyyy-MM-dd} {time}",
+                    "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
+                duration,
+                service,
+                site = GetSiteId(),
+                kind = "booked",
+                attendeeDetails = new
+                {
+                    nhsNumber = NhsNumber,
+                    firstName = "John",
+                    lastName = "Doe",
+                    dateOfBirth = "1987-03-13"
+                }
+            };
+            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+            _response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var result =
+                JsonConvert.DeserializeObject<MakeBookingResponse>(await _response.Content.ReadAsStringAsync());
+            var bookingReference = result.BookingReference;
+
+            _bookingReferences[bookingIndex] = bookingReference;
+            bookingIndex += 1;
+        }
+    }
     private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,
         bool expectStatusToHaveChanged = true)
     {

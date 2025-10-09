@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -60,7 +60,7 @@ public class SetAvailabilityFunctionTests
 
         _availabilityService.Verify(
             x => x.ApplySingleDateSessionAsync(request.Date, request.Site, sessions, ApplyAvailabilityMode.Overwrite,
-                "test.user3@nhs.net", null), Times.Once);
+                "test.user3@nhs.net", null, false), Times.Once);
     }
 
     private class SetAvailabilityFunctionTestProxy(

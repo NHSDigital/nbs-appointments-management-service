@@ -209,11 +209,11 @@ public class AvailabilityWriteServiceTests
 
         await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06)),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06), false),
             Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07)),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07), false),
             Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08)),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08), false),
             Times.Once);
     }
 
@@ -265,7 +265,7 @@ public class AvailabilityWriteServiceTests
 
         await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10)),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10), false),
             Times.Once);
     }
 
@@ -386,7 +386,7 @@ public class AvailabilityWriteServiceTests
         await _sut.CancelSession(site, date, "09:00", "12:00", ["RSV:Adult"], 5, 2);
 
         _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, date), Times.Once());
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, date, false), Times.Once());
     }
 
     [Fact]

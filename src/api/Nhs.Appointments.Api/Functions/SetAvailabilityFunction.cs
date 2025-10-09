@@ -50,7 +50,7 @@ public class SetAvailabilityFunction(
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
         await availabilityWriteService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions,
-            request.Mode, user, request.SessionToEdit);
+            request.Mode, user, request.SessionToEdit, request.CancelOrphaned);
         return Success(new EmptyResponse());
     }
 }

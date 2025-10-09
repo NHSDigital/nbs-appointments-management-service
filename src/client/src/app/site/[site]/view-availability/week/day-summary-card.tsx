@@ -37,14 +37,16 @@ export const DaySummaryCard = ({
           text: 'Add availability to this day',
           href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`,
         },
-      cancelledAppointments > 0 && {
-        text: 'View cancelled appointments',
-        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
-      },
-      orphanedAppointments > 0 && {
-        text: 'View manual cancellations',
-        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
-      },
+      canViewDailyAppointments &&
+        cancelledAppointments > 0 && {
+          text: 'View cancelled appointments',
+          href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
+        },
+      canViewDailyAppointments &&
+        orphanedAppointments > 0 && {
+          text: 'View manual cancellations',
+          href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
+        },
     ].filter(p => p !== false);
 
     return (
@@ -61,14 +63,16 @@ export const DaySummaryCard = ({
       text: 'View daily appointments',
       href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
     },
-    cancelledAppointments > 0 && {
-      text: 'View cancelled appointments',
-      href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
-    },
-    orphanedAppointments > 0 && {
-      text: 'View manual cancellations',
-      href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
-    },
+    canViewDailyAppointments &&
+      cancelledAppointments > 0 && {
+        text: 'View cancelled appointments',
+        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
+      },
+    canViewDailyAppointments &&
+      orphanedAppointments > 0 && {
+        text: 'View manual cancellations',
+        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
+      },
   ].filter(p => p !== false);
 
   const futureCancelDayLink =

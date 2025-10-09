@@ -1069,6 +1069,36 @@
       }
     },
     {
+      "name": "availability/propose-edit",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"from\": \"2025-10-24\",\r\n    \"to\": \"2025-10-24\",\r\n    \"site\": \"6877d86e-c2df-4def-8508-e1eccf0ea6be\",\r\n    \"sessionMatcher\": {\r\n        \"from\": \"12:00\",\r\n        \"until\": \"16:00\",\r\n        \"services\": [\r\n            \"RSV:Adult\"\r\n        ],\r\n        \"slotLength\": 10,\r\n        \"capacity\": 1\r\n    },\r\n    \"sessionReplacement\": {\r\n        \"from\": \"14:00\",\r\n        \"until\": \"16:00\",\r\n        \"services\": [\r\n            \"RSV:Adult\",\r\n            \"COVID:5_11\"\r\n        ],\r\n        \"slotLength\": 10,\r\n        \"capacity\": 1\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/availability/propose-edit",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "availability", "propose-edit"]
+        }
+      }
+    },
+    {
       "name": "site-status",
       "request": {
         "method": "POST",
@@ -1105,13 +1135,8 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/day-summary?site=6877d86e-c2df-4def-8508-e1eccf0ea6be&from=2025-08-15",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "day-summary"
-          ],
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "day-summary"],
           "query": [
             {
               "key": "site",

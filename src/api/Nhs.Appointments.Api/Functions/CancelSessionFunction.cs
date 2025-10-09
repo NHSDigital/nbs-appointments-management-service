@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +9,9 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
@@ -20,7 +20,8 @@ public class CancelSessionFunction(
     IValidator<CancelSessionRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelSessionFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<CancelSessionRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "CancelSession", tags: ["Availability"], Summary = "Cancel a session")]
@@ -45,16 +46,25 @@ public class CancelSessionFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(CancelSessionRequest request, ILogger logger)
     {
-        await availabilityWriteService.CancelSession(
-            request.Site,
-            request.Date,
-            request.From,
-            request.Until,
-            request.Services,
-            request.SlotLength,
-            request.Capacity
-        );
+        if(await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
+        {
+            return ApiResult<EmptyResponse>.Failed(
+                HttpStatusCode.NotFound, "Cancel session function is not available."
+            );
+        }
+        else
+        {
+            await availabilityWriteService.CancelSession(
+                request.Site,
+                request.Date,
+                request.From,
+                request.Until,
+                request.Services,
+                request.SlotLength,
+                request.Capacity
+            );
 
-        return Success(new EmptyResponse());
+            return Success(new EmptyResponse());
+        }
     }
 }

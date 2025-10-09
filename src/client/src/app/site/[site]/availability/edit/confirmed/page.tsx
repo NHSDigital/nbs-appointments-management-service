@@ -23,6 +23,7 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { updatedSession, date } = { ...(await searchParams) };
+
   if (updatedSession === undefined || date === undefined) {
     return notFound();
   }
@@ -41,6 +42,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <NhsPage
+      site={site}
       originPage="edit-session"
       title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}

@@ -85,9 +85,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
       showPrintButton
     >
-      <span className="print-out-data" aria-hidden="true">
+      <p className="print-out-data" aria-hidden="true">
         Generated: {GetCurrentDateTime()}
-      </span>
+      </p>
 
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">

@@ -27,7 +27,6 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn:
-      - SetBuildNumber
       - Build
       - ${{ if and(eq(parameters.env, 'stag'), not(parameters.isHotfix)) }}:
           - DeployInt
@@ -36,7 +35,7 @@ stages:
     condition: succeeded()
     variables:
       - name: extractedBuildNumber
-        value: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.extractedBuildNumber']]
+        value: $[stageDependencies.Build.Build.outputs['ExtractVersionStep.extractedBuildNumber']]
       - group: ${{parameters.variable_group}}
       - group: nbs-mya-container-registry
     jobs:

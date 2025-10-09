@@ -7,9 +7,6 @@ parameters:
 stages:
   - stage: Build
     displayName: Build
-    dependsOn: SetBuildNumber
-    variables:
-      extractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.extractedBuildNumber']]
     jobs:
       - job: "Build"
         variables:
@@ -23,6 +20,14 @@ stages:
           bookingExtractDockerFilePath: "BookingDataExtractDockerfile"
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
         steps:
+          - task: PowerShell@2
+            displayName: "Extract MYA version"
+            name: ExtractVersionStep
+            inputs:
+              targetType: "inline"
+              script: |
+                .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
+              pwsh: true
           - task: PowerShell@2
             displayName: "Print MYA version"
             inputs:

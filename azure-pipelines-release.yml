@@ -17,16 +17,6 @@ parameters:
     values: ["int", "stag", "prod", "pen", "perf"]
 
 stages:
-  - stage: SetBuildNumber
-    displayName: "Set Build Number"
-    jobs:
-      - job: SetBuildNumberJob
-        steps:
-          - powershell: |
-              .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
-            name: ExtractVersionStep
-            displayName: "Extract version from branch name"
-
   - template: scripts/pipeline-templates/build.yml
     parameters:
       prBuildServiceConnectionName: $(prBuildServiceConnectionName)

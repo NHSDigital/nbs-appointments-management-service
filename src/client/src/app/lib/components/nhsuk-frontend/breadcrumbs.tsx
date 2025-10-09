@@ -19,7 +19,7 @@ const Breadcrumbs = ({ trail = [] }: Props) => {
   const previousCrumb = trail.length > 1 ? trail.slice(-2)[0] : undefined;
 
   return (
-    <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
+    <nav className="nhsuk-breadcrumb no-print" aria-label="Breadcrumb">
       <div className="nhsuk-width-container">
         <ol className="nhsuk-breadcrumb__list">
           {trail.map((breadcrumb, index) => {

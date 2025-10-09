@@ -19,7 +19,7 @@ type PaginationProps = {
 const Pagination = ({ previous, next }: PaginationProps) => {
   return (
     <nav
-      className="nhsuk-pagination"
+      className="nhsuk-pagination no-print"
       role="navigation"
       aria-label="Pagination"
       style={{ marginTop: 0, marginBottom: 0 }}

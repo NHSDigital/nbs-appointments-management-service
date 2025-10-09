@@ -31,6 +31,7 @@
 
   .no-print.has-printable-children .always-print table {
     display: table !important;
+    break-inside: auto;
   }
 
   .no-print.has-printable-children .always-print thead {

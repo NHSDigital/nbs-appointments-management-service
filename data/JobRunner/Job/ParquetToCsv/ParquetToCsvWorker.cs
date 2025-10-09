@@ -48,7 +48,9 @@ public class ParquetToCsvWorker(
     {
         var notifications = bookings.Select(x => new Notification()
         {
-            Destination = notificationType == NotificationType.Sms ? x.PHONE_NUMBER : x.EMAIL, Type = notificationType, Name = x.FIRST_NAME
+            Destination = notificationType == NotificationType.Sms ? x.PHONE_NUMBER : x.EMAIL, Type = notificationType, 
+            Name = x.FIRST_NAME, 
+            Reference = x.BOOKING_REFERENCE_NUMBER
         }).Chunk(50000);
 
         var iterator = 1;

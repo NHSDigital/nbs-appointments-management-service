@@ -10,10 +10,19 @@ public static class ServiceRegistration
         IConfigurationBuilder configurationBuilder)
     {
         var configuration = configurationBuilder.Build();
-        services.AddTransient<INotifyInfoReader<BookingInfo>, BookingInfoReader>();
-        services.AddHostedService<ParquetToCsvWorker>();
-
-        services.AddAzureBlobStorage(configuration);
+        
+        services
+            .Configure<JobOptions>(config =>
+                {
+                    config.Environment = configuration.GetValue<string>("Environment") ??
+                                         throw new NullReferenceException("Configuration for Environment is missing");
+                    config.Notification = configuration.GetValue<string>("Notification") ??
+                                         throw new NullReferenceException("Configuration for Notification is missing");
+                })
+            .AddTransient<INotifyInfoReader<BookingInfo>, BookingInfoReader>()
+            .AddHostedService<ParquetToCsvWorker>()
+            .AddTransient<ISendTracker, BlobSendTracker>()
+            .AddAzureBlobStorage(configuration);
         
         return services;
     }

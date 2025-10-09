@@ -26,6 +26,15 @@ parameters:
     type: boolean
 
 stages:
+  - stage: PrintBuildNumber
+    displayName: "Print Build Number"
+    variables:
+      ExtractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
+    jobs:
+      - job: PrintBuildNumberJob
+        steps:
+          - script: echo $(ExtractedBuildNumber)
+
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn:

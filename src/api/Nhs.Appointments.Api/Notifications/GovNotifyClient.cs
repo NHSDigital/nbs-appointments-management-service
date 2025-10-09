@@ -69,9 +69,7 @@ public class GovNotifyClient(
 
         try
         {
-            await RetryOnExceptionAsync<NotifyClientException>(() =>
-                client.SendEmailAsync(emailAddress, templateId, templateValues)
-            );
+            await client.SendEmailAsync(emailAddress, templateId, templateValues);
         }
         catch (NotifyClientException ex)
         {
@@ -90,9 +88,7 @@ public class GovNotifyClient(
 
         try
         {
-            await RetryOnExceptionAsync<NotifyClientException>(() =>
-                client.SendSmsAsync(phoneNumber, templateId, templateValues)
-            );
+            await client.SendSmsAsync(phoneNumber, templateId, templateValues);
         }
         catch (NotifyClientException ex)
         {

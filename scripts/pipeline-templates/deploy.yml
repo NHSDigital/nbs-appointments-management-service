@@ -39,6 +39,16 @@ stages:
       - group: ${{parameters.variable_group}}
       - group: nbs-mya-container-registry
     jobs:
+      - job: "PrintVersion"
+        displayName: "Print MYA version"
+        steps:
+          - task: PowerShell@2
+            displayName: "Print MYA version"
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "Deploying MYA version: $(extractedBuildNumber)"
+              pwsh: true
       - job: EnterChangeRequest
         displayName: "Enter Change Request Number (CFG)"
         pool: server
@@ -52,6 +62,7 @@ stages:
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
         dependsOn:
+          - PrintVersion
           - ${{ if eq(parameters.env, 'prod') }}:
               - EnterChangeRequest
         steps:
@@ -103,7 +114,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                 terraform init
-                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
+                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{extractedBuildNumber}}" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         condition: ne('${{parameters.env}}', 'dev')
@@ -154,7 +165,7 @@ stages:
                       $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                       cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                       terraform init
-                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
+                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{extractedBuildNumber}}" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
       - job: DeployWeb
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"

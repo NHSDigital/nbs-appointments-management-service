@@ -24,7 +24,7 @@ stages:
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
         steps:
           - task: PowerShell@2
-            displayName: "Print build number"
+            displayName: "Print MYA version"
             inputs:
               targetType: "inline"
               script: |

@@ -27,6 +27,7 @@ stages:
   - stage: Deploy${{parameters.env}}
     displayName: Deploy ${{parameters.env}}
     dependsOn:
+      - SetBuildNumber
       - Build
       - ${{ if and(eq(parameters.env, 'stag'), not(parameters.isHotfix)) }}:
           - DeployInt

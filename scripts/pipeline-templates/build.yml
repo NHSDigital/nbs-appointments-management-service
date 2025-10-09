@@ -21,19 +21,20 @@ stages:
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
         steps:
           - task: PowerShell@2
+            displayName: "Run script tests"
+            inputs:
+              targetType: "inline"
+              script: |
+                Set-Location ./scripts
+                Invoke-Pester
+              pwsh: true
+          - task: PowerShell@2
             displayName: "Extract MYA version"
             name: ExtractVersionStep
             inputs:
               targetType: "inline"
               script: |
                 .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
-              pwsh: true
-          - task: PowerShell@2
-            displayName: "Print MYA version"
-            inputs:
-              targetType: "inline"
-              script: |
-                Write-Host "Building MYA version: $(ExtractVersionStep.extractedBuildNumber)"
               pwsh: true
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
@@ -48,14 +49,6 @@ stages:
                 sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
                 sonar.scanner.scanAll=false
                 sonar.coverage.exclusions=**/FunctionConfigurationExtensions.cs,**/ServiceRegistration.cs,**/ConsoleLogNotifications.cs,**/Program.cs,**/Nhs.Appointments.Persistance/**
-          - task: PowerShell@2
-            displayName: "Run script tests"
-            inputs:
-              targetType: "inline"
-              script: |
-                Set-Location ./scripts
-                Invoke-Pester
-              pwsh: true
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"
             inputs:

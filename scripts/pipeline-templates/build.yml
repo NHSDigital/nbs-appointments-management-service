@@ -41,12 +41,12 @@ stages:
             inputs:
               targetType: "inline"
               script: |
-                Set-Content -Path $(Pipeline.Workspace)/drop_version_number.txt -Value "$(ExtractVersionStep.ExtractedBuildNumber)"
+                Set-Content -Path $(Pipeline.Workspace)/version_number.txt -Value "$(ExtractVersionStep.ExtractedBuildNumber)"
               pwsh: true
           - task: PublishBuildArtifacts@1
             displayName: "Publish MYA version to artifact"
             inputs:
-              PathtoPublish: "$(Pipeline.Workspace)/drop_version_number.txt"
+              PathtoPublish: "$(Pipeline.Workspace)/version_number.txt"
               ArtifactName: "drop_version_number"
               publishLocation: "Container"
           - task: SonarCloudPrepare@3

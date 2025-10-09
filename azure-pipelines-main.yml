@@ -24,8 +24,18 @@ stages:
         steps:
           - powershell: |
               .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
-            name: ExtractVersion
+            name: ExtractVersionStep
             displayName: "Extract version from branch name"
+
+  - stage: PrintBuildNumber
+    displayName: "Print Build Number"
+    dependsOn: SetBuildNumber
+    variables:
+      ExtractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
+    jobs:
+      - job: PrintBuildNumberJob
+        steps:
+          - script: echo $(ExtractedBuildNumber)
 
   - template: scripts/pipeline-templates/build.yml
     parameters:
@@ -34,6 +44,8 @@ stages:
 
   - ${{ each env in parameters.environments }}:
       - template: scripts/pipeline-templates/deploy.yml
+        variables:
+          ExtractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
         parameters:
           env: ${{env}}
           variable_group: nbs-mya-${{env}}

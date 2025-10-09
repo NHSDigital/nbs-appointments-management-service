@@ -9,7 +9,7 @@ namespace JobRunner.Job.Notify;
 public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
 {
     private const string ContainerName = "notify";
-    private ConcurrentBag<BlobTrackerModel> _tracker = new();
+    private ConcurrentQueue<BlobTrackerModel> _tracker = new();
 
     public async Task RefreshState(string file)
     {
@@ -18,7 +18,7 @@ public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
         var stream = await azureBlobStorage.GetBlob(ContainerName, file);
         if (stream is not null)
         {
-            _tracker = new ConcurrentBag<BlobTrackerModel>(await ParquetSerializer.DeserializeAsync<BlobTrackerModel>(stream));
+            _tracker = new ConcurrentQueue<BlobTrackerModel>(await ParquetSerializer.DeserializeAsync<BlobTrackerModel>(stream));
         }
     }
     
@@ -30,7 +30,7 @@ public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
 
     public Task RecordSend(string reference, string type, string templateId, bool success, string message)
     {
-        _tracker.Add(new BlobTrackerModel()
+        _tracker.Enqueue(new BlobTrackerModel()
         {
             REFERENCE = reference,
             TYPE = type,
@@ -71,7 +71,7 @@ public class BlobSendTracker(IAzureBlobStorage azureBlobStorage) : ISendTracker
     }
 }
 
-public class BlobTrackerModel
+public record BlobTrackerModel
 {
     public string REFERENCE { get; set; }
     public string TYPE { get; set; }

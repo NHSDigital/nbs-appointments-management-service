@@ -58,13 +58,17 @@ public class ParquetToCsvWorker(
 
         var iterator = 1;
         
+        var tasks = new List<Task>();
+        
         foreach (var notification in notifications)
         {
             var stream = await azureBlobStorage.GetBlobUploadStream("csvnotify", $"{(notificationType == NotificationType.Sms ? "sms" : "email")}-notifications-{iterator}.csv");
             await using var streamWriter = new StreamWriter(stream);
-            await WriteToCsv(streamWriter, notificationType, notification);
+            tasks.Add(WriteToCsv(streamWriter, notificationType, notification));
             iterator++;
         }
+        
+        await Task.WhenAll(tasks);
     }
 
     private bool DestinationValid(NotificationType notificationType, string destination)

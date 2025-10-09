@@ -36,7 +36,8 @@ stages:
           - DeployStag
     condition: succeeded()
     variables:
-      extractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.extractedBuildNumber']]
+      - name: extractedBuildNumber
+        value: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.extractedBuildNumber']]
       - group: ${{parameters.variable_group}}
       - group: nbs-mya-container-registry
     jobs:

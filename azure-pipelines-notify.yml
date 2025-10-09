@@ -76,7 +76,6 @@ stages:
     displayName: "Send Notifications"
     dependsOn:
       - ExportBookingsToBeNotified
-    variables:
     jobs:
       - job: ApproveNotifications
         displayName: "Approve Notifications"

@@ -5,6 +5,16 @@ parameters:
     type: string
 
 stages:
+  - stage: PrintBuildNumberInsideBuild
+    displayName: "Print Build Number"
+    dependsOn: SetBuildNumber
+    variables:
+      ExtractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
+    jobs:
+      - job: PrintBuildNumberJob
+        steps:
+          - script: echo $(ExtractedBuildNumber)
+
   - stage: Build
     displayName: Build
     jobs:

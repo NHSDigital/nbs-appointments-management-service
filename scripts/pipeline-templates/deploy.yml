@@ -28,6 +28,7 @@ parameters:
 stages:
   - stage: PrintBuildNumberInsideDeploy
     displayName: "Print Build Number"
+    dependsOn: SetBuildNumber
     variables:
       ExtractedBuildNumber: $[stageDependencies.SetBuildNumber.SetBuildNumberJob.outputs['ExtractVersionStep.ExtractedBuildNumber']]
     jobs:

@@ -77,7 +77,6 @@ stages:
     dependsOn:
       - ExportBookingsToBeNotified
     variables:
-      - group: nbs-mya-${{parameters.env}}
     jobs:
       - job: ApproveNotifications
         displayName: "Approve Notifications"

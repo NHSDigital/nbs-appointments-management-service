@@ -30,6 +30,7 @@ describe('Edit Session Decision Page', () => {
         date="2025-01-15"
         site={mockSite}
         clinicalServices={mockSingleService}
+        cancelSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -50,6 +51,7 @@ describe('Edit Session Decision Page', () => {
         date="2025-01-15"
         site={mockSite}
         clinicalServices={mockMultipleServices}
+        cancelSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -78,6 +80,7 @@ describe('Edit Session Decision Page', () => {
         date="2025-01-15"
         site={mockSite}
         clinicalServices={mockSingleService}
+        cancelSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -107,6 +110,7 @@ describe('Edit Session Decision Page', () => {
         date="2025-01-15"
         site={mockSite}
         clinicalServices={mockSingleService}
+        cancelSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -184,6 +188,7 @@ describe('Edit Session Decision Page', () => {
         date="2025-01-15"
         site={mockSite}
         clinicalServices={mockSingleService}
+        cancelSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -216,6 +221,7 @@ describe('Edit Session Decision Page', () => {
         date="2025-01-15"
         site={mockSite}
         clinicalServices={mockSingleService}
+        cancelSessionUpliftedJourneyFlag={false}
       />,
     );
 
@@ -229,6 +235,68 @@ describe('Edit Session Decision Page', () => {
 
     waitFor(() => {
       expect(mockPush).toHaveBeenCalled();
+    });
+  });
+
+  it('reroutes to cancel/confirmation when cancelSessionUpliftedJourneyFlag is true', async () => {
+    const session = btoa(
+      JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
+    );
+    const { user } = render(
+      <EditSessionDecision
+        sessionSummary={session}
+        date="2025-01-15"
+        site={mockSite}
+        clinicalServices={mockSingleService}
+        cancelSessionUpliftedJourneyFlag={true}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('radio', {
+        name: /cancel this session/i,
+      }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `/site/${mockSite.id}/availability/cancel/confirmation?session=${session}&date=2025-01-15`,
+        ),
+      );
+    });
+  });
+
+  it('reroutes to cancel when cancelSessionUpliftedJourneyFlag is false', async () => {
+    const session = btoa(
+      JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
+    );
+    const { user } = render(
+      <EditSessionDecision
+        sessionSummary={session}
+        date="2025-01-15"
+        site={mockSite}
+        clinicalServices={mockSingleService}
+        cancelSessionUpliftedJourneyFlag={false}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('radio', {
+        name: /cancel this session/i,
+      }),
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `/site/${mockSite.id}/availability/cancel?session=${session}&date=2025-01-15`,
+        ),
+      );
     });
   });
 });

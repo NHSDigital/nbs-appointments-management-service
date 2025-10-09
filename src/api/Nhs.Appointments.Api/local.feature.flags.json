@@ -8,6 +8,7 @@
     "SiteStatus": false,
     "CancelDay": false,
     "ChangeSessionUpliftedJourney": false,
+    "CancelSessionUpliftedJourney": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

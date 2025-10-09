@@ -41,7 +41,7 @@ export const DailyAppointmentsPage = ({
   const mapContactDetails = (contactDetails: ContactItem[]): ReactNode => {
     return contactDetails.map((details, key) => {
       return (
-        <span key={key}>
+        <span key={key} className={details.type === 'Email' ? 'no-print' : ''}>
           {details.value}
           <br />
         </span>

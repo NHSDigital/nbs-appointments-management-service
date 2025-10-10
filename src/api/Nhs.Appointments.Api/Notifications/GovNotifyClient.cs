@@ -34,7 +34,10 @@ public class GovNotifyClient(
                     if (errorStatusCode == 429)
                     {
 #pragma warning disable S6667 // Logging in a catch clause should pass the caught exception as a parameter.
-                        logger.LogWarning(ex, "Received 429 Too Many Requests. Retrying...");
+                        logger.LogWarning(ex,
+                            attempt == retryOptions.Value.MaxRetries
+                                ? "Received 429 Too Many Requests."
+                                : "Received 429 Too Many Requests. Retrying...");
 #pragma warning restore S6667 // Logging in a catch clause should pass the caught exception as a parameter.
                         await Task.Delay(delay);
                         delay = (int)(delay * retryOptions.Value.BackoffFactor);

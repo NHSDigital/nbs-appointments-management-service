@@ -32,6 +32,7 @@ public class TriggerAutoCancelledBookingsFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
        Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.SystemRunAutoCancellations, typeof(NoSiteRequestInspector))]
+    [Function("TriggerAutoCancelledBookings")]
     public override Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "system/run-auto-cancellations")] HttpRequest req)
     {
         return base.RunAsync(req);

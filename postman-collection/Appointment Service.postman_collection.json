@@ -1209,6 +1209,19 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "system/run-auto-cancellations",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/system/run-auto-cancellations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "system", "run-auto-cancellations"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

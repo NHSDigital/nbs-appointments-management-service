@@ -41,7 +41,7 @@ public class GovNotifyClient(
                     }
                     else
                     {
-                        logger.LogError(ex, "Non-retryable status code. Aborting.");
+                        logger.LogError(ex, "Non-retryable status code {errorStatusCode}. Aborting.", errorStatusCode);
                         break;
                     }
                 }

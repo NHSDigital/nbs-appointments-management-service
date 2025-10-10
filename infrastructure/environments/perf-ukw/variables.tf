@@ -124,10 +124,6 @@ variable "GOV_NOTIFY_RETRY_OPTIONS_BACKOFF_FACTOR" {
   type      = string
 }
 
-variable "gov_notify_retry_options_backoff_factor" {
-  type      = string
-}
-
 variable "BOOKING_REMINDERS_CRON_SCHEDULE" {
   type      = string
   sensitive = false

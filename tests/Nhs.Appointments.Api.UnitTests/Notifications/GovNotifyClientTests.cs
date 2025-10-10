@@ -51,7 +51,7 @@ public class GovNotifyClientTests
     [InlineData("Status code 403", 1)]
     [InlineData("Status code 404", 1)]
     [InlineData("Status code 429", 3)]
-    public async Task RetriesByErrorStatusCode(string errorMessage, int expectedNumberOfTries)
+    public async Task SendByEmail_RetriesByErrorStatusCode(string errorMessage, int expectedNumberOfTries)
     {
         _notificationClient.Setup(x => x.SendEmailAsync(It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -69,6 +69,36 @@ public class GovNotifyClientTests
                 It.IsAny<string>(),
                 It.IsAny<Dictionary<string, dynamic>>(),
                 null,
+                null,
+                null
+            ),
+            Times.Exactly(expectedNumberOfTries)
+        );
+    }
+
+    [Theory]
+    [InlineData("Status code foo", 1)]
+    [InlineData("Status code 400", 1)]
+    [InlineData("Status code 401", 1)]
+    [InlineData("Status code 403", 1)]
+    [InlineData("Status code 404", 1)]
+    [InlineData("Status code 429", 3)]
+    public async Task SendBySms_RetriesByErrorStatusCode(string errorMessage, int expectedNumberOfTries)
+    {
+        _notificationClient.Setup(x => x.SendSmsAsync(It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Dictionary<string, dynamic>>(),
+                null,
+                null))
+            .Throws(new NotifyClientException(errorMessage));
+
+        await _sut.SendSmsAsync("1234567890", "email-template", new Dictionary<string, dynamic>());
+
+        _notificationClient.Verify(
+            x => x.SendSmsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Dictionary<string, dynamic>>(),
                 null,
                 null
             ),

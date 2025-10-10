@@ -36,6 +36,19 @@ stages:
               script: |
                 .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
               pwsh: true
+          - task: PowerShell@2
+            displayName: "Write MYA version to file"
+            inputs:
+              targetType: "inline"
+              script: |
+                Set-Content -Path $(Pipeline.Workspace)/version_number.txt -Value "$(ExtractVersionStep.ExtractedBuildNumber)"
+              pwsh: true
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish MYA version to artifact"
+            inputs:
+              PathtoPublish: "$(Pipeline.Workspace)/version_number.txt"
+              ArtifactName: "drop_version_number"
+              publishLocation: "Container"
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
             inputs:

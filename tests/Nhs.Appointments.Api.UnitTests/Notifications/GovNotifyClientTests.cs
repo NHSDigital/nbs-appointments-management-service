@@ -44,15 +44,43 @@ public class GovNotifyClientTests
         result.Should().Be(expectedStatusCode);
     }
 
+    [Theory]
+    [InlineData("Status code foo", 1)]
+    [InlineData("Status code 400", 1)]
+    [InlineData("Status code 401", 1)]
+    [InlineData("Status code 403", 1)]
+    [InlineData("Status code 404", 1)]
+    [InlineData("Status code 429", 3)]
+    public async Task RetriesByErrorStatusCode(string errorMessage, int expectedNumberOfTries)
+    {
+        _notificationClient.Setup(x => x.SendEmailAsync(It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Dictionary<string, dynamic>>(),
+                null,
+                null,
+                null))
+            .Throws(new NotifyClientException(errorMessage));
+
+        await _sut.SendEmailAsync("test@tempuri.org", "email-template", new Dictionary<string, dynamic>());
+
+        _notificationClient.Verify(
+            x => x.SendEmailAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Dictionary<string, dynamic>>(),
+                null,
+                null,
+                null
+            ),
+            Times.Exactly(expectedNumberOfTries)
+        );
+    }
+
     [Fact(DisplayName = "Retries on NotifyClientException")]
     public async Task GovNotifyClient_Retries_On_NotifyClientException()
     {
-        // Arrange
-        var mockClient = new Mock<IAsyncNotificationClient>();
-        var mockLogger = new Mock<ILogger<GovNotifyClient>>();
-
         // Simulate: 2 failures then success
-        mockClient
+        _notificationClient
             .SetupSequence(x => x.SendEmailAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -65,21 +93,11 @@ public class GovNotifyClientTests
             .ThrowsAsync(new NotifyClientException("Status code 429 second fail"))
             .ReturnsAsync(new EmailNotificationResponse());
 
-        var retryOptions = Options.Create(new GovNotifyRetryOptions
-        {
-            MaxRetries = 3,
-            InitialDelayMs = 1,
-            BackoffFactor = 1.0
-        });
-
-        var privacyUtil = Mock.Of<IPrivacyUtil>();
-        var client = new GovNotifyClient(mockClient.Object, privacyUtil, retryOptions, mockLogger.Object);
-
         // Act
-        await client.SendEmailAsync("test@tempuri.org", "email-template", new());
+        await _sut.SendEmailAsync("test@tempuri.org", "email-template", new Dictionary<string, dynamic>());
 
         // Assert
-        mockClient.Verify(
+        _notificationClient.Verify(
                 x => x.SendEmailAsync(
                     It.IsAny<string>(),
                     It.IsAny<string>(),

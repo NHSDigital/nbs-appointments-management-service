@@ -26,7 +26,7 @@ public class GovNotifyClient(
                 await action();
                 return;
             }
-            catch (TException ex) when (attempt < retryOptions.Value.MaxRetries)
+            catch (TException ex) when (attempt <= retryOptions.Value.MaxRetries)
             {
                 var errorStatusCode = ParseGovNotifyExceptionMessage(ex.Message);
                 if (errorStatusCode != null)

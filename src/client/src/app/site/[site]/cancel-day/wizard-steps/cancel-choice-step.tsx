@@ -30,7 +30,7 @@ const CancelChoiceStep = ({
   clinicalServices,
 }: InjectedWizardProps & CancelChoiceStepProps) => {
   const router = useRouter();
-  const { formState, register, trigger, setValue, watch } =
+  const { formState, register, trigger, watch } =
     useFormContext<CancelDayFromValues>();
   const { errors } = formState;
   const cancelChoiceWatch = watch('cancelChoice');
@@ -40,8 +40,6 @@ const CancelChoiceStep = ({
     if (!stepIsValid) {
       return;
     }
-
-    setValue('cancelChoice', cancelChoiceWatch);
 
     if (cancelChoiceWatch === 'false') {
       router.push(

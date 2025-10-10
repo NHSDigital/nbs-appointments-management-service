@@ -115,6 +115,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
+    "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
   }
 
   sticky_settings {
@@ -237,6 +238,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
+    "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
   }
 
   identity {

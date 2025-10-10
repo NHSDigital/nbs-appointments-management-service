@@ -148,7 +148,13 @@ public class BookingCosmosDocumentStore(
         var updateAvailabilityStatusPatch =
             PatchOperation.Replace("/availabilityStatus", availabilityStatus);
 
-        await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
+        var indexStorePatches = new List<PatchOperation>
+        {
+            updateStatusPatch,
+            statusUpdatedPatch
+        };
+
+        await indexStore.PatchDocument("booking_index", booking.Reference, [.. indexStorePatches]);
 
         var patchOperations = new List<PatchOperation>
         {
@@ -256,15 +262,16 @@ public class BookingCosmosDocumentStore(
         IEnumerable<ContactItem> contactDetails, int? bookingBatchSize = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
-        
+        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
+
         var patches = new []
         {
             updateStatusPatch,
-            PatchOperation.Replace("/statusUpdated", time.GetUtcNow()),
+            statusUpdatedPatch,
             PatchOperation.Add("/contactDetails", contactDetails)
         };
 
-        await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, updateStatusPatch);
+        await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, [updateStatusPatch, statusUpdatedPatch]);
 
         if (bookingBatchSize.HasValue)
         {

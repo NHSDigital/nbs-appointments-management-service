@@ -362,6 +362,6 @@ describe('Edit Session Time And Capacity Form', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(editSessionMock).not.toHaveBeenCalled();
+    expect(editSessionMock).toHaveBeenCalled();
   });
 });

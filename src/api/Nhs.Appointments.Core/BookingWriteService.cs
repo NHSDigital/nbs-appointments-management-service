@@ -28,6 +28,8 @@ public interface IBookingWriteService
     Task RecalculateAppointmentStatuses(string site, DateOnly day);
 
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDayAsync(string site, DateOnly day);
+
+    Task SendAutoCancelledBookingNotifications();
 }
 
 public class BookingWriteService(
@@ -234,6 +236,51 @@ public class BookingWriteService(
         }
 
         return (cancelledBookingsCount, bookingsWithoutContactDetailsCount);
+    }
+
+    public async Task SendAutoCancelledBookingNotifications()
+    {
+        var now = time.GetLocalNow().DateTime;
+        var windowStart = now.AddDays(-1);
+        var windowEnd = now;
+
+        var bookingsCancelledByService = (await bookingQueryService.GetRecentlyUpdatedBookingsCrossSiteAsync(windowStart, windowEnd)).Where(
+            b => b.CancellationReason == CancellationReason.CancelledByService &&
+            (b.CancellationNotificationStatus == CancellationNotificationStatus.Unnotified || b.CancellationNotificationStatus is null) &&
+            b.ContactDetails is not null &&
+            b.ContactDetails.Length > 0);
+
+        if (!bookingsCancelledByService.Any())
+        {
+            return;
+        }
+
+        var autoCancelledBookings = bookingsCancelledByService.Where(b =>
+        {
+            if (b.AdditionalData is null)
+            {
+                return false;
+            }
+
+            var type = b.AdditionalData.GetType();
+            var autoCancellationProp = type.GetProperty("AutoCancellation", typeof(bool));
+            return autoCancellationProp is not null &&
+                   autoCancellationProp.GetValue(b.AdditionalData) is bool value &&
+                   value;
+        });
+
+        if (!autoCancelledBookings.Any())
+        {
+            return;
+        }
+
+        foreach (var booking in autoCancelledBookings)
+        {
+            var notifcations = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
+            await bus.Send(notifcations);
+            booking.CancellationNotificationStatus = CancellationNotificationStatus.Notified;
+            await bookingDocumentStore.SetAutoCancellationNotified(booking.Reference, booking.Site);
+        }
     }
 
     private Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>

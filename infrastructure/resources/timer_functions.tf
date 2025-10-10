@@ -41,7 +41,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     GovNotifyRetryOptions__MaxRetries                                      = var.gov_notify_retry_options_max_retries
-    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms    
+    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms
     GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor
     ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
@@ -52,6 +52,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
+    AutoCancelledBookingsCronSchedule                                      = var.auto_cancelled_bookings_cron_schedule
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -113,6 +114,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
   }
 
   sticky_settings {
@@ -122,7 +124,8 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
       "Notifications_Provider",
       "ServiceBusConnectionString",
       "AzureWebJobs.SendBookingReminders.Disabled",
-      "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled"
+      "AzureWebJobs.RemoveUnconfirmedProvisionalBookings.Disabled",
+      "AzureWebJobs.SendAutoCancelledBookings.Disabled"
     ]
   }
 
@@ -161,8 +164,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     GovNotifyRetryOptions__MaxRetries                                      = var.gov_notify_retry_options_max_retries
-    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms    
-    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor    
+    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms
+    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor
     BookingRemindersCronSchedule                                           = var.booking_reminders_cron_schedule
     UnconfirmedProvisionalBookingsCronSchedule                             = var.unconfirmed_provisional_bookings_cron_schedule
     DailySiteSummaryAggregationCronSchedule                                = var.daily_site_summary_aggregation_cron_schedule
@@ -171,6 +174,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
+    AutoCancelledBookingsCronSchedule                                      = var.auto_cancelled_bookings_cron_schedule
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -232,6 +236,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
   }
 
   identity {

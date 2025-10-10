@@ -106,6 +106,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
   }
 
   sticky_settings {
@@ -119,8 +120,8 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
       "AzureWebJobs.NotifyBookingReminder.Disabled",
       "AzureWebJobs.NotifyBookingRescheduled.Disabled",
       "AzureWebJobs.NotifyUserRolesChanged.Disabled",
-      "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"
-
+      "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled",
+      "AzureWebJobs.NotifyBookingAutoCancelled.Disabled",
     ]
   }
 
@@ -223,6 +224,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
   }
 
   identity {

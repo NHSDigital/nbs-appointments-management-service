@@ -104,10 +104,12 @@ services:
 
   splunk-otel-collector:
     container_name: "open-telemetry-collector-for-splunk"
-    image: quay.io/signalfx/splunk-otel-collector:latest
-    command: ["--config=/etc/splunk-otel-collector-config.yaml"]
-    volumes:
-      - ./splunk-otel-collector-config.yaml:/etc/splunk-otel-collector-config.yaml
+    build:
+      context: .
+      dockerfile: splunkotel.Dockerfile
+    environment:
+      - SPLUNK_HOST_URL=http://splunk:8088/services/collector
+      - SPLUNK_HEC_TOKEN=8cf62470-338d-4b7e-a59e-7724675a457c
     ports:
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP HTTP receiver

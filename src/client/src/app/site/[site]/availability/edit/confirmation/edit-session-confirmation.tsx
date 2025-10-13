@@ -107,7 +107,7 @@ export const EditSessionConfirmation = ({
     await updateSession(enrichedForm, newAvailabilitySession);
 
     router.push(
-      `/site/${site}/availability/edit/confirmed?updatedSession=${btoa(JSON.stringify(updateSession))}&date=${date}&canelAppointments=${cancelAppointments}`,
+      `/site/${site}/availability/edit/confirmed?updatedSession=${btoa(JSON.stringify(newAvailabilitySession))}&date=${date}&canelAppointments=${cancelAppointments}`,
     );
   };
 

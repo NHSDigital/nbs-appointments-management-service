@@ -9,7 +9,7 @@ public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
 
-    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason);
+    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason, bool recalculate = true);
 
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
@@ -73,7 +73,7 @@ public class BookingWriteService(
         return (true, booking.Reference);
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason, bool recalculate = true)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -98,7 +98,8 @@ public class BookingWriteService(
             cancellationReason
         );
 
-        await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+        if (recalculate)
+           await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
 
         if (booking.ContactDetails != null)
         {
@@ -179,7 +180,7 @@ public class BookingWriteService(
                 case AvailabilityUpdateAction.SetToOrphaned:
                     if (CancelOrphaned)
                     {
-                        await CancelBooking(update.Booking.Reference, update.Booking.Site, CancellationReason.CancelledBySite);
+                        await CancelBooking(update.Booking.Reference, update.Booking.Site, CancellationReason.CancelledBySite, false);
                         break;
                     }
                     

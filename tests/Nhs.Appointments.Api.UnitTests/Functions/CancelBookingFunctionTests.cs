@@ -29,7 +29,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
             _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _bookingWriteService.Setup(x => x.CancelBooking(null, string.Empty, CancellationReason.CancelledByCitizen))  
+        _bookingWriteService.Setup(x => x.CancelBooking(null, string.Empty, CancellationReason.CancelledByCitizen, true))  
             .Returns(Task.FromResult(BookingCancellationResult.NotFound));
     }
 
@@ -38,7 +38,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen)) 
+        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, true)) 
             .Returns(Task.FromResult(BookingCancellationResult.Success));
 
         var request = BuildRequest(bookingRef, site);
@@ -53,7 +53,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen)) 
+        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, true)) 
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
 
         var request = BuildRequest(bookingRef, site);
@@ -68,7 +68,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationReason>()))
+        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationReason>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
         var request = BuildRequest(bookingRef, site);
@@ -84,7 +84,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         var bookingRef = "some-booking";
         var site = "TEST01";
         var invalidResultCode = 99;
-        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationReason>()))
+        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationReason>(), It.IsAny<bool>()))
             .Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
         var request = BuildRequest(bookingRef, site);
@@ -104,7 +104,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         var bookingRef = "some-booking";
         var site = "TEST01";
 
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, expectedCancellationReason))
+        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, expectedCancellationReason, true))
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable();
 
         var request = BuildRequest(bookingRef, site, cancellationReason);

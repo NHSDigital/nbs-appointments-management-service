@@ -22,7 +22,6 @@ export function register() {
   });
 
   const loggerProvider = new LoggerProvider({
-    // resource: new Resource(),
     logRecordLimits: {
       attributeValueLengthLimit: 8192,
       attributeCountLimit: 128,

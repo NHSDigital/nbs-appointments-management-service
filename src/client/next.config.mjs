@@ -4,10 +4,6 @@ const nextConfig = {
   env: {
     BUILD_NUMBER: process.env.BUILD_NUMBER ?? '',
   },
-  // TODO: This comes as standard in NextJS V15 so can be removed when we upgrade
-  experimental: {
-    instrumentationHook: true,
-  },
   output: 'standalone',
   basePath: process.env.CLIENT_BASE_PATH,
   redirects: async () => {

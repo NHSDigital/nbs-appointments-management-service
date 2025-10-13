@@ -9,6 +9,8 @@ import {
 import { SitePage } from './site-page';
 import { Metadata } from 'next/types';
 import fromServer from '@server/fromServer';
+import { logInfo } from '@services/logService';
+import { createCounter } from '@services/metricsService';
 
 // TODO: Get a brief for what titles/description should be on each page
 // Could use the generateMetadata function to dynamically generate this, to include site names / other dynamic content
@@ -43,6 +45,13 @@ const Page = async ({ params }: PageProps) => {
     fromServer(fetchFeatureFlag('SiteSummaryReport')),
     fromServer(fetchFeatureFlag('SiteStatus')),
   ]);
+
+  // Example of using logging
+  logInfo('Loaded site page', { siteOdsCode: site.odsCode });
+
+  // Example of using metrics
+  const counter = createCounter('PAGE_VIEWS', 'page_view_site');
+  counter.add(1, { siteOdsCode: site.odsCode });
 
   return (
     <NhsPage title={site.name} site={site} originPage="site">

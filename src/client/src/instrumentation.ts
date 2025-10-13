@@ -4,7 +4,13 @@ import {
   SimpleLogRecordProcessor,
   LoggerProvider,
 } from '@opentelemetry/sdk-logs';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import {
+  MeterProvider,
+  PeriodicExportingMetricReader,
+} from '@opentelemetry/sdk-metrics';
 import { logs } from '@opentelemetry/api-logs';
+import { metrics } from '@opentelemetry/api';
 
 export function register() {
   // Set up traces.
@@ -32,5 +38,22 @@ export function register() {
   logs.setGlobalLoggerProvider(loggerProvider);
 
   // Set up metrics.
-  // TODO
+  // We send metrics to the otel collector using open telemetry's node SDK
+  const splunkMetricExporter = new OTLPMetricExporter({
+    url: process.env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
+    headers: {
+      Authorization: splunkAuthHeader,
+    },
+  });
+  const splunkMetricReader = new PeriodicExportingMetricReader({
+    exporter: splunkMetricExporter,
+    exportIntervalMillis: 1000,
+  });
+
+  // NextJS exports request traces out of the box
+  const meterProvider = new MeterProvider({
+    readers: [splunkMetricReader],
+  });
+
+  metrics.setGlobalMeterProvider(meterProvider);
 }

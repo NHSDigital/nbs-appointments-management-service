@@ -8,5 +8,6 @@ public record EditSessionRequest(
     DateOnly From,
     DateOnly To,
     SessionOrWildcard SessionMatcher,
-    Session? SessionReplacement
+    Session? SessionReplacement,
+    bool CancelUnsupportedBookings = false
 ) : BaseSessionRequest(Site, From, To, SessionMatcher, SessionReplacement);

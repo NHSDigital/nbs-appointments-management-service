@@ -659,6 +659,39 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
+        public async Task RecalculateAppointmentStatuses_CancelUnsupportedBookings()
+        {
+            var cancelUnsupportedBookings = true;
+            var bookings = new List<Booking>
+            {
+                new()
+                {
+                    From = new DateTime(2025, 01, 01, 9, 0, 0),
+                    Reference = "1",
+                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                    Status = AppointmentStatus.Booked,
+                    AvailabilityStatus = AvailabilityStatus.Orphaned,
+                    Duration = 10,
+                    Service = "Service 1"
+                }
+            };
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(bookings.First());
+            _bookingAvailabilityStateService
+                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
+                    new List<BookingAvailabilityUpdate>
+                    {
+                        new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
+                    });
+
+            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), cancelUnsupportedBookings);
+
+            _bookingsDocumentStore.Verify(
+                x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
+                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
+                Times.Once);
+        }
+
+        [Fact]
         public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
         {
             var bookings = new List<Booking>

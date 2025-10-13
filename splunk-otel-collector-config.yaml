@@ -6,9 +6,10 @@ receivers:
       http:
         endpoint: "0.0.0.0:4318"
 
+## TODO: atm we need to manually create these indexes in Splunk, and a new http source which is allowed to receive them
 exporters:
   splunk_hec/logs:
-    token: "e2c421cf-9228-4ab2-a6e8-877741df569a"
+    token: "98c0fdb7-5986-4183-bb37-8a20d290d296"
     endpoint: "http://splunk:8088/services/collector"
     index: "mya-logs"
     disable_compression: false
@@ -16,7 +17,7 @@ exporters:
     tls:
       insecure_skip_verify: true
   splunk_hec/traces:
-    token: "e2c421cf-9228-4ab2-a6e8-877741df569a"
+    token: "98c0fdb7-5986-4183-bb37-8a20d290d296"
     endpoint: "http://splunk:8088/services/collector"
     index: "mya-traces"
     disable_compression: false
@@ -24,7 +25,7 @@ exporters:
     tls:
       insecure_skip_verify: true
   splunk_hec/metrics:
-    token: "e2c421cf-9228-4ab2-a6e8-877741df569a"
+    token: "98c0fdb7-5986-4183-bb37-8a20d290d296"
     endpoint: "http://splunk:8088/services/collector"
     index: "mya-metrics"
     disable_compression: false

@@ -20,6 +20,15 @@ services:
     restart: always
     ports:
       - 3000:3000
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+
   api:
     container_name: api
     build:

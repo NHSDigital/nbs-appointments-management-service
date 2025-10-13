@@ -134,6 +134,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
+    "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
   }
 
   sticky_settings {
@@ -271,6 +273,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
   }
 
   identity {

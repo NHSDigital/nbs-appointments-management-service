@@ -9,7 +9,12 @@ import {
   SessionSummary,
   Session,
 } from '@types';
-import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
+import {
+  dateTimeFormat,
+  parseDateAndTimeComponentsToUkDateTime,
+  parseToUkDatetime,
+  toTimeFormat,
+} from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
@@ -62,6 +67,23 @@ const Page = async ({ searchParams, params }: PageProps) => {
     },
   };
 
+  const parsedSession: SessionSummary = {
+    capacity: newSessionDetails.capacity,
+    maximumCapacity: sessionSummary.maximumCapacity,
+    slotLength: newSessionDetails.slotLength,
+    totalSupportedAppointments: sessionSummary.totalSupportedAppointments,
+    totalSupportedAppointmentsByService:
+      sessionSummary.totalSupportedAppointmentsByService,
+    ukStartDatetime: parseDateAndTimeComponentsToUkDateTime(
+      date,
+      newSessionDetails.startTime,
+    ).format(dateTimeFormat),
+    ukEndDatetime: parseDateAndTimeComponentsToUkDateTime(
+      date,
+      newSessionDetails.endTime,
+    ).format(dateTimeFormat),
+  };
+
   const availabilityProposal = await fromServer(
     availabilityChangeProposal(availabilityRequest),
   );
@@ -81,7 +103,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       <SessionModificationConfirmation
         unsupportedBookingsCount={availabilityProposal.unsupportedBookingsCount}
         clinicalServices={clinicalServices}
-        session={session}
+        session={btoa(JSON.stringify(parsedSession))}
         site={site.id}
         date={date}
         mode="edit"

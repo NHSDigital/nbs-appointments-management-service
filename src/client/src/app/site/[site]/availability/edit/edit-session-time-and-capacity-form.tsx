@@ -93,42 +93,42 @@ const EditSessionTimeAndCapacityForm = ({
     form: EditSessionFormValues,
   ) => {
     startTransition(async () => {
-      if (changeSessionUpliftedJourneyEnabled) {
-        const reroute = `/site/${site.id}/availability/edit/confirmation?session=${btoa(JSON.stringify(existingSession))}&date=${date}&sessionToEdit=${btoa(JSON.stringify(form.newSession))}`;
-        router.push(reroute);
-      } else {
-        const updatedSession = toAvailabilitySession(form.newSession);
+      const { newSession } = form;
 
-        const sessionStart = parseDateAndTimeComponentsToUkDateTime(
-          date,
-          form.newSession.startTime,
-        );
-        const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
-          date,
-          form.newSession.endTime,
-        );
+      const updatedSession = toAvailabilitySession(newSession);
 
-        const validSessionStartTime = isValidStartTime(
-          sessionStart,
-          sessionEnd,
-          form.newSession.slotLength,
-        );
+      const sessionStart = parseDateAndTimeComponentsToUkDateTime(
+        date,
+        newSession.startTime,
+      );
+      const sessionEnd = parseDateAndTimeComponentsToUkDateTime(
+        date,
+        newSession.endTime,
+      );
 
-        if (
-          existingSession.totalSupportedAppointments === 0 ||
-          validSessionStartTime
-        ) {
-          await updateSession(form, updatedSession);
-          return;
-        }
+      const encode = (obj: unknown) => btoa(JSON.stringify(obj));
 
-        const updatedString = btoa(JSON.stringify(updatedSession));
-        const existingString = btoa(JSON.stringify(existingSession));
-
-        router.push(
-          `edit/edit-start-time?date=${date}&existingSession=${existingString}&updatedSession=${updatedString}`,
-        );
+      if (!changeSessionUpliftedJourneyEnabled) {
+        await updateSession(form, updatedSession);
+        return;
       }
+
+      const validSessionStartTime = isValidStartTime(
+        sessionStart,
+        sessionEnd,
+        newSession.slotLength,
+      );
+
+      const existingAppointments =
+        existingSession.totalSupportedAppointments ?? 0;
+
+      if (validSessionStartTime || existingAppointments === 0) {
+        const confirmationUrl = `/site/${site.id}/availability/edit/confirmation?session=${encode(existingSession)}&date=${date}&sessionToEdit=${encode(newSession)}`;
+        return router.push(confirmationUrl);
+      }
+
+      const editUrl = `edit/edit-start-time?date=${date}&existingSession=${encode(existingSession)}&updatedSession=${encode(updatedSession)}`;
+      router.push(editUrl);
     });
   };
 

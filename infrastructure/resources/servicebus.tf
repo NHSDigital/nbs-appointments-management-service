@@ -40,3 +40,8 @@ resource "azurerm_servicebus_queue" "nbs_mya_sbq_aggregate-daily-site-summary" {
   name         = "aggregate-daily-site-summary"
   namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
 }
+
+resource "azurerm_servicebus_queue" "nbs_mya_sbq_autocancellation" {
+  name         = "booking-auto-cancellation"
+  namespace_id = azurerm_servicebus_namespace.nbs_mya_service_bus.id
+}

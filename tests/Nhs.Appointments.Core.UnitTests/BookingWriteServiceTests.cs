@@ -881,6 +881,91 @@ namespace Nhs.Appointments.Core.UnitTests
 
             result.Should().BeNull();
         }
+
+        [Fact]
+        public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreNoBookingsToProcess()
+        {
+            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .ReturnsAsync([]);
+
+            await _sut.SendAutoCancelledBookingNotifications();
+
+            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreBookings_ButNoAutoCancelledOnes()
+        {
+            var bookings = new List<Booking>
+            {
+                new()
+                {
+                    Reference = "12345",
+                    ContactDetails =
+                    [
+                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                    ],
+                    Site = "Test Site 123",
+                    Status = AppointmentStatus.Cancelled,
+                    CancellationReason = CancellationReason.CancelledByService,
+                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified
+                }
+            };
+
+            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(bookings);
+
+            await _sut.SendAutoCancelledBookingNotifications();
+
+            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SendAutoCancelledNotifications_CallsMessageBus_WhenThereAreBookingsToProcess()
+        {
+            var bookings = new List<Booking>
+            {
+                new()
+                {
+                    Reference = "12345",
+                    ContactDetails =
+                    [
+                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                    ],
+                    Site = "Test Site 123",
+                    Status = AppointmentStatus.Cancelled,
+                    CancellationReason = CancellationReason.CancelledByService,
+                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
+                    AdditionalData = new
+                    {
+                        AutoCancellation = false
+                    }
+                },
+                new()
+                {
+                    Reference = "54321",
+                    ContactDetails =
+                    [
+                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                    ],
+                    Site = "Test Site 123",
+                    Status = AppointmentStatus.Cancelled,
+                    CancellationReason = CancellationReason.CancelledByService,
+                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
+                    AdditionalData = new
+                    {
+                        AutoCancellation = true
+                    }
+                }
+            };
+
+            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(bookings);
+
+            await _sut.SendAutoCancelledBookingNotifications();
+
+            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Once);
+        }
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

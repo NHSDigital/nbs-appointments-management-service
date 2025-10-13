@@ -6,17 +6,13 @@ import {
   RadioGroup,
   Radio,
 } from '@components/nhsuk-frontend';
-import fromServer from '@server/fromServer';
-import { editSession } from '@services/appointmentsService';
 import {
-  dateTimeFormat,
   getNearestAlignedTimes,
   parseDateAndTimeComponentsToUkDateTime,
   parseToTimeComponents,
-  parseToUkDatetime,
   toTimeFormat,
 } from '@services/timeService';
-import { AvailabilitySession, SessionSummary, Site } from '@types';
+import { AvailabilitySession, Session, SessionSummary, Site } from '@types';
 import { notFound, useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -69,35 +65,28 @@ const EditSessionStartTimeForm = ({
         from: toTimeFormat(parsedTime) ?? '',
       };
 
-      const existingUkStartTime = parseToUkDatetime(
-        existingSession.ukStartDatetime,
-        dateTimeFormat,
-      ).format('HH:mm');
-      const existingUkEndTime = parseToUkDatetime(
-        existingSession.ukEndDatetime,
-        dateTimeFormat,
-      ).format('HH:mm');
+      const encode = (obj: unknown) => btoa(JSON.stringify(obj));
 
-      await fromServer(
-        editSession({
-          date,
-          site: site.id,
-          mode: 'Edit',
-          sessions: [session],
-          sessionToEdit: {
-            from: existingUkStartTime,
-            until: existingUkEndTime,
-            capacity: existingSession.capacity,
-            services: Object.keys(
-              existingSession.totalSupportedAppointmentsByService,
-            ).map(service => service),
-            slotLength: existingSession.slotLength,
-          },
-        }),
-      );
+      const newStartTime = parseToTimeComponents(form.newStartTime);
+      const endTime = parseToTimeComponents(session.until);
+
+      const mappedSession: Session = {
+        capacity: session.capacity,
+        slotLength: session.slotLength,
+        services: session.services,
+        startTime: {
+          hour: Number(newStartTime?.hour),
+          minute: Number(newStartTime?.minute),
+        },
+        endTime: {
+          hour: Number(endTime?.hour),
+          minute: Number(endTime?.minute),
+        },
+        break: 'no',
+      };
 
       router.push(
-        `confirmed?updatedSession=${btoa(JSON.stringify(session))}&date=${date}`,
+        `/site/${site.id}/availability/edit/confirmation?session=${encode(existingSession)}&date=${date}&sessionToEdit=${encode(mappedSession)}`,
       );
     });
   };

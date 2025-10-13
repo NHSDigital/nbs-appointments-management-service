@@ -11,7 +11,7 @@ exporters:
   splunk_hec/logs:
     token: ${SPLUNK_HEC_TOKEN}
     endpoint: ${SPLUNK_HOST_URL}
-    index: "mya-logs"
+    index: ${SPLUNK_LOGS_INDEX}
     disable_compression: false
     timeout: 10s
     tls:
@@ -19,7 +19,7 @@ exporters:
   splunk_hec/traces:
     token: ${SPLUNK_HEC_TOKEN}
     endpoint: ${SPLUNK_HOST_URL}
-    index: "mya-traces"
+    index: ${SPLUNK_TRACES_INDEX}
     disable_compression: false
     timeout: 10s
     tls:
@@ -27,7 +27,7 @@ exporters:
   splunk_hec/metrics:
     token: ${SPLUNK_HEC_TOKEN}
     endpoint: ${SPLUNK_HOST_URL}
-    index: "mya-metrics"
+    index: ${SPLUNK_METRICS_INDEX}
     disable_compression: false
     timeout: 10s
     tls:

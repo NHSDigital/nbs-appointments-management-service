@@ -110,6 +110,9 @@ services:
     environment:
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector
       - SPLUNK_HEC_TOKEN=8cf62470-338d-4b7e-a59e-7724675a457c
+      - SPLUNK_LOGS_INDEX=mya-logs
+      - SPLUNK_TRACES_INDEX=mya-traces
+      - SPLUNK_METICS_INDEX=mya-metrics
     ports:
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP HTTP receiver

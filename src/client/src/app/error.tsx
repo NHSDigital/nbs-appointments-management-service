@@ -2,6 +2,8 @@
 import ContactUs from '@components/contact-us';
 import NhsAnonymousPage from '@components/nhs-anonymous-page';
 import { ErrorType, MyaError } from '@types';
+import { logError } from '@services/logService';
+import { useEffect } from 'react';
 
 export default function Error({
   error,
@@ -9,6 +11,10 @@ export default function Error({
   error: MyaError;
   reset: () => void;
 }) {
+  useEffect(() => {
+    logError('An unexpected error occurred', error);
+  }, [error]);
+
   if ((error.digest as ErrorType) === 'UnauthorizedError') {
     return (
       <NhsAnonymousPage

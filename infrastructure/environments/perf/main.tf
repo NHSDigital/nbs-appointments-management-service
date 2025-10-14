@@ -92,6 +92,9 @@ module "mya_application_perf" {
   storage_account_replication_type                = "ZRS"
   cosmos_automatic_failover_enabled               = true
   disable_bulk_import_function                    = true
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "5DCE2AC4-31D8-4A77-93C1-06515670AFD6"
+  splunk_otel_image_version                       = "2.0"
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

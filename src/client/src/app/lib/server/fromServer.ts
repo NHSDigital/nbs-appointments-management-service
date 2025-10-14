@@ -1,3 +1,4 @@
+import { logError } from '@services/logService';
 import { ServerActionResult } from '@types';
 
 /**
@@ -23,13 +24,16 @@ const fromServer = async <T>(
         if (result.success) {
           return result.data;
         }
+        logError('A server action result did not indicate success');
         throw new Error('Server action failed');
       },
       error => {
+        logError('An unexpected error occurred in a server action', error);
         throw error;
       },
     )
     .catch(error => {
+      logError('An unexpected error occurred in a server action', error);
       throw error;
     });
 };

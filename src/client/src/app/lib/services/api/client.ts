@@ -1,6 +1,7 @@
 'use server';
 import { cookies } from 'next/headers';
 import { ApiResponse } from '@types';
+import { logError } from '@services/logService';
 
 interface ClientOptions {
   baseUrl: string;
@@ -97,10 +98,14 @@ class Client {
       };
     }
 
+    logError(`Unexpected status code`, undefined, {
+      statusCode: `${response.status}`,
+      url: response.url,
+    });
     return {
       success: false,
       httpStatusCode: response.status,
-      errorMessage: `$Unexpected status {response.status} from ${response.url}`,
+      errorMessage: `Unexpected status ${response.status} from ${response.url}`,
     };
   }
 

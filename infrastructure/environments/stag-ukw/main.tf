@@ -97,6 +97,7 @@ module "mya_application_stag_ukw" {
   disable_bulk_import_function                    = false
   splunk_skip_verify_insecure                     = false
   splunk_data_channel                             = "020C14F4-8609-453E-BCBB-2ED9CC5D24C4"
+  splunk_otel_image_version                       = "2.0"
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

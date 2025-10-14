@@ -1,0 +1,67 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+## TODO: atm we need to manually create these indexes in Splunk, and a new http source which is allowed to receive them
+exporters:
+  splunk_hec/logs:
+    token: ${SPLUNK_HEC_TOKEN}
+    endpoint: ${SPLUNK_HOST_URL}
+    index: ${SPLUNK_LOGS_INDEX}
+    disable_compression: false
+    timeout: 10s
+    tls:
+      insecure_skip_verify: true
+    header:
+      X-Splunk-Request-Channel: ${SPLUNK_DATA_CHANNEL}
+  splunk_hec/traces:
+    token: ${SPLUNK_HEC_TOKEN}
+    endpoint: ${SPLUNK_HOST_URL}
+    index: ${SPLUNK_TRACES_INDEX}
+    disable_compression: false
+    timeout: 10s
+    tls:
+      insecure_skip_verify: true
+  splunk_hec/metrics:
+    token: ${SPLUNK_HEC_TOKEN}
+    endpoint: ${SPLUNK_HOST_URL}
+    index: ${SPLUNK_METRICS_INDEX}
+    disable_compression: false
+    timeout: 10s
+    tls:
+      insecure_skip_verify: true
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+processors:
+  batch:
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: :1888
+  zpages:
+    endpoint: :55679
+
+service:
+  extensions: [pprof, zpages, health_check]
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [splunk_hec/logs, debug]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [splunk_hec/traces, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [splunk_hec/metrics, debug]

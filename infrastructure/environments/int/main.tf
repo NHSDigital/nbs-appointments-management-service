@@ -94,6 +94,8 @@ module "mya_application_int" {
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "B8FF5D4B-3A5A-4025-AF83-EDB212B83D11"
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

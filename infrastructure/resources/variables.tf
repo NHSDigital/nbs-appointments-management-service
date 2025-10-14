@@ -401,3 +401,12 @@ variable "keyvault_client_secret" {
 variable "auto_cancelled_bookings_cron_schedule" {
   type = string
 }
+
+variable "splunk_data_channel" {
+  type = string
+}
+
+variable "splunk_skip_verify_insecure" {
+  type = bool
+}
+

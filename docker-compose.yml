@@ -114,6 +114,7 @@ services:
       - SPLUNK_TRACES_INDEX=mya-traces
       - SPLUNK_METICS_INDEX=mya-metrics
       - SPLUNK_DATA_CHANNEL=ABEFC3F8-F6B4-411B-A3AD-99C01067AB8F
+      - SPLUNK_SKIP_VERIFY_INSECURE=true
     ports:
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP HTTP receiver

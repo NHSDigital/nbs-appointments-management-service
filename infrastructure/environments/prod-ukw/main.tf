@@ -105,6 +105,8 @@ module "mya_application_prod_ukw" {
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "ED1D79AE-2243-4E5A-BCF7-D4B8AB0C6781"
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

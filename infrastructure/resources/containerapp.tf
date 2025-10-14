@@ -1,9 +1,76 @@
 resource "azurerm_container_app_environment" "nbs_mya_container_enviroment" {
-  count                      = var.create_data_extracts ? 1 : 0 
   name                       = "${var.application}-cae-${var.environment}-${var.loc}"
   location                   = var.location
   resource_group_name        = local.resource_group_name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.nbs_mya_log_analytics_workspace.id
+}
+
+resource "azurerm_container_app" "nbs_mya_splunk_otel_collector" {
+  name                         = "${var.application}-sotel-${var.environment}-${var.loc}"
+  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment.id
+  resource_group_name          = local.resource_group_name
+  revision_mode                = "Single"
+  
+  secret {
+    name  = "container-registry-password"
+    value = var.container_registry_password
+  }
+  secret {
+    name  = "splunk-hec-token"
+    value = var.splunk_hec_token
+  }
+
+  registry {
+    server   = var.container_registry_server_url
+    username = var.container_registry_username
+    password_secret_name = "container-registry-password"
+  }
+
+  template {
+    container {
+      name   = "nbs-mya-splunk-otel-collector"
+      image  = "${var.container_registry_server_url}/otel/splunk:1.0"
+      cpu    = 0.25
+      memory = "0.5Gi"
+
+      env {
+        name = "SPLUNK_HEC_TOKEN"
+        secret_name = "splunk-hec-token"
+      }
+      env {
+        name = "SPLUNK_HOST_URL"
+        value = var.splunk_host_url
+      }
+      env {
+        name = "SPLUNK_LOGS_INDEX"
+        value = "mya_nhsuk_${var.environment}"
+      }
+      env {
+        name = "SPLUNK_TRACES_INDEX"
+        value = "mya_nhsuk_${var.environment}"
+      }
+      env {
+        name = "SPLUNK_METICS_INDEX"
+        value = "mya_nhsuk_${var.environment}"
+      }
+      env {
+        name = "SPLUNK_DATA_CHANNEL"
+        value = var.splunk_data_channel
+      }
+      env {
+        name = "SPLUNK_SKIP_VERIFY_INSECURE"
+        value = var.splunk_skip_verify_insecure
+      }
+    }
+  }
+
+  ingress {
+    external_enabled = true
+    target_port = 4318
+    traffic_weight {
+      percentage = 100
+    }
+  }
 }
 
 resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
@@ -11,7 +78,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
   name                         = "${var.application}-bookjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location
-  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment[0].id
+  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment.id
 
   replica_timeout_in_seconds = var.data_extract_timeout    
   replica_retry_limit        = var.data_extract_retry_limit
@@ -116,7 +183,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
   name                         = "${var.application}-capjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location
-  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment[0].id
+  container_app_environment_id = azurerm_container_app_environment.nbs_mya_container_enviroment.id
 
   replica_timeout_in_seconds = var.data_extract_timeout    
   replica_retry_limit        = var.data_extract_retry_limit    

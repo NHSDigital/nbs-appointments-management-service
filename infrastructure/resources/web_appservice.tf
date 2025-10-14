@@ -26,10 +26,14 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   }
 
   app_settings = {
-    NBS_API_BASE_URL = "https://${azurerm_windows_function_app.nbs_mya_http_func_app.default_hostname}"
-    AUTH_HOST        = "https://${azurerm_windows_function_app.nbs_mya_http_func_app.default_hostname}"
-    CLIENT_BASE_PATH = "/manage-your-appointments"
-    BUILD_NUMBER     = var.build_number
+    NBS_API_BASE_URL                    = "https://${azurerm_windows_function_app.nbs_mya_http_func_app.default_hostname}"
+    AUTH_HOST                           = "https://${azurerm_windows_function_app.nbs_mya_http_func_app.default_hostname}"
+    CLIENT_BASE_PATH                    = "/manage-your-appointments"
+    BUILD_NUMBER                        = var.build_number
+    OTEL_EXPORTER_OTLP_ENDPOINT         = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}"
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT  = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/traces"
+    OTEL_EXPORTER_OTLP_METRICS_ENDPOINT = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/metrics"
+    OTEL_SERVICE_NAME                   = "mya-web-app"
   }
 
   sticky_settings {

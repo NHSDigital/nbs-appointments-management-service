@@ -15,8 +15,8 @@ exporters:
     disable_compression: false
     timeout: 10s
     tls:
-      insecure_skip_verify: true
-    header:
+      insecure_skip_verify: ${SPLUNK_SKIP_VERIFY_INSECURE}
+    headers:
       X-Splunk-Request-Channel: ${SPLUNK_DATA_CHANNEL}
   splunk_hec/traces:
     token: ${SPLUNK_HEC_TOKEN}
@@ -25,7 +25,9 @@ exporters:
     disable_compression: false
     timeout: 10s
     tls:
-      insecure_skip_verify: true
+      insecure_skip_verify: ${SPLUNK_SKIP_VERIFY_INSECURE}
+    headers:
+      X-Splunk-Request-Channel: ${SPLUNK_DATA_CHANNEL}
   splunk_hec/metrics:
     token: ${SPLUNK_HEC_TOKEN}
     endpoint: ${SPLUNK_HOST_URL}
@@ -33,7 +35,9 @@ exporters:
     disable_compression: false
     timeout: 10s
     tls:
-      insecure_skip_verify: true
+      insecure_skip_verify: ${SPLUNK_SKIP_VERIFY_INSECURE}
+    headers:
+      X-Splunk-Request-Channel: ${SPLUNK_DATA_CHANNEL}
   debug:
     verbosity: detailed
     sampling_initial: 5

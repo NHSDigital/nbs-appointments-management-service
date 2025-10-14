@@ -267,7 +267,6 @@ public class BookingWriteService(
 
     public async Task SendAutoCancelledBookingNotifications()
     {
-        Console.WriteLine("ENTERED: SendAutoCancelledBookingNotifications");
         var now = time.GetLocalNow().DateTime;
         var windowStart = now.AddDays(-1);
         var windowEnd = now;

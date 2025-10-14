@@ -23,5 +23,7 @@ export async function GET(
       provider,
       redirectUrl,
     });
+
+    throw e;
   }
 }

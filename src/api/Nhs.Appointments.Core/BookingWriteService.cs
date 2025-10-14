@@ -98,13 +98,30 @@ public class BookingWriteService(
 
         await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
 
-        if (booking.ContactDetails != null)
+        await RaiseBookingCancelledNotificationEvents(booking, cancellationReason, mergedAdditionalData);
+
+        return BookingCancellationResult.Success;
+    }
+
+    private async Task RaiseBookingCancelledNotificationEvents(Booking booking, CancellationReason cancellationReason,
+        object additionalData = null)
+    {
+        if (booking?.ContactDetails == null)
+        {
+            return;
+        }
+
+        var autoCancellationProp = ExtractField<bool>(additionalData, "AutoCancellation");
+        if (cancellationReason == CancellationReason.CancelledByService && autoCancellationProp)
+        {
+            var bookingAutoCancelledEvents = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
+            await bus.Send(bookingAutoCancelledEvents);
+        }
+        else
         {
             var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
             await bus.Send(bookingCancelledEvents);
         }
-
-        return BookingCancellationResult.Success;
     }
 
     private object ConvertJTokensBackToDictionaries(JToken token)
@@ -121,6 +138,16 @@ public class BookingWriteService(
             default:
                 return ((JValue)token).Value;
         }
+    }
+
+    private T ExtractField<T>(object additionalData, string fieldName)
+    {
+        var current = additionalData != null
+            ? JObject.FromObject(additionalData)
+            : new JObject();
+        var fieldValue = current.GetValue(fieldName);
+
+        return fieldValue != null ? fieldValue.ToObject<T>() : default;
     }
 
     public object MergeAdditionalData(object currentAdditionalData, object incomingAdditionalData)

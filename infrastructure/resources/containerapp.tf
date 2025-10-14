@@ -69,6 +69,7 @@ resource "azurerm_container_app" "nbs_mya_splunk_otel_collector" {
     target_port = 4318
     traffic_weight {
       percentage = 100
+      latest_revision = true
     }
   }
 }

@@ -29,7 +29,7 @@ resource "azurerm_container_app" "nbs_mya_splunk_otel_collector" {
   template {
     container {
       name   = "nbs-mya-splunk-otel-collector"
-      image  = "${var.container_registry_server_url}/otel/splunk:1.0"
+      image  = "${var.container_registry_server_url}/otel/splunk:${var.splunk_otel_image_version}"
       cpu    = 0.25
       memory = "0.5Gi"
 

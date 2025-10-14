@@ -410,3 +410,7 @@ variable "splunk_skip_verify_insecure" {
   type = bool
 }
 
+variable "splunk_otel_image_version" {
+  type = string
+}
+

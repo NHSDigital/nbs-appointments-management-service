@@ -85,6 +85,7 @@ module "mya_application_dev" {
   disable_bulk_import_function                    = false
   splunk_skip_verify_insecure                     = false
   splunk_data_channel                             = "8FF305BB-C5B9-4054-A29A-836A0A69CB24"
+  splunk_otel_image_version                       = "2.0"
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

@@ -16,11 +16,11 @@ using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions;
 
-public class GetDailySummaryFunction(
+public class GetDaySummaryFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
     IValidator<GetDaySummaryRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<GetDailySummaryFunction> logger,
+    ILogger<GetDaySummaryFunction> logger,
     IMetricsRecorder metricsRecorder)
     : BaseApiFunction<GetDaySummaryRequest, AvailabilitySummary>(validator, userContextProvider,
         logger, metricsRecorder)

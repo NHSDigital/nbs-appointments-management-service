@@ -41,8 +41,8 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     GovNotifyRetryOptions__MaxRetries                                      = var.gov_notify_retry_options_max_retries
-    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms    
-    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor    
+    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms
+    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor
     ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
@@ -60,7 +60,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
+    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
@@ -161,8 +161,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
     GovNotifyRetryOptions__MaxRetries                                      = var.gov_notify_retry_options_max_retries
-    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms    
-    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor    
+    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms
+    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
@@ -179,7 +179,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
+    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true

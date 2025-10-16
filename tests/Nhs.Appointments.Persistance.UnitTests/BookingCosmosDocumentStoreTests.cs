@@ -588,7 +588,7 @@ public class BookingCosmosDocumentStoreTests
     [Fact]
     public async Task SetAutoCancellationNotified_ShouldUpdateCancellationNotificationStatus()
     {
-        await _sut.SetAutoCancellationNotified("12345", "TEST_SITE_123");
+        await _sut.SetCancellationNotified("12345", "TEST_SITE_123");
 
         _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
     }

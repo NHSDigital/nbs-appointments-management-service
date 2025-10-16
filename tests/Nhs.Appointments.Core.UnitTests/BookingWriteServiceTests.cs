@@ -467,7 +467,7 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async Task CancelBooking_RaisesNotificationEvent()
+        public async Task CancelBooking_DoesNotRaiseNotificationEvent_WhenNoContactDetails()
         {
             var site = "some-site";
             var bookingRef = "some-booking";
@@ -481,13 +481,15 @@ namespace Nhs.Appointments.Core.UnitTests
                 {
                     Reference = bookingRef,
                     Site = site,
-                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+                    ContactDetails = null
                 }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified(It.IsAny<string>(), It.IsAny<string>()))
+                .Verifiable(Times.Never);
 
             _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e =>
                 e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
-                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
+                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Never);
 
             await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
 
@@ -512,6 +514,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
                 }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
 
             _messageBus.Setup(x => x.Send(It.Is<BookingAutoCancelled[]>(e =>
                 e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
@@ -521,6 +524,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 new { AutoCancellation = true });
 
             _messageBus.VerifyAll();
+            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Once);
         }
 
         [Fact]
@@ -541,6 +545,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
                 }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
 
             _messageBus.Setup(x => x.Send(It.Is<BookingAutoCancelled[]>(e =>
                 e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
@@ -550,6 +555,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 new { AutoCancellation = "true" });
 
             _messageBus.VerifyAll();
+            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Once);
         }
 
         [Fact]
@@ -570,6 +576,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
                 }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
 
             _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e =>
                 e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
@@ -579,6 +586,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 new { AutoCancellation = "true" });
 
             _messageBus.VerifyAll();
+            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Once);
         }
 
         [Fact]

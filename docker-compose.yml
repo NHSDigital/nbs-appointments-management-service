@@ -10,6 +10,9 @@ services:
       AUTH_HOST: http://localhost:7071
       CLIENT_BASE_PATH: /manage-your-appointments
       BUILD_NUMBER: ${BUILD_NUMBER:-local}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://splunk-otel-collector:4318
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://splunk-otel-collector:4318/v1/traces
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://splunk-otel-collector:4318/v1/metrics
 
     volumes:
       - ./src/client/src:/app/src
@@ -17,6 +20,15 @@ services:
     restart: always
     ports:
       - 3000:3000
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+
   api:
     container_name: api
     build:
@@ -76,18 +88,37 @@ services:
       - SITE_SUMMARY_DAYS_CHUNK_SIZE=365
       - SITE_SUMMARY_FIRST_RUN_DATE=2025-06-01
   splunk:
-    image: splunk/splunk:latest
+    image: splunk/splunk:9.3
     container_name: splunk
     environment:
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_PASSWORD=Password1!
       - SPLUNK_HEC_SSL=false
+      - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
     ports:
       - "8000:8000" # Splunk Web UI
       - "8088:8088" # Splunk HEC
     volumes:
       - splunk-data:/opt/splunk/var
+
+  splunk-otel-collector:
+    container_name: "open-telemetry-collector-for-splunk"
+    build:
+      context: otel/
+      dockerfile: splunkotel.Dockerfile
+    environment:
+      - SPLUNK_HOST_URL=http://splunk:8088/services/collector
+      - SPLUNK_HEC_TOKEN=611b0183-df4f-4f97-aa99-936f98609d5f
+      - SPLUNK_LOGS_INDEX=mya-logs
+      - SPLUNK_TRACES_INDEX=mya-traces
+      - SPLUNK_METICS_INDEX=mya-metrics
+      - SPLUNK_DATA_CHANNEL=ABEFC3F8-F6B4-411B-A3AD-99C01067AB8F
+      - SPLUNK_SKIP_VERIFY_INSECURE=true
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+
   oidc-server:
     image: soluto/oidc-server-mock:latest
     ports:

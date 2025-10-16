@@ -20,19 +20,19 @@ variables:
   - name: env
     value: ${{parameters.env}}
   - name: uksResourceGroup
-    ${{ if eq(parameters.env, 'perf') }}: 
+    ${{ if eq(parameters.env, 'perf') }}:
       value: "nbs-mya$(env)-rg-stag-uks"
-    ${{ if ne(parameters.env, 'perf') }}: 
+    ${{ if ne(parameters.env, 'perf') }}:
       value: "nbs-mya-rg-$(env)-uks"
   - name: ukwResourceGroup
-    ${{ if eq(parameters.env, 'perf') }}: 
+    ${{ if eq(parameters.env, 'perf') }}:
       value: "nbs-mya$(env)-rg-stag-ukw"
-    ${{ if ne(parameters.env, 'perf') }}: 
+    ${{ if ne(parameters.env, 'perf') }}:
       value: "nbs-mya-rg-$(env)-ukw"
   - name: serviceConnection
-    ${{ if eq(parameters.env, 'perf') }}: 
+    ${{ if eq(parameters.env, 'perf') }}:
       value: "nbs-mya$(env)-rg-stag"
-    ${{ if ne(parameters.env, 'perf') }}: 
+    ${{ if ne(parameters.env, 'perf') }}:
       value: "nbs-mya-rg-$(env)"
   - name: frontdoorProfileName
     value: "nbs-mya-fd-$(env)-uks"
@@ -56,6 +56,35 @@ stages:
       - job: FailOverToUkw
         displayName: "Create resources in UK West, shut down UK South, and failover persistence/configuration"
         steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Version Number artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_version_number"
+              targetPath: "$(Pipeline.Workspace)/drop_version_number"
+
+          - task: PowerShell@2
+            displayName: "Read version number from artifact to build variable"
+            name: ExtractVersionStep
+            inputs:
+              targetType: "inline"
+              script: |
+                $buildNumber = Get-Content "$(Pipeline.Workspace)/drop_version_number/version_number.txt"
+                Write-Host "##vso[task.setvariable variable=extractedBuildNumber]$buildNumber"
+              pwsh: true
+
+          - task: PowerShell@2
+            displayName: "Print MYA version"
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "Deploying MYA version: $(extractedBuildNumber)"
+              pwsh: true
+
           - task: AzureCLI@2
             displayName: "Stop UKS App Services"
             inputs:
@@ -112,7 +141,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
                 terraform init
-                terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
+                terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
@@ -312,7 +341,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
                 terraform init
-                terraform destroy -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.myaPipelineBuildId}}" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
+                terraform destroy -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

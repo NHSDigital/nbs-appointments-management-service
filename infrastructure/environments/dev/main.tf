@@ -66,6 +66,7 @@ module "mya_application_dev" {
   container_registry_server_url                   = var.CONTAINER_REGISTRY_SERVER_URL
   container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
   container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
+  auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
   create_data_extracts                            = true
   data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = false
@@ -82,6 +83,9 @@ module "mya_application_dev" {
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "8FF305BB-C5B9-4054-A29A-836A0A69CB24"
+  splunk_otel_image_version                       = "2.0"
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

@@ -74,6 +74,7 @@ module "mya_application_perf" {
   container_registry_server_url                   = var.CONTAINER_REGISTRY_SERVER_URL
   container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
   container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
+  auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
   data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = false
   create_high_load_function_app                   = true
@@ -94,6 +95,9 @@ module "mya_application_perf" {
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = true
   disable_bulk_import_function                    = true
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "5DCE2AC4-31D8-4A77-93C1-06515670AFD6"
+  splunk_otel_image_version                       = "2.0"
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

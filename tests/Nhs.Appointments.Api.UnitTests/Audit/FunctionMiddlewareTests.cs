@@ -117,6 +117,7 @@ public class FunctionMiddlewareTests
     [InlineData("test@test.com", typeof(GetSiteMetaDataFunction), "RunAsync")]
     [InlineData("test@test.com", typeof(TriggerBookingRemindersFunction), "RunAsync")]
     [InlineData("test@test.com", typeof(AuthenticateCallbackFunction), "Run")]
+    [InlineData("test@test.com", typeof(TriggerAutoCancelledBookingsFunction), "RunAsync")]
     public async Task Invoke_NoRequiredAuditAttribute_DoesNot_RecordFunction(string user, Type functionType,
         string method)
     {

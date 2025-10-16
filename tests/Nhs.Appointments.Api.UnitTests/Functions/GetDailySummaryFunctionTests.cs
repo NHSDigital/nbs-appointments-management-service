@@ -8,24 +8,22 @@ using Moq;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
-using System.Net;
 using System.Text.Json;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
-public class GetDailySummaryFunctionTests
+public class GetDaySummaryFunctionTests
 {
     private readonly Mock<IBookingAvailabilityStateService> _mockBookingAvailabilityStateService = new();
-    private readonly Mock<ILogger<GetDailySummaryFunction>> _mockLogger = new();
+    private readonly Mock<ILogger<GetDaySummaryFunction>> _mockLogger = new();
     private readonly Mock<IMetricsRecorder> _mockMetricsRecorder = new();
     private readonly Mock<IUserContextProvider> _mockUserContextProvider = new();
     private readonly Mock<IValidator<GetDaySummaryRequest>> _mockValidator = new();
 
-    private readonly GetDailySummaryFunction _sut;
+    private readonly GetDaySummaryFunction _sut;
 
-    public GetDailySummaryFunctionTests()
+    public GetDaySummaryFunctionTests()
     {
-        _sut = new GetDailySummaryFunction(
+        _sut = new GetDaySummaryFunction(
             _mockBookingAvailabilityStateService.Object,
             _mockValidator.Object,
             _mockUserContextProvider.Object,

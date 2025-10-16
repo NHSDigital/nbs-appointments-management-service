@@ -2,7 +2,7 @@
 
 import { redirect, RedirectType } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { logEvent } from '../lib/logging/logger';
+import { logInfo } from '@services/logService';
 
 async function redirectToIdServer(redirectUrl: string, authProvider: string) {
   const cookieStore = await cookies();
@@ -10,12 +10,11 @@ async function redirectToIdServer(redirectUrl: string, authProvider: string) {
 
   cookieStore.set('previousPage', redirectUrl);
 
-  logEvent(
-    'info',
-    'Redirecting to ID server',
-    { redirectUrl, authProvider, idServerEndpoint },
-    'Auth/redirectToIdServer.ts',
-  );
+  logInfo('Redirecting to ID server', {
+    redirectUrl,
+    authProvider,
+    idServerEndpoint,
+  });
 
   return redirect(idServerEndpoint, RedirectType.push);
 }

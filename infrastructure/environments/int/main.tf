@@ -79,6 +79,7 @@ module "mya_application_int" {
   keyvault_tenant_id                              = var.KEYVAULT_TENANT_ID
   keyvault_client_id                              = var.KEYVAULT_CLIENT_ID
   keyvault_client_secret                          = var.KEYVAULT_CLIENT_SECRET
+  auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
   disable_query_availability_function             = true
   create_high_load_function_app                   = true
   create_app_slot                                 = false
@@ -93,6 +94,9 @@ module "mya_application_int" {
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "B8FF5D4B-3A5A-4025-AF83-EDB212B83D11"
+  splunk_otel_image_version                       = "2.0"
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

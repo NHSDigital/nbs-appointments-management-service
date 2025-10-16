@@ -162,10 +162,8 @@ public class AvailabilityWriteService(
             return result;
         }
 
-        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1)
-            .Select(offset => bookingWriteService.RecalculateAppointmentStatuses(site, from.AddDays(offset), cancelUnsupportedBookings));
-
-        await Task.WhenAll(days);
+        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1).Select(x => from.AddDays(x)).ToArray();
+        await bookingWriteService.RecalculateAppointmentStatuses(site, days, cancelUnsupportedBookings);
 
         return result;
     }

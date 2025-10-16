@@ -477,7 +477,7 @@ public class AvailabilityWriteServiceTests
 
         editSuccessful.Should().BeTrue();
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Exactly(6));
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), false), Times.Once);
     }
 
     [Fact]
@@ -551,7 +551,7 @@ public class AvailabilityWriteServiceTests
         editSuccessful.Should().BeTrue();
 
         _availabilityStore.Verify(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Exactly(6));
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), false), Times.Once);
     }
 
     [Fact]
@@ -632,7 +632,7 @@ public class AvailabilityWriteServiceTests
         editSuccessful.Should().BeTrue();
 
         _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, from, sessionReplacements, ApplyAvailabilityMode.Edit, sessionMatcher), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), false), Times.Once);
     }
 
     [Fact]
@@ -662,6 +662,6 @@ public class AvailabilityWriteServiceTests
         editSuccessful.Should().BeTrue();
 
         _availabilityStore.Verify(x => x.CancelSession(site, from, sessionMatcher), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), false), Times.Once);
     }
 }

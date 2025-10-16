@@ -582,6 +582,32 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
+        public async Task CancelBooking_NotRunningAppointmentStatusesRecalculation()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+                .Returns(updateMock.Object);
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+                Task.FromResult(new Booking
+                {
+                    Reference = bookingRef,
+                    Site = site,
+                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+                }));
+
+            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen, It.IsAny<object>()));
+
+            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, runRecalculation: false);
+
+            _siteLeaseManager.Verify(x => x.Acquire(site), Times.Never);
+        }
+
+        [Fact]
         public async Task CancelBooking_ReturnsNotFoundWhenSiteDoesNotMatch()
         {
             var site = "some-site";

@@ -53,7 +53,8 @@ public class EditSessionFunction(
             request.To,
             request.SessionMatcher.Session,
             request.SessionReplacement,
-            request.SessionMatcher.IsWildcard);
+            request.SessionMatcher.IsWildcard,
+            request.CancelUnsupportedBookings);
 
         return updateSuccessful
             ? Success(new EmptyResponse())

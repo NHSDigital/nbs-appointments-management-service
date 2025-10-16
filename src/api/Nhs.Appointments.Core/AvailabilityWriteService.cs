@@ -110,7 +110,15 @@ public class AvailabilityWriteService(
         }
     }
 
-    public async Task<(bool updateSuccessful, string message)> EditOrCancelSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, bool isWildcard)
+    public async Task<(bool updateSuccessful, string message)> EditOrCancelSessionAsync(
+        string site, 
+        DateOnly from, 
+        DateOnly until, 
+        Session sessionMatcher, 
+        Session sessionReplacement, 
+        bool isWildcard, 
+        bool cancelUnsupportedBookings
+    )
     {
         var multipleDays = from != until;
         var hasReplacement = sessionReplacement is not null;
@@ -154,10 +162,8 @@ public class AvailabilityWriteService(
             return result;
         }
 
-        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1)
-            .Select(offset => bookingWriteService.RecalculateAppointmentStatuses(site, from.AddDays(offset)));
-
-        await Task.WhenAll(days);
+        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1).Select(x => from.AddDays(x)).ToArray();
+        await bookingWriteService.RecalculateAppointmentStatuses(site, days, cancelUnsupportedBookings);
 
         return result;
     }

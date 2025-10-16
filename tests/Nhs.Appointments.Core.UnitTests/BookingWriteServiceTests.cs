@@ -582,6 +582,32 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
+        public async Task CancelBooking_NotRunningAppointmentStatusesRecalculation()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+                .Returns(updateMock.Object);
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+                Task.FromResult(new Booking
+                {
+                    Reference = bookingRef,
+                    Site = site,
+                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+                }));
+
+            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen, It.IsAny<object>()));
+
+            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, runRecalculation: false);
+
+            _siteLeaseManager.Verify(x => x.Acquire(site), Times.Never);
+        }
+
+        [Fact]
         public async Task CancelBooking_ReturnsNotFoundWhenSiteDoesNotMatch()
         {
             var site = "some-site";
@@ -655,6 +681,39 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Verify(x =>
                     x.ConfirmProvisional("test-booking-ref", It.IsAny<IEnumerable<ContactItem>>(),
                         "booking-to-reschedule", CancellationReason.RescheduledByCitizen),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task RecalculateAppointmentStatuses_CancelUnsupportedBookings()
+        {
+            var cancelUnsupportedBookings = true;
+            var bookings = new List<Booking>
+            {
+                new()
+                {
+                    From = new DateTime(2025, 01, 01, 9, 0, 0),
+                    Reference = "1",
+                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                    Status = AppointmentStatus.Booked,
+                    AvailabilityStatus = AvailabilityStatus.Orphaned,
+                    Duration = 10,
+                    Service = "Service 1"
+                }
+            };
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(bookings.First());
+            _bookingAvailabilityStateService
+                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
+                    new List<BookingAvailabilityUpdate>
+                    {
+                        new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
+                    });
+
+            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), cancelUnsupportedBookings);
+
+            _bookingsDocumentStore.Verify(
+                x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
+                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
                 Times.Once);
         }
 

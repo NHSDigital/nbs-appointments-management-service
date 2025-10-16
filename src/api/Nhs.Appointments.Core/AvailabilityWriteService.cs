@@ -1,4 +1,3 @@
-using Microsoft.Azure.Cosmos.Linq;
 using System.Globalization;
 
 namespace Nhs.Appointments.Core;
@@ -109,5 +108,91 @@ public class AvailabilityWriteService(
                 yield return cursor;
             cursor = cursor.AddDays(1);
         }
+    }
+
+    public async Task<(bool updateSuccessful, string message)> EditOrCancelSessionAsync(
+        string site, 
+        DateOnly from, 
+        DateOnly until, 
+        Session sessionMatcher, 
+        Session sessionReplacement, 
+        bool isWildcard, 
+        bool cancelUnsupportedBookings
+    )
+    {
+        var multipleDays = from != until;
+        var hasReplacement = sessionReplacement is not null;
+
+        var updateAction = DetermineSessionUpdateAction(isWildcard, multipleDays, hasReplacement);
+
+        (bool success, string message) result;
+
+        switch (updateAction)
+        {
+            case SessionUpdateAction.CancelAll:
+                await CancelAllSessionInDateRange(site, from, until);
+                return (true, string.Empty);
+            case SessionUpdateAction.CancelMultiple:
+                var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
+                result = (cancelResult.Success, cancelResult.Message);
+                break;
+            case SessionUpdateAction.EditMultiple:
+                var editResult = await availabilityStore.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
+                result = (editResult.Success, editResult.Message);
+                break;
+            case SessionUpdateAction.EditSingle:
+                await availabilityStore.ApplyAvailabilityTemplate(
+                    site,
+                    from,
+                    [sessionReplacement],
+                    ApplyAvailabilityMode.Edit,
+                    sessionMatcher!);
+
+                result = (true, string.Empty);
+                break;
+            case SessionUpdateAction.CancelSingle:
+            default:
+                await availabilityStore.CancelSession(site, from, sessionMatcher);
+                result = (true, string.Empty);
+                break;
+        }
+
+        if (!result.success)
+        {
+            return result;
+        }
+
+        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1).Select(x => from.AddDays(x)).ToArray();
+        await bookingWriteService.RecalculateAppointmentStatuses(site, days, cancelUnsupportedBookings);
+
+        return result;
+    }
+
+    private async Task CancelAllSessionInDateRange(string site, DateOnly from, DateOnly until)
+    {
+        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1)
+                .Select(offset => CancelDayAsync(site, from.AddDays(offset)));
+
+        await Task.WhenAll(days);
+    }
+
+    private static SessionUpdateAction DetermineSessionUpdateAction(bool isWildcard, bool isMultipleDays, bool hasReplacement)
+    {
+        if (isWildcard)
+        {
+            return SessionUpdateAction.CancelAll;
+        }
+
+        if (!hasReplacement && isMultipleDays)
+        {
+            return SessionUpdateAction.CancelMultiple;
+        }
+
+        if (hasReplacement && isMultipleDays)
+        {
+            return SessionUpdateAction.EditMultiple;
+        }
+
+        return hasReplacement ? SessionUpdateAction.EditSingle : SessionUpdateAction.CancelSingle;
     }
 }

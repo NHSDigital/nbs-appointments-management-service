@@ -40,6 +40,9 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     Notifications_Provider                                                 = var.environment == "perf" ? "azure-throttled" : "azure"
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
+    GovNotifyRetryOptions__MaxRetries                                      = var.gov_notify_retry_options_max_retries
+    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms
+    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor
     ServiceBusConnectionString                                             = azurerm_servicebus_namespace.nbs_mya_service_bus.default_primary_connection_string
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
@@ -57,7 +60,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
+    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
@@ -101,7 +104,10 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
+    "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
   }
 
   sticky_settings {
@@ -115,8 +121,8 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
       "AzureWebJobs.NotifyBookingReminder.Disabled",
       "AzureWebJobs.NotifyBookingRescheduled.Disabled",
       "AzureWebJobs.NotifyUserRolesChanged.Disabled",
-      "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled"
-
+      "AzureWebJobs.NotifyOktaUserRolesChanged.Disabled",
+      "AzureWebJobs.NotifyBookingAutoCancelled.Disabled",
     ]
   }
 
@@ -154,6 +160,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     Notifications_Provider                                                 = "none"
     GovNotifyBaseUri                                                       = var.gov_notify_base_uri
     GovNotifyApiKey                                                        = var.gov_notify_api_key
+    GovNotifyRetryOptions__MaxRetries                                      = var.gov_notify_retry_options_max_retries
+    GovNotifyRetryOptions__InitialDelayMs                                  = var.gov_notify_retry_options_initial_delay_ms
+    GovNotifyRetryOptions__BackoffFactor                                   = var.gov_notify_retry_options_backoff_factor
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     SITE_SUMMARY_DAYS_FORWARD                                              = var.site_summary_days_forward
@@ -170,7 +179,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
+    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
@@ -214,7 +223,10 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
+    "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
   }
 
   identity {

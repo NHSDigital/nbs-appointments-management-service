@@ -1,3 +1,5 @@
+using System.Text;
+using System.Web.Http;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -9,8 +11,6 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.UnitTests;
-using System.Text;
-using System.Web.Http;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -29,7 +29,8 @@ public class CancelBookingFunctionTests : FeatureToggledTests
             _userContextProvider.Object, _logger.Object, _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelBookingRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _bookingWriteService.Setup(x => x.CancelBooking(null, string.Empty, CancellationReason.CancelledByCitizen, true))  
+        _bookingWriteService.Setup(x =>
+                x.CancelBooking(null, string.Empty, CancellationReason.CancelledByCitizen, It.IsAny<object>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(BookingCancellationResult.NotFound));
     }
 
@@ -38,7 +39,8 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, true)) 
+        _bookingWriteService.Setup(x =>
+                x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, It.IsAny<object>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(BookingCancellationResult.Success));
 
         var request = BuildRequest(bookingRef, site);
@@ -53,7 +55,8 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, true)) 
+        _bookingWriteService.Setup(x =>
+                x.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, It.IsAny<object>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable(Times.Once);
 
         var request = BuildRequest(bookingRef, site);
@@ -68,7 +71,8 @@ public class CancelBookingFunctionTests : FeatureToggledTests
     {
         var bookingRef = "some-booking";
         var site = "TEST01";
-        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationReason>(), It.IsAny<bool>()))
+        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationReason>(), It.IsAny<object>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(BookingCancellationResult.NotFound));
 
         var request = BuildRequest(bookingRef, site);
@@ -84,7 +88,8 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         var bookingRef = "some-booking";
         var site = "TEST01";
         var invalidResultCode = 99;
-        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationReason>(), It.IsAny<bool>()))
+        _bookingWriteService.Setup(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationReason>(), It.IsAny<object>(), It.IsAny<bool>()))
             .Returns(Task.FromResult((BookingCancellationResult)invalidResultCode));
 
         var request = BuildRequest(bookingRef, site);
@@ -104,7 +109,8 @@ public class CancelBookingFunctionTests : FeatureToggledTests
         var bookingRef = "some-booking";
         var site = "TEST01";
 
-        _bookingWriteService.Setup(x => x.CancelBooking(bookingRef, site, expectedCancellationReason, true))
+        _bookingWriteService
+            .Setup(x => x.CancelBooking(bookingRef, site, expectedCancellationReason, It.IsAny<object>(), It.IsAny<bool>()))
             .Returns(Task.FromResult(BookingCancellationResult.Success)).Verifiable();
 
         var request = BuildRequest(bookingRef, site, cancellationReason);

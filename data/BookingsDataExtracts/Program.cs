@@ -12,8 +12,10 @@ builder.Configuration
             .AddEnvironmentVariables()
             .AddNbsAzureKeyVault();
 
+builder.Logging.AddConsole();
+
 builder.Services
-    .AddDataExtractServices("booking", builder.Configuration, args.Contains("create-local-sample"))
+    .AddDataExtractServices("booking", builder.Configuration)
     .AddCosmosStore<NbsBookingDocument>()
     .AddCosmosStore<SiteDocument>()
     .AddExtractWorker<BookingDataExtract>();

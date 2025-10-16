@@ -80,3 +80,12 @@ public class Template
     [JsonPropertyName("sessions")]
     public Session[] Sessions { get; set; }
 }
+
+public enum SessionUpdateAction
+{
+    CancelAll,
+    CancelMultiple,
+    EditMultiple,
+    EditSingle,
+    CancelSingle
+}

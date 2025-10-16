@@ -7,6 +7,8 @@
     "AzureWebJobs.NotifyBookingMade.Disabled": true,
     "AzureWebJobs.NotifyBookingRescheduled.Disabled": true,
     "AzureWebJobs.NotifyBookingCancelled.Disabled": true,
+    "AzureWebJobs.NotifyBookingAutoCancelled.Disabled": true,
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled": true,
     "AzureWebJobs.SendBookingReminders.Disabled": true,
     "AzureWebJobs.NotifyBookingReminder.Disabled": true,
     "AzureWebJobs.AggregateDailySiteSummary.Disabled": true,
@@ -44,15 +46,16 @@
     "Okta__PEM": "local",
     "Notifications_Provider": "local",
     "GovNotifyApiKey": "test",
-    "GovNotifyRetryOptions:MaxRetries": "5",
-    "GovNotifyRetryOptions:InitialDelayMs": "1000",
-    "GovNotifyRetryOptions:BackoffFactor": "2.0",
+    "GovNotifyRetryOptions:MaxRetries": 5,
+    "GovNotifyRetryOptions:InitialDelayMs": 1000,
+    "GovNotifyRetryOptions:BackoffFactor": 2.0,
     "BookingRemindersCronSchedule": "0 0 8 * * *",
     "UnconfirmedProvisionalBookingsCronSchedule": "0 */5 * * * *",
     "DailySiteSummaryAggregationCronSchedule": "0 */5 * * * *",
     "SITE_SUMMARY_DAYS_FORWARD": 30,
     "SITE_SUMMARY_DAYS_CHUNK_SIZE": 365,
-    "SITE_SUMMARY_FIRST_RUN_DATE": "2025-06-01"
+    "SITE_SUMMARY_FIRST_RUN_DATE": "2025-06-01",
+    "AutoCancelledBookingsCronSchedule": "0 8 * * *"
   },
   "Host": { "CORS": "*" }
 }

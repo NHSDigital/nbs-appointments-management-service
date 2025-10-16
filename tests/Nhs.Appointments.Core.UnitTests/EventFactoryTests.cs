@@ -26,6 +26,9 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
+        public void BuildsAutoBookingCancelledEventCorrectly() => BuildsEventCorrectly<BookingAutoCancelled>();
+
+        [Fact]
         public void BuildsBookingReminderEventCorrectly()
         {
             BuildsEventCorrectly<BookingReminder>();
@@ -54,6 +57,10 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             EventMustContainContactDetails<BookingCancelled>();
         }
+
+        [Fact]
+        public void BookingAutoCancelledEventMustContainContactDetails() =>
+            EventMustContainContactDetails<BookingAutoCancelled>();
 
         private void EventMustContainContactDetails<T>() where T : PatientBookingNotificationEventBase, new()
         {

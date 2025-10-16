@@ -55,6 +55,9 @@ module "mya_application_perf" {
   web_app_slot_base_uri                           = var.WEB_APP_SLOT_BASE_URI
   gov_notify_base_uri                             = var.GOV_NOTIFY_BASE_URI
   gov_notify_api_key                              = var.GOV_NOTIFY_API_KEY
+  gov_notify_retry_options_max_retries            = var.GOV_NOTIFY_RETRY_OPTIONS_MAX_RETRIES
+  gov_notify_retry_options_initial_delay_ms       = var.GOV_NOTIFY_RETRY_OPTIONS_INITIAL_DELAY_MS    
+  gov_notify_retry_options_backoff_factor         = var.GOV_NOTIFY_RETRY_OPTIONS_BACKOFF_FACTOR
   booking_reminders_cron_schedule                 = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule  = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   daily_site_summary_aggregation_cron_schedule    = var.DAILY_SITE_SUMMARY_AGGREGATION_CRON_SCHEDULE
@@ -67,6 +70,12 @@ module "mya_application_perf" {
   cosmos_endpoint                                 = var.COSMOS_ENDPOINT
   cosmos_token                                    = var.COSMOS_TOKEN
   app_config_connection                           = var.APP_CONFIG_CONNECTION
+  create_data_extracts                            = true
+  container_registry_server_url                   = var.CONTAINER_REGISTRY_SERVER_URL
+  container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
+  container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
+  auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
+  data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = false
   create_high_load_function_app                   = true
   create_app_slot                                 = false
@@ -75,16 +84,20 @@ module "mya_application_perf" {
   create_cosmos_db                                = false
   create_app_config                               = false
   web_app_service_sku                             = "P1v3"
-  web_app_service_plan_default_worker_count       = 3
+  web_app_service_plan_default_worker_count       = 6
   app_service_plan_zone_redundancy_enabled        = false
-  web_app_service_plan_min_worker_count           = 1
+  web_app_service_plan_min_worker_count           = 4
   web_app_service_plan_max_worker_count           = 20
-  web_app_service_plan_scale_out_worker_count     = 1
+  web_app_service_plan_scale_out_worker_count_max = 1
+  web_app_service_plan_scale_out_worker_count_min = 1
   web_app_service_plan_scale_in_worker_count      = 1
   app_insights_sampling_percentage                = 12.5
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = true
   disable_bulk_import_function                    = true
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "5DCE2AC4-31D8-4A77-93C1-06515670AFD6"
+  splunk_otel_image_version                       = "2.0"
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

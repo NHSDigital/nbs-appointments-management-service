@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core.UnitTests;
+namespace Nhs.Appointments.Core.UnitTests;
 
 public class BookingQueryFilterTests
 {
@@ -96,7 +96,8 @@ public class BookingQueryFilterTests
             TestBooking("02", cancellationReason: CancellationReason.CancelledBySite),
             TestBooking("03", cancellationReason: CancellationReason.RescheduledByCitizen),
             TestBooking("04", cancellationReason: CancellationReason.CancelledBySite),
-            TestBooking("05", cancellationReason: CancellationReason.CancelledByCitizen)
+            TestBooking("05", cancellationReason: CancellationReason.CancelledByCitizen),
+            TestBooking("05", cancellationReason: CancellationReason.CancelledByService)
         };
 
         var filter = new BookingQueryFilter(TestDateAt("09:00"), TestDateAt("17:30"),
@@ -111,6 +112,7 @@ public class BookingQueryFilterTests
         result.Should().Contain(bookings[2]);
         result.Should().NotContain(bookings[3]);
         result.Should().NotContain(bookings[4]);
+        result.Should().NotContain(bookings[5]);
     }
 
     [Fact]
@@ -175,7 +177,9 @@ public class BookingQueryFilterTests
             TestBooking("09", "10:00", AppointmentStatus.Booked, null, CancellationNotificationStatus.Unknown),
             // Cancelled booking at 10:10, automatically notified but notification failed
             TestBooking("10", "10:10", AppointmentStatus.Cancelled, CancellationReason.CancelledBySite,
-                CancellationNotificationStatus.AutomaticNotificationFailed)
+                CancellationNotificationStatus.AutomaticNotificationFailed),
+            TestBooking("11", "10:10", AppointmentStatus.Cancelled, CancellationReason.CancelledByService,
+                CancellationNotificationStatus.Unknown)
         };
 
         // "Find me cancelled bookings between 09:30 and 10 where the citizens could not be notified OR their automatic notification failed"
@@ -185,8 +189,7 @@ public class BookingQueryFilterTests
             CancellationReason.CancelledBySite,
             new[]
             {
-                CancellationNotificationStatus.Unnotified,
-                CancellationNotificationStatus.AutomaticNotificationFailed
+                CancellationNotificationStatus.Unnotified, CancellationNotificationStatus.AutomaticNotificationFailed
             });
 
         var result = bookings.Where(filter.Matches).ToList();
@@ -203,5 +206,6 @@ public class BookingQueryFilterTests
         result.Should().Contain(bookings[7]);
         result.Should().NotContain(bookings[8]);
         result.Should().NotContain(bookings[9]);
+        result.Should().NotContain(bookings[10]);
     }
 }

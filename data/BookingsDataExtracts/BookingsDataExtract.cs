@@ -10,11 +10,12 @@ namespace BookingsDataExtracts;
 public class BookingDataExtract(
     CosmosStore<NbsBookingDocument> bookingsStore,
     CosmosStore<SiteDocument> sitesStore,
-    TimeProvider timeProvider) : IExtractor
+    TimeProvider timeProvider,
+    ILogger<BookingDataExtract> logger) : IExtractor
 {
     public async Task RunAsync(FileInfo outputFile)
     {
-        Console.WriteLine("Loading bookings");
+        logger.LogInformation("Loading bookings");
         
         var allBookings = await bookingsStore.RunQueryAsync(
             b => b.DocumentType == "booking"
@@ -24,7 +25,7 @@ public class BookingDataExtract(
         );
         var bookings = allBookings.Where(b => b.Status != AppointmentStatus.Provisional).ToList();
 
-        Console.WriteLine("Loading sites");
+        logger.LogInformation("Loading sites");
         var sites = await sitesStore.RunQueryAsync(s => s.DocumentType == "site", s => s);
         var dataConverter = new BookingDataConverter(sites);
 
@@ -47,9 +48,10 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
+            new DataFactory<BookingDocument, int?>(BookingDataExtractFields.BatchSize, BookingDataConverter.ExtractBatchSize),
         };
            
-        Console.WriteLine("Preparing to write");
+        logger.LogInformation("Preparing to write");
 
         var schema = new ParquetSchema(dataFactories.Select(df => df.Field).ToArray());
         using (Stream fs = outputFile.OpenWrite())
@@ -64,6 +66,6 @@ public class BookingDataExtract(
             }
         }
 
-        Console.WriteLine("done");
+        logger.LogInformation("done");
     }    
 }

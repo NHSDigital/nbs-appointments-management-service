@@ -1,4 +1,8 @@
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertFeatureEnabled,
+  assertPermission,
+  fetchSite,
+} from '@services/appointmentsService';
 import { parseToUkDatetime } from '@services/timeService';
 import { AvailabilitySession, SessionSummary } from '@types';
 import { notFound } from 'next/navigation';
@@ -30,6 +34,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   }
 
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
+  await fromServer(assertFeatureEnabled('ChangeSessionUpliftedJourney'));
+
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
 

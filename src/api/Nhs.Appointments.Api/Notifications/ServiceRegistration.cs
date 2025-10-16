@@ -1,19 +1,15 @@
+using System;
 using MassTransit;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Consumers;
 using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Api.Notifications.Options;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
-using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Notify.Client;
 using Notify.Interfaces;
-using System;
-using Nhs.Appointments.Api.Notifications.Options;
 
 namespace Nhs.Appointments.Api.Notifications;
 
@@ -44,6 +40,7 @@ public static class ServiceRegistration
                     .AddScoped<IConsumer<OktaUserRolesChanged>, OktaUserRolesChangedConsumer>()
                     .AddScoped<IConsumer<BookingMade>, BookingMadeConsumer>()
                     .AddScoped<IConsumer<BookingCancelled>, BookingCancelledConsumer>()
+                    .AddScoped<IConsumer<BookingAutoCancelled>, BookingAutoCancelledConsumer>()
                     .AddScoped<IConsumer<BookingReminder>, BookingReminderConsumer>()
                     .AddScoped<IConsumer<BookingRescheduled>, BookingRescheduledConsumer>()
                     .AddScoped<IMessageBus, ConsoleLogWithMessageDelivery>()
@@ -102,6 +99,8 @@ public static class ServiceRegistration
                 EndpointConvention.Map<BookingRescheduled>(
                     new Uri($"queue:{NotifyBookingRescheduledFunction.QueueName}"));
                 EndpointConvention.Map<BookingCancelled>(new Uri($"queue:{NotifyBookingCancelledFunction.QueueName}"));
+                EndpointConvention.Map<BookingAutoCancelled>(
+                    new Uri($"queue:{NotifyBookingAutoCancelledFunction.QueueName}"));
                 EndpointConvention.Map<BookingReminder>(new Uri($"queue:{NotifyBookingReminderFunction.QueueName}"));
                 EndpointConvention.Map<AggregateSiteSummaryEvent>(new Uri($"queue:{AggregateDailySiteSummaryFunction.QueueName}"));
                 cfg.AddConsumer<UserRolesChangedConsumer>();
@@ -110,7 +109,10 @@ public static class ServiceRegistration
                 cfg.AddConsumer<BookingMadeConsumer>();
                 cfg.AddConsumer<BookingCancelledConsumer>();
                 cfg.AddConsumer<BookingRescheduledConsumer>();
-                cfg.AddConsumer<AggregateSiteSummaryConsumer>();
+                cfg.AddConsumer<AggregateSiteSummaryConsumer>(config =>
+                {
+                    config.ConcurrentMessageLimit = 1;
+                });
             },
             "ServiceBusConnectionString");
         return services;

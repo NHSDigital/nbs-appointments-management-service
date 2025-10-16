@@ -1,22 +1,29 @@
 using FluentAssertions;
 using Gherkin.Ast;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 
-[FeatureFile("./Scenarios/AvailabilityCalculations/BestFit.feature")]
-public class BestFitFeatureSteps : BaseFeatureSteps
+public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private List<Core.Booking> _getBookingsResponse;
+    private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
+    [When("I cancel the following sessions")]
     [Then("I cancel the following sessions")]
     public async Task CancelSession(DataTable dataTable)
     {
@@ -30,16 +37,20 @@ public class BestFitFeatureSteps : BaseFeatureSteps
             object payload = new
             {
                 site = GetSiteId(),
-                date = DateOnly.FromDateTime(date),
-                until = cells.ElementAt(2).Value,
-                from = cells.ElementAt(1).Value,
-                services = cells.ElementAt(3).Value.Split(',').Select(s => s.Trim()).ToArray(),
-                slotLength = int.Parse(cells.ElementAt(4).Value),
-                capacity = int.Parse(cells.ElementAt(5).Value)
+                from = DateOnly.FromDateTime(date),
+                to = DateOnly.FromDateTime(date),
+                sessionMatcher = new
+                {
+                    from = cells.ElementAt(1).Value,
+                    until = cells.ElementAt(2).Value,
+                    services = cells.ElementAt(3).Value.Split(',').Select(s => s.Trim()).ToArray(),
+                    slotLength = int.Parse(cells.ElementAt(4).Value),
+                    capacity = int.Parse(cells.ElementAt(5).Value)
+                },
+                sessionReplacement = null as Session
             };
 
-            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/cancel", payload);
-            _response.StatusCode.Should().Be(HttpStatusCode.OK);
+            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
         }
     }
 
@@ -59,7 +70,7 @@ public class BestFitFeatureSteps : BaseFeatureSteps
         var bookingIndex = 0;
         foreach (var row in expectedBookingDetailsTable.Rows.Skip(1))
         {
-            var expectedBookingReference = _bookingReferences[bookingIndex];
+            var expectedBookingReference = _getBookingsResponse[bookingIndex].Reference;
 
             var expectedFrom = DateTime.ParseExact(
                 $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
@@ -78,5 +89,83 @@ public class BestFitFeatureSteps : BaseFeatureSteps
         }
     }
 
-   
+    [When(@"I request the availability proposal for potential availability change")]
+    public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
+    {
+        var sessions = new List<Session> { };
+
+        foreach (var row in proposalSessions.Rows.Skip(1))
+        {
+            var session = new Session
+            {
+                From = TimeOnly.Parse(row.Cells.ElementAt(0).Value),
+                Until = TimeOnly.Parse(row.Cells.ElementAt(1).Value),
+                Services = row.Cells.ElementAt(2).Value.Split(','),
+                SlotLength = int.Parse(row.Cells.ElementAt(3).Value),
+                Capacity = int.Parse(row.Cells.ElementAt(4).Value),
+            };
+
+            sessions.Add(session);
+        }
+
+        var request = new
+        {
+
+            site = GetSiteId(),
+            from = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
+            to = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
+            sessionMatcher = new
+            {
+                from = sessions[0].From,
+                until = sessions[0].Until,
+                services = sessions[0].Services,
+                slotLength = sessions[0].SlotLength,
+                capacity = sessions[0].Capacity
+            },
+            sessionReplacement = new
+            {
+                from = sessions[1].From,
+                until = sessions[1].Until,
+                services = sessions[1].Services,
+                slotLength = sessions[1].SlotLength,
+                capacity = sessions[1].Capacity
+            }
+        };
+        var serializerSettings = new JsonSerializerSettings
+        {
+            Converters = { new ShortTimeOnlyJsonConverter() },
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(request, serializerSettings), Encoding.UTF8, "application/json");
+
+        _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        (_, _availabilityChangeProposalResponse) =
+            await JsonRequestReader.ReadRequestAsync<AvailabilityChangeProposalResponse>(await _response.Content.ReadAsStreamAsync());
+    }
+
+    [Then(@"the following count is returned")]
+    public async Task AssertAvailabilityCount(DataTable expectedCounts)
+    {
+        var counts = new List<int>();
+
+        foreach (var row in expectedCounts.Rows)
+        {
+            counts.Add(int.Parse(row.Cells.ElementAt(1).Value));
+        }
+
+        _availabilityChangeProposalResponse.SupportedBookingsCount.Should().Be(counts[0]);
+        _availabilityChangeProposalResponse.UnsupportedBookingsCount.Should().Be(counts[1]);
+    }
+
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftEnabled.feature")]
+    public class BestFitFeatureSteps_ChangeSessionUplift_Enabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
+
+    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftDisabled.feature")]
+    public class BestFitFeatureSteps_ChangeSessionUplift_Disabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

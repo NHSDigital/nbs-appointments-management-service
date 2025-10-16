@@ -1178,6 +1178,50 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "session/edit",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"from\": \"2025-09-15\",\r\n    \"to\": \"2025-09-15\",\r\n    \"site\": \"{{site}}\",\r\n    \"cancelUnsupportedBookings\": \"false\",\r\n    \"sessionMatcher\": {\r\n        \"from\": \"09:00\",\r\n        \"to\": \"17:00\",\r\n        \"services\": [\"RSV:Adult\"],\r\n        \"slotLength\": 5,\r\n        \"capacity\": 2\r\n    },\r\n    \"sessionReplacement\": null\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/session/edit",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "session", "edit"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "system/run-auto-cancellations",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/system/run-auto-cancellations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "system", "run-auto-cancellations"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

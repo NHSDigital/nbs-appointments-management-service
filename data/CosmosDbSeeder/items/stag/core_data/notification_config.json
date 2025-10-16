@@ -15,52 +15,108 @@
       "eventType": "OktaUserRolesChanged"
     },
     {
-      "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+" ],
+      "services": ["COVID:5_11", "COVID:12_17", "COVID:18+"],
       "emailTemplate": "5c9462f4-4ad7-4bc5-b72a-e9251a07890d",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "FLU:2_3", "FLU:18_64", "FLU:65+" ],
+      "services": ["FLU:2_3", "FLU:18_64", "FLU:65+"],
       "emailTemplate": "4b0e391a-d099-436a-9480-30982c673595",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "COVID_FLU:18_64", "COVID_FLU:65+" ],
+      "services": ["COVID_FLU:18_64", "COVID_FLU:65+"],
       "emailTemplate": "bc9c733e-039e-4d69-a8e2-681d7fd88989",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "RSV:Adult" ],
+      "services": ["RSV:Adult"],
       "emailTemplate": "e25bfe4f-f675-47e3-943f-283f6c7d35ae",
       "smsTemplate": "",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+", "FLU:2_3", "FLU:18_64", "FLU:65+", "COVID_FLU:18_64", "COVID_FLU:65+", "RSV:Adult" ],
+      "services": [
+        "COVID:5_11",
+        "COVID:12_17",
+        "COVID:18+",
+        "FLU:2_3",
+        "FLU:18_64",
+        "FLU:65+",
+        "COVID_FLU:18_64",
+        "COVID_FLU:65+",
+        "RSV:Adult"
+      ],
       "emailTemplate": "",
       "smsTemplate": "3ea6a33c-a62d-4b79-a330-85d349db6f0d",
       "eventType": "BookingMade"
     },
     {
-      "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+", "FLU:2_3", "FLU:18_64", "FLU:65+", "COVID_FLU:18_64", "COVID_FLU:65+", "RSV:Adult" ],
+      "services": [
+        "COVID:5_11",
+        "COVID:12_17",
+        "COVID:18+",
+        "FLU:2_3",
+        "FLU:18_64",
+        "FLU:65+",
+        "COVID_FLU:18_64",
+        "COVID_FLU:65+",
+        "RSV:Adult"
+      ],
       "emailTemplate": "1f5dd1b6-7d7c-4bb7-905a-724bb48e98c6",
       "smsTemplate": "11f891a3-bd91-40d4-be4d-5fdcbda342bc",
       "eventType": "BookingReminder"
     },
     {
-      "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+", "FLU:2_3", "FLU:18_64", "FLU:65+", "COVID_FLU:18_64", "COVID_FLU:65+", "RSV:Adult" ],
+      "services": [
+        "COVID:5_11",
+        "COVID:12_17",
+        "COVID:18+",
+        "FLU:2_3",
+        "FLU:18_64",
+        "FLU:65+",
+        "COVID_FLU:18_64",
+        "COVID_FLU:65+",
+        "RSV:Adult"
+      ],
       "emailTemplate": "86711740-dec7-4f1a-810c-0f0d45306e36",
       "smsTemplate": "709e9817-ee98-411a-99c6-123abcd08051",
       "eventType": "BookingCancelled"
     },
     {
-      "services": [ "COVID:5_11", "COVID:12_17", "COVID:18+", "FLU:2_3", "FLU:18_64", "FLU:65+", "COVID_FLU:18_64", "COVID_FLU:65+", "RSV:Adult" ],
+      "services": [
+        "COVID:5_11",
+        "COVID:12_17",
+        "COVID:18+",
+        "FLU:2_3",
+        "FLU:18_64",
+        "FLU:65+",
+        "COVID_FLU:18_64",
+        "COVID_FLU:65+",
+        "RSV:Adult"
+      ],
       "emailTemplate": "ca6cc4e3-5c7a-447f-b528-56deb0c7e3fd",
       "smsTemplate": "10f83ca9-83ee-4cb9-85a5-1a59231f09bf",
       "eventType": "BookingRescheduled"
+    },
+    {
+      "services": [
+        "COVID:5_11",
+        "COVID:12_17",
+        "COVID:18+",
+        "FLU:2_3",
+        "FLU:18_64",
+        "FLU:65+",
+        "COVID_FLU:18_64",
+        "COVID_FLU:65+",
+        "RSV:Adult"
+      ],
+      "emailTemplate": "bb145a77-8d5a-42b2-bab9-0d707a3f4d4c",
+      "smsTemplate": "8cf1bbb0-9f10-4c92-8b25-fbbeb24f93da",
+      "eventType": "BookingAutoCancelled"
     }
   ]
 }

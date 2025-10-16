@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Json;
 
 namespace Nhs.Appointments.Api.Json;
 
@@ -31,7 +32,8 @@ public static class JsonRequestReader
                 new DayOfWeekJsonConverter(), 
                 new NullableShortDateOnlyJsonConverter(),
                 new StrictBooleanJsonConverter(),
-                new NullableStringEnumConverter<CancellationReason>()
+                new NullableStringEnumConverter<CancellationReason>(),
+                new SessionOrWildcardConverter()
             },
 
         };

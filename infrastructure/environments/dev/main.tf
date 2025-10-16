@@ -52,6 +52,9 @@ module "mya_application_dev" {
   web_app_base_uri                                = var.WEB_APP_BASE_URI
   gov_notify_base_uri                             = var.GOV_NOTIFY_BASE_URI
   gov_notify_api_key                              = var.GOV_NOTIFY_API_KEY
+  gov_notify_retry_options_max_retries            = var.GOV_NOTIFY_RETRY_OPTIONS_MAX_RETRIES
+  gov_notify_retry_options_initial_delay_ms       = var.GOV_NOTIFY_RETRY_OPTIONS_INITIAL_DELAY_MS    
+  gov_notify_retry_options_backoff_factor         = var.GOV_NOTIFY_RETRY_OPTIONS_BACKOFF_FACTOR
   booking_reminders_cron_schedule                 = var.BOOKING_REMINDERS_CRON_SCHEDULE
   unconfirmed_provisional_bookings_cron_schedule  = var.UNCONFIRMED_PROVISIONAL_BOOKINGS_CRON_SCHEDULE
   daily_site_summary_aggregation_cron_schedule    = var.DAILY_SITE_SUMMARY_AGGREGATION_CRON_SCHEDULE
@@ -60,6 +63,12 @@ module "mya_application_dev" {
   site_summary_first_run_date                     = var.SITE_SUMMARY_FIRST_RUN_DATE
   splunk_hec_token                                = var.SPLUNK_HEC_TOKEN
   splunk_host_url                                 = var.SPLUNK_HOST_URL
+  container_registry_server_url                   = var.CONTAINER_REGISTRY_SERVER_URL
+  container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
+  container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
+  auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
+  create_data_extracts                            = true
+  data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = false
   create_high_load_function_app                   = false
   create_app_slot                                 = false
@@ -74,6 +83,9 @@ module "mya_application_dev" {
   storage_account_replication_type                = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
+  splunk_skip_verify_insecure                     = false
+  splunk_data_channel                             = "8FF305BB-C5B9-4054-A29A-836A0A69CB24"
+  splunk_otel_image_version                       = "2.0"
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

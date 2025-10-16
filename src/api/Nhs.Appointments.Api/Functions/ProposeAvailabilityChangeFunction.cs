@@ -5,9 +5,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -34,6 +37,8 @@ public class ProposeAvailabilityChangeFunction(
         Description = "Proposal of how many bookings will be rehomed/unassigned")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Description = "The availability change proposal function is disabled or not available.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "No matching session was found for the provided request parameters.")]
     [Function("AvailabilityChangeProposalFunction")]
     public override Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/propose-edit")]
@@ -47,12 +52,13 @@ public class ProposeAvailabilityChangeFunction(
     {
         if (await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
         {
-            var recalculations = await bookingAvailabilityStateService.BuildRecalculations(
-            request.Site,
-            request.FromDate,
-            request.ToDate,
-            request.SessionMatcher,
-            request.SessionReplacement);
+        var recalculations = await bookingAvailabilityStateService.BuildRecalculations(
+            request.Site, 
+            request.From.ToDateTime(TimeOnly.MinValue),
+            request.To.ToDateTime(new TimeOnly(23, 59, 59)),
+            request.SessionMatcher.Session,
+            request.SessionReplacement,
+            request.SessionMatcher.IsWildcard);
 
             if (recalculations.MatchingSessionNotFound)
             {
@@ -61,18 +67,30 @@ public class ProposeAvailabilityChangeFunction(
                 );
             }
 
-            return ApiResult<AvailabilityChangeProposalResponse>.Success(
-                new AvailabilityChangeProposalResponse(
-                    recalculations.SupportedBookingsCount,
-                    recalculations.UnsupportedBookingsCount
-                )
-            );
+        return ApiResult<AvailabilityChangeProposalResponse>.Success(
+            new AvailabilityChangeProposalResponse(
+                recalculations.SupportedBookingsCount, 
+                recalculations.UnsupportedBookingsCount
+            )
+        );
         }
         else
         {
             return ApiResult<AvailabilityChangeProposalResponse>.Failed(
                 HttpStatusCode.NotFound, "Availability change proposal function is not available."
             );
+    }
+}
+
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, AvailabilityChangeProposalRequest request)> ReadRequestAsync(HttpRequest req)
+    {
+        var (errors, payload) = await JsonRequestReader.ReadRequestAsync<AvailabilityChangeProposalRequest>(req.Body);
+
+        if (errors.Count > 0)
+        {
+            return (errors, null);
         }
+
+        return (errors, payload);
     }
 }

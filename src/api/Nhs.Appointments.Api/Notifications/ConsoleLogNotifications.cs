@@ -1,11 +1,12 @@
-using MassTransit;
-using Nhs.Appointments.Core.Messaging;
-using Nhs.Appointments.Core.Messaging.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using MassTransit;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 
 namespace Nhs.Appointments.Api.Notifications;
@@ -23,7 +24,7 @@ public class ConsoleLogNotifications : IMessageBus
     {
         foreach(var message in messages)
         {
-            Console.WriteLine(Json.JsonResponseWriter.Serialize(message));
+            Console.WriteLine(JsonResponseWriter.Serialize(message));
             ProcessMessage(message);
         }
 
@@ -37,8 +38,9 @@ public class ConsoleLogWithMessageDelivery(
     IConsumer<OktaUserRolesChanged> oktaUserRolesChangedConsumer,
     IConsumer<UserRolesChanged> userRolesChangedConsumer, 
     IConsumer<BookingMade> bookingMadeConsumer, 
-    IConsumer<BookingReminder> bookingReminderConsumer, 
-    IConsumer<BookingCancelled> bookingCancelledConsumer, 
+    IConsumer<BookingReminder> bookingReminderConsumer,
+    IConsumer<BookingCancelled> bookingCancelledConsumer,
+    IConsumer<BookingAutoCancelled> bookingAutoCancelledConsumer,
     IConsumer<BookingRescheduled> bookingRescheduledConsumer,
     IConsumer<AggregateSiteSummaryEvent> aggregateSiteSummaryConsumer) : ConsoleLogNotifications
 {
@@ -73,6 +75,12 @@ public class ConsoleLogWithMessageDelivery(
         if(message is BookingCancelled bookingCancelled)
         {
             bookingCancelledConsumer.Consume(new DummyConsumeContext<BookingCancelled>() {  Message = bookingCancelled });
+        }
+
+        if (message is BookingAutoCancelled bookingAutoCancelled)
+        {
+            bookingAutoCancelledConsumer.Consume(
+                new DummyConsumeContext<BookingAutoCancelled> { Message = bookingAutoCancelled });
         }
         
         if(message is AggregateSiteSummaryEvent aggregateSiteSummaryEvent)

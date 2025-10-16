@@ -89,7 +89,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
+    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
@@ -133,6 +133,10 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.EditSessionFunction.Disabled"                            = true
+    "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
+    "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
   }
 
   sticky_settings {
@@ -225,7 +229,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.GetAuthTokenFunction.Disabled"                           = true
     "AzureWebJobs.GetAvailabilityCreatedEventsFunction.Disabled"           = true
     "AzureWebJobs.GetDailyAvailabilityFunction.Disabled"                   = true
-    "AzureWebJobs.GetDailySummaryFunction.Disabled"                        = true
+    "AzureWebJobs.GetDaySummaryFunction.Disabled"                          = true
     "AzureWebJobs.GetEulaFunction.Disabled"                                = true
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
@@ -268,7 +272,11 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
     "AzureWebJobs.CancelDayFunction.Disabled"                              = true
+    "AzureWebJobs.EditSessionFunction.Disabled"                            = true
     "AzureWebJobs.ProposeAvailabilityChangeFunction.Disabled"              = true
+    "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"                     = true
+    "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
+    "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
   }
 
   identity {

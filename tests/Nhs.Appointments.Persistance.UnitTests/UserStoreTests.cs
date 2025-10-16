@@ -40,6 +40,32 @@ namespace Nhs.Appointments.Persistance.UnitTests
             _cosmosStore.Verify(x => x.WriteAsync(It.IsAny<UserDocument>()), Times.Once);
         }
 
+        [Theory]
+        [InlineData("abc@test.com", "abc@test.com")]
+        [InlineData("abc@TEST.com", "abc@test.com")]
+        [InlineData("ABC@test.com", "abc@test.com")]
+        [InlineData("abc@test.COM", "abc@test.com")]
+        [InlineData("ABC@TEST.COM", "abc@test.com")]
+        public async Task GetUserRoleAssignments_WhenPassedUpperCase_ShouldPass_LowerCase(string email, string expected)
+        {
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<UserDocument>(expected)).ReturnsAsync(new UserDocument { Id = expected, RoleAssignments = new RoleAssignment[] { new() { Role = "test", Scope = "*" } } });
+            await _sut.GetUserRoleAssignments(email);
+            _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<UserDocument>(expected), Times.Once);
+        }
+        
+        [Theory]
+        [InlineData("abc@test.com", "abc@test.com")]
+        [InlineData("abc@TEST.com", "abc@test.com")]
+        [InlineData("ABC@test.com", "abc@test.com")]
+        [InlineData("abc@test.COM", "abc@test.com")]
+        [InlineData("ABC@TEST.COM", "abc@test.com")]
+        public async Task GetUserAsync_WhenPassedUpperCase_ShouldPass_LowerCase(string email, string expected)
+        {
+            _cosmosStore.Setup(x => x.GetByIdOrDefaultAsync<Core.User>(expected)).ReturnsAsync(new Core.User { Id = expected });
+            await _sut.GetUserAsync(email);
+            _cosmosStore.Verify(x => x.GetByIdOrDefaultAsync<Core.User>(expected), Times.Once);
+        }
+
         [Fact]
         public async Task UpdateUserRoleAssignments_WhenAddRoles_UpdatesUser()
         {

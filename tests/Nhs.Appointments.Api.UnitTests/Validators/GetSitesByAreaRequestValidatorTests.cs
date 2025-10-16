@@ -126,7 +126,9 @@ public class GetSitesByAreaRequestValidatorTests
     
     [Theory]
     [InlineData("RSV:Adult")]
-    [InlineData("FLU:2_3")]
+    [InlineData("FLU:2_3")]    
+    [InlineData("COVID:5_11")]
+    [InlineData("COVID:12_17")]
     public void Validate_ReturnsSuccess_WhenRequestIsValid_SiteSupportService(string service)
     {
         var request = new GetSitesByAreaRequest(
@@ -165,12 +167,10 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3'");     
+        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3' or  'COVID:5_11' or 'COVID:12_17'");     
     }
     
     [Theory]
-    [InlineData("COVID:5_11")]
-    [InlineData("COVID:12_17")]
     [InlineData("COVID:18+")]
     [InlineData("FLU:18_64")]
     [InlineData("FLU:65+")]
@@ -192,7 +192,7 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3'");     
+        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3' or  'COVID:5_11' or 'COVID:12_17'");     
     }
     
     [Fact]

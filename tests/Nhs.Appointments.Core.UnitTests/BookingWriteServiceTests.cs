@@ -458,7 +458,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
                 .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown,
-                    CancellationReason.CancelledByCitizen))
+                    CancellationReason.CancelledByCitizen, null))
                 .ReturnsAsync(true).Verifiable();
 
             await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
@@ -495,6 +495,119 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
+        public async Task CancelBooking_AutoCancelled_RaisesNotificationEvent_TypeIsBool()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+                .Returns(updateMock.Object);
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+                Task.FromResult(new Booking
+                {
+                    Reference = bookingRef,
+                    Site = site,
+                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+                }));
+            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+
+            _messageBus.Setup(x => x.Send(It.Is<BookingAutoCancelled[]>(e =>
+                e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
+                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
+
+            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByService,
+                new { AutoCancellation = true });
+
+            _messageBus.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CancelBooking_AutoCancelled_RaisesNotificationEvent_TypeIsString()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+                .Returns(updateMock.Object);
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+                Task.FromResult(new Booking
+                {
+                    Reference = bookingRef,
+                    Site = site,
+                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+                }));
+            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+
+            _messageBus.Setup(x => x.Send(It.Is<BookingAutoCancelled[]>(e =>
+                e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
+                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
+
+            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByService,
+                new { AutoCancellation = "true" });
+
+            _messageBus.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CancelBooking_AutoCancelled_RaisesNotificationEvent_WrongReason()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+                .Returns(updateMock.Object);
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+                Task.FromResult(new Booking
+                {
+                    Reference = bookingRef,
+                    Site = site,
+                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+                }));
+            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+
+            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e =>
+                e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
+                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
+
+            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledBySite,
+                new { AutoCancellation = "true" });
+
+            _messageBus.VerifyAll();
+        }
+
+        [Fact]
+        public async Task CancelBooking_NotRunningAppointmentStatusesRecalculation()
+        {
+            var site = "some-site";
+            var bookingRef = "some-booking";
+
+            var updateMock = new Mock<IDocumentUpdate<Booking>>();
+            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+                .Returns(updateMock.Object);
+
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+                Task.FromResult(new Booking
+                {
+                    Reference = bookingRef,
+                    Site = site,
+                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+                }));
+
+            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled,
+            AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen, It.IsAny<object>()));
+
+            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, runRecalculation: false);
+
+            _siteLeaseManager.Verify(x => x.Acquire(site), Times.Never);
+        }
+
+        [Fact]
         public async Task CancelBooking_ReturnsNotFoundWhenSiteDoesNotMatch()
         {
             var site = "some-site";
@@ -503,7 +616,8 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null))
+                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null,
+                    It.IsAny<object>))
                 .ReturnsAsync(true).Verifiable();
 
             var result = await _sut.CancelBooking(bookingRef, "some-other-site", CancellationReason.CancelledByCitizen);
@@ -514,6 +628,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Theory]
         [InlineData(CancellationReason.CancelledByCitizen, CancellationReason.CancelledByCitizen)]
         [InlineData(CancellationReason.CancelledBySite, CancellationReason.CancelledBySite)]
+        [InlineData(CancellationReason.CancelledByService, CancellationReason.CancelledByService)]
         public async Task CancelBooking_ValidCancellationReasonIsUsed(CancellationReason reason,
             CancellationReason expectedReason)
         {
@@ -526,7 +641,8 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(reference)).ReturnsAsync(booking);
             _bookingsDocumentStore.Setup(x =>
-                    x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason))
+                    x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason,
+                        null))
                 .ReturnsAsync(true)
                 .Verifiable();
 
@@ -565,6 +681,39 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Verify(x =>
                     x.ConfirmProvisional("test-booking-ref", It.IsAny<IEnumerable<ContactItem>>(),
                         "booking-to-reschedule", CancellationReason.RescheduledByCitizen),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task RecalculateAppointmentStatuses_CancelUnsupportedBookings()
+        {
+            var cancelUnsupportedBookings = true;
+            var bookings = new List<Booking>
+            {
+                new()
+                {
+                    From = new DateTime(2025, 01, 01, 9, 0, 0),
+                    Reference = "1",
+                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                    Status = AppointmentStatus.Booked,
+                    AvailabilityStatus = AvailabilityStatus.Orphaned,
+                    Duration = 10,
+                    Service = "Service 1"
+                }
+            };
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(bookings.First());
+            _bookingAvailabilityStateService
+                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
+                    new List<BookingAvailabilityUpdate>
+                    {
+                        new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
+                    });
+
+            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), cancelUnsupportedBookings);
+
+            _bookingsDocumentStore.Verify(
+                x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
+                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
                 Times.Once);
         }
 
@@ -665,6 +814,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task RecalculateAppointmentStatuses_CancelOrphansLiveAppointmentsIfTheyCannotBeFulfilled()
         {
+            var cancelUnsupportedBookings = true;
             var bookings = new List<Booking>
             {
                 new()
@@ -673,46 +823,26 @@ namespace Nhs.Appointments.Core.UnitTests
                     Reference = "1",
                     AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
                     Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 10, 0),
-                    Reference = "2",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10
+                    AvailabilityStatus = AvailabilityStatus.Orphaned,
+                    Duration = 10,
+                    Service = "Service 1"
                 }
             };
-
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(bookings.First());
             _bookingAvailabilityStateService
                 .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
                     new List<BookingAvailabilityUpdate>
                     {
                         new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
-                        new(bookings.Last(), AvailabilityUpdateAction.SetToOrphaned),
                     });
 
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("1")).ReturnsAsync(bookings.First());
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("2")).ReturnsAsync(bookings.Last());
+            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), cancelUnsupportedBookings);
 
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), true);
 
-            _bookingsDocumentStore.Verify(x => x.UpdateStatus(
-                    It.Is<string>(s => s == "1"),
-                    It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Unknown),
-                    It.Is<CancellationReason>(c => c == CancellationReason.CancelledBySite)),
-                Times.Once);
-
-            _bookingsDocumentStore.Verify(x => x.UpdateStatus(
-                    It.Is<string>(s => s == "2"),
-                    It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Unknown),
-                    It.Is<CancellationReason>(c => c == CancellationReason.CancelledBySite)),
-                Times.Once);
+            _bookingsDocumentStore.Verify(
+                    x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
+                        It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
+                    Times.Once); 
         }
 
         [Fact]
@@ -778,7 +908,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _bookingsDocumentStore.Verify(
                 x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
-                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>()),
+                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
                 Times.Never);
         }
 
@@ -860,6 +990,161 @@ namespace Nhs.Appointments.Core.UnitTests
             _messageBus.Verify(
                 x => x.Send(It.Is<BookingCancelled>(e => e.Reference == booking.Reference)),
                 Times.Once);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData()
+        {
+            var currentAdditionalData = new
+            {
+                selfReferralOccupation = "Clinician",
+                isAppBooking = false,
+                favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
+            };
+
+            var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
+
+            var result = _sut.MergeAdditionalData(currentAdditionalData, newAdditionalData);
+
+            var expectedMergedResult = new Dictionary<string, object>
+            {
+                { "selfReferralOccupation", "Doctor" },
+                { "isAppBooking", false },
+                { "someNewProperty", "some new value" },
+                { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
+            };
+
+            result.Should().BeEquivalentTo(expectedMergedResult);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData__Old_Is_Null()
+        {
+            var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
+
+            var result = _sut.MergeAdditionalData(null, newAdditionalData);
+
+            var expectedMergedResult = new Dictionary<string, object>
+            {
+                { "selfReferralOccupation", "Doctor" }, { "someNewProperty", "some new value" }
+            };
+
+            result.Should().BeEquivalentTo(expectedMergedResult);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData__New_Is_Null()
+        {
+            var currentAdditionalData = new
+            {
+                selfReferralOccupation = "Clinician",
+                isAppBooking = false,
+                favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
+            };
+
+            var result = _sut.MergeAdditionalData(currentAdditionalData, null);
+
+            var expectedMergedResult = new Dictionary<string, object>
+            {
+                { "selfReferralOccupation", "Clinician" },
+                { "isAppBooking", false },
+                { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
+            };
+
+            result.Should().BeEquivalentTo(expectedMergedResult);
+        }
+
+        [Fact]
+        public void CanMergeAdditionalData__Both_Null()
+        {
+            var result = _sut.MergeAdditionalData(null, null);
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreNoBookingsToProcess()
+        {
+            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .ReturnsAsync([]);
+
+            await _sut.SendAutoCancelledBookingNotifications();
+
+            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreBookings_ButNoAutoCancelledOnes()
+        {
+            var bookings = new List<Booking>
+            {
+                new()
+                {
+                    Reference = "12345",
+                    ContactDetails =
+                    [
+                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                    ],
+                    Site = "Test Site 123",
+                    Status = AppointmentStatus.Cancelled,
+                    CancellationReason = CancellationReason.CancelledByService,
+                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified
+                }
+            };
+
+            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(bookings);
+
+            await _sut.SendAutoCancelledBookingNotifications();
+
+            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task SendAutoCancelledNotifications_CallsMessageBus_WhenThereAreBookingsToProcess()
+        {
+            var bookings = new List<Booking>
+            {
+                new()
+                {
+                    Reference = "12345",
+                    ContactDetails =
+                    [
+                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                    ],
+                    Site = "Test Site 123",
+                    Status = AppointmentStatus.Cancelled,
+                    CancellationReason = CancellationReason.CancelledByService,
+                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
+                    AdditionalData = new
+                    {
+                        AutoCancellation = false
+                    }
+                },
+                new()
+                {
+                    Reference = "54321",
+                    ContactDetails =
+                    [
+                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                    ],
+                    Site = "Test Site 123",
+                    Status = AppointmentStatus.Cancelled,
+                    CancellationReason = CancellationReason.CancelledByService,
+                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
+                    AdditionalData = new
+                    {
+                        AutoCancellation = true
+                    }
+                }
+            };
+
+            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .ReturnsAsync(bookings);
+
+            await _sut.SendAutoCancelledBookingNotifications();
+
+            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Once);
         }
     }
 

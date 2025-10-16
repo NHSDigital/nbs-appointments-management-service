@@ -1,9 +1,11 @@
 {
   "FeatureManagement": {
     "OktaEnabled": true,
-    "JointBookings": false,
+    "JointBookings": true,
     "SiteSummaryReport": true,
     "SiteStatus": true,
-    "CancelDay": true
+    "CancelDay": true,
+    "ChangeSessionUpliftedJourney": false,
+    "CancelSessionUpliftedJourney": false
   }
 }

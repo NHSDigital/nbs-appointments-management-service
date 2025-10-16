@@ -8,6 +8,7 @@ pool:
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
+  prDockerServiceConnectionName: "nbs-mya-container-registry-sc"
 
 parameters:
   - name: environments
@@ -19,6 +20,7 @@ stages:
   - template: scripts/pipeline-templates/build.yml
     parameters:
       prBuildServiceConnectionName: $(prBuildServiceConnectionName)
+      prDockerServiceConnectionName: $(prDockerServiceConnectionName)
 
   - ${{ each env in parameters.environments }}:
       - template: scripts/pipeline-templates/deploy.yml
@@ -40,5 +42,4 @@ stages:
           ${{ else }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nbs-mya-rg-${{env}}
-          buildNumber: "$(Build.BuildNumber)"
           isHotfix: false

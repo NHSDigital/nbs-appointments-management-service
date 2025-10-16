@@ -11,6 +11,4 @@ COPY public ./public
 COPY next.config.mjs .
 COPY tsconfig.json .
 
-ENV NEXT_TELEMETRY_DISABLED 1
-
 CMD npm run start;

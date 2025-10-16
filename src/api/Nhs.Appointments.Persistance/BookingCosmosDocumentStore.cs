@@ -114,7 +114,8 @@ public class BookingCosmosDocumentStore(
     }
 
     public async Task<bool> UpdateStatus(string bookingReference, AppointmentStatus status,
-        AvailabilityStatus availabilityStatus, CancellationReason? cancellationReason = null)
+        AvailabilityStatus availabilityStatus, CancellationReason? cancellationReason = null,
+        object additionalData = null)
     {
         var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
         if(bookingIndexDocument == null)
@@ -122,7 +123,7 @@ public class BookingCosmosDocumentStore(
             return false;
         }
 
-        await UpdateStatus(bookingIndexDocument, status, availabilityStatus, cancellationReason);
+        await UpdateStatus(bookingIndexDocument, status, availabilityStatus, cancellationReason, additionalData);
         return true;
     }
 
@@ -139,14 +140,21 @@ public class BookingCosmosDocumentStore(
     }
 
     private async Task UpdateStatus(BookingIndexDocument booking, AppointmentStatus status,
-        AvailabilityStatus availabilityStatus, CancellationReason? cancellationReason = null)
+        AvailabilityStatus availabilityStatus, CancellationReason? cancellationReason = null,
+        object additionalData = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
         var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
         var updateAvailabilityStatusPatch =
             PatchOperation.Replace("/availabilityStatus", availabilityStatus);
 
-        await indexStore.PatchDocument("booking_index", booking.Reference, updateStatusPatch);
+        var indexStorePatches = new List<PatchOperation>
+        {
+            updateStatusPatch,
+            statusUpdatedPatch
+        };
+
+        await indexStore.PatchDocument("booking_index", booking.Reference, [.. indexStorePatches]);
 
         var patchOperations = new List<PatchOperation>
         {
@@ -158,6 +166,11 @@ public class BookingCosmosDocumentStore(
         if (cancellationReason != null)
         {
             patchOperations.Add(PatchOperation.Add("/cancellationReason", cancellationReason));
+        }
+
+        if (additionalData != null)
+        {
+            patchOperations.Add(PatchOperation.Add("/additionalData", additionalData));
         }
 
         await bookingStore.PatchDocument(booking.Site, booking.Reference, patchOperations.ToArray());
@@ -249,15 +262,16 @@ public class BookingCosmosDocumentStore(
         IEnumerable<ContactItem> contactDetails, int? bookingBatchSize = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
-        
+        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
+
         var patches = new []
         {
             updateStatusPatch,
-            PatchOperation.Replace("/statusUpdated", time.GetUtcNow()),
+            statusUpdatedPatch,
             PatchOperation.Add("/contactDetails", contactDetails)
         };
 
-        await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, updateStatusPatch);
+        await indexStore.PatchDocument("booking_index", bookingIndexDocument.Reference, [updateStatusPatch, statusUpdatedPatch]);
 
         if (bookingBatchSize.HasValue)
         {
@@ -367,6 +381,41 @@ public class BookingCosmosDocumentStore(
             var bookingsWithContactDetails = bookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
 
             return (successfulCancellations, bookingsWithoutContactDetailsCount, bookingsWithContactDetails);
+        }
+    }
+
+    public async Task SetAutoCancellationNotified(string bookingReference, string site)
+    {
+        var patch = PatchOperation.Set("/cancellationNotificationStatus", "Notified");
+        await bookingStore.PatchDocument(site, bookingReference, patch);
+    }
+
+    public async Task<IEnumerable<Booking>> GetRecentlyUpdatedBookingsCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
+    {
+        if (statuses.Length == 0)
+        {
+            throw new ArgumentException("You must specify one or more statuses.");
+        }
+
+        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.DocumentType == "booking_index" && i.StatusUpdated >= from && i.StatusUpdated <= to);
+        var siteGroupedBookings = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
+
+        var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
+
+        await Parallel.ForEachAsync(siteGroupedBookings, async (group, _) =>
+        {
+            var bookings = await GetInStatusUpdatedRange(group.Min(g => g.From), group.Max(g => g.From), group.Key);
+            concurrentResults.Add(bookings);
+        });
+
+        return concurrentResults.SelectMany(x => x);
+    }
+
+    private async Task<IEnumerable<Booking>> GetInStatusUpdatedRange(DateTime from, DateTime to, string site)
+    {
+        using (metricsRecorder.BeginScope("GetInStatusUpdatedRange"))
+        {
+            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.StatusUpdated >= from && b.StatusUpdated <= to);
         }
     }
 }    

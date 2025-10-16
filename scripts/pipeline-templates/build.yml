@@ -1,6 +1,8 @@
 parameters:
   - name: prBuildServiceConnectionName
     type: string
+  - name: prDockerServiceConnectionName
+    type: string
 
 stages:
   - stage: Build
@@ -12,11 +14,41 @@ stages:
           apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
           coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
-          csvDataToolTestProjectPath: "tests/CsvDataTool.UnitTests/CsvDataTool.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
           capacityExtractsTestProjectPath: "tests/CapacityDataExtracts.UnitTests/CapacityDataExtracts.UnitTests.csproj"
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
+          bookingExtractDockerFilePath: "BookingDataExtractDockerfile"
+          capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
         steps:
+          - task: PowerShell@2
+            displayName: "Run script tests"
+            inputs:
+              targetType: "inline"
+              script: |
+                Set-Location ./scripts
+                Invoke-Pester
+              pwsh: true
+          - task: PowerShell@2
+            displayName: "Extract MYA version"
+            name: ExtractVersionStep
+            inputs:
+              targetType: "inline"
+              script: |
+                .\scripts\extract-version.ps1 -branchName "$(Build.SourceBranch)" -buildNumber "$(Build.BuildNumber)"
+              pwsh: true
+          - task: PowerShell@2
+            displayName: "Write MYA version to file"
+            inputs:
+              targetType: "inline"
+              script: |
+                Set-Content -Path $(Pipeline.Workspace)/version_number.txt -Value "$(ExtractVersionStep.ExtractedBuildNumber)"
+              pwsh: true
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish MYA version to artifact"
+            inputs:
+              PathtoPublish: "$(Pipeline.Workspace)/version_number.txt"
+              ArtifactName: "drop_version_number"
+              publishLocation: "Container"
           - task: SonarCloudPrepare@3
             displayName: "Prepare analysis on SonarCloud"
             inputs:
@@ -56,12 +88,6 @@ stages:
             inputs:
               command: "test"
               projects: $(persistanceUnitTestProjectPath)
-              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
-          - task: DotNetCoreCLI@2
-            displayName: "Run CSV tool unit tests"
-            inputs:
-              command: "test"
-              projects: $(csvDataToolTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: DotNetCoreCLI@2
             displayName: "Run Booking Extracts unit tests"
@@ -137,7 +163,7 @@ stages:
               mv .next/static .next/standalone/.next/static
             displayName: "Build Web App"
             env:
-              BUILD_NUMBER: "$(Build.BuildNumber)"
+              BUILD_NUMBER: "$(ExtractVersionStep.extractedBuildNumber)"
           - task: ArchiveFiles@2
             displayName: Zip Web Client
             inputs:
@@ -151,6 +177,24 @@ stages:
               PathtoPublish: "$(Build.ArtifactStagingDirectory)/web"
               ArtifactName: "drop_web"
               publishLocation: "Container"
+          - task: Docker@2
+            displayName: Build and push booking extract image to container registry
+            inputs:
+              command: buildAndPush
+              repository: booking-extract
+              dockerfile: $(bookingExtractDockerFilePath)
+              containerRegistry: ${{parameters.prDockerServiceConnectionName}}
+              tags: |
+                $(ExtractVersionStep.extractedBuildNumber)
+          - task: Docker@2
+            displayName: Build and push capacity extract image to container registry
+            inputs:
+              command: buildAndPush
+              repository: capacity-extract
+              dockerfile: $(capacityExtractDockerFilePath)
+              containerRegistry: ${{parameters.prDockerServiceConnectionName}}
+              tags: |
+                $(ExtractVersionStep.extractedBuildNumber)
           - task: PublishBuildArtifacts@1
             displayName: "Publish Terraform"
             inputs:
@@ -201,7 +245,7 @@ stages:
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password
             displayName: "Create aspnet developer certificate"
           - script: |
-              cd data/BookingsDataExtracts && docker compose up --build --detach
+              cd data && docker compose up --build --detach
             displayName: "Start MESH docker container"
           - script: |
               docker compose up --build --detach
@@ -209,7 +253,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
-              BUILD_NUMBER: "$(Build.BuildNumber)"
+              BUILD_NUMBER: "$(ExtractVersionStep.extractedBuildNumber)"
           - task: DotNetCoreCLI@2
             displayName: "Run Booking Data Extract Integration Tests"
             inputs:
@@ -298,7 +342,7 @@ stages:
             env:
               CI: "true"
               SEED_COSMOS_BEFORE_RUN: "false"
-              BUILD_NUMBER: "$(Build.BuildNumber)"
+              BUILD_NUMBER: "$(ExtractVersionStep.extractedBuildNumber)"
           - task: PublishTestResults@2
             displayName: "Publish E2E test results"
             condition: succeededOrFailed()

@@ -1,6 +1,5 @@
 using CapacityDataExtracts.Documents;
 using DataExtract;
-using DataExtract.Documents;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -11,8 +10,8 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
-using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Persistance.Models;
 using Parquet.Serialization;
 using Refit;
@@ -109,7 +108,8 @@ public sealed class CapacityExtractsFeatureSteps
             { "MeshAuthorizationOptions:MailboxPassword", "password" },
             { "MeshAuthorizationOptions:SharedKey", "TestKey" },
             { "MESH_MAILBOX_DESTINATION", targetMailboxId },
-            { "MESH_WORKFLOW", workflowId }
+            { "MESH_WORKFLOW", workflowId },
+            { "FileSenderOptions:Type", "mesh" }
         });
 
         _targetMailbox = SetupMailboxClient(targetMailboxId);
@@ -129,6 +129,8 @@ public sealed class CapacityExtractsFeatureSteps
             .AddCosmosStore<DailyAvailabilityDocument>()
             .AddCosmosStore<SiteDocument>()
             .AddExtractWorker<CapacityDataExtract>();
+        
+        serviceCollection.AddLogging(builder => builder.AddConsole());
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);

@@ -97,6 +97,18 @@ variable "GOV_NOTIFY_API_KEY" {
   sensitive = true
 }
 
+variable "GOV_NOTIFY_RETRY_OPTIONS_MAX_RETRIES" {
+  type      = string
+}
+
+variable "GOV_NOTIFY_RETRY_OPTIONS_INITIAL_DELAY_MS" {
+  type      = string
+}
+
+variable "GOV_NOTIFY_RETRY_OPTIONS_BACKOFF_FACTOR" {
+  type      = string
+}
+
 variable "BOOKING_REMINDERS_CRON_SCHEDULE" {
   type      = string
   sensitive = false
@@ -139,4 +151,22 @@ variable "SPLUNK_HEC_TOKEN" {
 
 variable "BUILD_NUMBER" {
   type = string
+}
+
+variable "CONTAINER_REGISTRY_SERVER_URL" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_USERNAME" {
+  type = string
+}
+
+variable "CONTAINER_REGISTRY_PASSWORD" {
+  type = string
+  sensitive = true
+}
+
+variable "AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE" {
+  type = string
+  sensitive = false
 }

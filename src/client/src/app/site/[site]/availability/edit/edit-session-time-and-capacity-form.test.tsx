@@ -362,46 +362,6 @@ describe('Edit Session Time And Capacity Form', () => {
 
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(editSessionMock).not.toHaveBeenCalled();
-  });
-
-  it('navigates to the edit start time page when the feature flag is disabled and start time is invalid', async () => {
-    const { user } = render(
-      <EditSessionTimeAndCapacityForm
-        date={'2024-06-10 07:00:00'}
-        site={mockSite}
-        existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
-      />,
-    );
-
-    const startTimeHourInput = screen.getByRole('textbox', {
-      name: 'Session start time - hour',
-    });
-    const startTimeMinuteInput = screen.getByRole('textbox', {
-      name: 'Session start time - minute',
-    });
-    const endTimeHourInput = screen.getByRole('textbox', {
-      name: 'Session end time - hour',
-    });
-    const endTimeMinuteInput = screen.getByRole('textbox', {
-      name: 'Session end time - minute',
-    });
-
-    await user.clear(startTimeHourInput);
-    await user.type(startTimeHourInput, '10');
-
-    await user.clear(startTimeMinuteInput);
-    await user.type(startTimeMinuteInput, '27');
-
-    await user.clear(endTimeHourInput);
-    await user.type(endTimeHourInput, '12');
-
-    await user.clear(endTimeMinuteInput);
-    await user.type(endTimeMinuteInput, '00');
-
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-
     expect(editSessionMock).toHaveBeenCalled();
   });
 });

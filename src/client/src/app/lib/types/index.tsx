@@ -382,6 +382,15 @@ type CancelSessionRequest = {
   capacity: number;
 };
 
+type UpdateSessionRequest = {
+  from: string;
+  to: string;
+  site: string;
+  sessionMatcher: AvailabilitySession | '*';
+  sessionReplacement: AvailabilitySession | null;
+  cancelUnsupportedBookings: boolean;
+};
+
 type SiteStatus = 'Online' | 'Offline';
 
 type UpdateSiteStatusRequest = {
@@ -463,6 +472,7 @@ export type {
   Site,
   SiteStatus,
   TimeComponents,
+  UpdateSessionRequest,
   UpdateSiteStatusRequest,
   User,
   UserIdentityStatus,

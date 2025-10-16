@@ -9,12 +9,7 @@ import {
   SessionSummary,
   Session,
 } from '@types';
-import {
-  dateTimeFormat,
-  parseDateAndTimeComponentsToUkDateTime,
-  parseToUkDatetime,
-  toTimeFormat,
-} from '@services/timeService';
+import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
@@ -54,34 +49,17 @@ const Page = async ({ searchParams, params }: PageProps) => {
     sessionMatcher: {
       from: toTimeFormat(sessionSummary.ukStartDatetime) ?? '',
       until: toTimeFormat(sessionSummary.ukEndDatetime) ?? '',
-      services: newSessionDetails.services,
+      services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
       slotLength: sessionSummary.slotLength,
       capacity: sessionSummary.capacity,
     },
     sessionReplacement: {
-      from: `${newSessionDetails.startTime.hour.toString().padStart(2, '0')}:${newSessionDetails.startTime.minute.toString().padStart(2, '0')}`,
-      until: `${newSessionDetails.endTime.hour.toString().padStart(2, '0')}:${newSessionDetails.endTime.minute.toString().padStart(2, '0')}`,
+      from: `${newSessionDetails.startTime.hour}:${newSessionDetails.startTime.minute}`,
+      until: `${newSessionDetails.endTime.hour}:${newSessionDetails.endTime.minute}`,
       services: newSessionDetails.services,
       slotLength: newSessionDetails.slotLength,
       capacity: newSessionDetails.capacity,
     },
-  };
-
-  const parsedSession: SessionSummary = {
-    capacity: newSessionDetails.capacity,
-    maximumCapacity: sessionSummary.maximumCapacity,
-    slotLength: newSessionDetails.slotLength,
-    totalSupportedAppointments: sessionSummary.totalSupportedAppointments,
-    totalSupportedAppointmentsByService:
-      sessionSummary.totalSupportedAppointmentsByService,
-    ukStartDatetime: parseDateAndTimeComponentsToUkDateTime(
-      date,
-      newSessionDetails.startTime,
-    ).format(dateTimeFormat),
-    ukEndDatetime: parseDateAndTimeComponentsToUkDateTime(
-      date,
-      newSessionDetails.endTime,
-    ).format(dateTimeFormat),
   };
 
   const availabilityProposal = await fromServer(
@@ -103,7 +81,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
       <SessionModificationConfirmation
         unsupportedBookingsCount={availabilityProposal.unsupportedBookingsCount}
         clinicalServices={clinicalServices}
-        session={btoa(JSON.stringify(parsedSession))}
+        session={session}
+        newSession={sessionToEdit}
         site={site.id}
         date={date}
         mode="edit"

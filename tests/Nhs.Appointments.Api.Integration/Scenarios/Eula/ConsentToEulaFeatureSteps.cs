@@ -44,7 +44,7 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
         var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
         requestSigner.InnerHandler = new HttpClientHandler();
         _eulaUserHttpClient = new HttpClient(requestSigner);
-        _eulaUserHttpClient.DefaultRequestHeaders.Add("ClientId", "eulaTestUser");
+        _eulaUserHttpClient.DefaultRequestHeaders.Add("ClientId", "eulatestuser");
         _response = await _eulaUserHttpClient.PostAsync($"http://localhost:7071/api/eula/consent", new StringContent(JsonResponseWriter.Serialize(payload), Encoding.UTF8, "application/json"));
     }
 
@@ -66,7 +66,7 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
         var userAssignments = new UserDocument()
         {
             
-            Id = "api@eulaTestUser",
+            Id = "api@eulatestuser",
             ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
             RoleAssignments = [

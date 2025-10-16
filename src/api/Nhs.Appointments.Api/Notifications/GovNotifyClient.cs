@@ -1,13 +1,12 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Nhs.Appointments.Api.Notifications.Options;
-using Notify.Client;
-using Notify.Exceptions;
-using Notify.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Nhs.Appointments.Api.Notifications.Options;
+using Notify.Exceptions;
+using Notify.Interfaces;
 
 namespace Nhs.Appointments.Api.Notifications;
 
@@ -27,29 +26,25 @@ public class GovNotifyClient(
                 await action();
                 return;
             }
-            catch (TException ex) when (attempt < retryOptions.Value.MaxRetries)
+            catch (TException ex) when (attempt <= retryOptions.Value.MaxRetries)
             {
-
-                // the following pattern is from GovNotify
-                // error handling suggestions:
-                // https://docs.notifications.service.gov.uk/net.html#error-handling
-                var pattern = """(?<=Status code )([0-9]+)""";
-                var timeout = TimeSpan.FromSeconds(2);
-                var r = new Regex(pattern, RegexOptions.IgnoreCase, timeout);
-                var match = r.Match(ex.Message);
-                if (match.Success && int.TryParse(match.Value, out var statusCode))
+                var errorStatusCode = ParseGovNotifyExceptionMessage(ex.Message);
+                if (errorStatusCode != null)
                 {
-                    if (statusCode == 429)
+                    if (errorStatusCode == 429)
                     {
 #pragma warning disable S6667 // Logging in a catch clause should pass the caught exception as a parameter.
-                        logger.LogWarning(ex, "Received 429 Too Many Requests. Retrying...");
+                        logger.LogWarning(ex,
+                            attempt == retryOptions.Value.MaxRetries
+                                ? "Received 429 Too Many Requests."
+                                : "Received 429 Too Many Requests. Retrying...");
 #pragma warning restore S6667 // Logging in a catch clause should pass the caught exception as a parameter.
                         await Task.Delay(delay);
                         delay = (int)(delay * retryOptions.Value.BackoffFactor);
                     }
                     else
                     {
-                        logger.LogError(ex, "Non-retryable status code. Aborting.");
+                        logger.LogError(ex, "Non-retryable status code {errorStatusCode}. Aborting.", errorStatusCode);
                         break;
                     }
                 }
@@ -60,6 +55,24 @@ public class GovNotifyClient(
                 }
             }
         }
+    }
+
+    public int? ParseGovNotifyExceptionMessage(string message)
+    {
+        // the following pattern is from GovNotify
+        // error handling suggestions:
+        // https://docs.notifications.service.gov.uk/net.html#error-handling
+        var pattern = """(?<=Status code )([0-9]+)""";
+        var timeout = TimeSpan.FromSeconds(2);
+        var r = new Regex(pattern, RegexOptions.IgnoreCase, timeout);
+        var match = r.Match(message);
+
+        if (match.Success && int.TryParse(match.Value, out var statusCode))
+        {
+            return statusCode;
+        }
+
+        return null;
     }
 
     public async Task SendEmailAsync(string emailAddress, string templateId, Dictionary<string, dynamic> templateValues)

@@ -284,6 +284,16 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/start-app-services.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env) -region uks"
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Version Number artifact
+            inputs:
+              buildType: "specific"
+              project: "covid19.vaccine-booking"
+              definition: "1785"
+              buildVersionToDownload: "specific"
+              pipelineId: ${{parameters.myaPipelineBuildId}}
+              artifactName: "drop_version_number"
+              targetPath: "$(Pipeline.Workspace)/drop_version_number"
           - task: PowerShell@2
             displayName: "Read version number from artifact to build variable"
             name: ExtractVersionStep

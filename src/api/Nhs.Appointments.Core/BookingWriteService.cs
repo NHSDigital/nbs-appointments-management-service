@@ -1,5 +1,5 @@
+using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Concurrency;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
@@ -9,7 +9,12 @@ public interface IBookingWriteService
 {
     Task<(bool Success, string Reference)> MakeBooking(Booking booking);
 
-    Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason, bool recalculate = true);
+    Task<BookingCancellationResult> CancelBooking(
+        string bookingReference, 
+        string site,
+        CancellationReason cancellationReason, 
+        object additionalData, 
+        bool runRecalculation = true);
 
     Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus);
@@ -24,9 +29,12 @@ public interface IBookingWriteService
 
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
 
-    Task RecalculateAppointmentStatuses(string site, DateOnly day, bool CancelOrphaned = false);
+    Task RecalculateAppointmentStatuses(string site, DateOnly day, bool cancelUnsupportedBookings = false);
+    Task RecalculateAppointmentStatuses(string site, DateOnly[] days, bool cancelUnsupportedBookings = false);
 
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDayAsync(string site, DateOnly day);
+
+    Task SendAutoCancelledBookingNotifications();
 }
 
 public class BookingWriteService(
@@ -73,7 +81,8 @@ public class BookingWriteService(
         return (true, booking.Reference);
     }
 
-    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site, CancellationReason cancellationReason, bool recalculate = true)
+    public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site,
+        CancellationReason cancellationReason, object additionalData = null, bool runRecalculation = true)
     {
         var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
 
@@ -82,34 +91,91 @@ public class BookingWriteService(
             return BookingCancellationResult.NotFound;
         }
 
-        if (booking.Status == AppointmentStatus.Provisional) 
-        {
-            await bookingDocumentStore.DeleteBooking(
-                bookingReference,
-                booking.Site);
-
-            return BookingCancellationResult.Success;
-        }
+        var mergedAdditionalData = MergeAdditionalData(booking.AdditionalData, additionalData);
 
         await bookingDocumentStore.UpdateStatus(
             bookingReference, 
             AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown, 
-            cancellationReason
+            AvailabilityStatus.Unknown,
+            cancellationReason,
+            mergedAdditionalData
         );
 
-        if (recalculate)
-           await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+        if (runRecalculation)
+        {
+            await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+        }
 
-        if (booking.ContactDetails != null)
+        await RaiseBookingCancelledNotificationEvents(booking, cancellationReason, mergedAdditionalData);
+
+        return BookingCancellationResult.Success;
+    }
+
+    private async Task RaiseBookingCancelledNotificationEvents(Booking booking, CancellationReason cancellationReason,
+        object additionalData = null)
+    {
+        if (booking?.ContactDetails == null)
+        {
+            return;
+        }
+
+        var autoCancellationProp = ExtractField<bool>(additionalData, "AutoCancellation");
+        if (cancellationReason == CancellationReason.CancelledByService && autoCancellationProp)
+        {
+            var bookingAutoCancelledEvents = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
+            await bus.Send(bookingAutoCancelledEvents);
+        }
+        else
         {
             var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
             await bus.Send(bookingCancelledEvents);
         }
-
-        return BookingCancellationResult.Success;
     }
-    
+
+    private object ConvertJTokensBackToDictionaries(JToken token)
+    {
+        switch (token.Type)
+        {
+            case JTokenType.Object:
+                return token.Children<JProperty>()
+                    .ToDictionary(prop => prop.Name, prop => ConvertJTokensBackToDictionaries(prop.Value));
+            case JTokenType.Array:
+                return token.Select(ConvertJTokensBackToDictionaries).ToList();
+            case JTokenType.Null:
+                return null;
+            default:
+                return ((JValue)token).Value;
+        }
+    }
+
+    private T ExtractField<T>(object additionalData, string fieldName)
+    {
+        var current = additionalData != null
+            ? JObject.FromObject(additionalData)
+            : new JObject();
+        var fieldValue = current.GetValue(fieldName);
+
+        return fieldValue != null ? fieldValue.ToObject<T>() : default;
+    }
+
+    public object MergeAdditionalData(object currentAdditionalData, object incomingAdditionalData)
+    {
+        var current = currentAdditionalData != null
+            ? JObject.FromObject(currentAdditionalData)
+            : new JObject();
+
+        var incoming = incomingAdditionalData != null
+            ? JObject.FromObject(incomingAdditionalData)
+            : new JObject();
+
+        current.Merge(incoming, new JsonMergeSettings
+        {
+            MergeArrayHandling = MergeArrayHandling.Replace, MergeNullValueHandling = MergeNullValueHandling.Merge
+        });
+
+        return current.HasValues ? ConvertJTokensBackToDictionaries(current) : null;
+    }
+
     public async Task<BookingConfirmationResult> ConfirmProvisionalBookings(string[] bookingReferences,
         IEnumerable<ContactItem> contactDetails)
     {
@@ -160,14 +226,28 @@ public class BookingWriteService(
         return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
     }
 
-    public async Task RecalculateAppointmentStatuses(string site, DateOnly day, bool CancelOrphaned = false)
+    public async Task RecalculateAppointmentStatuses(string site, DateOnly day, bool cancelUnsupportedBookings = false)
+    {
+        using var leaseContent = siteLeaseManager.Acquire(site);
+
+        await RecalculateAppointmentStatusesForDay(site, day, cancelUnsupportedBookings);
+    }
+
+    public async Task RecalculateAppointmentStatuses(string site, DateOnly[] days, bool cancelUnsupportedBookings = false)
+    {
+        using var leaseContent = siteLeaseManager.Acquire(site);
+
+        var dayTasks = days.Select(day => RecalculateAppointmentStatusesForDay(site, day, cancelUnsupportedBookings));
+
+        await Task.WhenAll(dayTasks);
+    }
+
+    private async Task RecalculateAppointmentStatusesForDay(string site, DateOnly day, bool cancelUnsupportedBookings = false)
     {
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
         var recalculations = await bookingAvailabilityStateService.BuildRecalculations(site, dayStart, dayEnd);
-
-        using var leaseContent = siteLeaseManager.Acquire(site);
 
         foreach (var update in recalculations)
         {
@@ -178,14 +258,11 @@ public class BookingWriteService(
                     break;
 
                 case AvailabilityUpdateAction.SetToOrphaned:
-                    if (CancelOrphaned)
+                    await UpdateAvailabilityStatus(update.Booking.Reference, AvailabilityStatus.Orphaned);
+                    if (cancelUnsupportedBookings)
                     {
-                        await CancelBooking(update.Booking.Reference, update.Booking.Site, CancellationReason.CancelledBySite, false);
-                        break;
+                        await CancelBooking(update.Booking.Reference, update.Booking.Site, CancellationReason.CancelledBySite, runRecalculation: false);
                     }
-                    
-                    await UpdateAvailabilityStatus(update.Booking.Reference,
-                        AvailabilityStatus.Orphaned);
                     break;
 
                 case AvailabilityUpdateAction.SetToSupported:
@@ -211,6 +288,51 @@ public class BookingWriteService(
         }
 
         return (cancelledBookingsCount, bookingsWithoutContactDetailsCount);
+    }
+
+    public async Task SendAutoCancelledBookingNotifications()
+    {
+        var now = time.GetLocalNow().DateTime;
+        var windowStart = now.AddDays(-1);
+        var windowEnd = now;
+
+        var bookingsCancelledByService = (await bookingQueryService.GetRecentlyUpdatedBookingsCrossSiteAsync(windowStart, windowEnd)).Where(
+            b => b.CancellationReason == CancellationReason.CancelledByService &&
+            (b.CancellationNotificationStatus == CancellationNotificationStatus.Unnotified || b.CancellationNotificationStatus is null) &&
+            b.ContactDetails is not null &&
+            b.ContactDetails.Length > 0);
+
+        if (!bookingsCancelledByService.Any())
+        {
+            return;
+        }
+
+        var autoCancelledBookings = bookingsCancelledByService.Where(b =>
+        {
+            if (b.AdditionalData is null)
+            {
+                return false;
+            }
+
+            var type = b.AdditionalData.GetType();
+            var autoCancellationProp = type.GetProperty("AutoCancellation", typeof(bool));
+            return autoCancellationProp is not null &&
+                   autoCancellationProp.GetValue(b.AdditionalData) is bool value &&
+                   value;
+        });
+
+        if (!autoCancelledBookings.Any())
+        {
+            return;
+        }
+
+        foreach (var booking in autoCancelledBookings)
+        {
+            var notifcations = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
+            await bus.Send(notifcations);
+            booking.CancellationNotificationStatus = CancellationNotificationStatus.Notified;
+            await bookingDocumentStore.SetAutoCancellationNotified(booking.Reference, booking.Site);
+        }
     }
 
     private Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>

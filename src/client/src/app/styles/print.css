@@ -31,6 +31,7 @@
 
   .no-print.has-printable-children .always-print table {
     display: table !important;
+    break-inside: auto;
   }
 
   .no-print.has-printable-children .always-print thead {
@@ -55,8 +56,32 @@
   text-align: right;
 }
 
+@media (max-width: 48.0525em) {
+  .no-print.has-printable-children .always-print thead {
+    position: relative !important;
+    display: table-header-group !important;
+    clip: unset !important;
+    clip-path: none !important;
+    clip-path: none !important;
+  }
+
+  .no-print.has-printable-children .always-print td {
+    text-align: left;
+  }
+}
+
 @media (max-width: 768px) {
   .custom-print-button-wrapper {
     text-align: left;
+  }
+}
+
+.print-out-data {
+  display: none;
+}
+
+@media print {
+  .print-out-data {
+    display: block;
   }
 }

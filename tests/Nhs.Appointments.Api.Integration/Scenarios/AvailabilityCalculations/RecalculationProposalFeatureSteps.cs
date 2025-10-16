@@ -5,6 +5,7 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,44 +25,34 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
     [When(@"I request the availability proposal for potential availability change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
-        var sessions = new List<Session> { };
+        Session matcher = null;
+        Session replacement = null;
 
         foreach (var row in proposalSessions.Rows.Skip(1))
         {
             var session = new Session
             {
-                From = TimeOnly.Parse(row.Cells.ElementAt(0).Value),
-                Until = TimeOnly.Parse(row.Cells.ElementAt(1).Value),
-                Services = row.Cells.ElementAt(2).Value.Split(','),
-                SlotLength = int.Parse(row.Cells.ElementAt(3).Value),
-                Capacity = int.Parse(row.Cells.ElementAt(4).Value),
+                From = string.IsNullOrEmpty(row.Cells.ElementAt(3).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(3).Value),
+                Until = string.IsNullOrEmpty(row.Cells.ElementAt(4).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(4).Value),
+                Services = string.IsNullOrEmpty(row.Cells.ElementAt(5).Value) ? Array.Empty<string>() : row.Cells.ElementAt(5).Value.Split(','),
+                SlotLength = string.IsNullOrEmpty(row.Cells.ElementAt(6).Value) ? 0 : int.Parse(row.Cells.ElementAt(6).Value),
+                Capacity = string.IsNullOrEmpty(row.Cells.ElementAt(7).Value) ? 0 : int.Parse(row.Cells.ElementAt(7).Value),
             };
 
-            sessions.Add(session);
+            if (row.Cells.ElementAt(0).Value == "Matcher") matcher = session;
+            if (row.Cells.ElementAt(0).Value == "Replacement") replacement = session;
         }
 
+        var firstRow = proposalSessions.Rows.Skip(1).FirstOrDefault();
+        object sessionMatcherObj = matcher ?? (object)"*";
         var request = new
         {
 
             site = GetSiteId(),
-            from = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
-            to = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
-            sessionMatcher = new
-            {
-                from = sessions[0].From,
-                until = sessions[0].Until,
-                services = sessions[0].Services,
-                slotLength = sessions[0].SlotLength,
-                capacity = sessions[0].Capacity
-            },
-            sessionReplacement = new
-            {
-                from = sessions[1].From,
-                until = sessions[1].Until,
-                services = sessions[1].Services,
-                slotLength = sessions[1].SlotLength,
-                capacity = sessions[1].Capacity
-            }
+            from = ParseNaturalLanguageDateOnly(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            to = ParseNaturalLanguageDateOnly(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            sessionMatcher = sessionMatcherObj,
+            sessionReplacement = replacement
         };
         var serializerSettings = new JsonSerializerSettings
         {
@@ -100,13 +91,22 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
             to = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
             sessionMatcher = new
             {
-
+                from = "09:00",
+                until = "17:00",
+                services = new string[] { "RSV:Adult" },
+                slotLength = 5,
+                capacity = 2
             },
             sessionReplacement = new
             {
-
+                from = "10:00",
+                until = "14:00",
+                services = new string[] { "RSV:Adult", "COVID_FLU:65+" },
+                slotLength = 5,
+                capacity = 2
             }
         };
+
         var serializerSettings = new JsonSerializerSettings
         {
             Converters = { new ShortTimeOnlyJsonConverter() },

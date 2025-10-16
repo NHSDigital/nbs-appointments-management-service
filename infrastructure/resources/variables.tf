@@ -125,6 +125,18 @@ variable "gov_notify_api_key" {
   sensitive = true
 }
 
+variable "gov_notify_retry_options_max_retries" {
+  type      = string
+}
+
+variable "gov_notify_retry_options_initial_delay_ms" {
+  type      = string
+}
+
+variable "gov_notify_retry_options_backoff_factor" {
+  type      = string
+}
+
 variable "unconfirmed_provisional_bookings_cron_schedule" {
   type = string
 }
@@ -214,7 +226,12 @@ variable "web_app_service_plan_max_worker_count" {
   default = 1
 }
 
-variable "web_app_service_plan_scale_out_worker_count" {
+variable "web_app_service_plan_scale_out_worker_count_max" {
+  type    = number
+  default = 1
+}
+
+variable "web_app_service_plan_scale_out_worker_count_min" {
   type    = number
   default = 1
 }
@@ -293,3 +310,107 @@ variable "app_config_connection" {
 variable "disable_bulk_import_function" {
   type = bool
 }
+
+variable "container_registry_server_url" {
+  type = string
+}
+
+variable "container_registry_username" {
+  type = string
+}
+
+variable "container_registry_password" {
+  type = string
+  sensitive = true
+}
+
+variable "create_data_extracts" {
+  type = bool
+}
+
+variable "data_extract_timeout" {
+  type = number
+  default = 7200
+}
+
+variable "data_extract_retry_limit" {
+  type = number
+  default = 0
+}
+
+variable "data_extract_schedule" {
+  type = string
+  default = "0 2 * * *"
+}
+
+variable "data_extract_file_sender_options_type" {
+  type = string
+}
+
+variable "mesh_mailbox_destination" {
+  type = string
+  default = ""
+}
+
+variable "mesh_mailbox_workflow_capacity" {
+  type = string
+  default = ""
+}
+
+variable "mesh_mailbox_workflow_booking" {
+  type = string
+  default = ""
+}
+
+variable "mesh_client_options_base_url" {
+  type = string
+  default = ""
+}
+
+variable "mesh_authorization_options_mailbox_id" {
+  type = string
+  default = ""
+}
+
+variable "mesh_authorization_options_certificate_name" {
+  type = string
+  default = ""
+}
+
+variable "keyvault_Name" {
+  type = string
+  default = ""
+}
+
+variable "keyvault_tenant_id" {
+  type = string
+  default = ""
+}
+
+variable "keyvault_client_id" {
+  type = string
+  default = ""
+}
+
+variable "keyvault_client_secret" {
+  type = string
+  default = "UNSET"
+  sensitive = true
+}
+
+variable "auto_cancelled_bookings_cron_schedule" {
+  type = string
+}
+
+variable "splunk_data_channel" {
+  type = string
+}
+
+variable "splunk_skip_verify_insecure" {
+  type = bool
+}
+
+variable "splunk_otel_image_version" {
+  type = string
+}
+

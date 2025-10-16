@@ -12,7 +12,7 @@ import {
 import { EditSessionConfirmation } from './edit-session-confirmation';
 import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
 import { notFound } from 'next/navigation';
-import NhsTransactionalPage from '@components/nhs-transactional-page';
+import NhsTransactionalPage from '@compon121ents/nhs-transactional-page';
 import fromServer from '@server/fromServer';
 
 type PageProps = {
@@ -71,8 +71,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
     availabilityChangeProposal(availabilityRequest),
   );
   const clinicalServices = await fromServer(fetchClinicalServices());
-
-  console.log('Passing newSessionDetails to confirmation:', newSessionDetails);
 
   return (
     <NhsTransactionalPage

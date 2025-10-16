@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Nbs.MeshClient.Auth;
 using Nbs.MeshClient;
-using Nhs.Appointments.Api.Json;
 using Refit;
 using Xunit.Gherkin.Quick;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +16,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using DataExtract.Documents;
 using BookingsDataExtracts;
 using DataExtract;
+using Nhs.Appointments.Core.Json;
 
 namespace BookingDataExtracts.Integration.Specification;
 
@@ -123,7 +123,8 @@ public sealed class BookingExtractsFeatureSteps : Feature
             { "MeshAuthorizationOptions:MailboxPassword", "password" },
             { "MeshAuthorizationOptions:SharedKey", "TestKey" },
             { "MESH_MAILBOX_DESTINATION", targetMailboxId },
-            { "MESH_WORKFLOW", workflowId }
+            { "MESH_WORKFLOW", workflowId },
+            { "FileSenderOptions:Type", "mesh" }
         });
 
         _targetMailbox = SetupMailboxClient(targetMailboxId);
@@ -143,6 +144,8 @@ public sealed class BookingExtractsFeatureSteps : Feature
             .AddCosmosStore<NbsBookingDocument>()
             .AddCosmosStore<SiteDocument>()
             .AddExtractWorker<BookingDataExtract>();
+        
+        serviceCollection.AddLogging(builder => builder.AddConsole());
 
         var mockLifetime = new Mock<IHostApplicationLifetime>();
         serviceCollection.AddSingleton(mockLifetime.Object);

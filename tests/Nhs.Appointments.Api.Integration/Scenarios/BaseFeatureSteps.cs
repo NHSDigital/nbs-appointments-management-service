@@ -4,10 +4,12 @@ using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
 using System;
@@ -198,6 +200,16 @@ public abstract partial class BaseFeatureSteps : Feature
 
     public static DateOnly ParseNaturalLanguageDateOnly(string dateString)
     {
+        // First, check if it matches a "Today [+/- N]" pattern
+        var todayPlusNMatch = Regex.Match(dateString, @"^Today(\s*([+-]\d+))?$", RegexOptions.IgnoreCase);
+        if (todayPlusNMatch.Success)
+        {
+
+            int.TryParse(todayPlusNMatch.Groups[2].Value, out int dayOffset);
+
+            return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(dayOffset);
+        }
+
         var match = NaturalLanguageRelativeDate().Match(dateString);
         if (!match.Success)
         {
@@ -380,6 +392,8 @@ public abstract partial class BaseFeatureSteps : Feature
 
             var nhsNumber = dataTable.GetRowValueOrDefault(row, "Nhs Number", NhsNumber);
 
+            var additionalData = BuildAdditionalDataFromDataTable(dataTable, row);
+
             var booking = new BookingDocument
             {
                 Id = reference,
@@ -411,7 +425,7 @@ public abstract partial class BaseFeatureSteps : Feature
                         Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
                     }
                 ],
-                AdditionalData = new { IsAppBooking = true }
+                AdditionalData = additionalData
             };
 
             var bookingIndex = new BookingIndexDocument
@@ -442,6 +456,44 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
+    [Then("the following bookings are now in the following state")]
+    public async Task AssertBookings(DataTable dataTable)
+    {
+        var siteId = GetSiteId();
+        var defaultReferenceOffset = 0;
+
+        foreach (var row in dataTable.Rows.Skip(1))
+        {
+            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+                                   BookingReferences.GetBookingReference(defaultReferenceOffset,
+                                       BookingType.Confirmed);
+            defaultReferenceOffset += 1;
+
+
+            var booking = await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+
+            booking.Should().NotBeNull();
+
+            var status = dataTable.GetEnumRowValueOrDefault<AppointmentStatus>(row, "Status");
+            if (status != null)
+            {
+                booking.Resource.Status.Should().Be(status);
+            }
+
+            var cancellationReason = dataTable.GetEnumRowValueOrDefault<CancellationReason>(row, "Cancellation reason");
+            if (cancellationReason != null)
+            {
+                booking.Resource.CancellationReason.Should().Be(cancellationReason);
+            }
+
+            var additionalData = BuildAdditionalDataFromDataTable(dataTable, row);
+            if (additionalData != null)
+            {
+                booking.Resource.AdditionalData.Should().BeEquivalentTo(JObject.FromObject(additionalData));
+            }
+        }
+    }
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
@@ -686,6 +738,19 @@ public abstract partial class BaseFeatureSteps : Feature
             bookingIndex += 1;
         }
     }
+
+    [And("there are no sessions for '(.+)'")]
+    public async Task AssertSessionNoLongerExists(string dateString)
+    {
+        var date = ParseNaturalLanguageDateOnly(dateString);
+        var documentId = date.ToString("yyyyMMdd");
+
+        var dayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")
+            .ReadItemAsync<DailyAvailabilityDocument>(documentId, new PartitionKey(GetSiteId()));
+
+        dayAvailabilityDocument.Resource.Sessions.Length.Should().Be(0);
+    }
+
     private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,
         bool expectStatusToHaveChanged = true)
     {
@@ -870,6 +935,29 @@ public abstract partial class BaseFeatureSteps : Feature
             ]
         };
         await Client.GetContainer("appts", "core_data").UpsertItemAsync(roles);
+    }
+
+    protected Dictionary<string, string> BuildAdditionalDataFromDataTable(DataTable table, TableRow row)
+    {
+        var keyValuePairs = new Dictionary<string, string>();
+        for (var i = 1; i < 4; i++)
+        {
+            var columnName = $"AdditionalData {i}";
+            var additionalData = table.GetRowValueOrDefault(row, columnName);
+            if (additionalData != null)
+            {
+                var key = additionalData.Split(',')[0];
+                var value = additionalData.Split(',')[1];
+                keyValuePairs[key] = value;
+            }
+        }
+
+        if (keyValuePairs.Count == 0)
+        {
+            return null;
+        }
+
+        return keyValuePairs;
     }
 
     private async Task SetUpNotificationConfiguration()

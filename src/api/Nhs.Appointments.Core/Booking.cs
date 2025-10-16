@@ -122,5 +122,6 @@ public enum CancellationReason
 {
     CancelledByCitizen,
     CancelledBySite,
-    RescheduledByCitizen
+    RescheduledByCitizen,
+    CancelledByService
 }

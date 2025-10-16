@@ -51,7 +51,7 @@ const Tabs = ({
     >
       {title && <h2 className="nhsuk-tabs__title">{title}</h2>}
 
-      <ul className="nhsuk-tabs__list">
+      <ul className="nhsuk-tabs__list no-print">
         {filteredChildren.map((tab, index) => {
           return (
             <li

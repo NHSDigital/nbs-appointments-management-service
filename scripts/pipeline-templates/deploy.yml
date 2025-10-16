@@ -20,8 +20,6 @@ parameters:
     type: string
   - name: serviceConnectionName
     type: string
-  - name: buildNumber
-    type: string
   - name: isHotfix
     type: boolean
 
@@ -36,8 +34,21 @@ stages:
           - DeployStag
     condition: succeeded()
     variables:
+      - name: extractedBuildNumber
+        value: $[stageDependencies.Build.Build.outputs['ExtractVersionStep.extractedBuildNumber']]
       - group: ${{parameters.variable_group}}
+      - group: nbs-mya-container-registry
     jobs:
+      - job: "PrintVersion"
+        displayName: "Print MYA version"
+        steps:
+          - task: PowerShell@2
+            displayName: "Print MYA version"
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "Deploying MYA version: $(extractedBuildNumber)"
+              pwsh: true
       - job: EnterChangeRequest
         displayName: "Enter Change Request Number (CFG)"
         pool: server
@@ -102,7 +113,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                 terraform init
-                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
+                terraform plan -no-color -input=false -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
       - job: ApproveTerraformPlan
         dependsOn: RunTerraformPlan
         condition: ne('${{parameters.env}}', 'dev')
@@ -153,7 +164,7 @@ stages:
                       $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                       cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                       terraform init
-                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=${{parameters.buildNumber}}"
+                      terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
       - job: DeployWeb
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"
@@ -412,7 +423,7 @@ stages:
           - checkout: self
             persistCredentials: true # Ensures authentication for Git push
           - script: |
-              TAG_NAME="release-$(Build.BuildNumber)"
+              TAG_NAME="release-$(extractedBuildNumber)"
               COMMIT_SHA=$(Build.SourceVersion)
 
               echo "Creating tag: $TAG_NAME for commit: $COMMIT_SHA"
@@ -420,7 +431,7 @@ stages:
               git config --global user.name "MYA Azure DevOps Pipeline"
               git config --global user.email "devops-nhsdigital.nbs-appointments-management-service@nhs.net"
 
-              git tag -a $TAG_NAME -m "A successful deployment to production with build: $(Build.BuildNumber)" $COMMIT_SHA
+              git tag -a $TAG_NAME -m "A successful deployment to production with build: $(extractedBuildNumber)" $COMMIT_SHA
               git push origin $TAG_NAME
       - job: RetainOnSuccess
         condition: and(succeeded(), eq('${{parameters.env}}', 'stag'))

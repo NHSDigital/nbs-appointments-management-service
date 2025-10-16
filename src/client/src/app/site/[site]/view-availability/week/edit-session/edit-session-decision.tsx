@@ -19,6 +19,7 @@ type EditSessionDecisionProps = {
   sessionSummary: string;
   date: string;
   clinicalServices: ClinicalService[];
+  cancelSessionUpliftedJourneyFlag: boolean;
 };
 
 type EditSessionDecisionFormData = {
@@ -30,6 +31,7 @@ export const EditSessionDecision = ({
   sessionSummary,
   date,
   clinicalServices,
+  cancelSessionUpliftedJourneyFlag,
 }: EditSessionDecisionProps) => {
   const [pendingSubmit, startTransition] = useTransition();
   const router = useRouter();
@@ -52,9 +54,12 @@ export const EditSessionDecision = ({
           reroute += `edit-services?session=${sessionSummary}&date=${date}`;
           break;
         case 'cancel-session':
-          reroute += `cancel?session=${sessionSummary}&date=${date}`;
+          if (cancelSessionUpliftedJourneyFlag) {
+            reroute += `cancel/confirmation?session=${sessionSummary}&date=${date}`;
+          } else {
+            reroute += `cancel?session=${sessionSummary}&date=${date}`;
+          }
           break;
-
         default:
           throw new Error('Invalid form action');
       }
@@ -107,7 +112,6 @@ export const EditSessionDecision = ({
             )}
             <Radio
               label="Cancel this session"
-              hint="Cancel all booked appointments, and remove this session"
               id="cancel-session"
               value="cancel-session"
               {...register('action', {

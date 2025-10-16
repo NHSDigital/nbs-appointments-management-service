@@ -384,7 +384,7 @@ public class BookingCosmosDocumentStore(
         }
     }
 
-    public async Task SetAutoCancellationNotified(string bookingReference, string site)
+    public async Task SetCancellationNotified(string bookingReference, string site)
     {
         var patch = PatchOperation.Set("/cancellationNotificationStatus", "Notified");
         await bookingStore.PatchDocument(site, bookingReference, patch);

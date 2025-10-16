@@ -130,6 +130,8 @@ public class BookingWriteService(
             var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
             await bus.Send(bookingCancelledEvents);
         }
+
+        await bookingDocumentStore.SetCancellationNotified(booking.Reference, booking.Site);
     }
 
     private object ConvertJTokensBackToDictionaries(JToken token)
@@ -300,9 +302,9 @@ public class BookingWriteService(
             b => b.CancellationReason == CancellationReason.CancelledByService &&
             (b.CancellationNotificationStatus == CancellationNotificationStatus.Unnotified || b.CancellationNotificationStatus is null) &&
             b.ContactDetails is not null &&
-            b.ContactDetails.Length > 0);
+            b.ContactDetails.Length > 0).ToList();
 
-        if (!bookingsCancelledByService.Any())
+        if (bookingsCancelledByService.Count == 0)
         {
             return;
         }
@@ -319,9 +321,9 @@ public class BookingWriteService(
             return autoCancellationProp is not null &&
                    autoCancellationProp.GetValue(b.AdditionalData) is bool value &&
                    value;
-        });
+        }).ToList();
 
-        if (!autoCancelledBookings.Any())
+        if (autoCancelledBookings.Count == 0)
         {
             return;
         }
@@ -331,7 +333,7 @@ public class BookingWriteService(
             var notifcations = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
             await bus.Send(notifcations);
             booking.CancellationNotificationStatus = CancellationNotificationStatus.Notified;
-            await bookingDocumentStore.SetAutoCancellationNotified(booking.Reference, booking.Site);
+            await bookingDocumentStore.SetCancellationNotified(booking.Reference, booking.Site);
         }
     }
 

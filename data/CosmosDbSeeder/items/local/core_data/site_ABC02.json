@@ -9,7 +9,7 @@
   "integratedCareBoard": "ICB2",
   "location": {
     "type": "Point",
-    "coordinates": [ -1.66382134, 53.79628754 ]
+    "coordinates": [-1.66382134, 53.79628754]
   },
   "accessibilities": [
     {
@@ -49,6 +49,6 @@
       "value": "false"
     }
   ],
-  "informationForCitizens": "",
+  "informationForCitizens": "Mock information for citizens about site 2",
   "status": "Online"
 }

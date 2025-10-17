@@ -215,7 +215,9 @@ export default class SiteDetailsPage extends RootPage {
     await expect(listitem.getByRole('term')).toBeVisible();
     await expect(listitem.getByRole('term')).toHaveText(title);
     await expect(listitem.getByRole('definition')).toBeVisible();
-    await expect(listitem.getByRole('definition')).toHaveText(value);
+    await expect(listitem.getByRole('definition')).toHaveText(
+      value.replace(/,+/g, ',').trim(),
+    );
   }
 
   async verifyInformationNotSaved(

@@ -8,6 +8,7 @@ import {
   FormGroup,
   Radio,
   RadioGroup,
+  SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Card } from '@nhsuk-frontend-components';
@@ -215,14 +216,18 @@ export const SessionModificationConfirmation = ({
       <h2>{texts.confirmationQuestion(action)}</h2>
 
       <ButtonGroup vertical>
-        <Button
-          type="button"
-          styleType="warning"
-          data-action={action}
-          onClick={handleSubmit(submitForm)}
-        >
-          {texts.confirmButtonText(action)}
-        </Button>
+        {pendingSubmit ? (
+          <SmallSpinnerWithText text="Working..." />
+        ) : (
+          <Button
+            type="button"
+            styleType="warning"
+            data-action={action}
+            onClick={handleSubmit(submitForm)}
+          >
+            {texts.confirmButtonText(action)}
+          </Button>
+        )}
 
         <Link
           href={`/site/${site}/availability/edit?session=${session}&date=${date}`}

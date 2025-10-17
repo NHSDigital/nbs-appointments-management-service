@@ -108,6 +108,7 @@ public static class ServiceRegistration
                 cfg.AddConsumer<BookingReminderConsumer>();
                 cfg.AddConsumer<BookingMadeConsumer>();
                 cfg.AddConsumer<BookingCancelledConsumer>();
+                cfg.AddConsumer<BookingAutoCancelledConsumer>();
                 cfg.AddConsumer<BookingRescheduledConsumer>();
                 cfg.AddConsumer<AggregateSiteSummaryConsumer>(config =>
                 {

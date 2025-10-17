@@ -185,7 +185,7 @@ export const SessionModificationConfirmation = ({
       await fromServer(modifySession(request));
 
       router.push(
-        `/site/${site}/availability/edit/confirmed?updatedSession=${newSession}&date=${date}&canelAppointments=${cancelBookings}`,
+        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&canelAppointments=${cancelBookings}`,
       );
     });
   };

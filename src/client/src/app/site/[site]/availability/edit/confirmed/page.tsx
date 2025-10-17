@@ -1,10 +1,12 @@
 import {
   assertPermission,
   fetchClinicalServices,
+  fetchBookings,
   fetchSite,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { AvailabilitySession } from '@types';
-import { parseToUkDatetime } from '@services/timeService';
+import { AvailabilitySession, FetchBookingsRequest } from '@types';
+import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
 import NhsPage from '@components/nhs-page';
@@ -14,6 +16,9 @@ type PageProps = {
   searchParams?: Promise<{
     date: string;
     updatedSession: string;
+    unsupportedBookingsCount?: number;
+    cancelAppointments?: boolean;
+    chosenAction: string;
   }>;
   params: Promise<{
     site: string;
@@ -22,14 +27,44 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { updatedSession, date } = { ...(await searchParams) };
+  const {
+    updatedSession,
+    date,
+    cancelAppointments,
+    unsupportedBookingsCount,
+    chosenAction,
+  } = {
+    ...(await searchParams),
+  };
+
   if (updatedSession === undefined || date === undefined) {
     return notFound();
   }
 
+  console.log('chosenAction', chosenAction);
+
+  const hasBookings = cancelAppointments == undefined ? false : true;
+
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
-  const [site, clinicalServices] = await Promise.all([
+
+  const changeSessionUpliftedJourneyFlag = await fromServer(
+    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
+  );
+
+  const fromDate = parseToUkDatetime(date);
+  const toDate = fromDate.endOf('day');
+
+  const fetchBookingsRequest: FetchBookingsRequest = {
+    from: fromDate.format(dateTimeFormat),
+    to: toDate.format(dateTimeFormat),
+    site: siteFromPath,
+    statuses: ['Cancelled'],
+    cancellationReason: 'CancelledBySite',
+  };
+
+  const [site, bookings, clinicalServices] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchBookings(fetchBookingsRequest, ['Cancelled'])),
     fromServer(fetchClinicalServices()),
   ]);
 
@@ -39,11 +74,24 @@ const Page = async ({ searchParams, params }: PageProps) => {
     atob(updatedSession),
   );
 
+  const cancelledWithoutDetailsCount = bookings.filter(
+    b =>
+      !b.contactDetails ||
+      !b.contactDetails.some(cd => cd.type === 'Email' || cd.type === 'Phone'),
+  ).length;
+
+  let cancelledWithDetailsCount =
+    (unsupportedBookingsCount ?? 0) - cancelledWithoutDetailsCount;
+
+  if (cancelledWithDetailsCount < 0) {
+    cancelledWithDetailsCount = 0;
+  }
+
   return (
     <NhsPage
       site={site}
       originPage="edit-session"
-      title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
+      title={`Time and capacity changed for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
         href: `/site/${site.id}/view-availability/week/?date=${date}`,
@@ -55,7 +103,16 @@ const Page = async ({ searchParams, params }: PageProps) => {
         updatedSession={updatedAvailabilitySession}
         site={site}
         date={date}
+        hasBookings={hasBookings}
+        bookings={bookings}
+        chosenAction={chosenAction ?? ''}
+        unsupportedBookingsCount={unsupportedBookingsCount ?? 0}
+        cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}
+        cancelledWithoutDetailsCount={cancelledWithoutDetailsCount ?? 0}
         clinicalServices={clinicalServices}
+        changeSessionUpliftedJourneyEnabled={
+          changeSessionUpliftedJourneyFlag.enabled
+        }
       />
     </NhsPage>
   );

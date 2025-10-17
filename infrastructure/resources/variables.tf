@@ -414,3 +414,8 @@ variable "splunk_otel_image_version" {
   type = string
 }
 
+variable "auto_cancelled_bookings_enabled" {
+  type = bool
+}
+
+

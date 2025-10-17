@@ -95,6 +95,7 @@ module "mya_application_pen" {
   splunk_skip_verify_insecure                     = false
   splunk_data_channel                             = "C42C6A51-B15C-45F8-8806-105CCD7BFB04"
   splunk_otel_image_version                       = "2.0"
+  auto_cancelled_bookings_enabled                 = false 
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

@@ -2,7 +2,6 @@
   "FeatureManagement": {
     "OktaEnabled": true,
     "JointBookings": true,
-    "BulkImport": true,
     "SiteSummaryReport": true,
     "SiteStatus": true,
     "CancelDay": true,

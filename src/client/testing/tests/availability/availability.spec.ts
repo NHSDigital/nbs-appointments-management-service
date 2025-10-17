@@ -220,7 +220,7 @@ test.describe('Create Availability', () => {
       });
 
       test('A user can navigate to the Create Availability flow validating weekly Session end date must be within the next year error', async () => {
-        const dayIncrement = 76;
+        const dayIncrement = 1;
         const futureDate = getDateInFuture(dayIncrement);
         const aYearFutureDate = getDateInFuture(dayIncrement + 365);
         await createAvailabilityPage.createAvailabilityButton.click();

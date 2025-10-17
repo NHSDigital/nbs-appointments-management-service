@@ -28,6 +28,7 @@ import {
   SetSiteReferenceDetailsRequest,
   Site,
   SiteStatus,
+  UpdateSessionRequest,
   UpdateSiteStatusRequest,
   User,
   UserIdentityStatus,
@@ -666,3 +667,10 @@ export const availabilityChangeProposal = async (
       JSON.stringify(payload),
     )
     .then(handleBodyResponse);
+
+export const modifySession = async (
+  payload: UpdateSessionRequest,
+): Promise<ServerActionResult<void>> =>
+  appointmentsApi
+    .post('session/edit', JSON.stringify(payload))
+    .then(handleEmptyResponse);

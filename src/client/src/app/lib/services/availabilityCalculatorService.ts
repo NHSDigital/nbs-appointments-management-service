@@ -8,7 +8,6 @@ import {
   isBefore,
   isBeforeOrEqual,
   isEqual,
-  isInBetween,
   isOnTheSameUkDay,
   parseToUkDatetime,
   parseToTimeComponents,

@@ -5,7 +5,6 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import updateLocale from 'dayjs/plugin/updateLocale';
-import isBetween from 'dayjs/plugin/isBetween';
 
 export const RFC3339Format = 'YYYY-MM-DD';
 export const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
@@ -18,7 +17,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(updateLocale);
-dayjs.extend(isBetween);
 
 // Set UK-style weeks: Monday as start
 dayjs.updateLocale('en', {
@@ -155,17 +153,6 @@ export const isAfter = (first: dayjs.Dayjs, second: dayjs.Dayjs) =>
 
 export const isEqual = (first: dayjs.Dayjs, second: dayjs.Dayjs): boolean => {
   return dayjs.utc(first).isSame(dayjs.utc(second));
-};
-
-export const isInBetween = (
-  target: dayjs.Dayjs,
-  start: dayjs.Dayjs,
-  end: dayjs.Dayjs,
-  inclusivity: '()' | '(]' | '[)' | '[]' = '[)',
-): boolean => {
-  return dayjs
-    .utc(target)
-    .isBetween(dayjs.utc(start), dayjs.utc(end), null, inclusivity);
 };
 
 export const isAfterCalendarDateUk = (

@@ -92,7 +92,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
     [When(@"I request the availability proposal for potential availability change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
-        var sessions = new List<Session>{ };
+        var sessions = new List<Session> { };
 
         foreach (var row in proposalSessions.Rows.Skip(1))
         {
@@ -108,8 +108,9 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
             sessions.Add(session);
         }
 
-        var request = new { 
-        
+        var request = new
+        {
+
             site = GetSiteId(),
             from = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
             to = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),

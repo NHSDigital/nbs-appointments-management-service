@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Core.UnitTests;
+namespace Nhs.Appointments.Core.UnitTests;
 
 public class BookingQueryFilterTests
 {

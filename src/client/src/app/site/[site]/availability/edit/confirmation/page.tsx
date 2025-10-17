@@ -9,22 +9,18 @@ import {
   SessionSummary,
   Session,
 } from '@types';
-import {
-  dateTimeFormat,
-  parseDateAndTimeComponentsToUkDateTime,
-  parseToUkDatetime,
-  toTimeFormat,
-} from '@services/timeService';
+import { EditSessionConfirmation } from './edit-session-confirmation';
+import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
-import { SessionModificationConfirmation } from '@components/session-modification-confirmation';
 
 type PageProps = {
   searchParams?: Promise<{
     date: string;
     session: string;
     sessionToEdit: string;
+    updatedSession: string;
   }>;
   params: Promise<{
     site: string;
@@ -33,11 +29,14 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { session, date, sessionToEdit } = { ...(await searchParams) };
+  const { session, date, sessionToEdit, updatedSession } = {
+    ...(await searchParams),
+  };
   if (
     session === undefined ||
     date === undefined ||
-    sessionToEdit === undefined
+    sessionToEdit === undefined ||
+    updatedSession === undefined
   ) {
     return notFound();
   }
@@ -46,7 +45,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
-  const newSessionDetails: Session = JSON.parse(atob(sessionToEdit));
+  const newSessionDetails: Session = JSON.parse(atob(updatedSession));
+  const existingSession: Session = JSON.parse(atob(sessionToEdit));
   const availabilityRequest: AvailabilityChangeProposalRequest = {
     from: date,
     to: date,
@@ -67,23 +67,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
     },
   };
 
-  const parsedSession: SessionSummary = {
-    capacity: newSessionDetails.capacity,
-    maximumCapacity: sessionSummary.maximumCapacity,
-    slotLength: newSessionDetails.slotLength,
-    totalSupportedAppointments: sessionSummary.totalSupportedAppointments,
-    totalSupportedAppointmentsByService:
-      sessionSummary.totalSupportedAppointmentsByService,
-    ukStartDatetime: parseDateAndTimeComponentsToUkDateTime(
-      date,
-      newSessionDetails.startTime,
-    ).format(dateTimeFormat),
-    ukEndDatetime: parseDateAndTimeComponentsToUkDateTime(
-      date,
-      newSessionDetails.endTime,
-    ).format(dateTimeFormat),
-  };
-
   const availabilityProposal = await fromServer(
     availabilityChangeProposal(availabilityRequest),
   );
@@ -100,13 +83,14 @@ const Page = async ({ searchParams, params }: PageProps) => {
         text: 'Go back',
       }}
     >
-      <SessionModificationConfirmation
+      <EditSessionConfirmation
         unsupportedBookingsCount={availabilityProposal.unsupportedBookingsCount}
         clinicalServices={clinicalServices}
-        session={btoa(JSON.stringify(parsedSession))}
+        session={session}
+        newSessionDetails={newSessionDetails}
+        sessionToEdit={existingSession}
         site={site.id}
         date={date}
-        mode="edit"
       />
     </NhsTransactionalPage>
   );

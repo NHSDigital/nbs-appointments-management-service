@@ -308,6 +308,22 @@ const mockSession3: AvailabilitySession = {
   slotLength: 10,
 };
 
+const mockSession4: AvailabilitySession = {
+  from: '09:00',
+  until: '12:00',
+  services: ['RSV:Adult'],
+  capacity: 2,
+  slotLength: 5,
+};
+
+const mockSession4A: AvailabilitySession = {
+  from: '10:00',
+  until: '12:00',
+  services: ['RSV:Adult'],
+  capacity: 2,
+  slotLength: 5,
+};
+
 const mockSessionMultipleServices1: AvailabilitySession = {
   from: '09:00',
   until: '12:00',
@@ -804,4 +820,6 @@ export {
   mockOfflineSite,
   mockCancelDayResponse,
   mockSession1,
+  mockSession4,
+  mockSession4A,
 };

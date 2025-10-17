@@ -23,6 +23,7 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { updatedSession, date } = { ...(await searchParams) };
+
   if (updatedSession === undefined || date === undefined) {
     return notFound();
   }

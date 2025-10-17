@@ -37,7 +37,6 @@ const Page = async ({ params, searchParams }: PageProps) => {
   }
 
   await fromServer(assertPermission(siteFromPath, 'booking:view-detail'));
-
   const fromDate = parseToUkDatetime(date);
   const toDate = fromDate.endOf('day');
 

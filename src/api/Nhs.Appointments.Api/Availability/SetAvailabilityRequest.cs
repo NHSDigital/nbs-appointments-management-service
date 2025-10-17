@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using Nhs.Appointments.Core;
 
@@ -14,5 +14,7 @@ public record SetAvailabilityRequest(
     [property:JsonProperty("mode", Required = Required.Always)]
     ApplyAvailabilityMode Mode,
     [property: JsonProperty("sessionToEdit", Required = Required.Default)]
-    Session SessionToEdit = null
+    Session SessionToEdit = null,
+    [property: JsonProperty("cancelOrphanedBookings", Required = Required.Default)]
+    bool CancelOrphaned = false
 );

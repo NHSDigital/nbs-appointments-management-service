@@ -20,7 +20,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 public abstract class RecalculationProposalFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
-   
+
 
     [When(@"I request the availability proposal for potential availability change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)

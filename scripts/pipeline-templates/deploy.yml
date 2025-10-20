@@ -71,8 +71,6 @@ stages:
             inputs:
               targetType: "inline"
               script: |
-                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_NAME]covid19bookingkv${{parameters.env}}uks"
-                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_TENANT_ID;issecret=true]$(tenantId)"
                 Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_ID;issecret=true]$(ClientId)"
                 Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_SECRET;issecret=true]$(ClientSecret)"
               pwsh: true

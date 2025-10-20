@@ -123,16 +123,6 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
-          - task: PowerShell@2
-            condition: and(succeeded(), ${{ in(parameters.env, 'int', 'prod') }})
-            displayName: "Get KeyVault Variables"
-            name: GetKeyVaultVariables
-            inputs:
-              targetType: "inline"
-              script: |
-                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_ID;issecret=true]$(ClientId)"
-                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_SECRET;issecret=true]$(ClientSecret)"
-              pwsh: true
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: "Install Terraform"
             inputs:
@@ -153,7 +143,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
                 terraform init
-                terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
+                terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)" -var="KEYVAULT_CLIENT_ID=$(ClientId)"" -var="TF_VAR_KEYVAULT_CLIENT_SECRET=$(ClientSecret)"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
@@ -350,16 +340,6 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
-          - task: PowerShell@2
-            condition: and(succeeded(), ${{ in(parameters.env, 'int', 'prod') }})
-            displayName: "Get KeyVault Variables"
-            name: GetKeyVaultVariables
-            inputs:
-              targetType: "inline"
-              script: |
-                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_ID;issecret=true]$(ClientId)"
-                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_SECRET;issecret=true]$(ClientSecret)"
-              pwsh: true
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: "Install Terraform"
             inputs:
@@ -380,7 +360,7 @@ stages:
                 $env:ARM_SUBSCRIPTION_ID="$(azure_subscription_id)"
                 cd $(Build.SourcesDirectory)/infrastructure/environments/${{parameters.env}}-ukw
                 terraform init
-                terraform destroy -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"
+                terraform destroy -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="COSMOS_ENDPOINT=$(COSMOS_ENDPOINT)" -var="COSMOS_TOKEN=$(COSMOS_TOKEN)" -var="APP_CONFIG_CONNECTION=$(APP_CONFIG_CONNECTION)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)" -var="KEYVAULT_CLIENT_ID=$(ClientId)"" -var="TF_VAR_KEYVAULT_CLIENT_SECRET=$(ClientSecret)"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)

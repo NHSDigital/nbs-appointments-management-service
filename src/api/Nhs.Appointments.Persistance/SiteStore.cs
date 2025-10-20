@@ -12,9 +12,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return GetOrDefault(siteId);
     }
 
-    public Task<IEnumerable<Site>> GetAllSites()
+    public Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false)
     {
-        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site");
+        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && (includeDeleted || !sd.IsDeleted.HasValue || !sd.IsDeleted.Value));
     }
 
     public async Task<int> GetReferenceNumberGroup(string site)

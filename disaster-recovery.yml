@@ -17,6 +17,8 @@ pool:
 variables:
   - group: nbs-mya-${{parameters.env}}
   - group: nbs-mya-container-registry
+  - ${{ if in(parameters.env, 'int', 'prod') }}: 
+      group: covid19bookingkv${{parameters.env}}uks
   - name: env
     value: ${{parameters.env}}
   - name: uksResourceGroup
@@ -48,6 +50,7 @@ variables:
     value: "mya-http-api"
   - name: webOriginGroupNameUks
     value: "mya-web"
+
 
 stages:
   - stage: "FailoverMyaToUkWest"
@@ -120,7 +123,18 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
-
+          - task: PowerShell@2
+            condition: and(succeeded(), ${{ in(parameters.env, 'int', 'prod') }})
+            displayName: "Get KeyVault Variables"
+            name: GetKeyVaultVariables
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_NAME]covid19bookingkv${{parameters.env}}uks"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_TENANT_ID;issecret=true]$(tenantId)"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_ID;issecret=true]$(ClientId)"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_SECRET;issecret=true]$(ClientSecret)"
+              pwsh: true
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: "Install Terraform"
             inputs:
@@ -338,7 +352,18 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/disaster-recovery/get-app-config-replica-connection-string.ps1"
               arguments: "-resourceGroup $(uksResourceGroup) -environment $(env)"
-
+          - task: PowerShell@2
+            condition: and(succeeded(), ${{ in(parameters.env, 'int', 'prod') }})
+            displayName: "Get KeyVault Variables"
+            name: GetKeyVaultVariables
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_NAME]covid19bookingkv${{parameters.env}}uks"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_TENANT_ID;issecret=true]$(tenantId)"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_ID;issecret=true]$(ClientId)"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_SECRET;issecret=true]$(ClientSecret)"
+              pwsh: true
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: "Install Terraform"
             inputs:

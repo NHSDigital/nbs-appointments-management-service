@@ -38,6 +38,8 @@ stages:
         value: $[stageDependencies.Build.Build.outputs['ExtractVersionStep.extractedBuildNumber']]
       - group: ${{parameters.variable_group}}
       - group: nbs-mya-container-registry
+      - ${{ if in(parameters.env, 'int', 'prod') }}: 
+          group: covid19bookingkv${{parameters.env}}uks
     jobs:
       - job: "PrintVersion"
         displayName: "Print MYA version"
@@ -59,6 +61,18 @@ stages:
             inputs:
               notifyUsers: ""
               instructions: Enter a valid CFG
+          - task: PowerShell@2
+            condition: and(succeeded(), ${{ in(parameters.env, 'int', 'prod') }})
+            displayName: "Get KeyVault Variables"
+            name: GetKeyVaultVariables
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_NAME]covid19bookingkv${{parameters.env}}uks"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_TENANT_ID;issecret=true]$(tenantId)"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_ID;issecret=true]$(ClientId)"
+                Write-Host "##vso[task.setvariable variable=TF_VAR_KEYVAULT_CLIENT_SECRET;issecret=true]$(ClientSecret)"
+              pwsh: true
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
         dependsOn:

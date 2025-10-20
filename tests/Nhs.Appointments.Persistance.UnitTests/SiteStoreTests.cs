@@ -45,7 +45,7 @@ public class SiteStoreTests
                 "Information",
                 [],
                 new Location("Coordinates", [-1.75, 52.76]),
-                null));
+                null, null));
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])
@@ -79,7 +79,7 @@ public class SiteStoreTests
                 "Information",
                 [],
                 new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online));
+                SiteStatus.Online, null));
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])

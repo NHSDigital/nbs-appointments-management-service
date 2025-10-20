@@ -110,7 +110,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null, bool? isDeleted = null)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null)
@@ -129,7 +129,8 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
                 Location = location,
                 Region = region,
                 Type = type,
-                Status = siteStatus
+                Status = siteStatus,
+                IsDeleted = isDeleted
             };
             var document = cosmosStore.ConvertToDocument(site);
             await cosmosStore.WriteAsync(document);

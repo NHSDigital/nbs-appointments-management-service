@@ -37,7 +37,8 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online)
+                SiteStatus.Online, 
+                null)
         });
         
         await _sut.Trigger();
@@ -73,7 +74,8 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online)
+                SiteStatus.Online,
+                null)
         });
 
         var site = "site-1";
@@ -114,6 +116,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
+                null, 
                 null)
         });
 
@@ -228,7 +231,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                null)
+                null, null)
         });
 
         var site = "site-1";
@@ -269,7 +272,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                null)
+                null, null)
         });
 
         var site = "site-1";
@@ -331,7 +334,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online),
+                SiteStatus.Online, null),
             new (
                 "site-2",
                 "site-name-2",
@@ -343,7 +346,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online)
+                SiteStatus.Online, null)
         });
 
         var site1 = "site-1";

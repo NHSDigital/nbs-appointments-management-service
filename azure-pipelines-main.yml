@@ -35,6 +35,8 @@ stages:
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
           ${{ if eq(env, 'perf') }}:
             key_vault_variable_group: covid19bookingkvstaguks
+          ${{ elseif eq(env, 'dev') }}:
+            key_vault_variable_group: covid19bookingkvintuks
           ${{ else }}:
             key_vault_variable_group: covid19bookingkv${{env}}uks
           ${{ if eq(env, 'pen') }}:

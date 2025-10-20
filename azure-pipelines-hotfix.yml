@@ -28,6 +28,10 @@ stages:
           env: ${{env}}
           variable_group: nbs-mya-${{env}}
           httpFunctionAppName: nbs-mya-func-${{env}}-uks
+          ${{ if eq(env, 'perf') }}:
+            key_vault_variable_group: covid19bookingkvstaguks
+          ${{ else }}:
+            key_vault_variable_group: covid19bookingkv${{env}}uks
           highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
           serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
           timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks

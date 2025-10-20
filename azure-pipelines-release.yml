@@ -36,7 +36,7 @@ stages:
           ${{ if eq(env, 'perf') }}:
             key_vault_variable_group: covid19bookingkvstaguks
           ${{ else }}:
-            key_vault_variable_group: covid19bookingkv${{parameters.env}}uks
+            key_vault_variable_group: covid19bookingkv${{env}}uks
           ${{ if eq(env, 'pen') }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nhsuk-mya-nonprod

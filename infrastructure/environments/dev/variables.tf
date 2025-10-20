@@ -170,3 +170,12 @@ variable "AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE" {
   type = string
   sensitive = false
 }
+
+variable "KEYVAULT_CLIENT_ID" {
+  type = string
+}
+
+variable "KEYVAULT_CLIENT_SECRET" {
+  type = string
+  sensitive = true
+}

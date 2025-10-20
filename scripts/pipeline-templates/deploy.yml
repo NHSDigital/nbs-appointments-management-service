@@ -4,6 +4,8 @@ parameters:
     type: string
   - name: variable_group
     type: string
+  - name: key_vault_variable_group
+    type: string
   - name: httpFunctionAppName
     type: string
   - name: highLoadFunctionAppName
@@ -38,8 +40,7 @@ stages:
         value: $[stageDependencies.Build.Build.outputs['ExtractVersionStep.extractedBuildNumber']]
       - group: ${{parameters.variable_group}}
       - group: nbs-mya-container-registry
-      - ${{ if in(parameters.env, 'int', 'prod') }}: 
-          group: covid19bookingkv${{parameters.env}}uks
+      - group: ${{parameters.key_vault_variable_group}}
     jobs:
       - job: "PrintVersion"
         displayName: "Print MYA version"

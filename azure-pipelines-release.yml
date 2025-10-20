@@ -33,6 +33,10 @@ stages:
           timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
           webServerName: nbs-mya-app-${{env}}-uks
           cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+          ${{ if eq(env, 'perf') }}:
+            key_vault_variable_group: covid19bookingkvstaguks
+          ${{ else }}:
+            key_vault_variable_group: covid19bookingkv${{parameters.env}}uks
           ${{ if eq(env, 'pen') }}:
             resourceGroup: nbs-mya-rg-${{env}}-uks
             serviceConnectionName: nhsuk-mya-nonprod

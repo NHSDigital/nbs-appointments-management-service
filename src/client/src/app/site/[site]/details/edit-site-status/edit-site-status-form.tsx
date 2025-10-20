@@ -80,7 +80,7 @@ const EditSiteStatusForm = ({ site }: { site: Site }) => {
           <p>
             The change will take effect immediately. Taking your site offline
             will mean patients can no longer book appointments until the site is
-            online again.
+            online again. This will not affect existing bookings.
           </p>
         </InsetText>
       </FormGroup>

@@ -204,7 +204,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
   }
   secret {
     name  = "blob-connection-string"
-    value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : ""
+    value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : "UNSET"
   }
   secret {
     name  = "key-vault-secret"

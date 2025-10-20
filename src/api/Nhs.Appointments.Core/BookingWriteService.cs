@@ -122,15 +122,11 @@ public class BookingWriteService(
         var autoCancellationProp = ExtractField<bool>(additionalData, "AutoCancellation");
         if (cancellationReason == CancellationReason.CancelledByService && autoCancellationProp)
         {
-            var bookingAutoCancelledEvents = eventFactory.BuildBookingEvents<BookingAutoCancelled>(booking);
-            await bus.Send(bookingAutoCancelledEvents);
-        }
-        else
-        {
-            var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
-            await bus.Send(bookingCancelledEvents);
+            return;
         }
 
+        var bookingCancelledEvents = eventFactory.BuildBookingEvents<BookingCancelled>(booking);
+        await bus.Send(bookingCancelledEvents);
         await bookingDocumentStore.SetCancellationNotified(booking.Reference, booking.Site);
     }
 

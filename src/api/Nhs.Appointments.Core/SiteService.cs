@@ -13,18 +13,18 @@ public interface ISiteService
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false);
     Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false);
-    Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
-    Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
+    Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities, bool allowUpdatesToDeletedSites = true);
+    Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens, bool allowUpdatesToDeletedSites = true);
 
     Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
-        decimal? longitude, decimal? latitude);
+        decimal? longitude, decimal? latitude, bool allowUpdatesToDeletedSites = true);
 
-    Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
+    Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region, bool allowUpdatesToDeletedSites = true);
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null);
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null, bool allowUpdatesToDeletedSites = true);
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
-    Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
+    Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status, bool allowUpdatesToDeletedSites = true);
     Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
 }
 
@@ -176,7 +176,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,
-        string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
+        string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null, bool allowUpdatesToDeletedSites = true)
             => await siteStore.SaveSiteAsync(
                 siteId,
                 odsCode,
@@ -188,32 +188,33 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
                 location,
                 accessibilities,
                 type,
-                siteStatus);
+                siteStatus,
+                allowUpdatesToDeletedSites);
 
-    public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
+    public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities, bool allowUpdatesToDeletedSites = true) 
     {
-        return siteStore.UpdateAccessibilities(siteId, accessibilities);
+        return siteStore.UpdateAccessibilities(siteId, accessibilities, allowUpdatesToDeletedSites);
     }
 
-    public Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens) 
+    public Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens, bool allowUpdatesToDeletedSites = true) 
     {
-        return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
+        return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens, allowUpdatesToDeletedSites);
     }
 
     public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
-        decimal? longitude, decimal? latitude)
+        decimal? longitude, decimal? latitude, bool allowUpdatesToDeletedSites = true)
     {
-        return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
+        return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude, allowUpdatesToDeletedSites);
     }
 
     public Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb,
-        string region)
+        string region, bool allowUpdatesToDeletedSites = true)
     {
-        return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
+        return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region, allowUpdatesToDeletedSites);
     }
 
-    public async Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status)
-        => await siteStore.UpdateSiteStatusAsync(siteId, status);
+    public async Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status, bool allowUpdatesToDeletedSites = true)
+        => await siteStore.UpdateSiteStatusAsync(siteId, status, allowUpdatesToDeletedSites);
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
         => await siteStore.GetSitesInIcbAsync(icb);

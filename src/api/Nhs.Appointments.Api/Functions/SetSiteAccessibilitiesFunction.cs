@@ -9,10 +9,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -22,7 +24,8 @@ public class SetSiteAccessibilitiesFunction(
     IValidator<SetSiteAccessibilitiesRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<SetSiteAccessibilitiesFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<SetSiteAccessibilitiesRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -52,7 +55,9 @@ public class SetSiteAccessibilitiesFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAccessibilitiesRequest request,
         ILogger logger)
     {
-        var result = await siteService.UpdateAccessibilities(request.Site, request.Accessibilities);
+        var allowUpdatesToDeletedSites = !(await featureToggleHelper.IsFeatureEnabled(Flags.SoftDeletionOfSites));
+
+        var result = await siteService.UpdateAccessibilities(request.Site, request.Accessibilities, allowUpdatesToDeletedSites);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 

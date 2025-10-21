@@ -61,12 +61,12 @@ public class UpdateSiteStatusFunctionTests
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(true);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<SetSiteStatusRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-        _siteService.Setup(x => x.SetSiteStatus(It.IsAny<string>(), It.IsAny<SiteStatus>()))
+        _siteService.Setup(x => x.SetSiteStatus(It.IsAny<string>(), It.IsAny<SiteStatus>(), It.IsAny<bool>()))
             .ReturnsAsync(new OperationResult(true));
 
         _ = await _sut.RunAsync(CreateRequest("site-id", SiteStatus.Offline)) as ContentResult;
 
-        _siteService.Verify(x => x.SetSiteStatus("site-id", SiteStatus.Offline), Times.Once);
+        _siteService.Verify(x => x.SetSiteStatus("site-id", SiteStatus.Offline, It.IsAny<bool>()), Times.Once);
     }
 
     private static HttpRequest CreateRequest(string siteId, SiteStatus? siteStatus)

@@ -21,7 +21,7 @@ public class SiteStoreTests
         _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
             .ReturnsAsync(null as Site);
 
-        var result = await _sut.UpdateSiteStatusAsync("some-site-id", SiteStatus.Online);
+        var result = await _sut.UpdateSiteStatusAsync("some-site-id", SiteStatus.Online, false);
 
         result.Success.Should().BeFalse();
 

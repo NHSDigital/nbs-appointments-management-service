@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -9,10 +9,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;
@@ -22,7 +24,8 @@ public class SetSiteReferenceDetailsFunction(
     IValidator<SetSiteReferenceDetailsRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<SetSiteReferenceDetailsRequest> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<SetSiteReferenceDetailsRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -52,9 +55,11 @@ public class SetSiteReferenceDetailsFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteReferenceDetailsRequest request,
         ILogger logger)
     {
+        var allowUpdatesToDeletedSites = !(await featureToggleHelper.IsFeatureEnabled(Flags.SoftDeletionOfSites));
+
         var result =
             await siteService.UpdateSiteReferenceDetailsAsync(request.Site, request.OdsCode, request.Icb,
-                request.Region);
+                request.Region, allowUpdatesToDeletedSites);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 

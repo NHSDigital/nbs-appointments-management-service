@@ -9,6 +9,7 @@
     "CancelDay": false,
     "ChangeSessionUpliftedJourney": false,
     "CancelSessionUpliftedJourney": false,
+    "SoftDeletionOfSites": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

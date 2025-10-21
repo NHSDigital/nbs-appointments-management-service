@@ -48,7 +48,9 @@ public class UpdateSiteStatusFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteStatusRequest request, ILogger logger)
     {
-        var result = await siteService.SetSiteStatus(request.Site, request.Status);
+        var allowUpdatesToDeletedSites = !(await featureToggleHelper.IsFeatureEnabled(Flags.SoftDeletionOfSites));
+
+        var result = await siteService.SetSiteStatus(request.Site, request.Status, allowUpdatesToDeletedSites);
 
         return result.Success
             ? Success(new EmptyResponse())

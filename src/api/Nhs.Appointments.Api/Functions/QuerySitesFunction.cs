@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
@@ -46,4 +47,16 @@ public class QuerySitesFunction(
     }
 
     protected override Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(QuerySitesRequest request, ILogger logger) => throw new System.NotImplementedException();
+
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QuerySitesRequest request)> ReadRequestAsync(HttpRequest req)
+    {
+        var (errors, payload) = await JsonRequestReader.ReadRequestAsync<QuerySitesRequest>(req.Body);
+
+        if (errors.Count > 0)
+        {
+            return (errors, null);
+        }
+
+        return (errors, payload);
+    }
 }

@@ -8,6 +8,6 @@ public class SiteFilter
     public string[] Types { get; set; }
     public string[] Services { get; set; }
     public DateOnly? From {  get; set; }
-    public DateOnly? To { get; set; }
+    public DateOnly? Until { get; set; }
     public string[] AccessNeeds { get; set; }
 }

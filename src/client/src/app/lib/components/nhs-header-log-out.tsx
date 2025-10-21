@@ -13,7 +13,7 @@ const NhsHeaderLogOut = async () => {
       </span>
       <form action={signOut}>
         <button
-          aria-label="log out"
+          aria-label="Log out"
           className="nhsuk-header-custom__user-control nhsuk-header-custom__user-control-link"
           type="submit"
         >

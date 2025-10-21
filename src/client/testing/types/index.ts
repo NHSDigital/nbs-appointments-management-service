@@ -1,6 +1,8 @@
-import { MockOidcUser } from './mock-oidc';
-import { CookieBanner, FooterLinks } from './page-objects';
-import PageObject from './page-objects';
+type TestUser = {
+  username: string;
+  password: string;
+};
 
-export { PageObject };
-export type { MockOidcUser, CookieBanner, FooterLinks };
+export type { TestUser };
+export * from './mock-oidc';
+export * from './page-objects';

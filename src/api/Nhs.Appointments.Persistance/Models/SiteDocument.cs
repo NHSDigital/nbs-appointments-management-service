@@ -42,4 +42,6 @@ public class SiteDocument : CoreDataCosmosDocument
     [JsonProperty("type")] public string Type { get; set; }
 
     [JsonProperty("status")] public SiteStatus? Status { get; set; }
+
+    [JsonProperty("isDeleted")] public bool? IsDeleted { get; set; }
 }

@@ -65,7 +65,8 @@ public class GetSitesByAreaFunctionTests
                     InformationForCitizens: "Information For Citizens 123",
                     Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
                     Location: new Location("point", [0.1, 10]),
-                    status : SiteStatus.Online),
+                    status : SiteStatus.Online,
+                    isDeleted: null),
                 Distance: 100)
         };
         _siteService
@@ -100,7 +101,8 @@ public class GetSitesByAreaFunctionTests
                     InformationForCitizens: "Information For Citizens 123",
                     Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
                     Location: new Location("point", [0.1, 10]),
-                    status : SiteStatus.Online),
+                    status : SiteStatus.Online,
+                    isDeleted: null),
                 Distance: 100)
         };
         _siteService

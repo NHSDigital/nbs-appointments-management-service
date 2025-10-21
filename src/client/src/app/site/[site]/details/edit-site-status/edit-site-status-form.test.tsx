@@ -46,6 +46,11 @@ describe('Edit Site Status Form', () => {
     expect(
       screen.getByRole('radio', { name: 'Keep site online' }),
     ).toBeVisible();
+    expect(
+      screen.queryByText(
+        'The change will take effect immediately. Taking your site offline will mean patients can no longer book appointments until the site is online again. This will not affect existing bookings.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('submits the form with the correct value', async () => {

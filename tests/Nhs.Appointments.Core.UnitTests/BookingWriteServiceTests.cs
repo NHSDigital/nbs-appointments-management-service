@@ -497,7 +497,7 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async Task CancelBooking_AutoCancelled_RaisesNotificationEvent_TypeIsBool()
+        public async Task CancelBooking_AutoCancelled_DoesNotRaiseNotificationEvent()
         {
             var site = "some-site";
             var bookingRef = "some-booking";
@@ -515,78 +515,11 @@ namespace Nhs.Appointments.Core.UnitTests
                 }));
             _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
             _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
-
-            _messageBus.Setup(x => x.Send(It.Is<BookingAutoCancelled[]>(e =>
-                e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
-                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
-
-            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByService,
-                new { AutoCancellation = true });
-
-            _messageBus.VerifyAll();
-            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Once);
-        }
-
-        [Fact]
-        public async Task CancelBooking_AutoCancelled_RaisesNotificationEvent_TypeIsString()
-        {
-            var site = "some-site";
-            var bookingRef = "some-booking";
-
-            var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
-                .Returns(updateMock.Object);
-
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
-                Task.FromResult(new Booking
-                {
-                    Reference = bookingRef,
-                    Site = site,
-                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
-                }));
-            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
-            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
-
-            _messageBus.Setup(x => x.Send(It.Is<BookingAutoCancelled[]>(e =>
-                e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
-                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
 
             await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByService,
                 new { AutoCancellation = "true" });
 
-            _messageBus.VerifyAll();
-            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Once);
-        }
-
-        [Fact]
-        public async Task CancelBooking_AutoCancelled_RaisesNotificationEvent_WrongReason()
-        {
-            var site = "some-site";
-            var bookingRef = "some-booking";
-
-            var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
-                .Returns(updateMock.Object);
-
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
-                Task.FromResult(new Booking
-                {
-                    Reference = bookingRef,
-                    Site = site,
-                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
-                }));
-            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
-            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
-
-            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e =>
-                e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
-                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Once);
-
-            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledBySite,
-                new { AutoCancellation = "true" });
-
-            _messageBus.VerifyAll();
-            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Once);
+            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Never);
         }
 
         [Fact]

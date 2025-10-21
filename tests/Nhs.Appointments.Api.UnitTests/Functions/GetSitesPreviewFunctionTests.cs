@@ -102,7 +102,8 @@ public class GetSitesPreviewFunctionTests
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10]),
-            status: SiteStatus.Online
+            status: SiteStatus.Online,
+            isDeleted: null
         );
 
         var site2 = new Site(
@@ -116,7 +117,8 @@ public class GetSitesPreviewFunctionTests
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10]),
-            status: SiteStatus.Online
+            status: SiteStatus.Online,
+            isDeleted: null
         );
 
         var icbs = new List<WellKnownOdsEntry>

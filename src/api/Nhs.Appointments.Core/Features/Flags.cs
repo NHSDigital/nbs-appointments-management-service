@@ -8,6 +8,7 @@ public static class Flags
     public const string SiteStatus = "SiteStatus";
     public const string CancelDay = "CancelDay";
     public const string ChangeSessionUpliftedJourney = "ChangeSessionUpliftedJourney";
+    public const string QuerySites = "QuerySites";
 
     #region TestFlags
     //a simple on/off global flag

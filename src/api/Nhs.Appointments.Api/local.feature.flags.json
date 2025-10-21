@@ -9,6 +9,7 @@
     "CancelDay": false,
     "ChangeSessionUpliftedJourney": false,
     "CancelSessionUpliftedJourney": false,
+    "QuerySites": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {
@@ -47,7 +48,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         }
@@ -76,7 +77,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         },

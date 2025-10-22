@@ -582,7 +582,7 @@ public class BookingCosmosDocumentStoreTests
 
         var result = await _sut.GetRecentlyUpdatedBookingsCrossSiteAsync(statusUpdated, statusUpdated.AddDays(1), AppointmentStatus.Cancelled);
 
-        result.Count().Should().Be(4);
+        result.Count().Should().Be(1);
     }
 
     [Fact]

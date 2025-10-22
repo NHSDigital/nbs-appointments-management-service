@@ -307,6 +307,11 @@ public class BookingWriteService(
 
         var autoCancelledBookings = bookingsCancelledByService.Where(b =>
         {
+            if (b.AdditionalData is null)
+            {
+                return false;
+            }
+
             var data = JObject.FromObject(b.AdditionalData);
 
             return data["AutoCancellation"]?.Value<bool>() ?? false;

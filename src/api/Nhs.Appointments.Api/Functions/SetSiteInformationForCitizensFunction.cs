@@ -23,8 +23,7 @@ public class SetSiteInformationForCitizensFunction(
     IValidator<SetSiteInformationForCitizensRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<SetSiteInformationForCitizensFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<SetSiteInformationForCitizensRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -53,9 +52,7 @@ public class SetSiteInformationForCitizensFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteInformationForCitizensRequest request,
         ILogger logger)
     {
-        var allowUpdatesToDeletedSites = !(await featureToggleHelper.IsFeatureEnabled(Flags.SoftDeletionOfSites));
-
-        var result = await siteService.UpdateInformationForCitizens(request.Site, request.InformationForCitizens, allowUpdatesToDeletedSites);
+        var result = await siteService.UpdateInformationForCitizens(request.Site, request.InformationForCitizens);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 

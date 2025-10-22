@@ -24,11 +24,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return siteDocument.ReferenceNumberGroup;
     }
 
-    public async Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region, bool allowUpdatesToDeletedSites = true)
+    public async Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null || 
-            !validateUpdateToSiteAllowed(allowUpdatesToDeletedSites, originalDocument))
+            !validateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -45,10 +45,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return new OperationResult(true);
     }
 
-    private static bool validateUpdateToSiteAllowed(bool allowUpdatesToDeletedSites, Site originalDocument)
+    private static bool validateUpdateToSiteAllowed(Site originalDocument)
     {
-        return allowUpdatesToDeletedSites ||
-                    (!originalDocument.isDeleted.HasValue || !originalDocument.isDeleted.Value);
+        return !originalDocument.isDeleted.HasValue || !originalDocument.isDeleted.Value;
     }
 
     public Task AssignPrefix(string site, int prefix)
@@ -58,11 +57,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
     }
 
-    public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities, bool allowUpdatesToDeletedSites = true)
+    public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null ||
-            !validateUpdateToSiteAllowed(allowUpdatesToDeletedSites, originalDocument))
+            !validateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -71,11 +70,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);
     }
-    public async Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens, bool allowUpdatesToDeletedSites = true)
+    public async Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null ||
-            !validateUpdateToSiteAllowed(allowUpdatesToDeletedSites, originalDocument))
+            !validateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -86,13 +85,13 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber,
-        decimal? longitude, decimal? latitude, bool allowUpdatesToDeletedSites = true)
+        decimal? longitude, decimal? latitude)
     {
         decimal?[] coords = (longitude != null) & (latitude != null) ? [longitude, latitude] : [];
         
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null ||
-            !validateUpdateToSiteAllowed(allowUpdatesToDeletedSites, originalDocument))
+            !validateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -122,8 +121,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null, bool? isDeleted = null,
-        bool allowUpdatesToDeletedSites = true)
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null, bool? isDeleted = null)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null)
@@ -152,7 +150,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         }
         else
         {
-            if (!validateUpdateToSiteAllowed(allowUpdatesToDeletedSites, originalDocument))
+            if (!validateUpdateToSiteAllowed(originalDocument))
             {
                 return new OperationResult(false, "The specified site can not be updated.");
             }
@@ -171,11 +169,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
     }
 
-    public async Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status, bool allowUpdatesToDeletedSites = true)
+    public async Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null ||
-            !validateUpdateToSiteAllowed(allowUpdatesToDeletedSites, originalDocument))
+            !validateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, $"The specified site: {siteId} was not found.");
         }

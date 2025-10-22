@@ -55,9 +55,7 @@ public class SetSiteAccessibilitiesFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAccessibilitiesRequest request,
         ILogger logger)
     {
-        var allowUpdatesToDeletedSites = !(await featureToggleHelper.IsFeatureEnabled(Flags.SoftDeletionOfSites));
-
-        var result = await siteService.UpdateAccessibilities(request.Site, request.Accessibilities, allowUpdatesToDeletedSites);
+        var result = await siteService.UpdateAccessibilities(request.Site, request.Accessibilities);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 

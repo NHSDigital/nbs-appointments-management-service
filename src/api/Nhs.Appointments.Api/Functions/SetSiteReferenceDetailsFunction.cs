@@ -55,11 +55,9 @@ public class SetSiteReferenceDetailsFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteReferenceDetailsRequest request,
         ILogger logger)
     {
-        var allowUpdatesToDeletedSites = !(await featureToggleHelper.IsFeatureEnabled(Flags.SoftDeletionOfSites));
-
         var result =
             await siteService.UpdateSiteReferenceDetailsAsync(request.Site, request.OdsCode, request.Icb,
-                request.Region, allowUpdatesToDeletedSites);
+                request.Region);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }
 

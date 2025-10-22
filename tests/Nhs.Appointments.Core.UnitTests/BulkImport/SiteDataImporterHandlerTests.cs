@@ -345,8 +345,7 @@ public class SiteDataImporterHandlerTests
             It.IsAny<Location>(),
             It.IsAny<List<Accessibility>>(),
             It.IsAny<string>(),
-            null, 
-            It.IsAny<bool>()), Times.Never);
+            null), Times.Never);
     }
 
     [Fact]
@@ -429,8 +428,7 @@ public class SiteDataImporterHandlerTests
             It.IsAny<Location>(),
             It.IsAny<Accessibility[]>(),
             It.IsAny<string>(),
-            SiteStatus.Online,
-            It.IsAny<bool>()), Times.Exactly(3));
+            SiteStatus.Online), Times.Exactly(3));
     }
 
     [Fact]
@@ -468,7 +466,7 @@ public class SiteDataImporterHandlerTests
             It.IsAny<Location>(),
             It.IsAny<Accessibility[]>(),
             It.IsAny<string>(),
-            null, It.IsAny<bool>()), Times.Exactly(3));
+            null), Times.Exactly(3));
     }
 
     private readonly string[] ValidInputRows =

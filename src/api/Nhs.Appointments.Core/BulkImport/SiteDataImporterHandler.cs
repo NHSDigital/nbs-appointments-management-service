@@ -28,8 +28,6 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
 		SiteStatus? siteStatus = await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus)
 			? SiteStatus.Online : null;
 
-        var allowUpdatesToDeletedSites = !(await featureToggleHelper.IsFeatureEnabled(Flags.SoftDeletionOfSites));  
-            
         foreach (var site in siteRows)
         {
             try
@@ -45,8 +43,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
                     site.Location,
                     site.Accessibilities,
                     site.Type,
-					siteStatus,
-                    allowUpdatesToDeletedSites);
+					siteStatus);
             }
             catch (Exception ex)
             {

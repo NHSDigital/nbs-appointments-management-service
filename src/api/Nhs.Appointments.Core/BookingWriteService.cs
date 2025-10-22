@@ -307,16 +307,9 @@ public class BookingWriteService(
 
         var autoCancelledBookings = bookingsCancelledByService.Where(b =>
         {
-            if (b.AdditionalData is null)
-            {
-                return false;
-            }
+            var data = JObject.FromObject(b.AdditionalData);
 
-            var type = b.AdditionalData.GetType();
-            var autoCancellationProp = type.GetProperty("AutoCancellation", typeof(bool));
-            return autoCancellationProp is not null &&
-                   autoCancellationProp.GetValue(b.AdditionalData) is bool value &&
-                   value;
+            return data["AutoCancellation"]?.Value<bool>() ?? false;
         }).ToList();
 
         if (autoCancelledBookings.Count == 0)

@@ -404,8 +404,8 @@ public class BookingCosmosDocumentStore(
 
         await Parallel.ForEachAsync(siteGroupedBookings, async (group, _) =>
         {
-            var bookings = await GetInStatusUpdatedRange(group.Min(g => g.From), group.Max(g => g.From), group.Key);
-            concurrentResults.Add(bookings);
+            var bookings = await GetInStatusUpdatedRange(from, to, group.Key);
+            concurrentResults.Add(bookings.Where(b => statuses.Contains(b.Status)));
         });
 
         return concurrentResults.SelectMany(x => x);

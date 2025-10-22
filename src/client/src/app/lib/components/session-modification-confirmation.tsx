@@ -12,10 +12,24 @@ import {
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
-import { ClinicalService, SessionSummary } from '@types';
+import {
+  ClinicalService,
+  SessionSummary,
+  AvailabilitySession,
+  Session,
+} from '@types';
+import { toTimeFormat } from '@services/timeService';
+import { useRouter } from 'next/navigation';
+import { editSession } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
 
 type Mode = 'edit' | 'cancel';
-type FormData = { action?: Action };
+type FormData = {
+  action?: Action;
+  cancelOrphanedBookings?: boolean;
+  existingSession: AvailabilitySession;
+  newSession: AvailabilitySession;
+};
 type Action =
   | 'change-session'
   | 'cancel-appointments'
@@ -26,6 +40,8 @@ type Props = {
   unsupportedBookingsCount: number;
   clinicalServices: ClinicalService[];
   session: string;
+  newSessionDetails: Session;
+  sessionToEdit: Session;
   site: string;
   date: string;
   mode?: Mode;
@@ -113,17 +129,34 @@ export const SessionModificationConfirmation = ({
   unsupportedBookingsCount,
   clinicalServices,
   session,
+  newSessionDetails,
+  sessionToEdit,
   site,
   date,
   mode = 'edit',
 }: Props) => {
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
+  const router = useRouter();
+
+  const toAvailabilitySession = (_session: Session): AvailabilitySession => ({
+    from: toTimeFormat(_session.startTime) ?? '',
+    until: toTimeFormat(_session.endTime) ?? '',
+    slotLength: _session.slotLength,
+    capacity: _session.capacity,
+    services: _session.services,
+  });
 
   const {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    defaultValues: {
+      newSession: toAvailabilitySession(newSessionDetails),
+      existingSession: toAvailabilitySession(sessionToEdit),
+      cancelOrphanedBookings: false,
+    },
+  });
 
   const [decision, setDecision] = useState<Action | undefined>();
   const texts = MODE_TEXTS[mode];
@@ -135,15 +168,45 @@ export const SessionModificationConfirmation = ({
     const action =
       (event?.target as HTMLButtonElement)?.dataset.action ?? 'change-session';
 
-    if (action === 'change-session') {
-      // handle session edit
-    } else if (action === 'cancel-appointments') {
+    if (action === 'change-session' || action === 'cancel-appointments') {
+      // handle session edit or
       // handle session edit and cancel appointments
+      const newAvailabilitySession = _.newSession;
+
+      const cancelAppointments = action === 'cancel-appointments';
+
+      const enrichedForm: FormData = {
+        cancelOrphanedBookings: cancelAppointments,
+        newSession: toAvailabilitySession(newSessionDetails),
+        existingSession: _.existingSession,
+      };
+
+      await updateSession(enrichedForm, newAvailabilitySession);
+
+      router.push(
+        `/site/${site}/availability/edit/confirmed?updatedSession=${btoa(JSON.stringify(newAvailabilitySession))}&date=${date}&canelAppointments=${cancelAppointments}`,
+      );
     } else if (action === 'cancel-session') {
       // handle session cancel
     } else {
       // handle session cancel and cancel appointments
     }
+  };
+
+  const updateSession = async (
+    form: FormData,
+    updatedSession: AvailabilitySession,
+  ) => {
+    await fromServer(
+      editSession({
+        date,
+        site: site,
+        mode: 'Edit',
+        sessions: [updatedSession],
+        sessionToEdit: form.existingSession,
+        cancelOrphanedBookings: form.cancelOrphanedBookings ?? false,
+      }),
+    );
   };
 
   const renderRadioForm = () => (

@@ -84,6 +84,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     ).format(dateTimeFormat),
   };
 
+  const existingSession: Session = JSON.parse(atob(sessionToEdit));
+
   const availabilityProposal = await fromServer(
     availabilityChangeProposal(availabilityRequest),
   );
@@ -104,6 +106,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
         unsupportedBookingsCount={availabilityProposal.unsupportedBookingsCount}
         clinicalServices={clinicalServices}
         session={btoa(JSON.stringify(parsedSession))}
+        newSessionDetails={newSessionDetails}
+        sessionToEdit={existingSession}
         site={site.id}
         date={date}
         mode="edit"

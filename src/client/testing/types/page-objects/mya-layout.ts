@@ -1,78 +1,26 @@
-import { type Locator } from '@playwright/test';
+import { Page, type Locator } from '@playwright/test';
 import { CookieBanner, Footer, Header, PageObject } from '@e2etests/types';
 import { LoginPage } from '@e2etests/page-objects';
 import { CookiesPolicyPage } from '@testing-page-objects';
+import { Site } from '@types';
 
 export default abstract class MYALayout extends PageObject {
+  protected readonly site?: Site;
+
+  constructor(page: Page, site?: Site) {
+    super(page);
+    this.site = site;
+  }
+
   abstract title: Locator;
-
-  readonly header: Header = {
-    serviceName: this.page
-      .getByRole('banner')
-      .getByRole('link', { name: 'Manage Your Appointments' }),
-    changeSiteButton: this.page
-      .getByRole('banner')
-      .getByRole('button', { name: 'Change Site' }),
-    logOutButton: this.page
-      .getByRole('banner')
-      .getByRole('button', { name: 'Log Out' }),
-    currentUser: (userName: string) =>
-      this.page.getByRole('banner').getByText(userName),
-    navBar: {
-      viewAvailability: this.page
-        .getByRole('navigation')
-        .getByRole('link', { name: 'View availability' }),
-      createAvailability: this.page
-        .getByRole('navigation')
-        .getByRole('link', { name: 'Create availability' }),
-      changeSiteDetails: this.page
-        .getByRole('navigation')
-        .getByRole('link', { name: 'Change site details' }),
-      manageUsers: this.page
-        .getByRole('navigation')
-        .getByRole('link', { name: 'Manage users' }),
-      reports: this.page
-        .getByRole('navigation')
-        .getByRole('link', { name: 'Reports' }),
-    },
-  };
-
-  readonly cookieBanner: CookieBanner = {
-    preAcceptanceHeader: this.page.getByRole('heading', {
-      name: 'Cookies on the NHS website',
-    }),
-    postAcceptanceMessage: this.page.getByText(
-      'You can change your cookie settings at any time',
-    ),
-    acceptCookiesButton: this.page.getByRole('button', {
-      name: `I'm OK with analytics cookies`,
-    }),
-    rejectCookiesButton: this.page.getByRole('button', {
-      name: 'Do not use analytics cookies',
-    }),
-  };
+  readonly header: Header = new Header(this.page, this.site);
+  readonly cookieBanner: CookieBanner = new CookieBanner(this.page);
 
   readonly notificationBanner: Locator = this.page
     .getByRole('main')
     .getByRole('banner');
 
-  readonly footer: Footer = {
-    buildNumber: async () => {
-      const buildNumberSpan = await this.page
-        .getByText(/^Build number: /)
-        .textContent();
-      return buildNumberSpan?.split('Build number: ')[1];
-    },
-    links: {
-      userGuidance: this.page.getByRole('link', { name: 'User guidance' }),
-      termsOfUse: this.page.getByRole('link', { name: 'Terms of use' }),
-      privacyPolicy: this.page.getByRole('link', { name: 'Privacy Policy' }),
-      cookiesPolicy: this.page.getByRole('link', { name: 'Cookies Policy' }),
-      accessibilityStatement: this.page.getByRole('link', {
-        name: 'Accessibility Statement',
-      }),
-    },
-  };
+  readonly footer: Footer = new Footer(this.page);
 
   async logOut(): Promise<LoginPage> {
     await this.header.logOutButton.click();

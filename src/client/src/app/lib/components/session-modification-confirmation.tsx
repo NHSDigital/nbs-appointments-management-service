@@ -28,7 +28,7 @@ import { useRouter } from 'next/navigation';
 type Mode = 'edit' | 'cancel';
 type FormData = {
   action?: Action;
-  cancelOrphanedBookings?: boolean;
+  cancelUnsupportedBookings?: boolean;
   existingSession: AvailabilitySession;
   newSession: AvailabilitySession;
 };
@@ -214,7 +214,7 @@ export const SessionModificationConfirmation = ({
         mode: 'Edit',
         sessions: [updatedSession],
         sessionToEdit: form.existingSession,
-        cancelOrphanedBookings: form.cancelOrphanedBookings ?? false,
+        cancelUnsupportedBookings: form.cancelUnsupportedBookings ?? false,
       }),
     );
   };

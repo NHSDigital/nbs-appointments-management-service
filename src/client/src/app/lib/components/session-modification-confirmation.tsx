@@ -8,11 +8,22 @@ import {
   FormGroup,
   Radio,
   RadioGroup,
+  SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
-import { ClinicalService, SessionSummary } from '@types';
+import {
+  ClinicalService,
+  SessionSummary,
+  UpdateSessionRequest,
+  Session,
+} from '@types';
+import { modifySession } from '@services/appointmentsService';
+import { toTimeFormat } from '@services/timeService';
+import fromServer from '@server/fromServer';
+import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
 type Mode = 'edit' | 'cancel';
 type FormData = { action?: Action };
@@ -26,9 +37,10 @@ type Props = {
   unsupportedBookingsCount: number;
   clinicalServices: ClinicalService[];
   session: string;
+  newSession?: string | null;
   site: string;
   date: string;
-  mode?: Mode;
+  mode: Mode;
 };
 
 type RadioOption = {
@@ -113,37 +125,69 @@ export const SessionModificationConfirmation = ({
   unsupportedBookingsCount,
   clinicalServices,
   session,
+  newSession,
   site,
   date,
   mode = 'edit',
 }: Props) => {
+  const router = useRouter();
+  const [pendingSubmit, startTransition] = useTransition();
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
-
+  const newSessionSummary: Session | null = newSession
+    ? JSON.parse(atob(newSession))
+    : null;
   const {
     handleSubmit,
     register,
     formState: { errors },
+    setValue,
   } = useForm<FormData>();
-
   const [decision, setDecision] = useState<Action | undefined>();
   const texts = MODE_TEXTS[mode];
   const recordDecision: SubmitHandler<FormData> = async form => {
     setDecision(form.action as Action);
+    setValue('action', form.action as Action);
   };
 
-  const submitForm: SubmitHandler<FormData> = async (_, event) => {
-    const action =
-      (event?.target as HTMLButtonElement)?.dataset.action ?? 'change-session';
+  const submitForm: SubmitHandler<FormData> = async form => {
+    startTransition(async () => {
+      const cancelBookings = form.action === 'cancel-appointments';
+      let request: UpdateSessionRequest = {
+        from: date,
+        to: date,
+        site: site,
+        sessionMatcher: {
+          from: toTimeFormat(sessionSummary.ukStartDatetime) || '',
+          until: toTimeFormat(sessionSummary.ukEndDatetime) || '',
+          services: Object.keys(
+            sessionSummary.totalSupportedAppointmentsByService,
+          ),
+          slotLength: sessionSummary.slotLength,
+          capacity: sessionSummary.capacity,
+        },
+        sessionReplacement: null,
+        cancelUnsupportedBookings: cancelBookings,
+      };
 
-    if (action === 'change-session') {
-      // handle session edit
-    } else if (action === 'cancel-appointments') {
-      // handle session edit and cancel appointments
-    } else if (action === 'cancel-session') {
-      // handle session cancel
-    } else {
-      // handle session cancel and cancel appointments
-    }
+      if (mode === 'edit' && newSessionSummary) {
+        request = {
+          ...request,
+          sessionReplacement: {
+            from: `${newSessionSummary.startTime.hour}:${newSessionSummary.startTime.minute}`,
+            until: `${newSessionSummary.endTime.hour}:${newSessionSummary.endTime.minute}`,
+            services: newSessionSummary.services,
+            slotLength: newSessionSummary.slotLength,
+            capacity: newSessionSummary.capacity,
+          },
+        };
+      }
+
+      await fromServer(modifySession(request));
+
+      router.push(
+        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&cancelAppointments=${cancelBookings}`,
+      );
+    });
   };
 
   const renderRadioForm = () => (
@@ -167,18 +211,17 @@ export const SessionModificationConfirmation = ({
   );
 
   const renderConfirmationQuestion = (action: Action) => (
-    <div>
+    <form onSubmit={handleSubmit(submitForm)}>
       <h2>{texts.confirmationQuestion(action)}</h2>
 
       <ButtonGroup vertical>
-        <Button
-          type="button"
-          styleType="warning"
-          data-action={action}
-          onClick={handleSubmit(submitForm)}
-        >
-          {texts.confirmButtonText(action)}
-        </Button>
+        {pendingSubmit ? (
+          <SmallSpinnerWithText text="Working..." />
+        ) : (
+          <Button type="submit" styleType="warning">
+            {texts.confirmButtonText(action)}
+          </Button>
+        )}
 
         <Link
           href={`/site/${site}/availability/edit?session=${session}&date=${date}`}
@@ -186,7 +229,7 @@ export const SessionModificationConfirmation = ({
           No, go back
         </Link>
       </ButtonGroup>
-    </div>
+    </form>
   );
 
   const renderUnsupportedDecision = () => {

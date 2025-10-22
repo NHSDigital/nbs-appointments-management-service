@@ -117,6 +117,9 @@ const EditSessionConfirmed = ({
               </p>
             </InsetText>
           )}
+          <Link href={`/site/${site.id}/view-availability/week?date=${date}`}>
+            View all bookings for this week
+          </Link>
         </>
       ) : (
         <>

@@ -123,7 +123,7 @@ const EditSessionTimeAndCapacityForm = ({
         existingSession.totalSupportedAppointments ?? 0;
 
       if (validSessionStartTime || existingAppointments === 0) {
-        const confirmationUrl = `/site/${site.id}/availability/edit/confirmation?session=${encode(existingSession)}&date=${date}&sessionToEdit=${encode(newSession)}`;
+        const confirmationUrl = `/site/${site.id}/availability/edit/confirmation?session=${encode(existingSession)}&date=${date}&sessionToEdit=${encode(newSession)}&existingSession=${encode(form.sessionToEdit)}`;
         return router.push(confirmationUrl);
       }
 

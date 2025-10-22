@@ -25,6 +25,7 @@ type PageProps = {
     date: string;
     session: string;
     sessionToEdit: string;
+    existingSession: string;
   }>;
   params: Promise<{
     site: string;
@@ -33,11 +34,14 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { session, date, sessionToEdit } = { ...(await searchParams) };
+  const { session, date, sessionToEdit, existingSession } = {
+    ...(await searchParams),
+  };
   if (
     session === undefined ||
     date === undefined ||
-    sessionToEdit === undefined
+    sessionToEdit === undefined ||
+    existingSession === undefined
   ) {
     return notFound();
   }
@@ -84,7 +88,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     ).format(dateTimeFormat),
   };
 
-  const existingSession: Session = JSON.parse(atob(sessionToEdit));
+  const existing: Session = JSON.parse(atob(existingSession));
 
   const availabilityProposal = await fromServer(
     availabilityChangeProposal(availabilityRequest),
@@ -107,7 +111,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         clinicalServices={clinicalServices}
         session={btoa(JSON.stringify(parsedSession))}
         newSessionDetails={newSessionDetails}
-        sessionToEdit={existingSession}
+        sessionToEdit={existing}
         site={site.id}
         date={date}
         mode="edit"

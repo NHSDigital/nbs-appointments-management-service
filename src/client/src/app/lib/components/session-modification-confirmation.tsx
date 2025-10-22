@@ -26,7 +26,7 @@ import fromServer from '@server/fromServer';
 type Mode = 'edit' | 'cancel';
 type FormData = {
   action?: Action;
-  cancelOrphanedBookings?: boolean;
+  cancelUnsupportedBookings?: boolean;
   existingSession: AvailabilitySession;
   newSession: AvailabilitySession;
 };
@@ -154,7 +154,7 @@ export const SessionModificationConfirmation = ({
     defaultValues: {
       newSession: toAvailabilitySession(newSessionDetails),
       existingSession: toAvailabilitySession(sessionToEdit),
-      cancelOrphanedBookings: false,
+      cancelUnsupportedBookings: false,
     },
   });
 
@@ -176,7 +176,7 @@ export const SessionModificationConfirmation = ({
       const cancelAppointments = action === 'cancel-appointments';
 
       const enrichedForm: FormData = {
-        cancelOrphanedBookings: cancelAppointments,
+        cancelUnsupportedBookings: cancelAppointments,
         newSession: toAvailabilitySession(newSessionDetails),
         existingSession: _.existingSession,
       };
@@ -184,7 +184,7 @@ export const SessionModificationConfirmation = ({
       await updateSession(enrichedForm, newAvailabilitySession);
 
       router.push(
-        `/site/${site}/availability/edit/confirmed?updatedSession=${btoa(JSON.stringify(newAvailabilitySession))}&date=${date}&canelAppointments=${cancelAppointments}`,
+        `/site/${site}/availability/edit/confirmed?updatedSession=${btoa(JSON.stringify(newAvailabilitySession))}&date=${date}&chosenAction=${action}&unsupportedBookingsCount=${unsupportedBookingsCount}&cancelAppointments=${cancelAppointments}`,
       );
     } else if (action === 'cancel-session') {
       // handle session cancel
@@ -204,7 +204,7 @@ export const SessionModificationConfirmation = ({
         mode: 'Edit',
         sessions: [updatedSession],
         sessionToEdit: form.existingSession,
-        cancelOrphanedBookings: form.cancelOrphanedBookings ?? false,
+        cancelUnsupportedBookings: form.cancelUnsupportedBookings ?? false,
       }),
     );
   };

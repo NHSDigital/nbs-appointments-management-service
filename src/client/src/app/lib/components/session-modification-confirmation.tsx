@@ -26,7 +26,12 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 type Mode = 'edit' | 'cancel';
-type FormData = { action?: Action };
+type FormData = {
+  action?: Action;
+  cancelOrphanedBookings?: boolean;
+  existingSession: AvailabilitySession;
+  newSession: AvailabilitySession;
+};
 type Action =
   | 'change-session'
   | 'cancel-appointments'
@@ -136,6 +141,14 @@ export const SessionModificationConfirmation = ({
   const newSessionSummary: Session | null = newSession
     ? JSON.parse(atob(newSession))
     : null;
+  const toAvailabilitySession = (_session: Session): AvailabilitySession => ({
+    from: toTimeFormat(_session.startTime) ?? '',
+    until: toTimeFormat(_session.endTime) ?? '',
+    slotLength: _session.slotLength,
+    capacity: _session.capacity,
+    services: _session.services,
+  });
+
   const {
     handleSubmit,
     register,
@@ -188,6 +201,22 @@ export const SessionModificationConfirmation = ({
         `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&cancelAppointments=${cancelBookings}`,
       );
     });
+  };
+
+  const updateSession = async (
+    form: FormData,
+    updatedSession: AvailabilitySession,
+  ) => {
+    await fromServer(
+      editSession({
+        date,
+        site: site,
+        mode: 'Edit',
+        sessions: [updatedSession],
+        sessionToEdit: form.existingSession,
+        cancelOrphanedBookings: form.cancelOrphanedBookings ?? false,
+      }),
+    );
   };
 
   const renderRadioForm = () => (

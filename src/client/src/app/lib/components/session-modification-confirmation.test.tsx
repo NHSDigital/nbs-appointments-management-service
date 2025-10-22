@@ -237,7 +237,7 @@ describe('submitForm', () => {
     const mode = 'edit';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={0}
+        unsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -246,10 +246,17 @@ describe('submitForm', () => {
       />,
     );
 
-    // Find and click the "Change session" button
-    const cancelButton = screen.getByRole('button', { name: 'Change session' });
-    cancelButton.dataset.action = 'cancel-appointments';
-    await user.click(cancelButton);
+    await user.click(
+      screen.getByLabelText(
+        'Yes, cancel the appointments and change this session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Cancel appointments',
+      }),
+    );
 
     // Validate payload
     const cancelUnsupportedBookings = true;
@@ -271,7 +278,7 @@ describe('submitForm', () => {
     // Validate navigation
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&canelAppointments=${cancelUnsupportedBookings}`,
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
       ),
     );
   });
@@ -283,7 +290,7 @@ describe('submitForm', () => {
     const mode = 'edit';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={0}
+        unsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -292,10 +299,17 @@ describe('submitForm', () => {
       />,
     );
 
-    // Find and click the "Change session" button
-    const cancelButton = screen.getByRole('button', { name: 'Change session' });
-    cancelButton.dataset.action = 'change-session';
-    await user.click(cancelButton);
+    await user.click(
+      screen.getByLabelText(
+        'No, do not cancel the appointments but change this session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Change session',
+      }),
+    );
 
     // Validate payload
     const cancelUnsupportedBookings = false;
@@ -317,7 +331,7 @@ describe('submitForm', () => {
     // Validate navigation
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&canelAppointments=${cancelUnsupportedBookings}`,
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
       ),
     );
   });
@@ -329,7 +343,7 @@ describe('submitForm', () => {
     const mode = 'cancel';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={0}
+        unsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -338,10 +352,17 @@ describe('submitForm', () => {
       />,
     );
 
-    // Find and click the "Change session" button
-    const cancelButton = screen.getByRole('button', { name: 'Cancel session' });
-    cancelButton.dataset.action = 'keep-appointments';
-    await user.click(cancelButton);
+    await user.click(
+      screen.getByLabelText(
+        'No, do not cancel the appointments but cancel the session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Cancel session',
+      }),
+    );
 
     // Validate payload
     const cancelUnsupportedBookings = false;
@@ -363,7 +384,7 @@ describe('submitForm', () => {
     // Validate navigation
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&canelAppointments=${cancelUnsupportedBookings}`,
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
       ),
     );
   });
@@ -375,7 +396,7 @@ describe('submitForm', () => {
     const mode = 'cancel';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={0}
+        unsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -384,12 +405,17 @@ describe('submitForm', () => {
       />,
     );
 
-    // Find and click the "Change session" button
-    const cancelButton = screen.getByRole('button', {
-      name: 'Cancel session',
-    });
-    cancelButton.dataset.action = 'cancel-appointments';
-    await user.click(cancelButton);
+    await user.click(
+      screen.getByLabelText(
+        'Yes, cancel the appointments and cancel the session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Cancel appointments',
+      }),
+    );
 
     // Validate payload
     const cancelUnsupportedBookings = true;
@@ -411,7 +437,7 @@ describe('submitForm', () => {
     // Validate navigation
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&canelAppointments=${cancelUnsupportedBookings}`,
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
       ),
     );
   });

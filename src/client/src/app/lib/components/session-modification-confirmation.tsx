@@ -9,6 +9,7 @@ import {
   Radio,
   RadioGroup,
   SmallSpinnerWithText,
+  TextInput,
 } from '@components/nhsuk-frontend';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Card } from '@nhsuk-frontend-components';
@@ -147,12 +148,9 @@ export const SessionModificationConfirmation = ({
     setDecision(form.action as Action);
   };
 
-  const submitForm: SubmitHandler<FormData> = async (_, event) => {
-    const action =
-      (event?.target as HTMLButtonElement)?.dataset.action ?? 'change-session';
-
+  const submitForm: SubmitHandler<FormData> = async form => {
     startTransition(async () => {
-      const cancelBookings = action === 'cancel-appointments';
+      const cancelBookings = form.action === 'cancel-appointments';
       let request: UpdateSessionRequest = {
         from: date,
         to: date,
@@ -186,7 +184,7 @@ export const SessionModificationConfirmation = ({
       await fromServer(modifySession(request));
 
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&canelAppointments=${cancelBookings}`,
+        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&cancelAppointments=${cancelBookings}`,
       );
     });
   };
@@ -212,19 +210,21 @@ export const SessionModificationConfirmation = ({
   );
 
   const renderConfirmationQuestion = (action: Action) => (
-    <div>
+    <form onSubmit={handleSubmit(submitForm)}>
+      <TextInput
+        id="name"
+        value={action}
+        inputType="hidden"
+        {...register('action')}
+      />
+
       <h2>{texts.confirmationQuestion(action)}</h2>
 
       <ButtonGroup vertical>
         {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
-          <Button
-            type="button"
-            styleType="warning"
-            data-action={action}
-            onClick={handleSubmit(submitForm)}
-          >
+          <Button type="submit" styleType="warning">
             {texts.confirmButtonText(action)}
           </Button>
         )}
@@ -235,7 +235,7 @@ export const SessionModificationConfirmation = ({
           No, go back
         </Link>
       </ButtonGroup>
-    </div>
+    </form>
   );
 
   const renderUnsupportedDecision = () => {

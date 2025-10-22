@@ -141,11 +141,13 @@ export const SessionModificationConfirmation = ({
     handleSubmit,
     register,
     formState: { errors },
+    setValue,
   } = useForm<FormData>();
   const [decision, setDecision] = useState<Action | undefined>();
   const texts = MODE_TEXTS[mode];
   const recordDecision: SubmitHandler<FormData> = async form => {
     setDecision(form.action as Action);
+    setValue('action', form.action as Action);
   };
 
   const submitForm: SubmitHandler<FormData> = async form => {
@@ -211,13 +213,6 @@ export const SessionModificationConfirmation = ({
 
   const renderConfirmationQuestion = (action: Action) => (
     <form onSubmit={handleSubmit(submitForm)}>
-      <TextInput
-        id="name"
-        value={action}
-        inputType="hidden"
-        {...register('action')}
-      />
-
       <h2>{texts.confirmationQuestion(action)}</h2>
 
       <ButtonGroup vertical>

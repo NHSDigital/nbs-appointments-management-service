@@ -2,7 +2,7 @@ import { DetailedHTMLProps, forwardRef, InputHTMLAttributes } from 'react';
 
 type Props = {
   label?: string;
-  inputType?: 'text' | 'date' | 'hidden';
+  inputType?: 'text' | 'date';
   width?: 2 | 3 | 4 | 5 | 10 | 20;
   prefix?: string;
   suffix?: string;
@@ -16,18 +16,6 @@ type Ref = HTMLInputElement;
  */
 export const TextInput = forwardRef<Ref, Props>(
   ({ id, label, inputType, width, prefix, suffix, ...props }, ref) => {
-    if (inputType === 'hidden') {
-      return (
-        <input
-          type="hidden"
-          id={id}
-          ref={ref}
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          {...props}
-        />
-      );
-    }
-
     if (inputType === 'date') {
       return (
         <>

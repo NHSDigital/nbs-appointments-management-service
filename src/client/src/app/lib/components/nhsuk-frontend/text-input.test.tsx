@@ -34,22 +34,4 @@ describe('Text Input', () => {
 
     expect(inputElement).toHaveValue('some mock user input');
   });
-
-  it('renders a hidden input when inputType is "hidden"', () => {
-    render(
-      <TextInput
-        id="hidden-field"
-        name="hidden-test"
-        inputType="hidden"
-        value="secret"
-        data-testid="hidden-input"
-      />,
-    );
-
-    const hiddenInput = screen.getByTestId('hidden-input');
-    expect(hiddenInput).toBeInTheDocument();
-    expect(hiddenInput).toHaveAttribute('type', 'hidden');
-    expect(hiddenInput).toHaveAttribute('name', 'hidden-test');
-    expect(hiddenInput).toHaveValue('secret');
-  });
 });

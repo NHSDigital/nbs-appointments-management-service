@@ -15,7 +15,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
     public Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false)
     {
-        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && (includeDeleted || !sd.IsDeleted == null || !sd.IsDeleted.HasValue || !sd.IsDeleted.Value));
+        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && (includeDeleted || sd.IsDeleted == null || !sd.IsDeleted.HasValue || !sd.IsDeleted.Value));
     }
 
     public async Task<int> GetReferenceNumberGroup(string site)

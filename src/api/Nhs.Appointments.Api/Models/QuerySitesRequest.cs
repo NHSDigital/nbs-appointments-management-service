@@ -6,4 +6,4 @@ public record QuerySitesRequest(
     [property:JsonProperty("filters", Required = Required.Always)]
     SiteFilter[] Filters,
     int MaxRecords = 50,
-    bool IgnoreCache = true);
+    bool IgnoreCache = false);

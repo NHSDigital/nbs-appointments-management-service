@@ -6,7 +6,7 @@ import {
   fetchClinicalServices,
 } from '@services/appointmentsService';
 import { fetchBookings } from '@services/appointmentsService';
-import { NoNotificationsPage } from './no-notifications-page';
+import { SessionBookingsContactDetailsPage } from '@components/session-bookings-contact-details';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
@@ -75,7 +75,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
       showPrintButton
     >
-      <NoNotificationsPage
+      <SessionBookingsContactDetailsPage
         bookings={cancelledBookings}
         site={site.id}
         displayAction={false}

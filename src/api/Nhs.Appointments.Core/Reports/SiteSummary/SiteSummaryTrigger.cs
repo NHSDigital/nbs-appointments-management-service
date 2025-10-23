@@ -32,7 +32,7 @@ public class SiteSummaryTrigger(
         var endDate = startDate.AddDays(Options.Value.DaysChunkSize);
         endDate = endDate > state.To ? state.To : endDate;
         
-        var sites = (await SiteService.GetAllSites(true)).Select(x => x.Id).ToArray();
+        var sites = (await SiteService.GetAllSites()).Select(x => x.Id).ToArray();
 
         await SendAggregationMessages(sites, startDate, endDate);
 

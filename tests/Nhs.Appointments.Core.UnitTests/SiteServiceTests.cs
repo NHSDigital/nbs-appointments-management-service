@@ -1206,7 +1206,7 @@ public class SiteServiceTests
                 null),
         };
 
-        _siteStore.Setup(x => x.GetAllSites())
+        _siteStore.Setup(x => x.GetAllSites(false))
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -1263,7 +1263,7 @@ public class SiteServiceTests
                 null),
         };
 
-        _siteStore.Setup(x => x.GetAllSites())
+        _siteStore.Setup(x => x.GetAllSites(false))
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -1323,7 +1323,7 @@ public class SiteServiceTests
                 null),
         };
 
-        _siteStore.Setup(x => x.GetAllSites())
+        _siteStore.Setup(x => x.GetAllSites(false))
             .ReturnsAsync(sites);
         _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
@@ -1400,7 +1400,7 @@ public class SiteServiceTests
                 null),
         }; 
         
-        _siteStore.Setup(x => x.GetAllSites())
+        _siteStore.Setup(x => x.GetAllSites(false))
             .ReturnsAsync(sites);
         _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true);
@@ -1480,7 +1480,7 @@ public class SiteServiceTests
                 null),
         };
 
-        _siteStore.Setup(x => x.GetAllSites())
+        _siteStore.Setup(x => x.GetAllSites(false))
             .ReturnsAsync(sites);
         _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true);
@@ -1574,7 +1574,7 @@ public class SiteServiceTests
                 null),
         };
 
-        _siteStore.Setup(x => x.GetAllSites())
+        _siteStore.Setup(x => x.GetAllSites(false))
             .ReturnsAsync(sites);
         _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)

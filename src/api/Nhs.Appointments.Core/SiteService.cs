@@ -26,6 +26,7 @@ public interface ISiteService
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
     Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
     Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
+    Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache);
 }
 
 public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
@@ -218,6 +219,120 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
         => await siteStore.GetSitesInIcbAsync(icb);
 
+    public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
+    {
+        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
+        if (sites == null || ignoreCache)
+        {
+            sites = await GetAndCacheSites();
+        }
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
+        {
+            sites = sites.Where(s => s.status is SiteStatus.Online or null);
+        }
+
+        // Filters which don't involve any service availability calls
+        var simpleFilters = filters
+            .Where(f => f.Services is null || f.Services.Length is 0)
+            .Select(BuildFilterPredicate)
+            .ToList();
+
+        var serviceFilters = filters.Where(f => f.Services is not null && f.Services.Length > 0);
+
+        var sitesWithDistance = simpleFilters.Count == 0
+            ? [.. sites.Select(s => new SiteWithDistance(s, int.MaxValue))] // No simple filters - distance will be determined on the service filter check
+            : sites
+                .Select(s => BuildSiteWithDistance(s, simpleFilters))
+                .Where(swd => swd != null)
+                .ToList();
+
+        if (!serviceFilters.Any())
+        {
+            return sitesWithDistance
+                .OrderBy(swd => swd.Distance)
+                .Take(maxRecords)
+                .ToList();
+        }
+
+        var serviceTasks = serviceFilters.Select(sf =>
+        {
+            // Adding .Single() here as the current implementation only allows for filtering on a single service
+            // This will need updating if we decide to allow filtering on multiple services
+            var filter = new SiteSupportsServiceFilter(sf.Services.Single(), sf.From!.Value, sf.Until!.Value);
+
+            var filteredSites = sitesWithDistance
+                .Where(s => CalculateDistanceInMetres(
+                    s.Site.Location.Coordinates[1],
+                    s.Site.Location.Coordinates[0],
+                    sf.Latitude,
+                    sf.Longitude) <= sf.SearchRadius);
+
+            return GetSitesSupportingService(
+                filteredSites,
+                filter.service,
+                filter.from,
+                filter.until);
+        });
+
+        var serviceResults = (await Task.WhenAll(serviceTasks)).SelectMany(sr => sr);
+
+        var combined = sitesWithDistance
+            .Concat(serviceResults)
+            .DistinctBy(swd => swd!.Site.Id)
+            .OrderBy(swd => swd!.Distance)
+            .Take(maxRecords)
+            .ToList();
+
+        return combined;
+    }
+
+    private FilterPredicate BuildFilterPredicate(SiteFilter filter)
+    {
+        var predicate = BuildPredicate(filter);
+        return new FilterPredicate(predicate, filter.Latitude, filter.Longitude);
+    }
+
+    private Func<Site, bool> BuildPredicate(SiteFilter filter)
+    {
+        // TODO: APPT-1463 - add site type and ODS code filters
+
+        var accessibilityIds = filter.AccessNeeds
+            .Where(an => !string.IsNullOrEmpty(an))
+            .Select(an => $"accessibility/{an}")
+            .ToList();
+
+        return site =>
+        {
+            if (filter.AccessNeeds.Length > 0)
+            {
+                if (!accessibilityIds.All(acc => site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true"))
+                {
+                    return false;
+                }
+            }
+
+            var distance = CalculateDistanceInMetres(site.Location.Coordinates[1], site.Location.Coordinates[0], filter.Latitude, filter.Longitude);
+            return distance <= filter.SearchRadius;
+        };
+    }
+
+    private SiteWithDistance? BuildSiteWithDistance(Site site, List<FilterPredicate> filterPredicates)
+    {
+        var matchingDistances = filterPredicates
+            .Where(fp => fp.Predicate(site))
+            .Select(fp => CalculateDistanceInMetres(
+                site.Location.Coordinates[1],
+                site.Location.Coordinates[0],
+                fp.Latitude,
+                fp.Longitude))
+            .ToList();
+
+        return matchingDistances.Count == 0
+            ? null
+            : new SiteWithDistance(site, matchingDistances.Min());
+    }
+
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
     {
         var epsilon = 0.000001f;
@@ -270,4 +385,10 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
         return $"site_{siteId}_supports_{service}_in_{dateRange}";
     }
+
+    private record FilterPredicate(
+        Func<Site, bool> Predicate,
+        double Latitude,
+        double Longitude
+);
 }

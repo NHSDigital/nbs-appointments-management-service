@@ -46,7 +46,11 @@ public class QuerySitesFunction(
             : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
-    protected override Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(QuerySitesRequest request, ILogger logger) => throw new System.NotImplementedException();
+    protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(QuerySitesRequest request, ILogger logger)
+    {
+        var sites = await siteService.QuerySitesAsync(request.Filters, request.MaxRecords, request.IgnoreCache);
+        return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
+    }
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QuerySitesRequest request)> ReadRequestAsync(HttpRequest req)
     {

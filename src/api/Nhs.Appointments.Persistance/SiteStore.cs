@@ -1,7 +1,6 @@
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;

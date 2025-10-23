@@ -11,8 +11,8 @@ public interface ISiteService
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache, SiteSupportsServiceFilter siteSupportsServiceFilter = null);
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
-    Task<IEnumerable<SitePreview>> GetSitesPreview();
-    Task<IEnumerable<Site>> GetAllSites();
+    Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false);
+    Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false);
     Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
 
@@ -160,17 +160,17 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
         => await siteStore.GetSitesInRegionAsync(region);
     
-    public async Task<IEnumerable<Site>> GetAllSites()
+    public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false)
     {
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        sites ??= await GetAndCacheSites();
+        sites ??= await GetAndCacheSites(includeDeleted);
 
         return sites;
     }
     
-    public async Task<IEnumerable<SitePreview>> GetSitesPreview()
+    public async Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false)
     {
-        var sites = await GetAllSites();
+        var sites = await GetAllSites(includeDeleted);
 
         return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode, s.IntegratedCareBoard));
     }
@@ -241,9 +241,9 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
 
-    private async Task<IEnumerable<Site>> GetAndCacheSites()
+    private async Task<IEnumerable<Site>> GetAndCacheSites(bool includeDeleted = false)
     {
-        var sites = await siteStore.GetAllSites();
+        var sites = await siteStore.GetAllSites(includeDeleted);
         memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
 
         return sites;

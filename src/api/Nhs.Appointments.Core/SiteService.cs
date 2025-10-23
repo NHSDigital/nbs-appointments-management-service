@@ -355,10 +355,4 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
         var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
         return $"site_{siteId}_supports_{service}_in_{dateRange}";
     }
-
-    private record FilterPredicate(
-        Func<Site, bool> Predicate,
-        double Latitude,
-        double Longitude
-);
 }

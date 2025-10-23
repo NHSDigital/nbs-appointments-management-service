@@ -232,65 +232,46 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
             sites = sites.Where(s => s.status is SiteStatus.Online or null);
         }
 
-        // Filters which don't involve any service availability calls
-        var simpleFilters = filters
-            .Where(f => f.Services is null || f.Services.Length is 0)
-            .Select(BuildFilterPredicate)
-            .ToList();
+        var allResults = new List<SiteWithDistance>();
 
-        var serviceFilters = filters.Where(f => f.Services is not null && f.Services.Length > 0);
-
-        var sitesWithDistance = simpleFilters.Count == 0
-            ? [.. sites.Select(s => new SiteWithDistance(s, int.MaxValue))] // No simple filters - distance will be determined on the service filter check
-            : sites
-                .Select(s => BuildSiteWithDistance(s, simpleFilters))
-                .Where(swd => swd != null)
-                .ToList();
-
-        if (!serviceFilters.Any())
+        foreach (var filter in filters)
         {
-            return sitesWithDistance
-                .OrderBy(swd => swd.Distance)
-                .Take(maxRecords)
+            var predicate = BuildPredicate(filter);
+            var filteredSites = sites.Where(predicate);
+
+            var sitesWithDistance = filteredSites
+                .Select(s => new SiteWithDistance(
+                    s,
+                    CalculateDistanceInMetres(
+                        s.Location.Coordinates[1],
+                        s.Location.Coordinates[0],
+                        filter.Latitude,
+                        filter.Longitude)))
                 .ToList();
+
+            if (filter.Services is not null && filter.Services.Length > 0)
+            {
+                // Adding .Single() here as the current implementation only allows for filtering on a single service
+                // This will need updating if we decide to allow filtering on multiple services
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Services.Single(), filter.From!.Value, filter.Until!.Value);
+
+                var serviceResults = await GetSitesSupportingService(
+                    sitesWithDistance,
+                    siteSupportsServiceFilter.service,
+                    siteSupportsServiceFilter.from,
+                    siteSupportsServiceFilter.until);
+
+                sitesWithDistance = [.. serviceResults.DistinctBy(swd => swd.Site.Id)];
+            }
+
+            allResults.AddRange(sitesWithDistance);
         }
 
-        var serviceTasks = serviceFilters.Select(sf =>
-        {
-            // Adding .Single() here as the current implementation only allows for filtering on a single service
-            // This will need updating if we decide to allow filtering on multiple services
-            var filter = new SiteSupportsServiceFilter(sf.Services.Single(), sf.From!.Value, sf.Until!.Value);
-
-            var filteredSites = sitesWithDistance
-                .Where(s => CalculateDistanceInMetres(
-                    s.Site.Location.Coordinates[1],
-                    s.Site.Location.Coordinates[0],
-                    sf.Latitude,
-                    sf.Longitude) <= sf.SearchRadius);
-
-            return GetSitesSupportingService(
-                filteredSites,
-                filter.service,
-                filter.from,
-                filter.until);
-        });
-
-        var serviceResults = (await Task.WhenAll(serviceTasks)).SelectMany(sr => sr);
-
-        var combined = sitesWithDistance
-            .Concat(serviceResults)
-            .DistinctBy(swd => swd!.Site.Id)
-            .OrderBy(swd => swd!.Distance)
+        return allResults
+            .DistinctBy(swd => swd.Site.Id)
+            .OrderBy(swd => swd.Distance)
             .Take(maxRecords)
             .ToList();
-
-        return combined;
-    }
-
-    private FilterPredicate BuildFilterPredicate(SiteFilter filter)
-    {
-        var predicate = BuildPredicate(filter);
-        return new FilterPredicate(predicate, filter.Latitude, filter.Longitude);
     }
 
     private Func<Site, bool> BuildPredicate(SiteFilter filter)
@@ -320,22 +301,6 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
             var distance = CalculateDistanceInMetres(site.Location.Coordinates[1], site.Location.Coordinates[0], filter.Latitude, filter.Longitude);
             return distance <= filter.SearchRadius;
         };
-    }
-
-    private SiteWithDistance? BuildSiteWithDistance(Site site, List<FilterPredicate> filterPredicates)
-    {
-        var matchingDistances = filterPredicates
-            .Where(fp => fp.Predicate(site))
-            .Select(fp => CalculateDistanceInMetres(
-                site.Location.Coordinates[1],
-                site.Location.Coordinates[0],
-                fp.Latitude,
-                fp.Longitude))
-            .ToList();
-
-        return matchingDistances.Count == 0
-            ? null
-            : new SiteWithDistance(site, matchingDistances.Min());
     }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)

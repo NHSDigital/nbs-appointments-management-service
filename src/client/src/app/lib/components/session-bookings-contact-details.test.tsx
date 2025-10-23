@@ -27,12 +27,20 @@ describe('SessionBookingsContactDetailsPage', () => {
       />,
     );
 
-    expect(screen.getByText('Time')).toBeInTheDocument();
-    expect(screen.getByText('Name and NHS number')).toBeInTheDocument();
-    expect(screen.getByText('Date of birth')).toBeInTheDocument();
-    expect(screen.getByText('Contact details')).toBeInTheDocument();
-    expect(screen.getByText('Services')).toBeInTheDocument();
-    expect(screen.getByText('Action')).toBeInTheDocument();
+    const expectedHeaders = [
+      'Time',
+      'Name and NHS number',
+      'Date of birth',
+      'Contact details',
+      'Services',
+      'Action',
+    ];
+
+    expectedHeaders.forEach(header => {
+      expect(
+        screen.getByRole('columnheader', { name: header }),
+      ).toBeInTheDocument();
+    });
 
     expect(screen.getByText('John Smith')).toBeInTheDocument();
     expect(screen.getByText('RSV Adult')).toBeInTheDocument();

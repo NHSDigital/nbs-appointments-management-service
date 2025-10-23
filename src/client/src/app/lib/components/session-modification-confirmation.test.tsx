@@ -331,7 +331,7 @@ describe('submitForm', () => {
     // Validate navigation
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=change-session&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
       ),
     );
   });
@@ -384,7 +384,7 @@ describe('submitForm', () => {
     // Validate navigation
     expect(mockPush).toHaveBeenCalledWith(
       expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=keep-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
       ),
     );
   });

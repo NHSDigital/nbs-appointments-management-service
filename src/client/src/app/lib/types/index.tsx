@@ -95,7 +95,6 @@ type EditSessionRequest = {
   mode: ApplyAvailabilityMode;
   sessionToEdit: AvailabilitySession;
   sessions: AvailabilitySession[];
-  cancelUnsupportedBookings?: boolean;
 };
 
 type AvailabilityTemplate = {

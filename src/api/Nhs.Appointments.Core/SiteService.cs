@@ -297,14 +297,19 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     {
         // TODO: APPT-1463 - add site type and ODS code filters
 
-        var accessibilityIds = filter.AccessNeeds
-            .Where(an => !string.IsNullOrEmpty(an))
-            .Select(an => $"accessibility/{an}")
-            .ToList();
+        var hasAccessNeedsFilter = filter.AccessNeeds is not null && filter.AccessNeeds.Length > 0;
+
+        var accessibilityIds = new List<string>();
+        if (hasAccessNeedsFilter)
+        {
+            accessibilityIds = [.. filter.AccessNeeds
+                .Where(an => !string.IsNullOrEmpty(an))
+                .Select(an => $"accessibility/{an}")];
+        }
 
         return site =>
         {
-            if (filter.AccessNeeds.Length > 0)
+            if (hasAccessNeedsFilter)
             {
                 if (!accessibilityIds.All(acc => site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true"))
                 {

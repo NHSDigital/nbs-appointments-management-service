@@ -20,7 +20,6 @@ type PageProps = {
     date: string;
     session: string;
     sessionToEdit: string;
-    existingSession: string;
   }>;
   params: Promise<{
     site: string;
@@ -29,14 +28,11 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { session, date, sessionToEdit, existingSession } = {
-    ...(await searchParams),
-  };
+  const { session, date, sessionToEdit } = { ...(await searchParams) };
   if (
     session === undefined ||
     date === undefined ||
-    sessionToEdit === undefined ||
-    existingSession === undefined
+    sessionToEdit === undefined
   ) {
     return notFound();
   }

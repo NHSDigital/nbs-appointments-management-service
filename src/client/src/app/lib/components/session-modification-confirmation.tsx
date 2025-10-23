@@ -26,12 +26,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 type Mode = 'edit' | 'cancel';
-type FormData = {
-  action?: Action;
-  cancelUnsupportedBookings?: boolean;
-  existingSession: AvailabilitySession;
-  newSession: AvailabilitySession;
-};
+type FormData = { action?: Action };
 type Action =
   | 'change-session'
   | 'cancel-appointments'
@@ -198,25 +193,9 @@ export const SessionModificationConfirmation = ({
       await fromServer(modifySession(request));
 
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&cancelAppointments=${cancelBookings}`,
+        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${unsupportedBookingsCount}&cancelAppointments=${cancelBookings}`,
       );
     });
-  };
-
-  const updateSession = async (
-    form: FormData,
-    updatedSession: AvailabilitySession,
-  ) => {
-    await fromServer(
-      editSession({
-        date,
-        site: site,
-        mode: 'Edit',
-        sessions: [updatedSession],
-        sessionToEdit: form.existingSession,
-        cancelUnsupportedBookings: form.cancelUnsupportedBookings ?? false,
-      }),
-    );
   };
 
   const renderRadioForm = () => (

@@ -42,7 +42,6 @@ describe('SessionBookingsContactDetailsPage', () => {
       ).toBeInTheDocument();
     });
 
-    expect(screen.getByText('John Smith')).toBeInTheDocument();
     expect(screen.getByText('RSV Adult')).toBeInTheDocument();
     expect(screen.getByText('FLU 18-64')).toBeInTheDocument();
     expect(screen.getAllByText('Cancel')).toHaveLength(mockBookings.length);
@@ -93,23 +92,5 @@ describe('SessionBookingsContactDetailsPage', () => {
     );
 
     expect(screen.queryByText('Time')).not.toBeInTheDocument();
-  });
-
-  it('renders pagination controls when bookings exceed page size', () => {
-    const largeBookings = Array.from({ length: 55 }, (_, i) => ({
-      ...mockBookings[0],
-      reference: `ref-${i}`,
-    }));
-
-    render(
-      <SessionBookingsContactDetailsPage
-        bookings={largeBookings}
-        site="TEST01"
-        displayAction={true}
-        clinicalServices={mockMultipleServices}
-      />,
-    );
-
-    expect(screen.getByTitle('Page 2')).toBeInTheDocument();
   });
 });

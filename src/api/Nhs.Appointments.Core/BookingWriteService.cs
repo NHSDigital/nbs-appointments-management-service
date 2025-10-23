@@ -312,11 +312,9 @@ public class BookingWriteService(
                 return false;
             }
 
-            var type = b.AdditionalData.GetType();
-            var autoCancellationProp = type.GetProperty("AutoCancellation", typeof(bool));
-            return autoCancellationProp is not null &&
-                   autoCancellationProp.GetValue(b.AdditionalData) is bool value &&
-                   value;
+            var data = JObject.FromObject(b.AdditionalData);
+
+            return data["AutoCancellation"]?.Value<bool>() ?? false;
         }).ToList();
 
         if (autoCancelledBookings.Count == 0)

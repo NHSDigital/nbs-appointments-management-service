@@ -2,20 +2,32 @@ import { screen, waitFor } from '@testing-library/react';
 import { SessionModificationConfirmation } from './session-modification-confirmation';
 import render from '@testing/render';
 import { mockMultipleServices } from '@testing/data';
+import { useRouter } from 'next/navigation';
+import * as appointmentsService from '@services/appointmentsService';
+import asServerActionResult from '@testing/asServerActionResult';
+import * as timeService from '@services/timeService';
 
 const mockSessionSummary = {
-  id: '1',
-  startTime: '09:00',
-  endTime: '12:00',
+  ukStartDatetime: '2025-10-23T10:00:00',
+  ukEndDatetime: '2025-10-23T12:00:00',
+  maximumCapacity: 24,
+  totalSupportedAppointments: 1,
+  totalSupportedAppointmentsByService: { 'RSV:Adult': 1 },
   capacity: 2,
-  services: ['RSV:Adult'],
-  totalSupportedAppointments: 2,
-  totalUnsupportedAppointments: 0,
-  totalAppointments: 2,
-  totalSupportedAppointmentsByService: {
-    'RSV:Adult': 2,
-  },
+  slotLength: 10,
 };
+
+jest.mock('next/navigation');
+const mockUseRouter = useRouter as jest.Mock;
+const mockPush = jest.fn();
+
+jest.mock('@services/appointmentsService');
+const mockModifySession = jest.spyOn(appointmentsService, 'modifySession');
+
+jest.mock('@services/timeService', () => ({
+  ...jest.requireActual('@services/timeService'),
+  toTimeFormat: jest.fn(),
+}));
 
 describe('EditSessionConfirmation', () => {
   it('No unsupported bookings, renders question to change session', () => {
@@ -208,5 +220,225 @@ describe('CancelSessionConfirmation', () => {
         screen.getByRole('button', { name: 'Cancel session' }),
       ).toBeInTheDocument();
     });
+  });
+});
+
+describe('submitForm', () => {
+  beforeEach(() => {
+    mockUseRouter.mockReturnValue({ push: mockPush });
+    mockModifySession.mockResolvedValue(asServerActionResult(undefined));
+    jest.clearAllMocks();
+  });
+
+  it('sends correct payload for change session and cancel appointments action', async () => {
+    (timeService.toTimeFormat as jest.Mock)
+      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
+      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
+    const mode = 'edit';
+    const { user } = render(
+      <SessionModificationConfirmation
+        unsupportedBookingsCount={2}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+        mode={mode}
+      />,
+    );
+
+    await user.click(
+      screen.getByLabelText(
+        'Yes, cancel the appointments and change this session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Cancel appointments',
+      }),
+    );
+
+    // Validate payload
+    const cancelUnsupportedBookings = true;
+    expect(mockModifySession).toHaveBeenCalledWith({
+      from: '2024-06-10',
+      to: '2024-06-10',
+      site: 'site-123',
+      sessionMatcher: {
+        from: '09:00',
+        until: '12:00',
+        services: ['RSV:Adult'],
+        slotLength: 10,
+        capacity: 2,
+      },
+      sessionReplacement: null,
+      cancelUnsupportedBookings: cancelUnsupportedBookings,
+    });
+
+    // Validate navigation
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
+      ),
+    );
+  });
+
+  it('sends correct payload for change session action', async () => {
+    (timeService.toTimeFormat as jest.Mock)
+      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
+      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
+    const mode = 'edit';
+    const { user } = render(
+      <SessionModificationConfirmation
+        unsupportedBookingsCount={2}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+        mode={mode}
+      />,
+    );
+
+    await user.click(
+      screen.getByLabelText(
+        'No, do not cancel the appointments but change this session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Change session',
+      }),
+    );
+
+    // Validate payload
+    const cancelUnsupportedBookings = false;
+    expect(mockModifySession).toHaveBeenCalledWith({
+      from: '2024-06-10',
+      to: '2024-06-10',
+      site: 'site-123',
+      sessionMatcher: {
+        from: '09:00',
+        until: '12:00',
+        services: ['RSV:Adult'],
+        slotLength: 10,
+        capacity: 2,
+      },
+      sessionReplacement: null,
+      cancelUnsupportedBookings: cancelUnsupportedBookings,
+    });
+
+    // Validate navigation
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
+      ),
+    );
+  });
+
+  it('sends correct payload for cancel session action', async () => {
+    (timeService.toTimeFormat as jest.Mock)
+      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
+      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
+    const mode = 'cancel';
+    const { user } = render(
+      <SessionModificationConfirmation
+        unsupportedBookingsCount={2}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+        mode={mode}
+      />,
+    );
+
+    await user.click(
+      screen.getByLabelText(
+        'No, do not cancel the appointments but cancel the session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Cancel session',
+      }),
+    );
+
+    // Validate payload
+    const cancelUnsupportedBookings = false;
+    expect(mockModifySession).toHaveBeenCalledWith({
+      from: '2024-06-10',
+      to: '2024-06-10',
+      site: 'site-123',
+      sessionMatcher: {
+        from: '09:00',
+        until: '12:00',
+        services: ['RSV:Adult'],
+        slotLength: 10,
+        capacity: 2,
+      },
+      sessionReplacement: null,
+      cancelUnsupportedBookings: cancelUnsupportedBookings,
+    });
+
+    // Validate navigation
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
+      ),
+    );
+  });
+
+  it('sends correct payload for cancel session and cancel appointments action', async () => {
+    (timeService.toTimeFormat as jest.Mock)
+      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
+      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
+    const mode = 'cancel';
+    const { user } = render(
+      <SessionModificationConfirmation
+        unsupportedBookingsCount={2}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+        mode={mode}
+      />,
+    );
+
+    await user.click(
+      screen.getByLabelText(
+        'Yes, cancel the appointments and cancel the session',
+      ),
+    );
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Cancel appointments',
+      }),
+    );
+
+    // Validate payload
+    const cancelUnsupportedBookings = true;
+    expect(mockModifySession).toHaveBeenCalledWith({
+      from: '2024-06-10',
+      to: '2024-06-10',
+      site: 'site-123',
+      sessionMatcher: {
+        from: '09:00',
+        until: '12:00',
+        services: ['RSV:Adult'],
+        slotLength: 10,
+        capacity: 2,
+      },
+      sessionReplacement: null,
+      cancelUnsupportedBookings: cancelUnsupportedBookings,
+    });
+
+    // Validate navigation
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&cancelAppointments=${cancelUnsupportedBookings}`,
+      ),
+    );
   });
 });

@@ -24,7 +24,7 @@ public class QuerySitesFunction(
     ILogger<QuerySitesFunction> logger,
     IMetricsRecorder metricsRecorder) : BaseApiFunction<QuerySitesRequest, IEnumerable<SiteWithDistance>>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "QuerySites", tags: ["Sites"], Summary = "Query sites by a number of filters")]
+    [OpenApiOperation(operationId: "QuerySites", tags: ["Sites"], Summary = "Query sites")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(IEnumerable<SiteWithDistance>),
         Description = "A list of sites within the geographical area that support the provided filters.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",

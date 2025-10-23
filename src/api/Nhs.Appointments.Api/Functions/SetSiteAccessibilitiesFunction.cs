@@ -13,7 +13,6 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions;

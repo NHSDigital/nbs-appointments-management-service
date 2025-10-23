@@ -24,7 +24,7 @@ public class SiteSummaryTriggerTests
         _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, DaysChunkSize = 2, FirstRunDate = new DateOnly(2025, 2, 1) });
         _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync((Aggregation)null);
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(true)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",

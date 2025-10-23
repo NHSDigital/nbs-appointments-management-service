@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { SessionBookingsContactDetailsPage } from './session-bookings-contact-details';
 import { useSearchParams } from 'next/navigation';
-import { mockBookings, mockMultipleServices } from '@testing/data'; // ✅ Import from your test data module
+import { mockBookings, mockMultipleServices } from '@testing/data';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({

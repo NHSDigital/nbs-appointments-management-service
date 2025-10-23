@@ -28,7 +28,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null || 
-            !validateUpdateToSiteAllowed(originalDocument))
+            !ValidateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -45,7 +45,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return new OperationResult(true);
     }
 
-    private static bool validateUpdateToSiteAllowed(Site originalDocument)
+    private static bool ValidateUpdateToSiteAllowed(Site originalDocument)
     {
         return !originalDocument.isDeleted.HasValue || !originalDocument.isDeleted.Value;
     }
@@ -61,7 +61,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null ||
-            !validateUpdateToSiteAllowed(originalDocument))
+            !ValidateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -74,7 +74,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null ||
-            !validateUpdateToSiteAllowed(originalDocument))
+            !ValidateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -91,7 +91,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null ||
-            !validateUpdateToSiteAllowed(originalDocument))
+            !ValidateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
@@ -150,7 +150,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         }
         else
         {
-            if (!validateUpdateToSiteAllowed(originalDocument))
+            if (!ValidateUpdateToSiteAllowed(originalDocument))
             {
                 return new OperationResult(false, "The specified site can not be updated.");
             }
@@ -173,7 +173,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null ||
-            !validateUpdateToSiteAllowed(originalDocument))
+            !ValidateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, $"The specified site: {siteId} was not found.");
         }

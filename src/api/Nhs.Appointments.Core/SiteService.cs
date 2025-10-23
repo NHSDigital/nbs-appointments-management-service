@@ -163,7 +163,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false)
     {
         var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        sites ??= await GetAndCacheSites();
+        sites ??= await GetAndCacheSites(includeDeleted);
 
         return sites;
     }
@@ -241,9 +241,9 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
 
-    private async Task<IEnumerable<Site>> GetAndCacheSites()
+    private async Task<IEnumerable<Site>> GetAndCacheSites(bool includeDeleted = false)
     {
-        var sites = await siteStore.GetAllSites();
+        var sites = await siteStore.GetAllSites(includeDeleted);
         memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
 
         return sites;

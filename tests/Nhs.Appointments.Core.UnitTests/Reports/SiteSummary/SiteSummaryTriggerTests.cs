@@ -61,7 +61,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 6, 30)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(true)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -103,7 +103,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 7, 9)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(true)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -218,7 +218,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 6, 28)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(true)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -259,7 +259,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 6, 28)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(true)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -321,7 +321,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 7, 1)
         });
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(true)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",

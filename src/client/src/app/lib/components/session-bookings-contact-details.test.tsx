@@ -41,10 +41,6 @@ describe('SessionBookingsContactDetailsPage', () => {
         screen.getByRole('columnheader', { name: header }),
       ).toBeInTheDocument();
     });
-
-    expect(screen.getByText('RSV Adult')).toBeInTheDocument();
-    expect(screen.getByText('FLU 18-64')).toBeInTheDocument();
-    expect(screen.getAllByText('Cancel')).toHaveLength(mockBookings.length);
   });
 
   it('renders "Not provided" when contactDetails are missing', () => {

@@ -9,7 +9,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Functions;
@@ -24,8 +23,7 @@ public class SetSiteAccessibilitiesFunction(
     IValidator<SetSiteAccessibilitiesRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<SetSiteAccessibilitiesFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<SetSiteAccessibilitiesRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {

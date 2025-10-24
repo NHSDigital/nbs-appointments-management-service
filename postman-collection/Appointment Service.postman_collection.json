@@ -1222,6 +1222,34 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "sites",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"maxRecords\": 50,\r\n    \"filters\": [ \r\n        {\r\n            \"types\": [ \"GP Practice\" ],\r\n            \"odsCode\": \"ODS123\",\r\n            \"latitude\": 1.123,\r\n            \"longitude\": 54.321,\r\n            \"searchRadius\": 3000\r\n        },\r\n        {\r\n            \"types\": [],\r\n            \"latitude\": 1.123,\r\n            \"longitude\": 54.321,\r\n            \"searchRadius\": 3000\r\n        },\r\n        {\r\n            \"services\": [ \"RSV:Adult\" ],\r\n            \"from\": \"2025-10-30\",\r\n            \"until\": \"2025-11-30\",\r\n            \"latitude\": 1.123,\r\n            \"longitude\": 54.321,\r\n            \"searchRadius\": 3000\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/sites",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "sites"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

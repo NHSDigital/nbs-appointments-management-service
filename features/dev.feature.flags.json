@@ -8,6 +8,7 @@
     "CancelDay": true,
     "ChangeSessionUpliftedJourney": false,
     "CancelSessionUpliftedJourney": false,
+    "QuerySites": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

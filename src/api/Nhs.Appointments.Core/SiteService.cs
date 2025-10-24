@@ -26,6 +26,7 @@ public interface ISiteService
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
     Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
     Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
+    Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache);
 }
 
 public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
@@ -217,6 +218,90 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
         => await siteStore.GetSitesInIcbAsync(icb);
+
+    public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
+    {
+        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
+        if (sites == null || ignoreCache)
+        {
+            sites = await GetAndCacheSites();
+        }
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
+        {
+            sites = sites.Where(s => s.status is SiteStatus.Online or null);
+        }
+
+        var allResults = new List<SiteWithDistance>();
+
+        foreach (var filter in filters)
+        {
+            var predicate = BuildPredicate(filter);
+            var filteredSites = sites.Where(predicate);
+
+            var sitesWithDistance = filteredSites
+                .Select(s => new SiteWithDistance(
+                    s,
+                    CalculateDistanceInMetres(
+                        s.Location.Coordinates[1],
+                        s.Location.Coordinates[0],
+                        filter.Latitude,
+                        filter.Longitude)))
+                .ToList();
+
+            if (filter.Services is not null && filter.Services.Length > 0)
+            {
+                // Adding .Single() here as the current implementation only allows for filtering on a single service
+                // This will need updating if we decide to allow filtering on multiple services
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Services.Single(), filter.From!.Value, filter.Until!.Value);
+
+                var serviceResults = await GetSitesSupportingService(
+                    sitesWithDistance,
+                    siteSupportsServiceFilter.service,
+                    siteSupportsServiceFilter.from,
+                    siteSupportsServiceFilter.until);
+
+                sitesWithDistance = [.. serviceResults.DistinctBy(swd => swd.Site.Id)];
+            }
+
+            allResults.AddRange(sitesWithDistance);
+        }
+
+        return allResults
+            .DistinctBy(swd => swd.Site.Id)
+            .OrderBy(swd => swd.Distance)
+            .Take(maxRecords)
+            .ToList();
+    }
+
+    private Func<Site, bool> BuildPredicate(SiteFilter filter)
+    {
+        // TODO: APPT-1463 - add site type and ODS code filters
+
+        var hasAccessNeedsFilter = filter.AccessNeeds is not null && filter.AccessNeeds.Length > 0;
+
+        var accessibilityIds = new List<string>();
+        if (hasAccessNeedsFilter)
+        {
+            accessibilityIds = [.. filter.AccessNeeds
+                .Where(an => !string.IsNullOrEmpty(an))
+                .Select(an => $"accessibility/{an}")];
+        }
+
+        return site =>
+        {
+            if (hasAccessNeedsFilter)
+            {
+                if (!accessibilityIds.All(acc => site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true"))
+                {
+                    return false;
+                }
+            }
+
+            var distance = CalculateDistanceInMetres(site.Location.Coordinates[1], site.Location.Coordinates[0], filter.Latitude, filter.Longitude);
+            return distance <= filter.SearchRadius;
+        };
+    }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
     {

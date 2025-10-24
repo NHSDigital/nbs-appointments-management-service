@@ -16,6 +16,7 @@ type PageProps = {
   searchParams?: Promise<{
     date: string;
     page: number;
+    cancelledWithoutDetailsCount: number;
   }>;
   params: Promise<{
     site: string;
@@ -24,7 +25,9 @@ type PageProps = {
 
 const Page = async ({ params, searchParams }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { date, page } = { ...(await searchParams) };
+  const { date, page, cancelledWithoutDetailsCount } = {
+    ...(await searchParams),
+  };
   if (date === undefined || page === undefined) {
     return notFound();
   }
@@ -53,10 +56,12 @@ const Page = async ({ params, searchParams }: PageProps) => {
     text: 'Back to week view',
   };
 
+  const caption = `${cancelledWithoutDetailsCount} people did not get a cancellation notification as they had no contact details on their booking.`;
+
   return (
     <NhsPage
-      title={fromDate.format('dddd D MMMM')}
-      caption={site.name}
+      title="People wo did not receive a notification"
+      caption={caption}
       backLink={backLink}
       originPage="view-availability-daily-appointments"
       site={site}

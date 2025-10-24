@@ -78,7 +78,7 @@ public class EditSessionFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>(),
             It.IsAny<bool>(),
-            It.IsAny<bool>())).ReturnsAsync((true, string.Empty));
+            It.IsAny<bool>())).ReturnsAsync(new SessionModificationResult(true, string.Empty));
 
         var result = await _sut.RunAsync(request) as ContentResult;
 
@@ -112,7 +112,7 @@ public class EditSessionFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>(),
             It.IsAny<bool>(),
-            It.IsAny<bool>())).ReturnsAsync((false, "Something went wrong"));
+            It.IsAny<bool>())).ReturnsAsync(new SessionModificationResult(false, "Something went wrong"));
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(422);

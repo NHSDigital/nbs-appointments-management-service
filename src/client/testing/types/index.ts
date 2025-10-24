@@ -6,3 +6,4 @@ type TestUser = {
 export type { TestUser };
 export * from './mock-oidc';
 export * from './page-objects';
+export * from './cosmos';

@@ -8,6 +8,9 @@ import { type FullConfig } from '@playwright/test';
 
 const { COSMOS_ENDPOINT, COSMOS_TOKEN, SEED_COSMOS_BEFORE_RUN } = env;
 
+/**
+ * @deprecated Use...
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function globalSetup(config: FullConfig) {
   if (SEED_COSMOS_BEFORE_RUN) {
@@ -15,6 +18,9 @@ async function globalSetup(config: FullConfig) {
   }
 }
 
+/**
+ * @deprecated Use....
+ */
 async function seedCosmos() {
   const client = new CosmosClient({
     endpoint: COSMOS_ENDPOINT,

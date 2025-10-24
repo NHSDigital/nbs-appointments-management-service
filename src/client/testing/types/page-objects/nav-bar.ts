@@ -1,11 +1,10 @@
 import { type Locator, type Page } from '@playwright/test';
-import { PageObject } from '@e2etests/types';
-import { Site } from '@types';
+import { E2ETestSite, PageObject } from '@e2etests/types';
 
 export default class NavBar extends PageObject {
-  private readonly site?: Site;
+  private readonly site?: E2ETestSite;
 
-  constructor(page: Page, site?: Site) {
+  constructor(page: Page, site?: E2ETestSite) {
     super(page);
     this.site = site;
   }

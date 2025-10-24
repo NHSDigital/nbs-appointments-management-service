@@ -120,7 +120,7 @@ services:
       - "4318:4318" # OTLP HTTP receiver
 
   oidc-server:
-    image: soluto/oidc-server-mock:latest
+    image: ghcr.io/soluto/oidc-server-mock:latest
     ports:
       - "8010:443"
       - "8020:80"

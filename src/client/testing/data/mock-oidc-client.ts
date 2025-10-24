@@ -1,4 +1,4 @@
-import { MockOidcUser } from '@e2etests/types';
+import { buildMockOidcUser } from '@e2etests/data';
 
 class MockOidcClient {
   private readonly baseUrl: string;
@@ -7,17 +7,8 @@ class MockOidcClient {
     this.baseUrl = baseUrl;
   }
 
-  private buildTestUser(testId: number): MockOidcUser {
-    return {
-      subjectId: `test-user-${testId}@nhs.net`,
-      username: `Test User ${testId}`,
-      password: `TestUserPassword123!`,
-      claims: [{ type: 'email', value: `test-user-${testId}@nhs.net` }],
-    };
-  }
-
   public async registerTestUser(testId: number) {
-    const testUser = this.buildTestUser(testId);
+    const testUser = buildMockOidcUser(testId);
 
     await fetch(`${this.baseUrl}/api/v1/user`, {
       method: 'POST',

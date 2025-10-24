@@ -1,3 +1,5 @@
+import { FeatureFlag } from '@e2etests/types';
+
 class FeatureFlagClient {
   private readonly baseUrl: string;
 
@@ -5,16 +7,16 @@ class FeatureFlagClient {
     this.baseUrl = baseUrl;
   }
 
-  public async overrideFeatureFlag(featureFlag: string, enabled: boolean) {
+  public async overrideFeatureFlag(featureFlag: FeatureFlag) {
     return fetch(
-      `${this.baseUrl}/api/feature-flag-override/${featureFlag}?enabled=${enabled}`,
+      `${this.baseUrl}/api/feature-flag-override/${featureFlag.name}?enabled=${featureFlag.enabled}`,
       {
         method: 'PATCH',
       },
     ).then(async response => {
       if (!response.ok) {
         throw new Error(
-          `Failed to override feature flag ${featureFlag} to ${enabled}: ${response.status} ${response.statusText}`,
+          `Failed to override feature flag ${featureFlag.name} to ${featureFlag.enabled}: ${response.status} ${response.statusText}`,
         );
       }
     });

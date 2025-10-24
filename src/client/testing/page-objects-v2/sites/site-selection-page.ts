@@ -1,6 +1,5 @@
 import { type Locator } from '@playwright/test';
-import { MYALayout } from '@e2etests/types';
-import { Site } from '@types';
+import { E2ETestSite, MYALayout } from '@e2etests/types';
 import { SitePage } from '@e2etests/page-objects';
 
 export default class SiteSelectionPage extends MYALayout {
@@ -16,7 +15,7 @@ export default class SiteSelectionPage extends MYALayout {
     'You have not been assigned to any sites.',
   );
 
-  async selectSite(site: Site): Promise<SitePage> {
+  async selectSite(site: E2ETestSite): Promise<SitePage> {
     await this.page.getByRole('link', { name: site.name }).click();
     await this.page.waitForURL(`**/site/${site.id}`);
 

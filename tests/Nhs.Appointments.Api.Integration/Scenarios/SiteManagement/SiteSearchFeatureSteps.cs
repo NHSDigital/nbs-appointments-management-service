@@ -171,7 +171,8 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
                         double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)
                     }),
                 status: null,
-                isDeleted: null
+                isDeleted: null,
+                Type: string.Empty
             ), Distance: int.Parse(row.Cells.ElementAt(11).Value)
         )).ToList();
 

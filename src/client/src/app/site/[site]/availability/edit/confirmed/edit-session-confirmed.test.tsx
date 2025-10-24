@@ -17,6 +17,13 @@ describe('Cancellation Confirmed Page', () => {
         date="2025-01-15"
         clinicalServices={mockSingleService}
         site={mockSite}
+        hasBookings={false}
+        chosenAction={''}
+        bookings={[]}
+        unsupportedBookingsCount={0}
+        cancelledWithDetailsCount={0}
+        cancelledWithoutDetailsCount={0}
+        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
@@ -38,6 +45,13 @@ describe('Cancellation Confirmed Page', () => {
         clinicalServices={mockSingleService}
         date="2025-01-15"
         site={mockSite}
+        hasBookings={false}
+        chosenAction={''}
+        bookings={[]}
+        unsupportedBookingsCount={0}
+        cancelledWithDetailsCount={0}
+        cancelledWithoutDetailsCount={0}
+        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 

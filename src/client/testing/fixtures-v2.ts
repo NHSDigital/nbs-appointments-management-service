@@ -15,14 +15,13 @@ import env from './testEnvironment';
 import { Role, FeatureFlag } from '@e2etests/types';
 
 type MyaFixtures = {
-  siteSelectionPage: (
-    roles: Role[],
-    features: FeatureFlag[],
-  ) => Promise<SitePage>;
+  signInToSite: (roles?: Role[], features?: FeatureFlag[]) => Promise<SitePage>;
 };
 
+// TODO: split up into test site, test user and features?
+
 export const test = base.extend<MyaFixtures>({
-  siteSelectionPage: async ({ page }, use, testInfo) => {
+  signInToSite: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
       env.COSMOS_ENDPOINT,
       env.COSMOS_TOKEN,
@@ -31,25 +30,35 @@ export const test = base.extend<MyaFixtures>({
     const featureFlagClient = new FeatureFlagClient(env.NBS_API_BASE_URL);
 
     // Fixture setup. Result of use() is piped to the test
-    await use(async (roles, features) => {
-      const testId = Number(`${testInfo.testId}${testInfo.line}`);
+    await use(
+      async (
+        roles = [
+          'canned:availability-manager',
+          'canned:appointment-manager',
+          'canned:site-details-manager',
+          'canned:user-manager',
+        ],
+        features = [],
+      ) => {
+        const testId = Number(`${testInfo.testId}${testInfo.line}`);
 
-      await cosmosDbClient.createSite(testId);
-      await cosmosDbClient.createUser(testId, roles);
-      await mockOidcClient.registerTestUser(testId);
-      features.forEach(async feature =>
-        featureFlagClient.overrideFeatureFlag(feature),
-      );
-
-      return await new LoginPage(page)
-        .logInWithNhsMail()
-        .then(mockOidcLoginPage =>
-          mockOidcLoginPage.signIn(buildE2ETestUser(testId)),
-        )
-        .then(siteSelectionPage =>
-          siteSelectionPage.selectSite(buildE2ETestSite(testId)),
+        await cosmosDbClient.createSite(testId);
+        await cosmosDbClient.createUser(testId, roles);
+        await mockOidcClient.registerTestUser(testId);
+        features.forEach(async feature =>
+          featureFlagClient.overrideFeatureFlag(feature),
         );
-    });
+
+        return await new LoginPage(page)
+          .logInWithNhsMail()
+          .then(mockOidcLoginPage =>
+            mockOidcLoginPage.signIn(buildE2ETestUser(testId)),
+          )
+          .then(siteSelectionPage =>
+            siteSelectionPage.selectSite(buildE2ETestSite(testId)),
+          );
+      },
+    );
 
     // // Clean up the fixture.
     await featureFlagClient.clearAllFeatureFlagOverrides();

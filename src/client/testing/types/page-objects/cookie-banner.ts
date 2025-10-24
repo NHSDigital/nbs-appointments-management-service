@@ -1,5 +1,5 @@
 import { type Locator } from '@playwright/test';
-import { PageObject } from '@e2etests/types';
+import PageObject from './page-object';
 
 export default class CookieBanner extends PageObject {
   public readonly preAcceptanceHeader: Locator = this.page.getByRole(

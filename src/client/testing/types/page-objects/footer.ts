@@ -1,5 +1,6 @@
 import { type Page } from '@playwright/test';
-import { FooterLinks, PageObject } from '@e2etests/types';
+import FooterLinks from './footer-links';
+import PageObject from './page-object';
 
 export default class Footer extends PageObject {
   public readonly links: FooterLinks;

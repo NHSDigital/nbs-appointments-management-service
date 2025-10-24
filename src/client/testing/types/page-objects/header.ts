@@ -1,5 +1,7 @@
 import { type Locator, type Page } from '@playwright/test';
-import { E2ETestSite, NavBar, PageObject } from '@e2etests/types';
+import PageObject from './page-object';
+import NavBar from './nav-bar';
+import { E2ETestSite } from '..';
 
 export default class Header extends PageObject {
   public readonly navBar: NavBar;

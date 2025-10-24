@@ -1,12 +1,10 @@
 import { Page, type Locator } from '@playwright/test';
-import {
-  CookieBanner,
-  E2ETestSite,
-  Footer,
-  Header,
-  PageObject,
-} from '@e2etests/types';
 import { LoginPage, CookiePoliciesPage } from '@e2etests/page-objects';
+import PageObject from './page-object';
+import Footer from './footer';
+import CookieBanner from './cookie-banner';
+import Header from './header';
+import { E2ETestSite } from '..';
 
 export default abstract class MYALayout extends PageObject {
   protected readonly site?: E2ETestSite;

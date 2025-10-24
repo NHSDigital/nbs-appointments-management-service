@@ -234,8 +234,16 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
         var allResults = new List<SiteWithDistance>();
 
-        foreach (var filter in filters)
+        var orderedFilters = OrderFiltersByPriority(filters);
+
+        foreach (var filter in orderedFilters)
         {
+            // No need to keep processing if we've hit the maxRecords count
+            if (allResults.Count >= maxRecords)
+            {
+                break;
+            }
+
             var predicate = BuildPredicate(filter);
             var filteredSites = sites.Where(predicate);
 
@@ -276,9 +284,8 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     private Func<Site, bool> BuildPredicate(SiteFilter filter)
     {
-        // TODO: APPT-1463 - add site type and ODS code filters
-
         var hasAccessNeedsFilter = filter.AccessNeeds is not null && filter.AccessNeeds.Length > 0;
+        var hasSiteTypeFilter = filter.Types is not null && filter.Types.Length > 0;
 
         var accessibilityIds = new List<string>();
         if (hasAccessNeedsFilter)
@@ -298,9 +305,38 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
                 }
             }
 
+            if (hasSiteTypeFilter)
+            {
+                var siteTypeMatches = filter.Types.Any(t => t.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase));
+
+                return string.IsNullOrEmpty(filter.OdsCode)
+                    ? siteTypeMatches
+                    : siteTypeMatches && filter.OdsCode.Equals(site.OdsCode, StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (!hasSiteTypeFilter && !string.IsNullOrEmpty(filter.OdsCode))
+            {
+                return filter.OdsCode.Equals(site.OdsCode, StringComparison.InvariantCultureIgnoreCase);
+            }
+
             var distance = CalculateDistanceInMetres(site.Location.Coordinates[1], site.Location.Coordinates[0], filter.Latitude, filter.Longitude);
             return distance <= filter.SearchRadius;
         };
+    }
+
+    private static IEnumerable<SiteFilter> OrderFiltersByPriority(SiteFilter[] filters)
+    {
+        var indexed = filters.Select((f, i) => new { Filter = f, Index = i }).ToList();
+        var anyFilterHasPriority = indexed.Any(x => x.Filter.Priority.HasValue);
+
+        return anyFilterHasPriority
+            ? indexed
+                .OrderBy(x => x.Filter.Priority.HasValue ? 0 : 1) // Any filter with the priority prop set moves to the front
+                .ThenBy(x => x.Filter.Priority ?? int.MaxValue) // Then order by prioirty ascending
+                .ThenBy(x => x.Index) // Then order by index ascending if any filters have no priority set
+                .Select(x => x.Filter)
+                .ToList()
+            : filters;
     }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)

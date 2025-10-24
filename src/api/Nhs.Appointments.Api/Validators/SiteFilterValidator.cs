@@ -53,5 +53,9 @@ public class SiteFilterValidator : AbstractValidator<SiteFilter>
                             .WithMessage("Date must be in the future.");
                     });
             });
+        RuleFor(x => x.Priority)
+            .GreaterThan(0)
+            .WithMessage("Priority must be greater than zero.")
+            .When(x => x.Priority is not null);
     }
 }

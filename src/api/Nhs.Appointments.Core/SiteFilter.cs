@@ -10,4 +10,5 @@ public class SiteFilter
     public DateOnly? From {  get; set; }
     public DateOnly? Until { get; set; }
     public string[] AccessNeeds { get; set; }
+    public int? Priority { get; set; }
 }

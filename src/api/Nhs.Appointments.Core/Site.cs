@@ -16,7 +16,8 @@ public record Site(
     [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
     [JsonProperty("location")] Location Location,
     [JsonProperty("status")] SiteStatus? status,
-    [JsonProperty("isDeleted")] bool? isDeleted
+    [JsonProperty("isDeleted")] bool? isDeleted,
+    [JsonProperty("type")] string Type
 )
 {
     public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { buildMockOidcUser } from '@e2etests/data';
 
 class MockOidcClient {
@@ -22,7 +23,6 @@ class MockOidcClient {
       }
     });
 
-    // eslint-disable-next-line no-console
     console.log(
       `Registered mock OIDC user: ${testUser.subjectId} with Duende.`,
     );

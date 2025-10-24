@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CosmosClient } from '@azure/cosmos';
 import { Role } from '@e2etests/types';
 import { buildSiteDocument, buildUserDocument } from '@e2etests/data';
@@ -30,11 +31,26 @@ class CosmosDbClient {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
+      partitionKey: { paths: ['/docType'] },
     });
     await container.items.upsert(siteDocument);
-
-    // eslint-disable-next-line no-console
     console.log(`Written site: ${siteDocument.id} to Cosmos DB.`);
+  }
+
+  public async deleteSite(testId: number) {
+    const siteDocument = buildSiteDocument(testId);
+
+    const database = await this.getDatabase();
+    const { container } = await database.containers.createIfNotExists({
+      id: this.coreContainerId,
+      partitionKey: { paths: ['/docType'] },
+    });
+    try {
+      await container.item(siteDocument.id, 'site').delete();
+      console.log(`Deleted site: ${siteDocument.id} from Cosmos DB.`);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   public async createUser(testId: number, roles: Role[]) {
@@ -43,11 +59,26 @@ class CosmosDbClient {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
+      partitionKey: { paths: ['/docType'] },
     });
     await container.items.upsert(userDocument);
-
-    // eslint-disable-next-line no-console
     console.log(`Written user: ${userDocument.id} to Cosmos DB.`);
+  }
+
+  public async deleteUser(testId: number) {
+    const userDocument = buildUserDocument(testId, []);
+
+    const database = await this.getDatabase();
+    const { container } = await database.containers.createIfNotExists({
+      id: this.coreContainerId,
+      partitionKey: { paths: ['/docType'] },
+    });
+    try {
+      await container.item(userDocument.id, 'user').delete();
+      console.log(`Deleted user: ${userDocument.id} from Cosmos DB.`);
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
 

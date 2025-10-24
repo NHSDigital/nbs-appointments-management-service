@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { FeatureFlag } from '@e2etests/types';
 
 class FeatureFlagClient {
@@ -21,7 +22,6 @@ class FeatureFlagClient {
       }
     });
 
-    // eslint-disable-next-line no-console
     console.log(
       `Toggled: ${featureFlag.name} to ${featureFlag.enabled ? 'ON' : 'OFF'}.`,
     );
@@ -29,7 +29,7 @@ class FeatureFlagClient {
   }
 
   public async clearAllFeatureFlagOverrides() {
-    return fetch(`${this.baseUrl}/api/feature-flag-overrides-clear`, {
+    fetch(`${this.baseUrl}/api/feature-flag-overrides-clear`, {
       method: 'PATCH',
     }).then(async response => {
       if (!response.ok) {
@@ -38,6 +38,9 @@ class FeatureFlagClient {
         );
       }
     });
+
+    console.log(`Successfully cleared all feature flag overrides.`);
+    return;
   }
 }
 

@@ -29,6 +29,9 @@ export const test = base.extend<MyaFixtures>({
     const mockOidcClient = new MockOidcClient(env.MOCK_OIDC_SERVER_BASE_URL);
     const featureFlagClient = new FeatureFlagClient(env.NBS_API_BASE_URL);
 
+    // TODO: think of a better way to generate unique test IDs
+    const testId = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
+
     // Fixture setup. Result of use() is piped to the test
     await use(
       async (
@@ -40,10 +43,6 @@ export const test = base.extend<MyaFixtures>({
         ],
         features = [],
       ) => {
-        const testId = Number(
-          `${Date.now()}${Math.floor(Math.random() * 1000)}`,
-        );
-
         await cosmosDbClient.createSite(testId);
         await cosmosDbClient.createUser(testId, roles);
         await mockOidcClient.registerTestUser(testId);
@@ -64,6 +63,8 @@ export const test = base.extend<MyaFixtures>({
 
     // // Clean up the fixture.
     await featureFlagClient.clearAllFeatureFlagOverrides();
+    await cosmosDbClient.deleteSite(testId);
+    await cosmosDbClient.deleteUser(testId);
   },
 });
 

@@ -38,7 +38,8 @@ public class SiteSummaryTriggerTests
                 new Accessibility[] { },
                 new Location("test", [0.0]),
                 SiteStatus.Online, 
-                null)
+                null,
+                string.Empty)
         });
         
         await _sut.Trigger();
@@ -75,7 +76,8 @@ public class SiteSummaryTriggerTests
                 new Accessibility[] { },
                 new Location("test", [0.0]),
                 SiteStatus.Online,
-                null)
+                null,
+                string.Empty)
         });
 
         var site = "site-1";
@@ -117,7 +119,8 @@ public class SiteSummaryTriggerTests
                 new Accessibility[] { },
                 new Location("test", [0.0]),
                 null, 
-                null)
+                null,
+                string.Empty)
         });
 
         var site = "site-1";
@@ -231,7 +234,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                null, null)
+                null, null, string.Empty)
         });
 
         var site = "site-1";
@@ -272,7 +275,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                null, null)
+                null, null, string.Empty)
         });
 
         var site = "site-1";
@@ -334,7 +337,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online, null),
+                SiteStatus.Online, null, string.Empty),
             new (
                 "site-2",
                 "site-name-2",
@@ -346,7 +349,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online, null)
+                SiteStatus.Online, null, string.Empty)
         });
 
         var site1 = "site-1";

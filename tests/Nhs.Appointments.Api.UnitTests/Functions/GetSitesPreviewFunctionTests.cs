@@ -103,7 +103,8 @@ public class GetSitesPreviewFunctionTests
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10]),
             status: SiteStatus.Online,
-            isDeleted: null
+            isDeleted: null,
+            Type: string.Empty
         );
 
         var site2 = new Site(
@@ -118,7 +119,8 @@ public class GetSitesPreviewFunctionTests
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             Location: new Location("point", [0.1, 10]),
             status: SiteStatus.Online,
-            isDeleted: null
+            isDeleted: null,
+            Type: string.Empty
         );
 
         var icbs = new List<WellKnownOdsEntry>

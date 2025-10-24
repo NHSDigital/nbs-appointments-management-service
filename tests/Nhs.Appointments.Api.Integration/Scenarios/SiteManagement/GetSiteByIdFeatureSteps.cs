@@ -37,7 +37,8 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
             Location: new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
-            status: null, isDeleted: null
+            status: null, isDeleted: null,
+            Type: string.Empty
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =

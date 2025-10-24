@@ -18,6 +18,7 @@ type PageProps = {
     updatedSession: string;
     unsupportedBookingsCount?: number;
     cancelAppointments?: boolean;
+    cancelledWithoutDetailsCount?: number;
     chosenAction: string;
   }>;
   params: Promise<{
@@ -33,6 +34,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     cancelAppointments,
     unsupportedBookingsCount,
     chosenAction,
+    cancelledWithoutDetailsCount,
   } = {
     ...(await searchParams),
   };
@@ -72,14 +74,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     atob(updatedSession),
   );
 
-  const cancelledWithoutDetailsCount = bookings.filter(
-    b =>
-      !b.contactDetails ||
-      !b.contactDetails.some(cd => cd.type === 'Email' || cd.type === 'Phone'),
-  ).length;
-
   let cancelledWithDetailsCount =
-    (unsupportedBookingsCount ?? 0) - cancelledWithoutDetailsCount;
+    (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
 
   if (cancelledWithDetailsCount < 0) {
     cancelledWithDetailsCount = 0;

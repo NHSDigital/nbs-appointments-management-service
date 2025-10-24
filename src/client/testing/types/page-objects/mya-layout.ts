@@ -6,8 +6,7 @@ import {
   Header,
   PageObject,
 } from '@e2etests/types';
-import { LoginPage } from '@e2etests/page-objects';
-import { CookiesPolicyPage } from '@testing-page-objects';
+import { LoginPage, CookiePoliciesPage } from '@e2etests/page-objects';
 
 export default abstract class MYALayout extends PageObject {
   protected readonly site?: E2ETestSite;
@@ -44,10 +43,10 @@ export default abstract class MYALayout extends PageObject {
     return this;
   }
 
-  async clickCookiesFooterLink(): Promise<CookiesPolicyPage> {
+  async clickCookiesFooterLink(): Promise<CookiePoliciesPage> {
     await this.footer.links.cookiesPolicy.click();
     await this.page.waitForURL('**/cookies-policy');
 
-    return new CookiesPolicyPage(this.page);
+    return new CookiePoliciesPage(this.page);
   }
 }

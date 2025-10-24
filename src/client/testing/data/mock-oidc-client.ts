@@ -13,6 +13,7 @@ class MockOidcClient {
     await fetch(`${this.baseUrl}/api/v1/user`, {
       method: 'POST',
       body: JSON.stringify(testUser),
+      headers: { 'Content-Type': 'application/json' },
     }).then(async response => {
       if (!response.ok) {
         throw new Error(

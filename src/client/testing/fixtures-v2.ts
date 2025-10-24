@@ -40,7 +40,9 @@ export const test = base.extend<MyaFixtures>({
         ],
         features = [],
       ) => {
-        const testId = Number(`${testInfo.testId}${testInfo.line}`);
+        const testId = Number(
+          `${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        );
 
         await cosmosDbClient.createSite(testId);
         await cosmosDbClient.createUser(testId, roles);

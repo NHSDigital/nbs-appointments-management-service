@@ -92,7 +92,7 @@ const buildMockOidcUser = (testId: number): MockOidcUser => {
     subjectId: buildUserId(testId),
     username: buildUsername(testId),
     password: buildUserPassword(),
-    claims: [{ type: 'email', value: buildUserId(testId) }],
+    claims: [{ Type: 'email', Value: buildUserId(testId) }],
   };
 };
 

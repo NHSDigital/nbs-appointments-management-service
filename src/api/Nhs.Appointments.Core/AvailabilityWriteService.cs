@@ -110,7 +110,7 @@ public class AvailabilityWriteService(
         }
     }
 
-    public async Task<(bool updateSuccessful, string message)> EditOrCancelSessionAsync(
+    public async Task<SessionModificationResult> EditOrCancelSessionAsync(
         string site, 
         DateOnly from, 
         DateOnly until, 
@@ -131,7 +131,7 @@ public class AvailabilityWriteService(
         {
             case SessionUpdateAction.CancelAll:
                 await CancelAllSessionInDateRange(site, from, until);
-                return (true, string.Empty);
+                return new SessionModificationResult(true, string.Empty);
             case SessionUpdateAction.CancelMultiple:
                 var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
                 result = (cancelResult.Success, cancelResult.Message);
@@ -159,13 +159,13 @@ public class AvailabilityWriteService(
 
         if (!result.success)
         {
-            return result;
+            return new SessionModificationResult(false, result.message);
         }
 
         var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1).Select(x => from.AddDays(x)).ToArray();
-        await bookingWriteService.RecalculateAppointmentStatuses(site, days, cancelUnsupportedBookings);
+        var stats = await bookingWriteService.RecalculateAppointmentStatuses(site, days, cancelUnsupportedBookings);
 
-        return result;
+        return new SessionModificationResult(true, result.message, stats.BookingsCanceled, stats.BookingsCanceledWithoutDetails);
     }
 
     private async Task CancelAllSessionInDateRange(string site, DateOnly from, DateOnly until)

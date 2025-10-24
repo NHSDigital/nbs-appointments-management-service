@@ -21,6 +21,11 @@ class MockOidcClient {
         );
       }
     });
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `Registered mock OIDC user: ${testUser.subjectId} with Duende.`,
+    );
   }
 }
 

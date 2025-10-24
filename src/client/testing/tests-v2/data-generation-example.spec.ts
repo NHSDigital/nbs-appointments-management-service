@@ -1,6 +1,6 @@
 import { test } from '../fixtures-v2';
 
-test('A user loads home page, only sites with same scope are loaded', async ({
+test('Temporary test to prove data generation works', async ({
   signInToSite,
 }) => {
   await signInToSite().then(async sitePage => {

@@ -32,6 +32,9 @@ class CosmosDbClient {
       id: this.coreContainerId,
     });
     await container.items.upsert(siteDocument);
+
+    // eslint-disable-next-line no-console
+    console.log(`Written site: ${siteDocument.id} to Cosmos DB.`);
   }
 
   public async createUser(testId: number, roles: Role[]) {
@@ -42,6 +45,9 @@ class CosmosDbClient {
       id: this.coreContainerId,
     });
     await container.items.upsert(userDocument);
+
+    // eslint-disable-next-line no-console
+    console.log(`Written user: ${userDocument.id} to Cosmos DB.`);
   }
 }
 

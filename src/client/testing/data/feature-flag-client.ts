@@ -8,7 +8,7 @@ class FeatureFlagClient {
   }
 
   public async overrideFeatureFlag(featureFlag: FeatureFlag) {
-    return fetch(
+    await fetch(
       `${this.baseUrl}/api/feature-flag-override/${featureFlag.name}?enabled=${featureFlag.enabled}`,
       {
         method: 'PATCH',
@@ -20,6 +20,12 @@ class FeatureFlagClient {
         );
       }
     });
+
+    // eslint-disable-next-line no-console
+    console.log(
+      `Toggled: ${featureFlag.name} to ${featureFlag.enabled ? 'ON' : 'OFF'}.`,
+    );
+    return;
   }
 
   public async clearAllFeatureFlagOverrides() {

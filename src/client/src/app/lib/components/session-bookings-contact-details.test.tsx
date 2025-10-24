@@ -89,4 +89,46 @@ describe('SessionBookingsContactDetailsPage', () => {
 
     expect(screen.queryByText('Time')).not.toBeInTheDocument();
   });
+  it('renders clinical service label from clinicalServices', () => {
+    render(
+      <SessionBookingsContactDetailsPage
+        bookings={mockBookings}
+        site="TEST01"
+        displayAction={false}
+        clinicalServices={mockMultipleServices}
+      />,
+    );
+
+    mockBookings.forEach(booking => {
+      const label =
+        mockMultipleServices.find(s => s.value === booking.service)?.label ??
+        booking.service;
+      const count = mockBookings.filter(
+        b => b.service === booking.service,
+      ).length;
+      expect(screen.getAllByText(label)).toHaveLength(count);
+    });
+  });
+
+  it('renders cancel link for each booking when displayAction is true', () => {
+    render(
+      <SessionBookingsContactDetailsPage
+        bookings={mockBookings}
+        site="TEST01"
+        displayAction={true}
+        clinicalServices={mockMultipleServices}
+      />,
+    );
+
+    const cancelLinks = screen.getAllByRole('link', { name: 'Cancel' });
+
+    expect(cancelLinks).toHaveLength(mockBookings.length);
+
+    cancelLinks.forEach((link, index) => {
+      expect(link).toHaveAttribute(
+        'href',
+        `/site/TEST01/appointment/${mockBookings[index].reference}/cancel`,
+      );
+    });
+  });
 });

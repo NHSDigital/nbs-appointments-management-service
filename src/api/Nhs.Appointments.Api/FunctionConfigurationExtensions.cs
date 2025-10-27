@@ -27,6 +27,7 @@ using Nhs.Appointments.Core.BulkImport;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
+using Nhs.Appointments.Core.ReferenceNumber;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
@@ -74,6 +75,13 @@ public static class FunctionConfigurationExtensions
                 opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
                 opts.DaysChunkSize = configuration.GetValue<int>("SITE_SUMMARY_DAYS_CHUNK_SIZE");
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
+            })
+            .Configure<ReferenceNumberOptions>(opts =>
+            {
+                //for simplicity will keep a single key for now and have it be version 1
+                opts.HmacKeyVersion = 1;
+                opts.HmacKey =
+                    Convert.FromBase64String(configuration.GetValue<string>("ReferenceNumberHmacKey"));
             })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()

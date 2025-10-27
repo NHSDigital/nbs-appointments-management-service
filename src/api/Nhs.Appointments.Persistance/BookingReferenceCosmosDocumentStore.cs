@@ -1,5 +1,5 @@
 using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.ReferenceNumber;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance

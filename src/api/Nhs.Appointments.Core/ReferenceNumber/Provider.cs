@@ -4,12 +4,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using LuhnNet;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
-namespace Nhs.Appointments.Core;
+namespace Nhs.Appointments.Core.ReferenceNumber;
 
 public interface IReferenceNumberProvider
 {
-    Task<string> GetReferenceNumber(byte[] hmacSecretKey);
+    Task<string> GetReferenceNumber();
 }
 
 public interface IBookingReferenceDocumentStore
@@ -18,19 +19,19 @@ public interface IBookingReferenceDocumentStore
 }
 
 public partial class ReferenceNumberProvider(
+    IOptions<ReferenceNumberOptions> options,
     IBookingReferenceDocumentStore bookingReferenceDocumentStore,
     IMemoryCache memoryCache,
     TimeProvider timeProvider)
     : IReferenceNumberProvider
 {
-    //hard-coded for MVP, potentially need keyVersion mapping to secret is ever up-versioned.
-    private const string HmacKeyVersion = "v1";
+    private IOptions<ReferenceNumberOptions> Options { get; } = options;
     
     //in generating the partition key, splitting the current day of the year into X buckets of this length
     internal const int PartitionBucketLengthInDays = 4;
     
     //the sequence max that rolls over. system can support this many references within X many days
-    //i.e SequenceMax = 100 million, and PartitionBucketLengthInDays = 4
+    //i.e. SequenceMax = 100 million, and PartitionBucketLengthInDays = 4
     //means the system can generate 100 million unique references within 4 day span of a year
     internal const int SequenceMax = 100_000_000;
 
@@ -40,11 +41,11 @@ public partial class ReferenceNumberProvider(
     ///     Valid for the very long term (100 years)
     /// </summary>
     /// <returns></returns>
-    public async Task<string> GetReferenceNumber(byte[] hmacSecretKey)
+    public async Task<string> GetReferenceNumber()
     {
         var sequenceNumber = await bookingReferenceDocumentStore.GetNextSequenceNumber();
         var now = timeProvider.GetUtcNow();
-        return Generate(sequenceNumber, now, hmacSecretKey);
+        return Generate(sequenceNumber, now);
     }
 
     /// <summary>
@@ -60,17 +61,17 @@ public partial class ReferenceNumberProvider(
         return dayPartition.ToString("D2") + (dtUtc.Year % 100).ToString("D2");
     }
 
-    private string Generate(int sequenceNumber, DateTimeOffset utcNow, byte[] hmacSecretKey)
+    private string Generate(int sequenceNumber, DateTimeOffset utcNow)
     {
         var overflowedSequenceNumber = sequenceNumber % SequenceMax;
         var partitionKey = PartitionKey(utcNow);
-        var sequenceBijection = GenerateSequenceBijection(overflowedSequenceNumber, partitionKey, hmacSecretKey)
+        var sequenceBijection = GenerateSequenceBijection(overflowedSequenceNumber, partitionKey)
             .ToString("D8");
         var partitionAndSequenceBijection = partitionKey + sequenceBijection;
 
-        //adds a simple check whether the booking reference is valid (all 13 digits have to satisfy the luhn criteria)
-        //this can be guessed with 10% chance as it is a single digit,
-        //but can help us detect brute force checks before DB hit
+        //adds a simple check whether the booking reference is valid (all 13 digits have to satisfy the Luhn criteria)
+        //this can be guessed with a 10% chance as it is a single digit.
+        //but can help us detect brute force checks before hitting the DB.
         var checkDigit = Luhn.CalculateCheckDigit(partitionAndSequenceBijection).ToString("D1");
 
         return FormatBookingReference(partitionAndSequenceBijection + checkDigit); // 13 digits that match the desired checksum outcome
@@ -85,24 +86,24 @@ public partial class ReferenceNumberProvider(
     ///     This is needed to protect against sequential attacks visible in the reference (people guessing the next booking is
     ///     exactly 1 higher)
     /// </summary>
-    private int GenerateSequenceBijection(int sequence, string partitionKey, byte[] hmacSecretKey)
+    private int GenerateSequenceBijection(int sequence, string partitionKey)
     {
-        var sequenceStride = GetSequenceStride(partitionKey, hmacSecretKey);
+        var sequenceStride = GetSequenceStride(partitionKey);
         
         // f(i) = ( S * i + O ) mod N : is a bijection on (0, ..., N-1)
         // when the stride (S) is coprime with N (i.e gcd(S,N) = 1), and O is a constant offset (set to zero for us as no benefit)
         return (int)((long)sequenceStride * sequence % SequenceMax);
     }
 
-    private int GetSequenceStride(string partitionKey, byte[] hmacSecretKey)
+    private int GetSequenceStride(string partitionKey)
     {
-        var cacheKey = $"{HmacKeyVersion}:{partitionKey}";
+        var cacheKey = $"{Options.Value.HmacKeyVersion}:{partitionKey}";
         if (memoryCache.TryGetValue(cacheKey, out int sequenceStride))
         {
             return sequenceStride;
         }
 
-        sequenceStride = DeriveSequenceStride(partitionKey, hmacSecretKey);
+        sequenceStride = DeriveSequenceStride(partitionKey);
         memoryCache.Set(cacheKey, sequenceStride, TimeSpan.FromDays(PartitionBucketLengthInDays + 2)); // easily spans the partition length
         return sequenceStride;
     }
@@ -114,9 +115,9 @@ public partial class ReferenceNumberProvider(
     ///     This just needs to be deterministic and non-guessable and guarded by a secret.
     ///     It is used for obfuscation of the sequencing, not for security.
     /// </summary>
-    internal static int DeriveSequenceStride(string partitionKey, byte[] hmacSecretKey)
+    internal int DeriveSequenceStride(string partitionKey)
     {
-        using var h = new HMACSHA256(hmacSecretKey);
+        using var h = new HMACSHA256(Options.Value.HmacKey);
         var mac = h.ComputeHash(Encoding.ASCII.GetBytes(partitionKey));
         var hmacStride = BitConverter.ToUInt64(mac, 0);
 

@@ -61,6 +61,12 @@ public class EditSessionFunctionTests
     [Fact]
     public async Task RunAsync_ReturnsSuccessful_WhenSessionUpadted()
     {
+        var availabilityResult = new SessionModificationResult(
+            true, 
+            string.Empty, 
+            bookingsCanceled: 5, 
+            bookingsCanceledWithoutDetails: 2
+        );
         var editSessionRequest = new EditSessionRequest(
             "TEST123",
             new DateOnly(2025, 10, 10),
@@ -78,9 +84,14 @@ public class EditSessionFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>(),
             It.IsAny<bool>(),
-            It.IsAny<bool>())).ReturnsAsync((true, string.Empty));
+            It.IsAny<bool>())).ReturnsAsync(availabilityResult);
 
         var result = await _sut.RunAsync(request) as ContentResult;
+        var content = JsonConvert.DeserializeObject<SessionModificationResult>(result.Content);
+
+        result.StatusCode.Should().Be(200);
+        content.BookingsCanceled.Should().Be(availabilityResult.BookingsCanceled);
+        content.BookingsCanceledWithoutDetails.Should().Be(availabilityResult.BookingsCanceledWithoutDetails);
 
         _mockAvailabilityWriteService.Verify(x => x.EditOrCancelSessionAsync(
             editSessionRequest.Site,
@@ -112,7 +123,7 @@ public class EditSessionFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>(),
             It.IsAny<bool>(),
-            It.IsAny<bool>())).ReturnsAsync((false, "Something went wrong"));
+            It.IsAny<bool>())).ReturnsAsync(new SessionModificationResult(false, "Something went wrong"));
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(422);

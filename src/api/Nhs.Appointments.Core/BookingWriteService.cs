@@ -30,7 +30,9 @@ public interface IBookingWriteService
     Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
 
     Task RecalculateAppointmentStatuses(string site, DateOnly day, bool cancelUnsupportedBookings = false);
-    Task RecalculateAppointmentStatuses(string site, DateOnly[] days, bool cancelUnsupportedBookings = false);
+
+    Task<BookingRecalculationsStatistics> RecalculateAppointmentStatuses(string site, DateOnly[] days,
+        bool cancelUnsupportedBookings = false);
 
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDayAsync(string site, DateOnly day);
 
@@ -47,6 +49,9 @@ public class BookingWriteService(
     IMessageBus bus,
     TimeProvider time) : IBookingWriteService
 {
+    private static readonly ContactItemType[] ValidNotificationTypes =
+        [ContactItemType.Email, ContactItemType.Phone];
+
     public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
     {
         using var leaseContent = siteLeaseManager.Acquire(booking.Site);
@@ -231,22 +236,51 @@ public class BookingWriteService(
         await RecalculateAppointmentStatusesForDay(site, day, cancelUnsupportedBookings);
     }
 
-    public async Task RecalculateAppointmentStatuses(string site, DateOnly[] days, bool cancelUnsupportedBookings = false)
+    public async Task<BookingRecalculationsStatistics> RecalculateAppointmentStatuses(string site, DateOnly[] days, bool cancelUnsupportedBookings = false)
     {
         using var leaseContent = siteLeaseManager.Acquire(site);
 
         var dayTasks = days.Select(day => RecalculateAppointmentStatusesForDay(site, day, cancelUnsupportedBookings));
 
-        await Task.WhenAll(dayTasks);
+        var results = await Task.WhenAll(dayTasks);
+
+
+        if (!cancelUnsupportedBookings)
+        {
+            return new BookingRecalculationsStatistics
+            {
+                BookingsCanceled = 0,
+                BookingsCanceledWithoutDetails = 0
+            };
+        }
+
+        return new BookingRecalculationsStatistics
+        {
+            BookingsCanceled = results.Sum(day =>
+                day.Count(update => update.Action == AvailabilityUpdateAction.SetToOrphaned)),
+
+            BookingsCanceledWithoutDetails = results.Sum(day =>
+                day.Count(update =>
+                    update.Action == AvailabilityUpdateAction.SetToOrphaned &&
+                    (update.Booking.ContactDetails is null ||
+                     !update.Booking.ContactDetails.Any(x => ValidNotificationTypes.Contains(x.Type)))))
+        };
     }
 
-    private async Task RecalculateAppointmentStatusesForDay(string site, DateOnly day, bool cancelUnsupportedBookings = false)
+    private async Task<IEnumerable<BookingAvailabilityUpdate>> RecalculateAppointmentStatusesForDay(string site, DateOnly day, bool cancelUnsupportedBookings = false)
     {
         var dayStart = day.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
 
-        var recalculations = await bookingAvailabilityStateService.BuildRecalculations(site, dayStart, dayEnd);
+        var recalculations = (await bookingAvailabilityStateService.BuildRecalculations(site, dayStart, dayEnd)).ToArray();
+        
+        await PersistUpdatesForRecalculations(recalculations, cancelUnsupportedBookings);
+        
+        return recalculations;
+    }
 
+    private async Task PersistUpdatesForRecalculations(BookingAvailabilityUpdate[] recalculations, bool cancelUnsupportedBookings = false)
+    {
         foreach (var update in recalculations)
         {
             switch (update.Action)

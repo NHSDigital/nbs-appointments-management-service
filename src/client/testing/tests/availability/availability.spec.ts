@@ -939,54 +939,54 @@ test.describe('View Month Availability', () => {
     test.describe(`Test in timezone: '${timezone}'`, () => {
       test.use({ timezoneId: timezone });
 
-      test('All the month page data is arranged in the week cards as expected - Oct 2025', async () => {
+      test('All the month page data is arranged in the week cards as expected - Apr 2026', async () => {
         //go to a specific month page that has a daylight savings change
         await page.goto(
-          `manage-your-appointments/site/${site.id}/view-availability?date=2025-10-20`,
+          `manage-your-appointments/site/${site.id}/view-availability?date=2026-04-20`,
         );
         await page.waitForURL(
-          `**/site/${site.id}/view-availability?date=2025-10-20`,
+          `**/site/${site.id}/view-availability?date=2026-04-20`,
         );
         await page.waitForSelector('.nhsuk-loader', {
           state: 'detached',
         });
 
         await monthViewAvailabilityPage.verifyViewNextAndPreviousMonthButtonsAreDisplayed(
-          'September 2025',
-          'November 2025',
+          'March 2026',
+          'May 2026',
         );
 
         const expectedWeekOverviews = [
           {
-            header: '29 September to 5 October',
+            header: '30 March to 5 April',
+            sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
+            totalAppointments: 240,
+            booked: 2,
+            unbooked: 238,
+          },
+          {
+            header: '6 April to 12 April',
             sessions: [],
             totalAppointments: 0,
             booked: 0,
             unbooked: 0,
           },
           {
-            header: '6 October to 12 October',
+            header: '13 April to 19 April',
             sessions: [],
             totalAppointments: 0,
             booked: 0,
             unbooked: 0,
           },
           {
-            header: '13 October to 19 October',
-            sessions: [],
-            totalAppointments: 0,
-            booked: 0,
-            unbooked: 0,
-          },
-          {
-            header: '20 October to 26 October',
+            header: '20 April to 26 April',
             sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
             totalAppointments: 840,
             booked: 4,
             unbooked: 836,
           },
           {
-            header: '27 October to 2 November',
+            header: '27 April to 3 May',
             sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
             totalAppointments: 420,
             booked: 2,

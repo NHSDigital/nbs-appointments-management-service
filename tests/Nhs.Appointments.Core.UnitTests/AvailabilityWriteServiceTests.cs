@@ -413,7 +413,7 @@ public class AvailabilityWriteServiceTests
         _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, null))
             .ReturnsAsync(new OperationResult(true));
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -422,7 +422,7 @@ public class AvailabilityWriteServiceTests
             true,
             false);
 
-        editSuccessful.Should().BeTrue();
+        result.UpdateSuccessful.Should().BeTrue();
 
         _availabilityStore.Verify(x => x.CancelDayAsync(site, It.IsAny<DateOnly>()), Times.Exactly(6));
     }
@@ -434,7 +434,7 @@ public class AvailabilityWriteServiceTests
         var from = new DateOnly(2025, 10, 10);
         var until = new DateOnly(2025, 10, 10);
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -443,7 +443,7 @@ public class AvailabilityWriteServiceTests
             true, 
             false);
 
-        editSuccessful.Should().BeTrue();
+        result.UpdateSuccessful.Should().BeTrue();
 
         _availabilityStore.Verify(x => x.CancelDayAsync(site, from), Times.Once);
     }
@@ -451,6 +451,11 @@ public class AvailabilityWriteServiceTests
     [Fact]
     public async Task EditOrCancelSession_CancelsMultipleSessions_ForMultipleDaysButNoReplacement()
     {
+        var recalculationResponse = new BookingRecalculationsStatistics()
+        {
+            BookingsCanceled = 2,
+            BookingsCanceledWithoutDetails = 1
+        };
         var site = "TEST123";
         var from = new DateOnly(2025, 10, 10);
         var until = new DateOnly(2025, 10, 15);
@@ -465,8 +470,11 @@ public class AvailabilityWriteServiceTests
 
         _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, sessionMatcher))
             .ReturnsAsync(new OperationResult(true));
+        _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+        ).ReturnsAsync(recalculationResponse);
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -475,7 +483,10 @@ public class AvailabilityWriteServiceTests
             false, 
             false);
 
-        editSuccessful.Should().BeTrue();
+        result.UpdateSuccessful.Should().BeTrue();
+        result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
+        result.BookingsCanceled.Should().Be(recalculationResponse.BookingsCanceled);
+        result.UpdateSuccessful.Should().Be(true);
 
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), false), Times.Once);
     }
@@ -498,7 +509,7 @@ public class AvailabilityWriteServiceTests
         _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, sessionMatcher))
             .ReturnsAsync(new OperationResult(false, "Something went wrong."));
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -507,8 +518,8 @@ public class AvailabilityWriteServiceTests
             false, 
             false);
 
-        editSuccessful.Should().BeFalse();
-        message.Should().Be("Something went wrong.");
+        result.UpdateSuccessful.Should().BeFalse();
+        result.Message.Should().Be("Something went wrong.");
 
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Never);
     }
@@ -516,6 +527,11 @@ public class AvailabilityWriteServiceTests
     [Fact]
     public async Task EditOrCancelSession_EditsSessions_ForMultipleDaysWithReplacementSession()
     {
+        var recalculationResponse = new BookingRecalculationsStatistics()
+        {
+            BookingsCanceled = 2,
+            BookingsCanceledWithoutDetails = 1
+        };
         var site = "TEST123";
         var from = new DateOnly(2025, 10, 10);
         var until = new DateOnly(2025, 10, 15);
@@ -538,8 +554,11 @@ public class AvailabilityWriteServiceTests
 
         _availabilityStore.Setup(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement))
             .ReturnsAsync(new OperationResult(true));
+        _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+        ).ReturnsAsync(recalculationResponse);
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -548,7 +567,10 @@ public class AvailabilityWriteServiceTests
             false, 
             false);
 
-        editSuccessful.Should().BeTrue();
+        result.UpdateSuccessful.Should().BeTrue();
+        result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
+        result.BookingsCanceled.Should().Be(recalculationResponse.BookingsCanceled);
+        result.UpdateSuccessful.Should().Be(true);
 
         _availabilityStore.Verify(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement), Times.Once);
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), false), Times.Once);
@@ -580,7 +602,7 @@ public class AvailabilityWriteServiceTests
         _availabilityStore.Setup(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement))
             .ReturnsAsync(new OperationResult(false, "Something went wrong."));
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -589,8 +611,8 @@ public class AvailabilityWriteServiceTests
             false, 
             false);
 
-        editSuccessful.Should().BeFalse();
-        message.Should().Be("Something went wrong.");
+        result.UpdateSuccessful.Should().BeFalse();
+        result.Message.Should().Be("Something went wrong.");
 
         _availabilityStore.Verify(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement), Times.Once);
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Never);
@@ -599,6 +621,11 @@ public class AvailabilityWriteServiceTests
     [Fact]
     public async Task EditOrCancelSession_AppliesNewTemplate_ForSingleSessionOnSingleDay()
     {
+        var recalculationResponse = new BookingRecalculationsStatistics()
+        {
+            BookingsCanceled = 2,
+            BookingsCanceledWithoutDetails = 1
+        };
         var site = "TEST123";
         var from = new DateOnly(2025, 10, 10);
         var until = new DateOnly(2025, 10, 10);
@@ -620,7 +647,11 @@ public class AvailabilityWriteServiceTests
         };
         var sessionReplacements = new Session[] { sessionReplacement };
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+        ).ReturnsAsync(recalculationResponse);
+
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -629,7 +660,10 @@ public class AvailabilityWriteServiceTests
             false, 
             false);
 
-        editSuccessful.Should().BeTrue();
+        result.UpdateSuccessful.Should().BeTrue();
+        result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
+        result.BookingsCanceled.Should().Be(recalculationResponse.BookingsCanceled);
+        result.UpdateSuccessful.Should().Be(true);
 
         _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, from, sessionReplacements, ApplyAvailabilityMode.Edit, sessionMatcher), Times.Once);
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), false), Times.Once);
@@ -638,6 +672,11 @@ public class AvailabilityWriteServiceTests
     [Fact]
     public async Task EditOrCancelSession_CancelsSingleSession()
     {
+        var recalculationResponse = new BookingRecalculationsStatistics()
+        {
+            BookingsCanceled = 2,
+            BookingsCanceledWithoutDetails = 1
+        };
         var site = "TEST123";
         var from = new DateOnly(2025, 10, 10);
         var until = new DateOnly(2025, 10, 10);
@@ -650,7 +689,11 @@ public class AvailabilityWriteServiceTests
             SlotLength = 5
         };
 
-        var (editSuccessful, message) = await _sut.EditOrCancelSessionAsync(
+        _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+        ).ReturnsAsync(recalculationResponse);
+
+        var result = await _sut.EditOrCancelSessionAsync(
             site,
             from,
             until,
@@ -659,7 +702,10 @@ public class AvailabilityWriteServiceTests
             false, 
             false);
 
-        editSuccessful.Should().BeTrue();
+        result.UpdateSuccessful.Should().BeTrue();
+        result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
+        result.BookingsCanceled.Should().Be(recalculationResponse.BookingsCanceled);
+        result.UpdateSuccessful.Should().Be(true);
 
         _availabilityStore.Verify(x => x.CancelSession(site, from, sessionMatcher), Times.Once);
         _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), false), Times.Once);

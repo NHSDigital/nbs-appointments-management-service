@@ -23,7 +23,7 @@ public class EditSessionFunction(
     IMetricsRecorder metricsRecorder,
     IAvailabilityWriteService availabilityWriteService,
     IFeatureToggleHelper featureToggleHelper)
-    : BaseApiFunction<EditSessionRequest, EmptyResponse>(validator, userContextProvider, logger,
+    : BaseApiFunction<EditSessionRequest, SessionModificationResult>(validator, userContextProvider, logger,
         metricsRecorder)
 {
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
@@ -45,9 +45,9 @@ public class EditSessionFunction(
             : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
-    protected override async Task<ApiResult<EmptyResponse>> HandleRequest(EditSessionRequest request, ILogger logger)
+    protected override async Task<ApiResult<SessionModificationResult>> HandleRequest(EditSessionRequest request, ILogger logger)
     {
-        var (updateSuccessful, message) = await availabilityWriteService.EditOrCancelSessionAsync(
+        var result = await availabilityWriteService.EditOrCancelSessionAsync(
             request.Site,
             request.From,
             request.To,
@@ -56,9 +56,9 @@ public class EditSessionFunction(
             request.SessionMatcher.IsWildcard,
             request.CancelUnsupportedBookings);
 
-        return updateSuccessful
-            ? Success(new EmptyResponse())
-            : Failed(HttpStatusCode.UnprocessableContent, message);
+        return result.UpdateSuccessful
+            ? Success(result)
+            : Failed(HttpStatusCode.UnprocessableContent, result.Message);
     }
 
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, EditSessionRequest request)> ReadRequestAsync(HttpRequest req)

@@ -79,10 +79,10 @@ type CancelDailyAppointment = {
 //session test cases to verify, should have session&booking data in the seeder
 export const sessionTestCases: SessionTestCase[] = [
   {
-    week: '2025-10-20',
-    day: '2025-10-25',
-    dayCardHeader: 'Saturday 25 October',
-    changeSessionHeader: '25 October 2025',
+    week: '2026-04-20',
+    day: '2026-04-25',
+    dayCardHeader: 'Saturday 25 April',
+    changeSessionHeader: '25 April 2026',
     timeRange: '10:00 - 17:00',
     startHour: '10',
     startMins: '00',
@@ -109,7 +109,7 @@ export const sessionTestCases: SessionTestCase[] = [
     ],
     cancelDailyAppointments: [
       {
-        time: '25 October 202510:00am',
+        time: '25 April 202610:00am',
         name: 'Jeremy Oswald',
         nhsNumber: '1975486535',
         dob: '13 November 1952',
@@ -117,7 +117,7 @@ export const sessionTestCases: SessionTestCase[] = [
         services: 'RSV Adult',
       },
       {
-        time: '25 October 202516:55pm',
+        time: '25 April 202616:55pm',
         name: 'Jeremy Oswald',
         nhsNumber: '1975486535',
         dob: '13 November 1952',
@@ -127,10 +127,10 @@ export const sessionTestCases: SessionTestCase[] = [
     ],
   },
   {
-    week: '2025-10-20',
-    day: '2025-10-26',
-    dayCardHeader: 'Sunday 26 October',
-    changeSessionHeader: '26 October 2025',
+    week: '2026-04-20',
+    day: '2026-04-26',
+    dayCardHeader: 'Sunday 26 April',
+    changeSessionHeader: '26 April 2026',
     timeRange: '10:00 - 17:00',
     startHour: '10',
     startMins: '00',
@@ -157,7 +157,7 @@ export const sessionTestCases: SessionTestCase[] = [
     ],
     cancelDailyAppointments: [
       {
-        time: '26 October 202510:00am',
+        time: '26 April 202610:00am',
         name: 'Jeremy Oswald',
         nhsNumber: '1975486535',
         dob: '13 November 1952',
@@ -165,7 +165,7 @@ export const sessionTestCases: SessionTestCase[] = [
         services: 'RSV Adult',
       },
       {
-        time: '26 October 202516:55pm',
+        time: '26 April 202616:55pm',
         name: 'Jeremy Oswald',
         nhsNumber: '1975486535',
         dob: '13 November 1952',
@@ -175,10 +175,10 @@ export const sessionTestCases: SessionTestCase[] = [
     ],
   },
   {
-    week: '2025-10-27',
-    day: '2025-10-27',
-    dayCardHeader: 'Monday 27 October',
-    changeSessionHeader: '27 October 2025',
+    week: '2026-04-27',
+    day: '2026-04-27',
+    dayCardHeader: 'Monday 27 April',
+    changeSessionHeader: '27 April 2026',
     timeRange: '10:00 - 17:00',
     startHour: '10',
     startMins: '00',
@@ -205,7 +205,7 @@ export const sessionTestCases: SessionTestCase[] = [
     ],
     cancelDailyAppointments: [
       {
-        time: '27 October 202510:00am',
+        time: '27 April 202610:00am',
         name: 'Jeremy Oswald',
         nhsNumber: '1975486535',
         dob: '13 November 1952',
@@ -213,7 +213,7 @@ export const sessionTestCases: SessionTestCase[] = [
         services: 'RSV Adult',
       },
       {
-        time: '27 October 202516:55pm',
+        time: '27 April 202616:55pm',
         name: 'Jeremy Oswald',
         nhsNumber: '1975486535',
         dob: '13 November 1952',
@@ -370,13 +370,13 @@ export const sessionTestCases: SessionTestCase[] = [
 
 export const weekTestCases: WeekViewTestCase[] = [
   {
-    week: '2025-10-20',
-    weekHeader: '20 October to 26 October',
-    previousWeek: '13-19 October 2025',
-    nextWeek: '27-2 November 2025',
+    week: '2026-04-20',
+    weekHeader: '20 April to 26 April',
+    previousWeek: '13-19 April 2026',
+    nextWeek: '27-3 May 2026',
     dayOverviews: [
       {
-        header: 'Monday 20 October',
+        header: 'Monday 20 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -384,7 +384,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Tuesday 21 October',
+        header: 'Tuesday 21 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -392,7 +392,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Wednesday 22 October',
+        header: 'Wednesday 22 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -400,7 +400,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Thursday 23 October',
+        header: 'Thursday 23 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -408,7 +408,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Friday 24 October',
+        header: 'Friday 24 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -416,7 +416,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Saturday 25 October',
+        header: 'Saturday 25 April',
         sessions: [
           {
             serviceName: 'RSV Adult',
@@ -431,7 +431,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Sunday 26 October',
+        header: 'Sunday 26 April',
         sessions: [
           {
             serviceName: 'RSV Adult',
@@ -448,13 +448,13 @@ export const weekTestCases: WeekViewTestCase[] = [
     ],
   },
   {
-    week: '2025-10-27',
-    weekHeader: '27 October to 2 November',
-    previousWeek: '20-26 October 2025',
-    nextWeek: '3-9 November 2025',
+    week: '2026-04-27',
+    weekHeader: '27 April to 3 May',
+    previousWeek: '20-26 April 2026',
+    nextWeek: '4-10 May 2026',
     dayOverviews: [
       {
-        header: 'Monday 27 October',
+        header: 'Monday 27 April',
         sessions: [
           {
             serviceName: 'RSV Adult',
@@ -469,7 +469,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Tuesday 28 October',
+        header: 'Tuesday 28 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -477,7 +477,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Wednesday 29 October',
+        header: 'Wednesday 29 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -485,7 +485,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Thursday 30 October',
+        header: 'Thursday 30 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -493,7 +493,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Friday 31 October',
+        header: 'Friday 1 May',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -501,7 +501,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Saturday 1 November',
+        header: 'Saturday 2 May',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -509,7 +509,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Sunday 2 November',
+        header: 'Sunday 3 May',
         sessions: [],
         totalAppointments: 0,
         booked: 0,

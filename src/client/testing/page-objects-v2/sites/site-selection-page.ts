@@ -4,7 +4,7 @@ import { SitePage } from '@e2etests/page-objects';
 
 export default class SiteSelectionPage extends MYALayout {
   title = this.page.getByRole('heading', {
-    name: 'Manage your appointments',
+    name: 'Viewing all sites',
   });
 
   readonly siteSelectionCardHeading: Locator = this.page.getByRole('heading', {

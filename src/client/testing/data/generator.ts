@@ -6,6 +6,7 @@ import {
   SiteDocument,
   UserDocument,
 } from '@e2etests/types';
+import { createHash } from 'crypto';
 
 const buildSiteDocument = (testId: number): SiteDocument => {
   return {
@@ -31,10 +32,25 @@ const buildE2ETestSite = (testId: number): E2ETestSite => {
   return { id: buildSiteId(testId), name: buildSiteName(testId) };
 };
 
+// TODO: Clean this up a bit, must be a better way of generating deterministic GUIDs
+function generateDeterministicGuid(seed: number): string {
+  const hash = createHash('sha256').update(seed.toString()).digest('hex');
+
+  return [
+    hash.substring(0, 8),
+    hash.substring(8, 12),
+    '4' + hash.substring(13, 16),
+    ((parseInt(hash.substring(16, 17), 16) & 0x3) | 0x8).toString(16) +
+      hash.substring(17, 20),
+    hash.substring(20, 32),
+  ].join('-');
+}
+
 const buildSiteId = (testId: number): string => {
   // TODO: Replace with deterministic GUID generation if needed
   // I suspect it being a string actually won't cause any issues for the e2e tests
-  return `site-${testId}`;
+  //return `site-${testId}`;
+  return generateDeterministicGuid(testId);
 };
 
 const buildSiteName = (testId: number): string => {
@@ -62,7 +78,7 @@ const buildScopeForRole = (testId: number, role: Role): string => {
     case 'system:regional-user':
       return buildRegion(testId);
     default:
-      return buildSiteId(testId);
+      return `site:${buildSiteId(testId)}`;
   }
 };
 

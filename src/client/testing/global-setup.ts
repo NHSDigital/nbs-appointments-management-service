@@ -9,7 +9,7 @@ import { type FullConfig } from '@playwright/test';
 const { COSMOS_ENDPOINT, COSMOS_TOKEN, SEED_COSMOS_BEFORE_RUN } = env;
 
 /**
- * @deprecated Use...
+ * @deprecated Playwright should no longer run the CosmosDbSeeder. New tests should use fixtures v2 which enables dynamic data setup/teardown.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function globalSetup(config: FullConfig) {
@@ -19,7 +19,7 @@ async function globalSetup(config: FullConfig) {
 }
 
 /**
- * @deprecated Use....
+ * @deprecated Playwright should no longer run the CosmosDbSeeder. New tests should use fixtures v2 which enables dynamic data setup/teardown.
  */
 async function seedCosmos() {
   const client = new CosmosClient({

@@ -47,9 +47,6 @@ function generateDeterministicGuid(seed: number): string {
 }
 
 const buildSiteId = (testId: number): string => {
-  // TODO: Replace with deterministic GUID generation if needed
-  // I suspect it being a string actually won't cause any issues for the e2e tests
-  //return `site-${testId}`;
   return generateDeterministicGuid(testId);
 };
 

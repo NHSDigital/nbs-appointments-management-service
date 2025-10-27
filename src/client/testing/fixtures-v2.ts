@@ -1,7 +1,7 @@
 // We need this to avoid SSL errors when running tests locally
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-import { test as base } from '@playwright/test';
+import { test as base, TestInfo } from '@playwright/test';
 import {
   buildE2ETestSite,
   buildE2ETestUser,
@@ -18,8 +18,6 @@ type MyaFixtures = {
   signInToSite: (roles?: Role[], features?: FeatureFlag[]) => Promise<SitePage>;
 };
 
-// TODO: split up into test site, test user and features?
-
 export const test = base.extend<MyaFixtures>({
   signInToSite: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
@@ -29,10 +27,12 @@ export const test = base.extend<MyaFixtures>({
     const mockOidcClient = new MockOidcClient(env.MOCK_OIDC_SERVER_BASE_URL);
     const featureFlagClient = new FeatureFlagClient(env.NBS_API_BASE_URL);
 
-    // TODO: think of a better way to generate unique test IDs
-    const testId = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
+    const testId = generateUniqueTestId(testInfo);
 
     // Fixture setup. Result of use() is piped to the test
+    // This currently accepts a list of roles and feature flags.
+    // In the future this will be extended to accept a list of users and sites to enable tests to request extra users and sites in their setup.
+    // Alternatively, we can add extra fixtures to this list and make them each responsible for setup/teardown of a different thing. Tests can import multiple fixtures as needed.
     await use(
       async (
         roles = [
@@ -67,5 +67,14 @@ export const test = base.extend<MyaFixtures>({
     await cosmosDbClient.deleteUser(testId);
   },
 });
+
+// TODO: Improve this in the future
+const generateUniqueTestId = (testInfo: TestInfo): number => {
+  const testId = Number(
+    `${testInfo.workerIndex}${Date.now()}${Math.floor(Math.random() * 1000)}`,
+  );
+
+  return testId;
+};
 
 export { expect } from '@playwright/test';

@@ -244,18 +244,26 @@ public class BookingWriteService(
 
         var results = await Task.WhenAll(dayTasks);
 
-        
-        return new BookingRecalculationsStatistics()
-        {
-            BookingsCanceled = results.Sum(day => day.Count(update => cancelUnsupportedBookings && update.Action == AvailabilityUpdateAction.SetToOrphaned)),
-            BookingsCanceledWithoutDetails = 
-                results.Sum(
-                    day => day.Count(
-                        update => cancelUnsupportedBookings && 
-                                   update.Action == AvailabilityUpdateAction.SetToOrphaned &&
-                                   (update.Booking.ContactDetails is null || !update.Booking.ContactDetails.Any(x => ValidNotificationTypes.Contains(x.Type)))
-                                   ))
 
+        if (!cancelUnsupportedBookings)
+        {
+            return new BookingRecalculationsStatistics
+            {
+                BookingsCanceled = 0,
+                BookingsCanceledWithoutDetails = 0
+            };
+        }
+
+        return new BookingRecalculationsStatistics
+        {
+            BookingsCanceled = results.Sum(day =>
+                day.Count(update => update.Action == AvailabilityUpdateAction.SetToOrphaned)),
+
+            BookingsCanceledWithoutDetails = results.Sum(day =>
+                day.Count(update =>
+                    update.Action == AvailabilityUpdateAction.SetToOrphaned &&
+                    (update.Booking.ContactDetails is null ||
+                     !update.Booking.ContactDetails.Any(x => ValidNotificationTypes.Contains(x.Type)))))
         };
     }
 

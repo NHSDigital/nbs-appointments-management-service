@@ -10,6 +10,9 @@ class MockOidcClient {
 
   public async registerTestUser(testId: number) {
     const testUser = buildMockOidcUser(testId);
+    console.log(
+      `Attempting to register mock OIDC user: ${testUser.subjectId} with Duende...`,
+    );
 
     await fetch(`${this.baseUrl}/api/v1/user`, {
       method: 'POST',

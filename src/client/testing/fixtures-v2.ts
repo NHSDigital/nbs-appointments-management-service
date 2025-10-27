@@ -61,10 +61,12 @@ export const test = base.extend<MyaFixtures>({
       },
     );
 
-    // // Clean up the fixture.
-    await featureFlagClient.clearAllFeatureFlagOverrides();
+    // Clean up the fixture.
     await cosmosDbClient.deleteSite(testId);
     await cosmosDbClient.deleteUser(testId);
+    // TODO: Change this to only revert features set during setup, otherwise will break parallelism.
+    // Leaving it in for now just to prove everything works as expected.
+    await featureFlagClient.clearAllFeatureFlagOverrides();
   },
 });
 

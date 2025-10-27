@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -13,10 +14,13 @@ public class SiteServiceTests
     private readonly Mock<ILogger<ISiteService>> _logger = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly SiteService _sut;
+    private readonly Mock<IOptions<SiteServiceOptions>> _options = new();
 
     public SiteServiceTests()
     {
-        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object, TimeProvider.System, _featureToggleHelper.Object);
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions());
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
+            TimeProvider.System, _featureToggleHelper.Object, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 
@@ -889,7 +893,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(false);
         _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
 
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], true);
+        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _siteStore.Verify(x => x.GetAllSites(false), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);

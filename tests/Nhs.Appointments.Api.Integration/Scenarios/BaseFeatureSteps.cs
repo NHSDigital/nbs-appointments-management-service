@@ -751,6 +751,44 @@ public abstract partial class BaseFeatureSteps : Feature
         dayAvailabilityDocument.Resource.Sessions.Length.Should().Be(0);
     }
 
+    [Given("The following sites exist in the system")]
+    public async Task SetUpSites(DataTable dataTable)
+    {
+        var sites = dataTable.Rows.Skip(1).Select(
+            row => new SiteDocument
+            {
+                Id = GetSiteId(row.Cells.ElementAt(0).Value),
+                Name = row.Cells.ElementAt(1).Value,
+                Address = row.Cells.ElementAt(2).Value,
+                PhoneNumber = row.Cells.ElementAt(3).Value,
+                OdsCode = row.Cells.ElementAt(4).Value,
+                Region = row.Cells.ElementAt(5).Value,
+                IntegratedCareBoard = row.Cells.ElementAt(6).Value,
+                InformationForCitizens = row.Cells.ElementAt(7).Value,
+                DocumentType = "site",
+                Accessibilities = ParseAccessibilities(row.Cells.ElementAt(8).Value),
+                Location = new Location("Point",
+                    new[] { double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value) }),
+                Type = row.Cells.ElementAt(11)?.Value ?? string.Empty
+            });
+
+        foreach (var site in sites)
+        {
+            await Client.GetContainer("appts", "core_data").UpsertItemAsync(site);
+        }
+    }
+
+    protected static Accessibility[] ParseAccessibilities(string accessibilities)
+    {
+        if (accessibilities == "__empty__")
+        {
+            return Array.Empty<Accessibility>();
+        }
+
+        var pairs = accessibilities.Split(",");
+        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1])).ToArray();
+    }
+
     private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,
         bool expectStatusToHaveChanged = true)
     {

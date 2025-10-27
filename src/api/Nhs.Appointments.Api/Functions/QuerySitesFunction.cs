@@ -11,6 +11,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -50,5 +51,16 @@ public class QuerySitesFunction(
     {
         var sites = await siteService.QuerySitesAsync(request.Filters, request.MaxRecords, request.IgnoreCache);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
+    }
+
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QuerySitesRequest request)> ReadRequestAsync(HttpRequest req)
+    {
+        var (errors, payload) = await JsonRequestReader.ReadRequestAsync<QuerySitesRequest>(req.Body, true);
+        if (errors.Any())
+        {
+            return (errors, payload);
+        }
+
+        return (errors, payload);
     }
 }

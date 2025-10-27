@@ -373,7 +373,7 @@ export const weekTestCases: WeekViewTestCase[] = [
     week: '2026-04-20',
     weekHeader: '20 April to 26 April',
     previousWeek: '13-19 April 2026',
-    nextWeek: '27 April - 3 May 2026',
+    nextWeek: '27-3 May 2026',
     dayOverviews: [
       {
         header: 'Monday 20 April',

@@ -7,7 +7,7 @@
     "SiteSummaryReport": false,
     "SiteStatus": false,
     "CancelDay": false,
-    "ChangeSessionUpliftedJourney": true,
+    "ChangeSessionUpliftedJourney": false,
     "CancelSessionUpliftedJourney": false,
     "QuerySites": false,
     "TestFeaturePercentageEnabled": {

@@ -9,7 +9,7 @@ import CancellationConfirmed from './cancellation-confirmed';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { parseToUkDatetime } from '@services/timeService';
 import NhsPage from '@components/nhs-page';
-import SessionModificationConfirmed from '@components/session-modification-confirmed';
+import { SessionModificationConfirmed } from '@components/session-modification-confirmed';
 import fromServer from '@server/fromServer';
 import { SessionSummary, SessionModificationAction } from '@types';
 
@@ -65,6 +65,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const sessionSummary: SessionSummary = JSON.parse(atob(updatedSession));
 
+  console.log(chosenAction);
+  console.log(parsedUnsupportedBookingsCount);
+  console.log(parsedBookingsCanceledWithoutDetailsCount);
   return (
     <>
       {cancelSessionUpliftedJourneyFlag.enabled ? (

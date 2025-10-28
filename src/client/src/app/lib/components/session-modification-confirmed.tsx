@@ -17,7 +17,7 @@ type PageProps = {
   bookingsCanceledWithoutDetails: number;
 };
 
-const SessionModificationConfirmed = ({
+export const SessionModificationConfirmed = ({
   clinicalServices,
   siteId,
   date,
@@ -75,7 +75,7 @@ const SessionModificationConfirmed = ({
     } else {
       return (
         <p>
-          This session has been cancelled and {unsupportedBookingsCount}
+          This session has been cancelled and {unsupportedBookingsCount}{' '}
           bookings have been cancelled.
         </p>
       );
@@ -113,5 +113,3 @@ const SessionModificationConfirmed = ({
     </>
   );
 };
-
-export default SessionModificationConfirmed;

@@ -11,3 +11,4 @@ public interface IAdminUserDataImportHandler : IDataImportHandler { }
 public interface IApiUserDataImportHandler : IDataImportHandler { }
 public interface ISiteDataImportHandler : IDataImportHandler { }
 public interface IUserDataImportHandler : IDataImportHandler { }
+public interface ISiteStatusDataImportHandler : IDataImportHandler { }

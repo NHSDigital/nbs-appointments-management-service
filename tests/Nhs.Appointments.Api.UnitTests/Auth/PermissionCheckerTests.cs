@@ -41,7 +41,8 @@ public class PermissionCheckerTests
             new List<Accessibility>(),
             new Location("Location", new[] { 0.0 }),
             SiteStatus.Online,
-            null);
+            null,
+            string.Empty);
 
     [Fact]
     public async Task HasPermissions_ReturnsTrue_WhenPermissionAssignedGloballyAndGeneralRequest()
@@ -472,7 +473,7 @@ public class PermissionCheckerTests
         _siteService.Setup(x => x.GetSitesInRegion(It.IsAny<string>()))
             .ReturnsAsync(new List<Site>
             {
-                new("1", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online, null)
+                new("1", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online, null, string.Empty)
             });
 
         var result = await _sut.HasPermissionAsync(userId, ["1"], "TestPermission");
@@ -502,7 +503,7 @@ public class PermissionCheckerTests
         _siteService.Setup(x => x.GetSitesInRegion(It.IsAny<string>()))
             .ReturnsAsync(new List<Site>
             {
-                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online, null)
+                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online, null, string.Empty)
             });
 
         var result = await _sut.GetPermissionsAsync(userId, "2");
@@ -554,7 +555,7 @@ public class PermissionCheckerTests
         _siteService.Setup(x => x.GetSitesInIcbAsync(It.IsAny<string>()))
             .ReturnsAsync(new List<Site>
             {
-                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB1", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online, null)
+                new("2", "TestSite", "TestAddress", "N", "T1", "R1", "ICB1", string.Empty, [], new Location("Test", [0,0]), SiteStatus.Online, null, string.Empty)
             });
 
         var result = await _sut.GetPermissionsAsync(userId, "2");

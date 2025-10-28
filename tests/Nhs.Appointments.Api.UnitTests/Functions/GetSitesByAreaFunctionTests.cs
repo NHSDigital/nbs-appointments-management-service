@@ -67,7 +67,7 @@ public class GetSitesByAreaFunctionTests
                     Location: new Location("point", [0.1, 10]),
                     status : SiteStatus.Online,
                     isDeleted: null,
-                    Type: string.Empty),
+                    Type: null),
                 Distance: 100)
         };
         _siteService
@@ -104,7 +104,7 @@ public class GetSitesByAreaFunctionTests
                     Location: new Location("point", [0.1, 10]),
                     status : SiteStatus.Online,
                     isDeleted: null,
-                    Type: string.Empty),
+                    Type: null),
                 Distance: 100)
         };
         _siteService

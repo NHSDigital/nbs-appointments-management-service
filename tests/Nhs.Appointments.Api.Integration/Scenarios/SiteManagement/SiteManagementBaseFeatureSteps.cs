@@ -102,7 +102,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
             status: null,
             isDeleted: null,
-            Type: string.Empty
+            Type: null
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 

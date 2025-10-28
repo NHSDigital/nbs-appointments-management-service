@@ -58,7 +58,7 @@ public class GetSiteMetaDataFunctionTests
                 Location: new Location("Test", [123.1, 321.3]),
                 status: SiteStatus.Online,
                 isDeleted: null,
-                Type: string.Empty
+                Type: null
             ));
         var request = CreateRequest();
 

@@ -4,7 +4,7 @@ import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 
 type PageProps = {
-  updatedSession: Session;
+  updatedSession: AvailabilitySession;
   clinicalServices: ClinicalService[];
   site: Site;
   date: string;

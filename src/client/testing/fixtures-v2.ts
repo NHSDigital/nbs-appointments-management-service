@@ -43,12 +43,14 @@ export const test = base.extend<MyaFixtures>({
         ],
         features = [],
       ) => {
-        await cosmosDbClient.createSite(testId);
-        await cosmosDbClient.createUser(testId, roles);
-        await mockOidcClient.registerTestUser(testId);
-        features.forEach(async feature =>
-          featureFlagClient.overrideFeatureFlag(feature),
-        );
+        await Promise.all([
+          cosmosDbClient.createSite(testId),
+          cosmosDbClient.createUser(testId, roles),
+          mockOidcClient.registerTestUser(testId),
+          features.map(async feature => {
+            featureFlagClient.overrideFeatureFlag(feature);
+          }),
+        ]);
 
         return await new LoginPage(page)
           .logInWithNhsMail()
@@ -62,11 +64,13 @@ export const test = base.extend<MyaFixtures>({
     );
 
     // Clean up the fixture.
-    await cosmosDbClient.deleteSite(testId);
-    await cosmosDbClient.deleteUser(testId);
-    // TODO: Change this to only revert features set during setup, otherwise will break parallelism.
-    // Leaving it in for now just to prove everything works as expected.
-    await featureFlagClient.clearAllFeatureFlagOverrides();
+    await Promise.all([
+      await cosmosDbClient.deleteSite(testId),
+      await cosmosDbClient.deleteUser(testId),
+      // TODO: Change this to only revert features set during setup, otherwise will break parallelism.
+      // Leaving it in for now just to prove everything works as expected.
+      await featureFlagClient.clearAllFeatureFlagOverrides(),
+    ]);
   },
 });
 

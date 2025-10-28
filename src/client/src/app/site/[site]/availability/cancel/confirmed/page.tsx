@@ -65,9 +65,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const sessionSummary: SessionSummary = JSON.parse(atob(updatedSession));
 
-  console.log(chosenAction);
-  console.log(parsedUnsupportedBookingsCount);
-  console.log(parsedBookingsCanceledWithoutDetailsCount);
   return (
     <>
       {cancelSessionUpliftedJourneyFlag.enabled ? (

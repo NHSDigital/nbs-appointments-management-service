@@ -41,8 +41,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  console.log('chosenAction', chosenAction);
-
   const hasBookings = cancelAppointments == undefined ? false : true;
 
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));

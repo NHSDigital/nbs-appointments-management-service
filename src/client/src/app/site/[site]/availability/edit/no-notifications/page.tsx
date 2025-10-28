@@ -1,14 +1,12 @@
 import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
-  fetchPermissions,
   fetchSite,
   fetchClinicalServices,
 } from '@services/appointmentsService';
 import { fetchBookings } from '@services/appointmentsService';
 import { NoNotificationsPage } from './no-notifications-page';
 import { FetchBookingsRequest } from '@types';
-import { Tab, Tabs } from '@nhsuk-frontend-components';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
@@ -48,23 +46,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
     fromServer(fetchClinicalServices()),
   ]);
 
-  const scheduledBookings = bookings.filter(
-    b => b.status === 'Booked' && b.availabilityStatus !== 'Orphaned',
-  );
   const cancelledBookings = bookings.filter(b => b.status === 'Cancelled');
-  const orphanedAppointments = bookings.filter(
-    b => b.availabilityStatus === 'Orphaned',
-  );
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
     href: `/site/${site.id}/view-availability/week?date=${date}`,
     text: 'Back to week view',
   };
-
-  const canCancelBookings = (
-    await fromServer(fetchPermissions(site.id))
-  ).includes('booking:cancel');
 
   return (
     <NhsPage

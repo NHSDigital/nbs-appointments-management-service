@@ -56,12 +56,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
     text: 'Back to week view',
   };
 
-  const caption = `${cancelledWithoutDetailsCount} people did not get a cancellation notification as they had no contact details on their booking.`;
-
   return (
     <NhsPage
-      title="People wo did not receive a notification"
-      caption={caption}
+      title="People who did not receive a notification"
       backLink={backLink}
       originPage="view-availability-daily-appointments"
       site={site}
@@ -71,6 +68,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
         bookings={cancelledBookings}
         site={site.id}
         clinicalServices={clinicalServices}
+        cancelledWithoutDetailsCount={cancelledWithoutDetailsCount || 0}
       />
     </NhsPage>
   );

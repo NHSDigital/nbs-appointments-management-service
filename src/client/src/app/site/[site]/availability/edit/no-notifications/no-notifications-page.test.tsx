@@ -23,6 +23,7 @@ describe('Create No Notifications Page', () => {
         bookings={mockBookings}
         site="TEST01"
         clinicalServices={mockMultipleServices}
+        cancelledWithoutDetailsCount={1}
       />,
     );
 

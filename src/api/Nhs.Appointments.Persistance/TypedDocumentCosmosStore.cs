@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
@@ -139,13 +139,20 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         }
 
         var container = GetContainer();
-        var result = await container.PatchItemAsync<TDocument>(
-            id: documentId,
-            partitionKey: new PartitionKey(partitionKey),
-            patchOperations: patches.ToList().AsReadOnly());
+        try
+        {
+            var result = await container.PatchItemAsync<TDocument>(
+                id: documentId,
+                partitionKey: new PartitionKey(partitionKey),
+                patchOperations: patches.ToList().AsReadOnly());
 
-        RecordQueryMetrics(result.RequestCharge);
-        return result.Resource;
+            RecordQueryMetrics(result.RequestCharge);
+            return result.Resource;
+        }
+        catch (Exception ex) 
+        {
+            throw;
+        }
     }
 
     public string GetDocumentType()

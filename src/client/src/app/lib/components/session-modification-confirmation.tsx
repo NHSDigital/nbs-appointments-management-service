@@ -182,10 +182,12 @@ export const SessionModificationConfirmation = ({
         };
       }
 
-      await fromServer(modifySession(request));
+      const response = await fromServer(modifySession(request));
+
+      const encode = (obj: unknown) => btoa(JSON.stringify(obj));
 
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${unsupportedBookingsCount}&cancelAppointments=${cancelBookings}`,
+        `/site/${site}/availability/${mode}/confirmed?updatedSession=${encode(newSessionSummary)}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
       );
     });
   };

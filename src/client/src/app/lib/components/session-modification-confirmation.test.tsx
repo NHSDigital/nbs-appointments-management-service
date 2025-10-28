@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import asServerActionResult from '@testing/asServerActionResult';
 import * as timeService from '@services/timeService';
+import { SessionModificationResult } from '@types';
 
 const mockSessionSummary = {
   ukStartDatetime: '2025-10-23T10:00:00',
@@ -226,7 +227,18 @@ describe('CancelSessionConfirmation', () => {
 describe('submitForm', () => {
   beforeEach(() => {
     mockUseRouter.mockReturnValue({ push: mockPush });
-    mockModifySession.mockResolvedValue(asServerActionResult(undefined));
+    const sessionModificationResult: SessionModificationResult = {
+      updateSuccessful: true,
+      message: 'Session modified successfully',
+      bookingsCanceled: 2,
+      bookingsCanceledWithoutDetails: 1,
+    };
+
+    mockModifySession.mockResolvedValue(
+      asServerActionResult<SessionModificationResult>(
+        sessionModificationResult,
+      ),
+    );
     jest.clearAllMocks();
   });
 
@@ -276,11 +288,33 @@ describe('submitForm', () => {
     });
 
     // Validate navigation
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
-      ),
+    expect(mockPush).toHaveBeenCalled();
+
+    const calledArg = (mockPush.mock.calls[0] as unknown[])[0] as string;
+    expect(calledArg).toContain(
+      `/site/site-123/availability/${mode}/confirmed`,
     );
+
+    const query = calledArg.split('?')[1] ?? '';
+    const params = new URLSearchParams(query);
+
+    const updatedSession = params.get('updatedSession');
+    expect(updatedSession).toBeTruthy();
+    expect(updatedSession).not.toBe('undefined');
+    expect(query).toMatch(/updatedSession=[^&]+/);
+
+    const decoded = updatedSession ? decodeURIComponent(updatedSession) : '';
+    expect(decoded.length).toBeGreaterThan(0);
+
+    // other exact params
+    expect(params.get('date')).toBe('2024-06-10');
+    expect(params.get('chosenAction')).toBe('cancel-appointments');
+    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('cancelAppointments')).toBe('true');
+    expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
+
+    // ensure no stray "undefined" anywhere in the URL
+    expect(calledArg).not.toContain('undefined');
   });
 
   it('sends correct payload for change session action', async () => {
@@ -329,11 +363,33 @@ describe('submitForm', () => {
     });
 
     // Validate navigation
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=change-session&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
-      ),
+    expect(mockPush).toHaveBeenCalled();
+
+    const calledArg = (mockPush.mock.calls[0] as unknown[])[0] as string;
+    expect(calledArg).toContain(
+      `/site/site-123/availability/${mode}/confirmed`,
     );
+
+    const query = calledArg.split('?')[1] ?? '';
+    const params = new URLSearchParams(query);
+
+    const updatedSession = params.get('updatedSession');
+    expect(updatedSession).toBeTruthy();
+    expect(updatedSession).not.toBe('undefined');
+    expect(query).toMatch(/updatedSession=[^&]+/);
+
+    const decoded = updatedSession ? decodeURIComponent(updatedSession) : '';
+    expect(decoded.length).toBeGreaterThan(0);
+
+    // other exact params
+    expect(params.get('date')).toBe('2024-06-10');
+    expect(params.get('chosenAction')).toBe('change-session');
+    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('cancelAppointments')).toBe('false');
+    expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
+
+    // ensure no stray "undefined" anywhere in the URL
+    expect(calledArg).not.toContain('undefined');
   });
 
   it('sends correct payload for cancel session action', async () => {
@@ -382,11 +438,33 @@ describe('submitForm', () => {
     });
 
     // Validate navigation
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=keep-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
-      ),
+    expect(mockPush).toHaveBeenCalled();
+
+    const calledArg = (mockPush.mock.calls[0] as unknown[])[0] as string;
+    expect(calledArg).toContain(
+      `/site/site-123/availability/${mode}/confirmed`,
     );
+
+    const query = calledArg.split('?')[1] ?? '';
+    const params = new URLSearchParams(query);
+
+    const updatedSession = params.get('updatedSession');
+    expect(updatedSession).toBeTruthy();
+    expect(updatedSession).not.toBe('undefined');
+    expect(query).toMatch(/updatedSession=[^&]+/);
+
+    const decoded = updatedSession ? decodeURIComponent(updatedSession) : '';
+    expect(decoded.length).toBeGreaterThan(0);
+
+    // other exact params
+    expect(params.get('date')).toBe('2024-06-10');
+    expect(params.get('chosenAction')).toBe('keep-appointments');
+    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('cancelAppointments')).toBe('false');
+    expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
+
+    // ensure no stray "undefined" anywhere in the URL
+    expect(calledArg).not.toContain('undefined');
   });
 
   it('sends correct payload for cancel session and cancel appointments action', async () => {
@@ -435,10 +513,38 @@ describe('submitForm', () => {
     });
 
     // Validate navigation
-    expect(mockPush).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
-      ),
+    //expect(mockPush).toHaveBeenCalledWith(
+    //  expect.stringContaining(
+    //    `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
+    //  ),
+    //);
+
+    expect(mockPush).toHaveBeenCalled();
+
+    const calledArg = (mockPush.mock.calls[0] as unknown[])[0] as string;
+    expect(calledArg).toContain(
+      `/site/site-123/availability/${mode}/confirmed`,
     );
+
+    const query = calledArg.split('?')[1] ?? '';
+    const params = new URLSearchParams(query);
+
+    const updatedSession = params.get('updatedSession');
+    expect(updatedSession).toBeTruthy();
+    expect(updatedSession).not.toBe('undefined');
+    expect(query).toMatch(/updatedSession=[^&]+/);
+
+    const decoded = updatedSession ? decodeURIComponent(updatedSession) : '';
+    expect(decoded.length).toBeGreaterThan(0);
+
+    // other exact params
+    expect(params.get('date')).toBe('2024-06-10');
+    expect(params.get('chosenAction')).toBe('cancel-appointments');
+    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('cancelAppointments')).toBe('true');
+    expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
+
+    // ensure no stray "undefined" anywhere in the URL
+    expect(calledArg).not.toContain('undefined');
   });
 });

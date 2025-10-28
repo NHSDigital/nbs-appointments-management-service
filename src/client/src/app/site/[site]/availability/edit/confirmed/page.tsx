@@ -5,8 +5,12 @@ import {
   fetchSite,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { AvailabilitySession, FetchBookingsRequest } from '@types';
-import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
+import { AvailabilitySession, Session, FetchBookingsRequest } from '@types';
+import {
+  dateTimeFormat,
+  parseToUkDatetime,
+  toTimeFormat,
+} from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
 import NhsPage from '@components/nhs-page';
@@ -25,6 +29,14 @@ type PageProps = {
     site: string;
   }>;
 };
+
+const toAvailabilitySession = (session: Session): AvailabilitySession => ({
+  from: toTimeFormat(session.startTime) ?? '',
+  until: toTimeFormat(session.endTime) ?? '',
+  slotLength: session.slotLength,
+  capacity: session.capacity,
+  services: session.services,
+});
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
@@ -70,9 +82,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const parsedDate = parseToUkDatetime(date);
 
-  const updatedAvailabilitySession: AvailabilitySession = JSON.parse(
-    atob(updatedSession),
-  );
+  const newSession: Session = JSON.parse(atob(updatedSession));
+
+  const updatedAvailabilitySession = toAvailabilitySession(newSession);
+
+  console.error(atob(updatedSession));
 
   let cancelledWithDetailsCount =
     (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);

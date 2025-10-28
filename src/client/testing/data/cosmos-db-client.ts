@@ -27,9 +27,6 @@ class CosmosDbClient {
 
   public async createSite(testId: number) {
     const siteDocument = buildSiteDocument(testId);
-    console.log(
-      `Attempting to write site: ${siteDocument.name} to Cosmos DB...`,
-    );
 
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
@@ -58,7 +55,6 @@ class CosmosDbClient {
 
   public async createUser(testId: number, roles: Role[]) {
     const userDocument = buildUserDocument(testId, roles);
-    console.log(`Attempting to write user: ${userDocument.id} to Cosmos DB...`);
 
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({

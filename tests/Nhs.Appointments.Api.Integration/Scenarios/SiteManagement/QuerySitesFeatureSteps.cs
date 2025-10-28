@@ -11,17 +11,26 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
 using Location = Nhs.Appointments.Core.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
-public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
     private IEnumerable<SiteWithDistance> _sitesResponse;
 
+    public void Dispose()
+    {
+        var testId = GetTestId;
+        DeleteSiteData(Client, testId).GetAwaiter().GetResult();
+    }
+    
     [When("I query sites by site type and ODS code")]
     [And("I query sites by site type and ODS code")]
     public async Task QueryBySiteTypeAndOdsCode(DataTable dataTable)
@@ -212,6 +221,22 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
+    }
+    
+    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
+    {
+        const string partitionKey = "site";
+        var container = cosmosClient.GetContainer("appts", "core_data");
+        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
+            .ToFeedIterator();
+        while (feed.HasMoreResults)
+        {
+            var documentsResponse = await feed.ReadNextAsync();
+            foreach (var document in documentsResponse)
+            {
+                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
+            }
+        }
     }
 
     [Collection("QuerySitesToggle")]

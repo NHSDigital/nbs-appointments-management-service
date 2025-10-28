@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
@@ -46,13 +45,7 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
             }
         };
 
-        var jsonPayload = JsonSerializer.Serialize(payload);
-        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/sites", content);
-        StatusCode = Response.StatusCode;
-        (_, _sitesResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
+        await SendRequestAsync(payload);
     }
 
     [When("I query sites by access needs")]
@@ -76,13 +69,7 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
             }
         };
 
-        var jsonPayload = JsonSerializer.Serialize(payload);
-        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/sites", content);
-        StatusCode = Response.StatusCode;
-        (_, _sitesResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
+        await SendRequestAsync(payload);
     }
 
     [When("I query sites by service")]
@@ -108,13 +95,7 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
             }
         };
 
-        var jsonPayload = JsonSerializer.Serialize(payload);
-        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/sites", content);
-        StatusCode = Response.StatusCode;
-        (_, _sitesResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
+        await SendRequestAsync(payload);
     }
 
     [When("I query sites by multiple filters")]
@@ -151,13 +132,34 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
             }
         };
 
-        var jsonPayload = JsonSerializer.Serialize(payload);
-        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/sites", content);
-        StatusCode = Response.StatusCode;
-        (_, _sitesResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
+        await SendRequestAsync(payload);
+    }
+
+    [When("I query sites by location")]
+    public async Task QueryByLocation(DataTable dataTable)
+    {
+        var row = dataTable.Rows.Skip(1).First();
+        var cells = row.Cells;
+        var payload = new
+        {
+            maxRecords = 50,
+            ignoreCache = true,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    Services = [],
+                    Types = [],
+                    OdsCode = string.Empty,
+                    AccessNeeds = []
+                },
+            }
+        };
+
+        await SendRequestAsync(payload);
     }
 
     [Then("the following sites and distances are returned")]
@@ -175,12 +177,12 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                 InformationForCitizens: row.Cells.ElementAt(7).Value,
                 Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
                 Location: new Location(Type: "Point",
-                    Coordinates: new[]
-                    {
+                    Coordinates:
+                    [
                         double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)
-                    }),
+                    ]),
                 status: null,
-                isDeleted: null,
+                isDeleted: false,
                 Type: row.Cells.ElementAt(12)?.Value ?? string.Empty
             ), Distance: int.Parse(row.Cells.ElementAt(11).Value)
         )).ToList();
@@ -200,6 +202,17 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    private async Task SendRequestAsync(object payload)
+    {
+        var jsonPayload = JsonSerializer.Serialize(payload);
+        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+        Response = await Http.PostAsync("http://localhost:7071/api/sites", content);
+        StatusCode = Response.StatusCode;
+        (_, _sitesResponse) =
+            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
+                await Response.Content.ReadAsStreamAsync());
+    }
 
     [Collection("QuerySitesToggle")]
     [FeatureFile("./Scenarios/SiteManagement/QuerySites_Enabled.feature")]

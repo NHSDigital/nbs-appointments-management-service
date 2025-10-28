@@ -297,6 +297,11 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
         return site =>
         {
+            if (site.isDeleted.HasValue && site.isDeleted.Value)
+            {
+                return false;
+            }
+
             if (hasAccessNeedsFilter)
             {
                 if (!accessibilityIds.All(acc => site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true"))

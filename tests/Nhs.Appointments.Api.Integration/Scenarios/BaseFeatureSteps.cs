@@ -769,7 +769,8 @@ public abstract partial class BaseFeatureSteps : Feature
                 Accessibilities = ParseAccessibilities(row.Cells.ElementAt(8).Value),
                 Location = new Location("Point",
                     new[] { double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value) }),
-                Type = row.Cells.ElementAt(11)?.Value ?? string.Empty
+                Type = row.Cells.ElementAt(11)?.Value ?? string.Empty,
+                IsDeleted = row.Cells.Count() > 12 ? bool.Parse(row.Cells.ElementAt(12).Value) : null
             });
 
         foreach (var site in sites)

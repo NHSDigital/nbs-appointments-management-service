@@ -40,6 +40,7 @@ export default defineConfig({
         // These are not necessary locally, but in the pipeline the ID server doesn't have a valid cert
         // This causes a the following error when the login button is clicked during a Playwright test
         // Error: page.waitForURL: net::ERR_CERT_AUTHORITY_INVALID
+        // https://nhsd-jira.digital.nhs.uk/browse/APPT-1571
         bypassCSP: true,
         launchOptions: {
           args: ['--disable-web-security', '--allow-insecure-localhost'],

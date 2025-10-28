@@ -31,7 +31,7 @@ public class AvailabilityDocumentStore(
         return results;
     }
 
-    public async Task<OperationResult> ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions,
+    public async Task ApplyAvailabilityTemplate(string site, DateOnly date, Session[] sessions,
         ApplyAvailabilityMode mode, Session sessionToEdit = null)
     {
         var documentType = documentStore.GetDocumentType();
@@ -61,8 +61,6 @@ public class AvailabilityDocumentStore(
             default:
                 throw new NotSupportedException();
         }
-
-        return new OperationResult(true);
     }
 
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)

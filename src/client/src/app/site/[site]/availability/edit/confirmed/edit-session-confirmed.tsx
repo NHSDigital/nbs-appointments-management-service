@@ -1,5 +1,5 @@
 import { Table, InsetText } from '@components/nhsuk-frontend';
-import { AvailabilitySession, ClinicalService, Site, Booking } from '@types';
+import { AvailabilitySession, ClinicalService, Site } from '@types';
 import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 
@@ -10,7 +10,6 @@ type PageProps = {
   date: string;
   hasBookings: boolean;
   chosenAction: string;
-  bookings: Booking[];
   unsupportedBookingsCount: number;
   cancelledWithDetailsCount: number;
   cancelledWithoutDetailsCount: number;

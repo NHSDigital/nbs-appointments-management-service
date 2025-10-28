@@ -29,7 +29,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "prettier.endOfLine": "crlf",
     "powershell.cwd": "Root",
-    "azureTerraform.checkTerraformCmd": false
   },
   "extensions": {
     "recommendations": [

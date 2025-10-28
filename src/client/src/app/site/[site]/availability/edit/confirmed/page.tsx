@@ -1,16 +1,11 @@
 import {
   assertPermission,
   fetchClinicalServices,
-  fetchBookings,
   fetchSite,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { AvailabilitySession, Session, FetchBookingsRequest } from '@types';
-import {
-  dateTimeFormat,
-  parseToUkDatetime,
-  toTimeFormat,
-} from '@services/timeService';
+import { AvailabilitySession, Session } from '@types';
+import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
 import NhsPage from '@components/nhs-page';
@@ -63,20 +58,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchFeatureFlag('ChangeSessionUpliftedJourney'),
   );
 
-  const fromDate = parseToUkDatetime(date);
-  const toDate = fromDate.endOf('day');
-
-  const fetchBookingsRequest: FetchBookingsRequest = {
-    from: fromDate.format(dateTimeFormat),
-    to: toDate.format(dateTimeFormat),
-    site: siteFromPath,
-    statuses: ['Cancelled'],
-    cancellationReason: 'CancelledBySite',
-  };
-
-  const [site, bookings, clinicalServices] = await Promise.all([
+  const [site, clinicalServices] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
-    fromServer(fetchBookings(fetchBookingsRequest, ['Cancelled'])),
     fromServer(fetchClinicalServices()),
   ]);
 
@@ -110,7 +93,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site}
         date={date}
         hasBookings={hasBookings}
-        bookings={bookings}
         chosenAction={chosenAction ?? ''}
         unsupportedBookingsCount={unsupportedBookingsCount ?? 0}
         cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}

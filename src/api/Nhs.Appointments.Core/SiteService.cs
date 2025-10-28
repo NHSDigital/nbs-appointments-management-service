@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core;
@@ -12,7 +13,7 @@ public interface ISiteService
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false);
-    Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false);
+    Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false);
     Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
 
@@ -29,19 +30,20 @@ public interface ISiteService
     Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache);
 }
 
-public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
+public class SiteService(
+    ISiteStore siteStore,
+    IAvailabilityStore availabilityStore,
+    IMemoryCache memoryCache,
+    ILogger<ISiteService> logger,
+    TimeProvider time,
+    IFeatureToggleHelper featureToggleHelper,
+    IOptions<SiteServiceOptions> options) : ISiteService
 {
-    private const string CacheKey = "sites";
-    
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
-        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        if (sites == null || ignoreCache)
-        {
-            sites = await GetAndCacheSites();
-        }
+        var sites = await GetAllSites(false, ignoreCache);
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
         {
@@ -160,10 +162,17 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
         => await siteStore.GetSitesInRegionAsync(region);
-    
-    public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false)
+
+    public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false)
     {
-        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
+        // ignoreCache is an optional param an external caller can provide through only certain API routes,
+        // whereas DisableSiteCache is a global setting affecting all uses
+        if (ignoreCache || options.Value.DisableSiteCache)
+        {
+            return await siteStore.GetAllSites();
+        }
+
+        var sites = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
         sites ??= await GetAndCacheSites(includeDeleted);
 
         return sites;
@@ -221,11 +230,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
     {
-        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        if (sites == null || ignoreCache)
-        {
-            sites = await GetAndCacheSites();
-        }
+        var sites = await GetAllSites(false, ignoreCache);
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
         {
@@ -393,7 +398,8 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     private async Task<IEnumerable<Site>> GetAndCacheSites(bool includeDeleted = false)
     {
         var sites = await siteStore.GetAllSites(includeDeleted);
-        memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
+        memoryCache.Set(options.Value.SiteCacheKey, sites,
+            time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
 
         return sites;
     }

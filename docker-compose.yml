@@ -43,6 +43,7 @@ services:
       - AzureWebJobs.NotifyBookingMade.Disabled=true
       - AzureWebJobs.NotifyBookingRescheduled.Disabled=true
       - AzureWebJobs.NotifyBookingCancelled.Disabled=true
+      - AzureWebJobs.NotifyBookingAutoCancelled.Disabled=true
       - AzureWebJobs.SendBookingReminders.Disabled=true
       - AzureWebJobs.NotifyBookingReminder.Disabled=true
       - AzureWebJobs.DailySiteSummaryAggregation.Disabled=true
@@ -87,6 +88,7 @@ services:
       - SITE_SUMMARY_DAYS_FORWARD=30
       - SITE_SUMMARY_DAYS_CHUNK_SIZE=365
       - SITE_SUMMARY_FIRST_RUN_DATE=2025-06-01
+      - DISABLE_SITE_CACHE=true
   splunk:
     image: splunk/splunk:9.3
     container_name: splunk
@@ -120,7 +122,8 @@ services:
       - "4318:4318" # OTLP HTTP receiver
 
   oidc-server:
-    image: soluto/oidc-server-mock:latest
+    container_name: mock-oidc-server
+    image: ghcr.io/soluto/oidc-server-mock:latest
     ports:
       - "8010:443"
       - "8020:80"

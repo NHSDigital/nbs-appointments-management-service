@@ -311,7 +311,7 @@ public class PermissionCheckerTests
         var expectedSite = GenerateSite("test");
         var sites = new List<Site>() { expectedSite, GenerateSite("test-A"), GenerateSite("test-B"), GenerateSite("test-C") };
 
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(sites);
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.GetSitesWithPermissionAsync(userId, "TestPermission");
@@ -340,7 +340,7 @@ public class PermissionCheckerTests
         };
         var sites = new List<Site>() { GenerateSite("test-A"), GenerateSite("test-B"), GenerateSite("test-C") };
 
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(sites);
         _roleService.Setup(x => x.GetRoles()).ReturnsAsync(roles);
         _userAssignmentService.Setup(x => x.GetUserRoleAssignments(userId)).ReturnsAsync(userAssignments);
         var result = await _sut.GetSitesWithPermissionAsync(userId, "TestPermission");

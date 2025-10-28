@@ -18,6 +18,7 @@ import {
   SessionSummary,
   UpdateSessionRequest,
   Session,
+  SessionModificationAction,
 } from '@types';
 import { modifySession } from '@services/appointmentsService';
 import { toTimeFormat } from '@services/timeService';
@@ -26,12 +27,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 type Mode = 'edit' | 'cancel';
-type FormData = { action?: Action };
-type Action =
-  | 'change-session'
-  | 'cancel-appointments'
-  | 'keep-appointments'
-  | 'cancel-session';
+type FormData = { action?: SessionModificationAction };
 
 type Props = {
   unsupportedBookingsCount: number;
@@ -44,18 +40,21 @@ type Props = {
 };
 
 type RadioOption = {
-  value: Action;
+  value: SessionModificationAction;
   label: string;
 };
 
 type ModeTextConfig = {
   legend: string;
   radioOptions: RadioOption[];
-  confirmationQuestion: (action: Action) => string;
-  confirmButtonText: (action: Action) => string;
-  impactNote: (action: Action | undefined, count: number) => string;
-  impactCard: (action: Action | undefined) => boolean;
-  notificationNote: (action: Action | undefined) => string;
+  confirmationQuestion: (action: SessionModificationAction) => string;
+  confirmButtonText: (action: SessionModificationAction) => string;
+  impactNote: (
+    action: SessionModificationAction | undefined,
+    count: number,
+  ) => string;
+  impactCard: (action: SessionModificationAction | undefined) => boolean;
+  notificationNote: (action: SessionModificationAction | undefined) => string;
 };
 
 const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
@@ -71,19 +70,22 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
         label: 'No, do not cancel the appointments but change this session',
       },
     ],
-    confirmationQuestion: (action: Action) =>
+    confirmationQuestion: (action: SessionModificationAction) =>
       action === 'change-session'
         ? 'Are you sure you want to change this session?'
         : 'Are you sure you want to cancel the appointments?',
-    confirmButtonText: (action: Action) =>
+    confirmButtonText: (action: SessionModificationAction) =>
       action === 'change-session' ? 'Change session' : 'Cancel appointments',
-    impactNote: (action: Action | undefined, count: number) =>
+    impactNote: (
+      action: SessionModificationAction | undefined,
+      count: number,
+    ) =>
       action === 'change-session'
         ? `You have chosen not to cancel ${count} bookings.`
         : `Changing the time and capacity will affect ${count} bookings`,
-    impactCard: (action: Action | undefined) =>
+    impactCard: (action: SessionModificationAction | undefined) =>
       action === undefined || action === 'cancel-appointments',
-    notificationNote: (action: Action | undefined) =>
+    notificationNote: (action: SessionModificationAction | undefined) =>
       action === 'change-session'
         ? ''
         : 'People will be sent a text message or email confirming their appointment has been cancelled.',
@@ -100,21 +102,24 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
         label: 'No, do not cancel the appointments but cancel the session',
       },
     ],
-    confirmationQuestion: (action: Action) =>
+    confirmationQuestion: (action: SessionModificationAction) =>
       action === 'keep-appointments'
         ? 'Are you sure you want to cancel the session?'
         : 'Are you sure you want to cancel the appointments?',
-    confirmButtonText: (action: Action) =>
+    confirmButtonText: (action: SessionModificationAction) =>
       action === 'keep-appointments' ? 'Cancel session' : 'Cancel appointments',
-    impactNote: (action: Action | undefined, count: number) =>
+    impactNote: (
+      action: SessionModificationAction | undefined,
+      count: number,
+    ) =>
       action === undefined
         ? `Some bookings will move to a different session on the same day and at the same time. Cancelling the session will affect ${count} bookings.`
         : action === 'keep-appointments'
           ? `You have chosen not to cancel ${count} bookings.`
           : `${count} bookings may have to be cancelled.`,
-    impactCard: (action: Action | undefined) =>
+    impactCard: (action: SessionModificationAction | undefined) =>
       action === undefined || action === 'cancel-appointments',
-    notificationNote: (action: Action | undefined) =>
+    notificationNote: (action: SessionModificationAction | undefined) =>
       action === 'cancel-appointments'
         ? 'People will be sent a text message or email confirming their appointment has been cancelled.'
         : '',
@@ -136,13 +141,6 @@ export const SessionModificationConfirmation = ({
   const newSessionSummary: Session | null = newSession
     ? JSON.parse(atob(newSession))
     : null;
-  const toAvailabilitySession = (_session: Session): AvailabilitySession => ({
-    from: toTimeFormat(_session.startTime) ?? '',
-    until: toTimeFormat(_session.endTime) ?? '',
-    slotLength: _session.slotLength,
-    capacity: _session.capacity,
-    services: _session.services,
-  });
 
   const {
     handleSubmit,
@@ -150,11 +148,13 @@ export const SessionModificationConfirmation = ({
     formState: { errors },
     setValue,
   } = useForm<FormData>();
-  const [decision, setDecision] = useState<Action | undefined>();
+  const [decision, setDecision] = useState<
+    SessionModificationAction | undefined
+  >();
   const texts = MODE_TEXTS[mode];
   const recordDecision: SubmitHandler<FormData> = async form => {
-    setDecision(form.action as Action);
-    setValue('action', form.action as Action);
+    setDecision(form.action as SessionModificationAction);
+    setValue('action', form.action as SessionModificationAction);
   };
 
   const submitForm: SubmitHandler<FormData> = async form => {
@@ -190,10 +190,10 @@ export const SessionModificationConfirmation = ({
         };
       }
 
-      await fromServer(modifySession(request));
+      const response = await fromServer(modifySession(request));
 
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?updatedSession=${newSession}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${unsupportedBookingsCount}&cancelAppointments=${cancelBookings}`,
+        `/site/${site}/availability/${mode}/confirmed?updatedSession=${mode === 'edit' ? newSession : session}&date=${date}&chosenAction=${form.action}&bookingsCanceledWithoutDetails=${response.bookingsCanceledWithoutDetails}&unsupportedBookings=${unsupportedBookingsCount}`,
       );
     });
   };
@@ -218,7 +218,7 @@ export const SessionModificationConfirmation = ({
     </form>
   );
 
-  const renderConfirmationQuestion = (action: Action) => (
+  const renderConfirmationQuestion = (action: SessionModificationAction) => (
     <form onSubmit={handleSubmit(submitForm)}>
       <h2>{texts.confirmationQuestion(action)}</h2>
 

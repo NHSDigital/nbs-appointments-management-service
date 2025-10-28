@@ -421,6 +421,19 @@ type AvailabilityChangeProposalRequest = {
   sessionReplacement: AvailabilitySession | null;
 };
 
+type SessionModificationResponse = {
+  updateSuccessful: boolean;
+  message: boolean;
+  bookingsCanceled: number | undefined;
+  bookingsCanceledWithoutDetails: number | undefined;
+};
+
+type SessionModificationAction =
+  | 'change-session'
+  | 'cancel-appointments'
+  | 'keep-appointments'
+  | 'cancel-session';
+
 export type {
   Accessibility,
   AccessibilityDefinition,
@@ -463,6 +476,8 @@ export type {
   ServiceBookingDetails,
   ServiceInformation,
   Session,
+  SessionModificationAction,
+  SessionModificationResponse,
   SessionSummary,
   SetAccessibilitiesRequest,
   SetAvailabilityRequest,

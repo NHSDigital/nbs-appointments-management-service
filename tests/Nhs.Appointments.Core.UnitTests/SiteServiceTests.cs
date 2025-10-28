@@ -2080,4 +2080,76 @@ public class SiteServiceTests
 
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
     }
+
+    [Fact]
+    public async Task QuerySitesAsync_ShouldExcludeSiteTypesFromResults()
+    {
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Types = [ "!GP Practice" ],
+                Latitude = 53.796638,
+                Longitude = -1.663038,
+                SearchRadius = 1000
+            }
+        };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+
+        _siteStore.Setup(x => x.GetAllSites(false))
+            .ReturnsAsync(sites);
+
+        var result = await _sut.QuerySitesAsync([.. filters], 50, true);
+
+        result.Count().Should().Be(3);
+        result.Any(r => r.Site.Id == "test321").Should().BeFalse();
+
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
+    }
 }

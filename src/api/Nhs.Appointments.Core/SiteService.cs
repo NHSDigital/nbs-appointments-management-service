@@ -312,14 +312,20 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
             if (hasSiteTypeFilter)
             {
-                var siteTypeMatches = filter.Types.Any(t => t.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase));
+                var (includedTypes, excludedTypes) = ParseSiteTypeFilters(filter.Types);
 
-                return string.IsNullOrEmpty(filter.OdsCode)
-                    ? siteTypeMatches
-                    : siteTypeMatches && filter.OdsCode.Equals(site.OdsCode, StringComparison.InvariantCultureIgnoreCase);
+                if (includedTypes.Count > 0 && !includedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return false;
+                }
+
+                if (excludedTypes.Count > 0 && excludedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return false;
+                }
             }
 
-            if (!hasSiteTypeFilter && !string.IsNullOrEmpty(filter.OdsCode))
+            if (!string.IsNullOrEmpty(filter.OdsCode))
             {
                 return filter.OdsCode.Equals(site.OdsCode, StringComparison.InvariantCultureIgnoreCase);
             }
@@ -327,6 +333,28 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
             var distance = CalculateDistanceInMetres(site.Location.Coordinates[1], site.Location.Coordinates[0], filter.Latitude, filter.Longitude);
             return distance <= filter.SearchRadius;
         };
+    }
+
+    private static (List<string> IncludedSiteTypes, List<string> ExcludedSiteTypes) ParseSiteTypeFilters(string[] siteTypes)
+    {
+        var includedTypes = new List<string>();
+        var excludedTypes = new List<string>();
+
+        const char excludesChar = '!';
+
+        foreach (var type in siteTypes)
+        {
+            if (type.StartsWith(excludesChar))
+            {
+                excludedTypes.Add(type[1..].Trim());
+            }
+            else
+            {
+                includedTypes.Add(type);
+            }
+        }
+
+        return (includedTypes, excludedTypes);
     }
 
     private static IEnumerable<SiteFilter> OrderFiltersByPriority(SiteFilter[] filters)

@@ -52,15 +52,4 @@ public class QuerySitesFunction(
         var sites = await siteService.QuerySitesAsync(request.Filters, request.MaxRecords, request.IgnoreCache);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
-
-    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, QuerySitesRequest request)> ReadRequestAsync(HttpRequest req)
-    {
-        var (errors, payload) = await JsonRequestReader.ReadRequestAsync<QuerySitesRequest>(req.Body, true);
-        if (errors.Any())
-        {
-            return (errors, payload);
-        }
-
-        return (errors, payload);
-    }
 }

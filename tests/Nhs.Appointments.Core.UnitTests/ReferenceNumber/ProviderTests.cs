@@ -22,11 +22,8 @@ public class ProviderTests
 
     public ProviderTests()
     {
-        _options.Setup(x => x.Value.HmacKey).Returns(HmacTestSecretKey);
-        _options.Setup(x => x.Value.HmacKeyVersion).Returns(1);
-        
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = HmacTestSecretKey});
+        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, new MemoryCache(new MemoryCacheOptions()), _timeProvider.Object);
     }
 
     [Fact]
@@ -45,10 +42,7 @@ public class ProviderTests
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(1970, 1, 1, 00, 00, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(1);
 
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-        var result = await sut.GetReferenceNumber();
+        var result = await _sut.GetReferenceNumber();
         result.Should().Be("0170-73123-6791");
     }
 
@@ -70,10 +64,7 @@ public class ProviderTests
             initialDate = initialDate.AddDays(1);
             _timeProvider.Setup(x => x.GetUtcNow()).Returns(initialDate);
 
-            using var cache = new MemoryCache(new MemoryCacheOptions());
-            var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-            var result = await sut.GetReferenceNumber();
+            var result = await _sut.GetReferenceNumber();
 
             Assert.True(_sut.IsValidBookingReference(result));
             result.Should().StartWith($"{dayStep:00}25");
@@ -85,11 +76,8 @@ public class ProviderTests
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2024, 12, 31, 23, 59, 59));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(99999999);
-
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-        var result = await sut.GetReferenceNumber();
+        
+        var result = await _sut.GetReferenceNumber();
 
         Assert.True(_sut.IsValidBookingReference(result));
         result.Should().Be("9224-44976-9071");
@@ -100,11 +88,8 @@ public class ProviderTests
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2077, 1, 01, 17, 23, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(0);
-
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-        var result = await sut.GetReferenceNumber();
+        
+        var result = await _sut.GetReferenceNumber();
         result.Should().Be("0177-00000-0006");
     }
 
@@ -114,10 +99,7 @@ public class ProviderTests
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2016, 6, 06, 17, 23, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(76543789);
 
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-        var result = await sut.GetReferenceNumber();
+        var result = await _sut.GetReferenceNumber();
         result.Should().Be("4016-90927-6174");
         Assert.True(_sut.IsValidBookingReference(result));
 
@@ -139,11 +121,8 @@ public class ProviderTests
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2077, 1, 01, 17, 23, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(1);
-
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-        var result = await sut.GetReferenceNumber();
+        
+        var result = await _sut.GetReferenceNumber();
         result.Should().Be("0177-40950-2016");
     }
 
@@ -152,17 +131,14 @@ public class ProviderTests
     {
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
-
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-        var firstResult = await sut.GetReferenceNumber();
+        
+        var firstResult = await _sut.GetReferenceNumber();
         firstResult.Should().Be("4925-52301-3450");
 
         //sequence has passed 100 million and reset
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035 + 100000000);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 17, 17, 23, 00));
-        var secondResult = await sut.GetReferenceNumber();
+        var secondResult = await _sut.GetReferenceNumber();
         secondResult.Should().Be("5025-82949-7652");
     }
 
@@ -177,16 +153,13 @@ public class ProviderTests
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
 
-        using var cache = new MemoryCache(new MemoryCacheOptions());
-        var sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, cache, _timeProvider.Object);
-
-        var firstResult = await sut.GetReferenceNumber();
+        var firstResult = await _sut.GetReferenceNumber();
         firstResult.Should().Be("4925-52301-3450");
 
         //sequence has passed 100 million and reset
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(356035 + 100000000);
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 7, 13, 17, 23, 00));
-        var secondResult = await sut.GetReferenceNumber();
+        var secondResult = await _sut.GetReferenceNumber();
 
         //NOT DESIRABLE!!
         secondResult.Should().Be(firstResult);
@@ -211,12 +184,12 @@ public class ProviderTests
     }
 
     /// <summary>
-    ///     It is possible, but unlikely, that two different hmac keys produce the same stride value for the same partition key
+    ///     It is possible, but unlikely, that two different hmac keys produce the same multiplier value for the same partition key
     ///     This is known and does not cause any issues with the logic.
     ///     The hard-coded data for this test that proves this scenario was found by trial and error iterations.
     /// </summary>
     [Fact]
-    public void DeriveSequenceStride_DifferentHmacKeys_CanProduce_SameStride_For_SamePartitionKey()
+    public void DeriveSequenceMultiplier_DifferentHmacKeys_CanProduce_SameMultiplier_For_SamePartitionKey()
     {
         const string samePartitionKey = "3125";
         
@@ -292,23 +265,23 @@ public class ProviderTests
             49
         ];
 
-        _options.Setup(x => x.Value.HmacKey).Returns(hmacKey1);
-        var stride1 = _sut.DeriveSequenceStride(samePartitionKey);
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey1});
+        var multiplier1 = _sut.DeriveSequenceMultiplier(samePartitionKey);
 
-        _options.Setup(x => x.Value.HmacKey).Returns(hmacKey2);
-        var stride2 = _sut.DeriveSequenceStride(samePartitionKey);
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey2});
+        var multiplier2 = _sut.DeriveSequenceMultiplier(samePartitionKey);
 
         //this is fine
-        Assert.Equal(stride1, stride2);
+        Assert.Equal(multiplier1, multiplier2);
     }
 
     /// <summary>
-    ///     It is possible, but unlikely, that two different hmac keys produce the same stride value for the same partition key
+    ///     It is possible, but unlikely, that two different hmac keys produce the same multiplier value for the same partition key
     ///     This is known and does not cause any issues with the logic.
     ///     The hard-coded data for this test that proves this scenario was found by trial and error iterations.
     /// </summary>
     [Fact]
-    public void DeriveSequenceStride_DifferentHmacKeys_CanProduce_SameStride_For_DifferentPartitionKeys()
+    public void DeriveSequenceMultiplier_DifferentHmacKeys_CanProduce_SameMultiplier_For_DifferentPartitionKeys()
     {
         byte[] hmacKey1 =
         [
@@ -346,9 +319,9 @@ public class ProviderTests
             6
         ];
         
-        _options.Setup(x => x.Value.HmacKey).Returns(hmacKey1);
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey1});
         var partitionKey1 = "5728"; //around about October 15th 2028
-        var stride1 = _sut.DeriveSequenceStride(partitionKey1);
+        var multiplier1 = _sut.DeriveSequenceMultiplier(partitionKey1);
         
         byte[] hmacKey2 =
         [
@@ -386,29 +359,29 @@ public class ProviderTests
             107
         ];
         
-        _options.Setup(x => x.Value.HmacKey).Returns(hmacKey2);
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey2});
         var partitionKey2 = "5837"; //around about August 20th 2037
-        var stride2 = _sut.DeriveSequenceStride(partitionKey2);
+        var multiplier2 = _sut.DeriveSequenceMultiplier(partitionKey2);
 
-        Assert.Equal(stride1, stride2);
+        Assert.Equal(multiplier1, multiplier2);
     }
 
     /// <summary>
-    ///     It is possible, but unlikely, that two different partition keys produce the same stride value for the same hmac key
+    ///     It is possible, but unlikely, that two different partition keys produce the same multiplier value for the same hmac key
     ///     This is known and does not cause any issues with the logic.
     ///     The hard-coded data for this test that proves this scenario was found by trial and error iterations.
     /// </summary>
     [Fact]
-    public void DeriveSequenceStride_SameHmacKey_CanProduce_SameStride_For_DifferentPartitionKeys()
+    public void DeriveSequenceMultiplier_SameHmacKey_CanProduce_SameMultiplier_For_DifferentPartitionKeys()
     {
         var partitionKey1 = "1947"; //around about March 18th 2047
         var partitionKey2 = "2538"; //around about April 10th 2038
 
-        var stride1 = _sut.DeriveSequenceStride(partitionKey1);
-        var stride2 = _sut.DeriveSequenceStride(partitionKey2);
+        var multiplier1 = _sut.DeriveSequenceMultiplier(partitionKey1);
+        var multiplier2 = _sut.DeriveSequenceMultiplier(partitionKey2);
 
         //this is fine
-        Assert.Equal(stride1, stride2);
+        Assert.Equal(multiplier1, multiplier2);
     }
 
     /// <summary>

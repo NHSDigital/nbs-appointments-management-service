@@ -14,7 +14,7 @@ public interface IProvider
 
     bool IsValidBookingReference(string bookingReference);
 
-    int DeriveSequenceStride(string partitionKey);
+    int DeriveSequenceMultiplier(string partitionKey);
 }
 
 public interface IBookingReferenceDocumentStore
@@ -71,7 +71,7 @@ public class Provider(
     {
         var overflowedSequenceNumber = sequenceNumber % SequenceMax;
         var partitionKey = PartitionKey(utcNow);
-        var sequenceBijection = GenerateSequenceBijection(overflowedSequenceNumber, partitionKey)
+        var sequenceBijection = GenerateSequenceValue(overflowedSequenceNumber, partitionKey)
             .ToString("D8");
         var partitionAndSequenceBijection = partitionKey + sequenceBijection;
 
@@ -84,72 +84,75 @@ public class Provider(
     }
 
     /// <summary>
-    ///     A bijection is a 1-1 mapping between two sets of numbers.
     ///     This generation adds an element of seeming randomness to the sequence numbers generated, while still being
-    ///     deterministic and avoiding collisions.
+    ///     deterministic and avoiding collisions within 100 million sequence numbers (mod 100 million).
     ///     This method means all 100 million sequence numbers will each generate a different and distinct number in that range. (0-99999999)
-    ///     Using a dynamically generated stride/increment means this cannot be guessed, as it is generated using a secret key and will change with each partition change.
+    ///     Uses a dynamically generated sequence increment multiplier which means this cannot be inferred, as it is generated using a secret key and will change with each partition change.
     ///     This is needed to protect against sequential attacks visible in the reference numbers (i.e people guessing the next booking is
     ///     exactly 1 reference number higher)
     /// </summary>
-    private int GenerateSequenceBijection(int sequence, string partitionKey)
+    private int GenerateSequenceValue(int sequence, string partitionKey)
     {
-        var sequenceStride = GetSequenceStride(partitionKey);
+        var sequenceMultiplier = GetSequenceMultiplier(partitionKey);
 
-        // f(i) = ( S * i + O ) mod N : is a bijection on (0, ..., N-1)
-        // when the stride (S) is coprime with N (i.e gcd(S,N) = 1), and O is a constant offset (set to zero for us as no benefit)
-        return (int)((long)sequenceStride * sequence % SequenceMax);
+        // A bijection is a 1-1 mapping between two sets of numbers.
+        // f(i) = ( S * i ) mod N : is a bijection on (0, ..., N-1) when the multiplier (S) is coprime with N (i.e gcd(S,N) = 1)
+        
+        return (int)((long)sequenceMultiplier * sequence % SequenceMax);
     }
 
-    private int GetSequenceStride(string partitionKey)
+    private int GetSequenceMultiplier(string partitionKey)
     {
         var cacheKey = $"{Options.Value.HmacKeyVersion}:{partitionKey}";
-        if (memoryCache.TryGetValue(cacheKey, out int sequenceStride))
+        if (memoryCache.TryGetValue(cacheKey, out int sequenceMultiplier))
         {
-            return sequenceStride;
+            return sequenceMultiplier;
         }
 
-        sequenceStride = DeriveSequenceStride(partitionKey);
-        memoryCache.Set(cacheKey, sequenceStride, TimeSpan.FromDays(PartitionBucketLengthInDays + 4)); // easily spans the partition length
-        return sequenceStride;
+        sequenceMultiplier = DeriveSequenceMultiplier(partitionKey);
+        memoryCache.Set(cacheKey, sequenceMultiplier, TimeSpan.FromDays(PartitionBucketLengthInDays + 4)); // easily spans the partition length
+        return sequenceMultiplier;
     }
 
     /// <summary>
-    ///     Derives the sequence stride used for the bijection.
-    ///     Generates a sequence stride that is COPRIME with SequenceMax, using the partitionKey and a secret key, and some manual manipulation to guarantee the value is coprime.
+    ///     Derives the sequence multiplier used for the bijection.
+    ///     Generates a sequence multiplier that is COPRIME with SequenceMax, using the partitionKey and a secret key, and some manual manipulation to guarantee the value is coprime.
     ///     This doesn't have to generate unique results, two different partition keys and secrets can generate the same result.
     ///     This just needs to be deterministic and non-guessable and guarded by a secret.
     ///     It is used for obfuscation of the sequencing, not for security.
     /// </summary>
-    public int DeriveSequenceStride(string partitionKey)
+    public int DeriveSequenceMultiplier(string partitionKey)
     {
+        //generate a hmacMultiplier that uses both the partition key and the hmac secret key
+        //this can be any 64-bit integer
         using var h = new HMACSHA256(Options.Value.HmacKey);
         var mac = h.ComputeHash(Encoding.ASCII.GetBytes(partitionKey));
-        var hmacStride = BitConverter.ToUInt64(mac, 0);
+        var hmacMultiplier = BitConverter.ToUInt64(mac, 0);
 
-        // Base stride is (0,...,N-1)/10 - so multiplying by 10 still stays < N
-        var baseStride = (int)(hmacStride % (SequenceMax / 10)); // 0,..., N-1
+        //next make the hmacMultiplier be a value between 0 - 10 million (we're going to generate the final digit manually to make a number that is coprime with 100 million)
+        var baseMultiplier = (int)(hmacMultiplier % (SequenceMax / 10));
 
         //the following logic is dependent on SequenceMax being a number of format 10^x
 
         // Pick a last digit from {1,3,7,9} deterministically (since any number ending in any of these are coprime to 100 million (sequence max))
-        int[] tail = [1, 3, 7, 9];
+        int[] lastDigitOptions = [1, 3, 7, 9];
 
-        //takes the last two bits of v (so a value 0–3) to pick the last digit deterministically
-        var lastDigit = tail[(int)(hmacStride & 3)];
+        //takes the last two bits of hmacMultiplier (so a value 0–3) to pick the last digit deterministically
+        var lastDigit = lastDigitOptions[(int)(hmacMultiplier & 3)];
 
-        var stride = (baseStride * 10) + lastDigit; // 0,...,N-1 with last digit ending in either {1,3,7,9}
+        // 0,...,999,999,999 with the last digit guaranteed to end in either 1,3,7,9. (i.e 672,509,093 where 67250909 was the hmacMultiplier)
+        var multiplier = (baseMultiplier * 10) + lastDigit; 
 
-        //confirmation of GCD(S,N) == 1, without this, the entire bijection pattern fails!!
-        if ((int)BigInteger.GreatestCommonDivisor(stride, SequenceMax) != 1)
+        //confirmation of GCD(multiplier,SequenceMax) == 1, without this, the entire bijection pattern fails!!
+        if ((int)BigInteger.GreatestCommonDivisor(multiplier, SequenceMax) != 1)
         {
-            //fail fast - logically this should NEVER happen
-            throw new InvalidOperationException($"CRITICAL ERROR - Derived sequence stride does not pass logical requirement of GCD(stride,SequenceMax) == 1. " +
-                                                $"Failure for stride: '{stride}' and sequenceMax: '{SequenceMax}'");
+            //fail fast - logically this should NEVER happen and something has gone VERY WRONG!
+            throw new InvalidOperationException($"CRITICAL ERROR - Derived sequence multiplier does not pass logical requirement of GCD(multiplier,SequenceMax) == 1. " +
+                                                $"Failure for multiplier: '{multiplier}' and sequenceMax: '{SequenceMax}'");
         }
 
-        //GCD(S,N) == 1 guaranteed
-        return stride; 
+        //GCD(multiplier,SequenceMax) == 1 guaranteed
+        return multiplier; 
     }
 
     /// <summary>

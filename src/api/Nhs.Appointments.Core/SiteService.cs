@@ -230,11 +230,7 @@ public class SiteService(
 
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
     {
-        var sites = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
-        if (sites == null || ignoreCache)
-        {
-            sites = await GetAndCacheSites();
-        }
+        var sites = await GetAllSites(false, ignoreCache);
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
         {

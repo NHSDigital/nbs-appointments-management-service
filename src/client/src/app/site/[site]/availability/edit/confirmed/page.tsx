@@ -86,8 +86,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const updatedAvailabilitySession = toAvailabilitySession(newSession);
 
-  console.error(atob(updatedSession));
-
   let cancelledWithDetailsCount =
     (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
 

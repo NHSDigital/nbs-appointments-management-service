@@ -7,8 +7,6 @@ dotenv.config({
 });
 
 export default defineConfig({
-  // Temporarily just run the new test to debug why this fails with a blank screen in the pipeline.
-  // TODO: Revert this back before bringing the PR out of draft.
   testDir: './testing',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

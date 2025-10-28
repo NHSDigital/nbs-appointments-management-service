@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.ReferenceNumber;
 
 namespace Nhs.Appointments.Core;
 
@@ -42,7 +43,7 @@ public interface IBookingWriteService
 public class BookingWriteService(
     IBookingsDocumentStore bookingDocumentStore,
     IBookingQueryService bookingQueryService,
-    IReferenceNumberProvider referenceNumberProvider,
+    IProvider provider,
     ISiteLeaseManager siteLeaseManager,
     IBookingAvailabilityStateService bookingAvailabilityStateService,
     IBookingEventFactory eventFactory,
@@ -70,7 +71,7 @@ public class BookingWriteService(
         }
 
         booking.Created = time.GetUtcNow();
-        booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+        booking.Reference = await provider.GetReferenceNumber();
         booking.ReminderSent = false;
         booking.AvailabilityStatus = AvailabilityStatus.Supported;
         await bookingDocumentStore.InsertAsync(booking);

@@ -17,12 +17,6 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && (includeDeleted || sd.IsDeleted == null || !sd.IsDeleted.HasValue || !sd.IsDeleted.Value));
     }
 
-    public async Task<int> GetReferenceNumberGroup(string site)
-    {
-        var siteDocument = await cosmosStore.GetDocument<SiteDocument>(site);
-        return siteDocument.ReferenceNumberGroup;
-    }
-
     public async Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region)
     {
         var originalDocument = await GetOrDefault(siteId);
@@ -47,13 +41,6 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     private static bool ValidateUpdateToSiteAllowed(Site originalDocument)
     {
         return !originalDocument.isDeleted.HasValue || !originalDocument.isDeleted.Value;
-    }
-
-    public Task AssignPrefix(string site, int prefix)
-    {
-        var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);
-        var partitionKey = cosmosStore.GetDocumentType();
-        return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
     }
 
     public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities)

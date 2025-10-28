@@ -37,8 +37,6 @@ public class SiteDocument : CoreDataCosmosDocument
 
     [JsonProperty("accessibilities")] public Accessibility[] Accessibilities { get; set; }
 
-    [JsonProperty("referenceNumberGroup")] public int ReferenceNumberGroup { get; set; }
-
     [JsonProperty("type")] public string Type { get; set; }
 
     [JsonProperty("status")] public SiteStatus? Status { get; set; }

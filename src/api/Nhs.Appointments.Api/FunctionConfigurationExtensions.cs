@@ -27,6 +27,7 @@ using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
+using Nhs.Appointments.Core.ReferenceNumber;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
@@ -69,7 +70,6 @@ public static class FunctionConfigurationExtensions
 
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
-            .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
             .Configure<SiteSummaryOptions>(opts =>
             {
                 opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
@@ -77,10 +77,23 @@ public static class FunctionConfigurationExtensions
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
             .ConfigureSiteService(configuration)
+            .Configure<SiteServiceOptions>(opts =>
+            {
+                opts.SiteCacheKey = configuration.GetValue<string>("SITE_CACHE_KEY");
+                opts.SiteCacheDuration = configuration.GetValue<int>("SITE_CACHE_DURATION_MINUTES");
+                opts.DisableSiteCache = configuration.GetValue<bool>("DISABLE_SITE_CACHE");
+            })
+            .Configure<ReferenceNumberOptions>(opts =>
+            {
+                //for simplicity will keep a single key for now and have it be version 1
+                opts.HmacKeyVersion = 1;
+                opts.HmacKey =
+                    Convert.FromBase64String(configuration.GetValue<string>("ReferenceNumberHmacKey"));
+            })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
-            .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+            .AddTransient<IBookingReferenceDocumentStore, BookingReferenceCosmosDocumentStore>()
             .AddTransient<IEulaStore, EulaStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
@@ -103,7 +116,6 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingAvailabilityStateService, BookingAvailabilityStateService>()
             .AddTransient<IEulaService, EulaService>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
-            .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()

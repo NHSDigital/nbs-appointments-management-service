@@ -139,20 +139,15 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         }
 
         var container = GetContainer();
-        try
-        {
-            var result = await container.PatchItemAsync<TDocument>(
-                id: documentId,
-                partitionKey: new PartitionKey(partitionKey),
-                patchOperations: patches.ToList().AsReadOnly());
 
-            RecordQueryMetrics(result.RequestCharge);
-            return result.Resource;
-        }
-        catch (Exception ex) 
-        {
-            throw;
-        }
+        var result = await container.PatchItemAsync<TDocument>(
+            id: documentId,
+            partitionKey: new PartitionKey(partitionKey),
+            patchOperations: patches.ToList().AsReadOnly());
+
+        RecordQueryMetrics(result.RequestCharge);
+        return result.Resource;
+
     }
 
     public string GetDocumentType()

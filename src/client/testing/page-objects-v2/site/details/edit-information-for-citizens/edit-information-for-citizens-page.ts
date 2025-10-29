@@ -4,7 +4,7 @@ import { type Locator } from '@playwright/test';
 
 export default class EditInformationForCitizensPage extends MYALayout {
   title = this.page.getByRole('heading', {
-    name: 'Edit site reference details',
+    name: 'Manage information for citizens',
   });
 
   private readonly cancelButton: Locator = this.page.getByRole('button', {

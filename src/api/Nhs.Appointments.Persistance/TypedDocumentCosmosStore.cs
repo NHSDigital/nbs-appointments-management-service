@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
@@ -139,6 +139,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         }
 
         var container = GetContainer();
+
         var result = await container.PatchItemAsync<TDocument>(
             id: documentId,
             partitionKey: new PartitionKey(partitionKey),
@@ -146,6 +147,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
         RecordQueryMetrics(result.RequestCharge);
         return result.Resource;
+
     }
 
     public string GetDocumentType()

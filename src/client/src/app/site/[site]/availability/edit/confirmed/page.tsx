@@ -2,6 +2,7 @@ import {
   assertPermission,
   fetchClinicalServices,
   fetchSite,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
 import { parseToUkDatetime } from '@services/timeService';
@@ -14,6 +15,10 @@ type PageProps = {
   searchParams?: Promise<{
     date: string;
     updatedSession: string;
+    unsupportedBookingsCount?: number;
+    cancelAppointments?: boolean;
+    cancelledWithoutDetailsCount?: number;
+    chosenAction: string;
   }>;
   params: Promise<{
     site: string;
@@ -22,12 +27,29 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { updatedSession, date } = { ...(await searchParams) };
+  const {
+    updatedSession,
+    date,
+    cancelAppointments,
+    unsupportedBookingsCount,
+    chosenAction,
+    cancelledWithoutDetailsCount,
+  } = {
+    ...(await searchParams),
+  };
+
   if (updatedSession === undefined || date === undefined) {
     return notFound();
   }
 
+  const hasBookings = cancelAppointments == undefined ? false : true;
+
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
+
+  const changeSessionUpliftedJourneyFlag = await fromServer(
+    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
+  );
+
   const [site, clinicalServices] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
     fromServer(fetchClinicalServices()),
@@ -35,15 +57,20 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const parsedDate = parseToUkDatetime(date);
 
-  const updatedAvailabilitySession: AvailabilitySession = JSON.parse(
-    atob(updatedSession),
-  );
+  const newSession: AvailabilitySession = JSON.parse(atob(updatedSession));
+
+  let cancelledWithDetailsCount =
+    (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
+
+  if (cancelledWithDetailsCount < 0) {
+    cancelledWithDetailsCount = 0;
+  }
 
   return (
     <NhsPage
       site={site}
       originPage="edit-session"
-      title={`Edit time and capacity for ${parsedDate.format('DD MMMM YYYY')}`}
+      title={`Time and capacity changed for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={site.name}
       backLink={{
         href: `/site/${site.id}/view-availability/week/?date=${date}`,
@@ -52,10 +79,18 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
     >
       <EditSessionConfirmed
-        updatedSession={updatedAvailabilitySession}
+        updatedSession={newSession}
         site={site}
         date={date}
+        hasBookings={hasBookings}
+        chosenAction={chosenAction ?? ''}
+        unsupportedBookingsCount={unsupportedBookingsCount ?? 0}
+        cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}
+        cancelledWithoutDetailsCount={cancelledWithoutDetailsCount ?? 0}
         clinicalServices={clinicalServices}
+        changeSessionUpliftedJourneyEnabled={
+          changeSessionUpliftedJourneyFlag.enabled
+        }
       />
     </NhsPage>
   );

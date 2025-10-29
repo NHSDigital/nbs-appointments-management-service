@@ -391,6 +391,13 @@ type UpdateSessionRequest = {
   cancelUnsupportedBookings: boolean;
 };
 
+type SessionModificationResult = {
+  updateSuccessful: boolean;
+  message: string;
+  bookingsCanceled: number;
+  bookingsCanceledWithoutDetails: number;
+};
+
 type SiteStatus = 'Online' | 'Offline';
 
 type UpdateSiteStatusRequest = {
@@ -473,6 +480,7 @@ export type {
   SiteStatus,
   TimeComponents,
   UpdateSessionRequest,
+  SessionModificationResult,
   UpdateSiteStatusRequest,
   User,
   UserIdentityStatus,

@@ -2,7 +2,7 @@ import { type Locator } from '@playwright/test';
 import PageObject from './page-object';
 
 export default class SummaryList extends PageObject {
-  async getItem(label: string | RegExp): Promise<Locator> {
+  getItem(label: string | RegExp): Locator {
     return this.self()
       .getByRole('listitem')
       .filter({ has: this.page.getByText(label, { exact: true }) })

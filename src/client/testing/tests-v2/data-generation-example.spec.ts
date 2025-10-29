@@ -1,13 +1,8 @@
 import { test, expect } from '../fixtures-v2';
 
 test('Temporary test to prove data generation works', async ({
-  signInToSite,
+  setUpSingleSite,
 }) => {
-  await signInToSite().then(async sitePage => {
-    // eslint-disable-next-line no-console
-    console.log(
-      'This log is coming from the example test to prove execution order',
-    );
-    expect(sitePage.title).toBeVisible();
-  });
+  const { sitePage } = await setUpSingleSite();
+  await expect(sitePage.title).toBeVisible();
 });

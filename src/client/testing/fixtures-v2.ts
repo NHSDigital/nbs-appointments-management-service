@@ -15,11 +15,14 @@ import env from './testEnvironment';
 import { Role, FeatureFlag } from '@e2etests/types';
 
 type MyaFixtures = {
-  signInToSite: (roles?: Role[], features?: FeatureFlag[]) => Promise<SitePage>;
+  setUpSingleSite: (
+    roles?: Role[],
+    features?: FeatureFlag[],
+  ) => Promise<{ sitePage: SitePage; testId: number }>;
 };
 
 export const test = base.extend<MyaFixtures>({
-  signInToSite: async ({ page }, use, testInfo) => {
+  setUpSingleSite: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
       env.COSMOS_ENDPOINT,
       env.COSMOS_TOKEN,
@@ -52,7 +55,7 @@ export const test = base.extend<MyaFixtures>({
           }),
         ]);
 
-        return await new LoginPage(page)
+        const sitePage = await new LoginPage(page)
           .logInWithNhsMail()
           .then(mockOidcLoginPage =>
             mockOidcLoginPage.signIn(buildE2ETestUser(testId)),
@@ -60,6 +63,7 @@ export const test = base.extend<MyaFixtures>({
           .then(siteSelectionPage =>
             siteSelectionPage.selectSite(buildE2ETestSite(testId)),
           );
+        return { sitePage, testId };
       },
     );
 

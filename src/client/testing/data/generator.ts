@@ -13,8 +13,8 @@ const buildSiteDocument = (testId: number): SiteDocument => {
     id: buildSiteId(testId),
     docType: 'site',
     name: `Test Site ${testId}`,
-    address: '123 Test St, Testville, TE5 7ST',
-    phoneNumber: '0113 1111111',
+    address: buildAddress(testId),
+    phoneNumber: buildPhoneNumber(testId),
     odsCode: buildOdsCode(testId),
     region: buildRegion(testId),
     integratedCareBoard: buildIcb(testId),
@@ -30,6 +30,20 @@ const buildSiteDocument = (testId: number): SiteDocument => {
 
 const buildE2ETestSite = (testId: number): E2ETestSite => {
   return { id: buildSiteId(testId), name: buildSiteName(testId) };
+};
+
+const buildPhoneNumber = (testId: number): string => {
+  // Generate a deterministic phone number based on the testId
+  const baseNumber = String(7000000000 + (testId % 1000000000));
+  return `0${baseNumber.substring(0, 3)} ${baseNumber.substring(4, 10)}`;
+};
+
+const buildAddress = (testId: number): string => {
+  const hash = createHash('sha256').update(testId.toString()).digest('hex');
+
+  const postCode = `${hash.substring(0, 3).toUpperCase()} ${hash.substring(4, 7).toUpperCase()}`;
+
+  return `${testId.toString().substring(0, 3)} Test Street,\nTest Town,\n${postCode}`;
 };
 
 // TODO: Clean this up a bit, must be a better way of generating deterministic GUIDs
@@ -120,7 +134,13 @@ const buildE2ETestUser = (testId: number): E2ETestUser => {
 };
 
 export {
+  buildAddress,
   buildSiteDocument,
+  buildSiteName,
+  buildIcb,
+  buildOdsCode,
+  buildRegion,
+  buildPhoneNumber,
   buildUserDocument,
   buildMockOidcUser,
   buildE2ETestSite,

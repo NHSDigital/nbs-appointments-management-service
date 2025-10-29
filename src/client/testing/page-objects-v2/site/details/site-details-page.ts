@@ -88,6 +88,11 @@ export default class SiteDetailsPage extends MYALayout {
     editLink: this.page.getByRole('link', {
       name: 'Edit information for citizens',
     }),
+    content: this.page.getByRole('listitem').filter({
+      has: this.page.getByRole('heading', {
+        name: 'Information for citizens',
+      }),
+    }),
   };
 
   async clickEditDetailsLink(): Promise<EditDetailsPage> {

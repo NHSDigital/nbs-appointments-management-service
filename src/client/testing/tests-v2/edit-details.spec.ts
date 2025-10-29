@@ -1,8 +1,11 @@
+import { buildSiteName } from '@e2etests/data';
 import { test, expect } from '../fixtures-v2';
 
-test('A user updates the details for a site', async ({ signInToSite }) => {
-  await signInToSite()
-    .then(sitePage => sitePage.clickSiteDetailsCard())
+test('A user updates the details for a site', async ({ setUpSingleSite }) => {
+  const { sitePage } = await setUpSingleSite();
+
+  await sitePage
+    .clickSiteDetailsCard()
     .then(async siteDetailsPage => siteDetailsPage.clickEditDetailsLink())
     .then(async editDetailsPage => {
       await editDetailsPage.nameInput.fill('Updated Site Name');
@@ -25,29 +28,30 @@ test('A user updates the details for a site', async ({ signInToSite }) => {
       ).toBeVisible();
 
       await expect(
-        await siteDetailsPage.detailsCard.summaryList.getItem('Name'),
+        siteDetailsPage.detailsCard.summaryList.getItem('Name'),
       ).toHaveText('Updated Site Name');
       await expect(
-        await siteDetailsPage.detailsCard.summaryList.getItem('Address'),
+        siteDetailsPage.detailsCard.summaryList.getItem('Address'),
       ).toHaveText(/One House, One Road, One Town/);
 
       await expect(
-        await siteDetailsPage.detailsCard.summaryList.getItem('Longitude'),
+        siteDetailsPage.detailsCard.summaryList.getItem('Longitude'),
       ).toHaveText(/0.32445345/);
       await expect(
-        await siteDetailsPage.detailsCard.summaryList.getItem('Latitude'),
+        siteDetailsPage.detailsCard.summaryList.getItem('Latitude'),
       ).toHaveText(/53.742/);
       await expect(
-        await siteDetailsPage.detailsCard.summaryList.getItem('Phone Number'),
+        siteDetailsPage.detailsCard.summaryList.getItem('Phone Number'),
       ).toHaveText(/0118 999 88199 9119 725 3/);
     });
 });
 
 test('A user starts to update the details for a site then changes their mind using the back button', async ({
-  signInToSite,
+  setUpSingleSite,
 }) => {
-  await signInToSite()
-    .then(sitePage => sitePage.clickSiteDetailsCard())
+  const { sitePage, testId } = await setUpSingleSite();
+  await sitePage
+    .clickSiteDetailsCard()
     .then(siteDetailsPage => siteDetailsPage.clickEditDetailsLink())
     .then(async editDetailsPage => {
       await editDetailsPage.nameInput.fill('Some other name');
@@ -58,7 +62,11 @@ test('A user starts to update the details for a site then changes their mind usi
       await expect(siteDetailsPage.title).toBeVisible();
 
       await expect(
-        await siteDetailsPage.detailsCard.summaryList.getItem('Name'),
+        siteDetailsPage.detailsCard.summaryList.getItem('Name'),
       ).not.toHaveText(/Some other name/);
+
+      await expect(
+        siteDetailsPage.detailsCard.summaryList.getItem('Name'),
+      ).toHaveText(buildSiteName(testId));
     });
 });

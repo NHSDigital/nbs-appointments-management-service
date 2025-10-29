@@ -24,4 +24,5 @@ public interface ISiteStore
     Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status);
 
     Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
+    Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId);
 }

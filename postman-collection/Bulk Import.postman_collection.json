@@ -125,6 +125,46 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "site-status/import",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{bearerToken}}",
+						"type": "text"
+					},
+					{
+						"key": "ClientId",
+						"value": "{{clientId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/site-status/import",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"site-status",
+						"import"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

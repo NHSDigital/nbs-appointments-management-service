@@ -28,6 +28,7 @@ public interface ISiteService
     Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
     Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
     Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache);
+    Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId);
 }
 
 public class SiteService(
@@ -227,6 +228,18 @@ public class SiteService(
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
         => await siteStore.GetSitesInIcbAsync(icb);
+
+    public async Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId)
+    {
+        var result = await siteStore.ToggleSiteSoftDeletionAsync(siteId);
+        if (!result.Success)
+        {
+            return result;
+        }
+
+        memoryCache.Remove(options.Value.SiteCacheKey);
+        return result;
+    }
 
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
     {

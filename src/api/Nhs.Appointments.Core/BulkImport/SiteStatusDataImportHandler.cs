@@ -14,10 +14,31 @@ public class SiteStatusDataImportHandler(ISiteService siteService) : ISiteStatus
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
-        // Get a list of all sites
-        // For each site in the report
-            // Check it exists
-            // Check the name matches
+        var sites = await siteService.GetAllSites(includeDeleted: true);
+
+        foreach (var row in siteRows)
+        {
+            try
+            {
+                var matchingSite = sites.FirstOrDefault(s => s.Id == row.Id && s.Name.ToLower() == row.Name.ToLower());
+                if (matchingSite is null)
+                {
+                    report.Add(new ReportItem(-1, row.Name, false, $"Could not find existing site with name: {row.Name} and ID: {row.Id}."));
+                    continue;
+                }
+
+                var result = await siteService.ToggleSiteSoftDeletionAsync(row.Id);
+                if (!result.Success)
+                {
+                    report.Add(new ReportItem(-1, row.Name, false, $"Failed to update the soft deletion status of site with name: {row.Name} and ID: {row.Id}"));
+                    continue;
+                }
+            }
+            catch (Exception ex)
+            {
+                report.Add(new ReportItem(-1, row.Name, false, ex.Message));
+            }
+        }
 
         return report;
     }

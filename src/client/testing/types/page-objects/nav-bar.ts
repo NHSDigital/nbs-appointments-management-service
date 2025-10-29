@@ -1,6 +1,7 @@
 import { type Locator, type Page } from '@playwright/test';
 import PageObject from './page-object';
 import { E2ETestSite } from '..';
+import { SiteDetailsPage } from '@e2etests/page-objects';
 
 export default class NavBar extends PageObject {
   private readonly site?: E2ETestSite;
@@ -62,12 +63,12 @@ export default class NavBar extends PageObject {
   //   return new UsersPage(this.page, this.site);
   // }
 
-  // async clickManageSite(): Promise<SiteDetailsPage> {
-  //   await this.manageSiteLink.click();
-  //   await this.page.waitForURL(`**/site/${this.site.id}/details`);
+  async clickManageSite(): Promise<SiteDetailsPage> {
+    await this.manageSiteLink.click();
+    await this.page.waitForURL(`**/site/${this.site?.id}/details`);
 
-  //   return new SiteDetailsPage(this.page, this.site);
-  // }
+    return new SiteDetailsPage(this.page, this.site);
+  }
 
   // async clickServiceName(): Promise<SiteSelectionPage> {
   //   await this.serviceName.click();

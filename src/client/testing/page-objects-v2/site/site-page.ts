@@ -1,5 +1,6 @@
 import { type Locator } from '@playwright/test';
 import { MYALayout } from '@e2etests/types';
+import SiteDetailsPage from './details/site-details-page';
 
 export default class SitePage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -37,12 +38,12 @@ export default class SitePage extends MYALayout {
   //     return new MonthViewPage(this.page, this.site);
   //   }
 
-  //   async clickSiteDetailsCard(): Promise<SiteDetailsPage> {
-  //     await this.siteManagementCard.click();
-  //     await this.page.waitForURL(`**/site/${this.site.id}/details`);
+  async clickSiteDetailsCard(): Promise<SiteDetailsPage> {
+    await this.siteManagementCard.click();
+    await this.page.waitForURL(`**/site/${this.site?.id}/details`);
 
-  //     return new SiteDetailsPage(this.page, this.site);
-  //   }
+    return new SiteDetailsPage(this.page, this.site);
+  }
 
   //   async clickCreateAvailabilityCard(): Promise<CreateAvailabilityPage> {
   //     await this.createAvailabilityCard.click();

@@ -5,6 +5,7 @@ import Header from './header';
 import CookieBanner from './cookie-banner';
 import FooterLinks from './footer-links';
 import Footer from './footer';
+import SummaryList from './summary-list';
 
 export {
   CookieBanner,
@@ -14,4 +15,5 @@ export {
   PageObject,
   MYALayout,
   NavBar,
+  SummaryList,
 };

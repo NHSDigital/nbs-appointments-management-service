@@ -6,6 +6,8 @@ import NotFoundPage from './not-found-page';
 import SiteSelectionPage from './sites/site-selection-page';
 import SitePage from './site/site-page';
 import NotAuthorised from './not-authorized-page';
+import SiteDetailsPage from './site/details/site-details-page';
+import EditReferenceDetailsPage from './site/details/edit-reference-details/edit-reference-details-page';
 
 export {
   CookiePoliciesPage,
@@ -16,4 +18,6 @@ export {
   NotAuthorised,
   SitePage,
   SiteSelectionPage,
+  SiteDetailsPage,
+  EditReferenceDetailsPage,
 };

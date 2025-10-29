@@ -74,7 +74,7 @@ const buildOdsCode = (testId: number): string => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const buildRegion = (testId: number): string => {
-  return 'Y61';
+  return 'R1';
 
   // TODO: randomise this based on testId. Atm this needs to be a well known ODS code entry, so need to add a step which inserts the randomly generated region as a known entry.
   //return `R${testId}`;
@@ -82,7 +82,7 @@ const buildRegion = (testId: number): string => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const buildIcb = (testId: number): string => {
-  return 'QMM';
+  return 'ICB1';
 
   // TODO: randomise this based on testId. Atm this needs to be a well known ODS code entry, so need to add a step which inserts the randomly generated region as a known entry.
   // return `ICB${testId}`;

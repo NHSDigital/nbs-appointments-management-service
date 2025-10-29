@@ -17,7 +17,7 @@ type accessNeedsCheckboxes = {
 
 export default class EditAccessNeedsPage extends MYALayout {
   title = this.page.getByRole('heading', {
-    name: 'Edit site reference details',
+    name: 'Edit accessibilities',
   });
 
   private readonly cancelButton: Locator = this.page.getByRole('button', {

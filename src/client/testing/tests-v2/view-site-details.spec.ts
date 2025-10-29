@@ -1,9 +1,9 @@
 import {
   buildAddress,
-  buildIcb,
+  buildIcbName,
   buildOdsCode,
   buildPhoneNumber,
-  buildRegion,
+  buildRegionName,
   buildSiteName,
 } from '@e2etests/data';
 import { test, expect } from '../fixtures-v2';
@@ -39,10 +39,10 @@ test('A user views the details of a site', async ({ setUpSingleSite }) => {
     ).toHaveText(buildOdsCode(testId));
     await expect(
       siteDetailsPage.referenceDetailsCard.summaryList.getItem('ICB'),
-    ).toHaveText(buildIcb(testId));
+    ).toHaveText(buildIcbName(testId));
     await expect(
       siteDetailsPage.referenceDetailsCard.summaryList.getItem('Region'),
-    ).toHaveText(buildRegion(testId));
+    ).toHaveText(buildRegionName(testId));
 
     // Check all access needs are present
     await expect(siteDetailsPage.accessNeedsCard.title).toBeVisible();

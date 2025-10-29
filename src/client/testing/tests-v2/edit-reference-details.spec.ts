@@ -3,7 +3,7 @@ import { test, expect } from '../fixtures-v2';
 
 // https://nhsd-jira.digital.nhs.uk/browse/APPT-1573
 test.fixme(
-  'A user updates the details for a site',
+  'A user updates the reference details for a site',
   async ({ setUpSingleSite }) => {
     const { sitePage } = await setUpSingleSite(['system:regional-user']);
 

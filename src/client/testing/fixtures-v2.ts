@@ -71,9 +71,7 @@ export const test = base.extend<MyaFixtures>({
     await Promise.all([
       await cosmosDbClient.deleteSite(testId),
       await cosmosDbClient.deleteUser(testId),
-      // TODO: Change this to only revert features set during setup, otherwise will break parallelism.
-      // Leaving it in for now just to prove everything works as expected.
-      await featureFlagClient.clearAllFeatureFlagOverrides(),
+      // TODO: Revert any feature toggles set for this test. Ensure tests sharing a toggle do not run in parallel.
     ]);
   },
 });

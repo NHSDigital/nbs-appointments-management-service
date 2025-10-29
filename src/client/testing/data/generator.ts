@@ -80,11 +80,21 @@ const buildRegion = (testId: number): string => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+const buildRegionName = (testId: number): string => {
+  return 'Region 1';
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const buildIcb = (testId: number): string => {
   return 'ICB1';
 
   // TODO: randomise this based on testId. Atm this needs to be a well known ODS code entry, so need to add a step which inserts the randomly generated region as a known entry.
   // return `ICB${testId}`;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const buildIcbName = (testId: number): string => {
+  return 'Integrated Care Board 1';
 };
 
 const buildScopeForRole = (testId: number, role: Role): string => {
@@ -145,8 +155,10 @@ export {
   buildSiteDocument,
   buildSiteName,
   buildIcb,
+  buildIcbName,
   buildOdsCode,
   buildRegion,
+  buildRegionName,
   buildPhoneNumber,
   buildUserDocument,
   buildMockOidcUser,

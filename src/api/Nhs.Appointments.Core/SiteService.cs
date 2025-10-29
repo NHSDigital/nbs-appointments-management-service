@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core;
@@ -12,7 +13,7 @@ public interface ISiteService
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false);
-    Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false);
+    Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false);
     Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
 
@@ -29,19 +30,20 @@ public interface ISiteService
     Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache);
 }
 
-public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilityStore, IMemoryCache memoryCache, ILogger<ISiteService> logger, TimeProvider time, IFeatureToggleHelper featureToggleHelper) : ISiteService
+public class SiteService(
+    ISiteStore siteStore,
+    IAvailabilityStore availabilityStore,
+    IMemoryCache memoryCache,
+    ILogger<ISiteService> logger,
+    TimeProvider time,
+    IFeatureToggleHelper featureToggleHelper,
+    IOptions<SiteServiceOptions> options) : ISiteService
 {
-    private const string CacheKey = "sites";
-    
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
-        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        if (sites == null || ignoreCache)
-        {
-            sites = await GetAndCacheSites();
-        }
+        var sites = await GetAllSites(false, ignoreCache);
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
         {
@@ -160,10 +162,17 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
         => await siteStore.GetSitesInRegionAsync(region);
-    
-    public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false)
+
+    public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false)
     {
-        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
+        // ignoreCache is an optional param an external caller can provide through only certain API routes,
+        // whereas DisableSiteCache is a global setting affecting all uses
+        if (ignoreCache || options.Value.DisableSiteCache)
+        {
+            return await siteStore.GetAllSites();
+        }
+
+        var sites = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
         sites ??= await GetAndCacheSites(includeDeleted);
 
         return sites;
@@ -221,11 +230,7 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
     {
-        var sites = memoryCache.Get(CacheKey) as IEnumerable<Site>;
-        if (sites == null || ignoreCache)
-        {
-            sites = await GetAndCacheSites();
-        }
+        var sites = await GetAllSites(false, ignoreCache);
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
         {
@@ -234,8 +239,16 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
         var allResults = new List<SiteWithDistance>();
 
-        foreach (var filter in filters)
+        var orderedFilters = OrderFiltersByPriority(filters);
+
+        foreach (var filter in orderedFilters)
         {
+            // No need to keep processing if we've hit the maxRecords count
+            if (allResults.Count >= maxRecords)
+            {
+                break;
+            }
+
             var predicate = BuildPredicate(filter);
             var filteredSites = sites.Where(predicate);
 
@@ -276,9 +289,8 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
 
     private Func<Site, bool> BuildPredicate(SiteFilter filter)
     {
-        // TODO: APPT-1463 - add site type and ODS code filters
-
         var hasAccessNeedsFilter = filter.AccessNeeds is not null && filter.AccessNeeds.Length > 0;
+        var hasSiteTypeFilter = filter.Types is not null && filter.Types.Length > 0;
 
         var accessibilityIds = new List<string>();
         if (hasAccessNeedsFilter)
@@ -298,9 +310,66 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
                 }
             }
 
+            if (hasSiteTypeFilter)
+            {
+                var (includedTypes, excludedTypes) = ParseSiteTypeFilters(filter.Types);
+
+                if (includedTypes.Count > 0 && !includedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return false;
+                }
+
+                if (excludedTypes.Count > 0 && excludedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(filter.OdsCode))
+            {
+                return filter.OdsCode.Equals(site.OdsCode, StringComparison.InvariantCultureIgnoreCase);
+            }
+
             var distance = CalculateDistanceInMetres(site.Location.Coordinates[1], site.Location.Coordinates[0], filter.Latitude, filter.Longitude);
             return distance <= filter.SearchRadius;
         };
+    }
+
+    private static (List<string> IncludedSiteTypes, List<string> ExcludedSiteTypes) ParseSiteTypeFilters(string[] siteTypes)
+    {
+        var includedTypes = new List<string>();
+        var excludedTypes = new List<string>();
+
+        const char excludesChar = '!';
+
+        foreach (var type in siteTypes)
+        {
+            if (type.StartsWith(excludesChar))
+            {
+                excludedTypes.Add(type[1..].Trim());
+            }
+            else
+            {
+                includedTypes.Add(type);
+            }
+        }
+
+        return (includedTypes, excludedTypes);
+    }
+
+    private static IEnumerable<SiteFilter> OrderFiltersByPriority(SiteFilter[] filters)
+    {
+        var indexed = filters.Select((f, i) => new { Filter = f, Index = i }).ToList();
+        var anyFilterHasPriority = indexed.Any(x => x.Filter.Priority.HasValue);
+
+        return anyFilterHasPriority
+            ? indexed
+                .OrderBy(x => x.Filter.Priority.HasValue ? 0 : 1) // Any filter with the priority prop set moves to the front
+                .ThenBy(x => x.Filter.Priority ?? int.MaxValue) // Then order by prioirty ascending
+                .ThenBy(x => x.Index) // Then order by index ascending if any filters have no priority set
+                .Select(x => x.Filter)
+                .ToList()
+            : filters;
     }
 
     private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
@@ -329,7 +398,8 @@ public class SiteService(ISiteStore siteStore, IAvailabilityStore availabilitySt
     private async Task<IEnumerable<Site>> GetAndCacheSites(bool includeDeleted = false)
     {
         var sites = await siteStore.GetAllSites(includeDeleted);
-        memoryCache.Set(CacheKey, sites, time.GetUtcNow().AddMinutes(10));
+        memoryCache.Set(options.Value.SiteCacheKey, sites,
+            time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
 
         return sites;
     }

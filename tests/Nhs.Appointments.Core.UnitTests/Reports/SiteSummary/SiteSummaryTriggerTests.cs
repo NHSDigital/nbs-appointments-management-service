@@ -24,7 +24,7 @@ public class SiteSummaryTriggerTests
         _options.Setup(x => x.Value).Returns(new SiteSummaryOptions { DaysForward = 1, DaysChunkSize = 2, FirstRunDate = new DateOnly(2025, 2, 1) });
         _aggregationStore.Setup(x => x.GetLastRun()).ReturnsAsync((Aggregation)null);
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -38,7 +38,8 @@ public class SiteSummaryTriggerTests
                 new Accessibility[] { },
                 new Location("test", [0.0]),
                 SiteStatus.Online, 
-                null)
+                null,
+                string.Empty)
         });
         
         await _sut.Trigger();
@@ -61,7 +62,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 6, 30)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -75,7 +76,8 @@ public class SiteSummaryTriggerTests
                 new Accessibility[] { },
                 new Location("test", [0.0]),
                 SiteStatus.Online,
-                null)
+                null,
+                string.Empty)
         });
 
         var site = "site-1";
@@ -103,7 +105,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 7, 9)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -117,7 +119,8 @@ public class SiteSummaryTriggerTests
                 new Accessibility[] { },
                 new Location("test", [0.0]),
                 null, 
-                null)
+                null,
+                string.Empty)
         });
 
         var site = "site-1";
@@ -218,7 +221,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 6, 28)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -231,7 +234,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                null, null)
+                null, null, string.Empty)
         });
 
         var site = "site-1";
@@ -259,7 +262,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 6, 28)
         } );
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(),It.IsAny<DateOnly>(),It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -272,7 +275,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                null, null)
+                null, null, string.Empty)
         });
 
         var site = "site-1";
@@ -321,7 +324,7 @@ public class SiteSummaryTriggerTests
             LastRanToDateOnly = new DateOnly(2025, 7, 1)
         });
         _aggregationStore.Setup(x => x.SetLastRun(It.IsAny<DateTimeOffset>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()));
-        _siteService.Setup(x => x.GetAllSites(false)).ReturnsAsync(new List<Site>
+        _siteService.Setup(x => x.GetAllSites(false, false)).ReturnsAsync(new List<Site>
         {
             new (
                 "site-1",
@@ -334,7 +337,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online, null),
+                SiteStatus.Online, null, string.Empty),
             new (
                 "site-2",
                 "site-name-2",
@@ -346,7 +349,7 @@ public class SiteSummaryTriggerTests
                 "INFO",
                 new Accessibility[] { },
                 new Location("test", [0.0]),
-                SiteStatus.Online, null)
+                SiteStatus.Online, null, string.Empty)
         });
 
         var site1 = "site-1";

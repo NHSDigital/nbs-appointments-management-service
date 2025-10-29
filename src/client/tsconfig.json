@@ -29,6 +29,10 @@
       "@testing/*": ["./src/app/testing/*"],
       "@sorting": ["./src/app/lib/sorting/index"],
       "@constants": ["./src/constants"],
+      "@e2etests/page-objects": ["./testing/page-objects-v2/index"],
+      "@e2etests/types": ["./testing/types"],
+      "@e2etests/data": ["./testing/data/index"],
+      // TODO: Remove this once all tests have been migrated
       "@testing-page-objects": ["./testing/page-objects/index"]
     },
     "target": "ES2017"

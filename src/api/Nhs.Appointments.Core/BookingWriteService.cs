@@ -1,8 +1,8 @@
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
-using Nhs.Appointments.Core.ReferenceNumber;
 using Nhs.Appointments.Core.ReferenceNumber.V1;
 using Nhs.Appointments.Core.ReferenceNumber.V2;
 
@@ -51,7 +51,8 @@ public class BookingWriteService(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
     IBookingEventFactory eventFactory,
     IMessageBus bus,
-    TimeProvider time) : IBookingWriteService
+    TimeProvider time,
+    IFeatureToggleHelper featureToggleHelper) : IBookingWriteService
 {
     private static readonly ContactItemType[] ValidNotificationTypes =
         [ContactItemType.Email, ContactItemType.Phone];
@@ -74,10 +75,16 @@ public class BookingWriteService(
         }
 
         booking.Created = time.GetUtcNow();
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.BookingReferenceV2))
+        {
+            booking.Reference = await referenceNumberProviderV2.GetReferenceNumber();
+        }
+        else
+        {
+            booking.Reference = await referenceNumberProviderV1.GetReferenceNumber(booking.Site);
+        }
         
-        booking.Reference = await referenceNumberProviderV1.GetReferenceNumber(booking.Site);
-        
-        booking.Reference = await referenceNumberProviderV2.GetReferenceNumber();
         booking.ReminderSent = false;
         booking.AvailabilityStatus = AvailabilityStatus.Supported;
         await bookingDocumentStore.InsertAsync(booking);

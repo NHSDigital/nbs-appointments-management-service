@@ -1,4 +1,5 @@
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Core.ReferenceNumber;
@@ -21,6 +22,8 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IReferenceNumberProvider> _referenceNumberProviderV1 = new();
         private readonly Mock<IProvider> _referenceNumberProviderV2 = new();
         
+        private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
+        
         private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
         private BookingWriteService _sut;
 
@@ -35,7 +38,8 @@ namespace Nhs.Appointments.Core.UnitTests
                 _bookingAvailabilityStateService.Object,
                 new EventFactory(),
                 _messageBus.Object,
-                TimeProvider.System);
+                TimeProvider.System,
+                _featureToggleHelper.Object);
         }
 
         [Fact]
@@ -67,7 +71,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 _referenceNumberProviderV1.Object,
                 _referenceNumberProviderV2.Object,
                 leaseManager, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
-                new EventFactory(), _messageBus.Object, TimeProvider.System);
+                new EventFactory(), _messageBus.Object, TimeProvider.System, _featureToggleHelper.Object);
 
             var task = Task.Run(() => bookingService.MakeBooking(booking));
             await Task.Delay(100);

@@ -33,9 +33,8 @@ const buildE2ETestSite = (testId: number): E2ETestSite => {
 };
 
 const buildPhoneNumber = (testId: number): string => {
-  // Generate a deterministic phone number based on the testId
-  const baseNumber = String(7000000000 + (testId % 1000000000));
-  return `0${baseNumber.substring(0, 3)} ${baseNumber.substring(4, 10)}`;
+  const guaranteedLongNumber = 7000000000 + (testId % 1000000000);
+  return `0${guaranteedLongNumber.toString().substring(0, 3)} ${guaranteedLongNumber.toString().substring(4, 10)}`;
 };
 
 const buildAddress = (testId: number): string => {

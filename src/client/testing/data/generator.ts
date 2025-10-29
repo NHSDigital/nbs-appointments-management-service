@@ -72,12 +72,20 @@ const buildOdsCode = (testId: number): string => {
   return `ABC${testId}`;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const buildRegion = (testId: number): string => {
-  return `R${testId}`;
+  return 'Y61';
+
+  // TODO: randomise this based on testId. Atm this needs to be a well known ODS code entry, so need to add a step which inserts the randomly generated region as a known entry.
+  //return `R${testId}`;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const buildIcb = (testId: number): string => {
-  return `ICB${testId}`;
+  return 'QMM';
+
+  // TODO: randomise this based on testId. Atm this needs to be a well known ODS code entry, so need to add a step which inserts the randomly generated region as a known entry.
+  // return `ICB${testId}`;
 };
 
 const buildScopeForRole = (testId: number, role: Role): string => {
@@ -85,9 +93,9 @@ const buildScopeForRole = (testId: number, role: Role): string => {
     case 'system:admin-user':
       return `global`;
     case 'system:icb-user':
-      return buildIcb(testId);
+      return `icb:${buildIcb(testId)}`;
     case 'system:regional-user':
-      return buildRegion(testId);
+      return `region:${buildRegion(testId)}`;
     default:
       return `site:${buildSiteId(testId)}`;
   }

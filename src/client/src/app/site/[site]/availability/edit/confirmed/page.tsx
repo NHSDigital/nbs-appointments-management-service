@@ -4,8 +4,8 @@ import {
   fetchSite,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { AvailabilitySession, Session } from '@types';
-import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
+import { AvailabilitySession } from '@types';
+import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
 import NhsPage from '@components/nhs-page';
@@ -24,14 +24,6 @@ type PageProps = {
     site: string;
   }>;
 };
-
-const toAvailabilitySession = (session: Session): AvailabilitySession => ({
-  from: toTimeFormat(session.startTime) ?? '',
-  until: toTimeFormat(session.endTime) ?? '',
-  slotLength: session.slotLength,
-  capacity: session.capacity,
-  services: session.services,
-});
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
@@ -65,9 +57,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const parsedDate = parseToUkDatetime(date);
 
-  const newSession: Session = JSON.parse(atob(updatedSession));
-
-  const updatedAvailabilitySession = toAvailabilitySession(newSession);
+  const newSession: AvailabilitySession = JSON.parse(atob(updatedSession));
 
   let cancelledWithDetailsCount =
     (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
@@ -89,7 +79,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
     >
       <EditSessionConfirmed
-        updatedSession={updatedAvailabilitySession}
+        updatedSession={newSession}
         site={site}
         date={date}
         hasBookings={hasBookings}

@@ -4,7 +4,7 @@ import RootPage from '../root';
 export default class EditAvailabilityConfirmedPage extends RootPage {
   async verifySessionUpdated() {
     await expect(
-      this.page.getByText('Time and capacity changed'),
+      this.page.getByText('You have successfully edited the session.'),
     ).toBeVisible();
   }
 }

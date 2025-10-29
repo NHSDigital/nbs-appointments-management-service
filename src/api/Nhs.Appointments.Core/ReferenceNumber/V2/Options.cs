@@ -1,4 +1,4 @@
-namespace Nhs.Appointments.Core.ReferenceNumber;
+namespace Nhs.Appointments.Core.ReferenceNumber.V2;
 
 public class ReferenceNumberOptions
 {

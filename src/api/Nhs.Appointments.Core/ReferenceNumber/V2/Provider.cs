@@ -6,7 +6,7 @@ using LuhnNet;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace Nhs.Appointments.Core.ReferenceNumber;
+namespace Nhs.Appointments.Core.ReferenceNumber.V2;
 
 public interface IProvider
 {

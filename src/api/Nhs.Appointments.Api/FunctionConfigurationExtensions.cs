@@ -28,9 +28,12 @@ using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
 using Nhs.Appointments.Core.ReferenceNumber;
+using Nhs.Appointments.Core.ReferenceNumber.V1;
+using Nhs.Appointments.Core.ReferenceNumber.V2;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
+using Nhs.Appointments.Persistance.Reference;
 
 namespace Nhs.Appointments.Api;
 
@@ -70,6 +73,7 @@ public static class FunctionConfigurationExtensions
 
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
+            .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
             .Configure<SiteSummaryOptions>(opts =>
             {
                 opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");
@@ -94,11 +98,13 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IBookingReferenceDocumentStore, BookingReferenceCosmosDocumentStore>()
+            .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
             .AddTransient<IEulaStore, EulaStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
             .AddTransient<ISiteStore, SiteStore>()
+            .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IEmailWhitelistStore, EmailWhitelistStore>()
             .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddTransient<IAccessibilityDefinitionsStore, AccessibilityDefinitionsStore>()

@@ -1,8 +1,8 @@
 using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Core.ReferenceNumber;
-using Nhs.Appointments.Persistance.Models;
+using Nhs.Appointments.Core.ReferenceNumber.V2;
+using Nhs.Appointments.Persistance.Models.Reference;
 
-namespace Nhs.Appointments.Persistance
+namespace Nhs.Appointments.Persistance.Reference
 {
     public class BookingReferenceCosmosDocumentStore(ITypedDocumentCosmosStore<BookingReferenceDocument> cosmosStore)
         : IBookingReferenceDocumentStore

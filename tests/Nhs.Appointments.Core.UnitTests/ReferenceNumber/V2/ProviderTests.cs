@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core.ReferenceNumber;
+using Nhs.Appointments.Core.ReferenceNumber.V2;
 
-namespace Nhs.Appointments.Core.UnitTests.ReferenceNumber;
+namespace Nhs.Appointments.Core.UnitTests.ReferenceNumber.V2;
 
 public class ProviderTests
 {

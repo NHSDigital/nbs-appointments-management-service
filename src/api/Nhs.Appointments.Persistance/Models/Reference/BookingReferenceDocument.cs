@@ -1,4 +1,4 @@
-namespace Nhs.Appointments.Persistance.Models;
+namespace Nhs.Appointments.Persistance.Models.Reference;
 
 [CosmosDocumentType("system")]
 public class BookingReferenceDocument : CoreDataCosmosDocument

@@ -20,7 +20,7 @@ public class SiteStatusDataImportHandler(ISiteService siteService) : ISiteStatus
         {
             try
             {
-                var matchingSite = sites.FirstOrDefault(s => s.Id == row.Id && s.Name.ToLower() == row.Name.ToLower());
+                var matchingSite = sites.FirstOrDefault(s => s.Id == row.Id && s.Name.Equals(row.Name, StringComparison.CurrentCultureIgnoreCase));
                 if (matchingSite is null)
                 {
                     report.Add(new ReportItem(-1, row.Name, false, $"Could not find existing site with name: {row.Name} and ID: {row.Id}."));

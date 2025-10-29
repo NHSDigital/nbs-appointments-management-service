@@ -170,7 +170,7 @@ public class SiteService(
         // whereas DisableSiteCache is a global setting affecting all uses
         if (ignoreCache || options.Value.DisableSiteCache)
         {
-            return await siteStore.GetAllSites();
+            return await siteStore.GetAllSites(includeDeleted);
         }
 
         var sites = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;

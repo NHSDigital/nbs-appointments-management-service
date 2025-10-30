@@ -27,7 +27,6 @@ using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Okta;
-using Nhs.Appointments.Core.ReferenceNumber;
 using Nhs.Appointments.Core.ReferenceNumber.V1;
 using Nhs.Appointments.Core.ReferenceNumber.V2;
 using Nhs.Appointments.Core.Reports;
@@ -81,12 +80,6 @@ public static class FunctionConfigurationExtensions
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
             .ConfigureSiteService(configuration)
-            .Configure<SiteServiceOptions>(opts =>
-            {
-                opts.SiteCacheKey = configuration.GetValue<string>("SITE_CACHE_KEY");
-                opts.SiteCacheDuration = configuration.GetValue<int>("SITE_CACHE_DURATION_MINUTES");
-                opts.DisableSiteCache = configuration.GetValue<bool>("DISABLE_SITE_CACHE");
-            })
             .Configure<ReferenceNumberOptions>(opts =>
             {
                 //for simplicity will keep a single key for now and have it be version 1
@@ -98,13 +91,17 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
             .AddTransient<IBookingReferenceDocumentStore, BookingReferenceCosmosDocumentStore>()
+            
+#pragma warning disable CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+            .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
+#pragma warning restore CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
+            
             .AddTransient<IEulaStore, EulaStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
             .AddTransient<IRolesService, RolesService>()
             .AddTransient<ISiteStore, SiteStore>()
-            .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IEmailWhitelistStore, EmailWhitelistStore>()
             .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddTransient<IAccessibilityDefinitionsStore, AccessibilityDefinitionsStore>()

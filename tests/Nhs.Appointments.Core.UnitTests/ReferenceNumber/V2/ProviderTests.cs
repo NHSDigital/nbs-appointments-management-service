@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.ReferenceNumber.V2;
 
@@ -16,6 +17,7 @@ public class ProviderTests
 
     private readonly Mock<IBookingReferenceDocumentStore> _bookingReferenceDocumentStore = new();
     private readonly Mock<TimeProvider> _timeProvider = new();
+    private readonly Mock<ILogger<Provider>> _logger = new();
     private readonly Mock<IOptions<ReferenceNumberOptions>> _options = new();
 
     private readonly IProvider _sut;
@@ -23,7 +25,7 @@ public class ProviderTests
     public ProviderTests()
     {
         _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = HmacTestSecretKey});
-        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, new MemoryCache(new MemoryCacheOptions()), _timeProvider.Object);
+        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, new MemoryCache(new MemoryCacheOptions()), _logger.Object, _timeProvider.Object);
     }
     
     [Fact]
@@ -135,7 +137,7 @@ public class ProviderTests
     }
 
     [Fact]
-    public async Task GetReferenceNumber_ChecksumDigitExists_MeansOnlyOneReferenceIsValid()
+    public async Task GetReferenceNumber_LuhnChecksumDigitExists_MeansOnlyOneReferenceIsValid()
     {
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2016, 6, 06, 17, 23, 00));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(76543789);
@@ -143,18 +145,52 @@ public class ProviderTests
         var result = await _sut.GetReferenceNumber();
         result.Should().Be("4016-90927-6174");
         Assert.True(_sut.IsValidBookingReference(result));
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("Booking Reference '4016-90927-6174' does not pass the valid Luhn digit requirement.")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Never
+        );
 
         //the other 9 numbers with a different final digit should NOT be valid references
         Assert.False(_sut.IsValidBookingReference("4016-90927-6171"));
         Assert.False(_sut.IsValidBookingReference("4016-90927-6172"));
         Assert.False(_sut.IsValidBookingReference("4016-90927-6173"));
-
         Assert.False(_sut.IsValidBookingReference("4016-90927-6175"));
         Assert.False(_sut.IsValidBookingReference("4016-90927-6176"));
         Assert.False(_sut.IsValidBookingReference("4016-90927-6177"));
         Assert.False(_sut.IsValidBookingReference("4016-90927-6178"));
         Assert.False(_sut.IsValidBookingReference("4016-90927-6179"));
         Assert.False(_sut.IsValidBookingReference("4016-90927-6170"));
+        
+        VerifyLuhnDigitInvalidLogged("4016-90927-6171");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6172");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6173");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6175");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6176");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6177");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6178");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6179");
+        VerifyLuhnDigitInvalidLogged("4016-90927-6170");
+    }
+
+    private void VerifyLuhnDigitInvalidLogged(string bookingReference)
+    {
+        _logger.Verify(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains($"Booking Reference '{bookingReference}' does not pass the valid Luhn digit requirement.")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
     }
 
     [Fact]

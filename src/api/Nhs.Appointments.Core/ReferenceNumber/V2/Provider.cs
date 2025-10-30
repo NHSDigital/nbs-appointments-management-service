@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using LuhnNet;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Nhs.Appointments.Core.ReferenceNumber.V2;
@@ -26,11 +27,14 @@ public class Provider(
     IOptions<ReferenceNumberOptions> options,
     IBookingReferenceDocumentStore bookingReferenceDocumentStore,
     IMemoryCache memoryCache,
+    ILogger<Provider> logger,
     TimeProvider timeProvider)
     : IProvider
 {
-    private Regex BookingReferenceV2Regex => new (@"^\d{4}-\d{5}-\d{4}$");
+    //needed for backwards compatibility since we are now checking correctly formatted strings
     private Regex BookingReferenceV1Regex => new (@"^\d{2}-\d{2}-\d{6}$");
+    
+    private Regex BookingReferenceV2Regex => new (@"^\d{4}-\d{5}-\d{4}$");
     
     private IOptions<ReferenceNumberOptions> Options { get; } = options;
 
@@ -111,7 +115,7 @@ public class Provider(
         }
 
         sequenceMultiplier = DeriveSequenceMultiplier(partitionKey);
-        memoryCache.Set(cacheKey, sequenceMultiplier, TimeSpan.FromDays(PartitionBucketLengthInDays + 4)); // easily spans the partition length
+        memoryCache.Set(cacheKey, sequenceMultiplier, TimeSpan.FromDays(PartitionBucketLengthInDays + 2)); // easily spans the partition length
         return sequenceMultiplier;
     }
 
@@ -147,9 +151,13 @@ public class Provider(
         //confirmation of GCD(multiplier,SequenceMax) == 1, without this, the entire bijection pattern fails!!
         if ((int)BigInteger.GreatestCommonDivisor(multiplier, SequenceMax) != 1)
         {
+            var message =
+                $"CRITICAL ERROR - Derived sequence multiplier does not pass logical requirement of GCD(multiplier,SequenceMax) == 1. " +
+                $"Failure for multiplier: '{multiplier}' and sequenceMax: '{SequenceMax}'";            
+            
             //fail fast - logically this should NEVER happen and something has gone VERY WRONG!
-            throw new InvalidOperationException($"CRITICAL ERROR - Derived sequence multiplier does not pass logical requirement of GCD(multiplier,SequenceMax) == 1. " +
-                                                $"Failure for multiplier: '{multiplier}' and sequenceMax: '{SequenceMax}'");
+            logger.LogCritical(message);
+            throw new InvalidOperationException(message);
         }
 
         //GCD(multiplier,SequenceMax) == 1 guaranteed
@@ -181,8 +189,11 @@ public class Provider(
 
         if (!Luhn.IsValid(digitReference))
         {
-            // Logger.LogWarning
-            // checksum fail indicates someone tried to guess a booking reference format using the valid format
+            // checksum fail indicates someone may have tried to guess a booking reference format using the valid format
+            // this could however also be a user typing error
+            
+            //if there are a lot of these warnings, could this suggest someone trying to brute force guess a valid reference...?
+            logger.LogWarning("Booking Reference '{BookingReference}' does not pass the valid Luhn digit requirement.", bookingReference);
             return false;
         }
 

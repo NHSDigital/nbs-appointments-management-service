@@ -11,10 +11,27 @@ namespace Nhs.Appointments.Persistance.Reference
 
         public async Task<int> GetNextSequenceNumber()
         {
-            var incrementSequencePatch = PatchOperation.Increment("/sequence", 1);
-            var docType = cosmosStore.GetDocumentType();
-            var referenceGroupDocument = await cosmosStore.PatchDocument(docType, DocumentId, incrementSequencePatch);
-            return referenceGroupDocument.Sequence;
+            BookingReferenceDocument bookingReferenceDocument;
+            
+            try
+            {
+                var incrementSequencePatch = PatchOperation.Increment("/sequence", 1);
+                var docType = cosmosStore.GetDocumentType();
+                bookingReferenceDocument = await cosmosStore.PatchDocument(docType, DocumentId, incrementSequencePatch);
+            }
+            catch(CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                bookingReferenceDocument = new BookingReferenceDocument
+                {
+                    DocumentType = cosmosStore.GetDocumentType(),
+                    Id = DocumentId,
+                    Sequence = 0
+                };
+
+                await cosmosStore.WriteAsync(bookingReferenceDocument);
+            }
+            
+            return bookingReferenceDocument.Sequence;
         }
     }
 }

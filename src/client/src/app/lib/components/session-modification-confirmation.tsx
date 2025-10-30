@@ -19,6 +19,7 @@ import {
   UpdateSessionRequest,
   Session,
   SessionModificationAction,
+  AvailabilitySession,
 } from '@types';
 import { modifySession } from '@services/appointmentsService';
 import { toTimeFormat } from '@services/timeService';
@@ -126,6 +127,14 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
   },
 };
 
+const toAvailabilitySession = (session: Session): AvailabilitySession => ({
+  from: toTimeFormat(session.startTime) ?? '',
+  until: toTimeFormat(session.endTime) ?? '',
+  slotLength: session.slotLength,
+  capacity: session.capacity,
+  services: session.services,
+});
+
 export const SessionModificationConfirmation = ({
   unsupportedBookingsCount,
   clinicalServices,
@@ -177,7 +186,12 @@ export const SessionModificationConfirmation = ({
         cancelUnsupportedBookings: cancelBookings,
       };
 
+      let updatedSessionSummary: AvailabilitySession =
+        {} as AvailabilitySession;
+
       if (mode === 'edit' && newSessionSummary) {
+        updatedSessionSummary = toAvailabilitySession(newSessionSummary);
+
         request = {
           ...request,
           sessionReplacement: {
@@ -192,7 +206,10 @@ export const SessionModificationConfirmation = ({
 
       const response = await fromServer(modifySession(request));
 
+      const encode = (obj: unknown) => btoa(JSON.stringify(obj));
+
       router.push(
+        `/site/${site}/availability/${mode}/confirmed?updatedSession=${encode(updatedSessionSummary)}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
         `/site/${site}/availability/${mode}/confirmed?updatedSession=${mode === 'edit' ? newSession : session}&date=${date}&chosenAction=${form.action}&bookingsCanceledWithoutDetails=${response.bookingsCanceledWithoutDetails}&unsupportedBookings=${unsupportedBookingsCount}`,
       );
     });

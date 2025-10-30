@@ -13,7 +13,7 @@ const exists = (notification: string | undefined | null): boolean => {
 
 const NotificationBanner = ({ notification }: Props) => {
   return exists(notification) ? (
-    <div className="nhsuk-warning-callout-custom no-print">
+    <div className="nhsuk-warning-callout-custom no-print" role="banner">
       <div className="nhsuk-warning-callout-custom__container">
         {notification}
         <CloseNotificationForm />

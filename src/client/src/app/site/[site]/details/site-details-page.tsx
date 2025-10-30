@@ -92,44 +92,47 @@ const SiteDetailsPage = async ({
   ) : null;
 
   return (
-    <>
-      <Card title="Site details" actionLinks={siteDetailsActionLinks}>
-        {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
-      </Card>
-      <Card
-        title="Site reference details"
-        actionLinks={siteReferenceDetailsLink}
-      >
-        {siteReferenceSummaryData && (
-          <SummaryList {...siteReferenceSummaryData}></SummaryList>
-        )}
-      </Card>
-      <Card title="Access needs" actionLinks={accessNeedsLink}>
-        <SummaryList
-          borders={true}
-          items={accessibilityDefinitions.map(definition => {
-            return {
-              title: definition.displayName,
-              value:
-                site?.accessibilities.find(value => value.id === definition.id)
-                  ?.value === 'true'
-                  ? 'Yes'
-                  : 'No',
-            };
-          })}
-        />
-      </Card>
-      <Card
-        title="Information for citizens"
-        actionLinks={informationForCitizenLink}
-      >
-        {site.informationForCitizens ? (
-          <p>{site.informationForCitizens}</p>
-        ) : (
-          <p>Information for people visiting the site</p>
-        )}
-      </Card>
-    </>
+    <ol className="card-list">
+      <li>
+        <Card title="Site details" actionLinks={siteDetailsActionLinks}>
+          {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
+        </Card>
+        <Card
+          title="Site reference details"
+          actionLinks={siteReferenceDetailsLink}
+        >
+          {siteReferenceSummaryData && (
+            <SummaryList {...siteReferenceSummaryData}></SummaryList>
+          )}
+        </Card>
+        <Card title="Access needs" actionLinks={accessNeedsLink}>
+          <SummaryList
+            borders={true}
+            items={accessibilityDefinitions.map(definition => {
+              return {
+                title: definition.displayName,
+                value:
+                  site?.accessibilities.find(
+                    value => value.id === definition.id,
+                  )?.value === 'true'
+                    ? 'Yes'
+                    : 'No',
+              };
+            })}
+          />
+        </Card>
+        <Card
+          title="Information for citizens"
+          actionLinks={informationForCitizenLink}
+        >
+          {site.informationForCitizens ? (
+            <p>{site.informationForCitizens}</p>
+          ) : (
+            <p>Information for people visiting the site</p>
+          )}
+        </Card>
+      </li>
+    </ol>
   );
 };
 

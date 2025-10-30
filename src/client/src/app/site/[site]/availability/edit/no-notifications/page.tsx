@@ -16,7 +16,7 @@ type PageProps = {
   searchParams?: Promise<{
     date: string;
     page: number;
-    tab?: string;
+    cancelledWithoutDetailsCount: number;
   }>;
   params: Promise<{
     site: string;
@@ -25,7 +25,9 @@ type PageProps = {
 
 const Page = async ({ params, searchParams }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { date, page } = { ...(await searchParams) };
+  const { date, page, cancelledWithoutDetailsCount } = {
+    ...(await searchParams),
+  };
   if (date === undefined || page === undefined) {
     return notFound();
   }
@@ -56,8 +58,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <NhsPage
-      title={fromDate.format('dddd D MMMM')}
-      caption={site.name}
+      title="People who did not receive a notification"
       backLink={backLink}
       originPage="view-availability-daily-appointments"
       site={site}
@@ -66,8 +67,8 @@ const Page = async ({ params, searchParams }: PageProps) => {
       <NoNotificationsPage
         bookings={cancelledBookings}
         site={site.id}
-        displayAction={false}
         clinicalServices={clinicalServices}
+        cancelledWithoutDetailsCount={cancelledWithoutDetailsCount || 0}
       />
     </NhsPage>
   );

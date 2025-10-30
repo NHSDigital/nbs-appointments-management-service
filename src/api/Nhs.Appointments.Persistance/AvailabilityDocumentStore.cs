@@ -56,6 +56,7 @@ public class AvailabilityDocumentStore(
                 break;
             case ApplyAvailabilityMode.Edit:
                 await EditExistingSession(documentId, site, sessions.Single(), sessionToEdit);
+
                 break;
             default:
                 throw new NotSupportedException();

@@ -1,5 +1,5 @@
 import { Table, InsetText } from '@components/nhsuk-frontend';
-import { AvailabilitySession, ClinicalService, Site, Booking } from '@types';
+import { AvailabilitySession, ClinicalService, Site } from '@types';
 import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 
@@ -10,7 +10,6 @@ type PageProps = {
   date: string;
   hasBookings: boolean;
   chosenAction: string;
-  bookings: Booking[];
   unsupportedBookingsCount: number;
   cancelledWithDetailsCount: number;
   cancelledWithoutDetailsCount: number;
@@ -109,7 +108,7 @@ const EditSessionConfirmed = ({
                 provide an email or mobile number, and have not been notified
                 that their booking has been cancelled.{' '}
                 <Link
-                  href={`/site/${site.id}/availability/edit/no-notifications?date=${date}&page=1`}
+                  href={`/site/${site.id}/availability/edit/no-notifications?date=${date}&cancelledWithoutDetailsCount=${cancelledWithoutDetailsCount}&page=1`}
                 >
                   View the list of people who have not been notified
                 </Link>

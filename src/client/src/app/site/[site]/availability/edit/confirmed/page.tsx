@@ -1,12 +1,11 @@
 import {
   assertPermission,
   fetchClinicalServices,
-  fetchBookings,
   fetchSite,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { AvailabilitySession, FetchBookingsRequest } from '@types';
-import { dateTimeFormat, parseToUkDatetime } from '@services/timeService';
+import { AvailabilitySession } from '@types';
+import { parseToUkDatetime } from '@services/timeService';
 import EditSessionConfirmed from './edit-session-confirmed';
 import { notFound } from 'next/navigation';
 import NhsPage from '@components/nhs-page';
@@ -18,6 +17,7 @@ type PageProps = {
     updatedSession: string;
     unsupportedBookingsCount?: number;
     cancelAppointments?: boolean;
+    cancelledWithoutDetailsCount?: number;
     chosenAction: string;
   }>;
   params: Promise<{
@@ -33,6 +33,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     cancelAppointments,
     unsupportedBookingsCount,
     chosenAction,
+    cancelledWithoutDetailsCount,
   } = {
     ...(await searchParams),
   };
@@ -49,37 +50,17 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fetchFeatureFlag('ChangeSessionUpliftedJourney'),
   );
 
-  const fromDate = parseToUkDatetime(date);
-  const toDate = fromDate.endOf('day');
-
-  const fetchBookingsRequest: FetchBookingsRequest = {
-    from: fromDate.format(dateTimeFormat),
-    to: toDate.format(dateTimeFormat),
-    site: siteFromPath,
-    statuses: ['Cancelled'],
-    cancellationReason: 'CancelledBySite',
-  };
-
-  const [site, bookings, clinicalServices] = await Promise.all([
+  const [site, clinicalServices] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
-    fromServer(fetchBookings(fetchBookingsRequest, ['Cancelled'])),
     fromServer(fetchClinicalServices()),
   ]);
 
   const parsedDate = parseToUkDatetime(date);
 
-  const updatedAvailabilitySession: AvailabilitySession = JSON.parse(
-    atob(updatedSession),
-  );
-
-  const cancelledWithoutDetailsCount = bookings.filter(
-    b =>
-      !b.contactDetails ||
-      !b.contactDetails.some(cd => cd.type === 'Email' || cd.type === 'Phone'),
-  ).length;
+  const newSession: AvailabilitySession = JSON.parse(atob(updatedSession));
 
   let cancelledWithDetailsCount =
-    (unsupportedBookingsCount ?? 0) - cancelledWithoutDetailsCount;
+    (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
 
   if (cancelledWithDetailsCount < 0) {
     cancelledWithDetailsCount = 0;
@@ -98,11 +79,10 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
     >
       <EditSessionConfirmed
-        updatedSession={updatedAvailabilitySession}
+        updatedSession={newSession}
         site={site}
         date={date}
         hasBookings={hasBookings}
-        bookings={bookings}
         chosenAction={chosenAction ?? ''}
         unsupportedBookingsCount={unsupportedBookingsCount ?? 0}
         cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}

@@ -22,6 +22,7 @@ import {
   ServerActionResult,
   SessionModificationResponse,
   SessionSummary,
+  SessionModificationResult,
   SetAccessibilitiesRequest,
   SetAvailabilityRequest,
   SetInformationForCitizensRequest,

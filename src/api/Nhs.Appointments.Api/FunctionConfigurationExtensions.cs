@@ -76,12 +76,7 @@ public static class FunctionConfigurationExtensions
                 opts.DaysChunkSize = configuration.GetValue<int>("SITE_SUMMARY_DAYS_CHUNK_SIZE");
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
-            .Configure<SiteServiceOptions>(opts =>
-            {
-                opts.SiteCacheKey = configuration.GetValue<string>("SITE_CACHE_KEY");
-                opts.SiteCacheDuration = configuration.GetValue<int>("SITE_CACHE_DURATION_MINUTES");
-                opts.DisableSiteCache = configuration.GetValue<bool>("DISABLE_SITE_CACHE");
-            })
+            .ConfigureSiteService(configuration)
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()

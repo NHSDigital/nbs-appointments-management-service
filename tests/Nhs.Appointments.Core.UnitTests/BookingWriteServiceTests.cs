@@ -8,27 +8,145 @@ using Nhs.Appointments.Core.ReferenceNumber.V2;
 
 namespace Nhs.Appointments.Core.UnitTests
 {
-    public class BookingWriteServiceTests
+    public class BookingWriteServiceTests_BookingReferenceV2Disabled() : BookingWriteServiceTests(false)
     {
-        private const string MockSite = "some-site";
-        private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
-        private readonly Mock<IAvailabilityStore> _availabilityStore = new();
-
-        private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
-
-        private readonly Mock<IBookingQueryService> _bookingQueryService = new();
-        private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
-        private readonly Mock<IMessageBus> _messageBus = new();
-        private readonly Mock<IReferenceNumberProvider> _referenceNumberProviderV1 = new();
-        private readonly Mock<IProvider> _referenceNumberProviderV2 = new();
         
-        private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
-        
-        private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
-        private BookingWriteService _sut;
-
-        public BookingWriteServiceTests()
+    }
+    
+    public class BookingWriteServiceTests_BookingReferenceV2Enabled() : BookingWriteServiceTests(true)
+    {
+        [Fact]
+        public async Task RescheduleBooking_Transition_Initial_V1_Reference_To_Reschedule_V2_Reference()
         {
+            //setup first booking to use V1 reference
+            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.BookingReferenceV2)).ReturnsAsync(false);
+            
+            ContactItem[] contactDetails =
+                [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
+
+            var initialBooking = new Booking
+            {
+                Site = MockSite,
+                Service = "TSERV",
+                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                Duration = 10,
+                ContactDetails = null,
+                Status = AppointmentStatus.Provisional
+            };
+
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                    new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                    new DateTime(2077, 1, 1, 10, 10, 0, 0)))
+                .ReturnsAsync([
+                    new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                        new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = ["TSERV"] }
+                ]);
+
+            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                    new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                    new DateTime(2077, 1, 1, 11, 10, 0, 0)))
+                .ReturnsAsync([
+                    new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                        new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
+                ]);
+
+            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("14-90-002345");
+            
+            _bookingsDocumentStore
+                .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
+                    It.IsAny<string>(), It.IsAny<CancellationReason>()))
+                .ReturnsAsync(BookingConfirmationResult.Success);
+
+            var initialBookingResult = await _sut.MakeBooking(initialBooking);
+            
+            initialBookingResult.Reference.Should().Be("14-90-002345");
+            
+            await _sut.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
+
+            var rescheduledBooking = new Booking
+            {
+                Site = MockSite,
+                Service = "TSERV",
+                From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                Duration = 10,
+                ContactDetails = null,
+                Status = AppointmentStatus.Provisional
+            };
+            
+            //the feature flag flips in-between reschedule operation
+            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.BookingReferenceV2)).ReturnsAsync(true);
+
+            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("3825-69268-6774");
+            
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("14-90-002345")).ReturnsAsync(new Booking
+            {
+                Reference = "14-90-002345",
+                Site = MockSite,
+                Service = "TSERV",
+                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                Duration = 10,
+                ContactDetails = contactDetails,
+                Status = AppointmentStatus.Booked,
+                AttendeeDetails = new AttendeeDetails()
+            });
+            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("3825-69268-6774")).ReturnsAsync(new Booking
+            {
+                Reference = "3825-69268-6774",
+                Site = MockSite,
+                Service = "TSERV",
+                From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                Duration = 10,
+                ContactDetails = contactDetails,
+                Status = AppointmentStatus.Booked,
+                AttendeeDetails = new AttendeeDetails()
+            });
+            
+            await _sut.MakeBooking(rescheduledBooking);
+
+            var rescheduleResult = await _sut.ConfirmProvisionalBooking(rescheduledBooking.Reference,
+                contactDetails, initialBookingResult.Reference);
+
+            rescheduleResult.Should().Be(BookingConfirmationResult.Success);
+
+            initialBookingResult.Reference.Should().Be("14-90-002345");
+            rescheduledBooking.Reference.Should().Be("3825-69268-6774");
+
+            _bookingsDocumentStore.Verify(x =>
+                    x.ConfirmProvisional(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference,
+                        CancellationReason.RescheduledByCitizen),
+                Times.Once);
+        }
+    }
+    
+    public abstract class BookingWriteServiceTests
+    {
+        protected const string MockSite = "some-site";
+        protected readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
+        protected readonly Mock<IAvailabilityStore> _availabilityStore = new();
+
+        protected readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
+
+        protected readonly Mock<IBookingQueryService> _bookingQueryService = new();
+        protected readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
+        protected readonly Mock<IMessageBus> _messageBus = new();
+        protected readonly Mock<IReferenceNumberProvider> _referenceNumberProviderV1 = new();
+        protected readonly Mock<IProvider> _referenceNumberProviderV2 = new();
+        
+        protected readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
+        
+        protected readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
+        protected BookingWriteService _sut;
+        
+        protected readonly bool _bookingReferenceV2Enabled;
+
+        protected BookingWriteServiceTests(bool bookingReferenceV2Enabled)
+        {
+            _bookingReferenceV2Enabled = bookingReferenceV2Enabled;
+            
+            _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.BookingReferenceV2)).ReturnsAsync(_bookingReferenceV2Enabled);
+            
             _sut = new BookingWriteService(
                 _bookingsDocumentStore.Object,
                 _bookingQueryService.Object,
@@ -58,10 +176,9 @@ namespace Nhs.Appointments.Core.UnitTests
             };
 
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-            
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
 
+            MockReferenceProvider("TEST1");
+            
             var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
             var availabilityQueryService =
                 new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
@@ -81,6 +198,18 @@ namespace Nhs.Appointments.Core.UnitTests
 
             await Task.Delay(1000);
             task.IsCompleted.Should().BeTrue();
+        }
+
+        protected void MockReferenceProvider(string reference)
+        {
+            if (_bookingReferenceV2Enabled)
+            {
+                _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync(reference);
+            }
+            else
+            {
+                _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync(reference);
+            }
         }
 
         [Fact]
@@ -108,9 +237,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
-
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
+            MockReferenceProvider("TEST1");
 
             var result = await _sut.MakeBooking(booking);
 
@@ -149,9 +276,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
-
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
+            MockReferenceProvider("TEST1");
 
             var result = await _sut.MakeBooking(booking);
 
@@ -161,18 +286,6 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task RescheduleBooking_IsSuccessful()
         {
-            var availability = new[]
-            {
-                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
-                {
-                    Services = ["TSERV"]
-                },
-                new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0), new DateTime(2077, 1, 1, 11, 10, 0, 0))
-                {
-                    Services = ["TSERV"]
-                },
-            };
-
             ContactItem[] contactDetails =
                 [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
 
@@ -204,8 +317,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
                 ]);
 
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
+            MockReferenceProvider("TEST1");
             
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
@@ -237,9 +349,6 @@ namespace Nhs.Appointments.Core.UnitTests
             var initialBookingResult = await _sut.MakeBooking(initialBooking);
             await _sut.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
 
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST2");
-
             var rescheduledBooking = new Booking
             {
                 Site = MockSite,
@@ -249,7 +358,10 @@ namespace Nhs.Appointments.Core.UnitTests
                 ContactDetails = null,
                 Status = AppointmentStatus.Provisional
             };
-            var rescheduledBookingResult = await _sut.MakeBooking(rescheduledBooking);
+            
+            MockReferenceProvider("TEST2");
+            
+            await _sut.MakeBooking(rescheduledBooking);
 
             var rescheduleResult = await _sut.ConfirmProvisionalBooking(rescheduledBooking.Reference,
                 contactDetails, initialBookingResult.Reference);
@@ -298,8 +410,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
                 ]);
 
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
+            MockReferenceProvider("TEST1");
             
             _bookingsDocumentStore
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
@@ -330,8 +441,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var initialBookingResult = await _sut.MakeBooking(initialBooking);
             await _sut.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
 
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST2");
+            MockReferenceProvider("TEST2");
 
             var rescheduledBooking = new Booking
             {
@@ -382,9 +492,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
-
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
+            MockReferenceProvider("TEST1");
 
             var result = await _sut.MakeBooking(booking);
             result.Success.Should().BeTrue();
@@ -416,9 +524,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
-
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
+            MockReferenceProvider("TEST1");
 
             booking.ReminderSent = true; // make sure we're not just testing the default value of False
 
@@ -455,8 +561,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         new DateTime(2077, 1, 1, 13, 10, 0, 0)) { Services = ["TDIFFSERV"] }
                 ]);
 
-            _referenceNumberProviderV1.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("TEST1");
+            MockReferenceProvider("TEST1");
 
             var result = await _sut.MakeBooking(booking);
             result.Success.Should().BeFalse();

@@ -19,13 +19,14 @@ public class ProviderTests
     private readonly Mock<TimeProvider> _timeProvider = new();
     private readonly Mock<ILogger<Provider>> _logger = new();
     private readonly Mock<IOptions<ReferenceNumberOptions>> _options = new();
+    private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions());
 
     private readonly IProvider _sut;
 
     public ProviderTests()
     {
         _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = HmacTestSecretKey});
-        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, new MemoryCache(new MemoryCacheOptions()), _logger.Object, _timeProvider.Object);
+        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, _memoryCache, _logger.Object, _timeProvider.Object);
     }
     
     [Fact]
@@ -79,6 +80,50 @@ public class ProviderTests
         result.Should().Be("3825-69268-6774");
     }
 
+    [Fact]
+    public async Task GetReferenceNumber_UsesCachedMultiplierDerivationIfExists()
+    {
+        _memoryCache.TryGetValue("1:3825", out var _).Should().BeFalse();
+        _memoryCache.TryGetValue("1:4625", out var _).Should().BeFalse();
+        
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 30, 9, 0, 59));
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345123);
+
+        var result1 = await _sut.GetReferenceNumber();
+        result1.Should().Be("3825-69268-6774");
+        
+        //prove value is set
+        _memoryCache.TryGetValue("1:3825", out var multiplier1).Should().BeTrue();
+        _memoryCache.TryGetValue("1:4625", out var _).Should().BeFalse();
+        
+        multiplier1.Should().Be(28980599);
+        
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 31, 9, 0, 59));
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345124);
+        var result2 = await _sut.GetReferenceNumber();
+        result2.Should().Be("3825-98249-2768");
+        
+        _memoryCache.TryGetValue("1:3825", out var multiplier2).Should().BeTrue();
+        _memoryCache.TryGetValue("1:3725", out var _).Should().BeFalse();
+        _memoryCache.TryGetValue("1:3925", out var _).Should().BeFalse();
+        _memoryCache.TryGetValue("1:4625", out var _).Should().BeFalse();
+        
+        multiplier2.Should().Be(28980599);
+        
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 6, 30, 9, 0, 59));
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345125);
+        
+        var result3 = await _sut.GetReferenceNumber();
+        result3.Should().Be("4625-68731-6257");
+        
+        //prove new value is set
+        _memoryCache.TryGetValue("1:3825", out var multiplier3).Should().BeTrue();
+        _memoryCache.TryGetValue("1:4625", out var multiplier4).Should().BeTrue();
+        
+        multiplier3.Should().Be(28980599);
+        multiplier4.Should().Be(84432373);
+    }
+    
     [Fact]
     public async Task GetReferenceNumber_GeneratesCorrectlyFormattedNumber_MinDate()
     {

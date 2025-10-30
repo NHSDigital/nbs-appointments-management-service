@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core.Inspectors;
 
@@ -15,6 +16,19 @@ public static class ServiceRegistration
         {
             services.AddSingleton(type);
         }
+
+        return services;
+    }
+
+    public static IServiceCollection ConfigureSiteService(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<SiteServiceOptions>(opts =>
+        {
+            opts.SiteCacheKey = configuration.GetValue("SITE_CACHE_KEY", "sites");
+            opts.SiteCacheDuration = configuration.GetValue("SITE_CACHE_DURATION_MINUTES", 10);
+            opts.DisableSiteCache = configuration.GetValue("DISABLE_SITE_CACHE", false);
+        });
 
         return services;
     }

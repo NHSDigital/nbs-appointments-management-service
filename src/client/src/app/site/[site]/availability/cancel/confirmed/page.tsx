@@ -15,7 +15,7 @@ import { SessionSummary, SessionModificationAction } from '@types';
 
 type PageProps = {
   searchParams?: Promise<{
-    updatedSession: string;
+    session: string;
     date: string;
     chosenAction: SessionModificationAction;
     bookingsCanceledWithoutDetails: number;
@@ -29,7 +29,7 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const {
-    updatedSession,
+    session,
     date,
     chosenAction,
     unsupportedBookingsCount,
@@ -44,7 +44,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   );
 
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
-  if (updatedSession === undefined || date === undefined) {
+  if (session === undefined || date === undefined) {
     notFound();
   }
 
@@ -63,7 +63,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     text: 'Back to week view',
   };
 
-  const sessionSummary: SessionSummary = JSON.parse(atob(updatedSession));
+  const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
   return (
     <>

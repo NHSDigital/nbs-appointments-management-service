@@ -298,10 +298,10 @@ describe('submitForm', () => {
     const query = calledArg.split('?')[1] ?? '';
     const params = new URLSearchParams(query);
 
-    const updatedSession = params.get('updatedSession');
+    const updatedSession = params.get('session');
     expect(updatedSession).toBeTruthy();
     expect(updatedSession).not.toBe('undefined');
-    expect(query).toMatch(/updatedSession=[^&]+/);
+    expect(query).toMatch(/session=[^&]+/);
 
     const decoded = updatedSession ? decodeURIComponent(updatedSession) : '';
     expect(decoded.length).toBeGreaterThan(0);
@@ -373,10 +373,10 @@ describe('submitForm', () => {
     const query = calledArg.split('?')[1] ?? '';
     const params = new URLSearchParams(query);
 
-    const updatedSession = params.get('updatedSession');
+    const updatedSession = params.get('session');
     expect(updatedSession).toBeTruthy();
     expect(updatedSession).not.toBe('undefined');
-    expect(query).toMatch(/updatedSession=[^&]+/);
+    expect(query).toMatch(/session=[^&]+/);
 
     const decoded = updatedSession ? decodeURIComponent(updatedSession) : '';
     expect(decoded.length).toBeGreaterThan(0);

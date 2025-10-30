@@ -418,4 +418,7 @@ variable "auto_cancelled_bookings_disabled" {
   type = bool
 }
 
+variable "service_bus_sku" {
+  type = string
+}
 

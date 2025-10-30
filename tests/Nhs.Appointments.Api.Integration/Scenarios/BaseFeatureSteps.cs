@@ -114,6 +114,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var site = new SiteDocument
         {
             Id = _testId.ToString(),
+            Name = "Test Site",
             DocumentType = "site",
             OdsCode = "ODS1",
             IntegratedCareBoard = "ICB1",

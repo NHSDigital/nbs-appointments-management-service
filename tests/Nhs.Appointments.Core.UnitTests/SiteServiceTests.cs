@@ -18,7 +18,10 @@ public class SiteServiceTests
 
     public SiteServiceTests()
     {
-        _options.Setup(x => x.Value).Returns(new SiteServiceOptions());
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
+        });
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
             TimeProvider.System, _featureToggleHelper.Object, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);

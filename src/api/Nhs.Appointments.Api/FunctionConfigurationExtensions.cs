@@ -90,6 +90,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
+            
+            .AddTransient<IProvider, Provider>()
             .AddTransient<IBookingReferenceDocumentStore, BookingReferenceCosmosDocumentStore>()
             
 #pragma warning disable CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled

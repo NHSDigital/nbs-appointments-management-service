@@ -693,7 +693,7 @@ test.describe('Update Session', () => {
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 
         await page.waitForURL(
-          '**/site/**/availability/cancel/confirmed?session=**',
+          '**/site/**/availability/cancel/confirmed?updatedSession=**',
         );
 
         const cancelDate = daysFromToday(dayIncrement, 'DD MMMM');
@@ -891,7 +891,7 @@ test.describe('Update Session', () => {
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 
         await page.waitForURL(
-          '**/site/**/availability/cancel/confirmed?session=**',
+          '**/site/**/availability/cancel/confirmed?updatefSession=**',
         );
 
         await cancelSessionDetailsPage.verifySessionCancelled(formattedDate1);

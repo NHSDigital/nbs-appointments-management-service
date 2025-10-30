@@ -29,7 +29,8 @@ public class Provider(
     TimeProvider timeProvider)
     : IProvider
 {
-    private Regex BookingReferenceRegex => new (@"^\d{4}-\d{5}-\d{4}$");
+    private Regex BookingReferenceV2Regex => new (@"^\d{4}-\d{5}-\d{4}$");
+    private Regex BookingReferenceV1Regex => new (@"^\d{2}-\d{2}-\d{6}$");
     
     private IOptions<ReferenceNumberOptions> Options { get; } = options;
 
@@ -162,7 +163,15 @@ public class Provider(
     /// </summary>
     public bool IsValidBookingReference(string bookingReference)
     {
-        if (!BookingReferenceRegex.IsMatch(bookingReference))
+        //backwards compatibility with V1 bookings in flight
+        if (BookingReferenceV1Regex.IsMatch(bookingReference))
+        {
+            //the provided string is in the right format for V1.
+            //no further checks required
+            return true;
+        }
+        
+        if (!BookingReferenceV2Regex.IsMatch(bookingReference))
         {
             //the provided string is not in the right format
             return false;

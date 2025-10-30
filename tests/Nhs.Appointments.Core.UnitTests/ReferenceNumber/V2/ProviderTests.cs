@@ -25,6 +25,47 @@ public class ProviderTests
         _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = HmacTestSecretKey});
         _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, new MemoryCache(new MemoryCacheOptions()), _timeProvider.Object);
     }
+    
+    [Fact]
+    public void IsValidBookingReference_Supports_Existing_V1_ReferenceFormats()
+    {
+        Assert.True(_sut.IsValidBookingReference("14-25-002341"));
+        Assert.True(_sut.IsValidBookingReference("56-36-843502"));
+        Assert.True(_sut.IsValidBookingReference("99-99-999999"));
+        Assert.True(_sut.IsValidBookingReference("00-00-000000"));
+        
+        Assert.True(_sut.IsValidBookingReference("14-90-002341"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002342"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002343"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002344"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002345"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002346"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002347"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002348"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002349"));
+        Assert.True(_sut.IsValidBookingReference("14-90-002340"));
+        
+        Assert.False(_sut.IsValidBookingReference("14-a0-002340"));
+        Assert.False(_sut.IsValidBookingReference("1b-70-002340"));
+        Assert.False(_sut.IsValidBookingReference("14-70-0023c0"));
+        
+        Assert.False(_sut.IsValidBookingReference("142-90-002340"));
+        Assert.False(_sut.IsValidBookingReference("14-903-002340"));
+        Assert.False(_sut.IsValidBookingReference("14-90-0023406"));
+        Assert.False(_sut.IsValidBookingReference("1-90-002340"));
+        Assert.False(_sut.IsValidBookingReference("14-9-002340"));
+        Assert.False(_sut.IsValidBookingReference("14-90-00340"));
+        
+        Assert.False(_sut.IsValidBookingReference("1490002345"));
+        Assert.False(_sut.IsValidBookingReference("149000234"));
+        Assert.False(_sut.IsValidBookingReference("14900023454"));
+        Assert.False(_sut.IsValidBookingReference("1490-002345"));
+        Assert.False(_sut.IsValidBookingReference("14-90002345"));
+        Assert.False(_sut.IsValidBookingReference(" 1490002345 "));
+        Assert.False(_sut.IsValidBookingReference(" 14-90-002345 "));
+        Assert.False(_sut.IsValidBookingReference("14-90-002345 "));
+        Assert.False(_sut.IsValidBookingReference(" 14-90-002345"));
+    }
 
     [Fact]
     public async Task GetReferenceNumber_GeneratesCorrectlyFormattedNumber_Deterministically()

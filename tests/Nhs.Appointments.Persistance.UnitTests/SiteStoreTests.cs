@@ -97,4 +97,87 @@ public class SiteStoreTests
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
     }
+
+    [Fact]
+    public async Task ToggleSiteSoftDeletionAsync_UpdatesSiteSoftDeletionStatus()
+    {
+        List<PatchOperation> patchOperations = [];
+
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "some-site-id",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                "Information",
+                [],
+                new Location("Coordinates", [-1.75, 52.76]),
+                SiteStatus.Online, false,
+                string.Empty));
+        _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches)
+                => patchOperations = [.. patches])
+            .ReturnsAsync(null as SiteDocument);
+
+        var result = await _sut.ToggleSiteSoftDeletionAsync("some-site-id");
+
+        result.Success.Should().BeTrue();
+
+        patchOperations.Should().HaveCount(1);
+        patchOperations.First().OperationType.Should().Be(PatchOperationType.Replace);
+        patchOperations.First().Path.Should().Be("/isDeleted");
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ToggleSiteSoftDeletionAsync_AddIsDeletedProperty()
+    {
+        List<PatchOperation> patchOperations = [];
+
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "some-site-id",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                "Information",
+                [],
+                new Location("Coordinates", [-1.75, 52.76]),
+                SiteStatus.Online, null,
+                string.Empty));
+        _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches)
+                => patchOperations = [.. patches])
+            .ReturnsAsync(null as SiteDocument);
+
+        var result = await _sut.ToggleSiteSoftDeletionAsync("some-site-id");
+
+        result.Success.Should().BeTrue();
+
+        patchOperations.Should().HaveCount(1);
+        patchOperations.First().OperationType.Should().Be(PatchOperationType.Add);
+        patchOperations.First().Path.Should().Be("/isDeleted");
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ToggleSiteSoftDeletionAsync_FailsToFindSite()
+    {
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(null as Site);
+
+        var result = await _sut.ToggleSiteSoftDeletionAsync("some-site-id");
+
+        result.Success.Should().BeFalse();
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+    }
 }

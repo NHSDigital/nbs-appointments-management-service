@@ -16,17 +16,21 @@ public class SiteStatusDataImportHandler(ISiteService siteService) : ISiteStatus
 
         var sites = await siteService.GetAllSites(includeDeleted: true);
 
+        var missingSites = FindMissingSites(siteRows, sites);
+        if (missingSites.Count > 0)
+        {
+            report.AddRange(missingSites.Select(ms => new ReportItem(-1, ms.Name, false, $"Could not find existing site with name {ms.Name} and ID: {ms.Id}")));
+        }
+
+        if (report.Any(r => !r.Success))
+        {
+            return report.Where(r => !r.Success);
+        }
+
         foreach (var row in siteRows)
         {
             try
             {
-                var matchingSite = sites.FirstOrDefault(s => s.Id == row.Id && s.Name.Equals(row.Name, StringComparison.CurrentCultureIgnoreCase));
-                if (matchingSite is null)
-                {
-                    report.Add(new ReportItem(-1, row.Name, false, $"Could not find existing site with name: {row.Name} and ID: {row.Id}."));
-                    continue;
-                }
-
                 var result = await siteService.ToggleSiteSoftDeletionAsync(row.Id);
                 if (!result.Success)
                 {
@@ -41,6 +45,11 @@ public class SiteStatusDataImportHandler(ISiteService siteService) : ISiteStatus
         }
 
         return report;
+    }
+
+    public static List<SiteStatusImportRow> FindMissingSites(List<SiteStatusImportRow> siteRows, IEnumerable<Site> sites)
+    {
+        return [.. siteRows.Where(sr => !sites.Any(s => s.Id == sr.Id && s.Name.Equals(sr.Name, StringComparison.CurrentCultureIgnoreCase)))];
     }
 
     public class SiteStatusImportRow

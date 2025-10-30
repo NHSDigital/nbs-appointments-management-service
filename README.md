@@ -168,7 +168,7 @@ Alternatively, you can upload these files one at a time yourself through the [em
 ## Authenticating calls to the API
 
 REST calls using an API user must be signed (via HMAC) using the key associated with the api user.
-The api user is identified using the ClientId header - so the in the above example a signed request with a ClientId header of `dev` would be needed to make api calls
+The api user is identified using the ClientId header - so the in the above example a signed request with a ClientId header of `dev` would be needed to make api calls.
 
 ## Code Style & Formatting
 

@@ -237,7 +237,7 @@ public class SiteService(
             return result;
         }
 
-        if (memoryCache.TryGetValue(options.Value.SiteCacheKey, out _))
+        if (!options.Value.DisableSiteCache && memoryCache.TryGetValue(options.Value.SiteCacheKey, out _))
         {
             memoryCache.Remove(options.Value.SiteCacheKey);
         }

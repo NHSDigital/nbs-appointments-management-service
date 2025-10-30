@@ -515,7 +515,7 @@ test.describe('Update Session', () => {
         await addSessionPage.updateSessionEndTime('9', '30');
 
         await page.waitForURL(
-          '**/site/**/availability/edit/confirmed?updatedSession=**',
+          '**/site/**/availability/edit/confirmed?session=**',
         );
         await editAvailabilityConfirmedPage.verifySessionUpdated();
       });
@@ -693,7 +693,7 @@ test.describe('Update Session', () => {
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 
         await page.waitForURL(
-          '**/site/**/availability/cancel/confirmed?updatedSession=**',
+          '**/site/**/availability/cancel/confirmed?session=**',
         );
 
         const cancelDate = daysFromToday(dayIncrement, 'DD MMMM');

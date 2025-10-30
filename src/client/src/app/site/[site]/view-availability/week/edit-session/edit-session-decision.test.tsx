@@ -294,7 +294,7 @@ describe('Edit Session Decision Page', () => {
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
         expect.stringContaining(
-          `/site/${mockSite.id}/availability/cancel?session=${session}&date=2025-01-15`,
+          `/site/${mockSite.id}/availability/cancel?updateSession=${session}&date=2025-01-15`,
         ),
       );
     });

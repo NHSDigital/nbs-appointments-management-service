@@ -2089,4 +2089,33 @@ public class SiteServiceTests
 
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
     }
+
+    [Fact]
+    public async Task ToggleSiteSoftDeletionAsync_SuccessfullyTogglesSiteStatus_AndClearsSitesCache()
+    {
+        _siteStore.Setup(x => x.ToggleSiteSoftDeletionAsync(It.IsAny<string>()))
+            .ReturnsAsync(new OperationResult(true));
+        object cached;
+        _memoryCache.Setup(x => x.TryGetValue(It.IsAny<object>(), out cached))
+            .Returns(true);
+
+        var result = await _sut.ToggleSiteSoftDeletionAsync("TestSiteId");
+
+        result.Success.Should().BeTrue();
+
+        _memoryCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ToggleSiteSoftDeletionAsync_FailsToToggleSiteStatus()
+    {
+        _siteStore.Setup(x => x.ToggleSiteSoftDeletionAsync(It.IsAny<string>()))
+            .ReturnsAsync(new OperationResult(false));
+
+        var result = await _sut.ToggleSiteSoftDeletionAsync("TestSiteId");
+
+        result.Success.Should().BeFalse();
+
+        _memoryCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
+    }
 }

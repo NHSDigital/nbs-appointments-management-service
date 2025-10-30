@@ -28,6 +28,7 @@ public interface ISiteService
     Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
     Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
     Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache);
+    Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId);
 }
 
 public class SiteService(
@@ -169,7 +170,7 @@ public class SiteService(
         // whereas DisableSiteCache is a global setting affecting all uses
         if (ignoreCache || options.Value.DisableSiteCache)
         {
-            return await siteStore.GetAllSites();
+            return await siteStore.GetAllSites(includeDeleted);
         }
 
         var sites = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
@@ -227,6 +228,22 @@ public class SiteService(
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
         => await siteStore.GetSitesInIcbAsync(icb);
+
+    public async Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId)
+    {
+        var result = await siteStore.ToggleSiteSoftDeletionAsync(siteId);
+        if (!result.Success)
+        {
+            return result;
+        }
+
+        if (!options.Value.DisableSiteCache && memoryCache.TryGetValue(options.Value.SiteCacheKey, out _))
+        {
+            memoryCache.Remove(options.Value.SiteCacheKey);
+        }
+
+        return result;
+    }
 
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
     {

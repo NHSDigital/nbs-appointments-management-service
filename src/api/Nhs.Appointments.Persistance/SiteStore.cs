@@ -191,4 +191,23 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
         => await cosmosStore.RunQueryAsync<Site>(s => s.DocumentType == "site" && s.IntegratedCareBoard == icb);
+
+    public async Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId)
+    {
+        var originalDocument = await GetOrDefault(siteId);
+        if (originalDocument is null)
+        {
+            return new OperationResult(false, $"The specified site: {siteId} was not found.");
+        }
+
+        var docType = cosmosStore.GetDocumentType();
+
+        var patchOperation = originalDocument.isDeleted is null
+            ? PatchOperation.Add("/isDeleted", true)
+            : PatchOperation.Replace("/isDeleted", !originalDocument.isDeleted);
+
+        await cosmosStore.PatchDocument(docType, siteId, [patchOperation]);
+        return new OperationResult(true);
+        
+    }
 }

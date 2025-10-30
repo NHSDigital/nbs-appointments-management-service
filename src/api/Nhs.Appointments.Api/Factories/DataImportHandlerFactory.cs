@@ -12,6 +12,7 @@ public class DataImportHandlerFactory(IServiceProvider serviceProvider) : IDataI
         BulkImportType.ApiUser => serviceProvider.GetService<IApiUserDataImportHandler>(),
         BulkImportType.Site => serviceProvider.GetService<ISiteDataImportHandler>(),
         BulkImportType.User => serviceProvider.GetService<IUserDataImportHandler>(),
+        BulkImportType.SiteStatus => serviceProvider.GetService<ISiteStatusDataImportHandler>(),
         _ => throw new NotSupportedException()
     };
 }

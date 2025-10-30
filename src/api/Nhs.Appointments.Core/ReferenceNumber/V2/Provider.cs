@@ -32,9 +32,9 @@ public class Provider(
     : IProvider
 {
     //needed for backwards compatibility since we are now checking correctly formatted strings
-    private Regex BookingReferenceV1Regex => new (@"^\d{2}-\d{2}-\d{6}$");
+    private Regex BookingReferenceV1Regex => new (@"^\d{2}-\d{2}-\d{6}$", RegexOptions.None, TimeSpan.FromMilliseconds(100));
     
-    private Regex BookingReferenceV2Regex => new (@"^\d{4}-\d{5}-\d{4}$");
+    private Regex BookingReferenceV2Regex => new (@"^\d{4}-\d{5}-\d{4}$", RegexOptions.None, TimeSpan.FromMilliseconds(100));
     
     private IOptions<ReferenceNumberOptions> Options { get; } = options;
 

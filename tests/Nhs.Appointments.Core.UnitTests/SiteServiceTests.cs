@@ -2092,6 +2092,9 @@ public class SiteServiceTests
     {
         _siteStore.Setup(x => x.ToggleSiteSoftDeletionAsync(It.IsAny<string>()))
             .ReturnsAsync(new OperationResult(true));
+        object cached;
+        _memoryCache.Setup(x => x.TryGetValue(It.IsAny<object>(), out cached))
+            .Returns(true);
 
         var result = await _sut.ToggleSiteSoftDeletionAsync("TestSiteId");
 

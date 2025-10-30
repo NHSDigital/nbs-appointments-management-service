@@ -237,7 +237,11 @@ public class SiteService(
             return result;
         }
 
-        memoryCache.Remove(options.Value.SiteCacheKey);
+        if (memoryCache.TryGetValue(options.Value.SiteCacheKey, out _))
+        {
+            memoryCache.Remove(options.Value.SiteCacheKey);
+        }
+
         return result;
     }
 

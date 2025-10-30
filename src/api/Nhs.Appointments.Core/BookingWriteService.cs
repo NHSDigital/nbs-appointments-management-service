@@ -82,7 +82,9 @@ public class BookingWriteService(
         }
         else
         {
+            #pragma warning disable CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
             booking.Reference = await referenceNumberProviderV1.GetReferenceNumber(booking.Site);
+            #pragma warning restore CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
         }
         
         booking.ReminderSent = false;

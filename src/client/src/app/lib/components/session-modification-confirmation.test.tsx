@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import asServerActionResult from '@testing/asServerActionResult';
 import * as timeService from '@services/timeService';
-import { SessionModificationResult } from '@types';
+import { SessionModificationResponse } from '@types';
 
 const mockSessionSummary = {
   ukStartDatetime: '2025-10-23T10:00:00',
@@ -227,15 +227,15 @@ describe('CancelSessionConfirmation', () => {
 describe('submitForm', () => {
   beforeEach(() => {
     mockUseRouter.mockReturnValue({ push: mockPush });
-    const sessionModificationResult: SessionModificationResult = {
+    const sessionModificationResult: SessionModificationResponse = {
       updateSuccessful: true,
-      message: 'Session modified successfully',
+      message: true,
       bookingsCanceled: 2,
       bookingsCanceledWithoutDetails: 1,
     };
 
     mockModifySession.mockResolvedValue(
-      asServerActionResult<SessionModificationResult>(
+      asServerActionResult<SessionModificationResponse>(
         sessionModificationResult,
       ),
     );

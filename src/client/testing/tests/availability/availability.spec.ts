@@ -891,7 +891,7 @@ test.describe('Update Session', () => {
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 
         await page.waitForURL(
-          '**/site/**/availability/cancel/confirmed?updatefSession=**',
+          '**/site/**/availability/cancel/confirmed?session=**',
         );
 
         await cancelSessionDetailsPage.verifySessionCancelled(formattedDate1);

@@ -96,7 +96,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
           backLink={backLink}
         >
           <CancellationConfirmed
-            session={updatedSession}
+            session={session}
             date={date}
             site={site.id}
             clinicalServices={clinicalServices}

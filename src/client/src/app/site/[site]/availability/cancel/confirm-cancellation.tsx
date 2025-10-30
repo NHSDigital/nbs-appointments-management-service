@@ -46,7 +46,7 @@ const ConfirmCancellation = ({
     startTransition(async () => {
       if (form.action === 'cancel-session') {
         await fromServer(cancelSession(sessionSummary, site));
-        router.push(`cancel/confirmed?updatedSession=${session}&date=${date}`);
+        router.push(`cancel/confirmed?session=${session}&date=${date}`);
       } else {
         router.push(
           `/site/${site}/view-availability/week/edit-session?session=${session}&date=${date}`,

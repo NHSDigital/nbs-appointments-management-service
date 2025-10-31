@@ -10,14 +10,16 @@ using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.ReferenceNumber.V2;
 using Nhs.Appointments.Persistance.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
 using ContactItem = Nhs.Appointments.Core.ContactItem;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
-public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
+public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : AuditFeatureSteps, IAsyncLifetime
 {
     protected HttpResponseMessage Response { get; set; }
     
@@ -129,8 +131,9 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                 Id = bookingReference,
                 AdditionalData = new { isAppBooking = cells.ElementAt(11).Value }
             };
-
-            result.BookingReference.Should().MatchRegex("([0-9]){2}-([0-9]{2})-([0-9]{6})");
+            
+            ProviderHelper.IsValidBookingReference(result.BookingReference, null).Should().BeTrue();
+            
             var actualBooking = await Client.GetContainer("appts", "booking_data")
                 .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
             BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
@@ -199,5 +202,18 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         return DateTime.ParseExact(
             $"{ParseNaturalLanguageDateOnly(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
+    }
+    
+    private string Flag { get; } = flag;
+    private bool Enabled { get; } = enabled;
+
+    public async Task InitializeAsync()
+    {
+        await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
+    }
+
+    public async Task DisposeAsync()
+    {
+        await Task.CompletedTask;
     }
 }

@@ -32,42 +32,42 @@ public class ProviderTests
     [Fact]
     public void IsValidBookingReference_Supports_Existing_V1_ReferenceFormats()
     {
-        Assert.True(_sut.IsValidBookingReference("14-25-002341"));
-        Assert.True(_sut.IsValidBookingReference("56-36-843502"));
-        Assert.True(_sut.IsValidBookingReference("99-99-999999"));
-        Assert.True(_sut.IsValidBookingReference("00-00-000000"));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-25-002341", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("56-36-843502", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("99-99-999999", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("00-00-000000", _logger.Object));
         
-        Assert.True(_sut.IsValidBookingReference("14-90-002341"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002342"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002343"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002344"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002345"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002346"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002347"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002348"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002349"));
-        Assert.True(_sut.IsValidBookingReference("14-90-002340"));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002341", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002342", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002343", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002344", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002345", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002346", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002347", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002348", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002349", _logger.Object));
+        Assert.True(ProviderHelper.IsValidBookingReference("14-90-002340", _logger.Object));
         
-        Assert.False(_sut.IsValidBookingReference("14-a0-002340"));
-        Assert.False(_sut.IsValidBookingReference("1b-70-002340"));
-        Assert.False(_sut.IsValidBookingReference("14-70-0023c0"));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-a0-002340", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("1b-70-002340", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-70-0023c0", _logger.Object));
         
-        Assert.False(_sut.IsValidBookingReference("142-90-002340"));
-        Assert.False(_sut.IsValidBookingReference("14-903-002340"));
-        Assert.False(_sut.IsValidBookingReference("14-90-0023406"));
-        Assert.False(_sut.IsValidBookingReference("1-90-002340"));
-        Assert.False(_sut.IsValidBookingReference("14-9-002340"));
-        Assert.False(_sut.IsValidBookingReference("14-90-00340"));
+        Assert.False(ProviderHelper.IsValidBookingReference("142-90-002340", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-903-002340", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-90-0023406", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("1-90-002340", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-9-002340", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-90-00340", _logger.Object));
         
-        Assert.False(_sut.IsValidBookingReference("1490002345"));
-        Assert.False(_sut.IsValidBookingReference("149000234"));
-        Assert.False(_sut.IsValidBookingReference("14900023454"));
-        Assert.False(_sut.IsValidBookingReference("1490-002345"));
-        Assert.False(_sut.IsValidBookingReference("14-90002345"));
-        Assert.False(_sut.IsValidBookingReference(" 1490002345 "));
-        Assert.False(_sut.IsValidBookingReference(" 14-90-002345 "));
-        Assert.False(_sut.IsValidBookingReference("14-90-002345 "));
-        Assert.False(_sut.IsValidBookingReference(" 14-90-002345"));
+        Assert.False(ProviderHelper.IsValidBookingReference("1490002345", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("149000234", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14900023454", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("1490-002345", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-90002345", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference(" 1490002345 ", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference(" 14-90-002345 ", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("14-90-002345 ", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference(" 14-90-002345", _logger.Object));
     }
 
     [Fact]
@@ -154,7 +154,7 @@ public class ProviderTests
 
             var result = await _sut.GetReferenceNumber();
 
-            Assert.True(_sut.IsValidBookingReference(result));
+            Assert.True(ProviderHelper.IsValidBookingReference(result, _logger.Object));
             result.Should().StartWith($"{dayStep:00}25");
         }
     }
@@ -167,7 +167,7 @@ public class ProviderTests
         
         var result = await _sut.GetReferenceNumber();
 
-        Assert.True(_sut.IsValidBookingReference(result));
+        Assert.True(ProviderHelper.IsValidBookingReference(result, _logger.Object));
         result.Should().Be("9224-44976-9071");
     }
 
@@ -189,7 +189,7 @@ public class ProviderTests
 
         var result = await _sut.GetReferenceNumber();
         result.Should().Be("4016-90927-6174");
-        Assert.True(_sut.IsValidBookingReference(result));
+        Assert.True(ProviderHelper.IsValidBookingReference(result, _logger.Object));
         
         _logger.Verify(x => x.Log(
                 LogLevel.Warning,
@@ -203,15 +203,15 @@ public class ProviderTests
         );
 
         //the other 9 numbers with a different final digit should NOT be valid references
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6171"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6172"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6173"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6175"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6176"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6177"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6178"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6179"));
-        Assert.False(_sut.IsValidBookingReference("4016-90927-6170"));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6171", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6172", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6173", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6175", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6176", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6177", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6178", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6179", _logger.Object));
+        Assert.False(ProviderHelper.IsValidBookingReference("4016-90927-6170", _logger.Object));
         
         VerifyLuhnDigitInvalidLogged("4016-90927-6171");
         VerifyLuhnDigitInvalidLogged("4016-90927-6172");
@@ -550,7 +550,7 @@ public class ProviderTests
 
         //all generated references are valid
         Assert.True(generatedDigitReferences.All(digitReference =>
-            _sut.IsValidBookingReference(
-                Provider.FormatBookingReference(digitReference.ToString()))));
+            ProviderHelper.IsValidBookingReference(
+                Provider.FormatBookingReference(digitReference.ToString()), _logger.Object)));
     }
 }

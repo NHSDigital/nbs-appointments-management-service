@@ -13,8 +13,6 @@ public interface IProvider
 {
     Task<string> GetReferenceNumber();
 
-    bool IsValidBookingReference(string bookingReference);
-
     int DeriveSequenceMultiplier(string partitionKey);
 }
 
@@ -31,11 +29,6 @@ public class Provider(
     TimeProvider timeProvider)
     : IProvider
 {
-    //needed for backwards compatibility since we are now checking correctly formatted strings
-    private Regex BookingReferenceV1Regex => new (@"^\d{2}-\d{2}-\d{6}$", RegexOptions.None, TimeSpan.FromMilliseconds(100));
-    
-    private Regex BookingReferenceV2Regex => new (@"^\d{4}-\d{5}-\d{4}$", RegexOptions.None, TimeSpan.FromMilliseconds(100));
-    
     private IOptions<ReferenceNumberOptions> Options { get; } = options;
 
     //in generating the partition key, splitting the current day of the year into X buckets of this length
@@ -163,13 +156,28 @@ public class Provider(
         //GCD(multiplier,SequenceMax) == 1 guaranteed
         return multiplier; 
     }
+    
+    internal static string FormatBookingReference(string raw)
+    {
+        return raw?.Length != 13
+            ? throw new ArgumentException("Must be 13 digits")
+            : $"{raw[..4]}-{raw.Substring(4, 5)}-{raw.Substring(9, 4)}";
+    }
+}
 
+public static class ProviderHelper
+{
+    //needed for backwards compatibility since we are now checking correctly formatted strings
+    private static Regex BookingReferenceV1Regex => new (@"^\d{2}-\d{2}-\d{6}$", RegexOptions.None, TimeSpan.FromMilliseconds(100));
+
+    private static Regex BookingReferenceV2Regex => new (@"^\d{4}-\d{5}-\d{4}$", RegexOptions.None, TimeSpan.FromMilliseconds(100));
+    
     /// <summary>
     ///     A quick way to check if the provided booking reference is valid,
     ///     before firing off to the DB to try and find a record with that identifier.
     ///     No valid records that fail this check should exist in the DB
     /// </summary>
-    public bool IsValidBookingReference(string bookingReference)
+    public static bool IsValidBookingReference(string bookingReference, ILogger logger)
     {
         //backwards compatibility with V1 bookings in flight
         if (BookingReferenceV1Regex.IsMatch(bookingReference))
@@ -198,12 +206,5 @@ public class Provider(
         }
 
         return true;
-    }
-
-    internal static string FormatBookingReference(string raw)
-    {
-        return raw?.Length != 13
-            ? throw new ArgumentException("Must be 13 digits")
-            : $"{raw[..4]}-{raw.Substring(4, 5)}-{raw.Substring(9, 4)}";
     }
 }

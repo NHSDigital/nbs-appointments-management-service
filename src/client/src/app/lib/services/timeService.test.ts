@@ -558,12 +558,14 @@ describe('Time Service', () => {
       10,
       parseToUkDatetime('2025-09-10T09:00:00Z', dateTimeFormat),
       parseToUkDatetime('2025-09-10T09:10:00Z', dateTimeFormat),
+      parseToUkDatetime('2025-09-10T09:00:00z', dateTimeFormat),
     ],
     [
       parseToUkDatetime('2025-09-10T09:06:00Z', dateTimeFormat),
       5,
       parseToUkDatetime('2025-09-10T09:05:00Z', dateTimeFormat),
       parseToUkDatetime('2025-09-10T09:10:00Z', dateTimeFormat),
+      parseToUkDatetime('2025-09-10T09:00:00z', dateTimeFormat),
     ],
   ])(
     'correctly gets nearest aligned start times',
@@ -572,8 +574,13 @@ describe('Time Service', () => {
       slotLength: number,
       expectedFloor: DayJsType,
       expectedCeil: DayJsType,
+      originalStart: DayJsType,
     ) => {
-      const [floor, ceil] = getNearestAlignedTimes(requested, slotLength);
+      const [floor, ceil] = getNearestAlignedTimes(
+        requested,
+        slotLength,
+        originalStart,
+      );
       expect(floor.format('HH:mma')).toBe(expectedFloor.format('HH:mma'));
       expect(ceil.format('HH:mma')).toBe(expectedCeil.format('HH:mma'));
     },

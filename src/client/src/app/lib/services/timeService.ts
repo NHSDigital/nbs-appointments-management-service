@@ -378,9 +378,10 @@ export const addHoursAndMinutesToUkDatetime = (
 export const getNearestAlignedTimes = (
   requested: Dayjs,
   slotLength: number,
+  originalStart: Dayjs,
 ): Dayjs[] => {
-  const minutes = requested.hour() * 60 + requested.minute();
-  const remainder = minutes % slotLength;
+  const minutesFromStart = requested.diff(originalStart, 'minute');
+  const remainder = minutesFromStart % slotLength;
 
   const floor = requested.subtract(remainder, 'minute');
   const ceil = floor.add(slotLength, 'minute');

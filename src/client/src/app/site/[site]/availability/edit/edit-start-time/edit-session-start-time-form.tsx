@@ -42,8 +42,11 @@ const EditSessionStartTimeForm = ({
   } = useForm<EditSessionStartTimeFormValues>();
   const router = useRouter();
 
+  const originalStartTimeFormat =
+    toTimeFormat(existingSession.ukStartDatetime) ?? '';
+  const originalStart = parseToTimeComponents(originalStartTimeFormat);
   const requestedStartTime = parseToTimeComponents(updatedSession.from);
-  if (requestedStartTime === undefined) {
+  if (requestedStartTime === undefined || originalStart === undefined) {
     notFound();
   }
 
@@ -51,10 +54,15 @@ const EditSessionStartTimeForm = ({
     date,
     requestedStartTime,
   );
+  const originalStartTime = parseDateAndTimeComponentsToUkDateTime(
+    date,
+    originalStart,
+  );
 
   const nearestOptions = getNearestAlignedTimes(
     parsedStartTime,
     existingSession.slotLength,
+    originalStartTime,
   );
 
   const submitForm = async (form: EditSessionStartTimeFormValues) => {

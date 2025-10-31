@@ -41,3 +41,4 @@ testing/*.xml
 /blob-report/
 /playwright/.cache/
 test-artifacts/
+certificates

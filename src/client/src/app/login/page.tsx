@@ -31,6 +31,12 @@ const Page = async ({ searchParams }: LoginPageProps) => {
         provider={'nhs-mail'}
         friendlyName={'NHS Mail'}
       />
+      <br />
+      <LogInButton
+        redirectUrl={redirectUrl}
+        provider={'nhs-mail-direct'}
+        friendlyName={'NHS Mail DIRECT'}
+      />
       {oktaEnabledFlag.enabled && (
         <>
           <br />

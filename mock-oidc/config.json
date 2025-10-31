@@ -5,11 +5,14 @@
     "AllowedGrantTypes": ["authorization_code"],
     "AllowAccessTokensViaBrowser": true,
     "RedirectUris": [      
-	  "http://localhost:7071/api/auth-return?provider=nhs-mail"
+	  "http://localhost:7071/api/auth-return?provider=nhs-mail",
+	  "http://localhost:3000/manage-your-appointments/auth"
     ],
     "AllowedScopes": ["openid", "profile", "email"],
     "RequireClientSecret": false,
     "IdentityTokenLifetime": 3600,
-    "AccessTokenLifetime": 3600
+    "AccessTokenLifetime": 3600,
+    "AllowOfflineAccess": true,
+    "AllowPlainTextPkce": true
   }
 ]

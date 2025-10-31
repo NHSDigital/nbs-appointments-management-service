@@ -428,6 +428,18 @@ type AvailabilityChangeProposalRequest = {
   sessionReplacement: AvailabilitySession | null;
 };
 
+type AuthProvider = {
+  NAME: string;
+  HOST_URL: string;
+  IS_DIRECT: boolean;
+  OFFLINE_ACCESS_ENABLED: boolean;
+  TOKEN_URL: string;
+  CLIENT_ID: string;
+  CODE_CHALLENGE: string;
+  CLIENT_SECRET: string;
+  REQUIRES_STATE_FOR_AUTHORIZE: boolean;
+};
+
 export type {
   Accessibility,
   AccessibilityDefinition,
@@ -436,6 +448,7 @@ export type {
   ApiSuccessResponse,
   ApplyAvailabilityTemplateRequest,
   AttendeeDetails,
+  AuthProvider,
   Availability,
   AvailabilityBlock,
   AvailabilityChangeProposalRequest,

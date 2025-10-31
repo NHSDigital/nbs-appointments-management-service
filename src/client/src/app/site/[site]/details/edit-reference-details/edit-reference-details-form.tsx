@@ -17,7 +17,10 @@ import {
   Site,
   WellKnownOdsEntry,
 } from '@types';
-import { saveSiteReferenceDetails } from '@services/appointmentsService';
+import {
+  fetchPermissions,
+  saveSiteReferenceDetails,
+} from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
 
 type FormFields = {
@@ -37,7 +40,7 @@ const EditReferenceDetailsForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<FormFields>({
     defaultValues: {
       odsCode: site.odsCode,
@@ -74,6 +77,21 @@ const EditReferenceDetailsForm = ({
         region: form.region,
       };
       await fromServer(saveSiteReferenceDetails(site.id, payload));
+
+      if (dirtyFields.icb || dirtyFields.region) {
+        const permissionsAfterUpdate = await fromServer(
+          fetchPermissions(site.id),
+        );
+
+        const userStillHasAccessToThisSite =
+          permissionsAfterUpdate.includes('site:view') &&
+          permissionsAfterUpdate.includes('site:get-meta-data');
+
+        if (!userStillHasAccessToThisSite) {
+          replace('/sites');
+          return;
+        }
+      }
 
       replace(`/site/${site.id}/details`);
     });

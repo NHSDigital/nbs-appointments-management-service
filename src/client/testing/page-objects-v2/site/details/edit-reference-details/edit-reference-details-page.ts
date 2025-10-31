@@ -1,6 +1,7 @@
 import { type Locator } from '@playwright/test';
 import { MYALayout } from '@e2etests/types';
 import SiteDetailsPage from '../site-details-page';
+import SiteSelectionPage from '../../../sites/site-selection-page';
 
 export default class EditReferenceDetailsPage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -42,5 +43,12 @@ export default class EditReferenceDetailsPage extends MYALayout {
     await this.page.waitForURL(`**/site/${this.site?.id}/details`);
 
     return new SiteDetailsPage(this.page, this.site);
+  }
+
+  async saveReferenceDetailsExpectingLossOfAccess(): Promise<SiteSelectionPage> {
+    await this.saveAndContinueButton.click();
+    await this.page.waitForURL(`**/sites`);
+
+    return new SiteSelectionPage(this.page, this.site);
   }
 }

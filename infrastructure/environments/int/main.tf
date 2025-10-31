@@ -80,6 +80,7 @@ module "mya_application_int" {
   keyvault_client_id                              = var.KEYVAULT_CLIENT_ID
   keyvault_client_secret                          = var.KEYVAULT_CLIENT_SECRET
   auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
+  reference_number_hmac_key                       = var.REFERENCE_NUMBER_HMAC_KEY
   disable_query_availability_function             = true
   create_high_load_function_app                   = true
   create_app_slot                                 = false

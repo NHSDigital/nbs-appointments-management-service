@@ -198,3 +198,8 @@ variable "KEYVAULT_CLIENT_SECRET" {
   type = string
   sensitive = true
 }
+
+variable "REFERENCE_NUMBER_HMAC_KEY" {
+  type = string
+  sensitive = true
+}

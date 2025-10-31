@@ -85,7 +85,7 @@ public static class FunctionConfigurationExtensions
                 //for simplicity will keep a single key for now and have it be version 1
                 opts.HmacKeyVersion = 1;
                 opts.HmacKey =
-                    Convert.FromBase64String(configuration.GetValue<string>("ReferenceNumberHmacKey"));
+                    Convert.FromBase64String(configuration.GetValue<string>("REFERENCE_NUMBER_HMAC_KEY"));
             })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()

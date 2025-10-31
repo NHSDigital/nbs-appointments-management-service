@@ -418,4 +418,9 @@ variable "auto_cancelled_bookings_disabled" {
   type = bool
 }
 
+variable "reference_number_hmac_key" {
+  type = string
+  sensitive = true
+}
+
 

@@ -57,7 +57,7 @@
     "SITE_SUMMARY_FIRST_RUN_DATE": "2025-06-01",
     "DISABLE_SITE_CACHE": true,
     "AutoCancelledBookingsCronSchedule": "0 8 * * *",
-    "ReferenceNumberHmacKey": "dG9uZ3VlZmFybXRyaWVkc2hpbm5pbmdjcm9wZXZlbnR2YXJpb3Vzd2VhcnNhZmVncmE="
+    "REFERENCE_NUMBER_HMAC_KEY": "dG9uZ3VlZmFybXRyaWVkc2hpbm5pbmdjcm9wZXZlbnR2YXJpb3Vzd2VhcnNhZmVncmE="
   },
   "Host": { "CORS": "*" }
 }

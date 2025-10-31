@@ -14,7 +14,7 @@ import fromServer from '@server/fromServer';
 type PageProps = {
   searchParams?: Promise<{
     date: string;
-    updatedSession: string;
+    session: string;
     unsupportedBookingsCount?: number;
     cancelAppointments?: boolean;
     cancelledWithoutDetailsCount?: number;
@@ -28,7 +28,7 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const {
-    updatedSession,
+    session,
     date,
     cancelAppointments,
     unsupportedBookingsCount,
@@ -38,7 +38,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     ...(await searchParams),
   };
 
-  if (updatedSession === undefined || date === undefined) {
+  if (session === undefined || date === undefined) {
     return notFound();
   }
 
@@ -57,7 +57,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   const parsedDate = parseToUkDatetime(date);
 
-  const newSession: AvailabilitySession = JSON.parse(atob(updatedSession));
+  const newSession: AvailabilitySession = JSON.parse(atob(session));
 
   let cancelledWithDetailsCount =
     (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);

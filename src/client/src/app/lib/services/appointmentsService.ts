@@ -20,8 +20,8 @@ import {
   FetchBookingsRequest,
   Role,
   ServerActionResult,
+  SessionModificationResponse,
   SessionSummary,
-  SessionModificationResult,
   SetAccessibilitiesRequest,
   SetAvailabilityRequest,
   SetInformationForCitizensRequest,
@@ -671,7 +671,7 @@ export const availabilityChangeProposal = async (
 
 export const modifySession = async (
   payload: UpdateSessionRequest,
-): Promise<ServerActionResult<SessionModificationResult>> =>
+): Promise<ServerActionResult<SessionModificationResponse>> =>
   appointmentsApi
-    .post<SessionModificationResult>('session/edit', JSON.stringify(payload))
+    .post<SessionModificationResponse>('session/edit', JSON.stringify(payload))
     .then(handleBodyResponse);

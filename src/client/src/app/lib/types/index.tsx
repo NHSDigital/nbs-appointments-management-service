@@ -391,13 +391,6 @@ type UpdateSessionRequest = {
   cancelUnsupportedBookings: boolean;
 };
 
-type SessionModificationResult = {
-  updateSuccessful: boolean;
-  message: string;
-  bookingsCanceled: number;
-  bookingsCanceledWithoutDetails: number;
-};
-
 type SiteStatus = 'Online' | 'Offline';
 
 type UpdateSiteStatusRequest = {
@@ -427,6 +420,19 @@ type AvailabilityChangeProposalRequest = {
   sessionMatcher: AvailabilitySession;
   sessionReplacement: AvailabilitySession | null;
 };
+
+type SessionModificationResponse = {
+  updateSuccessful: boolean;
+  message: boolean;
+  bookingsCanceled: number | undefined;
+  bookingsCanceledWithoutDetails: number | undefined;
+};
+
+type SessionModificationAction =
+  | 'change-session'
+  | 'cancel-appointments'
+  | 'keep-appointments'
+  | 'cancel-session';
 
 export type {
   Accessibility,
@@ -470,6 +476,8 @@ export type {
   ServiceBookingDetails,
   ServiceInformation,
   Session,
+  SessionModificationAction,
+  SessionModificationResponse,
   SessionSummary,
   SetAccessibilitiesRequest,
   SetAvailabilityRequest,
@@ -480,7 +488,6 @@ export type {
   SiteStatus,
   TimeComponents,
   UpdateSessionRequest,
-  SessionModificationResult,
   UpdateSiteStatusRequest,
   User,
   UserIdentityStatus,

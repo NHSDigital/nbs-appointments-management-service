@@ -515,7 +515,7 @@ test.describe('Update Session', () => {
         await addSessionPage.updateSessionEndTime('9', '30');
 
         await page.waitForURL(
-          '**/site/**/availability/edit/confirmed?updatedSession=**',
+          '**/site/**/availability/edit/confirmed?session=**',
         );
         await editAvailabilityConfirmedPage.verifySessionUpdated();
       });

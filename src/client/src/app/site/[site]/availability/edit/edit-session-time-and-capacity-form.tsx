@@ -147,7 +147,7 @@ const EditSessionTimeAndCapacityForm = ({
     );
 
     router.push(
-      `edit/confirmed?updatedSession=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
+      `edit/confirmed?session=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
     );
   };
 

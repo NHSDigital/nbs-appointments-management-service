@@ -4,6 +4,7 @@ import {
   mockSites,
   mockSite,
   mockWellKnownOdsCodeEntries,
+  mockAllPermissions,
 } from '@testing/data';
 import render from '@testing/render';
 import * as appointmentsService from '@services/appointmentsService';
@@ -22,6 +23,11 @@ const mockSaveSiteReferenceDetails = jest.spyOn(
   'saveSiteReferenceDetails',
 );
 
+const mockFetchPermissions = jest.spyOn(
+  appointmentsService,
+  'fetchPermissions',
+);
+
 describe('Edit Site Reference Details Form', () => {
   beforeEach(() => {
     mockUseRouter.mockReturnValue({
@@ -29,6 +35,9 @@ describe('Edit Site Reference Details Form', () => {
     });
     mockSaveSiteReferenceDetails.mockResolvedValue(
       asServerActionResult(undefined),
+    );
+    mockFetchPermissions.mockResolvedValue(
+      asServerActionResult(mockAllPermissions),
     );
   });
 
@@ -211,5 +220,102 @@ describe('Edit Site Reference Details Form', () => {
       mockSite.id,
       expectedPayload,
     );
+  });
+
+  it('checks the user still has access to this site after ICB is changed', async () => {
+    const { user } = render(
+      <EditReferenceDetailsForm
+        site={mockSite}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
+
+    const icbSelect = screen.getByRole('combobox', { name: 'ICB' });
+    await user.selectOptions(icbSelect, 'Integrated Care Board Three');
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Save and continue',
+      }),
+    );
+
+    expect(mockFetchPermissions).toHaveBeenCalledWith(mockSite.id);
+    expect(mockReplace).toHaveBeenCalledWith(`/site/${mockSite.id}/details`);
+  });
+
+  it('checks the user still has access to this site after Region is changed', async () => {
+    const { user } = render(
+      <EditReferenceDetailsForm
+        site={mockSite}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
+
+    const regionSelect = screen.getByRole('combobox', { name: 'Region' });
+    await user.selectOptions(regionSelect, 'Region Three');
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Save and continue',
+      }),
+    );
+
+    expect(mockFetchPermissions).toHaveBeenCalledWith(mockSite.id);
+    expect(mockReplace).toHaveBeenCalledWith(`/site/${mockSite.id}/details`);
+  });
+
+  it('does not check the user still has access if region or icb have not changed', async () => {
+    const { user } = render(
+      <EditReferenceDetailsForm
+        site={mockSite}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
+
+    const odsCodeInput = screen.getByRole('textbox', { name: 'ODS code' });
+    await user.clear(odsCodeInput);
+    await user.type(odsCodeInput, 'CBA865');
+
+    // Ensure user interacts with both selects but does not change their values
+    const icbSelect = screen.getByRole('combobox', { name: 'ICB' });
+    await user.selectOptions(icbSelect, 'Integrated Care Board One');
+
+    const regionSelect = screen.getByRole('combobox', { name: 'Region' });
+    await user.selectOptions(regionSelect, 'Region One');
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Save and continue',
+      }),
+    );
+
+    expect(mockFetchPermissions).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith(`/site/${mockSite.id}/details`);
+  });
+
+  it('redirects to the site selection page if user no longer has access to the site after ICB or Region change', async () => {
+    mockFetchPermissions.mockResolvedValue(asServerActionResult(['site:view']));
+
+    const { user } = render(
+      <EditReferenceDetailsForm
+        site={mockSite}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+      />,
+    );
+
+    const regionSelect = screen.getByRole('combobox', { name: 'Region' });
+    await user.selectOptions(regionSelect, 'Region Three');
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Save and continue',
+      }),
+    );
+
+    expect(mockFetchPermissions).toHaveBeenCalledWith(mockSite.id);
+    expect(mockReplace).not.toHaveBeenCalledWith(
+      `/site/${mockSite.id}/details`,
+    );
+    expect(mockReplace).toHaveBeenCalledWith('/sites');
   });
 });

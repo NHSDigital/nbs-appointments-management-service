@@ -296,16 +296,20 @@ export const SessionModificationConfirmation = ({
         };
       }
 
-      if (mode === 'edit-services' && newSessionSummary) {
-        updatedSessionSummary = toAvailabilitySession(newSessionSummary);
+      if (mode === 'edit-services' && removeServicesSessionDetails) {
+        removedServicesSession;
         request = {
           ...request,
           sessionReplacement: {
-            from: `${newSessionSummary.startTime.hour}:${newSessionSummary.startTime.minute}`,
-            until: `${newSessionSummary.endTime.hour}:${newSessionSummary.endTime.minute}`,
-            services: newSessionSummary.services,
-            slotLength: newSessionSummary.slotLength,
-            capacity: newSessionSummary.capacity,
+            from: removeServicesSessionDetails.from,
+            until: removeServicesSessionDetails.until,
+            services: Object.keys(
+              sessionSummary.totalSupportedAppointmentsByService,
+            ).filter(
+              key => !removeServicesSessionDetails?.services.includes(key),
+            ),
+            slotLength: removeServicesSessionDetails.slotLength,
+            capacity: removeServicesSessionDetails.capacity,
           },
         };
       }
@@ -313,9 +317,15 @@ export const SessionModificationConfirmation = ({
       const response = await fromServer(modifySession(request));
 
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
-      router.push(
-        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' || mode === 'edit-services' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
-      );
+
+      let reroute = `/site/${site}/availability/${mode}/confirmed?`;
+      if (mode === 'edit-services') {
+        reroute += `removedServicesSession=${removedServicesSession}&`;
+      }
+
+      reroute += `session=${mode === 'edit' || mode === 'edit-services' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`;
+
+      router.push(reroute);
     });
   };
 

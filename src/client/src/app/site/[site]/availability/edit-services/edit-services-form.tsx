@@ -143,8 +143,9 @@ const EditServicesForm = ({
       if (changeSessionUpliftedJourneyEnabled) {
         reroute += `edit-services/confirmation?removedServicesSession=${encode(servicesRemovedSession)}&date=${date}&session=${encode(existingSession)}&sessionToEdit=${encode(sessionToEdit)}`;
       } else {
-        reroute += `edit-services/confirmed?${encode(servicesRemovedSession)}&date=${date}`;
+        reroute += `edit-services/confirmed?removedServicesSession=${encode(servicesRemovedSession)}&date=${date}`;
       }
+
       router.push(reroute);
     });
   };

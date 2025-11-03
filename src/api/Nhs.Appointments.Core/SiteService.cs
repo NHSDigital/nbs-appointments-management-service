@@ -145,7 +145,7 @@ public class SiteService(
     public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")
     {
         var site = await siteStore.GetSiteById(siteId);
-        if (site is null)
+        if (site is null || site.isDeleted is true)
         {
             return default;
         }

@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Features;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -2117,5 +2118,29 @@ public class SiteServiceTests
         result.Success.Should().BeFalse();
 
         _memoryCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetSiteByIdAsync_ReturnsDefault_WhenSiteIsSoftDeleted()
+    {
+        const string siteId = "9a06bacd-e916-4c10-8263-21451ca751b8";
+        var site = new Site(
+            Id: siteId,
+            Name: "Site 1",
+            Address: "1 Park Row",
+            PhoneNumber: "0113 1111111",
+            OdsCode: "ABC01",
+            Region: "R1",
+            IntegratedCareBoard: "ICB1",
+            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            InformationForCitizens: "",
+            Accessibilities: new List<Accessibility> { new(Id: "Accessibility 1", Value: "true") },
+            status: SiteStatus.Online, isDeleted: true,
+            Type: string.Empty);
+        _siteStore.Setup(x => x.GetSiteById(siteId)).ReturnsAsync(site);
+
+        var result = await _sut.GetSiteByIdAsync(siteId);
+
+        result.Should().BeNull();
     }
 }

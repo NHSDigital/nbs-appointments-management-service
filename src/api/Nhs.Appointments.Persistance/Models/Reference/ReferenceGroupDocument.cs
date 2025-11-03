@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Persistance.Models;
+namespace Nhs.Appointments.Persistance.Models.Reference;
 
 [CosmosDocumentType("reference_group")]
 public class ReferenceGroupDocument : CoreDataCosmosDocument

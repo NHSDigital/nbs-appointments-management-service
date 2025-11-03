@@ -10,7 +10,7 @@ using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Cancel;
 
-public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
+public abstract class CancelBookingBaseFeatureSteps(string flag, bool enabled) : BookingBaseFeatureSteps(flag, enabled)
 {
     private HttpResponseMessage _response;
     private HttpStatusCode _responseCode;

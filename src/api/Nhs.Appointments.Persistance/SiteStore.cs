@@ -14,7 +14,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
     public Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false)
     {
-        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && (includeDeleted || sd.IsDeleted == null || !sd.IsDeleted.HasValue || !sd.IsDeleted.Value));
+        return cosmosStore.RunQueryAsync<Site>(sd =>
+            sd.DocumentType == "site" &&
+            (includeDeleted || sd.IsDeleted == null || !sd.IsDeleted.HasValue || !sd.IsDeleted.Value));
     }
 
     public async Task<int> GetReferenceNumberGroup(string site)
@@ -23,10 +25,18 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return siteDocument.ReferenceNumberGroup;
     }
 
-    public async Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region)
+    public Task AssignPrefix(string site, int prefix)
+    {
+        var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);
+        var partitionKey = cosmosStore.GetDocumentType();
+        return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
+    }
+
+    public async Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb,
+        string region)
     {
         var originalDocument = await GetOrDefault(siteId);
-        if (originalDocument == null || 
+        if (originalDocument == null ||
             !ValidateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
@@ -49,13 +59,6 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return !originalDocument.isDeleted.HasValue || !originalDocument.isDeleted.Value;
     }
 
-    public Task AssignPrefix(string site, int prefix)
-    {
-        var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);
-        var partitionKey = cosmosStore.GetDocumentType();
-        return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
-    }
-
     public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities)
     {
         var originalDocument = await GetOrDefault(siteId);
@@ -64,11 +67,14 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         {
             return new OperationResult(false, "The specified site was not found.");
         }
+
         var documentType = cosmosStore.GetDocumentType();
-        var siteDocumentPatch = PatchOperation.Add("/accessibilities", accessibilities.Where(a => !string.IsNullOrEmpty(a.Value)));
+        var siteDocumentPatch =
+            PatchOperation.Add("/accessibilities", accessibilities.Where(a => !string.IsNullOrEmpty(a.Value)));
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
         return new OperationResult(true);
     }
+
     public async Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens)
     {
         var originalDocument = await GetOrDefault(siteId);
@@ -77,6 +83,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         {
             return new OperationResult(false, "The specified site was not found.");
         }
+
         var documentType = cosmosStore.GetDocumentType();
         var siteDocumentPatch = PatchOperation.Set("/informationForCitizens", informationForCitizens);
         await cosmosStore.PatchDocument(documentType, siteId, siteDocumentPatch);
@@ -87,13 +94,14 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         decimal? longitude, decimal? latitude)
     {
         decimal?[] coords = (longitude != null) & (latitude != null) ? [longitude, latitude] : [];
-        
+
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument == null ||
             !ValidateUpdateToSiteAllowed(originalDocument))
         {
             return new OperationResult(false, "The specified site was not found.");
         }
+
         var documentType = cosmosStore.GetDocumentType();
         PatchOperation[] detailsPatchOperations =
         [
@@ -106,7 +114,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         await cosmosStore.PatchDocument(documentType, siteId, detailsPatchOperations);
         return new OperationResult(true);
     }
-    
+
     private async Task<Site> GetOrDefault(string siteId)
     {
         try
@@ -119,8 +127,10 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         }
     }
 
-    public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null, bool? isDeleted = null)
+    public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address,
+        string phoneNumber,
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type,
+        SiteStatus? siteStatus = null, bool? isDeleted = null)
     {
         var originalDocument = await GetOrDefault(siteId);
         if (originalDocument is null)
@@ -154,7 +164,8 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
                 return new OperationResult(false, "The specified site can not be updated.");
             }
 
-            var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0], (decimal)location.Coordinates[1]);
+            var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0],
+                (decimal)location.Coordinates[1]);
             var updateAccessiblities = UpdateAccessibilities(siteId, accessibilities);
 
             await Task.WhenAll(updateSite, updateAccessiblities);
@@ -183,7 +194,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             ? PatchOperation.Add("/status", status)
             : PatchOperation.Replace("/status", status);
 
-        PatchOperation[] patchOperations = [ patchOperation ];
+        PatchOperation[] patchOperations = [patchOperation];
 
         await cosmosStore.PatchDocument(documentType, siteId, patchOperations);
         return new OperationResult(true);

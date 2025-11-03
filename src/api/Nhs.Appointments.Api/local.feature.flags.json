@@ -10,6 +10,7 @@
     "ChangeSessionUpliftedJourney": false,
     "CancelSessionUpliftedJourney": false,
     "QuerySites": false,
+    "BookingReferenceV2": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

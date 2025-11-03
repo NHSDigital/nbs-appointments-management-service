@@ -2,7 +2,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Features;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Nhs.Appointments.Core.UnitTests;
 

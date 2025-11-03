@@ -12,7 +12,6 @@
     "RequireClientSecret": false,
     "IdentityTokenLifetime": 3600,
     "AccessTokenLifetime": 3600,
-    "AllowOfflineAccess": true,
-    "AllowPlainTextPkce": true
+    "AllowOfflineAccess": true
   }
 ]

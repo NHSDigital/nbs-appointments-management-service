@@ -45,7 +45,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <NhsTransactionalPage
-      title={`Remove services on ${parsedDate.format('DD MMMM YYYY')}`}
+      title={`Remove services for ${parsedDate.format('DD MMMM YYYY')}`}
       caption={'Remove services'}
       originPage="edit-session"
       backLink={{

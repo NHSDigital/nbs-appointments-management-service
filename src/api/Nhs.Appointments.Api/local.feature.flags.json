@@ -7,8 +7,8 @@
     "SiteSummaryReport": false,
     "SiteStatus": false,
     "CancelDay": false,
-    "ChangeSessionUpliftedJourney": true,
-    "CancelSessionUpliftedJourney": true,
+    "ChangeSessionUpliftedJourney": false,
+    "CancelSessionUpliftedJourney": false,
     "QuerySites": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [

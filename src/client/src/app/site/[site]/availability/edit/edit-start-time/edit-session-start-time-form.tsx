@@ -75,20 +75,17 @@ const EditSessionStartTimeForm = ({
 
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
 
-      const newStartTime = parseToTimeComponents(form.newStartTime);
-      const endTime = parseToTimeComponents(session.until);
-
       const mappedSession: Session = {
         capacity: session.capacity,
         slotLength: session.slotLength,
         services: session.services,
         startTime: {
-          hour: Number(newStartTime?.hour),
-          minute: Number(newStartTime?.minute),
+          hour: form.newStartTime.split(':')[0],
+          minute: form.newStartTime.split(':')[1],
         },
         endTime: {
-          hour: Number(endTime?.hour),
-          minute: Number(endTime?.minute),
+          hour: session.until.split(':')[0],
+          minute: session.until.split(':')[1],
         },
         break: 'no',
       };

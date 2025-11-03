@@ -37,6 +37,7 @@ type Props = {
   site: Site;
   existingSession: SessionSummary;
   clinicalServices: ClinicalService[];
+  changeSessionUpliftedJourneyEnabled: boolean;
 };
 
 const EditServicesForm = ({
@@ -44,6 +45,7 @@ const EditServicesForm = ({
   existingSession,
   date,
   clinicalServices,
+  changeSessionUpliftedJourneyEnabled,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
@@ -93,6 +95,8 @@ const EditServicesForm = ({
         service => form.servicesToRemove.findIndex(x => x === service) === -1,
       );
 
+      const encode = (obj: unknown) => btoa(JSON.stringify(obj));
+
       const updatedSession: AvailabilitySession = {
         from: toTimeFormat(form.newSession.startTime) ?? '',
         until: toTimeFormat(form.newSession.endTime) ?? '',
@@ -101,21 +105,31 @@ const EditServicesForm = ({
         services: remainingServices,
       };
 
-      await fromServer(
-        editSession({
-          date,
-          site: site.id,
-          mode: 'Edit',
-          sessions: [updatedSession],
-          sessionToEdit: {
-            from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-            until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-            slotLength: form.sessionToEdit.slotLength,
-            capacity: form.sessionToEdit.capacity,
-            services: form.sessionToEdit.services,
-          },
-        }),
-      );
+      if (!changeSessionUpliftedJourneyEnabled) {
+        await fromServer(
+          editSession({
+            date,
+            site: site.id,
+            mode: 'Edit',
+            sessions: [updatedSession],
+            sessionToEdit: {
+              from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+              until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
+              slotLength: form.sessionToEdit.slotLength,
+              capacity: form.sessionToEdit.capacity,
+              services: form.sessionToEdit.services,
+            },
+          }),
+        );
+      }
+
+      const sessionToEdit: AvailabilitySession = {
+        from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
+        until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
+        slotLength: form.sessionToEdit.slotLength,
+        capacity: form.sessionToEdit.capacity,
+        services: form.sessionToEdit.services,
+      };
 
       const servicesRemovedSession: AvailabilitySession = {
         from: toTimeFormat(form.newSession.startTime) ?? '',
@@ -125,9 +139,13 @@ const EditServicesForm = ({
         services: form.servicesToRemove,
       };
 
-      router.push(
-        `edit-services/confirmed?removedServicesSession=${btoa(JSON.stringify(servicesRemovedSession))}&date=${date}`,
-      );
+      let reroute = `/site/${site.id}/availability/`;
+      if (changeSessionUpliftedJourneyEnabled) {
+        reroute += `edit-services/confirmation?removedServicesSession=${encode(servicesRemovedSession)}&date=${date}&session=${encode(existingSession)}&sessionToEdit=${encode(sessionToEdit)}`;
+      } else {
+        reroute += `edit-services/confirmed?${encode(servicesRemovedSession)}&date=${date}`;
+      }
+      router.push(reroute);
     });
   };
 

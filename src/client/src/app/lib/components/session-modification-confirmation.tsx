@@ -27,7 +27,7 @@ import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-type Mode = 'edit' | 'cancel';
+type Mode = 'edit' | 'cancel' | 'edit-services' | 'edit-service';
 type FormData = { action?: SessionModificationAction };
 
 type Props = {
@@ -35,6 +35,7 @@ type Props = {
   clinicalServices: ClinicalService[];
   session: string;
   newSession?: string | null;
+  removedServicesSession?: string | null;
   site: string;
   date: string;
   mode: Mode;
@@ -125,6 +126,70 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
         ? 'People will be sent a text message or email confirming their appointment has been cancelled.'
         : '',
   },
+  'edit-service': {
+    legend: 'Are you sure you want to remove this service?',
+    radioOptions: [
+      {
+        value: 'cancel-appointments',
+        label: 'Yes, cancel the appointments and remove the service',
+      },
+      {
+        value: 'change-session',
+        label: 'No, do not cancel the appointments but remove the service',
+      },
+    ],
+    confirmationQuestion: (action: SessionModificationAction) =>
+      action === 'change-session'
+        ? `Are you sure you want to remove the service?`
+        : 'Are you sure you want to cancel the appointments?',
+    confirmButtonText: (action: SessionModificationAction) =>
+      action === 'change-session' ? 'Change session' : 'Cancel appointments',
+    impactNote: (
+      action: SessionModificationAction | undefined,
+      count: number,
+    ) =>
+      action === 'change-session'
+        ? `You have chosen not to cancel ${count} bookings.`
+        : `Removing this service will affect ${count} bookings`,
+    impactCard: (action: SessionModificationAction | undefined) =>
+      action === undefined || action === 'cancel-appointments',
+    notificationNote: (action: SessionModificationAction | undefined) =>
+      action === 'change-session'
+        ? ''
+        : 'People will be sent a text message or email confirming their appointment has been cancelled.',
+  },
+  'edit-services': {
+    legend: 'Are you sure you want to remove these services?',
+    radioOptions: [
+      {
+        value: 'cancel-appointments',
+        label: 'Yes, cancel the appointments and remove the services',
+      },
+      {
+        value: 'change-session',
+        label: 'No, do not cancel the appointments but remove the services',
+      },
+    ],
+    confirmationQuestion: (action: SessionModificationAction) =>
+      action === 'change-session'
+        ? `Are you sure you want to remove these services?`
+        : 'Are you sure you want to cancel the appointments?',
+    confirmButtonText: (action: SessionModificationAction) =>
+      action === 'change-session' ? 'Change session' : 'Cancel appointments',
+    impactNote: (
+      action: SessionModificationAction | undefined,
+      count: number,
+    ) =>
+      action === 'change-session'
+        ? `You have chosen not to cancel ${count} bookings.`
+        : `Removing these services will affect ${count} bookings`,
+    impactCard: (action: SessionModificationAction | undefined) =>
+      action === undefined || action === 'cancel-appointments',
+    notificationNote: (action: SessionModificationAction | undefined) =>
+      action === 'change-session'
+        ? ''
+        : 'People will be sent a text message or email confirming their appointment has been cancelled.',
+  },
 };
 
 const toAvailabilitySession = (session: Session): AvailabilitySession => ({
@@ -140,6 +205,7 @@ export const SessionModificationConfirmation = ({
   clinicalServices,
   session,
   newSession,
+  removedServicesSession,
   site,
   date,
   mode = 'edit',
@@ -147,9 +213,21 @@ export const SessionModificationConfirmation = ({
   const router = useRouter();
   const [pendingSubmit, startTransition] = useTransition();
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
-  const newSessionSummary: Session | null = newSession
-    ? JSON.parse(atob(newSession))
-    : null;
+
+  const removeServicesSessionDetails: AvailabilitySession | null =
+    removedServicesSession ? JSON.parse(atob(removedServicesSession)) : null;
+
+  const sessionSummaryDisplay: SessionSummary = JSON.parse(atob(session));
+
+  if (mode === 'edit-services' && removeServicesSessionDetails) {
+    for (const key of Object.keys(
+      sessionSummaryDisplay.totalSupportedAppointmentsByService,
+    )) {
+      if (!removeServicesSessionDetails.services.includes(key)) {
+        delete sessionSummaryDisplay.totalSupportedAppointmentsByService[key];
+      }
+    }
+  }
 
   const {
     handleSubmit,
@@ -160,7 +238,16 @@ export const SessionModificationConfirmation = ({
   const [decision, setDecision] = useState<
     SessionModificationAction | undefined
   >();
-  const texts = MODE_TEXTS[mode];
+
+  let formMode = mode;
+  if (mode === 'edit-services') {
+    const serviceCount =
+      sessionSummary.totalSupportedAppointmentsByService.length;
+    formMode = serviceCount > 1 ? 'edit-services' : 'edit-service';
+  }
+
+  const texts = MODE_TEXTS[formMode];
+
   const recordDecision: SubmitHandler<FormData> = async form => {
     setDecision(form.action as SessionModificationAction);
     setValue('action', form.action as SessionModificationAction);
@@ -168,7 +255,12 @@ export const SessionModificationConfirmation = ({
 
   const submitForm: SubmitHandler<FormData> = async form => {
     startTransition(async () => {
+      const newSessionSummary: Session | null = newSession
+        ? JSON.parse(atob(newSession))
+        : null;
+
       const cancelBookings = form.action === 'cancel-appointments';
+
       let request: UpdateSessionRequest = {
         from: date,
         to: date,
@@ -204,11 +296,25 @@ export const SessionModificationConfirmation = ({
         };
       }
 
+      if (mode === 'edit-services' && newSessionSummary) {
+        updatedSessionSummary = toAvailabilitySession(newSessionSummary);
+        request = {
+          ...request,
+          sessionReplacement: {
+            from: `${newSessionSummary.startTime.hour}:${newSessionSummary.startTime.minute}`,
+            until: `${newSessionSummary.endTime.hour}:${newSessionSummary.endTime.minute}`,
+            services: newSessionSummary.services,
+            slotLength: newSessionSummary.slotLength,
+            capacity: newSessionSummary.capacity,
+          },
+        };
+      }
+
       const response = await fromServer(modifySession(request));
 
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
+        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' || mode === 'edit-services' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
       );
     });
   };
@@ -247,7 +353,7 @@ export const SessionModificationConfirmation = ({
         )}
 
         <Link
-          href={`/site/${site}/availability/edit?session=${session}&date=${date}`}
+          href={`/site/${site}/availability/${mode === 'edit-services' ? 'edit-services' : 'edit'}?session=${session}&date=${date}`}
         >
           No, go back
         </Link>
@@ -263,7 +369,7 @@ export const SessionModificationConfirmation = ({
   return (
     <>
       <SessionSummaryTable
-        sessionSummaries={[sessionSummary]}
+        sessionSummaries={[sessionSummaryDisplay]}
         clinicalServices={clinicalServices}
         showUnbooked={false}
         showBooked={false}
@@ -295,7 +401,9 @@ export const SessionModificationConfirmation = ({
         </>
       ) : (
         renderConfirmationQuestion(
-          mode === 'edit' ? 'change-session' : 'keep-appointments',
+          mode === 'edit' || mode === 'edit-services'
+            ? 'change-session'
+            : 'keep-appointments',
         )
       )}
     </>

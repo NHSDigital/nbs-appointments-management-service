@@ -88,9 +88,11 @@ public class GetReportSiteSummaryFunctionTests
 
         var request = CreateRequest("2004-02-10", "2004-02-12");
         var result = await _fut.RunAsync(request);
-
         var fileContentResult = Assert.IsType<FileContentResult>(result);
+
         fileContentResult.ContentType.Should().Be("text/csv");
+        fileContentResult.FileDownloadName.Should().Be("SiteReport_2004-02-10_2004-02-12_20200101010101.csv.csv");
+
 
         // Assert on csv headers
         var contentString = Encoding.UTF8.GetString(fileContentResult.FileContents);
@@ -117,10 +119,15 @@ public class GetReportSiteSummaryFunctionTests
 
         csvLines.Length.Should().Be(5);
 
-        // CSV should be tested elsewhere
+        // Report accuracy is tested in SiteReportServiceTests
         csvLines[1].Should().NotBeEmpty();
+        csvLines[1].Split(',').Length.Should().Be(15);
+
         csvLines[2].Should().NotBeEmpty();
+        csvLines[2].Split(',').Length.Should().Be(15);
+
         csvLines[3].Should().NotBeEmpty();
+        csvLines[3].Split(',').Length.Should().Be(15);
 
         // TODO: Is this trailing empty line expected or a bug?
         csvLines[4].Should().Be(string.Empty);

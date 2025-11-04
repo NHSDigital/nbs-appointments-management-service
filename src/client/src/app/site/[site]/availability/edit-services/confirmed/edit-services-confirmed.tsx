@@ -7,6 +7,12 @@ type PageProps = {
   clinicalServices: ClinicalService[];
   site: Site;
   date: string;
+  hasBookings: boolean;
+  chosenAction: string;
+  unsupportedBookingsCount: number;
+  cancelledWithDetailsCount: number;
+  cancelledWithoutDetailsCount: number;
+  changeSessionUpliftedJourneyEnabled: boolean;
 };
 
 const EditServicesConfirmed = ({
@@ -14,6 +20,12 @@ const EditServicesConfirmed = ({
   clinicalServices,
   site,
   date,
+  chosenAction,
+  hasBookings,
+  unsupportedBookingsCount,
+  cancelledWithDetailsCount,
+  cancelledWithoutDetailsCount,
+  changeSessionUpliftedJourneyEnabled,
 }: PageProps) => {
   return (
     <>

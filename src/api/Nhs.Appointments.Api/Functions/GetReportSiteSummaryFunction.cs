@@ -46,7 +46,7 @@ public class GetReportSiteSummaryFunction(
         HttpRequest req)
     {
         return !await featureToggleHelper.IsFeatureEnabled(Flags.SiteSummaryReport)
-            ? ProblemResponse(HttpStatusCode.NotImplemented, null)
+            ? ProblemResponse(HttpStatusCode.NotImplemented, "Site Summary Reports are not enabled.")
             : await base.RunAsync(req);
     }
 
@@ -87,7 +87,9 @@ public class GetReportSiteSummaryFunction(
             await csvWriter.WriteLineAsync(string.Join(',', [
                 CsvStringValue(SiteReportMap.SiteName(row)),
                 CsvStringValue(SiteReportMap.ICB(row)),
+                CsvStringValue(SiteReportMap.ICBName(row)),
                 CsvStringValue(SiteReportMap.Region(row)),
+                CsvStringValue(SiteReportMap.RegionName(row)),
                 CsvStringValue(SiteReportMap.OdsCode(row)),
                 SiteReportMap.Longitude(row),
                 SiteReportMap.Latitude(row),
@@ -138,7 +140,10 @@ public static class SiteReportMap
 {
     public static string[] Headers(string[] services)
     {
-        var siteHeaders = new[] { "Site Name", "ICB", "Region", "ODS Code", "Longitude", "Latitude" };
+        var siteHeaders = new[]
+        {
+            "Site Name", "ICB", "ICB Name", "Region", "Region Name", "ODS Code", "Longitude", "Latitude"
+        };
         var statHeaders = new[] { "Total Bookings", "Cancelled", "Maximum Capacity" };
         var bookingsHeaders = services.Select(service => $"{service} Booked");
         var capacityHeaders = services.Select(service => $"{service} Capacity");
@@ -151,7 +156,9 @@ public static class SiteReportMap
     } 
     public static string SiteName(SiteReport report) => report.SiteName;
     public static string ICB(SiteReport report) => report.ICB;
+    public static string ICBName(SiteReport report) => report.ICBName;
     public static string Region(SiteReport report) => report.Region;
+    public static string RegionName(SiteReport report) => report.RegionName;
     public static string OdsCode(SiteReport report) => report.OdsCode;
     public static double Longitude(SiteReport report) => report.Longitude;
     public static double Latitude(SiteReport report) => report.Latitude;

@@ -4,7 +4,8 @@ namespace Nhs.Appointments.Core;
 
 public class SiteReportService(
     IDailySiteSummaryStore dailySiteSummaryStore,
-    IClinicalServiceStore clinicalServiceStore) : ISiteReportService
+    IClinicalServiceStore clinicalServiceStore,
+    IWellKnownOdsCodesStore wellKnownOdsCodesStore) : ISiteReportService
 {
     public async Task<IEnumerable<SiteReport>> Generate(Site[] sites, DateOnly startDate, DateOnly endDate)
     {
@@ -12,10 +13,14 @@ public class SiteReportService(
         var clinicalServices = (await clinicalServiceStore.Get())
             .Select(x => x.Value)
             .ToArray();
-        
+
+        var wellKnownOdsCodes = (await wellKnownOdsCodesStore.GetWellKnownOdsCodesDocument()).ToList();
+        var regions = wellKnownOdsCodes.Where(code => code.Type == "region").ToList();
+        var icbs = wellKnownOdsCodes.Where(code => code.Type == "icb").ToList();
+
         foreach (var site in sites)
         {
-            report.Add(await Generate(site, clinicalServices, startDate, endDate));
+            report.Add(await Generate(site, clinicalServices, regions, icbs, startDate, endDate));
         }
 
         return report
@@ -25,12 +30,17 @@ public class SiteReportService(
             .ThenBy(x => x.SiteName);
     }
 
-    private async Task<SiteReport> Generate(Site site, string[] clinicalServices, DateOnly startDate, DateOnly endDate)
+    private async Task<SiteReport> Generate(Site site, string[] clinicalServices,
+        List<WellKnownOdsEntry> regions, List<WellKnownOdsEntry> icbs, DateOnly startDate,
+        DateOnly endDate)
     {
-        var siteReport = await dailySiteSummaryStore.GetSiteSummarys(
+        var regionName = regions.SingleOrDefault(region => region.OdsCode == site.Region)?.DisplayName ?? "blank";
+        var icbName = icbs.SingleOrDefault(icb => icb.OdsCode == site.IntegratedCareBoard)?.DisplayName ?? "blank";
+
+        var siteReport = await dailySiteSummaryStore.GetSiteSummaries(
             site.Id, 
             startDate, 
             endDate);
-        return new SiteReport(site, siteReport.ToArray(), clinicalServices);
+        return new SiteReport(site, siteReport.ToArray(), clinicalServices, regionName, icbName);
     }
 }

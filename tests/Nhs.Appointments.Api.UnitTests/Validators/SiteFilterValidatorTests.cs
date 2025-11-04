@@ -70,7 +70,10 @@ public class SiteFilterValidatorTests
             Longitude = 1234,
             Latitude = 50,
             SearchRadius = 3000,
-            Services = ["test_service"]
+            Availability = new()
+            {
+                Services = ["test_service"]
+            }
         };
 
         var result = _sut.Validate(filter);
@@ -86,9 +89,12 @@ public class SiteFilterValidatorTests
             Longitude = 1234,
             Latitude = 50,
             SearchRadius = 3000,
-            Services = ["test_service"],
-            From = new DateOnly(2024, 9, 1),
-            Until = new DateOnly(2025, 10, 1)
+            Availability = new()
+            {
+                Services = ["test_service"],
+                From = new DateOnly(2024, 9, 1),
+                Until = new DateOnly(2025, 10, 1)
+            }
         };
 
         var result = _sut.Validate(filter);
@@ -104,9 +110,12 @@ public class SiteFilterValidatorTests
             Longitude = 1234,
             Latitude = 50,
             SearchRadius = 3000,
-            Services = ["test_service"],
-            From = new DateOnly(2025, 9, 10),
-            Until = new DateOnly(2024, 10, 1)
+            Availability = new()
+            {
+                Services = ["test_service"],
+                From = new DateOnly(2025, 9, 10),
+                Until = new DateOnly(2024, 10, 1)
+            }
         };
 
         var result = _sut.Validate(filter);
@@ -122,9 +131,12 @@ public class SiteFilterValidatorTests
             Longitude = 1234,
             Latitude = 50,
             SearchRadius = 3000,
-            Services = ["test_service"],
-            From = new DateOnly(2025, 10, 10),
-            Until = new DateOnly(2025, 10, 1)
+            Availability = new()
+            {
+                Services = ["test_service"],
+                From = new DateOnly(2025, 10, 10),
+                Until = new DateOnly(2025, 10, 1)
+            }
         };
 
         var result = _sut.Validate(filter);
@@ -140,9 +152,12 @@ public class SiteFilterValidatorTests
             Longitude = 1234,
             Latitude = 50,
             SearchRadius = 3000,
-            Services = ["test_service"],
-            From = new DateOnly(2025, 9, 2),
-            Until = new DateOnly(2025, 8, 1)
+            Availability = new()
+            {
+                Services = ["test_service"],
+                From = new DateOnly(2025, 9, 2),
+                Until = new DateOnly(2025, 8, 1)
+            }
         };
 
         var result = _sut.Validate(filter);
@@ -158,9 +173,12 @@ public class SiteFilterValidatorTests
             Longitude = 123.4,
             Latitude = 50,
             SearchRadius = 3000,
-            Services = ["RSV:Adult"],
-            From = new DateOnly(2025, 9, 2),
-            Until = new DateOnly(2025, 9, 15),
+            Availability = new()
+            {
+                Services = ["RSV:Adult"],
+                From = new DateOnly(2025, 9, 2),
+                Until = new DateOnly(2025, 9, 15),
+            },
             AccessNeeds = ["test_access_need"]
         };
 

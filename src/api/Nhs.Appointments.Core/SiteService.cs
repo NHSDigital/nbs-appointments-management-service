@@ -279,11 +279,11 @@ public class SiteService(
                         filter.Longitude)))
                 .ToList();
 
-            if (filter.Services is not null && filter.Services.Length > 0)
+            if (filter.Availability is not null && filter.Availability.Services?.Length > 0)
             {
                 // Adding .Single() here as the current implementation only allows for filtering on a single service
                 // This will need updating if we decide to allow filtering on multiple services
-                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Services.Single(), filter.From!.Value, filter.Until!.Value);
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Availability.Services.Single(), filter.Availability.From!.Value, filter.Availability.Until!.Value);
 
                 var serviceResults = await GetSitesSupportingService(
                     sitesWithDistance,

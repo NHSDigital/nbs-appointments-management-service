@@ -39,9 +39,12 @@ public class QuerySitesRequestValidatorTests
                 Longitude = 1234,
                 Latitude = 50,
                 SearchRadius = 3000,
-                Services = ["test_service"],
-                From = new DateOnly(2025, 9, 2),
-                Until = new DateOnly(2025, 8, 1)
+                Availability = new()
+                {
+                    Services = ["test_service"],
+                    From = new DateOnly(2025, 9, 2),
+                    Until = new DateOnly(2025, 8, 1)
+                }
             }
         };
 
@@ -63,9 +66,12 @@ public class QuerySitesRequestValidatorTests
                 Longitude = 123.4,
                 Latitude = 50,
                 SearchRadius = 3000,
-                Services = ["RSV:Adult"],
-                From = new DateOnly(2025, 9, 2),
-                Until = new DateOnly(2025, 9, 15),
+                Availability = new()
+                {
+                    Services = ["RSV:Adult"],
+                    From = new DateOnly(2025, 9, 2),
+                    Until = new DateOnly(2025, 9, 15),
+                },
                 AccessNeeds = ["test_access_need"]
             }
         };

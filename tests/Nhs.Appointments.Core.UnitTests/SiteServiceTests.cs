@@ -1343,9 +1343,12 @@ public class SiteServiceTests
         {
             new()
             {
-                Services = ["RSV:Adult"],
-                From = new DateOnly(2025, 9, 1),
-                Until = new DateOnly(2025, 10, 1),
+                Availability = new()
+                {
+                    Services = ["RSV:Adult"],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                },
                 Latitude = 53.796638,
                 Longitude = -1.663038,
                 SearchRadius = 1000
@@ -1410,9 +1413,12 @@ public class SiteServiceTests
         {
             new()
             {
-                Services = ["RSV:Adult"],
-                From = new DateOnly(2025, 9, 1),
-                Until = new DateOnly(2025, 10, 1),
+                Availability = new()
+                {
+                    Services = ["RSV:Adult"],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                },
                 AccessNeeds = [ "test_access_need1", "test_access_need2" ],
                 Latitude = 53.796638,
                 Longitude = -1.663038,
@@ -1487,9 +1493,12 @@ public class SiteServiceTests
         {
             new()
             {
-                Services = ["RSV:Adult"],
-                From = new DateOnly(2025, 9, 1),
-                Until = new DateOnly(2025, 10, 1),
+                Availability = new()
+                {
+                    Services = ["RSV:Adult"],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                },
                 Latitude = 53.796638,
                 Longitude = -1.663038,
                 SearchRadius = 1000
@@ -1570,9 +1579,12 @@ public class SiteServiceTests
         {
             new()
             {
-                Services = ["RSV:Adult"],
-                From = new DateOnly(2025, 9, 1),
-                Until = new DateOnly(2025, 10, 1),
+                Availability = new()
+                {
+                    Services = ["RSV:Adult"],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                },
                 Latitude = 53.796638,
                 Longitude = -1.663038,
                 SearchRadius = 1000

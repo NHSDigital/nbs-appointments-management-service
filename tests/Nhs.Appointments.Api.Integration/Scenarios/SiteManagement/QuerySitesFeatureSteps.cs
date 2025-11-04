@@ -92,14 +92,17 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
             ignoreCache = true,
             filters = new[]
             {
-                new
+                new SiteFilter
                 {
-                    longitude = double.Parse(cells.ElementAt(0).Value),
-                    latitude = double.Parse(cells.ElementAt(1).Value),
-                    searchRadius = int.Parse(cells.ElementAt(2).Value),
-                    services = cells.ElementAt(3).Value.Split(','),
-                    from = ParseNaturalLanguageDateOnly(cells.ElementAt(4).Value),
-                    until = ParseNaturalLanguageDateOnly(cells.ElementAt(5).Value)
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = cells.ElementAt(3).Value.Split(','),
+                        From = ParseNaturalLanguageDateOnly(cells.ElementAt(4).Value),
+                        Until = ParseNaturalLanguageDateOnly(cells.ElementAt(5).Value)
+                    }
                 }
             }
         };
@@ -124,7 +127,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Latitude = double.Parse(cells.ElementAt(1).Value),
                     SearchRadius = int.Parse(cells.ElementAt(2).Value),
                     AccessNeeds = cells.ElementAt(3).Value.Split(','),
-                    Services = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
                     Types = [],
                     OdsCode = string.Empty
                 },
@@ -136,7 +142,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Types = cells.ElementAt(4).Value.Split(','),
                     OdsCode = cells.ElementAt(5).Value,
                     AccessNeeds = [],
-                    Services = []
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    }
                 }
             }
         };
@@ -160,7 +169,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Longitude = double.Parse(cells.ElementAt(0).Value),
                     Latitude = double.Parse(cells.ElementAt(1).Value),
                     SearchRadius = int.Parse(cells.ElementAt(2).Value),
-                    Services = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
                     Types = [],
                     OdsCode = string.Empty,
                     AccessNeeds = []

@@ -124,7 +124,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Latitude = double.Parse(cells.ElementAt(1).Value),
                     SearchRadius = int.Parse(cells.ElementAt(2).Value),
                     AccessNeeds = cells.ElementAt(3).Value.Split(','),
-                    Services = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
                     Types = [],
                     OdsCode = string.Empty
                 },
@@ -136,7 +139,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Types = cells.ElementAt(4).Value.Split(','),
                     OdsCode = cells.ElementAt(5).Value,
                     AccessNeeds = [],
-                    Services = []
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    }
                 }
             }
         };
@@ -160,7 +166,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Longitude = double.Parse(cells.ElementAt(0).Value),
                     Latitude = double.Parse(cells.ElementAt(1).Value),
                     SearchRadius = int.Parse(cells.ElementAt(2).Value),
-                    Services = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
                     Types = [],
                     OdsCode = string.Empty,
                     AccessNeeds = []

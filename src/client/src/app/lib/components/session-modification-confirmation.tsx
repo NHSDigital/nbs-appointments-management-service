@@ -23,11 +23,12 @@ import {
 } from '@types';
 import { modifySession } from '@services/appointmentsService';
 import { toTimeFormat } from '@services/timeService';
+import { t } from '../../lib/locale';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-type Mode = 'edit' | 'cancel' | 'edit-services' | 'edit-service';
+type Mode = 'edit' | 'cancel' | 'edit-services';
 type FormData = { action?: SessionModificationAction };
 
 type Props = {
@@ -48,7 +49,7 @@ type RadioOption = {
 
 type ModeTextConfig = {
   legend: string;
-  radioOptions: RadioOption[];
+  radioOptions: { value: SessionModificationAction; labelKey: string }[];
   confirmationQuestion: (action: SessionModificationAction) => string;
   confirmButtonText: (action: SessionModificationAction) => string;
   impactNote: (
@@ -61,134 +62,89 @@ type ModeTextConfig = {
 
 const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
   edit: {
-    legend: 'Do you want to change this session?',
+    legend: 'legend.edit',
     radioOptions: [
       {
         value: 'cancel-appointments',
-        label: 'Yes, cancel the appointments and change this session',
+        labelKey: 'radio.edit.cancel-appointments',
       },
-      {
-        value: 'change-session',
-        label: 'No, do not cancel the appointments but change this session',
-      },
+      { value: 'change-session', labelKey: 'radio.edit.change-session' },
     ],
-    confirmationQuestion: (action: SessionModificationAction) =>
+    confirmationQuestion: action =>
       action === 'change-session'
-        ? 'Are you sure you want to change this session?'
-        : 'Are you sure you want to cancel the appointments?',
-    confirmButtonText: (action: SessionModificationAction) =>
-      action === 'change-session' ? 'Change session' : 'Cancel appointments',
-    impactNote: (
-      action: SessionModificationAction | undefined,
-      count: number,
-    ) =>
+        ? 'confirm.change-session'
+        : 'confirm.cancel-appointments',
+    confirmButtonText: action =>
       action === 'change-session'
-        ? `You have chosen not to cancel ${count} bookings.`
-        : `Changing the time and capacity will affect ${count} bookings`,
-    impactCard: (action: SessionModificationAction | undefined) =>
+        ? 'button.change-session'
+        : 'button.cancel-appointments',
+    impactNote: action =>
+      action === 'change-session' ? 'impact.notCancel' : 'impact.change',
+    impactCard: action =>
       action === undefined || action === 'cancel-appointments',
-    notificationNote: (action: SessionModificationAction | undefined) =>
-      action === 'change-session'
-        ? ''
-        : 'People will be sent a text message or email confirming their appointment has been cancelled.',
+    notificationNote: action =>
+      action === 'change-session' ? '' : 'notification.cancelled',
   },
+
   cancel: {
-    legend: 'Do you want to cancel this session?',
+    legend: 'legend.cancel',
     radioOptions: [
       {
         value: 'cancel-appointments',
-        label: 'Yes, cancel the appointments and cancel the session',
+        labelKey: 'radio.cancel.cancel-appointments',
       },
       {
         value: 'keep-appointments',
-        label: 'No, do not cancel the appointments but cancel the session',
+        labelKey: 'radio.cancel.keep-appointments',
       },
     ],
-    confirmationQuestion: (action: SessionModificationAction) =>
+    confirmationQuestion: action =>
       action === 'keep-appointments'
-        ? 'Are you sure you want to cancel the session?'
-        : 'Are you sure you want to cancel the appointments?',
-    confirmButtonText: (action: SessionModificationAction) =>
-      action === 'keep-appointments' ? 'Cancel session' : 'Cancel appointments',
-    impactNote: (
-      action: SessionModificationAction | undefined,
-      count: number,
-    ) =>
+        ? 'confirm.cancel-session'
+        : 'confirm.cancel-appointments',
+    confirmButtonText: action =>
+      action === 'keep-appointments'
+        ? 'button.cancel-session'
+        : 'button.cancel-appointments',
+    impactNote: action =>
       action === undefined
-        ? `Some bookings will move to a different session on the same day and at the same time. Cancelling the session will affect ${count} bookings.`
+        ? 'impact.cancelSession'
         : action === 'keep-appointments'
-          ? `You have chosen not to cancel ${count} bookings.`
-          : `${count} bookings may have to be cancelled.`,
-    impactCard: (action: SessionModificationAction | undefined) =>
+          ? 'impact.notCancel'
+          : 'impact.cancelGeneric',
+    impactCard: action =>
       action === undefined || action === 'cancel-appointments',
-    notificationNote: (action: SessionModificationAction | undefined) =>
-      action === 'cancel-appointments'
-        ? 'People will be sent a text message or email confirming their appointment has been cancelled.'
-        : '',
+    notificationNote: action =>
+      action === 'cancel-appointments' ? 'notification.cancelled' : '',
   },
-  'edit-service': {
-    legend: 'Are you sure you want to remove this service?',
-    radioOptions: [
-      {
-        value: 'cancel-appointments',
-        label: 'Yes, cancel the appointments and remove the service',
-      },
-      {
-        value: 'change-session',
-        label: 'No, do not cancel the appointments but remove the service',
-      },
-    ],
-    confirmationQuestion: (action: SessionModificationAction) =>
-      action === 'change-session'
-        ? `Are you sure you want to remove the service?`
-        : 'Are you sure you want to cancel the appointments?',
-    confirmButtonText: (action: SessionModificationAction) =>
-      action === 'change-session' ? 'Change session' : 'Cancel appointments',
-    impactNote: (
-      action: SessionModificationAction | undefined,
-      count: number,
-    ) =>
-      action === 'change-session'
-        ? `You have chosen not to cancel ${count} bookings.`
-        : `Removing this service will affect ${count} bookings`,
-    impactCard: (action: SessionModificationAction | undefined) =>
-      action === undefined || action === 'cancel-appointments',
-    notificationNote: (action: SessionModificationAction | undefined) =>
-      action === 'change-session'
-        ? ''
-        : 'People will be sent a text message or email confirming their appointment has been cancelled.',
-  },
+
   'edit-services': {
-    legend: 'Are you sure you want to remove these services?',
+    // return the plural key based on count
+    legend: 'legend.edit-services',
     radioOptions: [
       {
         value: 'cancel-appointments',
-        label: 'Yes, cancel the appointments and remove the services',
+        labelKey: 'radio.edit-services.cancel-appointments',
       },
       {
         value: 'change-session',
-        label: 'No, do not cancel the appointments but remove the services',
+        labelKey: 'radio.edit-services.change-session',
       },
     ],
-    confirmationQuestion: (action: SessionModificationAction) =>
+    confirmationQuestion: action =>
       action === 'change-session'
-        ? `Are you sure you want to remove these services?`
-        : 'Are you sure you want to cancel the appointments?',
-    confirmButtonText: (action: SessionModificationAction) =>
-      action === 'change-session' ? 'Change session' : 'Cancel appointments',
-    impactNote: (
-      action: SessionModificationAction | undefined,
-      count: number,
-    ) =>
+        ? 'confirm.remove-services'
+        : 'confirm.cancel-appointments',
+    confirmButtonText: action =>
       action === 'change-session'
-        ? `You have chosen not to cancel ${count} bookings.`
-        : `Removing these services will affect ${count} bookings`,
-    impactCard: (action: SessionModificationAction | undefined) =>
+        ? 'button.change-session'
+        : 'button.cancel-appointments',
+    impactNote: action =>
+      action === 'change-session' ? 'impact.notCancel' : 'impact.change',
+    impactCard: action =>
       action === undefined || action === 'cancel-appointments',
-    notificationNote: (action: SessionModificationAction | undefined) =>
-      action === 'change-session'
-        ? ''
-        : 'People will be sent a text message or email confirming their appointment has been cancelled.',
+    notificationNote: action =>
+      action === 'change-session' ? '' : 'notification.cancelled',
   },
 };
 
@@ -229,6 +185,63 @@ export const SessionModificationConfirmation = ({
     }
   }
 
+  const serviceCount = Object.keys(
+    sessionSummaryDisplay.totalSupportedAppointmentsByService,
+  ).length;
+
+  const appointmentCount = Array.isArray(
+    sessionSummary.totalSupportedAppointments,
+  )
+    ? sessionSummary.totalSupportedAppointments.length
+    : 0;
+
+  const resolved = React.useMemo(() => {
+    const cfg = MODE_TEXTS[mode];
+
+    const legend = t(cfg.legend, { count: serviceCount });
+
+    const radioOptions = cfg.radioOptions.map(ro => ({
+      value: ro.value,
+      label: t(ro.labelKey, { count: serviceCount }),
+    }));
+
+    const confirmationQuestion = (action: SessionModificationAction) =>
+      t(cfg.confirmationQuestion(action), {
+        count:
+          mode === 'edit-services' ? serviceCount : unsupportedBookingsCount,
+      });
+
+    const confirmButtonText = (action: SessionModificationAction) =>
+      t(cfg.confirmButtonText(action), {
+        count: unsupportedBookingsCount,
+      });
+
+    const impactNote = (
+      action: SessionModificationAction | undefined,
+      count: number,
+    ) => t(cfg.impactNote(action, count) as unknown as string, { count });
+
+    const impactCard = cfg.impactCard;
+
+    const notificationNote = (
+      action: SessionModificationAction | undefined,
+    ) => {
+      if (!action) return '';
+
+      return t(cfg.notificationNote(action));
+    };
+
+    return {
+      legend,
+      radioOptions,
+      confirmationQuestion,
+      confirmButtonText,
+      impactNote,
+      impactCard,
+      notificationNote,
+    };
+  }, [mode, serviceCount, appointmentCount, sessionSummaryDisplay]);
+
   const {
     handleSubmit,
     register,
@@ -238,15 +251,6 @@ export const SessionModificationConfirmation = ({
   const [decision, setDecision] = useState<
     SessionModificationAction | undefined
   >();
-
-  let formMode = mode;
-  if (mode === 'edit-services') {
-    const serviceCount =
-      sessionSummary.totalSupportedAppointmentsByService.length;
-    formMode = serviceCount > 1 ? 'edit-services' : 'edit-service';
-  }
-
-  const texts = MODE_TEXTS[formMode];
 
   const recordDecision: SubmitHandler<FormData> = async form => {
     setDecision(form.action as SessionModificationAction);
@@ -331,9 +335,9 @@ export const SessionModificationConfirmation = ({
 
   const renderRadioForm = () => (
     <form onSubmit={handleSubmit(recordDecision)}>
-      <FormGroup legend={texts.legend} error={errors.action?.message}>
+      <FormGroup legend={resolved.legend} error={errors.action?.message}>
         <RadioGroup>
-          {texts.radioOptions.map((opt: RadioOption) => (
+          {resolved.radioOptions.map((opt: RadioOption) => (
             <Radio
               key={opt.value}
               label={opt.label}
@@ -351,14 +355,14 @@ export const SessionModificationConfirmation = ({
 
   const renderConfirmationQuestion = (action: SessionModificationAction) => (
     <form onSubmit={handleSubmit(submitForm)}>
-      <h2>{texts.confirmationQuestion(action)}</h2>
+      <h2>{resolved.confirmationQuestion(action)}</h2>
 
       <ButtonGroup vertical>
         {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
           <Button type="submit" styleType="warning">
-            {texts.confirmButtonText(action)}
+            {resolved.confirmButtonText(action)}
           </Button>
         )}
 
@@ -387,13 +391,13 @@ export const SessionModificationConfirmation = ({
 
       {unsupportedBookingsCount > 0 ? (
         <>
-          {texts.impactNote && (
+          {resolved.impactNote && (
             <div className="margin-top-bottom">
-              {texts.impactNote(decision, unsupportedBookingsCount)}
+              {resolved.impactNote(decision, unsupportedBookingsCount)}
             </div>
           )}
 
-          {texts.impactCard(decision) && (
+          {resolved.impactCard(decision) && (
             <Card
               title={String(unsupportedBookingsCount)}
               description="Bookings may have to be cancelled"
@@ -401,9 +405,9 @@ export const SessionModificationConfirmation = ({
             />
           )}
 
-          {texts.notificationNote(decision) && (
+          {resolved.notificationNote(decision) && (
             <div className="margin-top-bottom">
-              {texts.notificationNote(decision)}
+              {resolved.notificationNote(decision)}
             </div>
           )}
 

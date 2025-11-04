@@ -14,7 +14,7 @@ public class SiteStatusDataImportHandler(ISiteService siteService) : ISiteStatus
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
-        var sites = await siteService.GetAllSites(includeDeleted: true);
+        var sites = await siteService.GetAllSites(includeDeleted: true, ignoreCache: true);
 
         var missingSites = FindMissingSites(siteRows, sites);
         if (missingSites.Count > 0)

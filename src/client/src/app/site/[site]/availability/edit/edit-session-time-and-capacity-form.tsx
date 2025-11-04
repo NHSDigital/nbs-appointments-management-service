@@ -56,7 +56,7 @@ const EditSessionTimeAndCapacityForm = ({
     handleSubmit,
     watch,
     control,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
@@ -113,27 +113,8 @@ const EditSessionTimeAndCapacityForm = ({
         return;
       }
 
-      const hasTimeChanged = (
-        existing: string,
-        updated: typeof newSession.startTime,
-      ) => {
-        const original = parseToTimeComponents(existing);
-        return (
-          original?.hour !== Number(updated?.hour) ||
-          original?.minute !== Number(updated?.minute)
-        );
-      };
-
-      const startTimeChanged = hasTimeChanged(
-        existingUkStartTime,
-        newSession.startTime,
-      );
-      const endTimeChanged = hasTimeChanged(
-        existingUkEndTime,
-        newSession.endTime,
-      );
-
-      const onlyEndTimeChanged = endTimeChanged && !startTimeChanged;
+      const onlyEndTimeChanged =
+        dirtyFields.newSession?.endTime && !dirtyFields.newSession.startTime;
       const validSessionStartTime = isValidStartTime(
         sessionStart,
         sessionEnd,

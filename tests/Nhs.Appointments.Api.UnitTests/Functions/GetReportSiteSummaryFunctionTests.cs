@@ -91,7 +91,7 @@ public class GetReportSiteSummaryFunctionTests
         var fileContentResult = Assert.IsType<FileContentResult>(result);
 
         fileContentResult.ContentType.Should().Be("text/csv");
-        fileContentResult.FileDownloadName.Should().Be("SiteReport_2004-02-10_2004-02-12_20200101010101.csv.csv");
+        fileContentResult.FileDownloadName.Should().Be("SiteReport_2004-02-10_2004-02-12_20200101010101.csv");
 
 
         // Assert on csv headers

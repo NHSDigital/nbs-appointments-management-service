@@ -2,5 +2,5 @@ namespace Nhs.Appointments.Core;
 
 public interface ISiteReportService
 {
-    Task<IEnumerable<SiteReport>> Generate(Site[] sites, DateOnly startDate, DateOnly endDate);
+    Task<IEnumerable<SiteReport>> GenerateReports(IEnumerable<Site> sites, DateOnly startDate, DateOnly endDate);
 }

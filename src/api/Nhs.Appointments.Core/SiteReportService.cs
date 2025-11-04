@@ -7,18 +7,19 @@ public class SiteReportService(
     IClinicalServiceStore clinicalServiceStore,
     IWellKnownOdsCodesStore wellKnownOdsCodesStore) : ISiteReportService
 {
-    public async Task<IEnumerable<SiteReport>> Generate(Site[] sites, DateOnly startDate, DateOnly endDate)
+    public async Task<IEnumerable<SiteReport>> GenerateReports(IEnumerable<Site> sites, DateOnly startDate,
+        DateOnly endDate)
     {
         var report = new List<SiteReport>();
         var clinicalServices = (await clinicalServiceStore.Get())
             .Select(x => x.Value)
             .ToArray();
 
-        var wellKnownOdsCodes = await wellKnownOdsCodesStore.GetWellKnownOdsCodesDocument();
+        var wellKnownOdsCodes = (await wellKnownOdsCodesStore.GetWellKnownOdsCodesDocument()).ToList();
 
         foreach (var site in sites)
         {
-            report.Add(await Generate(site, clinicalServices, wellKnownOdsCodes, startDate, endDate));
+            report.Add(await GenerateReport(site, clinicalServices, wellKnownOdsCodes, startDate, endDate));
         }
 
         return report
@@ -28,7 +29,7 @@ public class SiteReportService(
             .ThenBy(x => x.SiteName);
     }
 
-    private async Task<SiteReport> Generate(Site site, string[] clinicalServices,
+    private async Task<SiteReport> GenerateReport(Site site, string[] clinicalServices,
         IEnumerable<WellKnownOdsEntry> wellKnownOdsCodes, DateOnly startDate,
         DateOnly endDate)
     {

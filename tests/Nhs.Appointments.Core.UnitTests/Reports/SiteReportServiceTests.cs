@@ -45,10 +45,10 @@ public class SiteReportServiceTests
     [Fact]
     public async Task GeneratesAReport()
     {
-        var report = (await _sut.Generate(SiteReportServiceMockData.MockSites, SiteReportServiceMockData.DayOne,
+        var reports = (await _sut.GenerateReports(SiteReportServiceMockData.MockSites, SiteReportServiceMockData.DayOne,
             SiteReportServiceMockData.DayThree)).ToList();
 
-        report.Count.Should().Be(3);
+        reports.Count.Should().Be(3);
 
         _clinicalServiceStore.Verify(store => store.Get(), Times.Once);
         _wellKnownOdsCodesStore.Verify(store => store.GetWellKnownOdsCodesDocument(), Times.Once);
@@ -71,7 +71,7 @@ public class SiteReportServiceTests
                 SiteReportServiceMockData.DayThree),
             Times.Once);
 
-        var site1Summary = report.Single(item => item.SiteName == "Site 1");
+        var site1Summary = reports.Single(item => item.SiteName == "Site 1");
         site1Summary.ICB.Should().Be("ICB1");
         site1Summary.ICBName.Should().Be("Integrated Care Board One");
         site1Summary.Region.Should().Be("R1");
@@ -87,7 +87,7 @@ public class SiteReportServiceTests
         site1Summary.RemainingCapacity["COVID:5_11"].Should().Be(22 + 33 + 4);
         site1Summary.MaximumCapacity.Should().Be(200 + 200 + 200);
 
-        var site2Summary = report.Single(item => item.SiteName == "Site 2");
+        var site2Summary = reports.Single(item => item.SiteName == "Site 2");
         site2Summary.ICB.Should().Be("ICB1");
         site2Summary.ICBName.Should().Be("Integrated Care Board One");
         site2Summary.Region.Should().Be("R1");
@@ -103,7 +103,7 @@ public class SiteReportServiceTests
         site2Summary.RemainingCapacity["COVID:5_11"].Should().Be(42 + 15 + 27);
         site2Summary.MaximumCapacity.Should().Be(200 + 200 + 200);
 
-        var site3Summary = report.Single(item => item.SiteName == "Site 3");
+        var site3Summary = reports.Single(item => item.SiteName == "Site 3");
         site3Summary.ICB.Should().Be("ICB1");
         site3Summary.ICBName.Should().Be("Integrated Care Board One");
         site3Summary.Region.Should().Be("R1");

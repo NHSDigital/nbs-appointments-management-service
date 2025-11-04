@@ -10,6 +10,7 @@ using Nhs.Appointments.Api.Tests.Functions.Data;
 using Nhs.Appointments.Api.Validators;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Reports.SiteSummary;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -44,7 +45,7 @@ public class GetReportSiteSummaryFunctionTests
             _userService.Object,
             _permissionChecker.Object,
             _siteReportService.Object,
-            _timeProvider.Object,
+            new SiteReportCsvWriter(_timeProvider.Object),
             _featureToggleHelper.Object,
             new SiteReportRequestValidator(),
             _userContextProvider.Object,
@@ -82,7 +83,7 @@ public class GetReportSiteSummaryFunctionTests
                 checker.GetSitesWithPermissionAsync("test.user2@testdomain.com", Permissions.ReportsSiteSummary))
             .ReturnsAsync(GetReportSiteSummaryFunctionTestsData.MockSites);
 
-        _siteReportService.Setup(service => service.Generate(GetReportSiteSummaryFunctionTestsData.MockSites,
+        _siteReportService.Setup(service => service.GenerateReports(GetReportSiteSummaryFunctionTestsData.MockSites,
                 new DateOnly(2004, 2, 10), new DateOnly(2004, 2, 12)))
             .ReturnsAsync(GetReportSiteSummaryFunctionTestsData.MockReports);
 

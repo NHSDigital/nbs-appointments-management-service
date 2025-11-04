@@ -47,6 +47,8 @@ public class EditSessionFunction(
 
     protected override async Task<ApiResult<SessionModificationResult>> HandleRequest(EditSessionRequest request, ILogger logger)
     {
+        //use proposal BASS to get list of bookings to be cancelled (if cancel unsupported TRUE)
+        
         var result = await availabilityWriteService.EditOrCancelSessionAsync(
             request.Site,
             request.From,

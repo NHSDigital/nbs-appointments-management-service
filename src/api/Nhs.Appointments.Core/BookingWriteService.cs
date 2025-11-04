@@ -243,8 +243,7 @@ public class BookingWriteService(
         var dayTasks = days.Select(day => RecalculateAppointmentStatusesForDay(site, day, cancelUnsupportedBookings));
 
         var results = await Task.WhenAll(dayTasks);
-
-
+        
         if (!cancelUnsupportedBookings)
         {
             return new BookingRecalculationsStatistics

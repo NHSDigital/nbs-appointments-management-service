@@ -113,16 +113,41 @@ const EditSessionTimeAndCapacityForm = ({
         return;
       }
 
+      const hasTimeChanged = (
+        existing: string,
+        updated: typeof newSession.startTime,
+      ) => {
+        const original = parseToTimeComponents(existing);
+        return (
+          original?.hour !== Number(updated?.hour) ||
+          original?.minute !== Number(updated?.minute)
+        );
+      };
+
+      const startTimeChanged = hasTimeChanged(
+        existingUkStartTime,
+        newSession.startTime,
+      );
+      const endTimeChanged = hasTimeChanged(
+        existingUkEndTime,
+        newSession.endTime,
+      );
+
+      const onlyEndTimeChanged = endTimeChanged && !startTimeChanged;
       const validSessionStartTime = isValidStartTime(
         sessionStart,
         sessionEnd,
         newSession.slotLength,
       );
+      const hasNoExistingAppointments =
+        (existingSession.totalSupportedAppointments ?? 0) === 0;
 
-      const existingAppointments =
-        existingSession.totalSupportedAppointments ?? 0;
+      const redirectToConfirmation =
+        validSessionStartTime ||
+        hasNoExistingAppointments ||
+        onlyEndTimeChanged;
 
-      if (validSessionStartTime || existingAppointments === 0) {
+      if (redirectToConfirmation) {
         const confirmationUrl = `/site/${site.id}/availability/edit/confirmation?session=${encode(existingSession)}&date=${date}&sessionToEdit=${encode(newSession)}`;
         return router.push(confirmationUrl);
       }

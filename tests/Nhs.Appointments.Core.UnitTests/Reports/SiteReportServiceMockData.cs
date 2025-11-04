@@ -67,6 +67,9 @@ public static class SiteReportServiceMockData
         }
     ];
 
+    public static readonly string[] MockClinicalServiceIds = MockClinicalServices.Select(x => x.Value)
+        .ToArray();
+
     public static readonly WellKnownOdsEntry[] MockWellKnownOdsCodes =
     [
         new("R1", "Region One", "region"), new("R2", "Region Two", "region"),

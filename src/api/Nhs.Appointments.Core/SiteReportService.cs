@@ -14,13 +14,11 @@ public class SiteReportService(
             .Select(x => x.Value)
             .ToArray();
 
-        var wellKnownOdsCodes = (await wellKnownOdsCodesStore.GetWellKnownOdsCodesDocument()).ToList();
-        var regions = wellKnownOdsCodes.Where(code => code.Type == "region").ToList();
-        var icbs = wellKnownOdsCodes.Where(code => code.Type == "icb").ToList();
+        var wellKnownOdsCodes = await wellKnownOdsCodesStore.GetWellKnownOdsCodesDocument();
 
         foreach (var site in sites)
         {
-            report.Add(await Generate(site, clinicalServices, regions, icbs, startDate, endDate));
+            report.Add(await Generate(site, clinicalServices, wellKnownOdsCodes, startDate, endDate));
         }
 
         return report
@@ -31,16 +29,13 @@ public class SiteReportService(
     }
 
     private async Task<SiteReport> Generate(Site site, string[] clinicalServices,
-        List<WellKnownOdsEntry> regions, List<WellKnownOdsEntry> icbs, DateOnly startDate,
+        IEnumerable<WellKnownOdsEntry> wellKnownOdsCodes, DateOnly startDate,
         DateOnly endDate)
     {
-        var regionName = regions.SingleOrDefault(region => region.OdsCode == site.Region)?.DisplayName ?? "blank";
-        var icbName = icbs.SingleOrDefault(icb => icb.OdsCode == site.IntegratedCareBoard)?.DisplayName ?? "blank";
-
         var siteReport = await dailySiteSummaryStore.GetSiteSummaries(
             site.Id, 
             startDate, 
             endDate);
-        return new SiteReport(site, siteReport.ToArray(), clinicalServices, regionName, icbName);
+        return new SiteReport(site, siteReport.ToArray(), clinicalServices, wellKnownOdsCodes);
     }
 }

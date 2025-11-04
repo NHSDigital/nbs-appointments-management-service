@@ -1,4 +1,5 @@
 ﻿using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.UnitTests.Reports;
 
 namespace Nhs.Appointments.Api.Tests.Functions.Data;
 
@@ -20,33 +21,24 @@ public static class GetReportSiteSummaryFunctionTestsData
         ]
     };
 
-    public static readonly Site[] MockSites =
+    public static readonly Site[] MockSites = SiteReportServiceMockData.MockSites;
+
+    public static readonly SiteReport[] MockReports =
     [
         new(
-            "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
-            "Site 1",
-            "1 Park Row",
-            "0113 1111111",
-            "ABC01",
-            "R1",
-            "ICB1",
-            Location: new Location("Point", [.505, 65]),
-            InformationForCitizens: "",
-            Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
-            status: SiteStatus.Online, isDeleted: null,
-            Type: string.Empty),
+            SiteReportServiceMockData.MockSites[0],
+            SiteReportServiceMockData.MockSite1DailySummaries,
+            SiteReportServiceMockData.MockClinicalServiceIds,
+            SiteReportServiceMockData.MockWellKnownOdsCodes),
         new(
-            "3ad2deb1-791b-452d-95dc-7090edd97f9a",
-            "Site 2",
-            "2 Park Row",
-            "0113 1111111",
-            "ABC02",
-            "R1",
-            "ICB1",
-            Location: new Location("Point", [.506, 65]),
-            InformationForCitizens: "",
-            Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
-            status: SiteStatus.Online, isDeleted: null,
-            Type: string.Empty)
+            SiteReportServiceMockData.MockSites[1],
+            SiteReportServiceMockData.MockSite2DailySummaries,
+            SiteReportServiceMockData.MockClinicalServiceIds,
+            SiteReportServiceMockData.MockWellKnownOdsCodes),
+        new(
+            SiteReportServiceMockData.MockSites[2],
+            SiteReportServiceMockData.MockSite3DailySummaries,
+            SiteReportServiceMockData.MockClinicalServiceIds,
+            SiteReportServiceMockData.MockWellKnownOdsCodes)
     ];
 }

@@ -4,8 +4,15 @@ namespace Nhs.Appointments.Core;
 
 public class SiteReport
 {
-    public SiteReport(Site site, DailySiteSummary[] days, string[] clinicalServices, string regionName, string icbName)
+    public SiteReport(Site site, DailySiteSummary[] days, string[] clinicalServices,
+        IEnumerable<WellKnownOdsEntry> wellKnownOdsCodes)
     {
+        var regionName = wellKnownOdsCodes.SingleOrDefault(code => code.Type == "region" && code.OdsCode == site.Region)
+            ?.DisplayName ?? "blank";
+        var icbName =
+            wellKnownOdsCodes.SingleOrDefault(code => code.Type == "icb" && code.OdsCode == site.IntegratedCareBoard)
+                ?.DisplayName ?? "blank";
+
         SiteName = site.Name;
         ICB = site.IntegratedCareBoard;
         Region = site.Region;

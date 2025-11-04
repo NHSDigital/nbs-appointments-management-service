@@ -84,7 +84,7 @@ public class GetReportSiteSummaryFunctionTests
 
         _siteReportService.Setup(service => service.Generate(GetReportSiteSummaryFunctionTestsData.MockSites,
                 new DateOnly(2004, 2, 10), new DateOnly(2004, 2, 12)))
-            .ReturnsAsync([]);
+            .ReturnsAsync(GetReportSiteSummaryFunctionTestsData.MockReports);
 
         var request = CreateRequest("2004-02-10", "2004-02-12");
         var result = await _fut.RunAsync(request);
@@ -95,9 +95,35 @@ public class GetReportSiteSummaryFunctionTests
         // Assert on csv headers
         var contentString = Encoding.UTF8.GetString(fileContentResult.FileContents);
         var csvLines = contentString.Split(Environment.NewLine);
-        csvLines[0].Should()
-            .Be(
-                "Site Name,ICB,ICB Name,Region,Region Name,ODS Code,Longitude,Latitude,Total Bookings,Cancelled,Maximum Capacity");
+        var headers = csvLines[0].Split(',');
+
+        headers.Length.Should().Be(15);
+        headers.Should().Contain("Site Name");
+        headers.Should().Contain("ICB");
+        headers.Should().Contain("ICB Name");
+        headers.Should().Contain("Region");
+        headers.Should().Contain("Region Name");
+        headers.Should().Contain("ODS Code");
+        headers.Should().Contain("Longitude");
+        headers.Should().Contain("Latitude");
+        headers.Should().Contain("RSV:Adult Booked");
+        headers.Should().Contain("COVID:5_11 Booked");
+        headers.Should().Contain("Total Bookings");
+        headers.Should().Contain("Cancelled");
+        headers.Should().Contain("Maximum Capacity");
+        headers.Should().Contain("RSV:Adult Capacity");
+        headers.Should().Contain("COVID:5_11 Capacity");
+
+
+        csvLines.Length.Should().Be(5);
+
+        // CSV should be tested elsewhere
+        csvLines[1].Should().NotBeEmpty();
+        csvLines[2].Should().NotBeEmpty();
+        csvLines[3].Should().NotBeEmpty();
+
+        // TODO: Is this trailing empty line expected or a bug?
+        csvLines[4].Should().Be(string.Empty);
     }
 
     private static HttpRequest CreateRequest(string startDate, string endDate)

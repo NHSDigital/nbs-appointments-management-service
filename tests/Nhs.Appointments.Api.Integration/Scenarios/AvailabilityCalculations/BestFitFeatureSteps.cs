@@ -160,11 +160,11 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection("BestFitChangeSessionUpliftedJourneyToggle")]
     [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftEnabled.feature")]
     public class BestFitFeatureSteps_ChangeSessionUplift_Enabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection("BestFitChangeSessionUpliftedJourneyToggle")]
     [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftDisabled.feature")]
     public class BestFitFeatureSteps_ChangeSessionUplift_Disabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

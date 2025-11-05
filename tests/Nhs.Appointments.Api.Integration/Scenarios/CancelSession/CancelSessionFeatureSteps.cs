@@ -86,11 +86,11 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection("CancelSessionUpliftedJourneyToggle")]
     [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
     public class CancelSessionFeatureSteps_Enabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection("CancelSessionUpliftedJourneyToggle")]
     [FeatureFile("./Scenarios/CancelSession/CancelSession_Disabled.feature")]
     public class CancelSessionFeatureSteps_Disabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

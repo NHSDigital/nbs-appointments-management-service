@@ -49,10 +49,6 @@ public class MakeBookingFunction(
     protected override async Task<ApiResult<MakeBookingResponse>> HandleRequest(MakeBookingRequest bookingRequest,
         ILogger logger)
     {
-        if (bookingRequest.Site.Length > 3)
-        {
-            throw new Exception("Deliberately breaking an integration test to test the retries behaviour");
-        }
         var requestedBooking = new Booking
         {
             From = bookingRequest.From,

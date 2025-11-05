@@ -223,11 +223,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
             while (iterator.HasMoreResults)
             {
                 var resultSet = await iterator.ReadNextAsync();
-                bookingsToDelete.AddRange(resultSet.Select(bd =>
-                {
-                    Console.WriteLine($"Found a booking to delete with reference {bd.Reference} and site {bd.Site}.");
-                    return bd;
-                }));
+                bookingsToDelete.AddRange(resultSet.Select(bd => bd));
             }
         }
 
@@ -241,14 +237,11 @@ public sealed class BookingExtractsFeatureSteps : Feature
     {
         try
         {
-            Console.WriteLine($"Attempting to delete booking {booking.Reference}...");
             await _cosmosClient.GetContainer("appts", "booking_data")
                 .DeleteItemAsync<BookingDocument>(booking.Reference, new PartitionKey(booking.Site));
-            Console.WriteLine("\t...succeeded.");
         }
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            Console.WriteLine($"\t...received 404: ${booking.Reference} with site ${booking.Site} was not found.");
             // Cosmos does not support checking ahead for null from ReadItemAsync, so
             // using exceptions for control flow here is a necessary evil
             // https://github.com/Azure/azure-cosmos-dotnet-v3/issues/692

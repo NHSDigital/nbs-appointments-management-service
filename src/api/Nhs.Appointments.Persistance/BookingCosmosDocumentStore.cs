@@ -56,6 +56,7 @@ public class BookingCosmosDocumentStore(
         await Parallel.ForEachAsync(siteGroupedBookings, async (group, _) =>
         {
             var bookings = await GetInDateRangeAsync(group.Min(g => g.From), group.Max(g => g.From), group.Key);
+            bookings = bookings.Where(booking => statuses.Contains(booking.Status));
             concurrentResults.Add(bookings);
         });
 

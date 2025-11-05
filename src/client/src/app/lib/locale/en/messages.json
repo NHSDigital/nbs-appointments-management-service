@@ -39,6 +39,9 @@
   "button.cancel-session": "Cancel session",
   "button.cancel-session.one": "Cancel session",
   "button.cancel-session.other": "Cancel session",
+  "button.remove-services": "Remove service",
+  "button.remove-services.one": "Remove service",
+  "button.remove-services.other": "Remove services",
 
   "impact.notCancel.one": "You have chosen not to cancel 1 booking.",
   "impact.notCancel.other": "You have chosen not to cancel {count} bookings.",

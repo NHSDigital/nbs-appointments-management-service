@@ -137,7 +137,7 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
         : 'confirm.cancel-appointments',
     confirmButtonText: action =>
       action === 'change-session'
-        ? 'button.change-session'
+        ? 'button.remove-services'
         : 'button.cancel-appointments',
     impactNote: action =>
       action === 'change-session' ? 'impact.notCancel' : 'impact.change',
@@ -188,12 +188,6 @@ export const SessionModificationConfirmation = ({
   const serviceCount = Object.keys(
     sessionSummaryDisplay.totalSupportedAppointmentsByService,
   ).length;
-
-  const appointmentCount = Array.isArray(
-    sessionSummary.totalSupportedAppointments,
-  )
-    ? sessionSummary.totalSupportedAppointments.length
-    : 0;
 
   const resolved = React.useMemo(() => {
     const cfg = MODE_TEXTS[mode];

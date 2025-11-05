@@ -217,7 +217,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
         var container = _cosmosClient.GetContainer("appts", "booking_data");
         var iterator = container.GetItemLinqQueryable<BookingDocument>().Where(bd => bd.DocumentType == "booking").ToFeedIterator();
 
-        var bookingsToDelete = new List<string>();
+        var bookingsToDelete = new List<BookingDocument>();
         using (iterator)
         {
             while (iterator.HasMoreResults)
@@ -226,29 +226,29 @@ public sealed class BookingExtractsFeatureSteps : Feature
                 bookingsToDelete.AddRange(resultSet.Select(bd =>
                 {
                     Console.WriteLine($"Found a booking to delete with reference {bd.Reference} and site {bd.Site}.");
-                    return bd.Reference;
+                    return bd;
                 }));
             }
         }
 
-        foreach (var bookingRef in bookingsToDelete)
+        foreach (var booking in bookingsToDelete)
         {
-            await DeleteBooking(bookingRef);
+            await DeleteBooking(booking);
         }
     }
 
-    private async Task DeleteBooking(string bookingRef)
+    private async Task DeleteBooking(BookingDocument booking)
     {
         try
         {
-            Console.WriteLine($"Attempting to delete booking {bookingRef}...");
+            Console.WriteLine($"Attempting to delete booking {booking.Reference}...");
             await _cosmosClient.GetContainer("appts", "booking_data")
-                .DeleteItemAsync<BookingDocument>(bookingRef, new PartitionKey("BookingExtractDataTests"));
+                .DeleteItemAsync<BookingDocument>(booking.Reference, new PartitionKey(booking.Site));
             Console.WriteLine("\t...succeeded.");
         }
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            Console.WriteLine($"\t...received 404 ${bookingRef} was not found.");
+            Console.WriteLine($"\t...received 404: ${booking.Reference} with site ${booking.Site} was not found.");
             // Cosmos does not support checking ahead for null from ReadItemAsync, so
             // using exceptions for control flow here is a necessary evil
             // https://github.com/Azure/azure-cosmos-dotnet-v3/issues/692

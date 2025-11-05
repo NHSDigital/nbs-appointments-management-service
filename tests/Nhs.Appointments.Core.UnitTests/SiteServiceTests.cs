@@ -137,7 +137,7 @@ public class SiteServiceTests
                 Distance: 328)
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
         result.Should().BeEquivalentTo(expectedSites);
@@ -236,7 +236,7 @@ public class SiteServiceTests
                 Distance: 281)
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, []);
         result.Should().BeEquivalentTo(expectedSites);
@@ -296,7 +296,7 @@ public class SiteServiceTests
                 Distance: 357),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.FindSitesByArea(0.5, 50, 50000, 50, ["access_need_1"]);
         result.Should().BeEquivalentTo(expectedSites);
@@ -341,7 +341,7 @@ public class SiteServiceTests
                 Type: string.Empty),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, ["access_need_1"]);
         result.Should().BeEmpty();
@@ -388,7 +388,7 @@ public class SiteServiceTests
                 Distance: 3573),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, []);
         result.Should().BeEquivalentTo(sites);
     }
@@ -445,7 +445,7 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 13213),
         };
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, ["access_need_2"]);
         result.Should().BeEquivalentTo(expectedSites);
     }
@@ -490,7 +490,7 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 3573),
         };
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
     }
@@ -535,7 +535,7 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 3573)
         };
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
@@ -581,7 +581,7 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 3573)
         };
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
         
         //set up a cache, but it's for a different date range, so its not used
@@ -653,7 +653,7 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 3573)
         };
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         
         object outResult = true;
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
@@ -744,8 +744,8 @@ public class SiteServiceTests
         }
         
         var sites = invalidSites.Union(validSites).ToList();
-        
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
         //only setup for invalid sites
         for (var i = 1; i < 21; i++)
@@ -788,7 +788,7 @@ public class SiteServiceTests
     public async Task FindSitesByArea_ReturnsEmptyCollection_WhenNoSitesAreFound()
     {
         var sites = Array.Empty<Site>();
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
         var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, ["access_need_1"]);
         result.Should().BeEmpty();
     }
@@ -837,7 +837,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
-        _siteStore.Verify(x => x.GetAllSites(false), Times.Never());
+        _siteStore.Verify(x => x.GetAllSites(), Times.Never());
     }
 
     [Fact]
@@ -882,11 +882,11 @@ public class SiteServiceTests
         };
         object outSites = sites.Take(1).Select(s => s.Site);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], true);
         result.Should().BeEquivalentTo(sites);
-        _siteStore.Verify(x => x.GetAllSites(false), Times.Once);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
     }
 
     [Fact]
@@ -931,11 +931,11 @@ public class SiteServiceTests
         };
         object outSites = null;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(false);
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites.Select(s => s.Site));
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
         var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
-        _siteStore.Verify(x => x.GetAllSites(false), Times.Once);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);
     }
 
@@ -1025,7 +1025,7 @@ public class SiteServiceTests
         var result = await _sut.GetSitesPreview();
 
         result.Count().Should().Be(2);
-        _siteStore.Verify(x => x.GetAllSites(false), Times.Never);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Never);
         _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Never);
     }
 
@@ -1063,13 +1063,13 @@ public class SiteServiceTests
         };
         object outSites = null;
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.GetSitesPreview();
 
         result.Count().Should().Be(2);
         result.First().IntegratedCareBoard.Should().Be("ICB1");
-        _siteStore.Verify(x => x.GetAllSites(false), Times.Once);
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);
     }
 
@@ -1197,7 +1197,7 @@ public class SiteServiceTests
         };
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(true);
 
-        _siteStore.Setup(x => x.GetAllSites(false)).ReturnsAsync(sites);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
         result.Should().BeEquivalentTo(expectedSites);
@@ -1265,7 +1265,7 @@ public class SiteServiceTests
                 string.Empty),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -1325,7 +1325,7 @@ public class SiteServiceTests
                 string.Empty),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -1391,7 +1391,7 @@ public class SiteServiceTests
                 string.Empty),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
         _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
@@ -1472,9 +1472,9 @@ public class SiteServiceTests
                 null,
                 null,
                 string.Empty),
-        }; 
-        
-        _siteStore.Setup(x => x.GetAllSites(false))
+        };
+
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
         _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true);
@@ -1560,7 +1560,7 @@ public class SiteServiceTests
                 string.Empty),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
         _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true);
@@ -1661,7 +1661,7 @@ public class SiteServiceTests
                 string.Empty),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
         _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
@@ -1737,7 +1737,7 @@ public class SiteServiceTests
                 "Some other site type"),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -1809,7 +1809,7 @@ public class SiteServiceTests
                 "Some other site type"),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -1881,7 +1881,7 @@ public class SiteServiceTests
                 "Some other site type"),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -1952,7 +1952,7 @@ public class SiteServiceTests
                 "Some other site type"),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -2019,7 +2019,7 @@ public class SiteServiceTests
             null,
             "Pharmacy"));
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -2091,7 +2091,7 @@ public class SiteServiceTests
                 "Some other site type"),
         };
 
-        _siteStore.Setup(x => x.GetAllSites(false))
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);

@@ -240,7 +240,7 @@ export const SessionModificationConfirmation = ({
       impactCard,
       notificationNote,
     };
-  }, [mode, serviceCount, appointmentCount, sessionSummaryDisplay]);
+  }, [mode, serviceCount, unsupportedBookingsCount]);
 
   const {
     handleSubmit,

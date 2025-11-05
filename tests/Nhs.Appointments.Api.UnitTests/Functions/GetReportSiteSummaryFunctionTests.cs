@@ -100,8 +100,9 @@ public class GetReportSiteSummaryFunctionTests
         var csvLines = contentString.Split(Environment.NewLine);
         var headers = csvLines[0].Split(',');
 
-        headers.Length.Should().Be(15);
+        headers.Length.Should().Be(16);
         headers.Should().Contain("Site Name");
+        headers.Should().Contain("Site Type");
         headers.Should().Contain("ICB");
         headers.Should().Contain("ICB Name");
         headers.Should().Contain("Region");
@@ -122,13 +123,13 @@ public class GetReportSiteSummaryFunctionTests
 
         // Report accuracy is tested in SiteReportServiceTests
         csvLines[1].Should().NotBeEmpty();
-        csvLines[1].Split(',').Length.Should().Be(15);
+        csvLines[1].Split(',').Length.Should().Be(16);
 
         csvLines[2].Should().NotBeEmpty();
-        csvLines[2].Split(',').Length.Should().Be(15);
+        csvLines[2].Split(',').Length.Should().Be(16);
 
         csvLines[3].Should().NotBeEmpty();
-        csvLines[3].Split(',').Length.Should().Be(15);
+        csvLines[3].Split(',').Length.Should().Be(16);
 
         // TODO: Is this trailing empty line expected or a bug?
         csvLines[4].Should().Be(string.Empty);

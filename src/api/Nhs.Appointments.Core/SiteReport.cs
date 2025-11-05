@@ -14,6 +14,7 @@ public class SiteReport
                 ?.DisplayName ?? "blank";
 
         SiteName = site.Name;
+        SiteType = site.Type;
         ICB = site.IntegratedCareBoard;
         Region = site.Region;
         OdsCode = site.OdsCode;
@@ -32,6 +33,7 @@ public class SiteReport
     }
     
     public string SiteName { get; }
+    public string SiteType { get; }
     public string ICB { get; }
     public string ICBName { get; }
     public string Region { get; }

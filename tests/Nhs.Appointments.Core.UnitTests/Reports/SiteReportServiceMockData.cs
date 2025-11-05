@@ -26,7 +26,7 @@ public static class SiteReportServiceMockData
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
             status: SiteStatus.Online, isDeleted: null,
-            Type: string.Empty),
+            Type: "GP Practice"),
         new(
             Site2Guid.ToString(),
             "Site 2",
@@ -39,7 +39,7 @@ public static class SiteReportServiceMockData
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
             status: SiteStatus.Online, isDeleted: null,
-            Type: string.Empty),
+            Type: "GP Practice"),
         new(
             Site3Guid.ToString(),
             "Site 3",
@@ -52,7 +52,7 @@ public static class SiteReportServiceMockData
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
             status: SiteStatus.Online, isDeleted: null,
-            Type: string.Empty)
+            Type: "GP Practice")
     ];
 
     public static readonly ClinicalServiceType[] MockClinicalServices =

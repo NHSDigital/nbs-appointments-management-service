@@ -1,22 +1,26 @@
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Nbs.MeshClient.Auth;
-using Nbs.MeshClient;
-using Refit;
-using Xunit.Gherkin.Quick;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Parquet.Serialization;
-using FluentAssertions;
-using Nhs.Appointments.Persistance.Models;
-using Nhs.Appointments.Core;
-using Microsoft.Azure.Cosmos.Linq;
-using DataExtract.Documents;
+using System.Net;
 using BookingsDataExtracts;
 using DataExtract;
+using DataExtract.Documents;
+using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Nbs.MeshClient;
+using Nbs.MeshClient.Auth;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Json;
+using Nhs.Appointments.Persistance.Models;
+using Parquet.Serialization;
+using Refit;
+using Xunit.Gherkin.Quick;
+using Feature = Xunit.Gherkin.Quick.Feature;
+using Location = Nhs.Appointments.Core.Location;
 
 namespace BookingDataExtracts.Integration.Specification;
 
@@ -50,6 +54,14 @@ public sealed class BookingExtractsFeatureSteps : Feature
     private string CosmosEndpoint => Environment.GetEnvironmentVariable("COSMOS_ENDPOINT") ?? "https://localhost:8081/";
     private string CosmosToken => Environment.GetEnvironmentVariable("COSMOS_TOKEN") ?? "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
+    private async Task EnsureDatabaseIsSetUpWithCorrectPartitionPaths()
+    {
+        var database = await _cosmosClient.CreateDatabaseIfNotExistsAsync("appts");
+        await database.Database.CreateContainerIfNotExistsAsync("core_data", "/docType");
+        await database.Database.CreateContainerIfNotExistsAsync("booking_data", "/site");
+        await database.Database.CreateContainerIfNotExistsAsync("index_data", "/docType");
+    }
+
     public async Task<SiteDocument> SetupSite()
     {
         var site = new SiteDocument
@@ -67,8 +79,9 @@ public sealed class BookingExtractsFeatureSteps : Feature
     }
 
     [Given("I have some bookings")]
-    public async Task SetupBookings(Gherkin.Ast.DataTable bookingData)
+    public async Task SetupBookings(DataTable bookingData)
     {
+        await EnsureDatabaseIsSetUpWithCorrectPartitionPaths();
         var site = await SetupSite();
 
         await DeleteBookingFromPreviousTests();
@@ -110,7 +123,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
     }
 
     [And("the system is configured as follows")]
-    public void ConfigureMesh(Gherkin.Ast.DataTable table)
+    public void ConfigureMesh(DataTable table)
     {
         var targetMailboxId = table.Rows.ElementAt(1).Cells.ElementAt(0).Value;
         var workflowId = table.Rows.ElementAt(1).Cells.ElementAt(1).Value;
@@ -164,7 +177,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
     }
 
     [Then("booking data is available in the target mailbox")]
-    public async Task AssertData(Gherkin.Ast.DataTable expectedAppointments)
+    public async Task AssertData(DataTable expectedAppointments)
     {
         var response = await _targetMailbox.CheckInboxAsync();
         response.Messages.Count.Should().Be(1);
@@ -210,13 +223,36 @@ public sealed class BookingExtractsFeatureSteps : Feature
             while (iterator.HasMoreResults)
             {
                 var resultSet = await iterator.ReadNextAsync();
-                bookingsToDelete.AddRange(resultSet.Select(bd => bd.Reference));
+                bookingsToDelete.AddRange(resultSet.Select(bd =>
+                {
+                    Console.WriteLine($"Found a booking to delete with reference {bd.Reference} and site {bd.Site}.");
+                    return bd.Reference;
+                }));
             }
         }
 
-        var partitionKey = new PartitionKey("BookingExtractDataTests");
         foreach (var bookingRef in bookingsToDelete)
-            await container.DeleteItemAsync<BookingDocument>(bookingRef, partitionKey);
+        {
+            await DeleteBooking(bookingRef);
+        }
+    }
+
+    private async Task DeleteBooking(string bookingRef)
+    {
+        try
+        {
+            Console.WriteLine($"Attempting to delete booking {bookingRef}...");
+            await _cosmosClient.GetContainer("appts", "booking_data")
+                .DeleteItemAsync<BookingDocument>(bookingRef, new PartitionKey("BookingExtractDataTests"));
+            Console.WriteLine("\t...succeeded.");
+        }
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            Console.WriteLine($"\t...received 404 ${bookingRef} was not found.");
+            // Cosmos does not support checking ahead for null from ReadItemAsync, so
+            // using exceptions for control flow here is a necessary evil
+            // https://github.com/Azure/azure-cosmos-dotnet-v3/issues/692
+        }
     }
 
     private async Task<List<BookingExtactDataRow>> ReadFromResultsFile(string messageId)

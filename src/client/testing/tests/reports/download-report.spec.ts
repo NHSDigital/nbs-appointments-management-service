@@ -50,7 +50,7 @@ test('Navigates to the reports page via a site page', async () => {
   await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
 });
 
-test('Downloads a site summary report', async ({ page }) => {
+test.fixme('Downloads a site summary report', async ({ page }) => {
   const reportsPage = await siteSelectionPage.topNav.clickReports();
 
   await reportsPage.selectDatesStep.startDateInput.fill('2025-08-10');

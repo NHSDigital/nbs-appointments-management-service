@@ -60,6 +60,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     atob(serialisedSession),
   );
 
+  const servicesCount = removedServicesSession.services.length;
+
   let cancelledWithDetailsCount =
     (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
 
@@ -85,6 +87,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         clinicalServices={clinicalServices}
         hasBookings={hasBookings}
+        servicesCount={servicesCount}
         chosenAction={chosenAction ?? ''}
         unsupportedBookingsCount={unsupportedBookingsCount ?? 0}
         cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}

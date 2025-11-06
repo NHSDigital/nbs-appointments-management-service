@@ -7,8 +7,8 @@ pool:
   vmImage: "ubuntu-latest"
 
 retention:
-  days: 42            # keep builds for 6 weeks
-  minimumToKeep: 1    # always keep at least one build
+  daysToKeep: 42
+  minimumToKeep: 1
   branches:
     include:
       - release/*

@@ -4,9 +4,6 @@ parameters:
   - name: prDockerServiceConnectionName
     type: string
 
-retention:
-  daysToKeep: 42
-
 stages:
   - stage: Build
     displayName: Build

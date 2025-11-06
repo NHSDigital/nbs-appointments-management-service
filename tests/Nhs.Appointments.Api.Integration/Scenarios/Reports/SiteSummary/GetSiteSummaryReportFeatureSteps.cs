@@ -40,4 +40,7 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    [Then(@"the call should be successful")]
+    public void AssertSuccessCode() => Response.EnsureSuccessStatusCode();
 }

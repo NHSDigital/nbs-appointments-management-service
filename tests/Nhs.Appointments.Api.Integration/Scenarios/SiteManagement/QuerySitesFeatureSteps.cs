@@ -1,8 +1,3 @@
-using FluentAssertions;
-using Gherkin.Ast;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +6,14 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
@@ -100,8 +101,8 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Availability = new AvailabilityFilter
                     {
                         Services = cells.ElementAt(3).Value.Split(','),
-                        From = ParseNaturalLanguageDateOnly(cells.ElementAt(4).Value),
-                        Until = ParseNaturalLanguageDateOnly(cells.ElementAt(5).Value)
+                        From = NaturalLanguageDate.Parse(cells.ElementAt(4).Value),
+                        Until = NaturalLanguageDate.Parse(cells.ElementAt(5).Value)
                     }
                 }
             }

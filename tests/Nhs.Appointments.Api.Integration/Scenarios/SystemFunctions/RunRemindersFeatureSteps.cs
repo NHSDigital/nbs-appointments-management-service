@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
@@ -50,7 +51,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         {
             Id = Guid.NewGuid().ToString(),
             DocumentType = "availiblity_created",
-            From = ParseNaturalLanguageDateOnly("2 days from today"),
+            From = NaturalLanguageDate.Parse("2 days from today"),
             By = "someone",
             Site = GetSiteId(),
             Created = DateTime.UtcNow

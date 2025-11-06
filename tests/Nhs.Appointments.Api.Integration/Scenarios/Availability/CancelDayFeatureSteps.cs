@@ -1,10 +1,8 @@
-using FluentAssertions;
-using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Persistance.Models;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Nhs.Appointments.Api.Integration.Data;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
@@ -17,7 +15,7 @@ public class CancelDayFeatureSteps : BaseFeatureSteps
     [When("I cancel the day '(.+)'")]
     public async Task CancelDay(string dateString)
     {
-        var date = ParseNaturalLanguageDateOnly(dateString);
+        var date = NaturalLanguageDate.Parse(dateString);
         var site = GetSiteId();
 
         var payload = new

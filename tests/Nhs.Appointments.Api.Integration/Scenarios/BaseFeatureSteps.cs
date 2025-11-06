@@ -1,17 +1,3 @@
-using AutoMapper;
-using FluentAssertions;
-using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Json;
-using Nhs.Appointments.Persistance;
-using Nhs.Appointments.Persistance.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +6,20 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AutoMapper;
+using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Json;
+using Nhs.Appointments.Persistance;
+using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
 using Feature = Xunit.Gherkin.Quick.Feature;
@@ -172,8 +172,8 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
-            Id = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
-            Date = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value),
+            Id = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
+            Date = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value),
             Site = site,
             DocumentType = "daily_availability",
             Sessions = new[]
@@ -197,93 +197,6 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "daily_availability",
             Sessions = g.SelectMany(s => s.Sessions).ToArray()
         });
-    }
-
-    public static DateOnly ParseNaturalLanguageDateOnly(string dateString)
-    {
-        // First, check if it matches a "Today [+/- N]" pattern
-        var todayPlusNMatch = Regex.Match(dateString, @"^Today(\s*([+-]\d+))?$", RegexOptions.IgnoreCase);
-        if (todayPlusNMatch.Success)
-        {
-
-            int.TryParse(todayPlusNMatch.Groups[2].Value, out int dayOffset);
-
-            return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(dayOffset);
-        }
-
-        var match = NaturalLanguageRelativeDate().Match(dateString);
-        if (!match.Success)
-        {
-            throw new FormatException("Date string not recognised.");
-        }
-
-        var format = match.Groups["format"].Value;
-        switch (format)
-        {
-            case "Tomorrow":
-            case "tomorrow":
-                return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(1);
-            case "Yesterday":
-            case "yesterday":
-                return DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-1);
-            case "Today":
-            case "today":
-                return DateOnly.FromDateTime(DateTime.UtcNow);
-            case "Next Monday":
-                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Monday));
-            case "Next Tuesday":
-                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Tuesday));
-            case "Next Wednesday":
-                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Wednesday));
-            case "Next Thursday":
-                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Thursday));
-            case "Next Friday":
-                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Friday));
-            case "Next Saturday":
-                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Saturday));
-            case "Next Sunday":
-                return DateOnly.FromDateTime(GetDayInNextWeek(DayOfWeek.Sunday));
-        }
-
-        var period = match.Groups["period"].Value;
-        var direction = match.Groups["direction"].Value;
-        var magnitude = match.Groups["magnitude"].Value;
-
-        var offset = direction == "from" ? int.Parse(magnitude) : int.Parse(magnitude) * -1;
-        return period switch
-        {
-            "days" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset),
-            "day" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset),
-            "weeks" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 7),
-            "week" => DateOnly.FromDateTime(DateTime.UtcNow).AddDays(offset * 7),
-            "months" => DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(offset),
-            "month" => DateOnly.FromDateTime(DateTime.UtcNow).AddMonths(offset),
-            "years" => DateOnly.FromDateTime(DateTime.UtcNow).AddYears(offset),
-            "year" => DateOnly.FromDateTime(DateTime.UtcNow).AddYears(offset),
-            _ => throw new FormatException("Error parsing natural language date regex")
-        };
-    }
-
-    /// <summary>
-    /// Want to return a day of the week in the next week.
-    /// </summary>
-    /// <param name="targetDay"></param>
-    /// <returns></returns>
-    private static DateTime GetDayInNextWeek(DayOfWeek targetDay)
-    {
-        var today = DateTime.UtcNow;
-
-        // Get this week's Monday
-        var daysSinceMonday = ((int)today.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
-        var thisWeeksMonday = today.AddDays(-daysSinceMonday);
-
-        // Get next week's Monday
-        var nextWeeksMonday = thisWeeksMonday.AddDays(7);
-
-        // Calculate days to target day from next Monday
-        var daysToTarget = ((int)targetDay - (int)DayOfWeek.Monday + 7) % 7;
-
-        return nextWeeksMonday.AddDays(daysToTarget);
     }
 
     protected string DeriveWeekDaysInRange(DateOnly startDate, DateOnly? endDate)
@@ -356,7 +269,7 @@ public abstract partial class BaseFeatureSteps : Feature
         SetupBookings(site, dataTable, BookingType.Orphaned);
 
     protected DateTime ParseDayAndTime(string day, string time) => DateTime.ParseExact(
-        $"{ParseNaturalLanguageDateOnly(day).ToString("yyyy-MM-dd")} {time}",
+        $"{NaturalLanguageDate.Parse(day).ToString("yyyy-MM-dd")} {time}",
         "yyyy-MM-dd HH:mm", null);
 
     protected IEnumerable<(BookingDocument booking, BookingIndexDocument bookingIndex)>
@@ -510,7 +423,7 @@ public abstract partial class BaseFeatureSteps : Feature
                             BookingReferences.GetBookingReference(index, bookingType),
                 From =
                     DateTime.ParseExact(
-                        $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
+                        $"{NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
                         "yyyy-MM-dd HH:mm", null),
                 Duration = int.Parse(row.Cells.ElementAt(2).Value),
                 Service = row.Cells.ElementAt(3).Value,
@@ -557,7 +470,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 Status = MapStatus(bookingType),
                 Created = GetCreationDateTime(bookingType),
                 From = DateTime.ParseExact(
-                    $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
+                    $"{NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
                     "yyyy-MM-dd HH:mm", null),
             };
         });
@@ -678,7 +591,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
             var payload = new
             {
-                date = ParseNaturalLanguageDateOnly(date).ToString("yyyy-MM-dd"),
+                date = NaturalLanguageDate.Parse(date).ToString("yyyy-MM-dd"),
                 site = GetSiteId(),
                 sessions = new[]
                 {
@@ -714,7 +627,7 @@ public abstract partial class BaseFeatureSteps : Feature
             object payload = new
             {
                 from = DateTime.ParseExact(
-                    $"{ParseNaturalLanguageDateOnly(date):yyyy-MM-dd} {time}",
+                    $"{NaturalLanguageDate.Parse(date):yyyy-MM-dd} {time}",
                     "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
                 duration,
                 service,
@@ -743,7 +656,7 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("there are no sessions for '(.+)'")]
     public async Task AssertSessionNoLongerExists(string dateString)
     {
-        var date = ParseNaturalLanguageDateOnly(dateString);
+        var date = NaturalLanguageDate.Parse(dateString);
         var documentId = date.ToString("yyyyMMdd");
 
         var dayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")

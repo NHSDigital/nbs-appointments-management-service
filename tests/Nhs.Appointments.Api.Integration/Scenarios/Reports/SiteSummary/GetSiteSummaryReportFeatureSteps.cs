@@ -122,4 +122,28 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
             await Client.GetContainer("appts", "aggregated_data").UpsertItemAsync(site);
         }
     }
+
+    // TODO: Finish these assertions
+    [And("the report contains the following data for site '(.+)'")]
+    public async Task SetUpSiteSummaries(string siteName, DataTable dataTable)
+    {
+        var csvHeaders = ReportContent.Split("\n")[0].Trim('\r').Split(",");
+
+        var csvLines = ReportContent.Split('\n');
+        var lineForSite = csvLines.Single(line => line.Contains(siteName)).Trim('\r');
+        var csvDataForSite = lineForSite.Split(',');
+
+        var headers = dataTable.Rows.First().Cells;
+        var expectedData = dataTable.Rows.Last();
+
+        foreach (var header in headers)
+        {
+            var columnIndex = Array.IndexOf(csvHeaders, header.Value);
+            var csvDatum = csvDataForSite[columnIndex];
+
+            var expectedDatum = dataTable.GetRowValueOrDefault(expectedData, header.Value);
+
+            csvDatum.Should().Be(expectedDatum);
+        }
+    }
 }

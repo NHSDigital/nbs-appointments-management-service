@@ -5,8 +5,8 @@ Feature: Download Site Summary Report
       | Id                                   |
       | 8e0ef158-540b-4854-8f34-91a8cd9c808a |
     And the following site reports exist in the system
-      | Site                                 | Date     |
-      | 8e0ef158-540b-4854-8f34-91a8cd9c808a | Tomorrow |
+      | Site                                 | Date     | Type        |
+      | 8e0ef158-540b-4854-8f34-91a8cd9c808a | Tomorrow | GP Pharmacy |
     When I request a site summary report for the following dates
       | Start Date | End Date          |
       | Tomorrow   | 2 days from today |
@@ -14,8 +14,8 @@ Feature: Download Site Summary Report
     And the report has the following headers
       | Site Name | Site Type | ICB | ICB Name | Region | Region Name | ODS Code | Longitude | Latitude |
     And the report has the following headers
-      | RSV:Adult Booked | COVID:5_11 Booked | COVID:12_17 Booked | COVID:18+ Booked | FLU:18_64 Booked | FLU:65+ Booked | COVID_FLU:18_64 Booked | COVID_FLU:65+ Booked | FLU:2_3 Booked |
-    And the report has the following headers
-      | Total Bookings | Cancelled | Maximum Capacity |
-    And the report has the following headers
-      | RSV:Adult Capacity | COVID:5_11 Capacity | COVID:12_17 Capacity | COVID:18+ Capacity | FLU:18_64 Capacity | FLU:65+ Capacity | COVID_FLU:18_64 Capacity | COVID_FLU:65+ Capacity | FLU:2_3 Capacity |
+      | RSV:Adult Booked | RSV:Adult Capacity | Total Bookings | Cancelled | Maximum Capacity |
+# TODO: Finish these assertions
+#    And the report contains the following data for site 'Hull Road Pharmacy'
+#      | Site Name          | Site Type |
+#      | Hull Road Pharmacy | Foo       |

@@ -20,7 +20,7 @@ public class GetSiteSummaryReportFeatureSteps_Enabled()
 public class GetSiteSummaryReportFeatureSteps_Disabled()
     : GetSiteSummaryReportFeatureSteps(Flags.SiteSummaryReport, false);
 
-public class GetSiteSummaryReportFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
 

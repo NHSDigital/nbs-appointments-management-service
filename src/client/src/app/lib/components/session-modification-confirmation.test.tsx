@@ -73,10 +73,10 @@ describe('EditSessionConfirmation', () => {
       screen.queryByRole('button', { name: 'Change session' }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByLabelText(/Yes, cancel the appointment/),
+      screen.getByLabelText(/Yes, cancel the appointments/),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText(/No, do not cancel the appointment/),
+      screen.getByLabelText(/No, do not cancel the appointments/),
     ).toBeInTheDocument();
   });
 
@@ -92,7 +92,7 @@ describe('EditSessionConfirmation', () => {
       />,
     );
 
-    await user.click(screen.getByLabelText(/Yes, cancel the appointment/));
+    await user.click(screen.getByLabelText(/Yes, cancel the appointments/));
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => {
       expect(
@@ -114,7 +114,7 @@ describe('EditSessionConfirmation', () => {
     );
 
     await user.click(
-      screen.getByLabelText(/No, do not cancel the appointment/),
+      screen.getByLabelText(/No, do not cancel the appointments/),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => {
@@ -169,12 +169,12 @@ describe('CancelSessionConfirmation', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByLabelText(
-        /Yes, cancel the appointment and cancel the session/,
+        /Yes, cancel the appointments and cancel the session/,
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText(
-        /No, do not cancel the appointment but cancel the session/,
+        /No, do not cancel the appointments but cancel the session/,
       ),
     ).toBeInTheDocument();
   });
@@ -191,7 +191,7 @@ describe('CancelSessionConfirmation', () => {
       />,
     );
 
-    await user.click(screen.getByLabelText(/Yes, cancel the appointment/));
+    await user.click(screen.getByLabelText(/Yes, cancel the appointments/));
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => {
       expect(
@@ -213,7 +213,7 @@ describe('CancelSessionConfirmation', () => {
     );
 
     await user.click(
-      screen.getByLabelText(/No, do not cancel the appointment/),
+      screen.getByLabelText(/No, do not cancel the appointments/),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => {
@@ -260,7 +260,7 @@ describe('submitForm', () => {
 
     await user.click(
       screen.getByLabelText(
-        'Yes, cancel the appointment and change this session',
+        'Yes, cancel the appointments and change this session',
       ),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
@@ -335,7 +335,7 @@ describe('submitForm', () => {
 
     await user.click(
       screen.getByLabelText(
-        'No, do not cancel the appointment but change this session',
+        'No, do not cancel the appointments but change this session',
       ),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
@@ -410,7 +410,7 @@ describe('submitForm', () => {
 
     await user.click(
       screen.getByLabelText(
-        'No, do not cancel the appointment but cancel the session',
+        'No, do not cancel the appointments but cancel the session',
       ),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
@@ -485,7 +485,7 @@ describe('submitForm', () => {
 
     await user.click(
       screen.getByLabelText(
-        'Yes, cancel the appointment and cancel the session',
+        'Yes, cancel the appointments and cancel the session',
       ),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));

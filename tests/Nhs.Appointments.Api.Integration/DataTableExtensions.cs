@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Data;
 
 namespace Nhs.Appointments.Api.Integration;
 
@@ -24,6 +25,16 @@ public static class DataTableExtensions
         var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
 
         return HasValue(cell) ? Enum.Parse<T>(cell) : null;
+    }
+
+    public static DateOnly GetNaturalLanguageDateRowValueOrDefault(this DataTable dataTable, TableRow row,
+        string columnName)
+    {
+        var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
+            ?.Location.Column;
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
+
+        return HasValue(cell) ? NaturalLanguageDate.Parse(cell) : default;
     }
 
     public static int GetIntRowValueOrDefault(this DataTable dataTable, TableRow row, string columnName,

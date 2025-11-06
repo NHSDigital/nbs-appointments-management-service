@@ -25,7 +25,8 @@ public class CancelBookingFunction(
     IValidator<CancelBookingRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<CancelBookingFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    ISiteService siteService)
     : BaseApiFunction<CancelBookingRequest, CancelBookingResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -68,6 +69,11 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Site not found.");
+        }
+
         var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site,
             (CancellationReason)request.cancellationReason, request.additionalData);
 

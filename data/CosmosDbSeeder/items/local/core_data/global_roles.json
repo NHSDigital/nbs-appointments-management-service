@@ -141,7 +141,8 @@
         "site:manage",
         "system:run-reminders",
         "system:run-provisional-sweep",
-        "system:run-auto-cancellations"
+        "system:run-auto-cancellations",
+        "reports:sitesummary"
       ]
     },
     {

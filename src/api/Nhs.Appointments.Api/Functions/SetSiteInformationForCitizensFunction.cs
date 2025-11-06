@@ -50,6 +50,11 @@ public class SetSiteInformationForCitizensFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteInformationForCitizensRequest request,
         ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Could not find site.");
+        }
+
         var result = await siteService.UpdateInformationForCitizens(request.Site, request.InformationForCitizens);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }

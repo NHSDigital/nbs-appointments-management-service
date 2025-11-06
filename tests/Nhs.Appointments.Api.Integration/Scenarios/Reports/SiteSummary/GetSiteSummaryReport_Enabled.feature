@@ -1,7 +1,12 @@
 Feature: Download Site Summary Report
 
   Scenario: Can download reports when toggle is enabled
-    Given the site is configured for MYA
+    Given the following sites exist in the system
+      | Id                                   |
+      | 8e0ef158-540b-4854-8f34-91a8cd9c808a |
+    And the following site reports exist in the system
+      | Site                                 | Date     |
+      | 8e0ef158-540b-4854-8f34-91a8cd9c808a | Tomorrow |
     When I request a site summary report for the following dates
       | Start Date | End Date          |
       | Tomorrow   | 2 days from today |

@@ -695,7 +695,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected static Accessibility[] ParseAccessibilities(string accessibilities)
     {
-        if (accessibilities == "__empty__")
+        if (string.IsNullOrWhiteSpace(accessibilities) || accessibilities == "__empty__")
         {
             return Array.Empty<Accessibility>();
         }

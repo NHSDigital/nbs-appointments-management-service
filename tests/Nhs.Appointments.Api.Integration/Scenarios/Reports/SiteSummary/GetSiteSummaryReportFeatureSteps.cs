@@ -1,12 +1,16 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
+using Location = Nhs.Appointments.Core.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Reports.SiteSummary;
 
@@ -55,6 +59,67 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
         foreach (var cell in row.Cells)
         {
             csvHeaders.Should().Contain(cell.Value);
+        }
+    }
+
+    [Given("the following sites exist in the system")]
+    public async Task SetUpSites(DataTable dataTable)
+    {
+        var sites = dataTable.Rows.Skip(1).Select(row => new SiteDocument
+        {
+            Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Id")),
+            Name = dataTable.GetRowValueOrDefault(row, "Name", "Hull Road Pharmacy"),
+            Address = dataTable.GetRowValueOrDefault(row, "Address", "123 Hull Road"),
+            PhoneNumber = dataTable.GetRowValueOrDefault(row, "Phone Number", "0113 1111111"),
+            OdsCode = dataTable.GetRowValueOrDefault(row, "Ods Code", "ABC01"),
+            Region = dataTable.GetRowValueOrDefault(row, "Region", "R1"),
+            IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB", "ICB1"),
+            InformationForCitizens = dataTable.GetRowValueOrDefault(row, "Citizen Info",
+                "Door buzzer does not work."),
+            DocumentType = "site",
+            Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Access needs")),
+            Location = new Location("Point",
+                new[]
+                {
+                    dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -1.67382134),
+                    dataTable.GetDoubleRowValueOrDefault(row, "Latitude", 55.79628754)
+                }),
+            Type = dataTable.GetRowValueOrDefault(row, "Type"),
+            IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "Deleted")
+        });
+
+        foreach (var site in sites)
+        {
+            await Client.GetContainer("appts", "core_data").UpsertItemAsync(site);
+        }
+    }
+
+    [And("the following site reports exist in the system")]
+    public async Task SetUpSiteSummaries(DataTable dataTable)
+    {
+        var sites = dataTable.Rows.Skip(1).Select(row =>
+        {
+            var rsvBookings = dataTable.GetIntRowValueOrDefault(row, "RSV:Adult Bookings", 40);
+            var rsvOrphaned = dataTable.GetIntRowValueOrDefault(row, "RSV:Adult Orphaned", 20);
+            var rsvRemaining = dataTable.GetIntRowValueOrDefault(row, "RSV:Adult Remaining", 40);
+
+            return new DailySiteSummaryDocument
+            {
+                Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site")),
+                Date = dataTable.GetNaturalLanguageDateRowValueOrDefault(row, "Date"),
+                Bookings = new Dictionary<string, int> { { "RSV:Adult", rsvBookings } },
+                Orphaned = new Dictionary<string, int> { { "RSV:Adult", rsvOrphaned } },
+                Cancelled = dataTable.GetIntRowValueOrDefault(row, "Cancelled", 3),
+                RemainingCapacity = new Dictionary<string, int> { { "RSV:Adult", rsvRemaining } },
+                MaximumCapacity = dataTable.GetIntRowValueOrDefault(row, "Max Capacity", 100),
+                GeneratedAtUtc = DateTime.UtcNow,
+                DocumentType = "daily-site-summary-report"
+            };
+        });
+
+        foreach (var site in sites)
+        {
+            await Client.GetContainer("appts", "aggregated_data").UpsertItemAsync(site);
         }
     }
 }

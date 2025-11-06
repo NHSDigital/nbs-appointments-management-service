@@ -47,6 +47,26 @@ public static class DataTableExtensions
         return HasValue(cell) ? int.Parse(cell) : defaultValue;
     }
 
+    public static double GetDoubleRowValueOrDefault(this DataTable dataTable, TableRow row, string columnName,
+        double defaultValue)
+    {
+        var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
+            ?.Location.Column;
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
+
+        return HasValue(cell) ? double.Parse(cell) : defaultValue;
+    }
+
+    public static bool GetBoolRowValueOrDefault(this DataTable dataTable, TableRow row, string columnName,
+        bool defaultValue = false)
+    {
+        var columnLocation = dataTable.Rows.ElementAt(0).Cells.SingleOrDefault(cell => cell.Value == columnName)
+            ?.Location.Column;
+        var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
+
+        return HasValue(cell) ? bool.Parse(cell) : defaultValue;
+    }
+
     public static T GetEnumRowValue<T>(this DataTable dataTable, TableRow row, string columnName,
         T defaultValue) where T : struct
     {

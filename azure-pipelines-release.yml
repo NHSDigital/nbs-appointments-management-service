@@ -6,6 +6,13 @@ trigger:
 pool:
   vmImage: "ubuntu-latest"
 
+retention:
+  days: 42            # keep builds for 6 weeks
+  minimumToKeep: 1    # always keep at least one build
+  branches:
+    include:
+      - release/*
+
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"
   prDockerServiceConnectionName: "nbs-mya-container-registry-sc"

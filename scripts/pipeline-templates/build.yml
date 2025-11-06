@@ -7,10 +7,10 @@ parameters:
 stages:
   - stage: Build
     displayName: Build
+    retention:
+      daysToKeep: 42
     jobs:
       - job: "Build"
-        retention:
-          daysToKeep: 42
         variables:
           apiProjectPath: "src/api/Nhs.Appointments.Api/Nhs.Appointments.Api.csproj"
           apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"

@@ -72,6 +72,7 @@ public class SiteReportServiceTests
             Times.Once);
 
         var site1Summary = reports.Single(item => item.SiteName == "Site 1");
+        site1Summary.SiteType.Should().Be("GP Practice");
         site1Summary.ICB.Should().Be("ICB1");
         site1Summary.ICBName.Should().Be("Integrated Care Board One");
         site1Summary.Region.Should().Be("R1");
@@ -88,6 +89,7 @@ public class SiteReportServiceTests
         site1Summary.MaximumCapacity.Should().Be(200 + 200 + 200);
 
         var site2Summary = reports.Single(item => item.SiteName == "Site 2");
+        site2Summary.SiteType.Should().Be("GP Practice");
         site2Summary.ICB.Should().Be("ICB1");
         site2Summary.ICBName.Should().Be("Integrated Care Board One");
         site2Summary.Region.Should().Be("R1");
@@ -104,6 +106,7 @@ public class SiteReportServiceTests
         site2Summary.MaximumCapacity.Should().Be(200 + 200 + 200);
 
         var site3Summary = reports.Single(item => item.SiteName == "Site 3");
+        site3Summary.SiteType.Should().Be("GP Practice");
         site3Summary.ICB.Should().Be("ICB1");
         site3Summary.ICBName.Should().Be("Integrated Care Board One");
         site3Summary.Region.Should().Be("R1");

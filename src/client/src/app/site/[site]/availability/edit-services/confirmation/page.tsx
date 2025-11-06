@@ -13,7 +13,7 @@ import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
-import { SessionModificationConfirmation } from '@components/session-modification-confirmation';
+import { EditServicesConfirmationPage } from './edit-services-confirmation';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -86,7 +86,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <NhsTransactionalPage
-      title={`Service removal for ${parsedDate.format('dddd DD MMMM')}`}
+      title={`Remove services for ${parsedDate.format('dddd DD MMMM')}`}
       caption={site.name}
       originPage="edit-session"
       backLink={{
@@ -95,7 +95,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         text: 'Go back',
       }}
     >
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={availabilityProposal.unsupportedBookingsCount}
         clinicalServices={clinicalServices}
         session={session}
@@ -103,7 +103,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         removedServicesSession={removedServicesSession}
         site={site.id}
         date={date}
-        mode="edit-services"
       />
     </NhsTransactionalPage>
   );

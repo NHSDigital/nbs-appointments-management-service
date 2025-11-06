@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
-import { SessionModificationConfirmation } from '@components/session-modification-confirmation';
+import { EditServicesConfirmationPage } from './edit-services-confirmation';
 import render from '@testing/render';
 import { mockMultipleServices } from '@testing/data';
 import { useRouter } from 'next/navigation';
@@ -41,14 +41,13 @@ jest.mock('@services/timeService', () => ({
 describe('EditSessionConfirmation', () => {
   it('No unsupported bookings, renders question to change session', () => {
     render(
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
         site="site-123"
         date="2024-06-10"
-        mode="edit-services"
       />,
     );
 
@@ -67,14 +66,13 @@ describe('EditSessionConfirmation', () => {
 describe('CancelSessionConfirmation', () => {
   it('No unsupported bookings, renders question to remove the service', () => {
     render(
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
         site="site-123"
         date="2024-06-10"
-        mode="edit-services"
       />,
     );
 
@@ -91,14 +89,13 @@ describe('CancelSessionConfirmation', () => {
 
   it('Has unsupported bookings, renders Yes/No question to remove the service', () => {
     render(
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
         site="site-123"
         date="2024-06-10"
-        mode="edit-services"
       />,
     );
 
@@ -110,26 +107,25 @@ describe('CancelSessionConfirmation', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByLabelText(
-        /Yes, cancel the appointment and remove the services/,
+        /Yes, cancel the appointments and remove the service/,
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText(
-        /No, do not cancel the appointment but remove the services/,
+        /No, do not cancel the appointments but remove the service/,
       ),
     ).toBeInTheDocument();
   });
 
   it('Has unsupported bookings, user choose "Yes" to cancel the appointments', async () => {
     const { user } = render(
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
         site="site-123"
         date="2024-06-10"
-        mode="edit-services"
       />,
     );
 
@@ -144,14 +140,13 @@ describe('CancelSessionConfirmation', () => {
 
   it('Has unsupported bookings, user choose "No" to cancel the appointments', async () => {
     const { user } = render(
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
         site="site-123"
         date="2024-06-10"
-        mode="edit-services"
       />,
     );
 
@@ -161,7 +156,7 @@ describe('CancelSessionConfirmation', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitFor(() => {
       expect(
-        screen.getByRole('button', { name: 'Remove services' }),
+        screen.getByRole('button', { name: 'Remove service' }),
       ).toBeInTheDocument();
     });
   });
@@ -191,26 +186,25 @@ describe('submitForm', () => {
       .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
     const mode = 'edit-services';
     const { user } = render(
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
         site="site-123"
         date="2024-06-10"
-        mode={mode}
       />,
     );
 
     await user.click(
       screen.getByLabelText(
-        'No, do not cancel the appointment but remove the services',
+        'No, do not cancel the appointments but remove the service',
       ),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await user.click(
       screen.getByRole('button', {
-        name: 'Remove services',
+        name: 'Remove service',
       }),
     );
 
@@ -258,7 +252,7 @@ describe('submitForm', () => {
 
     // other exact params
     expect(params.get('date')).toBe('2024-06-10');
-    expect(params.get('chosenAction')).toBe('change-session');
+    expect(params.get('chosenAction')).toBe('remove-services');
     expect(params.get('unsupportedBookingsCount')).toBe('2');
     expect(params.get('cancelAppointments')).toBe('false');
     expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
@@ -273,20 +267,19 @@ describe('submitForm', () => {
       .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
     const mode = 'edit-services';
     const { user } = render(
-      <SessionModificationConfirmation
+      <EditServicesConfirmationPage
         unsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
         site="site-123"
         date="2024-06-10"
-        mode={mode}
       />,
     );
 
     await user.click(
       screen.getByLabelText(
-        'Yes, cancel the appointment and remove the services',
+        'Yes, cancel the appointments and remove the service',
       ),
     );
     await user.click(screen.getByRole('button', { name: 'Continue' }));

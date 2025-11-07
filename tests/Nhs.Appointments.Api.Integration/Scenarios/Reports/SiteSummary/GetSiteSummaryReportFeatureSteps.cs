@@ -11,6 +11,7 @@ using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
@@ -19,12 +20,12 @@ using Location = Nhs.Appointments.Core.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Reports.SiteSummary;
 
-[Collection("SiteSummaryReportToggle")]
+[Collection(FeatureToggleCollectionNames.SiteSummaryReportCollection)]
 [FeatureFile("./Scenarios/Reports/SiteSummary/GetSiteSummaryReport_Enabled.feature")]
 public class GetSiteSummaryReportFeatureSteps_Enabled()
     : GetSiteSummaryReportFeatureSteps(Flags.SiteSummaryReport, true);
 
-[Collection("SiteSummaryReportToggle")]
+[Collection(FeatureToggleCollectionNames.SiteSummaryReportCollection)]
 [FeatureFile("./Scenarios/Reports/SiteSummary/GetSiteSummaryReport_Disabled.feature")]
 public class GetSiteSummaryReportFeatureSteps_Disabled()
     : GetSiteSummaryReportFeatureSteps(Flags.SiteSummaryReport, false);

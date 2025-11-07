@@ -72,12 +72,12 @@ export const EditServicesConfirmationPage = ({
   const {
     handleSubmit,
     register,
-    formState: { errors },
-    watch,
+    formState: { errors, isSubmitted },
+    getValues,
     setValue,
-  } = useForm<FormData>();
-
-  const action = watch('action') as SessionModificationAction | undefined;
+  } = useForm<FormData>({
+    defaultValues: { action: undefined },
+  });
 
   const recordDecision: SubmitHandler<FormData> = form => {
     setValue('action', form.action as SessionModificationAction);
@@ -208,7 +208,8 @@ export const EditServicesConfirmationPage = ({
   );
 
   const renderUnsupportedDecision = () => {
-    if (!action) return renderRadioForm();
+    if (!isSubmitted) return renderRadioForm();
+    const action = getValues('action') as SessionModificationAction | undefined;
     return renderConfirmationQuestion(action);
   };
 
@@ -223,9 +224,9 @@ export const EditServicesConfirmationPage = ({
 
       {unsupportedBookingsCount > 0 ? (
         <>
-          {action ? (
+          {isSubmitted && getValues('action') ? (
             <div className="margin-top-bottom">
-              {action === 'remove-services'
+              {getValues('action') === 'remove-services'
                 ? unsupportedBookingsCount > 1
                   ? `You have chosen not to cancel ${unsupportedBookingsCount} bookings.`
                   : 'You have chosen not to cancel 1 booking.'
@@ -243,21 +244,22 @@ export const EditServicesConfirmationPage = ({
             </div>
           )}
 
-          {unsupportedBookingsCount && action === 'cancel-appointments' && (
-            <Card
-              title={String(unsupportedBookingsCount)}
-              description={
-                unsupportedBookingsCount > 1
-                  ? 'Bookings may have to be cancelled'
-                  : 'Booking may have to be cancelled'
-              }
-              maxWidth={250}
-            />
-          )}
+          {unsupportedBookingsCount &&
+            getValues('action') != 'remove-services' && (
+              <Card
+                title={String(unsupportedBookingsCount)}
+                description={
+                  unsupportedBookingsCount > 1
+                    ? 'Bookings may have to be cancelled'
+                    : 'Booking may have to be cancelled'
+                }
+                maxWidth={250}
+              />
+            )}
 
-          {action && (
+          {isSubmitted && getValues('action') && (
             <div className="margin-top-bottom">
-              {action === 'cancel-appointments'
+              {getValues('action') === 'cancel-appointments'
                 ? 'People will be sent a text message or email confirming their appointment has been cancelled.'
                 : ''}
             </div>
@@ -266,7 +268,7 @@ export const EditServicesConfirmationPage = ({
           {renderUnsupportedDecision()}
         </>
       ) : (
-        renderConfirmationQuestion('change-session')
+        renderConfirmationQuestion('remove-services')
       )}
     </>
   );

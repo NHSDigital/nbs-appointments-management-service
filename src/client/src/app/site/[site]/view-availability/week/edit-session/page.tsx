@@ -24,6 +24,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const cancelSessionUpliftedJourneyFlag = await fromServer(
     fetchFeatureFlag('CancelSessionUpliftedJourney'),
   );
+
   const { site: siteFromPath } = { ...(await params) };
   const { session, date } = { ...(await searchParams) };
   if (session === undefined || date === undefined) {

@@ -55,9 +55,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         [Then("the request should return Clinical Services")]
         public async Task AssertServicesReturns(DataTable dataTable) 
         {
-            var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceType()
+            var clinicalServices = dataTable.Rows.Skip(1).Select(row => new ClinicalServiceType
             {
-                Value = x.Cells.ElementAt(0).Value
+                Value = dataTable.GetRowValueOrDefault(row, "Id"),
+                Label = dataTable.GetRowValueOrDefault(row, "Label"),
+                ServiceType = dataTable.GetRowValueOrDefault(row, "Type"),
+                Url = dataTable.GetRowValueOrDefault(row, "Url")
             });
 
             _actualResponse.Should().BeEquivalentTo(clinicalServices);

@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -10,11 +12,25 @@ public abstract class FeatureToggledSteps(string flag, bool enabled) : BaseFeatu
 
     public async Task InitializeAsync()
     {
+        EnsureCollectionIsPresent();
         await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
     }
 
     public async Task DisposeAsync()
     {
         await Task.CompletedTask;
+    }
+
+    protected void EnsureCollectionIsPresent()
+    {
+        var collectionAttribute = GetType()
+            .GetCustomAttributes(typeof(CollectionAttribute), true)
+            .FirstOrDefault() as CollectionAttribute;
+
+        if (collectionAttribute is null)
+        {
+            throw new Exception(
+                "Any test which inherits from FeatureToggledSteps must belong to a collection to ensure parallelism safety.");
+        }
     }
 }

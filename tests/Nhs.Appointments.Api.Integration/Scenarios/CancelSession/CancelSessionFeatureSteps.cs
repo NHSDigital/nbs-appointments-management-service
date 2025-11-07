@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
@@ -24,7 +25,7 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
     public async Task CancelSession(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
-        var date = DateTime.ParseExact(ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
+        var date = DateTime.ParseExact(NaturalLanguageDate.Parse(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
             "yyyy-MM-dd", null);
 
         var services = cells.ElementAt(3).Value;
@@ -67,7 +68,7 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
         {
             Reference = cells.ElementAt(4).Value,
             From = DateTime.ParseExact(
-                $"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}",
+                $"{NaturalLanguageDate.Parse(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}",
                 "yyyy-MM-dd HH:mm", null),
             Duration = int.Parse(cells.ElementAt(2).Value),
             Service = cells.ElementAt(3).Value,

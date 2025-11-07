@@ -2,10 +2,11 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Xunit.Gherkin.Quick;
 using FluentAssertions;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
+using Xunit.Gherkin.Quick;
 using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Eula;
@@ -30,13 +31,13 @@ public sealed class GetEulaFeatureSteps : BaseEulaFeatureSteps
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells;
 
-        var versionDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value);
+        var versionDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
         var eulaVersion = new EulaVersion()
         {
             VersionDate = versionDate
         };
 
-        _statusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        _statusCode.Should().Be(HttpStatusCode.OK);
         _actualResponse.Should().BeEquivalentTo(eulaVersion);
     }
 }

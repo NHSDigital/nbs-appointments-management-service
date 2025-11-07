@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
@@ -50,10 +51,10 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             var cells = row.Cells.ToList();
             var type = cells.ElementAt(0).Value;
             var by = cells.ElementAt(1).Value;
-            var fromDate = ParseNaturalLanguageDateOnly(cells.ElementAt(2).Value);
+            var fromDate = NaturalLanguageDate.Parse(cells.ElementAt(2).Value);
             var toDate = string.IsNullOrWhiteSpace(cells.ElementAt(3).Value)
                 ? default
-                : ParseNaturalLanguageDateOnly(cells.ElementAt(3).Value);
+                : NaturalLanguageDate.Parse(cells.ElementAt(3).Value);
             var templateDays = DeriveWeekDaysInRange(fromDate, toDate);
             var fromTime = cells.ElementAt(5).Value;
             var untilTime = cells.ElementAt(6).Value;
@@ -107,8 +108,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
     public async Task ApplyTemplate(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
-        var fromDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value);
-        var untilDate = ParseNaturalLanguageDateOnly(cells.ElementAt(1).Value);
+        var fromDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
+        var untilDate = NaturalLanguageDate.Parse(cells.ElementAt(1).Value);
         var days = DeriveWeekDaysInRange(fromDate, untilDate);
 
         var request = new
@@ -161,7 +162,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
-        var relativeDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
+        var relativeDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
         var payload = new
         {
             date = relativeDate,
@@ -189,7 +190,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
-        var relativeDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
+        var relativeDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value).ToString("yyyy-MM-dd");
         var payload = new
         {
             date = relativeDate,

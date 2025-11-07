@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
@@ -41,7 +42,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                         BookingReferences.GetBookingReference(index, BookingType.Confirmed),
                     From =
                         DateTime.ParseExact(
-                            $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
+                            $"{NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
                             "yyyy-MM-dd HH:mm", null),
                     Duration = int.Parse(row.Cells.ElementAt(2).Value),
                     Service = row.Cells.ElementAt(3).Value,

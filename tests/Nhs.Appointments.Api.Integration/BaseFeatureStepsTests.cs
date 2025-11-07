@@ -1,6 +1,6 @@
 ﻿using System;
 using FluentAssertions;
-using Nhs.Appointments.Api.Integration.Scenarios;
+using Nhs.Appointments.Api.Integration.Data;
 using Xunit;
 
 namespace Nhs.Appointments.Api.Integration;
@@ -21,7 +21,7 @@ public class BaseFeatureStepsTests
     public void CanParseNaturalLanguageDates(string input, int expectedDaysFromToday)
     {
         var expectedDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(expectedDaysFromToday);
-        var actualDate = BaseFeatureSteps.ParseNaturalLanguageDateOnly(input);
+        var actualDate = NaturalLanguageDate.Parse(input);
 
         actualDate.Should().Be(expectedDate);
     }
@@ -30,7 +30,7 @@ public class BaseFeatureStepsTests
     public void CanParseNaturalLanguageDates_WithMonths()
     {
         var now = DateOnly.FromDateTime(DateTime.UtcNow);
-        var result = BaseFeatureSteps.ParseNaturalLanguageDateOnly("1 month from today");
+        var result = NaturalLanguageDate.Parse("1 month from today");
 
         if (result.Year == now.Year)
         {
@@ -47,7 +47,7 @@ public class BaseFeatureStepsTests
     public void CanParseNaturalLanguageDates_WithYears()
     {
         var now = DateOnly.FromDateTime(DateTime.UtcNow);
-        var result = BaseFeatureSteps.ParseNaturalLanguageDateOnly("1 year from today");
+        var result = NaturalLanguageDate.Parse("1 year from today");
 
         result.Year.Should().Be(now.Year + 1);
         result.Month.Should().Be(now.Month);

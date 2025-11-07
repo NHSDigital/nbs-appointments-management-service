@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
 
@@ -24,9 +25,9 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
             new SessionAvailabilitySummary
             {
                 UkStartDatetime =
-                    ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value)
+                    NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value)
                         .ToDateTime(TimeOnly.Parse(row.Cells.ElementAt(1).Value)),
-                UkEndDatetime = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value)
+                UkEndDatetime = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value)
                     .ToDateTime(TimeOnly.Parse(row.Cells.ElementAt(2).Value)),
                 TotalSupportedAppointmentsByService = GetServiceBookings(row.Cells.ElementAt(3).Value),
                 Capacity = int.Parse(row.Cells.ElementAt(4).Value),
@@ -34,7 +35,7 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
                 MaximumCapacity = int.Parse(row.Cells.ElementAt(6).Value)
             });
 
-        var expectedDate = ParseNaturalLanguageDateOnly(date);
+        var expectedDate = NaturalLanguageDate.Parse(date);
 
         _statusCode.Should().Be(HttpStatusCode.OK);
         _actualResponse.DaySummaries.Single(x => x.Date == expectedDate).SessionSummaries.Should().BeEquivalentTo(
@@ -50,7 +51,7 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
         // Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments | Cancelled Appointments |
         var expectedDaySummaries = expectedDaySummaryTable.Rows.Skip(1).Select(row =>
              (
-                ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value),
+                 NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value),
                 int.Parse(row.Cells.ElementAt(1).Value),
                 int.Parse(row.Cells.ElementAt(2).Value),
                 int.Parse(row.Cells.ElementAt(3).Value),

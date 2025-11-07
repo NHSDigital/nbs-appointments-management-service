@@ -63,7 +63,7 @@ public class ConfirmProvisionalBookingFunction(
         ILogger logger)
     {
         var booking = await bookingQueryService.GetBookingByReference(bookingRequest.bookingReference);
-        if (await siteService.GetSiteByIdAsync(booking.Site) is null)
+        if (booking is not null && await siteService.GetSiteByIdAsync(booking.Site) is null)
         {
             return Failed(HttpStatusCode.NotFound, "Site for booking not found.");
         }

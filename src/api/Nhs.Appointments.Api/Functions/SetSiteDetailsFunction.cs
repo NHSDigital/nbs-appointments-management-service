@@ -50,7 +50,7 @@ public class SetSiteDetailsFunction(
     {
         if (await siteService.GetSiteByIdAsync(request.Site) is null)
         {
-            return Failed(HttpStatusCode.NotFound, "Could not find site.");
+            return Failed(HttpStatusCode.NotFound, "The specified site was not found.");
         }
 
         var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address,

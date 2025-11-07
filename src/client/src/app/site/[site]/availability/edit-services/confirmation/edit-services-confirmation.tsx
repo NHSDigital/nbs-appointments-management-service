@@ -80,7 +80,7 @@ export const EditServicesConfirmationPage = ({
   });
 
   const recordDecision: SubmitHandler<FormData> = form => {
-    setValue('action', form.action as SessionModificationAction);
+    setValue('action', form.action);
   };
 
   const submitForm: SubmitHandler<FormData> = async form => {
@@ -209,7 +209,7 @@ export const EditServicesConfirmationPage = ({
 
   const renderUnsupportedDecision = () => {
     if (!isSubmitted) return renderRadioForm();
-    const action = getValues('action') as SessionModificationAction | undefined;
+    const action = getValues('action');
     return renderConfirmationQuestion(action);
   };
 

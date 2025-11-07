@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -136,6 +137,7 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following sessions exist for site '(.+)'")]
     public Task SetupSessionsForSite(string site, DataTable dataTable)
     {
+        SetupSite(GetSiteId(site));
         return SetupSessions(site, dataTable);
     }
 
@@ -143,7 +145,20 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following sessions")]
     public Task SetupSessions(DataTable dataTable)
     {
-        return SetupSessions("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable);
+        var siteId = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51";
+        SetupSite(GetSiteId(siteId));
+        return SetupSessions(siteId, dataTable);
+    }
+
+    private Task SetupSite(string siteId)
+    {
+        var site = new SiteDocument
+        {
+            Id = siteId,
+            DocumentType = "site",
+            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+        };
+        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
     public async Task SetupSessions(string siteDesignation, DataTable dataTable)

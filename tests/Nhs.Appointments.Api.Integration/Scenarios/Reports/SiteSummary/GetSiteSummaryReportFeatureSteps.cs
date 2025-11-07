@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Core.Features;
@@ -65,27 +70,35 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
     [Given("the following sites exist in the system")]
     public async Task SetUpSites(DataTable dataTable)
     {
-        var sites = dataTable.Rows.Skip(1).Select(row => new SiteDocument
+        var sites = dataTable.Rows.Skip(1).Select(row =>
         {
-            Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Id")),
-            Name = dataTable.GetRowValueOrDefault(row, "Name", "Hull Road Pharmacy"),
-            Address = dataTable.GetRowValueOrDefault(row, "Address", "123 Hull Road"),
-            PhoneNumber = dataTable.GetRowValueOrDefault(row, "Phone Number", "0113 1111111"),
-            OdsCode = dataTable.GetRowValueOrDefault(row, "Ods Code", "ABC01"),
-            Region = dataTable.GetRowValueOrDefault(row, "Region", "R1"),
-            IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB", "ICB1"),
-            InformationForCitizens = dataTable.GetRowValueOrDefault(row, "Citizen Info",
-                "Door buzzer does not work."),
-            DocumentType = "site",
-            Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Access needs")),
-            Location = new Location("Point",
-                new[]
-                {
-                    dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -1.67382134),
-                    dataTable.GetDoubleRowValueOrDefault(row, "Latitude", 55.79628754)
-                }),
-            Type = dataTable.GetRowValueOrDefault(row, "Type"),
-            IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "Deleted")
+            var siteId = GetSiteId(dataTable.GetRowValueOrDefault(row, "Id"));
+
+            return new SiteDocument
+            {
+                Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Id")),
+                // Site report does not contain ID so we have to match on something else, but only ID is unique per test
+                // Because site report runs for ALL sites regardless of whether they have data, we always get previous test's data
+                // So have to make site name unique per test so we can identify the correct row to assert on
+                Name = dataTable.GetRowValueOrDefault(row, "Name", $"Site {siteId}"),
+                Address = dataTable.GetRowValueOrDefault(row, "Address", "123 Hull Road"),
+                PhoneNumber = dataTable.GetRowValueOrDefault(row, "Phone Number", "0113 1111111"),
+                OdsCode = dataTable.GetRowValueOrDefault(row, "Ods Code", "ABC01"),
+                Region = dataTable.GetRowValueOrDefault(row, "Region", "R1"),
+                IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB", "ICB1"),
+                InformationForCitizens = dataTable.GetRowValueOrDefault(row, "Citizen Info",
+                    "Door buzzer does not work."),
+                DocumentType = "site",
+                Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Access needs")),
+                Location = new Location("Point",
+                    new[]
+                    {
+                        dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -1.67382134),
+                        dataTable.GetDoubleRowValueOrDefault(row, "Latitude", 55.79628754)
+                    }),
+                Type = dataTable.GetRowValueOrDefault(row, "Type"),
+                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "Deleted")
+            };
         });
 
         foreach (var site in sites)
@@ -119,31 +132,54 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
 
         foreach (var site in sites)
         {
-            await Client.GetContainer("appts", "aggregated_data").UpsertItemAsync(site);
+            await Client.GetContainer("appts", "aggregated_data")
+                .UpsertItemAsync(site);
         }
     }
 
-    // TODO: Finish these assertions
-    [And("the report contains the following data for site '(.+)'")]
-    public async Task SetUpSiteSummaries(string siteName, DataTable dataTable)
+    [And("the report contains a row with the following data")]
+    public async Task AssertRowExistence(DataTable dataTable)
     {
-        var csvHeaders = ReportContent.Split("\n")[0].Trim('\r').Split(",");
+        var textReader = new StringReader(ReportContent);
+        var csvReader = new CsvReader(textReader,
+            new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true, Delimiter = "," });
+        var actualData = csvReader.GetRecords<SiteReportRow>();
 
-        var csvLines = ReportContent.Split('\n');
-        var lineForSite = csvLines.Single(line => line.Contains(siteName)).Trim('\r');
-        var csvDataForSite = lineForSite.Split(',');
+        var row = dataTable.Rows.Last();
 
-        var headers = dataTable.Rows.First().Cells;
-        var expectedData = dataTable.Rows.Last();
-
-        foreach (var header in headers)
+        var expectedRow = new SiteReportRow
         {
-            var columnIndex = Array.IndexOf(csvHeaders, header.Value);
-            var csvDatum = csvDataForSite[columnIndex];
+            SiteName = $"Site {GetSiteId(dataTable.GetRowValueOrDefault(row, "Id"))}",
+            SiteType = dataTable.GetRowValueOrDefault(row, "Site Type"),
+            Region = dataTable.GetRowValueOrDefault(row, "Region"),
+            RegionName = dataTable.GetRowValueOrDefault(row, "Region Name"),
+            Icb = dataTable.GetRowValueOrDefault(row, "ICB"),
+            IcbName = dataTable.GetRowValueOrDefault(row, "ICB Name"),
+            RsvBooked = dataTable.GetRowValueOrDefault(row, "RSV:Adult Booked"),
+            RsvCapacity = dataTable.GetRowValueOrDefault(row, "RSV:Adult Capacity"),
+            TotalBookings = dataTable.GetRowValueOrDefault(row, "Total Bookings"),
+            Cancelled = dataTable.GetRowValueOrDefault(row, "Cancelled"),
+            MaxCapacity = dataTable.GetRowValueOrDefault(row, "Max Capacity")
+        };
 
-            var expectedDatum = dataTable.GetRowValueOrDefault(expectedData, header.Value);
-
-            csvDatum.Should().Be(expectedDatum);
-        }
+        var actualReport = actualData.Single(d => d.SiteName == expectedRow.SiteName);
+        actualReport.Should().BeEquivalentTo(expectedRow);
     }
+}
+
+public class SiteReportRow
+{
+    [Name("Site Name")] public string SiteName { get; set; }
+    [Name("Site Type")] public string SiteType { get; set; }
+    [Name("Region")] public string Region { get; set; }
+    [Name("Region Name")] public string RegionName { get; set; }
+
+    [Name("ICB")] public string Icb { get; set; }
+    [Name("ICB Name")] public string IcbName { get; set; }
+
+    [Name("RSV:Adult Booked")] public string RsvBooked { get; set; }
+    [Name("Total Bookings")] public string TotalBookings { get; set; }
+    [Name("Cancelled")] public string Cancelled { get; set; }
+    [Name("Maximum Capacity")] public string MaxCapacity { get; set; }
+    [Name("RSV:Adult Capacity")] public string RsvCapacity { get; set; }
 }

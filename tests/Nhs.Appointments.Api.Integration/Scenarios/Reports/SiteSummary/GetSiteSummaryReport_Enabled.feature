@@ -2,11 +2,11 @@ Feature: Download Site Summary Report
 
   Scenario: Can download reports when toggle is enabled
     Given the following sites exist in the system
-      | Id                                   |
-      | 8e0ef158-540b-4854-8f34-91a8cd9c808a |
+      | Id                                   | Type        |
+      | 8e0ef158-540b-4854-8f34-91a8cd9c808a | GP Pharmacy |
     And the following site reports exist in the system
-      | Site                                 | Date     | Type        |
-      | 8e0ef158-540b-4854-8f34-91a8cd9c808a | Tomorrow | GP Pharmacy |
+      | Site                                 | Date     |
+      | 8e0ef158-540b-4854-8f34-91a8cd9c808a | Tomorrow |
     When I request a site summary report for the following dates
       | Start Date | End Date          |
       | Tomorrow   | 2 days from today |
@@ -15,7 +15,6 @@ Feature: Download Site Summary Report
       | Site Name | Site Type | ICB | ICB Name | Region | Region Name | ODS Code | Longitude | Latitude |
     And the report has the following headers
       | RSV:Adult Booked | RSV:Adult Capacity | Total Bookings | Cancelled | Maximum Capacity |
-# TODO: Finish these assertions
-#    And the report contains the following data for site 'Hull Road Pharmacy'
-#      | Site Name          | Site Type |
-#      | Hull Road Pharmacy | Foo       |
+    And the report contains a row with the following data
+      | Id                                   | Site Type   | ICB  | ICB Name                | Region | Region Name | RSV:Adult Booked | RSV:Adult Capacity | Total Bookings | Cancelled | Max Capacity |
+      | 8e0ef158-540b-4854-8f34-91a8cd9c808a | GP Pharmacy | ICB1 | Integrated Care Board 1 | R1     | Region 1    | 60               | 40                 | 60             | 3         | 100          |

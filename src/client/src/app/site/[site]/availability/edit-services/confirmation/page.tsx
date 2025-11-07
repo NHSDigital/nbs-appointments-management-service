@@ -14,6 +14,8 @@ import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
 import { EditServicesConfirmationPage } from './edit-services-confirmation';
+import { Suspense } from 'react';
+import { Spinner } from '@components/nhsuk-frontend';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -95,15 +97,19 @@ const Page = async ({ searchParams, params }: PageProps) => {
         text: 'Go back',
       }}
     >
-      <EditServicesConfirmationPage
-        unsupportedBookingsCount={availabilityProposal.unsupportedBookingsCount}
-        clinicalServices={clinicalServices}
-        session={session}
-        newSession={btoa(JSON.stringify(newSessionDetails))}
-        removedServicesSession={removedServicesSession}
-        site={site.id}
-        date={date}
-      />
+      <Suspense fallback={<Spinner />}>
+        <EditServicesConfirmationPage
+          unsupportedBookingsCount={
+            availabilityProposal.unsupportedBookingsCount
+          }
+          clinicalServices={clinicalServices}
+          session={session}
+          newSession={btoa(JSON.stringify(newSessionDetails))}
+          removedServicesSession={removedServicesSession}
+          site={site.id}
+          date={date}
+        />
+      </Suspense>
     </NhsTransactionalPage>
   );
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import {
   Button,
@@ -73,14 +73,13 @@ export const EditServicesConfirmationPage = ({
     handleSubmit,
     register,
     formState: { errors },
+    watch,
     setValue,
   } = useForm<FormData>();
-  const [decision, setDecision] = useState<
-    SessionModificationAction | undefined
-  >();
 
-  const recordDecision: SubmitHandler<FormData> = async form => {
-    setDecision(form.action as SessionModificationAction);
+  const action = watch('action') as SessionModificationAction | undefined;
+
+  const recordDecision: SubmitHandler<FormData> = form => {
     setValue('action', form.action as SessionModificationAction);
   };
 
@@ -135,9 +134,9 @@ export const EditServicesConfirmationPage = ({
     <form onSubmit={handleSubmit(recordDecision)}>
       <FormGroup
         legend={
-          serviceCount > 1
-            ? 'Are you sure you want to remove these services?'
-            : 'Are you sure you want to remove this service?'
+          unsupportedBookingsCount > 1
+            ? 'Are you sure you want to cancel the appointments?'
+            : 'Are you sure you want to cancel the appointment?'
         }
         error={errors.action?.message}
       >
@@ -171,10 +170,12 @@ export const EditServicesConfirmationPage = ({
     </form>
   );
 
-  const renderConfirmationQuestion = (action: SessionModificationAction) => (
+  const renderConfirmationQuestion = (
+    actionParam: SessionModificationAction | undefined,
+  ) => (
     <form onSubmit={handleSubmit(submitForm)}>
       <h2>
-        {unsupportedBookingsCount === 0 || action === 'remove-services'
+        {unsupportedBookingsCount === 0 || actionParam === 'remove-services'
           ? serviceCount > 1
             ? 'Are you sure you want to remove these services?'
             : 'Are you sure you want to remove this service?'
@@ -182,13 +183,12 @@ export const EditServicesConfirmationPage = ({
             ? 'Are you sure you want to cancel the appointments?'
             : 'Are you sure you want to cancel the appointment?'}
       </h2>
-
       <ButtonGroup vertical>
         {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
           <Button type="submit" styleType="warning">
-            {unsupportedBookingsCount === 0 || action === 'remove-services'
+            {unsupportedBookingsCount === 0 || actionParam === 'remove-services'
               ? serviceCount > 1
                 ? 'Remove services'
                 : 'Remove service'
@@ -208,8 +208,8 @@ export const EditServicesConfirmationPage = ({
   );
 
   const renderUnsupportedDecision = () => {
-    if (!decision) return renderRadioForm();
-    return renderConfirmationQuestion(decision);
+    if (!action) return renderRadioForm();
+    return renderConfirmationQuestion(action);
   };
 
   return (
@@ -223,9 +223,9 @@ export const EditServicesConfirmationPage = ({
 
       {unsupportedBookingsCount > 0 ? (
         <>
-          {decision && (
+          {action ? (
             <div className="margin-top-bottom">
-              {decision === 'remove-services'
+              {action === 'remove-services'
                 ? unsupportedBookingsCount > 1
                   ? `You have chosen not to cancel ${unsupportedBookingsCount} bookings.`
                   : 'You have chosen not to cancel 1 booking.'
@@ -233,9 +233,17 @@ export const EditServicesConfirmationPage = ({
                   ? `${unsupportedBookingsCount} bookings may have to be cancelled.`
                   : '1 booking may have to be cancelled.'}
             </div>
+          ) : (
+            <div className="margin-top-bottom">
+              {`Removing ${
+                serviceCount > 1 ? 'these services' : 'this service'
+              } will affect ${unsupportedBookingsCount} ${
+                unsupportedBookingsCount > 1 ? 'bookings' : 'booking'
+              }.`}
+            </div>
           )}
 
-          {!decision && (
+          {unsupportedBookingsCount && action === 'cancel-appointments' && (
             <Card
               title={String(unsupportedBookingsCount)}
               description={
@@ -247,9 +255,9 @@ export const EditServicesConfirmationPage = ({
             />
           )}
 
-          {decision && (
+          {action && (
             <div className="margin-top-bottom">
-              {decision === 'cancel-appointments'
+              {action === 'cancel-appointments'
                 ? 'People will be sent a text message or email confirming their appointment has been cancelled.'
                 : ''}
             </div>

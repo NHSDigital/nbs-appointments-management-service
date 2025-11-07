@@ -10,6 +10,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
@@ -252,12 +253,12 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
         }
     }
 
-    [Collection("QuerySitesToggle")]
+    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
     [FeatureFile("./Scenarios/SiteManagement/QuerySites_Enabled.feature")]
     public class QuerySitesFeaturesSteps_Enabled() : QuerySitesFeatureSteps(Flags.QuerySites, true);
 
 
-    [Collection("QuerySitesToggle")]
+    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
     [FeatureFile("./Scenarios/SiteManagement/QuerySites_Disabled.feature")]
     public class QuerySitesFeatureSteps_Disabled() : QuerySitesFeatureSteps(Flags.QuerySites, false);
 }

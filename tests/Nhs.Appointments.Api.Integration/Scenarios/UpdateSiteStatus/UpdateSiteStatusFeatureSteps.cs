@@ -1,12 +1,13 @@
-using FluentAssertions;
-using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Persistance.Models;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.Azure.Cosmos;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
 
@@ -53,11 +54,11 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
         actualResult.Resource.Status.Should().Be(UpdatedSiteStatus);
     }
 
-    [Collection("UpdateSiteStatusToggle")]
+    [Collection(FeatureToggleCollectionNames.SiteStatusCollection)]
     [FeatureFile("./Scenarios/UpdateSiteStatus/UpdateSiteStatus_Disabled.feature")]
     public class UpdateSiteStatusFeatureSteps_SiteStatusDisabled() : UpdateSiteStatusFeatureSteps(Flags.SiteStatus, false);
 
-    [Collection("UpdateSiteStatusToggle")]
+    [Collection(FeatureToggleCollectionNames.SiteStatusCollection)]
     [FeatureFile("./Scenarios/UpdateSiteStatus/UpdateSiteStatus_Enabled.feature")]
     public class UpdateSiteStatusFeatureSteps_SiteStatusEnabled() : UpdateSiteStatusFeatureSteps(Flags.SiteStatus, true);
 }

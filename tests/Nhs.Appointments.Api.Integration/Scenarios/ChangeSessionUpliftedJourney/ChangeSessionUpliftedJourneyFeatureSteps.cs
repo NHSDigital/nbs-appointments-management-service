@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
@@ -241,11 +242,11 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         }
     }
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Enabled.feature")]
     public class ChangeSessionUpliftedJourneyFeatureSteps_Enabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Disabled.feature")]
     public class ChangeSessionUpliftedJourneyFeatureSteps_Disabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

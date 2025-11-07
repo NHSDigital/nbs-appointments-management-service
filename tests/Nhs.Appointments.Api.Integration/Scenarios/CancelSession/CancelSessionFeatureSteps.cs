@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
@@ -87,11 +88,11 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Collection("CancelSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
     public class CancelSessionFeatureSteps_Enabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection("CancelSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/CancelSession/CancelSession_Disabled.feature")]
     public class CancelSessionFeatureSteps_Disabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

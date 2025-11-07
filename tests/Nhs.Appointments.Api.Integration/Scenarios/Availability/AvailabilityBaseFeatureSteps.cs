@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Availability;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Xunit.Gherkin.Quick;
 
@@ -26,7 +27,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
     {
         var expectedAvailability = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row => new QueryAvailabilityResponseInfo
         (
-            ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value),
+            NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value),
             new List<QueryAvailabilityResponseBlock>()
             {
                 new (new TimeOnly(0,0), new TimeOnly(12,00), int.Parse(row.Cells.ElementAt(1).Value)),
@@ -62,8 +63,8 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         {
             sites = new[] { GetSiteId() },
             service,
-            from = ParseNaturalLanguageDateOnly(from),
-            until = ParseNaturalLanguageDateOnly(until),
+            from = NaturalLanguageDate.Parse(from),
+            until = NaturalLanguageDate.Parse(until),
             queryType = convertedQueryType.ToString()
         };
 
@@ -87,8 +88,8 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         {
             sites = new[] { GetSiteId() },
             service,
-            from = ParseNaturalLanguageDateOnly(from),
-            until = ParseNaturalLanguageDateOnly(until),
+            from = NaturalLanguageDate.Parse(from),
+            until = NaturalLanguageDate.Parse(until),
             queryType = convertedQueryType.ToString(),
             consecutive = int.Parse(consecutive)
         };
@@ -104,7 +105,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
     [And(@"the following availability is returned for '(.+)'")]
     public void Assert(string date, DataTable expectedHourlyAvailabilityTable)
     {
-        var expectedDate = ParseNaturalLanguageDateOnly(date);
+        var expectedDate = NaturalLanguageDate.Parse(date);
         var expectedHourBlocks = expectedHourlyAvailabilityTable.Rows.Skip(1).Select(row =>
             new QueryAvailabilityResponseBlock(
                 TimeOnly.ParseExact(row.Cells.ElementAt(0).Value, "HH:mm"),
@@ -128,7 +129,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
     public void AssertNoAvailability(string date)
     {
         _statusCode.Should().Be(HttpStatusCode.OK);
-        var expectedDate = ParseNaturalLanguageDateOnly(date);
+        var expectedDate = NaturalLanguageDate.Parse(date);
         _actualResponse
             .Single().availability
             .Single(x => x.date == expectedDate).blocks.Should().BeEmpty();
@@ -141,8 +142,8 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         {
             sites = new[] { GetSiteId() },
             service = "",
-            from = ParseNaturalLanguageDateOnly("Tomorrow"),
-            until = ParseNaturalLanguageDateOnly("Tomorrow")
+            from = NaturalLanguageDate.Parse("Tomorrow"),
+            until = NaturalLanguageDate.Parse("Tomorrow")
         };
         _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
     }

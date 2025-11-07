@@ -1,11 +1,3 @@
-using FluentAssertions;
-using Gherkin.Ast;
-using Newtonsoft.Json;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Core.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +5,16 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Gherkin.Ast;
+using Newtonsoft.Json;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Json;
 using Xunit;
 using Xunit.Gherkin.Quick;
 
@@ -49,8 +51,8 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
         {
 
             site = GetSiteId(),
-            from = ParseNaturalLanguageDateOnly(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
-            to = ParseNaturalLanguageDateOnly(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            from = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            to = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
             sessionMatcher = sessionMatcherObj,
             sessionReplacement = replacement
         };
@@ -123,11 +125,11 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
     }
 
 
-    [Collection("RecalculationProposalToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/RecalculationProposal_Disabled.feature")]
     public class RecalculationProposalFeatureSteps_FeatureDisabled() : RecalculationProposalFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 
-    [Collection("RecalculationProposalToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/RecalculationProposal_Enabled.feature")]
     public class RecalculationProposalFeatureSteps_FeatureEnabled() : RecalculationProposalFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 }

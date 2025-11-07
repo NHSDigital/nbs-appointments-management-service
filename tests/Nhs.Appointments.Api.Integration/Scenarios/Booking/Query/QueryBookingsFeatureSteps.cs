@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
@@ -55,7 +56,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
     protected string ToRequestFormat(string naturalLanguageDateOnly, string naturalLanguageTime)
     {
         return DateTime.ParseExact(
-            $"{ParseNaturalLanguageDateOnly(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
+            $"{NaturalLanguageDate.Parse(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
 

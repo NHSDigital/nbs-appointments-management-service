@@ -4,13 +4,17 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
+[Collection(FeatureToggleCollectionNames.OktaCollection)]
 [FeatureFile("./Scenarios/UserManagement/GetUserRoleAssignments.feature")]
 public sealed class GetUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
@@ -28,7 +32,7 @@ public sealed class GetUserRoleAssignmentsSteps() : UserManagementBaseFeatureSte
     }
     
     [Then(@"the following list of user role assignments is returned")] 
-    public void Assert(Gherkin.Ast.DataTable dataTable)
+    public void Assert(DataTable dataTable)
     {
         var expectedUserRoleAssignments = dataTable.Rows.Skip(1).Select(
             row => new User
@@ -37,7 +41,7 @@ public sealed class GetUserRoleAssignmentsSteps() : UserManagementBaseFeatureSte
                 RoleAssignments = [new RoleAssignment 
                     { Scope = $"site:{GetSiteId(row.Cells.ElementAt(1).Value)}", Role = row.Cells.ElementAt(2).Value }]
             });
-        _statusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        _statusCode.Should().Be(HttpStatusCode.OK);
         _actualResponse.Should().BeEquivalentTo(expectedUserRoleAssignments);
     }
 }

@@ -2,6 +2,7 @@ import {
   assertPermission,
   fetchClinicalServices,
   fetchSite,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import { parseToUkDatetime } from '@services/timeService';
@@ -35,6 +36,10 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fromServer(fetchClinicalServices()),
   ]);
 
+  const changeSessionUpliftedJourneyFlag = await fromServer(
+    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
+  );
+
   const parsedDate = parseToUkDatetime(date);
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
@@ -54,6 +59,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
         site={site}
         existingSession={sessionSummary}
         clinicalServices={clinicalServices}
+        changeSessionUpliftedJourneyEnabled={
+          changeSessionUpliftedJourneyFlag.enabled
+        }
       ></EditServicesForm>
     </NhsTransactionalPage>
   );

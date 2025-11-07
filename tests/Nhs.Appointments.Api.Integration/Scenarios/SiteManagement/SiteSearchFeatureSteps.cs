@@ -9,8 +9,8 @@ using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Availability;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
@@ -61,8 +61,8 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         {
             sites = new[] { GetSiteId(site) },
             service,
-            from = ParseNaturalLanguageDateOnly(from),
-            until = ParseNaturalLanguageDateOnly(until),
+            from = NaturalLanguageDate.Parse(from),
+            until = NaturalLanguageDate.Parse(until),
             queryType = convertedQueryType.ToString()
         };
 
@@ -72,9 +72,9 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
 
     [Then(@"the following availability is returned for '(.+)'")]
     [And(@"the following availability is returned for '(.+)'")]
-    public void Assert(string date, Gherkin.Ast.DataTable expectedHourlyAvailabilityTable)
+    public void Assert(string date, DataTable expectedHourlyAvailabilityTable)
     {
-        var expectedDate = ParseNaturalLanguageDateOnly(date);
+        var expectedDate = NaturalLanguageDate.Parse(date);
         var expectedHourBlocks = expectedHourlyAvailabilityTable.Rows.Skip(1).Select(row =>
             new QueryAvailabilityResponseBlock(
                 TimeOnly.ParseExact(row.Cells.ElementAt(0).Value, "HH:mm"),
@@ -103,8 +103,8 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var latitude = row.Cells.ElementAt(3).Value;
 
         var service = row.Cells.ElementAt(4).Value;
-        var from = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(5).Value);
-        var until = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(6).Value);
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
 
         var accessNeeds = row.Cells.ElementAt(7).Value;
 
@@ -126,8 +126,8 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
 
         var service = row.Cells.ElementAt(4).Value;
 
-        var from = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(5).Value);
-        var until = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(6).Value);
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
 
         Response = await Http.GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from.ToString("yyyy-MM-dd")}&until={until.ToString("yyyy-MM-dd")}&ignoreCache=true");

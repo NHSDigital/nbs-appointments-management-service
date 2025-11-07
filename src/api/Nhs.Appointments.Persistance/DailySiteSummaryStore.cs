@@ -21,7 +21,7 @@ public class DailySiteSummaryStore(ITypedDocumentCosmosStore<DailySiteSummaryDoc
         });
     }
 
-    public async Task<IEnumerable<DailySiteSummary>> GetSiteSummarys(string site, DateOnly from, DateOnly to)
+    public async Task<IEnumerable<DailySiteSummary>> GetSiteSummaries(string site, DateOnly from, DateOnly to)
     {
         return await store.RunQueryAsync<DailySiteSummary>(x => x.Id == site && x.Date >= from && x.Date <= to);
     }

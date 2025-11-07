@@ -84,8 +84,11 @@ test('Downloads a site summary report', async ({ page }) => {
 
 const expectedFileDownloadHeaders = [
   'Site Name',
+  'Site Type',
   'ICB',
+  'ICB Name',
   'Region',
+  'Region Name',
   'ODS Code',
   'Longitude',
   'Latitude',

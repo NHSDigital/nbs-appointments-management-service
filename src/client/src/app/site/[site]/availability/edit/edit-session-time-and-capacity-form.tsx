@@ -56,7 +56,7 @@ const EditSessionTimeAndCapacityForm = ({
     handleSubmit,
     watch,
     control,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<EditSessionFormValues>({
     defaultValues: {
       sessionToEdit: {
@@ -113,16 +113,22 @@ const EditSessionTimeAndCapacityForm = ({
         return;
       }
 
+      const onlyEndTimeChanged =
+        dirtyFields.newSession?.endTime && !dirtyFields.newSession.startTime;
       const validSessionStartTime = isValidStartTime(
         sessionStart,
         sessionEnd,
         newSession.slotLength,
       );
+      const hasNoExistingAppointments =
+        (existingSession.totalSupportedAppointments ?? 0) === 0;
 
-      const existingAppointments =
-        existingSession.totalSupportedAppointments ?? 0;
+      const redirectToConfirmation =
+        validSessionStartTime ||
+        hasNoExistingAppointments ||
+        onlyEndTimeChanged;
 
-      if (validSessionStartTime || existingAppointments === 0) {
+      if (redirectToConfirmation) {
         const confirmationUrl = `/site/${site.id}/availability/edit/confirmation?session=${encode(existingSession)}&date=${date}&sessionToEdit=${encode(newSession)}`;
         return router.push(confirmationUrl);
       }

@@ -1,14 +1,16 @@
-using FluentAssertions;
-using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Persistance.Models;
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
 
@@ -180,7 +182,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    private static DateTime ParseDate(string date) => DateTime.ParseExact(ParseNaturalLanguageDateOnly(date).ToString("yyyy-MM-dd"), "yyyy-MM-dd", null);
+    private static DateTime ParseDate(string date) =>
+        DateTime.ParseExact(NaturalLanguageDate.Parse(date).ToString("yyyy-MM-dd"), "yyyy-MM-dd", null);
 
     private static string GetCell(TableRow row, int index) => row.Cells.ElementAt(index).Value;
 
@@ -239,11 +242,11 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         }
     }
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Enabled.feature")]
     public class ChangeSessionUpliftedJourneyFeatureSteps_Enabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Disabled.feature")]
     public class ChangeSessionUpliftedJourneyFeatureSteps_Disabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

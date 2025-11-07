@@ -4,14 +4,24 @@ namespace Nhs.Appointments.Core;
 
 public class SiteReport
 {
-    public SiteReport(Site site, DailySiteSummary[] days, string[] clinicalServices)
+    public SiteReport(Site site, DailySiteSummary[] days, string[] clinicalServices,
+        IEnumerable<WellKnownOdsEntry> wellKnownOdsCodes)
     {
+        var regionName = wellKnownOdsCodes.SingleOrDefault(code => code.Type == "region" && code.OdsCode == site.Region)
+            ?.DisplayName ?? "blank";
+        var icbName =
+            wellKnownOdsCodes.SingleOrDefault(code => code.Type == "icb" && code.OdsCode == site.IntegratedCareBoard)
+                ?.DisplayName ?? "blank";
+
         SiteName = site.Name;
+        SiteType = site.Type;
         ICB = site.IntegratedCareBoard;
         Region = site.Region;
         OdsCode = site.OdsCode;
         Longitude = site.Location.Coordinates[0];
         Latitude = site.Location.Coordinates[1];
+        RegionName = regionName;
+        ICBName = icbName;
         Bookings = clinicalServices.ToDictionary(
             service => service, 
             service => days.Sum(day => day.Bookings.GetValueOrDefault(service, 0)) + days.Sum(x => x.Orphaned.GetValueOrDefault(service, 0)));
@@ -23,8 +33,11 @@ public class SiteReport
     }
     
     public string SiteName { get; }
+    public string SiteType { get; }
     public string ICB { get; }
+    public string ICBName { get; }
     public string Region { get; }
+    public string RegionName { get; }
     public string OdsCode { get; }
     public double Longitude { get; }
     public double Latitude { get; }

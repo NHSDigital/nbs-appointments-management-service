@@ -1,13 +1,14 @@
-﻿using FluentAssertions;
-using Gherkin.Ast;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
@@ -23,8 +24,8 @@ public class DailyAvailabilityFeatureSteps : BaseFeatureSteps
     public async Task CheckDailyAvailability(string from, string until)
     {
         var siteId = GetSiteId();
-        var fromDate = ParseNaturalLanguageDateOnly(from).ToString("yyyy-MM-dd");
-        var untilDate = ParseNaturalLanguageDateOnly(until).ToString("yyyy-MM-dd");
+        var fromDate = NaturalLanguageDate.Parse(from).ToString("yyyy-MM-dd");
+        var untilDate = NaturalLanguageDate.Parse(until).ToString("yyyy-MM-dd");
         var requestUrl = $"http://localhost:7071/api/daily-availability?site={siteId}&from={fromDate}&until={untilDate}";
 
         _response = await Http.GetAsync(requestUrl);
@@ -40,7 +41,7 @@ public class DailyAvailabilityFeatureSteps : BaseFeatureSteps
         var expectedDailyAvailability = expectedDailyAvailabilityTable.Rows.Skip(1).Select(row =>
             new DailyAvailability
             {
-                Date = ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value),
+                Date = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value),
                 Sessions =
                 [
                     new() {

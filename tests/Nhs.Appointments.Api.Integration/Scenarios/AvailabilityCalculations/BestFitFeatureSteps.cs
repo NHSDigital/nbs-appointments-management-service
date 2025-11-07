@@ -1,11 +1,3 @@
-using FluentAssertions;
-using Gherkin.Ast;
-using Newtonsoft.Json;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Core.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +5,16 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Gherkin.Ast;
+using Newtonsoft.Json;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Json;
 using Xunit;
 using Xunit.Gherkin.Quick;
 
@@ -31,7 +33,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
         {
             var cells = row.Cells.ToList();
             var date = DateTime.ParseExact(
-                ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
+                NaturalLanguageDate.Parse(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"),
                 "yyyy-MM-dd", null);
 
             object payload = new
@@ -73,7 +75,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
             var expectedBookingReference = _getBookingsResponse[bookingIndex].Reference;
 
             var expectedFrom = DateTime.ParseExact(
-                $"{ParseNaturalLanguageDateOnly(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
+                $"{NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
                 "yyyy-MM-dd HH:mm", null);
             var expectedDuration = int.Parse(row.Cells.ElementAt(2).Value);
             var expectedService = row.Cells.ElementAt(3).Value;
@@ -160,11 +162,11 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftEnabled.feature")]
     public class BestFitFeatureSteps_ChangeSessionUplift_Enabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection("ChangeSessionUpliftedJourneyToggle")]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftDisabled.feature")]
     public class BestFitFeatureSteps_ChangeSessionUplift_Disabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

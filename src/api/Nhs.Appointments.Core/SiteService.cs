@@ -166,17 +166,9 @@ public class SiteService(
 
     public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false)
     {
-        // ignoreCache is an optional param an external caller can provide through only certain API routes,
-        // whereas DisableSiteCache is a global setting affecting all uses
-        if (ignoreCache || options.Value.DisableSiteCache)
-        {
-            return await siteStore.GetAllSites(includeDeleted);
-        }
+        var allSites = await GetSitesFromStoreOrCache(ignoreCache);
 
-        var sites = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
-        sites ??= await GetAndCacheSites(includeDeleted);
-
-        return sites;
+        return includeDeleted ? allSites : allSites.Where(s => s.isDeleted is null or false);
     }
     
     public async Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false)
@@ -279,11 +271,11 @@ public class SiteService(
                         filter.Longitude)))
                 .ToList();
 
-            if (filter.Services is not null && filter.Services.Length > 0)
+            if (filter.Availability is not null && filter.Availability.Services?.Length > 0)
             {
                 // Adding .Single() here as the current implementation only allows for filtering on a single service
                 // This will need updating if we decide to allow filtering on multiple services
-                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Services.Single(), filter.From!.Value, filter.Until!.Value);
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Availability.Services.Single(), filter.Availability.From!.Value, filter.Availability.Until!.Value);
 
                 var serviceResults = await GetSitesSupportingService(
                     sitesWithDistance,
@@ -412,12 +404,22 @@ public class SiteService(
 
     private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
 
-    private async Task<IEnumerable<Site>> GetAndCacheSites(bool includeDeleted = false)
+    private async Task<IEnumerable<Site>> GetSitesFromStoreOrCache(bool ignoreCache = false)
     {
-        var sites = await siteStore.GetAllSites(includeDeleted);
+        if (ignoreCache || options.Value.DisableSiteCache)
+        {
+            return await siteStore.GetAllSites();
+        }
+
+        var sitesFromCache = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
+        if (sitesFromCache != null)
+        {
+            return sitesFromCache;
+        }
+
+        var sites = (await siteStore.GetAllSites()).ToList();
         memoryCache.Set(options.Value.SiteCacheKey, sites,
             time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
-
         return sites;
     }
     

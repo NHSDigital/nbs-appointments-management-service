@@ -1,8 +1,3 @@
-using FluentAssertions;
-using Gherkin.Ast;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
-using Nhs.Appointments.Core.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +6,15 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
@@ -92,14 +94,17 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
             ignoreCache = true,
             filters = new[]
             {
-                new
+                new SiteFilter
                 {
-                    longitude = double.Parse(cells.ElementAt(0).Value),
-                    latitude = double.Parse(cells.ElementAt(1).Value),
-                    searchRadius = int.Parse(cells.ElementAt(2).Value),
-                    services = cells.ElementAt(3).Value.Split(','),
-                    from = ParseNaturalLanguageDateOnly(cells.ElementAt(4).Value),
-                    until = ParseNaturalLanguageDateOnly(cells.ElementAt(5).Value)
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = cells.ElementAt(3).Value.Split(','),
+                        From = NaturalLanguageDate.Parse(cells.ElementAt(4).Value),
+                        Until = NaturalLanguageDate.Parse(cells.ElementAt(5).Value)
+                    }
                 }
             }
         };
@@ -124,7 +129,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Latitude = double.Parse(cells.ElementAt(1).Value),
                     SearchRadius = int.Parse(cells.ElementAt(2).Value),
                     AccessNeeds = cells.ElementAt(3).Value.Split(','),
-                    Services = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
                     Types = [],
                     OdsCode = string.Empty
                 },
@@ -136,7 +144,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Types = cells.ElementAt(4).Value.Split(','),
                     OdsCode = cells.ElementAt(5).Value,
                     AccessNeeds = [],
-                    Services = []
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    }
                 }
             }
         };
@@ -160,7 +171,10 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                     Longitude = double.Parse(cells.ElementAt(0).Value),
                     Latitude = double.Parse(cells.ElementAt(1).Value),
                     SearchRadius = int.Parse(cells.ElementAt(2).Value),
-                    Services = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
                     Types = [],
                     OdsCode = string.Empty,
                     AccessNeeds = []
@@ -239,12 +253,12 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
         }
     }
 
-    [Collection("QuerySitesToggle")]
+    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
     [FeatureFile("./Scenarios/SiteManagement/QuerySites_Enabled.feature")]
     public class QuerySitesFeaturesSteps_Enabled() : QuerySitesFeatureSteps(Flags.QuerySites, true);
 
 
-    [Collection("QuerySitesToggle")]
+    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
     [FeatureFile("./Scenarios/SiteManagement/QuerySites_Disabled.feature")]
     public class QuerySitesFeatureSteps_Disabled() : QuerySitesFeatureSteps(Flags.QuerySites, false);
 }

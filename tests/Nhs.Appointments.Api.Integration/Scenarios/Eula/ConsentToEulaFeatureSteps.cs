@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Persistance.Models;
@@ -25,7 +26,7 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
     public async Task UpsertIntTestUserEulaDate(DataTable dataTable)
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells;
-        var versionDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value);
+        var versionDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
 
         await SetupEulaUser(versionDate);
     }
@@ -34,7 +35,7 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
     public async Task ConsentToLatestEula(DataTable dataTable)
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells;
-        var versionDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value);
+        var versionDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
 
         var payload = new
         {
@@ -52,7 +53,7 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
     public async Task AssertLatestUserEulaVersion(DataTable dataTable)
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells;
-        var versionDate = ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value);
+        var versionDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
 
         _response = await _eulaUserHttpClient.GetAsync($"http://localhost:7071/api/user/profile");
         _statusCode = _response.StatusCode;

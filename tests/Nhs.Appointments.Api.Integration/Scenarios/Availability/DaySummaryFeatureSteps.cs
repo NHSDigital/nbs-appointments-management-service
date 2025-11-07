@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
@@ -13,7 +14,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         {
             var siteId = GetSiteId();
             var requestUrl =
-                $"http://localhost:7071/api/day-summary?site={siteId}&from={ParseNaturalLanguageDateOnly(from).ToString("yyyy-MM-dd")}";
+                $"http://localhost:7071/api/day-summary?site={siteId}&from={NaturalLanguageDate.Parse(from).ToString("yyyy-MM-dd")}";
 
             _response = await Http.GetAsync(requestUrl);
             _statusCode = _response.StatusCode;

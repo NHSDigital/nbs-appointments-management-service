@@ -8,6 +8,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
+using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
@@ -63,7 +64,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         object payload = new
         {
             from = DateTime.ParseExact(
-                $"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}",
+                $"{NaturalLanguageDate.Parse(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}",
                 "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
@@ -103,7 +104,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                 Reference = bookingReference,
                 From =
                     DateTime.ParseExact(
-                        $"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}",
+                        $"{NaturalLanguageDate.Parse(cells.ElementAt(0).Value):yyyy-MM-dd} {cells.ElementAt(1).Value}",
                         "yyyy-MM-dd HH:mm", null),
                 Duration = int.Parse(cells.ElementAt(2).Value),
                 Service = cells.ElementAt(3).Value,
@@ -155,7 +156,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         {
             from =
                 DateTime.ParseExact(
-                    $"{ParseNaturalLanguageDateOnly(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}",
+                    $"{NaturalLanguageDate.Parse(cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {cells.ElementAt(1).Value}",
                     "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
@@ -197,7 +198,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     protected string ToRequestFormat(string naturalLanguageDateOnly, string naturalLanguageTime)
     {
         return DateTime.ParseExact(
-            $"{ParseNaturalLanguageDateOnly(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
+            $"{NaturalLanguageDate.Parse(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
 }

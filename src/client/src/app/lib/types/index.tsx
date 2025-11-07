@@ -432,7 +432,8 @@ type SessionModificationAction =
   | 'change-session'
   | 'cancel-appointments'
   | 'keep-appointments'
-  | 'cancel-session';
+  | 'cancel-session'
+  | 'remove-services';
 
 export type {
   Accessibility,

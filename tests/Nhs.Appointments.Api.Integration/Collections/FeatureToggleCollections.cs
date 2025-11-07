@@ -1,0 +1,56 @@
+﻿using Nhs.Appointments.Core.Features;
+using Xunit;
+
+namespace Nhs.Appointments.Api.Integration.Collections;
+
+public static class FeatureToggleCollectionNames
+{
+    public const string OktaCollection = $"{Flags.OktaEnabled}Toggle";
+    public const string JointBookingsCollection = $"{Flags.JointBookings}Toggle";
+    public const string SiteSummaryReportCollection = $"{Flags.SiteSummaryReport}Toggle";
+    public const string SiteStatusCollection = $"{Flags.SiteStatus}Toggle";
+    public const string CancelDayCollection = $"{Flags.CancelDay}Toggle";
+    public const string ChangeSessionUpliftedJourneyCollection = $"{Flags.ChangeSessionUpliftedJourney}Toggle";
+    public const string CancelSessionUpliftedJourneyCollection = $"{Flags.CancelSessionUpliftedJourney}Toggle";
+    public const string QuerySitesCollection = $"{Flags.QuerySites}Toggle";
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.OktaCollection)]
+public class OktaEnabledSerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.JointBookingsCollection)]
+public class JointBookingsSerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.SiteSummaryReportCollection)]
+public class SiteSummaryReportSerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.SiteStatusCollection)]
+public class SiteStatusSerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.CancelDayCollection)]
+public class CancelDaySerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
+public class ChangeSessionUpliftedJourneySerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.CancelSessionUpliftedJourneyCollection)]
+public class CancelSessionUpliftedJourneySerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.QuerySitesCollection)]
+public class QuerySitesSerialToggleCollection : ICollectionFixture<object>
+{
+}

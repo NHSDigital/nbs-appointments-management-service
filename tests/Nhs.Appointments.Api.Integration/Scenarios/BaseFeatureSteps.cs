@@ -150,7 +150,7 @@ public abstract partial class BaseFeatureSteps : Feature
         return SetupSessions(siteId, dataTable);
     }
 
-    private Task SetupSite(string siteId)
+    protected Task SetupSite(string siteId)
     {
         var site = new SiteDocument
         {

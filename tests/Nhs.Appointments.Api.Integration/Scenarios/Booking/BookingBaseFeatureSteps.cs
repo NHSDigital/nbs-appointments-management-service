@@ -12,13 +12,14 @@ using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
 using ContactItem = Nhs.Appointments.Core.ContactItem;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
-public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
+public abstract class BookingBaseFeatureSteps : AuditFeatureSteps, IAsyncLifetime
 {
     protected HttpResponseMessage Response { get; set; }
     
@@ -201,4 +202,11 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             $"{NaturalLanguageDate.Parse(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
+
+    public Task InitializeAsync()
+    {
+        return SetupSite(GetSiteId(Guid.NewGuid().ToString()));
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 }

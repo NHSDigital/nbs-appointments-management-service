@@ -1,21 +1,27 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
+[Collection(FeatureToggleCollectionNames.OktaCollection)]
 [FeatureFile("./Scenarios/UserManagement/AssignRolesToAUser.feature")]
 public sealed class AssignRolesToAUserFeatureSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
     private  HttpResponseMessage _response;
 
     [When(@"I assign the following roles to user '(.+)'")]
-    public async Task AssignRole(string user, Gherkin.Ast.DataTable dataTable)
+    public async Task AssignRole(string user, DataTable dataTable)
     {
         if (dataTable.Rows.Count() > 2)
             throw new InvalidOperationException("This step only allows one row of data");
@@ -35,9 +41,9 @@ public sealed class AssignRolesToAUserFeatureSteps() : UserManagementBaseFeature
     }
 
     [Then(@"user '(.+)' would have the following role assignments")] 
-    public async Task Assert(string user, Gherkin.Ast.DataTable dataTable)
+    public async Task Assert(string user, DataTable dataTable)
     {
-        _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var userId = GetUserId(user);
         var expectedRoleAssignments = dataTable.Rows.Skip(1).Select(
@@ -46,7 +52,7 @@ public sealed class AssignRolesToAUserFeatureSteps() : UserManagementBaseFeature
                 Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
                 Role = row.Cells.ElementAt(1).Value
             });
-        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<UserDocument>(userId, new Microsoft.Azure.Cosmos.PartitionKey("user"));
+        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
         actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 }

@@ -2,19 +2,23 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
-using Xunit.Gherkin.Quick;
-using System.Text;
+using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
+using Xunit;
+using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
+[Collection(FeatureToggleCollectionNames.OktaCollection)]
 [FeatureFile("./Scenarios/UserManagement/RemoveUserRoleAssignments.feature")]
 public sealed class RemoveUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
@@ -60,7 +64,7 @@ public sealed class RemoveUserRoleAssignmentsSteps() : UserManagementBaseFeature
     }
 
     [Then(@"user '(.+)' would have the following role assignments")]
-    public async Task AssertRoleAssignments(string user, Gherkin.Ast.DataTable dataTable)
+    public async Task AssertRoleAssignments(string user, DataTable dataTable)
     {
         _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -79,9 +83,9 @@ public sealed class RemoveUserRoleAssignmentsSteps() : UserManagementBaseFeature
     }
 
     [Then(@"user '(.+)' would have the following role assignments")]
-    public async Task Assert(string user, Gherkin.Ast.DataTable dataTable)
+    public async Task Assert(string user, DataTable dataTable)
     {
-        _response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var userId = GetUserId(user);
         var expectedRoleAssignments = dataTable.Rows.Skip(1).Select(

@@ -1,16 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
-using Nhs.Appointments.Core;
-using Xunit.Gherkin.Quick;
-using Nhs.Appointments.Api.Json;
 using FluentAssertions;
 using Gherkin.Ast;
-using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using Xunit;
+using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
 {
@@ -36,10 +34,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         [And("I have Clinical Services")]
         public async Task SetUpClinicalServices(DataTable dataTable) 
         {
-            var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceTypeDocument()
+            var clinicalServices = dataTable.Rows.Skip(1).Select(row => new ClinicalServiceTypeDocument
             {
-                Id = x.Cells.ElementAt(0).Value,
-                Label = x.Cells.ElementAt(0).Value
+                Id = dataTable.GetRowValueOrDefault(row, "Id"),
+                Label = dataTable.GetRowValueOrDefault(row, "Label"),
+                ServiceType = dataTable.GetRowValueOrDefault(row, "Type"),
+                Url = dataTable.GetRowValueOrDefault(row, "Url")
             });
 
             var clinicalServicesDocument = new ClinicalServiceDocument()
@@ -57,8 +57,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         {
             var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceType()
             {
-                Value = x.Cells.ElementAt(0).Value,
-                Label = x.Cells.ElementAt(0).Value
+                Value = x.Cells.ElementAt(0).Value
             });
 
             _actualResponse.Should().BeEquivalentTo(clinicalServices);

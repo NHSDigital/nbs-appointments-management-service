@@ -19,7 +19,7 @@ type PageProps = {
     date: string;
     chosenAction: SessionModificationAction;
     bookingsCanceledWithoutDetails: number;
-    unsupportedBookingsCount: number;
+    newlyOrphanedBookingsCount: number;
   }>;
   params: Promise<{
     site: string;
@@ -32,13 +32,15 @@ const Page = async ({ searchParams, params }: PageProps) => {
     session,
     date,
     chosenAction,
-    unsupportedBookingsCount,
+    newlyOrphanedBookingsCount,
     bookingsCanceledWithoutDetails,
   } = {
     ...(await searchParams),
   };
 
-  const parsedUnsupportedBookingsCount = Number(unsupportedBookingsCount ?? 0);
+  const parsednewlyOrphanedBookingsCount = Number(
+    newlyOrphanedBookingsCount ?? 0,
+  );
   const parsedBookingsCanceledWithoutDetailsCount = Number(
     bookingsCanceledWithoutDetails ?? 0,
   );
@@ -81,7 +83,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
             siteId={site.id}
             clinicalServices={clinicalServices}
             modificationAction={chosenAction as SessionModificationAction}
-            unsupportedBookingsCount={parsedUnsupportedBookingsCount}
+            newlyOrphanedBookingsCount={parsednewlyOrphanedBookingsCount}
             bookingsCanceledWithoutDetails={
               parsedBookingsCanceledWithoutDetailsCount
             }

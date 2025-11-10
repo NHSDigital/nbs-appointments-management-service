@@ -31,7 +31,7 @@ type Mode = 'edit' | 'cancel';
 type FormData = { action?: SessionModificationAction };
 
 type Props = {
-  unsupportedBookingsCount: number;
+  newlyOrphanedBookingsCount: number;
   clinicalServices: ClinicalService[];
   session: string;
   newSession?: string | null;
@@ -136,7 +136,7 @@ const toAvailabilitySession = (session: Session): AvailabilitySession => ({
 });
 
 export const SessionModificationConfirmation = ({
-  unsupportedBookingsCount,
+  newlyOrphanedBookingsCount,
   clinicalServices,
   session,
   newSession,
@@ -208,7 +208,7 @@ export const SessionModificationConfirmation = ({
 
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
+        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&newlyOrphanedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
       );
     });
   };
@@ -269,17 +269,17 @@ export const SessionModificationConfirmation = ({
         showBooked={false}
       />
 
-      {unsupportedBookingsCount > 0 ? (
+      {newlyOrphanedBookingsCount > 0 ? (
         <>
           {texts.impactNote && (
             <div className="margin-top-bottom">
-              {texts.impactNote(decision, unsupportedBookingsCount)}
+              {texts.impactNote(decision, newlyOrphanedBookingsCount)}
             </div>
           )}
 
           {texts.impactCard(decision) && (
             <Card
-              title={String(unsupportedBookingsCount)}
+              title={String(newlyOrphanedBookingsCount)}
               description="Bookings may have to be cancelled"
               maxWidth={250}
             />

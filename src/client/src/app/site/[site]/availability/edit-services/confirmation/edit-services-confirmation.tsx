@@ -29,7 +29,7 @@ import { useRouter } from 'next/navigation';
 type FormData = { action?: SessionModificationAction };
 
 type Props = {
-  unsupportedBookingsCount: number;
+  newlyOrphanedBookingsCount: number;
   clinicalServices: ClinicalService[];
   session: string;
   newSession?: string | null;
@@ -39,7 +39,7 @@ type Props = {
 };
 
 export const EditServicesConfirmationPage = ({
-  unsupportedBookingsCount,
+  newlyOrphanedBookingsCount,
   clinicalServices,
   session,
   removedServicesSession,
@@ -125,7 +125,7 @@ export const EditServicesConfirmationPage = ({
       const response = await fromServer(modifySession(request));
 
       router.push(
-        `/site/${site}/availability/edit-services/confirmed?removedServicesSession=${removedServicesSession}&session=${session}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
+        `/site/${site}/availability/edit-services/confirmed?removedServicesSession=${removedServicesSession}&session=${session}&date=${date}&chosenAction=${form.action}&newlyOrphanedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
       );
     });
   };
@@ -134,7 +134,7 @@ export const EditServicesConfirmationPage = ({
     <form onSubmit={handleSubmit(recordDecision)}>
       <FormGroup
         legend={
-          unsupportedBookingsCount > 1
+          newlyOrphanedBookingsCount > 1
             ? 'Are you sure you want to cancel the appointments?'
             : 'Are you sure you want to cancel the appointment?'
         }
@@ -175,11 +175,11 @@ export const EditServicesConfirmationPage = ({
   ) => (
     <form onSubmit={handleSubmit(submitForm)}>
       <h2>
-        {unsupportedBookingsCount === 0 || actionParam === 'remove-services'
+        {newlyOrphanedBookingsCount === 0 || actionParam === 'remove-services'
           ? serviceCount > 1
             ? 'Are you sure you want to remove these services?'
             : 'Are you sure you want to remove this service?'
-          : unsupportedBookingsCount > 1
+          : newlyOrphanedBookingsCount > 1
             ? 'Are you sure you want to cancel the appointments?'
             : 'Are you sure you want to cancel the appointment?'}
       </h2>
@@ -188,11 +188,12 @@ export const EditServicesConfirmationPage = ({
           <SmallSpinnerWithText text="Working..." />
         ) : (
           <Button type="submit" styleType="warning">
-            {unsupportedBookingsCount === 0 || actionParam === 'remove-services'
+            {newlyOrphanedBookingsCount === 0 ||
+            actionParam === 'remove-services'
               ? serviceCount > 1
                 ? 'Remove services'
                 : 'Remove service'
-              : unsupportedBookingsCount > 1
+              : newlyOrphanedBookingsCount > 1
                 ? 'Cancel appointments'
                 : 'Cancel appointment'}
           </Button>
@@ -222,34 +223,34 @@ export const EditServicesConfirmationPage = ({
         showBooked={false}
       />
 
-      {unsupportedBookingsCount > 0 ? (
+      {newlyOrphanedBookingsCount > 0 ? (
         <>
           {isSubmitted && getValues('action') ? (
             <div className="margin-top-bottom">
               {getValues('action') === 'remove-services'
-                ? unsupportedBookingsCount > 1
-                  ? `You have chosen not to cancel ${unsupportedBookingsCount} bookings.`
+                ? newlyOrphanedBookingsCount > 1
+                  ? `You have chosen not to cancel ${newlyOrphanedBookingsCount} bookings.`
                   : 'You have chosen not to cancel 1 booking.'
-                : unsupportedBookingsCount > 1
-                  ? `${unsupportedBookingsCount} bookings may have to be cancelled.`
+                : newlyOrphanedBookingsCount > 1
+                  ? `${newlyOrphanedBookingsCount} bookings may have to be cancelled.`
                   : '1 booking may have to be cancelled.'}
             </div>
           ) : (
             <div className="margin-top-bottom">
               {`Removing ${
                 serviceCount > 1 ? 'these services' : 'this service'
-              } will affect ${unsupportedBookingsCount} ${
-                unsupportedBookingsCount > 1 ? 'bookings' : 'booking'
+              } will affect ${newlyOrphanedBookingsCount} ${
+                newlyOrphanedBookingsCount > 1 ? 'bookings' : 'booking'
               }.`}
             </div>
           )}
 
-          {unsupportedBookingsCount &&
+          {newlyOrphanedBookingsCount &&
             getValues('action') != 'remove-services' && (
               <Card
-                title={String(unsupportedBookingsCount)}
+                title={String(newlyOrphanedBookingsCount)}
                 description={
-                  unsupportedBookingsCount > 1
+                  newlyOrphanedBookingsCount > 1
                     ? 'Bookings may have to be cancelled'
                     : 'Booking may have to be cancelled'
                 }

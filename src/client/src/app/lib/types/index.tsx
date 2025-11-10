@@ -409,8 +409,8 @@ type CancelDayResponse = {
 };
 
 type AvailabilityChangeProposalResponse = {
-  supportedBookingsCount: number;
-  unsupportedBookingsCount: number;
+  newlySupportedBookingsCount: number;
+  newlyOrphanedBookingsCount: number;
 };
 
 type AvailabilityChangeProposalRequest = {

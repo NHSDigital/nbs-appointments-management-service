@@ -79,7 +79,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
       }}
     >
       <SessionModificationConfirmation
-        unsupportedBookingsCount={availabilityProposal.unsupportedBookingsCount}
+        newlyOrphanedBookingsCount={
+          availabilityProposal.newlyOrphanedBookingsCount
+        }
         clinicalServices={clinicalServices}
         session={session}
         newSession={sessionToEdit}

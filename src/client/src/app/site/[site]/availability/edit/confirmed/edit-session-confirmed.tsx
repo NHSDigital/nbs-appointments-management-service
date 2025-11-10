@@ -10,7 +10,7 @@ type PageProps = {
   date: string;
   hasBookings: boolean;
   chosenAction: string;
-  unsupportedBookingsCount: number;
+  newlyOrphanedBookingsCount: number;
   cancelledWithDetailsCount: number;
   cancelledWithoutDetailsCount: number;
   changeSessionUpliftedJourneyEnabled: boolean;
@@ -23,7 +23,7 @@ const EditSessionConfirmed = ({
   date,
   chosenAction,
   hasBookings,
-  unsupportedBookingsCount,
+  newlyOrphanedBookingsCount,
   cancelledWithDetailsCount,
   cancelledWithoutDetailsCount,
   changeSessionUpliftedJourneyEnabled,
@@ -79,15 +79,15 @@ const EditSessionConfirmed = ({
           <div className="margin-top-bottom">
             The session has been updated and a new capacity has been saved.
           </div>
-          {unsupportedBookingsCount > 1 ? (
+          {newlyOrphanedBookingsCount > 1 ? (
             <Card
-              title={unsupportedBookingsCount.toString()}
+              title={newlyOrphanedBookingsCount.toString()}
               description="Bookings have been cancelled"
               maxWidth={250}
             />
           ) : (
             <Card
-              title={unsupportedBookingsCount.toString()}
+              title={newlyOrphanedBookingsCount.toString()}
               description="Booking has been cancelled"
               maxWidth={250}
             />
@@ -125,10 +125,10 @@ const EditSessionConfirmed = ({
           <div className="margin-top-bottom">
             The session has been updated and a new capacity has been saved.
           </div>
-          {unsupportedBookingsCount > 0 && (
+          {newlyOrphanedBookingsCount > 0 && (
             <div className="margin-top-bottom">
-              {unsupportedBookingsCount}{' '}
-              {unsupportedBookingsCount > 1
+              {newlyOrphanedBookingsCount}{' '}
+              {newlyOrphanedBookingsCount > 1
                 ? 'appointments have'
                 : 'appointment has'}{' '}
               not been cancelled.

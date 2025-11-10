@@ -5,7 +5,7 @@ import { RemovedServicesOverview } from '../../availability';
 export default class EditServicesConfirmedPage extends RootPage {
   async verifyServicesRemoved(removedSessions: RemovedServicesOverview) {
     await expect(this.page.getByRole('main')).toContainText(
-      `Services removed for ${removedSessions.date}`,
+      `Services removed on ${removedSessions.date}`,
     );
 
     await expect(

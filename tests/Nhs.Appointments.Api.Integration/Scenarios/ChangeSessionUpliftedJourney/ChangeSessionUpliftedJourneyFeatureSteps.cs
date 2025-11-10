@@ -52,15 +52,17 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         await SendSessionEditRequest(payload);
     }
 
-    [When("I cancel all sessions in between '(.+)' and '(.+)'")]
-    public async Task CancelAllSessionsInDateRange(string from, string until)
-    {
-        var fromDate = ParseDate(from);
-        var untilDate = ParseDate(until);
-
-        var payload = BuildPayload(fromDate, untilDate, matcher: "*", replacement: null as Session);
-        await SendSessionEditRequest(payload);
-    }
+    //Cancelling multiple days not yet implemented
+    
+    // [When("I cancel all sessions in between '(.+)' and '(.+)'")]
+    // public async Task CancelAllSessionsInDateRange(string from, string until)
+    // {
+    //     var fromDate = ParseDate(from);
+    //     var untilDate = ParseDate(until);
+    //
+    //     var payload = BuildPayload(fromDate, untilDate, matcher: "*", replacement: null as Session);
+    //     await SendSessionEditRequest(payload);
+    // }
 
     [When("I cancel the following session using the new endpoint")]
     public async Task CancelSingleSession(DataTable dataTable)

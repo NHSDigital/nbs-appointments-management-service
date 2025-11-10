@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Audit.Persistance;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;

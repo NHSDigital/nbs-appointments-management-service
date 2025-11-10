@@ -43,8 +43,9 @@ public class BookingAvailabilityStateService(
     public async Task<AvailabilityUpdateProposal> GenerateSessionProposalActionMetrics(string site, DateTime from,
     DateTime to, Session matcher, Session replacement, bool isWildCard = false)
     {
-        var (bookings, sessions) = await FetchData(site, from, to,  BookingAvailabilityStateReturnType.Recalculations);
+        var (bookings, sessions) = await FetchData(site, from, to,  BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics);
 
+        //TODO why do you have to supply a matcher if wildcard provided??
         var proposalAction = DetermineAvailabilityUpdateProposalAction(isWildCard, (matcher != null && replacement != null));
 
         for (var day = from.Date; day <= to.Date; day = day.AddDays(1))

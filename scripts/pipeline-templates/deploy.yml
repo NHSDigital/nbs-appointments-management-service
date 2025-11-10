@@ -457,7 +457,7 @@ stages:
                 echo "##vso[task.setvariable variable=newLeaseId;isOutput=true]$newLeaseId";
       - job: RetainReleaseBuilds
         displayName: "Retain Release Branch Builds for 42 Days"
-        dependsOn: CreateReleaseTag
+        dependsOn: SetEnvironmentTag
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'))
         steps:
           - task: PowerShell@2

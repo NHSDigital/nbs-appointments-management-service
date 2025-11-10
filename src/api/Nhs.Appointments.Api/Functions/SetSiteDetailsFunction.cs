@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -21,7 +21,7 @@ public class SetSiteDetailsFunction(
     ISiteService siteService,
     IValidator<SetSiteDetailsRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<SetSiteDetailsRequest> logger,
+    ILogger<SetSiteDetailsFunction> logger,
     IMetricsRecorder metricsRecorder)
     : BaseApiFunction<SetSiteDetailsRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
@@ -48,6 +48,11 @@ public class SetSiteDetailsFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteDetailsRequest request, ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "The specified site was not found.");
+        }
+
         var result = await siteService.UpdateSiteDetailsAsync(request.Site, request.Name, request.Address,
             request.PhoneNumber, request.LongitudeDecimal, request.LatitudeDecimal);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);

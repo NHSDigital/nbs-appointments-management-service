@@ -26,7 +26,9 @@ public class ConfirmProvisionalBookingFunction(
     IUserContextProvider userContextProvider,
     ILogger<ConfirmProvisionalBookingFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IFeatureToggleHelper featureToggleHelper,
+    ISiteService siteService,
+    IBookingQueryService bookingQueryService)
     : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "ConfirmProvisionalBooking", tags: ["Booking"],
@@ -60,6 +62,12 @@ public class ConfirmProvisionalBookingFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ConfirmBookingRequest bookingRequest,
         ILogger logger)
     {
+        var booking = await bookingQueryService.GetBookingByReference(bookingRequest.bookingReference);
+        if (booking is not null && await siteService.GetSiteByIdAsync(booking.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Site for booking not found.");
+        }
+
         var result = BookingConfirmationResult.NotFound;
 
         // If Joint Bookings disabled ignore the child bookings param

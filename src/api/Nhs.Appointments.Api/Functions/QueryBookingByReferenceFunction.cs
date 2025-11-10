@@ -21,7 +21,8 @@ public class QueryBookingByReferenceFunction(
     IValidator<QueryBookingByReferenceRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<QueryBookingByReferenceFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    ISiteService siteService)
     : BaseApiFunction<QueryBookingByReferenceRequest, Booking>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "QueryBookingByReference", tags: ["Booking"],
@@ -51,6 +52,10 @@ public class QueryBookingByReferenceFunction(
         ILogger logger)
     {
         var booking = await bookingQueryService.GetBookingByReference(request.bookingReference);
+        if (await siteService.GetSiteByIdAsync(booking.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Site not found.");
+        }
 
         return booking is null
                || (!string.IsNullOrEmpty(request.site) && request.site != booking.Site)

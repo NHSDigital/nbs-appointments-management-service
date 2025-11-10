@@ -6,44 +6,42 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using System.Net;
-using System.Security.Policy;
-using Site = Nhs.Appointments.Core.Site;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
-
-public class SetSiteInformationForCitizensFunctionTests
+public class SetSiteReferenceDetailsFunctionTests
 {
-    private readonly Mock<ILogger<SetSiteInformationForCitizensFunction>> _logger = new();
+    private readonly Mock<ILogger<SetSiteReferenceDetailsFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<ISiteService> _siteService = new();
-    private readonly SetSiteInformationForCitizensFunctionTestProxi _sut;
     private readonly Mock<IUserContextProvider> _userContext = new();
-    private readonly Mock<IValidator<SetSiteInformationForCitizensRequest>> _validator = new();
+    private readonly Mock<IValidator<SetSiteReferenceDetailsRequest>> _validator = new();
 
-    public SetSiteInformationForCitizensFunctionTests()
+    private readonly SetSiteReferenceDetailsFunctionTestProxi _sut;
+
+    public SetSiteReferenceDetailsFunctionTests()
     {
-        _sut = new SetSiteInformationForCitizensFunctionTestProxi(
+        _sut = new SetSiteReferenceDetailsFunctionTestProxi(
             _siteService.Object,
             _validator.Object,
             _userContext.Object,
             _logger.Object,
-            _metricsRecorder.Object
-        );
+            _metricsRecorder.Object);
     }
 
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task InvokeSiteService_WhenSettingInformationForCitizens(bool operationSuccess)
+    public async Task InvokeSiteService_WhenSettingSiteReferenceDetails(bool operationSuccess)
     {
         var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user3@nhs.net");
         var site = "test-site";
-        var infoForCitizens = "Some information for citizens.";
-        var request = new SetSiteInformationForCitizensRequest(site, infoForCitizens);
+        var odsCode = "ODS1";
+        var icb = "ICB1";
+        var region = "R1";
+        var request = new SetSiteReferenceDetailsRequest(site, odsCode, icb, region);
         var operationalResult = new OperationResult(operationSuccess);
 
-        _userContext.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _siteService.Setup(x => x.UpdateInformationForCitizens(It.IsAny<string>(), It.IsAny<string>()))
+        _siteService.Setup(x => x.UpdateSiteReferenceDetailsAsync(site, odsCode, icb, region))
             .ReturnsAsync(operationalResult);
         _siteService.Setup(x => x.GetSiteByIdAsync(site, It.IsAny<string>()))
             .ReturnsAsync(new Site(
@@ -51,9 +49,9 @@ public class SetSiteInformationForCitizensFunctionTests
                     "Test Site",
                     "Test Address",
                     "01234567890",
-                    "ODS1",
-                    "R1",
-                    "ICB1",
+                    odsCode,
+                    region,
+                    icb,
                     string.Empty,
                     new List<Accessibility>
                     {
@@ -69,7 +67,7 @@ public class SetSiteInformationForCitizensFunctionTests
 
         Assert.Multiple(
             () => result.IsSuccess.Should().Be(operationSuccess),
-            () => _siteService.Verify(x => x.UpdateInformationForCitizens(site, infoForCitizens), Times.Once)
+            () => _siteService.Verify(x => x.UpdateSiteReferenceDetailsAsync(site, odsCode, icb, region), Times.Once)
         );
     }
 
@@ -77,8 +75,10 @@ public class SetSiteInformationForCitizensFunctionTests
     public async Task DoesNotInvokeService_WhenSiteIsInactive()
     {
         var site = "test-site";
-        var infoForCitizens = "Some information for citizens.";
-        var request = new SetSiteInformationForCitizensRequest(site, infoForCitizens);
+        var odsCode = "ODS1";
+        var icb = "ICB1";
+        var region = "R1";
+        var request = new SetSiteReferenceDetailsRequest(site, odsCode, icb, region);
 
         _siteService.Setup(x => x.GetSiteByIdAsync("test-site", It.IsAny<string>()))
             .ReturnsAsync(null as Site);
@@ -88,21 +88,21 @@ public class SetSiteInformationForCitizensFunctionTests
         Assert.Multiple(
             () => result.IsSuccess.Should().BeFalse(),
             () => result.StatusCode.Should().Be(HttpStatusCode.NotFound),
-            () => _siteService.Verify(x => x.UpdateInformationForCitizens(site, infoForCitizens), Times.Never)
+            () => _siteService.Verify(x => x.UpdateSiteReferenceDetailsAsync(site, odsCode, icb, region), Times.Never)
         );
     }
 
-    private class SetSiteInformationForCitizensFunctionTestProxi(
+    private class SetSiteReferenceDetailsFunctionTestProxi(
         ISiteService siteService,
-        IValidator<SetSiteInformationForCitizensRequest> validator,
+        IValidator<SetSiteReferenceDetailsRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<SetSiteInformationForCitizensFunction> logger,
+        ILogger<SetSiteReferenceDetailsFunction> logger,
         IMetricsRecorder metricsRecorder)
-        : SetSiteInformationForCitizensFunction(siteService, validator, userContextProvider, logger, metricsRecorder)
+        : SetSiteReferenceDetailsFunction(siteService, validator, userContextProvider, logger, metricsRecorder)
     {
-        private readonly ILogger<SetSiteInformationForCitizensFunction> _logger = logger;
+        private readonly ILogger<SetSiteReferenceDetailsFunction> _logger = logger;
 
-        public async Task<ApiResult<EmptyResponse>> Invoke(SetSiteInformationForCitizensRequest request) =>
+        public async Task<ApiResult<EmptyResponse>> Invoke(SetSiteReferenceDetailsRequest request) =>
             await HandleRequest(request, _logger);
     }
 }

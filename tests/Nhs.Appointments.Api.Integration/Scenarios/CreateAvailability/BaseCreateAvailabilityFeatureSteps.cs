@@ -10,12 +10,13 @@ using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 
-public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
+public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps, IAsyncLifetime
 {
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpResponseMessage _response;
@@ -234,4 +235,11 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         actualDocuments.Count().Should().Be(expectedDocuments.Count());
         actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }
+
+    public Task InitializeAsync()
+    {
+        return SetupSite(GetSiteId());
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 }

@@ -23,7 +23,8 @@ public class QueryBookingsFunction(
     IUserContextProvider userContextProvider,
     ILogger<QueryBookingsFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IFeatureToggleHelper featureToggleHelper,
+    ISiteService siteService)
     : BaseApiFunction<QueryBookingsRequest, IEnumerable<Booking>>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -50,6 +51,11 @@ public class QueryBookingsFunction(
     protected override async Task<ApiResult<IEnumerable<Booking>>> HandleRequest(QueryBookingsRequest request,
         ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Site not found.");
+        }
+
         if (await featureToggleHelper.IsFeatureEnabled(Flags.CancelDay))
         {
             var filter = new BookingQueryFilter(request.from,

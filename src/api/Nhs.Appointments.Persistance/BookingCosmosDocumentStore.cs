@@ -145,7 +145,7 @@ public class BookingCosmosDocumentStore(
         object additionalData = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", status);
-        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
+        var statusUpdatedPatch = PatchOperation.Add("/statusUpdated", time.GetUtcNow());
         var updateAvailabilityStatusPatch =
             PatchOperation.Replace("/availabilityStatus", availabilityStatus);
 
@@ -263,7 +263,7 @@ public class BookingCosmosDocumentStore(
         IEnumerable<ContactItem> contactDetails, int? bookingBatchSize = null)
     {
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
-        var statusUpdatedPatch = PatchOperation.Replace("/statusUpdated", time.GetUtcNow());
+        var statusUpdatedPatch = PatchOperation.Add("/statusUpdated", time.GetUtcNow());
 
         var patches = new []
         {

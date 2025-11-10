@@ -5,7 +5,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_EditSession_SingleDay()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 0),
             Until = new TimeOnly(10, 0),
@@ -13,7 +13,8 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
             SlotLength = 10,
             Capacity = 1
         };
-        var replacement = new Session() {
+        var replacement = new Session
+        {
             From = new TimeOnly(9, 0),
             Until = new TimeOnly(10, 0),
             Services = ["Green"],
@@ -37,7 +38,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         var expectedReallocatedBookings = 1;
         var expectedUnaccommodatedBookings = 2;
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedReallocatedBookings);
@@ -47,7 +48,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_EditSession_MatchingSessionNotFound()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 30, 0),
             Until = new TimeOnly(10, 0, 0),
@@ -55,7 +56,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
             SlotLength = 10,
             Capacity = 1
         };
-        var replacement = new Session()
+        var replacement = new Session
         {
             From = new TimeOnly(9, 0, 0),
             Until = new TimeOnly(10, 0, 0),
@@ -78,7 +79,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         };
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.MatchingSessionNotFound.Should().BeTrue();
@@ -87,7 +88,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_EditSession_MultipleDays()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 0),
             Until = new TimeOnly(10, 0),
@@ -95,7 +96,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
             SlotLength = 10,
             Capacity = 1
         };
-        var replacement = new Session()
+        var replacement = new Session
         {
             From = new TimeOnly(9, 0, 0),
             Until = new TimeOnly(10, 0, 0),
@@ -119,18 +120,24 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         };
         var sessions = new List<LinkedSessionInstance>
         {
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"], capacity: 1),
+            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
         };
         SetupAvailabilityAndBookings(bookings, sessions);
         var expectedReallocatedBookings = 3;
         var expectedUnaccommodatedBookings = 6;
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedReallocatedBookings);
@@ -140,7 +147,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_CancelSingleSession_MatchingSessionNotFound()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 30, 0),
             Until = new TimeOnly(10, 0, 0),
@@ -163,7 +170,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         };
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.MatchingSessionNotFound.Should().BeTrue();
@@ -172,7 +179,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_CancelSingleSession_SingleDay()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 0),
             Until = new TimeOnly(10, 0),
@@ -197,7 +204,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         var expectedReallocatedBookings = 1;
         var expectedUnaccommodatedBookings = 2;
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedReallocatedBookings);
@@ -207,7 +214,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_CancelSingleSession_MultipleDays()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 0),
             Until = new TimeOnly(10, 0),
@@ -222,27 +229,33 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
             TestBooking("1", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 1),
             TestBooking("2", "Orange", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 2),
             TestBooking("3", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 3),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 4),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 5),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 6),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 7),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 8),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 9)
+            TestBooking("4", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 4),
+            TestBooking("5", "Orange", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 5),
+            TestBooking("6", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 6),
+            TestBooking("7", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 7),
+            TestBooking("8", "Orange", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 8),
+            TestBooking("9", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 9)
         };
         var sessions = new List<LinkedSessionInstance>
         {
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"], capacity: 1),
+            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
         };
         SetupAvailabilityAndBookings(bookings, sessions);
         var expectedReallocatedBookings = 3;
         var expectedUnaccommodatedBookings = 6;
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedReallocatedBookings);
@@ -252,7 +265,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_CancelAllSessions_SingleDay()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 0),
             Until = new TimeOnly(10, 0),
@@ -277,7 +290,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         var expectedReallocatedBookings = 0;
         var expectedUnaccommodatedBookings = 3;
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null, true));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null, true);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedReallocatedBookings);
@@ -303,18 +316,24 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         };
         var sessions = new List<LinkedSessionInstance>
         {
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"], capacity: 1),
+            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"],
+                capacity: 1),
+            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"],
+                capacity: 1),
         };
         SetupAvailabilityAndBookings(bookings, sessions);
         var expectedReallocatedBookings = 0;
         var expectedUnaccommodatedBookings = 9;
 
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, null, null, true));
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, null, null, true);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedReallocatedBookings);
@@ -324,7 +343,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     [Fact]
     public async Task AvailabilityChangeProposal_MatchingSessionNotFound()
     {
-        var matcher = new Session()
+        var matcher = new Session
         {
             From = new TimeOnly(9, 30, 0),
             Until = new TimeOnly(10, 0, 0),
@@ -332,7 +351,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
             SlotLength = 10,
             Capacity = 1
         };
-        var replacement = new Session()
+        var replacement = new Session
         {
             From = new TimeOnly(9, 0, 0),
             Until = new TimeOnly(10, 0, 0),
@@ -354,8 +373,8 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
             TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
         };
         SetupAvailabilityAndBookings(bookings, sessions);
-        
-        var proposalMetrics = (await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement));
+
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.MatchingSessionNotFound.Should().BeTrue();

@@ -41,12 +41,11 @@ public class BookingAvailabilityStateService(
     }
 
     public async Task<AvailabilityUpdateProposal> GenerateSessionProposalActionMetrics(string site, DateTime from,
-    DateTime to, Session matcher, Session replacement, bool isWildCard = false)
+    DateTime to, Session matcher, Session replacement)
     {
         var (bookings, sessions) = await FetchData(site, from, to,  BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics);
 
-        //TODO why do you have to supply a matcher if wildcard provided??
-        var proposalAction = DetermineAvailabilityUpdateProposalAction(isWildCard, (matcher != null && replacement != null));
+        var proposalAction = DetermineAvailabilityUpdateProposalAction((matcher != null && replacement != null));
 
         for (var day = from.Date; day <= to.Date; day = day.AddDays(1))
         {
@@ -54,15 +53,7 @@ public class BookingAvailabilityStateService(
 
             switch (proposalAction)
             {
-                case AvailabilityUpdateProposalAction.CancelAll:
-                    foreach (var s in sessionsForDay)
-                    {
-                        sessions.Remove(s);
-                    }
-
-                    break;
-
-                case AvailabilityUpdateProposalAction.CancelSingle:
+                case AvailabilityUpdateProposalAction.Cancel:
                     if (matcher is null)
                     {
                         break;
@@ -255,25 +246,14 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private static AvailabilityUpdateProposalAction DetermineAvailabilityUpdateProposalAction(bool isWildcard, bool hasMatcherAndReplacementSessions)
+    private static AvailabilityUpdateProposalAction DetermineAvailabilityUpdateProposalAction(bool hasMatcherAndReplacementSessions)
     {
-        if (hasMatcherAndReplacementSessions)
-        {
-            return AvailabilityUpdateProposalAction.Edit;
-        }
-
-        if (isWildcard)
-        {
-            return AvailabilityUpdateProposalAction.CancelAll;
-        }
-
-        return AvailabilityUpdateProposalAction.CancelSingle;
+        return hasMatcherAndReplacementSessions ? AvailabilityUpdateProposalAction.Edit : AvailabilityUpdateProposalAction.Cancel;
     }
 
     private enum AvailabilityUpdateProposalAction
     {
-        CancelAll,
-        CancelSingle,
+        Cancel,
         Edit,
     }
     private static AvailabilitySummary GenerateSummary(IEnumerable<Booking> bookings, List<DayAvailabilitySummary> daySummaries)

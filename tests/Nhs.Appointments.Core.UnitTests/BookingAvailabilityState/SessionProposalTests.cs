@@ -27,16 +27,166 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         {
             TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
             TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
+            TestBooking("3", "Blue", avStatus: "Orphaned", creationOrder: 3)
         };
         var sessions = new List<LinkedSessionInstance>
         {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
+            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1), //action reduces down to just Green service
             TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
         };
         SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedNewlySupportedBookings = 1;
-        var expectedNewlyOrphanedBookings = 2;
+        
+        var expectedNewlySupportedBookings = 0;
+        var expectedNewlyOrphanedBookings = 1; //Blue1 no longer supported
+
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
+
+        proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
+        proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
+        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+    }
+    
+    /// <summary>
+    /// A test to prove that with Greedy model allocation, the metrics show orphaned bookings when a BestFit solution would have no orphaned bookings
+    /// </summary>
+    [Fact]
+    public async Task AvailabilityChangeProposal_EditSession_GreedyInefficiency_Alphabetical()
+    {
+        var matcher = new Session
+        {
+            From = new TimeOnly(9, 0),
+            Until = new TimeOnly(10, 0),
+            Services = ["A", "B", "D", "E", "F"],
+            SlotLength = 10,
+            Capacity = 3
+        };
+        var replacement = new Session
+        {
+            From = new TimeOnly(9, 0),
+            Until = new TimeOnly(10, 0),
+            Services = ["A", "B", "D", "E"],
+            SlotLength = 10,
+            Capacity = 3
+        };
+        var from = new DateTime(2025, 1, 1, 9, 0, 0);
+        var to = new DateTime(2025, 1, 1, 9, 10, 0);
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "A", avStatus: "Supported", creationOrder: 1),
+            TestBooking("2", "A", avStatus: "Supported", creationOrder: 2),
+            TestBooking("3", "A", avStatus: "Supported", creationOrder: 3),
+            TestBooking("4", "D", avStatus: "Supported", creationOrder: 4),
+            TestBooking("5", "D", avStatus: "Supported", creationOrder: 5),
+            TestBooking("6", "D", avStatus: "Supported", creationOrder: 6),
+        };
+        var sessions = new List<LinkedSessionInstance>
+        {
+            TestSession("09:00", "10:00", ["A", "B", "C", "E", "F"], capacity: 3),
+            TestSession("09:00", "10:00", ["A", "B", "D", "E", "F"], capacity: 3),  //action removes "F" service
+        };
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        var expectedNewlySupportedBookings = 0;
+        var expectedNewlyOrphanedBookings = 3; //the three D bookings no longer have a home due to inefficient greedy model
+
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
+
+        proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
+        proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
+        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+    }
+    
+     /// <summary>
+    /// A test to prove that with Greedy model allocation, the metrics show orphaned bookings when a BestFit solution would have no orphaned bookings
+    /// </summary>
+    [Fact]
+    public async Task AvailabilityChangeProposal_EditSession_GreedyInefficiency_ServiceLength()
+    {
+        var matcher = new Session
+        {
+            From = new TimeOnly(9, 0),
+            Until = new TimeOnly(10, 0),
+            Services = ["A", "AB", "B", "D", "E", "F"],
+            SlotLength = 10,
+            Capacity = 3
+        };
+        var replacement = new Session
+        {
+            From = new TimeOnly(9, 0),
+            Until = new TimeOnly(10, 0),
+            Services = ["A", "D"],
+            SlotLength = 10,
+            Capacity = 3
+        };
+        var from = new DateTime(2025, 1, 1, 9, 0, 0);
+        var to = new DateTime(2025, 1, 1, 9, 10, 0);
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "A", avStatus: "Supported", creationOrder: 1),
+            TestBooking("2", "A", avStatus: "Supported", creationOrder: 2),
+            TestBooking("3", "A", avStatus: "Supported", creationOrder: 3),
+            TestBooking("4", "D", avStatus: "Supported", creationOrder: 4),
+            TestBooking("5", "D", avStatus: "Supported", creationOrder: 5),
+            TestBooking("6", "D", avStatus: "Supported", creationOrder: 6),
+        };
+        var sessions = new List<LinkedSessionInstance>
+        {
+            TestSession("09:00", "10:00", ["A", "B", "C", "E"], capacity: 3),
+            TestSession("09:00", "10:00", ["A", "AB", "B", "D", "E", "F"], capacity: 3),  //action removes "AB, B, E and F" services
+        };
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        var expectedNewlySupportedBookings = 0;
+        var expectedNewlyOrphanedBookings = 3; //the three D bookings no longer have a home due to inefficient greedy model
+
+        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
+
+        proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
+        proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
+        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+    }
+     
+    /// <summary>
+    /// A test that shows the same number of supported and orphaned bookings exists, but the metrics include all changes
+    /// </summary>
+    [Fact]
+    public async Task AvailabilityChangeProposal_EditSession_SupportedBookingsSwap()
+    {
+        var matcher = new Session
+        {
+            From = new TimeOnly(9, 0),
+            Until = new TimeOnly(10, 0),
+            Services = ["A", "B"],
+            SlotLength = 10,
+            Capacity = 3
+        };
+        var replacement = new Session
+        {
+            From = new TimeOnly(9, 0),
+            Until = new TimeOnly(10, 0),
+            Services = ["B"],
+            SlotLength = 10,
+            Capacity = 3
+        };
+        var from = new DateTime(2025, 1, 1, 9, 0, 0);
+        var to = new DateTime(2025, 1, 1, 9, 10, 0);
+        var bookings = new List<Booking>
+        {
+            TestBooking("1", "A", avStatus: "Supported", creationOrder: 1),
+            TestBooking("2", "A", avStatus: "Supported", creationOrder: 2),
+            TestBooking("3", "A", avStatus: "Supported", creationOrder: 3),
+            TestBooking("4", "B", avStatus: "Orphaned", creationOrder: 4),
+            TestBooking("5", "B", avStatus: "Orphaned", creationOrder: 5),
+            TestBooking("6", "B", avStatus: "Orphaned", creationOrder: 6),
+        };
+        var sessions = new List<LinkedSessionInstance>
+        {
+            TestSession("09:00", "10:00", ["A", "B"], capacity: 3), // action reduces to just "B" service
+        };
+        SetupAvailabilityAndBookings(bookings, sessions);
+        
+        var expectedNewlySupportedBookings = 3; // the three B bookings are now supported
+        var expectedNewlyOrphanedBookings = 3; // the three A bookings are now NOT supported
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
@@ -283,7 +433,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
     }
 
-    [Fact]
+    [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
     public async Task AvailabilityChangeProposal_CancelAllSessions_SingleDay()
     {
         var matcher = new Session
@@ -314,15 +464,15 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         
         //should this be 2??
         var expectedNewlyOrphanedBookings = 3;
-
-        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null, true);
-
-        proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+    
+        // var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null, true);
+        //
+        // proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
+        // proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
+        // proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
     }
 
-    [Fact]
+    [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
     public async Task AvailabilityChangeProposal_CancelAllSessions_MultipleDays()
     {
         var from = new DateTime(2025, 1, 1, 9, 0, 0);
@@ -366,11 +516,11 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         var expectedNewlySupportedBookings = 0;
         var expectedNewlyOrphanedBookings = 6;
 
-        var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, null, null, true);
-
-        proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        // var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, null, null, true);
+        //
+        // proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
+        // proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
+        // proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
     }
 
     [Fact]

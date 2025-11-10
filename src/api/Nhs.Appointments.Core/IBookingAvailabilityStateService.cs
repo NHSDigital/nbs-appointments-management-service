@@ -8,5 +8,5 @@ public interface IBookingAvailabilityStateService
     Task<AvailabilitySummary> GetWeekSummary(string site, DateOnly from);
     Task<AvailabilitySummary> GetDaySummary(string site, DateOnly day);
     Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from, DateTime to);
-    Task<AvailabilityUpdateProposal> GenerateSessionProposalActionMetrics(string site, DateTime from, DateTime to, Session matcher, Session replacement, bool isWildCard);
+    Task<AvailabilityUpdateProposal> GenerateSessionProposalActionMetrics(string site, DateTime from, DateTime to, Session matcher, Session replacement);
 }

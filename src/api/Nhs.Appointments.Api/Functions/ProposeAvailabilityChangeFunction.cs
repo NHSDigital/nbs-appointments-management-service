@@ -54,13 +54,17 @@ public class ProposeAvailabilityChangeFunction(
     {
         if (await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
         {
+            if (request.SessionMatcher.IsWildcard)
+            {
+                throw new NotImplementedException("Wildcard journey matcher is not implemented and needs re-developing when required.");
+            }
+            
             var recalculations = await bookingAvailabilityStateService.GenerateSessionProposalActionMetrics(
                 request.Site,
                 request.From.ToDateTime(TimeOnly.MinValue),
                 request.To.ToDateTime(new TimeOnly(23, 59, 59)),
                 request.SessionMatcher.Session,
-                request.SessionReplacement,
-                request.SessionMatcher.IsWildcard);
+                request.SessionReplacement);
 
             if (recalculations.MatchingSessionNotFound)
             {

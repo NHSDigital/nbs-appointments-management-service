@@ -54,8 +54,7 @@ public class ProposeAvailabilityChangeFunctionTests
             It.IsAny<DateTime>(),
             It.IsAny<DateTime>(),
             It.IsAny<Session>(),
-            It.IsAny<Session>(),
-            It.IsAny<bool>())
+            It.IsAny<Session>())
         ).ReturnsAsync(response);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
             .ReturnsAsync(true);
@@ -88,8 +87,7 @@ public class ProposeAvailabilityChangeFunctionTests
             It.IsAny<DateTime>(),
             It.IsAny<DateTime>(),
             It.IsAny<Session>(),
-            It.IsAny<Session>(),
-            It.IsAny<bool>())
+            It.IsAny<Session>())
         ).ReturnsAsync(response);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
             .ReturnsAsync(true);
@@ -116,8 +114,7 @@ public class ProposeAvailabilityChangeFunctionTests
             It.IsAny<DateTime>(),
             It.IsAny<DateTime>(),
             It.IsAny<Session>(),
-            It.IsAny<Session>(),
-            It.IsAny<bool>())
+            It.IsAny<Session>())
         ).ReturnsAsync(response);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
             .ReturnsAsync(false);

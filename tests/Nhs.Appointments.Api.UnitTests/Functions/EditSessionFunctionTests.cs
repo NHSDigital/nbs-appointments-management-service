@@ -83,7 +83,6 @@ public class EditSessionFunctionTests
             It.IsAny<DateOnly>(),
             It.IsAny<Session>(),
             It.IsAny<Session>(),
-            It.IsAny<bool>(),
             It.IsAny<bool>())).ReturnsAsync(availabilityResult);
 
         var result = await _sut.RunAsync(request) as ContentResult;
@@ -99,7 +98,6 @@ public class EditSessionFunctionTests
             editSessionRequest.To,
             It.IsAny<Session>(),
             null,
-            false,
             false), Times.Once);
     }
 
@@ -122,7 +120,6 @@ public class EditSessionFunctionTests
             It.IsAny<DateOnly>(),
             It.IsAny<Session>(),
             It.IsAny<Session>(),
-            It.IsAny<bool>(),
             It.IsAny<bool>())).ReturnsAsync(new SessionModificationResult(false, "Something went wrong"));
 
         var result = await _sut.RunAsync(request) as ContentResult;
@@ -134,7 +131,6 @@ public class EditSessionFunctionTests
             editSessionRequest.To,
             It.IsAny<Session>(),
             null,
-            false,
             false), Times.Once);
     }
 

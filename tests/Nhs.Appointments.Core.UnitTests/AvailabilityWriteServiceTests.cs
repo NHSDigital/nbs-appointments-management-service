@@ -403,7 +403,7 @@ public class AvailabilityWriteServiceTests
         _bookingsWriteService.Verify(x => x.CancelAllBookingsInDayAsync("TEST_SITE_123", date), Times.Once);
     }
 
-    [Fact]
+    [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
     public async Task EditOrCancelSession_CancelsMultipleSessions_ForWildcardMultipleDays()
     {
         var site = "TEST123";
@@ -419,7 +419,6 @@ public class AvailabilityWriteServiceTests
             until,
             null,
             null,
-            true,
             false);
 
         result.UpdateSuccessful.Should().BeTrue();
@@ -427,7 +426,7 @@ public class AvailabilityWriteServiceTests
         _availabilityStore.Verify(x => x.CancelDayAsync(site, It.IsAny<DateOnly>()), Times.Exactly(6));
     }
 
-    [Fact]
+    [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
     public async Task EditOrCancelSession_CancelsDay_ForWildcardSingleDay()
     {
         var site = "TEST123";
@@ -440,7 +439,6 @@ public class AvailabilityWriteServiceTests
             until,
             null,
             null,
-            true, 
             false);
 
         result.UpdateSuccessful.Should().BeTrue();
@@ -480,7 +478,6 @@ public class AvailabilityWriteServiceTests
             until,
             sessionMatcher,
             null,
-            false, 
             false);
 
         result.UpdateSuccessful.Should().BeTrue();
@@ -515,7 +512,6 @@ public class AvailabilityWriteServiceTests
             until,
             sessionMatcher,
             null,
-            false, 
             false);
 
         result.UpdateSuccessful.Should().BeFalse();
@@ -564,7 +560,6 @@ public class AvailabilityWriteServiceTests
             until,
             sessionMatcher,
             sessionReplacement,
-            false, 
             false);
 
         result.UpdateSuccessful.Should().BeTrue();
@@ -608,7 +603,6 @@ public class AvailabilityWriteServiceTests
             until,
             sessionMatcher,
             sessionReplacement,
-            false, 
             false);
 
         result.UpdateSuccessful.Should().BeFalse();
@@ -657,7 +651,6 @@ public class AvailabilityWriteServiceTests
             until,
             sessionMatcher,
             sessionReplacement,
-            false, 
             false);
 
         result.UpdateSuccessful.Should().BeTrue();
@@ -699,7 +692,6 @@ public class AvailabilityWriteServiceTests
             until,
             sessionMatcher,
             null,
-            false, 
             false);
 
         result.UpdateSuccessful.Should().BeTrue();

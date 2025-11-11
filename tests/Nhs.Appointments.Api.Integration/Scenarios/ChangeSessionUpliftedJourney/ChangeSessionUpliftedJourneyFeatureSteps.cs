@@ -1,15 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
@@ -20,6 +26,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
 {
     private HttpResponseMessage Response { get; set; }
     private Session SessionToCheck { get; set; }
+    
+    private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
     [When("I replace the session with the following and set cancelNewlyOrphanedBookings to '(.+)'")]
     public async Task UpdateSession(bool cancelNewlyOrphanedBookings, DataTable dataTable)
@@ -48,6 +56,50 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = GetCell(row, 4),
                 capacity = GetCell(row, 5)
             },
+            cancelNewlyOrphanedBookings);
+
+        await SendSessionEditRequest(payload);
+    }
+    
+    [When(@"I replace a session with a replacement and set cancelNewlyOrphanedBookings to '(.+)'")]
+    public async Task EditSessionReplacement(bool cancelNewlyOrphanedBookings, DataTable editSessions)
+    {
+        Session matcher = null;
+        Session replacement = null;
+
+        foreach (var row in editSessions.Rows.Skip(1))
+        {
+            var session = new Session
+            {
+                From = string.IsNullOrEmpty(row.Cells.ElementAt(3).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(3).Value),
+                Until = string.IsNullOrEmpty(row.Cells.ElementAt(4).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(4).Value),
+                Services = string.IsNullOrEmpty(row.Cells.ElementAt(5).Value) ? Array.Empty<string>() : row.Cells.ElementAt(5).Value.Split(','),
+                SlotLength = string.IsNullOrEmpty(row.Cells.ElementAt(6).Value) ? 0 : int.Parse(row.Cells.ElementAt(6).Value),
+                Capacity = string.IsNullOrEmpty(row.Cells.ElementAt(7).Value) ? 0 : int.Parse(row.Cells.ElementAt(7).Value),
+            };
+
+            if (row.Cells.ElementAt(0).Value == "Matcher")
+            {
+                matcher = session;
+            }
+
+            if (row.Cells.ElementAt(0).Value == "Replacement")
+            {
+                replacement = session;
+            }
+        }
+
+        var firstRow = editSessions.Rows.Skip(1).FirstOrDefault();
+        var sessionMatcherObj = matcher ?? (object)"*";
+
+        var from = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToDateTime(new TimeOnly(), DateTimeKind.Unspecified);
+        var until = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToDateTime(new TimeOnly(), DateTimeKind.Unspecified);
+        
+        var payload = BuildPayload(
+            from, 
+            until,
+            matcher: sessionMatcherObj,
+            replacement: replacement,
             cancelNewlyOrphanedBookings);
 
         await SendSessionEditRequest(payload);
@@ -140,7 +192,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 services = GetCell(row, 2).Split(",").Select(s => s.Trim()).ToArray(),
                 slotLength = GetCell(row, 3),
                 capacity = GetCell(row, 4)
-            });
+            },
+            cancelNewlyOrphanedBookings);
 
         await SendSessionEditRequest(payload);
     }
@@ -182,6 +235,65 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var date = ParseDate(dateString);
         await AssertSessionsForDay(date, shouldExist: true);
     }
+    
+    [When(@"I request the availability proposal for potential availability change")]
+    public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
+    {
+        Session matcher = null;
+        Session replacement = null;
+
+        foreach (var row in proposalSessions.Rows.Skip(1))
+        {
+            var session = new Session
+            {
+                From = string.IsNullOrEmpty(row.Cells.ElementAt(3).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(3).Value),
+                Until = string.IsNullOrEmpty(row.Cells.ElementAt(4).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(4).Value),
+                Services = string.IsNullOrEmpty(row.Cells.ElementAt(5).Value) ? Array.Empty<string>() : row.Cells.ElementAt(5).Value.Split(','),
+                SlotLength = string.IsNullOrEmpty(row.Cells.ElementAt(6).Value) ? 0 : int.Parse(row.Cells.ElementAt(6).Value),
+                Capacity = string.IsNullOrEmpty(row.Cells.ElementAt(7).Value) ? 0 : int.Parse(row.Cells.ElementAt(7).Value),
+            };
+
+            if (row.Cells.ElementAt(0).Value == "Matcher") matcher = session;
+            if (row.Cells.ElementAt(0).Value == "Replacement") replacement = session;
+        }
+
+        var firstRow = proposalSessions.Rows.Skip(1).FirstOrDefault();
+        object sessionMatcherObj = matcher ?? (object)"*";
+        var request = new
+        {
+
+            site = GetSiteId(),
+            from = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            to = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            sessionMatcher = sessionMatcherObj,
+            sessionReplacement = replacement
+        };
+        var serializerSettings = new JsonSerializerSettings
+        {
+            Converters = { new ShortTimeOnlyJsonConverter() },
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(request, serializerSettings), Encoding.UTF8, "application/json");
+
+        _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        (_, _availabilityChangeProposalResponse) =
+            await JsonRequestReader.ReadRequestAsync<AvailabilityChangeProposalResponse>(await _response.Content.ReadAsStreamAsync());
+    }
+
+    [Then(@"the following count is returned")]
+    public async Task AssertAvailabilityCount(DataTable expectedCounts)
+    {
+        var counts = new List<int>();
+
+        foreach (var row in expectedCounts.Rows)
+        {
+            counts.Add(int.Parse(row.Cells.ElementAt(1).Value));
+        }
+
+        _availabilityChangeProposalResponse.NewlySupportedBookingsCount.Should().Be(counts[0]);
+        _availabilityChangeProposalResponse.NewlyOrphanedBookingsCount.Should().Be(counts[1]);
+    }
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
@@ -212,7 +324,14 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         return dayAvailabilityDocument.Resource.Sessions.First();
     }
 
-    private async Task SendSessionEditRequest(object payload) => Response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
+    private async Task SendSessionEditRequest(object payload)
+    {
+        var serializerSettings = new JsonSerializerSettings { Converters = { new ShortTimeOnlyJsonConverter() }, };
+        var content = new StringContent(JsonConvert.SerializeObject(payload, serializerSettings), Encoding.UTF8,
+            "application/json");
+
+        Response = await Http.PostAsync("http://localhost:7071/api/session/edit", content);
+    }
 
     private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement, bool cancelNewlyOrphanedBookings = false) =>
         new

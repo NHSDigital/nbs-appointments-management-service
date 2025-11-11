@@ -22,8 +22,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
-   
-
+    
     [When(@"I request the availability proposal for potential availability change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
@@ -83,8 +82,8 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
         _availabilityChangeProposalResponse.NewlyOrphanedBookingsCount.Should().Be(counts[1]);
     }
 
-    [When(@"I request recalculation proposal endpoint")]
-    public async Task CallRecalculation()
+    [When(@"I request the edit proposal endpoint")]
+    public async Task CallProposeEditEndpoint()
     {
         var request = new
         {

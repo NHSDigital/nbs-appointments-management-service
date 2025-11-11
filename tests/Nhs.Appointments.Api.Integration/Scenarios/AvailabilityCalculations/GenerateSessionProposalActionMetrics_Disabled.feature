@@ -1,5 +1,5 @@
-Feature: Availability Recalculation Proposal Disabled
+Feature: Availability Edit Proposal Disabled
 
   Scenario: Recalculate availability change proposal
-    When I request recalculation proposal endpoint
+    When I request the edit proposal endpoint
     Then the call should fail with 404

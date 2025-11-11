@@ -1,4 +1,4 @@
-Feature: Availability Recalculation Proposal Enabled
+Feature: Availability Edit Proposal Enabled
 
   Scenario: Update a single session on a single day
     Given the site is configured for MYA

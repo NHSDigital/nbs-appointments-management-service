@@ -114,7 +114,7 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
       count: number,
     ) =>
       action === undefined
-        ? `Some bookings will move to a different session on the same day and at the same time. Cancelling the session will affect ${count} bookings.`
+        ? `Cancelling the session will affect ${count} bookings.`
         : action === 'keep-appointments'
           ? `You have chosen not to cancel ${count} bookings.`
           : `${count} bookings may have to be cancelled.`,

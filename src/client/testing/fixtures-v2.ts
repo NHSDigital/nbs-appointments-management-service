@@ -87,7 +87,7 @@ export const test = base.extend<MyaFixtures>({
     await Promise.all([
       await cosmosDbClient.deleteSite(testId),
       await cosmosDbClient.deleteUser(testId),
-      // TODO: Revert any feature toggles set for this test. Ensure tests sharing a toggle do not run in parallel.
+      await featureFlagClient.clearAllFeatureFlagOverrides(),
     ]);
   },
 });

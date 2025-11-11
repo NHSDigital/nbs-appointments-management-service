@@ -42,7 +42,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
 
-  const hasBookings = cancelAppointments == undefined ? false : true;
+  const hasBookings = cancelAppointments != undefined;
 
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   const [site, clinicalServices] = await Promise.all([

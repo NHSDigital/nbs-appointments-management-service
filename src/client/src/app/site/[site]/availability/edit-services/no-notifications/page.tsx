@@ -44,11 +44,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const [site, bookings, clinicalServices] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
-    fromServer(fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled'])),
+    fromServer(fetchBookings(fetchBookingsRequest, ['Cancelled'])),
     fromServer(fetchClinicalServices()),
   ]);
-
-  const cancelledBookings = bookings.filter(b => b.status === 'Cancelled');
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
@@ -65,7 +63,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       showPrintButton
     >
       <NoNotificationsPage
-        bookings={cancelledBookings}
+        bookings={bookings}
         site={site.id}
         clinicalServices={clinicalServices}
         cancelledWithoutDetailsCount={cancelledWithoutDetailsCount || 0}

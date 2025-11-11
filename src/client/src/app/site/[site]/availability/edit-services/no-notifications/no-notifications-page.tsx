@@ -16,12 +16,14 @@ export const NoNotificationsPage = ({
 }: Props) => {
   return (
     <>
-      <p>
-        {cancelledWithoutDetailsCount}{' '}
-        {cancelledWithoutDetailsCount > 1 ? 'people' : 'person'} did not get a
-        cancellation notification as they had no contact details on their
-        booking.
-      </p>
+      {cancelledWithoutDetailsCount > 0 && (
+        <p>
+          {cancelledWithoutDetailsCount}{' '}
+          {cancelledWithoutDetailsCount > 1 ? 'people' : 'person'} did not get a
+          cancellation notification as they had no contact details on their
+          booking.
+        </p>
+      )}
       <SessionBookingsContactDetailsPage
         bookings={bookings}
         site={site}

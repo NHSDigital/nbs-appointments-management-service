@@ -468,7 +468,7 @@ stages:
               script: |
                 Write-Host "Checking if build branch is release/..."
                 $branch = "$(Build.SourceBranch)"
-                if ($branch -like "refs/heads/release/") {
+                if ($branch -like "refs/heads/release/*") {
                   Write-Host "Release branch detected ($branch). Applying 42-day retention..."
                   $contentType = "application/json";
                   $headers = @{ Authorization = "Bearer $(System.AccessToken)" }

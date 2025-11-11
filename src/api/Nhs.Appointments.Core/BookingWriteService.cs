@@ -289,10 +289,13 @@ public class BookingWriteService(
                     break;
 
                 case AvailabilityUpdateAction.SetToOrphaned:
-                    await UpdateAvailabilityStatus(update.Booking.Reference, AvailabilityStatus.Orphaned);
                     if (cancelNewlyOrphanedBookings)
                     {
                         await CancelBooking(update.Booking.Reference, update.Booking.Site, CancellationReason.CancelledBySite, runRecalculation: false);
+                    }
+                    else
+                    {
+                        await UpdateAvailabilityStatus(update.Booking.Reference, AvailabilityStatus.Orphaned);
                     }
                     break;
 

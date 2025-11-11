@@ -21,8 +21,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     private HttpResponseMessage Response { get; set; }
     private Session SessionToCheck { get; set; }
 
-    [When("I replace the session with the following")]
-    public async Task UpdateSession(DataTable dataTable)
+    [When("I replace the session with the following and set cancelNewlyOrphanedBookings to '(.+)'")]
+    public async Task UpdateSession(bool cancelNewlyOrphanedBookings, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
@@ -47,7 +47,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 services = GetCell(row, 3).Split(",").Select(s => s.Trim()).ToArray(),
                 slotLength = GetCell(row, 4),
                 capacity = GetCell(row, 5)
-            });
+            },
+            cancelNewlyOrphanedBookings);
 
         await SendSessionEditRequest(payload);
     }
@@ -64,14 +65,13 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     //     await SendSessionEditRequest(payload);
     // }
 
-    [When("I cancel the following session using the new endpoint")]
-    public async Task CancelSingleSession(DataTable dataTable)
+    [When("I cancel the following session using the new endpoint and set cancelNewlyOrphanedBookings to '(.+)'")]
+    public async Task CancelSingleSession(bool cancelNewlyOrphanedBookings, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
-
+        
         SessionToCheck = BuildSession(row, 1);
-
         var payload = BuildPayload(
             date, date,
             matcher: new
@@ -82,13 +82,14 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = SessionToCheck.SlotLength,
                 capacity = SessionToCheck.Capacity
             },
-            replacement: null as Session);
+            replacement: null,
+            cancelNewlyOrphanedBookings);
 
         await SendSessionEditRequest(payload);
     }
 
-    [When("I cancel the sessions matching this between '(.+)' and '(.+)'")]
-    public async Task CancelMultipleSessions(string fromDate, string untilDate, DataTable dataTable)
+    [When("I cancel the sessions matching this between '(.+)' and '(.+)' and set cancelNewlyOrphanedBookings to '(.+)'")]
+    public async Task CancelMultipleSessions(string fromDate, string untilDate, bool cancelNewlyOrphanedBookings, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
@@ -106,13 +107,14 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = SessionToCheck.SlotLength,
                 capacity = SessionToCheck.Capacity
             },
-            replacement: null as Session);
+            replacement: null,
+            cancelNewlyOrphanedBookings);
 
         await SendSessionEditRequest(payload);
     }
 
-    [When("I replace multiple sessions between '(.+)' and '(.+)' with this session")]
-    public async Task UpdateMultipleSessions(string fromDate, string untilDate, DataTable dataTable)
+    [When("I replace multiple sessions between '(.+)' and '(.+)' with this session and set cancelNewlyOrphanedBookings to '(.+)'")]
+    public async Task UpdateMultipleSessions(string fromDate, string untilDate, bool cancelNewlyOrphanedBookings, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
@@ -212,14 +214,15 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
 
     private async Task SendSessionEditRequest(object payload) => Response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
 
-    private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement) =>
+    private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement, bool cancelNewlyOrphanedBookings = false) =>
         new
         {
             site = GetSiteId(),
             from = DateOnly.FromDateTime(from),
             to = DateOnly.FromDateTime(until),
             sessionMatcher = matcher,
-            sessionReplacement = replacement
+            sessionReplacement = replacement,
+            cancelNewlyOrphanedBookings
         };
 
     private async Task AssertSessionsForDay(DateTime date, bool shouldExist)

@@ -30,19 +30,33 @@ Feature: Change Session Uplifted Journey
     And there are no sessions for 'Tomorrow'
     And there are no sessions for '2 days from today'
 
-Scenario: Edit a single session on a single day
+Scenario: Edit a single session on a single day orphans newly orphaned booking
     Given the following sessions
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I replace the session with the following
+    When I replace the session with the following and set cancelNewlyOrphanedBookings to 'false'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 17:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' should have been updated
     Then the booking with reference '68537-44913' has status 'Booked'
     Then the booking with reference '68537-44913' has availability status 'Orphaned'
+
+  Scenario: Edit a single session on a single day cancels newly orphaned booking
+    Given the following sessions
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
+    When  I replace the session with the following and set cancelNewlyOrphanedBookings to 'true'
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 12:00 | 17:00 | COVID    | 5           | 1        |
+    Then the session 'Tomorrow' should have been updated
+    Then the booking with reference '68537-44913' has status 'Booked'
+    Then the booking with reference '68537-44913' has availability status 'Cancelled'
 
   Scenario: Cancel a single session on a single day
     Given the following sessions
@@ -52,7 +66,7 @@ Scenario: Edit a single session on a single day
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the new endpoint
+    When I cancel the following session using the new endpoint and set cancelNewlyOrphanedBookings to 'false'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' no longer exists
@@ -70,7 +84,7 @@ Scenario: Edit a single session on a single day
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
       | 3 days from today | 09:45 | 5        | COVID   | 54321-54321 |
-    When I cancel the sessions matching this between 'Tomorrow' and '3 days from now'
+    When I cancel the sessions matching this between 'Tomorrow' and '3 days from now' and set cancelNewlyOrphanedBookings to 'false'
       | From  | Until | Services | Slot Length | Capacity |
       | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' no longer exist
@@ -92,7 +106,7 @@ Scenario: Edit a single session on a single day
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
       | 3 days from today | 09:45 | 5        | COVID   | 54321-54321 |
-    When I replace multiple sessions between 'Tomorrow' and '3 days from now' with this session
+    When I replace multiple sessions between 'Tomorrow' and '3 days from now' with this session and set cancelNewlyOrphanedBookings to 'false'
       | From  | Until | Services | Slot Length | Capacity |
       | 11:00 | 16:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' should have been updated

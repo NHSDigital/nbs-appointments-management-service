@@ -24,8 +24,10 @@ public class BookingAvailabilityStateService(
         
         return (await BuildFullState(site, dayStart, dayEnd, returnType)).Summary;
     }
-
-    //TODO what to name this?
+    
+    /// <summary>
+    /// Fetches all required data and builds up the state
+    /// </summary>
     private async Task<BookingAvailabilityState> BuildFullState(string site, DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
     {
         var (bookings, sessions) =

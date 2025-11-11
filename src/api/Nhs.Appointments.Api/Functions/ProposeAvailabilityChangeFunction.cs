@@ -59,14 +59,14 @@ public class ProposeAvailabilityChangeFunction(
                 throw new NotImplementedException("Wildcard journey matcher is not implemented and needs re-developing when required.");
             }
             
-            var recalculations = await bookingAvailabilityStateService.GenerateSessionProposalActionMetrics(
+            var proposalActionMetrics = await bookingAvailabilityStateService.GenerateSessionProposalActionMetrics(
                 request.Site,
                 request.From.ToDateTime(TimeOnly.MinValue),
                 request.To.ToDateTime(new TimeOnly(23, 59, 59)),
                 request.SessionMatcher.Session,
                 request.SessionReplacement);
 
-            if (recalculations.MatchingSessionNotFound)
+            if (proposalActionMetrics.MatchingSessionNotFound)
             {
                 return ApiResult<AvailabilityChangeProposalResponse>.Failed(
                     HttpStatusCode.BadRequest, "Matching session was not found"
@@ -75,8 +75,8 @@ public class ProposeAvailabilityChangeFunction(
 
             return ApiResult<AvailabilityChangeProposalResponse>.Success(
                 new AvailabilityChangeProposalResponse(
-                    recalculations.NewlySupportedBookingsCount,
-                    recalculations.NewlyOrphanedBookingsCount
+                    proposalActionMetrics.NewlySupportedBookingsCount,
+                    proposalActionMetrics.NewlyOrphanedBookingsCount
                 )
             );
         }

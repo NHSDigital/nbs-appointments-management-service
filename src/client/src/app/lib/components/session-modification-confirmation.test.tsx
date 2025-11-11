@@ -547,4 +547,21 @@ describe('submitForm', () => {
     // ensure no stray "undefined" anywhere in the URL
     expect(calledArg).not.toContain('undefined');
   });
+
+  it('renders the correct impact note when cancelling a session', async () => {
+    render(
+      <SessionModificationConfirmation
+        unsupportedBookingsCount={3}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+        mode="cancel"
+      />,
+    );
+
+    expect(
+      screen.getByText('Cancelling the session will affect 3 bookings.'),
+    ).toBeInTheDocument();
+  });
 });

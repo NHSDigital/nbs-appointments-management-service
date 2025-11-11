@@ -6,51 +6,50 @@ using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using System.Net;
-using System.Security.Policy;
-using Site = Nhs.Appointments.Core.Site;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
-
-public class SetSiteInformationForCitizensFunctionTests
+public class SetSiteDetailsFunctionTests
 {
-    private readonly Mock<ILogger<SetSiteInformationForCitizensFunction>> _logger = new();
+    private readonly Mock<ILogger<SetSiteDetailsFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<ISiteService> _siteService = new();
-    private readonly SetSiteInformationForCitizensFunctionTestProxi _sut;
     private readonly Mock<IUserContextProvider> _userContext = new();
-    private readonly Mock<IValidator<SetSiteInformationForCitizensRequest>> _validator = new();
+    private readonly Mock<IValidator<SetSiteDetailsRequest>> _validator = new();
 
-    public SetSiteInformationForCitizensFunctionTests()
+    private readonly SetSiteDetailsFunctionTestProxi _sut;
+
+    public SetSiteDetailsFunctionTests()
     {
-        _sut = new SetSiteInformationForCitizensFunctionTestProxi(
+        _sut = new SetSiteDetailsFunctionTestProxi(
             _siteService.Object,
             _validator.Object,
             _userContext.Object,
             _logger.Object,
-            _metricsRecorder.Object
-        );
+            _metricsRecorder.Object);
     }
 
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task InvokeSiteService_WhenSettingInformationForCitizens(bool operationSuccess)
+    public async Task InvokeSiteService_WhenSettingSiteDetails(bool operationSuccess)
     {
-        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user3@nhs.net");
         var site = "test-site";
-        var infoForCitizens = "Some information for citizens.";
-        var request = new SetSiteInformationForCitizensRequest(site, infoForCitizens);
+        var name = "Test Name";
+        var address = "Test address";
+        var phoneNo = "01234567890";
+        var longitude = 1.234;
+        var latitude = 4.567;
+        var request = new SetSiteDetailsRequest(site, name, address, phoneNo, $"{longitude}", $"{latitude}");
         var operationalResult = new OperationResult(operationSuccess);
 
-        _userContext.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _siteService.Setup(x => x.UpdateInformationForCitizens(It.IsAny<string>(), It.IsAny<string>()))
+        _siteService.Setup(x => x.UpdateSiteDetailsAsync(site, name, address, phoneNo, decimal.Parse($"{longitude}"), decimal.Parse($"{latitude}")))
             .ReturnsAsync(operationalResult);
         _siteService.Setup(x => x.GetSiteByIdAsync(site, It.IsAny<string>()))
             .ReturnsAsync(new Site(
                     site,
-                    "Test Site",
-                    "Test Address",
-                    "01234567890",
+                    name,
+                    address,
+                    phoneNo,
                     "ODS1",
                     "R1",
                     "ICB1",
@@ -69,7 +68,8 @@ public class SetSiteInformationForCitizensFunctionTests
 
         Assert.Multiple(
             () => result.IsSuccess.Should().Be(operationSuccess),
-            () => _siteService.Verify(x => x.UpdateInformationForCitizens(site, infoForCitizens), Times.Once)
+            () => _siteService.Verify(x => x.UpdateSiteDetailsAsync(site, name, address, phoneNo, decimal.Parse($"{longitude}"), decimal.Parse($"{latitude}")),
+            Times.Once)
         );
     }
 
@@ -77,8 +77,12 @@ public class SetSiteInformationForCitizensFunctionTests
     public async Task DoesNotInvokeService_WhenSiteIsInactive()
     {
         var site = "test-site";
-        var infoForCitizens = "Some information for citizens.";
-        var request = new SetSiteInformationForCitizensRequest(site, infoForCitizens);
+        var name = "Test Name";
+        var address = "Test address";
+        var phoneNo = "01234567890";
+        var longitude = 1.234;
+        var latitude = 4.567;
+        var request = new SetSiteDetailsRequest(site, name, address, phoneNo, $"{longitude}", $"{latitude}");
 
         _siteService.Setup(x => x.GetSiteByIdAsync("test-site", It.IsAny<string>()))
             .ReturnsAsync(null as Site);
@@ -88,21 +92,22 @@ public class SetSiteInformationForCitizensFunctionTests
         Assert.Multiple(
             () => result.IsSuccess.Should().BeFalse(),
             () => result.StatusCode.Should().Be(HttpStatusCode.NotFound),
-            () => _siteService.Verify(x => x.UpdateInformationForCitizens(site, infoForCitizens), Times.Never)
+            () => _siteService.Verify(x => x.UpdateSiteDetailsAsync(site, name, address, phoneNo, decimal.Parse($"{longitude}"), decimal.Parse($"{latitude}")),
+            Times.Never)
         );
     }
 
-    private class SetSiteInformationForCitizensFunctionTestProxi(
+    private class SetSiteDetailsFunctionTestProxi(
         ISiteService siteService,
-        IValidator<SetSiteInformationForCitizensRequest> validator,
+        IValidator<SetSiteDetailsRequest> validator,
         IUserContextProvider userContextProvider,
-        ILogger<SetSiteInformationForCitizensFunction> logger,
+        ILogger<SetSiteDetailsFunction> logger,
         IMetricsRecorder metricsRecorder)
-        : SetSiteInformationForCitizensFunction(siteService, validator, userContextProvider, logger, metricsRecorder)
+        : SetSiteDetailsFunction(siteService, validator, userContextProvider, logger, metricsRecorder)
     {
-        private readonly ILogger<SetSiteInformationForCitizensFunction> _logger = logger;
+        private readonly ILogger<SetSiteDetailsFunction> _logger = logger;
 
-        public async Task<ApiResult<EmptyResponse>> Invoke(SetSiteInformationForCitizensRequest request) =>
+        public async Task<ApiResult<EmptyResponse>> Invoke(SetSiteDetailsRequest request) =>
             await HandleRequest(request, _logger);
     }
 }

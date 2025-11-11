@@ -22,6 +22,7 @@ public class QueryBookingByReferenceNumberTests
     private readonly QueryBookingByReferenceFunction _sut;
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<QueryBookingByReferenceRequest>> _validator = new();
+    private readonly Mock<ISiteService> _siteService = new();
 
     public QueryBookingByReferenceNumberTests()
     {
@@ -30,7 +31,8 @@ public class QueryBookingByReferenceNumberTests
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
-            _metricsRecorder.Object);
+            _metricsRecorder.Object,
+            _siteService.Object);
 
         _validator.Setup(
                 x => x.ValidateAsync(It.IsAny<QueryBookingByReferenceRequest>(), It.IsAny<CancellationToken>()))
@@ -56,6 +58,25 @@ public class QueryBookingByReferenceNumberTests
 
         _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
             .ReturnsAsync(booking);
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                site,
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                string.Empty,
+                new List<Accessibility>
+                {
+                 new("test_acces/one", "true")
+                },
+                new Location("Coords", [1.234, 5.678]),
+                null,
+                false,
+                string.Empty
+            ));
 
         var request = new QueryBookingByReferenceRequest(bookingRef, site);
         var httpRequest = CreateRequest(request.site);
@@ -87,7 +108,57 @@ public class QueryBookingByReferenceNumberTests
 
         _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
             .ReturnsAsync(booking);
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "Test Site",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                string.Empty,
+                new List<Accessibility>
+                {
+                 new("test_acces/one", "true")
+                },
+                new Location("Coords", [1.234, 5.678]),
+                null,
+                false,
+                string.Empty
+            ));
 
+        var request = new QueryBookingByReferenceRequest(bookingRef, "TEST03");
+        var httpRequest = CreateRequest(request.site);
+
+        var result = await _sut.RunAsync(httpRequest) as ContentResult;
+        result.StatusCode.Should().Be(404);
+    }
+
+    [Fact]
+    public async Task ReturnsNotFound_WhenSiteHasBeenSoftDeleted()
+    {
+        const string bookingRef = "ABC123";
+        var booking = new Booking
+        {
+            Reference = bookingRef,
+            From = DateTime.Now.AddDays(1),
+            Duration = 5,
+            AttendeeDetails = new AttendeeDetails
+            {
+                FirstName = "John",
+                LastName = "Bloggs",
+                NhsNumber = "1234567890"
+            },
+            Site = "TEST01"
+        };
+
+        _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
+            .ReturnsAsync(booking);
+
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(null as Site);
+        
         var request = new QueryBookingByReferenceRequest(bookingRef, "TEST03");
         var httpRequest = CreateRequest(request.site);
 

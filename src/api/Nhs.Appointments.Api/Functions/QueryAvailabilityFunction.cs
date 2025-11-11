@@ -29,7 +29,8 @@ public class QueryAvailabilityFunction(
     ILogger<QueryAvailabilityFunction> logger,
     IMetricsRecorder metricsRecorder,
     IFeatureToggleHelper featureToggleHelper,
-    IHasConsecutiveCapacityFilter hasConsecutiveCapacityFilter)
+    IHasConsecutiveCapacityFilter hasConsecutiveCapacityFilter,
+    ISiteService siteService)
     : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -62,7 +63,14 @@ public class QueryAvailabilityFunction(
         var requestUntil = request.Until;
         var requestConsecutive = request.Consecutive;
 
-        await Parallel.ForEachAsync(request.Sites, async (site, ct) =>
+        var sites = await siteService.GetAllSites();
+        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.isDeleted is false or null));
+        if (!activeSites.Any())
+        {
+            return Success([]);
+        }
+
+        await Parallel.ForEachAsync(activeSites, async (site, ct) =>
         {
             var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1);
             concurrentResults.Add(siteAvailability);

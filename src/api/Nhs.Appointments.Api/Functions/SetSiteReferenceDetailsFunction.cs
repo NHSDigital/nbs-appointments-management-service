@@ -21,7 +21,7 @@ public class SetSiteReferenceDetailsFunction(
     ISiteService siteService,
     IValidator<SetSiteReferenceDetailsRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<SetSiteReferenceDetailsRequest> logger,
+    ILogger<SetSiteReferenceDetailsFunction> logger,
     IMetricsRecorder metricsRecorder)
     : BaseApiFunction<SetSiteReferenceDetailsRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
@@ -52,6 +52,11 @@ public class SetSiteReferenceDetailsFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteReferenceDetailsRequest request,
         ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "The specified site was not found.");
+        }
+
         var result =
             await siteService.UpdateSiteReferenceDetailsAsync(request.Site, request.OdsCode, request.Icb,
                 request.Region);

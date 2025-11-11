@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,11 +29,11 @@ public sealed class WellKnownOdsCodeEntriesFeatureSteps : BaseFeatureSteps
                 Entries = [
                 new WellKnownOdsEntry(
                     OdsCode: "R1",
-                    DisplayName: "Region One",
+                    DisplayName: "Region 1",
                     Type: "region"),
                 new WellKnownOdsEntry(
                     OdsCode: "ICB1",
-                    DisplayName: "Integrated Care Board One",
+                    DisplayName: "Integrated Care Board 1",
                     Type: "icb")
                 ]
             };

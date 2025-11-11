@@ -32,6 +32,7 @@ public class QueryAvailabilityFunctionTests
     private readonly Mock<IValidator<QueryAvailabilityRequest>> _validator = new();
     private readonly Mock<IHasConsecutiveCapacityFilter> _hasConsecutiveCapacityFilter = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
+    private readonly Mock<ISiteService> _siteService = new();
 
     public QueryAvailabilityFunctionTests()
     {
@@ -43,7 +44,8 @@ public class QueryAvailabilityFunctionTests
             _logger.Object,
             _metricsRecorder.Object,
             _featureToggleHelper.Object,
-            _hasConsecutiveCapacityFilter.Object);
+            _hasConsecutiveCapacityFilter.Object,
+            _siteService.Object);
 
         _availabilityGrouperFactory.Setup(x => x.Create(It.IsAny<QueryType>()))
             .Returns(_availabilityGrouper.Object);
@@ -62,6 +64,46 @@ public class QueryAvailabilityFunctionTests
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    null,
+                    string.Empty
+                    ),
+                new(
+                    "34e990af-5dc9-43a6-8895-b9123216d699",
+                    "Test Site 2",
+                    "Test Address 2",
+                    "09876543210",
+                    "ODS2",
+                    "R2",
+                    "ICB2",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    null,
+                    string.Empty
+                    )
+            });
 
         var request = new QueryAvailabilityRequest(
             ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "34e990af-5dc9-43a6-8895-b9123216d699"],
@@ -100,6 +142,28 @@ public class QueryAvailabilityFunctionTests
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    null,
+                    string.Empty
+                    )
+            });
 
         var request = new QueryAvailabilityRequest(
             ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
@@ -126,6 +190,28 @@ public class QueryAvailabilityFunctionTests
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    null,
+                    string.Empty
+                    )
+            });
 
         var request = new QueryAvailabilityRequest(
             ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
@@ -162,6 +248,28 @@ public class QueryAvailabilityFunctionTests
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(true);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    null,
+                    string.Empty
+                    )
+            });
 
         var request = new QueryAvailabilityRequest(
             ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
@@ -196,6 +304,28 @@ public class QueryAvailabilityFunctionTests
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
         _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(blocks.AsEnumerable());
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    null,
+                    string.Empty
+                    )
+            });
 
         var request = new QueryAvailabilityRequest(
             ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
@@ -231,7 +361,29 @@ public class QueryAvailabilityFunctionTests
                 x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(),
                     It.IsAny<DateTime>()))
             .ReturnsAsync(blocks.ToList());
-        
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    null,
+                    string.Empty
+                    )
+            });
+
         var request = new QueryAvailabilityRequest(
             ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f"],
             "COVID",
@@ -246,6 +398,143 @@ public class QueryAvailabilityFunctionTests
         
         _bookingAvailabilityStateService.Verify(x => x.GetAvailableSlots("2de5bb57-060f-4cb5-b14d-16587d0c2e8f", new DateTime(2077, 01, 01, 0, 0, 0),
                 new DateTime(2077, 01, 03, 23, 59, 59)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsEmptyArray_WhenAllRequestedSites_HaveBeenSoftDeleted()
+    {
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    true,
+                    string.Empty
+                    ),
+                new(
+                    "34e990af-5dc9-43a6-8895-b9123216d699",
+                    "Test Site 2",
+                    "Test Address 2",
+                    "09876543210",
+                    "ODS2",
+                    "R2",
+                    "ICB2",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    true,
+                    string.Empty
+                    )
+            });
+
+        var request = new QueryAvailabilityRequest(
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "34e990af-5dc9-43a6-8895-b9123216d699"],
+            "COVID",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
+            QueryType.Days,
+            null);
+
+        var httpRequest = CreateRequest(request);
+
+        var result = await _sut.RunAsync(httpRequest) as ContentResult;
+
+        result.StatusCode.Should().Be(200);
+
+        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+        response.Count.Should().Be(0);
+
+
+        _bookingAvailabilityStateService.Verify(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()),
+            Times.Never);
+        _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()),
+            Times.Never);
+        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RunAsync_OnlyProcessesActiveSites()
+    {
+        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Site>
+            {
+                new(
+                    "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                    "Test Site",
+                    "Test Address",
+                    "01234567890",
+                    "ODS1",
+                    "R1",
+                    "ICB1",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    false,
+                    string.Empty
+                    ),
+                new(
+                    "34e990af-5dc9-43a6-8895-b9123216d699",
+                    "Test Site 2",
+                    "Test Address 2",
+                    "09876543210",
+                    "ODS2",
+                    "R2",
+                    "ICB2",
+                    string.Empty,
+                    new List<Accessibility>
+                    {
+                        new("test_acces/one", "true")
+                    },
+                    new Location("Coords", [1.234, 5.678]),
+                    null,
+                    true,
+                    string.Empty
+                    )
+            });
+
+        var request = new QueryAvailabilityRequest(
+            ["2de5bb57-060f-4cb5-b14d-16587d0c2e8f", "34e990af-5dc9-43a6-8895-b9123216d699"],
+            "COVID",
+            new DateOnly(2077, 01, 01),
+            new DateOnly(2077, 01, 01),
+            QueryType.Days,
+            null);
+
+        var httpRequest = CreateRequest(request);
+
+        var result = await _sut.RunAsync(httpRequest) as ContentResult;
+
+        result.StatusCode.Should().Be(200);
+
+        var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
+        response.Count.Should().Be(1);
+
+        _bookingAvailabilityStateService.Verify(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()),
+            Times.Once);
+        _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()),
             Times.Once);
     }
 

@@ -52,6 +52,11 @@ public class SetSiteAccessibilitiesFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteAccessibilitiesRequest request,
         ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "The specified site was not found.");
+        }
+
         var result = await siteService.UpdateAccessibilities(request.Site, request.Accessibilities);
         return result.Success ? Success(new EmptyResponse()) : Failed(HttpStatusCode.NotFound, result.Message);
     }

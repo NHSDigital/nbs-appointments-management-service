@@ -20,7 +20,8 @@ public class SetAvailabilityFunction(
     IValidator<SetAvailabilityRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<SetAvailabilityFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    ISiteService siteService)
     : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"],
@@ -47,6 +48,11 @@ public class SetAvailabilityFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetAvailabilityRequest request,
         ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Site could not be found.");
+        }
+
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
         await availabilityWriteService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions,

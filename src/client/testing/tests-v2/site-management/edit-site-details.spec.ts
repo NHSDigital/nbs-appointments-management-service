@@ -1,5 +1,5 @@
 import { buildSiteName } from '@e2etests/data';
-import { test, expect } from '../fixtures-v2';
+import { test, expect } from '../../fixtures-v2';
 
 test('A user updates the details for a site', async ({ setUpSingleSite }) => {
   const { sitePage } = await setUpSingleSite();

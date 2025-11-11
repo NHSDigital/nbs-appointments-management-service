@@ -12,12 +12,20 @@ import {
 export * from '@playwright/test';
 import { LoginPage, SitePage } from '@e2etests/page-objects';
 import env from './testEnvironment';
-import { Role, FeatureFlag } from '@e2etests/types';
+import { Role, FeatureFlag, SiteDocument } from '@e2etests/types';
+
+type FixtureOptions = {
+  roles?: Role[];
+  features?: FeatureFlag[];
+};
+
+type SetUpSingleSiteFixtureOptions = {
+  siteConfig?: Partial<SiteDocument>;
+} & FixtureOptions;
 
 type MyaFixtures = {
   setUpSingleSite: (
-    roles?: Role[],
-    features?: FeatureFlag[],
+    options?: SetUpSingleSiteFixtureOptions,
   ) => Promise<{ sitePage: SitePage; testId: number }>;
 };
 
@@ -32,40 +40,48 @@ export const test = base.extend<MyaFixtures>({
 
     const testId = generateUniqueTestId(testInfo);
 
+    const defaultFixtureOptions: SetUpSingleSiteFixtureOptions = {
+      roles: [
+        'canned:availability-manager',
+        'canned:appointment-manager',
+        'canned:site-details-manager',
+        'canned:user-manager',
+      ],
+    };
+
     // Fixture setup. Result of use() is piped to the test
     // This currently accepts a list of roles and feature flags.
     // In the future this will be extended to accept a list of users and sites to enable tests to request extra users and sites in their setup.
     // Alternatively, we can add extra fixtures to this list and make them each responsible for setup/teardown of a different thing. Tests can import multiple fixtures as needed.
-    await use(
-      async (
-        roles = [
-          'canned:availability-manager',
-          'canned:appointment-manager',
-          'canned:site-details-manager',
-          'canned:user-manager',
-        ],
-        features = [],
-      ) => {
-        await Promise.all([
-          cosmosDbClient.createSite(testId),
-          cosmosDbClient.createUser(testId, roles),
-          mockOidcClient.registerTestUser(testId),
-          features.map(async feature => {
-            featureFlagClient.overrideFeatureFlag(feature);
-          }),
-        ]);
+    await use(async options => {
+      const {
+        roles = [],
+        features,
+        siteConfig,
+      } = {
+        ...defaultFixtureOptions,
+        ...options,
+      };
 
-        const sitePage = await new LoginPage(page)
-          .logInWithNhsMail()
-          .then(mockOidcLoginPage =>
-            mockOidcLoginPage.signIn(buildE2ETestUser(testId)),
-          )
-          .then(siteSelectionPage =>
-            siteSelectionPage.selectSite(buildE2ETestSite(testId)),
-          );
-        return { sitePage, testId };
-      },
-    );
+      await Promise.all([
+        cosmosDbClient.createSite(testId, siteConfig),
+        cosmosDbClient.createUser(testId, roles),
+        mockOidcClient.registerTestUser(testId),
+        features?.map(async feature => {
+          featureFlagClient.overrideFeatureFlag(feature);
+        }),
+      ]);
+
+      const sitePage = await new LoginPage(page)
+        .logInWithNhsMail()
+        .then(mockOidcLoginPage =>
+          mockOidcLoginPage.signIn(buildE2ETestUser(testId)),
+        )
+        .then(siteSelectionPage =>
+          siteSelectionPage.selectSite(buildE2ETestSite(testId)),
+        );
+      return { sitePage, testId };
+    });
 
     // Clean up the fixture.
     await Promise.all([

@@ -8,6 +8,7 @@ type SiteDocument = {
   region: string;
   integratedCareBoard: string;
   location: SiteLocation;
+  status?: 'Online' | 'Offline';
   accessibilities: string[];
   informationForCitizens: string;
 };

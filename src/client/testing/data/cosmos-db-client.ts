@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { CosmosClient } from '@azure/cosmos';
-import { Role } from '@e2etests/types';
+import { Role, SiteDocument } from '@e2etests/types';
 import { buildSiteDocument, buildUserDocument } from '@e2etests/data';
 
 class CosmosDbClient {
@@ -25,8 +25,8 @@ class CosmosDbClient {
     return appts;
   }
 
-  public async createSite(testId: number) {
-    const siteDocument = buildSiteDocument(testId);
+  public async createSite(testId: number, siteConfig?: Partial<SiteDocument>) {
+    const siteDocument = { ...buildSiteDocument(testId), ...siteConfig };
 
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({

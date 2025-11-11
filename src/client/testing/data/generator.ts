@@ -22,6 +22,7 @@ const buildSiteDocument = (testId: number): SiteDocument => {
       type: 'Point',
       coordinates: [-1.6610648, 53.795467],
     },
+    status: 'Online',
     accessibilities: [],
     informationForCitizens:
       'This is some placeholder information for citizens.',

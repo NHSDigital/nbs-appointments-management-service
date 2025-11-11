@@ -1,4 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests;
+using Nhs.Appointments.Core.Sites;
+
+namespace Nhs.Appointments.Core.UnitTests;
 
 public static class SiteServiceCacheTestsMockData
 {

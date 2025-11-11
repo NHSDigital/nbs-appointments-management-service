@@ -1,7 +1,9 @@
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Core.Okta;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Core.UnitTests
 {

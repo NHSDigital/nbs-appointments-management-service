@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Nhs.Appointments.Core;
+using Newtonsoft.Json;
+using Nhs.Appointments.Core.Availability;
 
 namespace Nhs.Appointments.Persistance.Models;
 

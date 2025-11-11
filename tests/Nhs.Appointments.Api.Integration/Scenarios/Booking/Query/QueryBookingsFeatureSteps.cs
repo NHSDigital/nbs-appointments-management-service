@@ -8,14 +8,14 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Query;
 
 public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
-    private List<Core.Booking> _actualResponse;
+    private List<Core.Bookings.Booking> _actualResponse;
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
 
@@ -49,7 +49,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
         _response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
         _statusCode = _response.StatusCode;
         (_, _actualResponse) =
-            await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(
+            await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(
                 await _response.Content.ReadAsStreamAsync());
     }
 
@@ -60,7 +60,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
 
-    private IEnumerable<Core.Booking> BuildBookingsFromDataTable(DataTable dataTable)
+    private IEnumerable<Core.Bookings.Booking> BuildBookingsFromDataTable(DataTable dataTable)
     {
         return dataTable.Rows.Skip(1).Select((row, index) =>
         {
@@ -90,7 +90,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
                 dataTable.GetEnumRowValueOrDefault<CancellationNotificationStatus>(row,
                     "Cancellation Notification Status");
 
-            var booking = new Core.Booking
+            var booking = new Core.Bookings.Booking
             {
                 Reference = reference,
                 From = from,

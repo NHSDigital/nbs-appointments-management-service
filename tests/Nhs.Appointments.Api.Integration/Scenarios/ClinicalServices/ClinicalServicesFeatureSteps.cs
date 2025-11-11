@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 

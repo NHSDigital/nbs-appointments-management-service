@@ -8,7 +8,7 @@ using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;

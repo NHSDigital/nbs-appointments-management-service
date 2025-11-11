@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Helpers;
+
 namespace Nhs.Appointments.Core.UnitTests;
 
 public class TimePeriodTests

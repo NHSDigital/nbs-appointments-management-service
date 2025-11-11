@@ -1,4 +1,6 @@
-﻿namespace Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.Sites;
+
+namespace Nhs.Appointments.Core.Reports.SiteSummary;
 
 public interface ISiteReportCsvWriter
 {

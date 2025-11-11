@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Bookings;
+
 namespace Nhs.Appointments.Core.Reports.SiteSummary;
 
 public class SiteSummaryAggregator(IBookingAvailabilityStateService bookingAvailabilityStateService, IDailySiteSummaryStore store, TimeProvider timeProvider) : ISiteSummaryAggregator

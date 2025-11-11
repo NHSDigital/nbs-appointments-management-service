@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
+using Nhs.Appointments.Core.Extensions;
 
 namespace Nhs.Appointments.Core.Inspectors;
 

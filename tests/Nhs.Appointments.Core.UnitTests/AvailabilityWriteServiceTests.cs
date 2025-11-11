@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;

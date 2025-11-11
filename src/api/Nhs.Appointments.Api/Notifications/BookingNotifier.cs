@@ -1,7 +1,9 @@
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.ClinicalServices;
+using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.Sites;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;

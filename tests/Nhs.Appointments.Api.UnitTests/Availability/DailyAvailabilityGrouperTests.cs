@@ -1,6 +1,6 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 
 namespace Nhs.Appointments.Api.Tests.Availability;
 

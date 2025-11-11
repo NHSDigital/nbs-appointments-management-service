@@ -1,4 +1,7 @@
-﻿using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.ClinicalServices;
+using Nhs.Appointments.Core.OdsCodes;
+using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests.Reports;
 

@@ -10,12 +10,12 @@ using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
-using AttendeeDetails = Nhs.Appointments.Core.AttendeeDetails;
-using ContactItem = Nhs.Appointments.Core.ContactItem;
+using AttendeeDetails = Nhs.Appointments.Core.Bookings.AttendeeDetails;
+using ContactItem = Nhs.Appointments.Core.Bookings.ContactItem;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using System;
 
 namespace Nhs.Appointments.Api.Json;

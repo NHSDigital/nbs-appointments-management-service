@@ -9,7 +9,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 using DataTable = Gherkin.Ast.DataTable;

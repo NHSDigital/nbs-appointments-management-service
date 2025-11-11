@@ -1,5 +1,5 @@
 using AutoMapper;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;

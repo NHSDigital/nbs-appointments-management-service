@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Nhs.Appointments.Core.ClinicalServices;
 
 namespace Nhs.Appointments.Core.UnitTests;
 public class ClinicalServiceProviderTests

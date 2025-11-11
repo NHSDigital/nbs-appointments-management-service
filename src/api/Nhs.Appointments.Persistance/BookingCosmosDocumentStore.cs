@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;

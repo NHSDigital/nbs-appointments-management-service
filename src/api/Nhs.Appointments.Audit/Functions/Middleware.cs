@@ -3,8 +3,9 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Audit.Services;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Extensions;
 using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Audit.Functions;
 

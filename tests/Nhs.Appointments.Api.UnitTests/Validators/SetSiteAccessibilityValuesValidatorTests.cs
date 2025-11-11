@@ -2,7 +2,7 @@ using FluentAssertions;
 using FluentValidation.TestHelper;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 

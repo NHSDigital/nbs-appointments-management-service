@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Bookings;
+
 namespace Nhs.Appointments.Core.UnitTests;
 
 public class BookingQueryServiceTests

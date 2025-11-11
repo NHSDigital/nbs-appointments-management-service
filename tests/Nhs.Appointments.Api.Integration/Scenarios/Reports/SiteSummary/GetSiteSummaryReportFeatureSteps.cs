@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -16,7 +16,7 @@ using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Location;
+using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Reports.SiteSummary;
 

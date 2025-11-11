@@ -2,6 +2,8 @@ using BookingsDataExtracts;
 using DataExtract.Documents;
 using FluentAssertions;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
 
 namespace BookingDataExtracts.UnitTests;

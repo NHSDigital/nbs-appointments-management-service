@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core;
 

@@ -12,7 +12,8 @@ using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Xunit;
@@ -22,7 +23,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 
 public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
-    private List<Core.Booking> _getBookingsResponse;
+    private List<Core.Bookings.Booking> _getBookingsResponse;
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
     [When("I cancel the following sessions")]
@@ -63,7 +64,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
         _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         (_, _getBookingsResponse) =
-            await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(await _response.Content.ReadAsStreamAsync());
+            await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(await _response.Content.ReadAsStreamAsync());
     }
 
     [Then(@"the following bookings are returned")]

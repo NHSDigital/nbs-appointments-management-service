@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability

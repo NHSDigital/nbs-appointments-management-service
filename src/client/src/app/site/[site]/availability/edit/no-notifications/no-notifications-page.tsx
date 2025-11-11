@@ -16,7 +16,7 @@ export const NoNotificationsPage = ({
 }: Props) => {
   return (
     <>
-      <p>
+      <p className="no-print">
         {cancelledWithoutDetailsCount}{' '}
         {cancelledWithoutDetailsCount > 1 ? 'people' : 'person'} did not get a
         cancellation notification as they had no contact details on their

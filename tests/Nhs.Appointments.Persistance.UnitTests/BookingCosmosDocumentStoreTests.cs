@@ -592,4 +592,58 @@ public class BookingCosmosDocumentStoreTests
 
         _bookingStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
     }
+
+    [Fact]
+    public async Task GetCrossSiteAsync_ShouldFilterOnStatus()
+    {
+        _indexStore.Setup(x =>
+                x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+            .ReturnsAsync(new List<BookingIndexDocument>()
+            {
+                new ()
+                {
+                    Id = "test-1",
+                    Status = AppointmentStatus.Booked,
+                },
+                new ()
+                {
+                    Id = "test-2",
+                    Status = AppointmentStatus.Cancelled,
+                },
+                new ()
+                {
+                    Id = "test-2",
+                    Status = AppointmentStatus.Booked,
+                },
+            });
+        _bookingStore.Setup(x =>
+                x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+            .ReturnsAsync(new List<Booking>()
+            {
+                new()
+                {
+                    Reference = "test-1",
+                    Status = AppointmentStatus.Booked,
+                },
+                new()
+                {
+                    Reference = "test-2", 
+                    Status = AppointmentStatus.Cancelled, 
+                },
+                new()
+                {
+                    Reference = "test-3", 
+                    Status = AppointmentStatus.Booked, 
+                },
+            });
+
+        var expected = new List<Booking>()
+        {
+            new() { Reference = "test-1", Status = AppointmentStatus.Booked, },
+            new() { Reference = "test-3", Status = AppointmentStatus.Booked, },
+        };
+        var result = await _sut.GetCrossSiteAsync(DateTime.MinValue, DateTime.MaxValue, AppointmentStatus.Booked);
+        
+        Assert.Equivalent(expected, result, true);
+    }
 }

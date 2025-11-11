@@ -628,7 +628,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task RecalculateAppointmentStatuses_CancelUnsupportedBookings()
         {
-            var cancelUnsupportedBookings = true;
+            var cancelNewlyOrphanedBookings = true;
             var bookings = new List<Booking>
             {
                 new()
@@ -650,7 +650,7 @@ namespace Nhs.Appointments.Core.UnitTests
                         new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
                     });
 
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), cancelUnsupportedBookings);
+            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), cancelNewlyOrphanedBookings);
 
             _bookingsDocumentStore.Verify(
                 x => x.UpdateStatus(It.IsAny<string>(), It.IsAny<AppointmentStatus>(),
@@ -812,7 +812,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 new DateOnly(2025, 1, 1),
                 new DateOnly(2025, 1, 2)
             };
-            var cancelUnsupportedBookings = true;
+            var cancelNewlyOrphanedBookings = true;
 
             var bookings = new Booking[]
             {
@@ -886,7 +886,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     new(bookings[3], AvailabilityUpdateAction.ProvisionalToDelete)
                 });
 
-            var result = await _sut.RecalculateAppointmentStatuses(MockSite, days, cancelUnsupportedBookings);
+            var result = await _sut.RecalculateAppointmentStatuses(MockSite, days, cancelNewlyOrphanedBookings);
 
             result.BookingsCanceled.Should().Be(2);
             result.BookingsCanceledWithoutDetails.Should().Be(1);

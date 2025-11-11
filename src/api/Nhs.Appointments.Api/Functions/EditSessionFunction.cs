@@ -59,7 +59,7 @@ public class EditSessionFunction(
             request.To,
             request.SessionMatcher.Session,
             request.SessionReplacement,
-            request.CancelUnsupportedBookings);
+            request.CancelNewlyOrphanedBookings);
 
         return result.UpdateSuccessful
             ? Success(result)

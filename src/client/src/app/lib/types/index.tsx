@@ -388,7 +388,7 @@ type UpdateSessionRequest = {
   site: string;
   sessionMatcher: AvailabilitySession | '*';
   sessionReplacement: AvailabilitySession | null;
-  cancelUnsupportedBookings: boolean;
+  cancelNewlyOrphanedBookings: boolean;
 };
 
 type SiteStatus = 'Online' | 'Offline';

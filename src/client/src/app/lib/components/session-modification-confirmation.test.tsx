@@ -271,7 +271,7 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = true;
+    const cancelNewlyOrphanedBookings = true;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -284,7 +284,7 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      cancelNewlyOrphanedBookings: cancelNewlyOrphanedBookings,
     });
 
     // Validate navigation
@@ -346,7 +346,7 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = false;
+    const cancelNewlyOrphanedBookings = false;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -359,7 +359,7 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      cancelNewlyOrphanedBookings: cancelNewlyOrphanedBookings,
     });
 
     // Validate navigation
@@ -421,7 +421,7 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = false;
+    const cancelNewlyOrphanedBookings = false;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -434,7 +434,7 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      cancelNewlyOrphanedBookings: cancelNewlyOrphanedBookings,
     });
 
     // Validate navigation
@@ -496,7 +496,7 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = true;
+    const cancelNewlyOrphanedBookings = true;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -509,13 +509,13 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      cancelNewlyOrphanedBookings: cancelNewlyOrphanedBookings,
     });
 
     // Validate navigation
     //expect(mockPush).toHaveBeenCalledWith(
     //  expect.stringContaining(
-    //    `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&newlyOrphanedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
+    //    `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&newlyOrphanedBookingsCount=2&cancelAppointments=${cancelNewlyOrphanedBookings}`,
     //  ),
     //);
 

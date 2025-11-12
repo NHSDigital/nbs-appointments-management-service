@@ -44,18 +44,17 @@ public class ProposeAvailabilityChangeFunctionTests
         var request = BuildRequest();
         var response = new AvailabilityUpdateProposal()
         {
-            SupportedBookingsCount = 1,
-            UnsupportedBookingsCount = 1
+            NewlySupportedBookingsCount = 1,
+            NewlyOrphanedBookingsCount = 1
         };
 
         _bookingAvailabilityStateService.Setup(x =>
-        x.BuildRecalculations(
+        x.GenerateSessionProposalActionMetrics(
             It.IsAny<string>(),
             It.IsAny<DateTime>(),
             It.IsAny<DateTime>(),
             It.IsAny<Session>(),
-            It.IsAny<Session>(),
-            It.IsAny<bool>())
+            It.IsAny<Session>())
         ).ReturnsAsync(response);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
             .ReturnsAsync(true);
@@ -67,8 +66,8 @@ public class ProposeAvailabilityChangeFunctionTests
         var body = await new StringReader(result.Content).ReadToEndAsync();
         var deserialisedResponse = JsonConvert.DeserializeObject<AvailabilityUpdateProposal>(body);
 
-        deserialisedResponse.SupportedBookingsCount.Should().Be(response.SupportedBookingsCount);
-        deserialisedResponse.UnsupportedBookingsCount.Should().Be(response.UnsupportedBookingsCount);
+        deserialisedResponse.NewlySupportedBookingsCount.Should().Be(response.NewlySupportedBookingsCount);
+        deserialisedResponse.NewlyOrphanedBookingsCount.Should().Be(response.NewlyOrphanedBookingsCount);
     }
 
     [Fact]
@@ -77,19 +76,18 @@ public class ProposeAvailabilityChangeFunctionTests
         var request = BuildRequest();
         var response = new AvailabilityUpdateProposal()
         {
-            SupportedBookingsCount = 1,
-            UnsupportedBookingsCount = 1,
+            NewlySupportedBookingsCount = 1,
+            NewlyOrphanedBookingsCount = 1,
             MatchingSessionNotFound = true
         };
 
         _bookingAvailabilityStateService.Setup(x =>
-        x.BuildRecalculations(
+        x.GenerateSessionProposalActionMetrics(
             It.IsAny<string>(),
             It.IsAny<DateTime>(),
             It.IsAny<DateTime>(),
             It.IsAny<Session>(),
-            It.IsAny<Session>(),
-            It.IsAny<bool>())
+            It.IsAny<Session>())
         ).ReturnsAsync(response);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
             .ReturnsAsync(true);
@@ -105,19 +103,18 @@ public class ProposeAvailabilityChangeFunctionTests
         var request = BuildRequest();
         var response = new AvailabilityUpdateProposal()
         {
-            SupportedBookingsCount = 1,
-            UnsupportedBookingsCount = 1,
+            NewlySupportedBookingsCount = 1,
+            NewlyOrphanedBookingsCount = 1,
             MatchingSessionNotFound = true
         };
 
         _bookingAvailabilityStateService.Setup(x =>
-        x.BuildRecalculations(
+        x.GenerateSessionProposalActionMetrics(
             It.IsAny<string>(),
             It.IsAny<DateTime>(),
             It.IsAny<DateTime>(),
             It.IsAny<Session>(),
-            It.IsAny<Session>(),
-            It.IsAny<bool>())
+            It.IsAny<Session>())
         ).ReturnsAsync(response);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
             .ReturnsAsync(false);

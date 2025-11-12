@@ -13,7 +13,7 @@ type PageProps = {
   date: string;
   modificationAction: SessionModificationAction;
   sessionSummary: SessionSummary;
-  unsupportedBookingsCount: number;
+  newlyOrphanedBookingsCount: number;
   bookingsCanceledWithoutDetails: number;
 };
 
@@ -23,7 +23,7 @@ export const SessionModificationConfirmed = ({
   date,
   modificationAction,
   sessionSummary,
-  unsupportedBookingsCount,
+  newlyOrphanedBookingsCount,
   bookingsCanceledWithoutDetails,
 }: PageProps) => {
   const renderCommsSummary = () => {
@@ -33,7 +33,7 @@ export const SessionModificationConfirmed = ({
     if (commsSentForAllCancelledBookings) {
       return (
         <p>
-          {unsupportedBookingsCount} people have been sent a text message or
+          {newlyOrphanedBookingsCount} people have been sent a text message or
           email confirming their appointment has been cancelled.
         </p>
       );
@@ -41,7 +41,7 @@ export const SessionModificationConfirmed = ({
       return (
         <>
           <p>
-            {unsupportedBookingsCount - bookingsCanceledWithoutDetails} people
+            {newlyOrphanedBookingsCount - bookingsCanceledWithoutDetails} people
             have been sent a text message or email confirming their appointment
             has been cancelled.
           </p>
@@ -63,19 +63,19 @@ export const SessionModificationConfirmed = ({
     }
   };
   const renderCancellationSummary = () => {
-    if (unsupportedBookingsCount === 0) {
+    if (newlyOrphanedBookingsCount === 0) {
       return <p>This session has been cancelled.</p>;
     } else if (modificationAction === 'keep-appointments') {
       return (
         <p>
-          This session has been cancelled. {unsupportedBookingsCount} bookings
+          This session has been cancelled. {newlyOrphanedBookingsCount} bookings
           have not been cancelled.
         </p>
       );
     } else {
       return (
         <p>
-          This session has been cancelled and {unsupportedBookingsCount}{' '}
+          This session has been cancelled and {newlyOrphanedBookingsCount}{' '}
           bookings have been cancelled.
         </p>
       );
@@ -96,7 +96,7 @@ export const SessionModificationConfirmed = ({
       {modificationAction === 'cancel-appointments' && (
         <>
           <Card
-            title={String(unsupportedBookingsCount)}
+            title={String(newlyOrphanedBookingsCount)}
             description="Bookings have been cancelled"
             maxWidth={250}
           />

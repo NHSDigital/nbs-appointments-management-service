@@ -183,7 +183,7 @@ export const SessionModificationConfirmation = ({
           capacity: sessionSummary.capacity,
         },
         sessionReplacement: null,
-        cancelNewlyOrphanedBookings: cancelBookings,
+        newlyUnsupportedBookingAction: cancelBookings ? 'Cancel' : 'Orphan',
       };
 
       let updatedSessionSummary: AvailabilitySession =

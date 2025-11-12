@@ -29,8 +29,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
-    [When("I replace the session with the following and set cancelNewlyOrphanedBookings to '(.+)'")]
-    public async Task UpdateSession(bool cancelNewlyOrphanedBookings, DataTable dataTable)
+    [When("I replace the session with the following and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task UpdateSession(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
@@ -56,13 +56,13 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = GetCell(row, 4),
                 capacity = GetCell(row, 5)
             },
-            cancelNewlyOrphanedBookings);
+            newlyUnsupportedBookingAction);
 
         await SendSessionEditRequest(payload);
     }
     
-    [When(@"I replace a session with a replacement and set cancelNewlyOrphanedBookings to '(.+)'")]
-    public async Task EditSessionReplacement(bool cancelNewlyOrphanedBookings, DataTable editSessions)
+    [When(@"I replace a session with a replacement and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task EditSessionReplacement(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable editSessions)
     {
         Session matcher = null;
         Session replacement = null;
@@ -100,7 +100,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
             until,
             matcher: sessionMatcherObj,
             replacement: replacement,
-            cancelNewlyOrphanedBookings);
+            newlyUnsupportedBookingAction);
 
         await SendSessionEditRequest(payload);
     }
@@ -117,8 +117,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     //     await SendSessionEditRequest(payload);
     // }
 
-    [When("I cancel the following session using the new endpoint and set cancelNewlyOrphanedBookings to '(.+)'")]
-    public async Task CancelSingleSession(bool cancelNewlyOrphanedBookings, DataTable dataTable)
+    [When("I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task CancelSingleSession(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
@@ -135,13 +135,13 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 capacity = SessionToCheck.Capacity
             },
             replacement: null,
-            cancelNewlyOrphanedBookings);
+            newlyUnsupportedBookingAction);
 
         await SendSessionEditRequest(payload);
     }
 
-    [When("I cancel the sessions matching this between '(.+)' and '(.+)' and set cancelNewlyOrphanedBookings to '(.+)'")]
-    public async Task CancelMultipleSessions(string fromDate, string untilDate, bool cancelNewlyOrphanedBookings, DataTable dataTable)
+    [When("I cancel the sessions matching this between '(.+)' and '(.+)' and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task CancelMultipleSessions(string fromDate, string untilDate, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
@@ -160,13 +160,13 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 capacity = SessionToCheck.Capacity
             },
             replacement: null,
-            cancelNewlyOrphanedBookings);
+            newlyUnsupportedBookingAction);
 
         await SendSessionEditRequest(payload);
     }
 
-    [When("I replace multiple sessions between '(.+)' and '(.+)' with this session and set cancelNewlyOrphanedBookings to '(.+)'")]
-    public async Task UpdateMultipleSessions(string fromDate, string untilDate, bool cancelNewlyOrphanedBookings, DataTable dataTable)
+    [When("I replace multiple sessions between '(.+)' and '(.+)' with this session and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task UpdateMultipleSessions(string fromDate, string untilDate, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
@@ -193,7 +193,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = GetCell(row, 3),
                 capacity = GetCell(row, 4)
             },
-            cancelNewlyOrphanedBookings);
+            newlyUnsupportedBookingAction);
 
         await SendSessionEditRequest(payload);
     }
@@ -333,7 +333,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         Response = await Http.PostAsync("http://localhost:7071/api/session/edit", content);
     }
 
-    private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement, bool cancelNewlyOrphanedBookings = false) =>
+    private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan) =>
         new
         {
             site = GetSiteId(),
@@ -341,7 +341,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
             to = DateOnly.FromDateTime(until),
             sessionMatcher = matcher,
             sessionReplacement = replacement,
-            cancelNewlyOrphanedBookings
+            newlyUnsupportedBookingAction
         };
 
     private async Task AssertSessionsForDay(DateTime date, bool shouldExist)

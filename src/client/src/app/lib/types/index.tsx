@@ -388,10 +388,12 @@ type UpdateSessionRequest = {
   site: string;
   sessionMatcher: AvailabilitySession | '*';
   sessionReplacement: AvailabilitySession | null;
-  cancelNewlyOrphanedBookings: boolean;
+  newlyUnsupportedBookingAction: NewlyUnsupportedBookingAction;
 };
 
 type SiteStatus = 'Online' | 'Offline';
+
+type NewlyUnsupportedBookingAction = 'Orphan' | 'Cancel';
 
 type UpdateSiteStatusRequest = {
   site: string;
@@ -470,6 +472,7 @@ export type {
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   IdentityProvider,
+  NewlyUnsupportedBookingAction,
   NhsMyaCookieConsent,
   Role,
   RoleAssignment,

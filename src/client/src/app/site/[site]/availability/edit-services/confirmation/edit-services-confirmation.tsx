@@ -101,7 +101,7 @@ export const EditServicesConfirmationPage = ({
           capacity: sessionSummary.capacity,
         },
         sessionReplacement: null,
-        cancelNewlyOrphanedBookings: cancelBookings,
+        newlyUnsupportedBookingAction: cancelBookings ? 'Cancel' : 'Orphan',
       };
 
       if (removeServicesSessionDetails) {

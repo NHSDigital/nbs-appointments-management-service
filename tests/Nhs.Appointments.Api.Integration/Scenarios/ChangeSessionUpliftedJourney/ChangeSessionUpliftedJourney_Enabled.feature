@@ -37,7 +37,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I replace the session with the following and set cancelNewlyOrphanedBookings to 'false'
+    When I replace the session with the following and set newlyUnsupportedBookingAction to 'Orphan'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 17:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' should have been updated
@@ -51,7 +51,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When  I replace the session with the following and set cancelNewlyOrphanedBookings to 'true'
+    When  I replace the session with the following and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 17:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' should have been updated
@@ -65,7 +65,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the new endpoint and set cancelNewlyOrphanedBookings to 'false'
+    When I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to 'Orphan'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' no longer exists
@@ -80,7 +80,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the new endpoint and set cancelNewlyOrphanedBookings to 'true'
+    When I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' no longer exists
@@ -97,7 +97,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
       | 3 days from today | 09:45 | 5        | COVID   | 54321-54321 |
-    When I cancel the sessions matching this between 'Tomorrow' and '3 days from now' and set cancelNewlyOrphanedBookings to 'false'
+    When I cancel the sessions matching this between 'Tomorrow' and '3 days from now' and set newlyUnsupportedBookingAction to 'Orphan'
       | From  | Until | Services | Slot Length | Capacity |
       | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' no longer exist
@@ -119,7 +119,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
       | 3 days from today | 09:45 | 5        | COVID   | 54321-54321 |
-    When I cancel the sessions matching this between 'Tomorrow' and '3 days from now' and set cancelNewlyOrphanedBookings to 'true'
+    When I cancel the sessions matching this between 'Tomorrow' and '3 days from now' and set newlyUnsupportedBookingAction to 'Cancel'
       | From  | Until | Services | Slot Length | Capacity |
       | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' no longer exist
@@ -138,7 +138,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
       | 3 days from today | 09:45 | 5        | COVID   | 54321-54321 |
-    When I replace multiple sessions between 'Tomorrow' and '3 days from now' with this session and set cancelNewlyOrphanedBookings to 'false'
+    When I replace multiple sessions between 'Tomorrow' and '3 days from now' with this session and set newlyUnsupportedBookingAction to 'Orphan'
       | From  | Until | Services | Slot Length | Capacity |
       | 11:00 | 16:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' should have been updated
@@ -160,7 +160,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
       | 3 days from today | 09:45 | 5        | COVID   | 54321-54321 |
-    When I replace multiple sessions between 'Tomorrow' and '3 days from now' with this session and set cancelNewlyOrphanedBookings to 'true'
+    When I replace multiple sessions between 'Tomorrow' and '3 days from now' with this session and set newlyUnsupportedBookingAction to 'Cancel'
       | From  | Until | Services | Slot Length | Capacity |
       | 11:00 | 16:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' should have been updated
@@ -207,7 +207,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
       | newlySupportedBookingsCount   | 0 |
       | newlyOrphanedBookingsCount    | 0 |
 #   Step 3 Action: User 2 confirms the session cancellation as nothing is affected
-    When I cancel the following session using the new endpoint and set cancelNewlyOrphanedBookings to 'true'
+    When I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length  | Capacity |
       | Tomorrow | 09:00 | 09:10 | D,F      | 10           | 4        |
 #   Step 3 Result: Confirm all TEN bookings are still supported after User 2's session deletion action
@@ -233,7 +233,7 @@ Scenario: Edit a single session on a single day orphans newly orphaned booking
     Then the booking with reference '324524-00010' has status 'Booked'
     And the booking with reference '324524-00010' has availability status 'Supported'
 #   Step 4 Action: User 1 (unaware that another user action has occurred), continues with attempting to cancel the ONE booking that was proposed in 'Step 1'...
-    When I replace a session with a replacement and set cancelNewlyOrphanedBookings to 'true'
+    When I replace a session with a replacement and set newlyUnsupportedBookingAction to 'Cancel'
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
       | Matcher     | Tomorrow    | Tomorrow  | 09:00 | 09:10 | A,B,D,F    | 10         | 5        |
       | Replacement |             |           | 09:00 | 09:10 | A,B,D      | 10         | 5        |

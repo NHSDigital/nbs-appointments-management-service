@@ -19,6 +19,7 @@ using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
+using static System.Enum;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ChangeSessionUpliftedJourney;
 
@@ -30,10 +31,11 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
     [When("I replace the session with the following and set newlyUnsupportedBookingAction to '(.+)'")]
-    public async Task UpdateSession(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
+    public async Task UpdateSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
 
         var existingSession = await GetDayAvailability(date);
         SessionToCheck = BuildSession(row, 1);
@@ -56,16 +58,17 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = GetCell(row, 4),
                 capacity = GetCell(row, 5)
             },
-            newlyUnsupportedBookingAction);
+            newlyUnsupportedBookingAction: newlyOrphanedEnum);
 
         await SendSessionEditRequest(payload);
     }
     
     [When(@"I replace a session with a replacement and set newlyUnsupportedBookingAction to '(.+)'")]
-    public async Task EditSessionReplacement(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable editSessions)
+    public async Task EditSessionReplacement(string newlyUnsupportedBookingAction, DataTable editSessions)
     {
         Session matcher = null;
         Session replacement = null;
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
 
         foreach (var row in editSessions.Rows.Skip(1))
         {
@@ -100,7 +103,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
             until,
             matcher: sessionMatcherObj,
             replacement: replacement,
-            newlyUnsupportedBookingAction);
+            newlyUnsupportedBookingAction: newlyOrphanedEnum);
 
         await SendSessionEditRequest(payload);
     }
@@ -118,10 +121,11 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     // }
 
     [When("I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
-    public async Task CancelSingleSession(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
+    public async Task CancelSingleSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
         
         SessionToCheck = BuildSession(row, 1);
         var payload = BuildPayload(
@@ -135,17 +139,18 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 capacity = SessionToCheck.Capacity
             },
             replacement: null,
-            newlyUnsupportedBookingAction);
+            newlyUnsupportedBookingAction: newlyOrphanedEnum);
 
         await SendSessionEditRequest(payload);
     }
 
     [When("I cancel the sessions matching this between '(.+)' and '(.+)' and set newlyUnsupportedBookingAction to '(.+)'")]
-    public async Task CancelMultipleSessions(string fromDate, string untilDate, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
+    public async Task CancelMultipleSessions(string fromDate, string untilDate, string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
         var until = ParseDate(untilDate);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
 
         SessionToCheck = BuildSession(row);
 
@@ -160,17 +165,18 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 capacity = SessionToCheck.Capacity
             },
             replacement: null,
-            newlyUnsupportedBookingAction);
+            newlyUnsupportedBookingAction: newlyOrphanedEnum);
 
         await SendSessionEditRequest(payload);
     }
 
     [When("I replace multiple sessions between '(.+)' and '(.+)' with this session and set newlyUnsupportedBookingAction to '(.+)'")]
-    public async Task UpdateMultipleSessions(string fromDate, string untilDate, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction, DataTable dataTable)
+    public async Task UpdateMultipleSessions(string fromDate, string untilDate, string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
         var until = ParseDate(untilDate);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
 
         var existingSession = await GetDayAvailability(from);
         SessionToCheck = BuildSession(row);
@@ -193,7 +199,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = GetCell(row, 3),
                 capacity = GetCell(row, 4)
             },
-            newlyUnsupportedBookingAction);
+            newlyUnsupportedBookingAction: newlyOrphanedEnum
+            );
 
         await SendSessionEditRequest(payload);
     }

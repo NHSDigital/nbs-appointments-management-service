@@ -69,11 +69,6 @@ public class CancelBookingFunction(
     protected override async Task<ApiResult<CancelBookingResponse>> HandleRequest(CancelBookingRequest request,
         ILogger logger)
     {
-        if (await siteService.GetSiteByIdAsync(request.site) is null)
-        {
-            return Failed(HttpStatusCode.NotFound, "Site not found.");
-        }
-
         var result = await bookingWriteService.CancelBooking(request.bookingReference, request.site,
             (CancellationReason)request.cancellationReason, request.additionalData);
 
@@ -92,13 +87,29 @@ public class CancelBookingFunction(
     protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, CancelBookingRequest request)>
         ReadRequestAsync(HttpRequest req)
     {
+        var errors = new List<ErrorMessageResponseItem>();
         var bookingReference = req.HttpContext.GetRouteValue("bookingReference")?.ToString();
         var site = req.Query.ContainsKey("site") ? req.Query["site"].ToString() : string.Empty;
+
+        if (!string.IsNullOrEmpty(site))
+        {
+            var matchedSite = await siteService.GetSiteByIdAsync(site);
+            if (matchedSite == null)
+            {
+                errors.Add(new ErrorMessageResponseItem
+                {
+                    Property = "accessNeeds",
+                    Message = "Access needs cannot be contain empty values"
+                });
+            }
+        }
+            
         var cancellationReason = CancellationReason.CancelledByCitizen;
         object additionalData = null;
         if (req.Body != null)
         {
-            var (errors, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
+            var (errorsFromBody, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
+            errors.AddRange(errorsFromBody);
 
             if (errors.Any(x => x.Property == "cancellationReason"))
             {

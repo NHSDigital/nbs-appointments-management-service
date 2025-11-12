@@ -89,7 +89,7 @@ public class BookingWriteService(
     public async Task<BookingCancellationResult> CancelBooking(string bookingReference, string site,
         CancellationReason cancellationReason, object additionalData = null, bool runRecalculation = true)
     {
-        var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+        var booking = await bookingQueryService.GetBookingByReference(bookingReference);
 
         if (booking is null || (!string.IsNullOrEmpty(site) && site != booking.Site))
         {
@@ -377,7 +377,7 @@ public class BookingWriteService(
     {
         if (result == BookingConfirmationResult.Success)
         {
-            var booking = await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+            var booking = await bookingQueryService.GetBookingByReference(bookingReference);
 
             if (isRescheduleOperation)
             {

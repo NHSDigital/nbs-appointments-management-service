@@ -194,7 +194,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
                     It.IsAny<string>(), It.IsAny<CancellationReason>()))
                 .ReturnsAsync(BookingConfirmationResult.Success);
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
+            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST1")).ReturnsAsync(new Booking
             {
                 Reference = "TEST1",
                 Site = MockSite,
@@ -205,7 +205,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked,
                 AttendeeDetails = new AttendeeDetails()
             });
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST2")).ReturnsAsync(new Booking
+            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST2")).ReturnsAsync(new Booking
             {
                 Reference = "TEST2",
                 Site = MockSite,
@@ -285,7 +285,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
                     It.IsAny<string>(), It.IsAny<CancellationReason>()))
                 .ReturnsAsync(BookingConfirmationResult.Success);
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST1")).ReturnsAsync(new Booking
+            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST1")).ReturnsAsync(new Booking
             {
                 Reference = "TEST1",
                 Site = MockSite,
@@ -296,7 +296,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked,
                 AttendeeDetails = new AttendeeDetails()
             });
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("TEST2")).ReturnsAsync(new Booking
+            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST2")).ReturnsAsync(new Booking
             {
                 Reference = "TEST2",
                 Site = MockSite,
@@ -454,7 +454,7 @@ namespace Nhs.Appointments.Core.UnitTests
             var site = "some-site";
             var bookingRef = "some-booking";
 
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
+            _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
                 .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown,
@@ -580,7 +580,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Reference = reference, Site = site, From = DateTime.UtcNow, Status = AppointmentStatus.Booked
             };
 
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(reference)).ReturnsAsync(booking);
+            _bookingQueryService.Setup(x => x.GetBookingByReference(reference)).ReturnsAsync(booking);
             _bookingsDocumentStore.Setup(x =>
                     x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason,
                         null))
@@ -602,7 +602,7 @@ namespace Nhs.Appointments.Core.UnitTests
             _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(),
                     It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<CancellationReason>()))
                 .ReturnsAsync(BookingConfirmationResult.Success);
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("test-booking-ref")).ReturnsAsync(
+            _bookingQueryService.Setup(x => x.GetBookingByReference("test-booking-ref")).ReturnsAsync(
                 new Booking
                 {
                     Reference = "test-booking-ref",
@@ -642,7 +642,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     Service = "Service 1"
                 }
             };
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(bookings.First());
+            _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>())).ReturnsAsync(bookings.First());
             _bookingAvailabilityStateService
                 .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>())).ReturnsAsync(
                     new List<BookingAvailabilityUpdate>
@@ -828,7 +828,7 @@ namespace Nhs.Appointments.Core.UnitTests
                     Service = service,
                     ContactDetails = new ContactItem[] { 
                         new ContactItem{ Type = ContactItemType.Email, Value = "test@mya.uk"}
-                    }
+                    },
                 },
                 new()
                 {
@@ -841,10 +841,10 @@ namespace Nhs.Appointments.Core.UnitTests
                     AvailabilityStatus = AvailabilityStatus.Supported,
                     Service = service
                 },
-                                new()
+                new()
                 {
                     From = new DateTime(2025, 01, 02, 9, 0, 0),
-                    Reference = "1",
+                    Reference = "3",
                     AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
                     Status = AppointmentStatus.Booked,
                     AvailabilityStatus = AvailabilityStatus.Supported,
@@ -856,7 +856,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 new()
                 {
                     From = new DateTime(2025, 01, 02, 9, 10, 0),
-                    Reference = "2",
+                    Reference = "4",
                     AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
                     Status = AppointmentStatus.Provisional,
                     Duration = 10,
@@ -865,6 +865,22 @@ namespace Nhs.Appointments.Core.UnitTests
                     Service = service
                 }
             };
+            
+            _bookingQueryService
+                .Setup(x => x.GetBookingByReference("1"))
+                .ReturnsAsync(new Booking()
+                {
+                    Reference = "1",
+                    Site = MockSite
+                });
+            
+            _bookingQueryService
+                .Setup(x => x.GetBookingByReference("3"))
+                .ReturnsAsync(new Booking()
+                {
+                    Reference = "3",
+                    Site = MockSite
+                });
 
             _bookingAvailabilityStateService
                 .Setup(x => x.BuildRecalculations(MockSite,
@@ -890,15 +906,44 @@ namespace Nhs.Appointments.Core.UnitTests
 
             result.BookingsCanceled.Should().Be(2);
             result.BookingsCanceledWithoutDetails.Should().Be(1);
+            
+            //no need to orphan booking if its being cancelled
             _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
                     It.Is<string>(s => s == "1"),
                     It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
-                Times.Exactly(2));
+                Times.Never);
+            
+            //no need to orphan booking if its being cancelled
+            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                    It.Is<string>(s => s == "3"),
+                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
+                Times.Never);
+            
+            _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                    It.Is<string>(s => s == "1"),
+                    It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
+                    AvailabilityStatus.Unknown,
+                    CancellationReason.CancelledBySite,
+                    It.IsAny<object>()),
+                Times.Once);
+            
+            _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                    It.Is<string>(s => s == "3"),
+                    It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
+                    AvailabilityStatus.Unknown,
+                    CancellationReason.CancelledBySite,
+                    It.IsAny<object>()),
+                Times.Once);
 
             _bookingsDocumentStore.Verify(x => x.DeleteBooking(
                     It.Is<string>(s => s == "2"),
                     It.Is<string>(s => s == MockSite)),
-                Times.Exactly(2));
+                Times.Once);
+            
+            _bookingsDocumentStore.Verify(x => x.DeleteBooking(
+                    It.Is<string>(s => s == "4"),
+                    It.Is<string>(s => s == MockSite)),
+                Times.Once);
         }
 
         [Fact]

@@ -106,7 +106,7 @@ public class CancelBookingFunction(
             
         var cancellationReason = CancellationReason.CancelledByCitizen;
         object additionalData = null;
-        if (req.Body != null)
+        if (req.Body.Length > 0)
         {
             var (errorsFromBody, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
             errors.AddRange(errorsFromBody);
@@ -126,6 +126,6 @@ public class CancelBookingFunction(
 
         var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason, additionalData);
 
-        return await Task.FromResult((ErrorMessageResponseItem.None, requestModel));
+        return await Task.FromResult((errors, requestModel));
     }
 }

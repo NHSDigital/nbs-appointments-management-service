@@ -236,7 +236,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
-        response.StatusCode.Should().Be(404);
+        response.StatusCode.Should().Be(400);
         _bookingWriteService.Verify(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<CancellationReason>(), It.IsAny<object>(), It.IsAny<bool>()), Times.Never);
     }

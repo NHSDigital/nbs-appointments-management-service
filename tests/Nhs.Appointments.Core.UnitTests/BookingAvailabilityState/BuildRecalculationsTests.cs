@@ -26,7 +26,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -67,7 +67,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 7 and 5 are no longer supported and should be removed
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.ProvisionalToDelete)
@@ -107,7 +107,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
         
         // Booking 5 is no longer supported and should be removed
         recalculations.Count.Should().Be(1);
@@ -140,7 +140,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         //prove all 6 find a slot 
         recalculations.Where(x => x.Action == AvailabilityUpdateAction.SetToSupported).Should().HaveCount(6);
@@ -170,7 +170,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         //prove all 6 find a slot due to alphabetical ordering
         recalculations.Where(x => x.Action == AvailabilityUpdateAction.SetToSupported).Should().HaveCount(6);
@@ -200,7 +200,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1, 2, 3 should be supported
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -237,7 +237,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1, 2, 3 should be supported
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -270,7 +270,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1 and 2 can be booked
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -319,7 +319,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "8", "9", "7", "11", "12", "10",
@@ -336,7 +336,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
         var runs = 10;
         while (runs > 0)
         {
-            var newResult = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
+            var newResult = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), NewlyUnsupportedBookingAction.Orphan);
             newResult.Should().BeEquivalentTo(recalculations);
             runs -= 1;
         }

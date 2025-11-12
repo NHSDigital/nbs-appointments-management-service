@@ -37,9 +37,12 @@ public class BookingAvailabilityStateService(
     }
 
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
-        DateTime to)
+        DateTime to, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction)
     {
-        return (await BuildFullState(site, from, to, BookingAvailabilityStateReturnType.Recalculations)).BookingAvailabilityUpdates;
+        var (bookings, sessions) =
+            await FetchData(site, from, to,  BookingAvailabilityStateReturnType.Recalculations);
+
+        return (BuildState(bookings, sessions, BookingAvailabilityStateReturnType.Recalculations, from, to, newlyUnsupportedBookingAction)).BookingAvailabilityUpdates;
     }
 
     public async Task<AvailabilityUpdateProposal> GenerateSessionProposalActionMetrics(string site, DateTime from,
@@ -138,8 +141,14 @@ public class BookingAvailabilityStateService(
     }
 
     private BookingAvailabilityState BuildState(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions,
-        BookingAvailabilityStateReturnType returnType, DateTime from, DateTime to)
+        BookingAvailabilityStateReturnType returnType, DateTime from, DateTime to, NewlyUnsupportedBookingAction? newlyUnsupportedBookingAction = null)
     {
+        //newlyUnsupportedBookingAction if-only required if this is a Recalculation generation
+        if (returnType == BookingAvailabilityStateReturnType.Recalculations && newlyUnsupportedBookingAction is null)
+        {
+            throw new ArgumentNullException(nameof(newlyUnsupportedBookingAction));
+        }
+        
         var state = new BookingAvailabilityState();
 
         //have to materialise to a list as we transform the data within
@@ -212,7 +221,7 @@ public class BookingAvailabilityStateService(
 
                     continue;
                 case BookingAvailabilityStateReturnType.Recalculations:
-                    state.BookingAvailabilityUpdates.AppendNoLongerSupportedBookings(booking);
+                    state.BookingAvailabilityUpdates.AppendNewlyUnsupportedBookings(booking, newlyUnsupportedBookingAction!.Value);
                     state.BookingAvailabilityUpdates.AppendProvisionalBookingsToBeDeleted(booking);
                     break;
                 case BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics:
@@ -340,14 +349,25 @@ public static class RecalculationExtensions
         }
     }
 
-    public static void AppendNoLongerSupportedBookings(this List<BookingAvailabilityUpdate> recalculations,
-        Booking booking)
+    public static void AppendNewlyUnsupportedBookings(this List<BookingAvailabilityUpdate> recalculations,
+        Booking booking, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction)
     {
         if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
             booking.Status is AppointmentStatus.Booked)
         {
-            recalculations.Add(
-                new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned));
+            switch (newlyUnsupportedBookingAction)
+            {
+                case NewlyUnsupportedBookingAction.Orphan:
+                    recalculations.Add(
+                        new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned));
+                    break;
+                case NewlyUnsupportedBookingAction.Cancel:
+                    recalculations.Add(
+                        new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToCancelled));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(newlyUnsupportedBookingAction), newlyUnsupportedBookingAction, null);
+            }
         }
     }
 
@@ -374,13 +394,6 @@ public static class RecalculationExtensions
 
 public class BookingAvailabilityState
 {
-    public BookingAvailabilityState() {}
-    
-    public BookingAvailabilityState(bool matchingSessionNotFound)
-    {
-        UpdateProposal = new AvailabilityUpdateProposal(matchingSessionNotFound);
-    }
-    
     public readonly List<BookingAvailabilityUpdate> BookingAvailabilityUpdates = [];
 
     public IEnumerable<SessionInstance> AvailableSlots { get; set; } = [];
@@ -437,4 +450,14 @@ public enum AvailabilityUpdateAction
     ProvisionalToDelete,
     SetToSupported,
     SetToOrphaned,
+    SetToCancelled,
+}
+
+/// <summary>
+/// Decide what to do with bookings that have changed from Supported -> Unsupported
+/// </summary>
+public enum NewlyUnsupportedBookingAction
+{
+    Orphan, //AvailabilityUpdateAction.SetToOrphaned
+    Cancel //AvailabilityUpdateAction.SetToCancelled
 }

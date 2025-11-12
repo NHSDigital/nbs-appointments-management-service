@@ -9,5 +9,5 @@ public record EditSessionRequest(
     DateOnly To,
     SessionOrWildcard SessionMatcher,
     Session? SessionReplacement,
-    bool CancelNewlyOrphanedBookings = false
+    NewlyUnsupportedBookingAction NewlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan
 ) : BaseSessionRequest(Site, From, To, SessionMatcher, SessionReplacement);

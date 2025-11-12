@@ -83,7 +83,7 @@ public class EditSessionFunctionTests
             It.IsAny<DateOnly>(),
             It.IsAny<Session>(),
             It.IsAny<Session>(),
-            It.IsAny<bool>())).ReturnsAsync(availabilityResult);
+            It.IsAny<NewlyUnsupportedBookingAction>())).ReturnsAsync(availabilityResult);
 
         var result = await _sut.RunAsync(request) as ContentResult;
         var content = JsonConvert.DeserializeObject<SessionModificationResult>(result.Content);
@@ -98,7 +98,7 @@ public class EditSessionFunctionTests
             editSessionRequest.To,
             It.IsAny<Session>(),
             null,
-            false), Times.Once);
+            NewlyUnsupportedBookingAction.Orphan), Times.Once);
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class EditSessionFunctionTests
             It.IsAny<DateOnly>(),
             It.IsAny<Session>(),
             It.IsAny<Session>(),
-            It.IsAny<bool>())).ReturnsAsync(new SessionModificationResult(false, "Something went wrong"));
+            It.IsAny<NewlyUnsupportedBookingAction>())).ReturnsAsync(new SessionModificationResult(false, "Something went wrong"));
 
         var result = await _sut.RunAsync(request) as ContentResult;
         result.StatusCode.Should().Be(422);
@@ -131,7 +131,7 @@ public class EditSessionFunctionTests
             editSessionRequest.To,
             It.IsAny<Session>(),
             null,
-            false), Times.Once);
+            NewlyUnsupportedBookingAction.Orphan), Times.Once);
     }
 
     private static HttpRequest BuildRequest(EditSessionRequest requestBody)

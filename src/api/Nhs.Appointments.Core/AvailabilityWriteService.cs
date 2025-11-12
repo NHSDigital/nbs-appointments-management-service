@@ -116,7 +116,7 @@ public class AvailabilityWriteService(
         DateOnly until, 
         Session sessionMatcher, 
         Session sessionReplacement,
-        bool cancelNewlyOrphanedBookings
+        NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan
     )
     {
         var multipleDays = from != until;
@@ -159,7 +159,7 @@ public class AvailabilityWriteService(
         }
 
         var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1).Select(x => from.AddDays(x)).ToArray();
-        var stats = await bookingWriteService.RecalculateAppointmentStatuses(site, days, cancelNewlyOrphanedBookings);
+        var stats = await bookingWriteService.RecalculateAppointmentStatuses(site, days, newlyUnsupportedBookingAction);
 
         return new SessionModificationResult(true, result.message, stats.BookingsCanceled, stats.BookingsCanceledWithoutDetails);
     }

@@ -98,8 +98,8 @@ public class CancelBookingFunction(
             {
                 errors.Add(new ErrorMessageResponseItem
                 {
-                    Property = "accessNeeds",
-                    Message = "Access needs cannot be contain empty values"
+                    Property = "site",
+                    Message = "The site identifier provided did not match any known site."
                 });
             }
         }

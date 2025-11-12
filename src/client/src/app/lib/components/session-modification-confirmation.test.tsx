@@ -551,7 +551,7 @@ describe('submitForm', () => {
   it('renders the correct impact note when cancelling a session', async () => {
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyOrphanedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"

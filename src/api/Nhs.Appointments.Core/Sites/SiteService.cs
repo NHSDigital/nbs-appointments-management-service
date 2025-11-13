@@ -41,6 +41,8 @@ public class SiteService(
     IFeatureToggleHelper featureToggleHelper,
     IOptions<SiteServiceOptions> options) : ISiteService
 {
+    private static readonly SemaphoreSlim _cacheLock = new(1, 1);
+
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
@@ -181,43 +183,85 @@ public class SiteService(
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,
         string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
-            => await siteStore.SaveSiteAsync(
-                siteId,
-                odsCode,
-                name,
-                address,
-                phoneNumber,
-                icb,
-                region,
-                location,
-                accessibilities,
-                type,
-                siteStatus);
-
-    public Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities) 
     {
-        return siteStore.UpdateAccessibilities(siteId, accessibilities);
+        var result = await siteStore.SaveSiteAsync(
+            siteId,
+            odsCode,
+            name,
+            address,
+            phoneNumber,
+            icb,
+            region,
+            location,
+            accessibilities,
+            type,
+            siteStatus);
+
+        if (result.Success)
+        {
+            await UpdateSiteInCacheAsync(siteId);
+        }
+
+        return result;
     }
 
-    public Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens) 
+    public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities)
     {
-        return siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
+        var result = await siteStore.UpdateAccessibilities(siteId, accessibilities);
+        if (result.Success)
+        {
+            await UpdateSiteInCacheAsync(siteId);
+        }
+
+        return result;
     }
 
-    public Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address, string phoneNumber,
+    public async Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens)
+    {
+        var result = await siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
+        if (result.Success)
+        {
+            await UpdateSiteInCacheAsync(siteId);
+        }
+
+        return result;
+    }
+
+    public async Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address,
+        string phoneNumber,
         decimal? longitude, decimal? latitude)
     {
-        return siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
+        var result = await siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
+        if (result.Success)
+        {
+            await UpdateSiteInCacheAsync(siteId);
+        }
+
+        return result;
     }
 
-    public Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb,
+    public async Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb,
         string region)
     {
-        return siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
+        var result = await siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
+        if (result.Success)
+        {
+            await UpdateSiteInCacheAsync(siteId);
+        }
+
+        return result;
     }
 
     public async Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status)
-        => await siteStore.UpdateSiteStatusAsync(siteId, status);
+    {
+        var result = await siteStore.UpdateSiteStatusAsync(siteId, status);
+        if (result.Success)
+        {
+            await UpdateSiteInCacheAsync(siteId);
+        }
+
+        return result;
+    }
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
         => await siteStore.GetSitesInIcbAsync(icb);
@@ -225,14 +269,9 @@ public class SiteService(
     public async Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId)
     {
         var result = await siteStore.ToggleSiteSoftDeletionAsync(siteId);
-        if (!result.Success)
+        if (result.Success)
         {
-            return result;
-        }
-
-        if (!options.Value.DisableSiteCache && memoryCache.TryGetValue(options.Value.SiteCacheKey, out _))
-        {
-            memoryCache.Remove(options.Value.SiteCacheKey);
+            await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -423,7 +462,51 @@ public class SiteService(
             time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
         return sites;
     }
-    
+
+    private async Task UpdateSiteInCacheAsync(string siteId)
+    {
+        if (options.Value.DisableSiteCache)
+        {
+            return;
+        }
+
+        await _cacheLock.WaitAsync();
+        try
+        {
+            if (!memoryCache.TryGetValue(options.Value.SiteCacheKey, out List<Site> cachedSites))
+            {
+                return;
+            }
+
+            var updatedSite = await siteStore.GetSiteById(siteId);
+
+            var existingIndex = cachedSites.FindIndex(s => s.Id == siteId);
+
+            if (existingIndex >= 0)
+            {
+                if (updatedSite != null)
+                {
+                    cachedSites[existingIndex] = updatedSite;
+                }
+                else
+                {
+                    cachedSites.RemoveAt(existingIndex);
+                }
+            }
+            else if (updatedSite != null)
+            {
+                cachedSites.Add(updatedSite);
+            }
+
+            memoryCache.Set(options.Value.SiteCacheKey, cachedSites,
+                time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
+        }
+        finally
+        {
+            _cacheLock.Release();
+        }
+    }
+
     private async Task<bool> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from, DateOnly until)
     {
         var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, service, from, until);

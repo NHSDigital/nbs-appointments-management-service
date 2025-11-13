@@ -7,13 +7,11 @@ export default class SiteSelectionPage extends MYALayout {
     name: 'Viewing all sites',
   });
 
-  readonly siteSelectionCardHeading: Locator = this.page.getByRole('heading', {
-    name: 'Choose a site',
-  });
-
   readonly noSitesMessage: Locator = this.page.getByText(
     'You have not been assigned to any sites.',
   );
+
+  readonly sitesTable: Locator = this.page.getByRole('table');
 
   async selectSite(site: E2ETestSite): Promise<SitePage> {
     await this.page.getByRole('link', { name: site.name }).click();

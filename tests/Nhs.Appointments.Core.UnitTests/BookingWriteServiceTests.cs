@@ -1,10 +1,8 @@
-using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
-using System.Net;
 
 namespace Nhs.Appointments.Core.UnitTests
 {

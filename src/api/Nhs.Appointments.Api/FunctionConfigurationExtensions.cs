@@ -103,7 +103,7 @@ public static class FunctionConfigurationExtensions
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()
             .AddTransient<IBookingQueryService, BookingQueryService>()
-            .AddTransient<ISiteService, SiteService>()
+            .AddSingleton<ISiteService, SiteService>()
             .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()
             .AddTransient<IAvailabilityWriteService, AvailabilityWriteService>()
             .AddTransient<IAvailabilityQueryService, AvailabilityQueryService>()

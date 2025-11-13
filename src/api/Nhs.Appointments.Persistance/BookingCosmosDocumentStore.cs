@@ -328,24 +328,39 @@ public class BookingCosmosDocumentStore(
         var runId = Guid.NewGuid().ToString("N");
         var startedAt = time.GetUtcNow();
         var expiryDateTime = time.GetUtcNow().AddDays(-1);
-        var effectiveBatchSize = batchSize is > 0 ? batchSize.Value : int.MaxValue;        
         var effectiveDegreeOfParallelism = degreeOfParallelism ?? 8;
 
         logger.LogInformation(
             "Cleanup run started. RunId:{RunId} StartedAt:{StartedAt} BatchSize:{BatchSize} DegreeOfParallelism:{Degree}",
             runId,
             startedAt,
-            effectiveBatchSize,
+            batchSize,
             effectiveDegreeOfParallelism);
+        
+        string sql;
+        var query = default(QueryDefinition);
 
-        var sql = "SELECT TOP @batchSize * FROM index_data d " +
-                "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
+        if (batchSize is > 0)
+        {
+            sql = "SELECT TOP @batchSize * FROM index_data d " +
+                  "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
 
-        var query = new QueryDefinition(sql)
-            .WithParameter("@batchSize", effectiveBatchSize)
-            .WithParameter("@docType", "booking_index")
-            .WithParameter("@status", AppointmentStatus.Provisional.ToString())
-            .WithParameter("@expiry", expiryDateTime);
+            query = new QueryDefinition(sql)
+                .WithParameter("@batchSize", batchSize.Value)
+                .WithParameter("@docType", "booking_index")
+                .WithParameter("@status", AppointmentStatus.Provisional.ToString())
+                .WithParameter("@expiry", expiryDateTime);
+        }
+        else
+        {
+            sql = "SELECT * FROM index_data d " +
+                  "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
+
+            query = new QueryDefinition(sql)
+                .WithParameter("@docType", "booking_index")
+                .WithParameter("@status", AppointmentStatus.Provisional.ToString())
+                .WithParameter("@expiry", expiryDateTime);
+        }
 
         var indexDocuments = await indexStore.RunSqlQueryAsync<BookingIndexDocument>(query);
 

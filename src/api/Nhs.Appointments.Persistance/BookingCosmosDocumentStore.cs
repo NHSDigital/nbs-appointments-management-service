@@ -327,7 +327,7 @@ public class BookingCosmosDocumentStore(
     {
         var runId = Guid.NewGuid().ToString("N");
         var startedAt = time.GetUtcNow();
-        var expiryDateTime = startedAt.AddDays(-1);
+        var expiryDateTime = time.GetUtcNow().AddDays(-1);
         var effectiveBatchSize = batchSize is > 0 ? batchSize.Value : int.MaxValue;        
         var effectiveDegreeOfParallelism = degreeOfParallelism ?? 8;
 

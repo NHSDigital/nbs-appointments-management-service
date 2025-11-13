@@ -6,7 +6,7 @@ import {
   buildRegionName,
   buildSiteName,
 } from '@e2etests/data';
-import { test, expect } from '../fixtures-v2';
+import { test, expect } from '../../fixtures-v2';
 
 test('A user views the details of a site', async ({ setUpSingleSite }) => {
   const { sitePage, testId } = await setUpSingleSite();

@@ -1,13 +1,12 @@
 import { buildOdsCode } from '@e2etests/data';
-import { test, expect } from '../fixtures-v2';
+import { test, expect } from '../../fixtures-v2';
 
 test('A regional user updates the reference details for a site but still has access to it through a site manager role', async ({
   setUpSingleSite,
 }) => {
-  const { sitePage } = await setUpSingleSite([
-    'canned:site-details-manager',
-    'system:regional-user',
-  ]);
+  const { sitePage } = await setUpSingleSite({
+    roles: ['canned:site-details-manager', 'system:regional-user'],
+  });
 
   await sitePage
     .clickSiteDetailsCard()
@@ -45,7 +44,9 @@ test('A regional user updates the reference details for a site but still has acc
 test('A user updates the reference details for a site but loses access to it as they do', async ({
   setUpSingleSite,
 }) => {
-  const { sitePage } = await setUpSingleSite(['system:regional-user']);
+  const { sitePage } = await setUpSingleSite({
+    roles: ['system:regional-user'],
+  });
 
   await sitePage
     .clickSiteDetailsCard()
@@ -69,7 +70,9 @@ test('A user updates the reference details for a site but loses access to it as 
 test('A user starts to update the reference details for a site then changes their mind using the back button', async ({
   setUpSingleSite,
 }) => {
-  const { sitePage, testId } = await setUpSingleSite(['system:regional-user']);
+  const { sitePage, testId } = await setUpSingleSite({
+    roles: ['system:regional-user'],
+  });
   await sitePage
     .clickSiteDetailsCard()
     .then(siteDetailsPage => siteDetailsPage.clickEditReferenceDetailsLink())

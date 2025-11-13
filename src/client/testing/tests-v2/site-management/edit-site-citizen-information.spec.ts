@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures-v2';
+import { test, expect } from '../../fixtures-v2';
 
 test('A user updates the citizen information for a site', async ({
   setUpSingleSite,

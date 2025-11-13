@@ -5,11 +5,12 @@ import EditReferenceDetailsPage from './edit-reference-details/edit-reference-de
 import EditDetailsPage from './edit-details/edit-details-page';
 import EditInformationForCitizensPage from './edit-information-for-citizens/edit-information-for-citizens-page';
 import EditAccessNeedsPage from './edit-accessibilities/edit-access-needs-page';
+import EditSiteStatusPage from './edit-site-status/edit-site-status-page';
 
 type SiteDetailsCard = {
   title: Locator;
   summaryList: SummaryList;
-  editLink: Locator;
+  editLinks: Locator[];
 };
 
 export default class SiteDetailsPage extends MYALayout {
@@ -31,9 +32,14 @@ export default class SiteDetailsPage extends MYALayout {
         has: this.page.getByRole('heading', { name: 'Site details' }),
       });
     }),
-    editLink: this.page.getByRole('link', {
-      name: 'Edit site details',
-    }),
+    editLinks: [
+      this.page.getByRole('link', {
+        name: 'Edit site details',
+      }),
+      this.page.getByRole('link', {
+        name: 'Change site status',
+      }),
+    ],
   };
 
   public referenceDetailsCard: SiteDetailsCard = {
@@ -50,9 +56,11 @@ export default class SiteDetailsPage extends MYALayout {
         has: this.page.getByRole('heading', { name: 'Site reference details' }),
       });
     }),
-    editLink: this.page.getByRole('link', {
-      name: 'Edit site reference details',
-    }),
+    editLinks: [
+      this.page.getByRole('link', {
+        name: 'Edit site reference details',
+      }),
+    ],
   };
 
   public accessNeedsCard: SiteDetailsCard = {
@@ -69,9 +77,11 @@ export default class SiteDetailsPage extends MYALayout {
         has: this.page.getByRole('heading', { name: 'Access needs' }),
       });
     }),
-    editLink: this.page.getByRole('link', {
-      name: 'Edit access needs',
-    }),
+    editLinks: [
+      this.page.getByRole('link', {
+        name: 'Edit access needs',
+      }),
+    ],
   };
 
   public informationForCitizensCard = {
@@ -85,9 +95,11 @@ export default class SiteDetailsPage extends MYALayout {
       .getByRole('heading', {
         name: 'Information for citizens',
       }),
-    editLink: this.page.getByRole('link', {
-      name: 'Edit information for citizens',
-    }),
+    editLinks: [
+      this.page.getByRole('link', {
+        name: 'Edit information for citizens',
+      }),
+    ],
     content: this.page.getByRole('listitem').filter({
       has: this.page.getByRole('heading', {
         name: 'Information for citizens',
@@ -96,14 +108,23 @@ export default class SiteDetailsPage extends MYALayout {
   };
 
   async clickEditDetailsLink(): Promise<EditDetailsPage> {
-    await this.detailsCard.editLink.click();
+    await this.detailsCard.editLinks[0].click();
     await this.page.waitForURL(`**/site/${this.site?.id}/details/edit-details`);
 
     return new EditDetailsPage(this.page, this.site);
   }
 
+  async clickEditSiteStatusLink(): Promise<EditSiteStatusPage> {
+    await this.detailsCard.editLinks[1].click();
+    await this.page.waitForURL(
+      `**/site/${this.site?.id}/details/edit-site-status`,
+    );
+
+    return new EditSiteStatusPage(this.page, this.site);
+  }
+
   async clickEditReferenceDetailsLink(): Promise<EditReferenceDetailsPage> {
-    await this.referenceDetailsCard.editLink.click();
+    await this.referenceDetailsCard.editLinks[0].click();
     await this.page.waitForURL(
       `**/site/${this.site?.id}/details/edit-reference-details`,
     );
@@ -112,7 +133,7 @@ export default class SiteDetailsPage extends MYALayout {
   }
 
   async clickEditAccessNeedsLink(): Promise<EditAccessNeedsPage> {
-    await this.accessNeedsCard.editLink.click();
+    await this.accessNeedsCard.editLinks[0].click();
     await this.page.waitForURL(
       `**/site/${this.site?.id}/details/edit-accessibilities`,
     );
@@ -121,7 +142,7 @@ export default class SiteDetailsPage extends MYALayout {
   }
 
   async clickEditInformationForCitizensLink(): Promise<EditInformationForCitizensPage> {
-    await this.informationForCitizensCard.editLink.click();
+    await this.informationForCitizensCard.editLinks[0].click();
     await this.page.waitForURL(
       `**/site/${this.site?.id}/details/edit-information-for-citizens`,
     );

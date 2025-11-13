@@ -46,10 +46,10 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
         RemoveExpiredProvisionalBookingsRequest request, ILogger logger)
     {
         var batchSize = request.BatchSize
-         ?? int.Parse(Environment.GetEnvironmentVariable("CleanupBatchSize") ?? "200");
+            ?? (int.TryParse(Environment.GetEnvironmentVariable("CleanupBatchSize"), out var bs) ? bs : 200);
 
         var degreeOfParallelism = request.DegreeOfParallelism
-            ?? int.Parse(Environment.GetEnvironmentVariable("CleanupDegreeOfParallelism") ?? "8");
+            ?? (int.TryParse(Environment.GetEnvironmentVariable("CleanupDegreeOfParallelism"), out var dop) ? dop : 8);
 
         var removedIds = await bookingWriteService.RemoveUnconfirmedProvisionalBookings(batchSize, degreeOfParallelism);
         return Success(new RemoveExpiredProvisionalBookingsResponse(removedIds.ToArray()));

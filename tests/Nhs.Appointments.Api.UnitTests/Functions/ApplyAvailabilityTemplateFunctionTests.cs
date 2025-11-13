@@ -8,9 +8,11 @@ using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
+using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Json;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Users;
 using System.Text;
 
 namespace Nhs.Appointments.Api.Tests.Functions;

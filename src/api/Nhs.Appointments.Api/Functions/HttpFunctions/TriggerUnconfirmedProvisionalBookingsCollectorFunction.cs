@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;
@@ -45,6 +48,8 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
     protected override async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> HandleRequest(
         RemoveExpiredProvisionalBookingsRequest request, ILogger logger)
     {
+        request ??= new RemoveExpiredProvisionalBookingsRequest(null, null);
+
         var batchSize = request.BatchSize
             ?? (int.TryParse(Environment.GetEnvironmentVariable("CleanupBatchSize"), out var bs) ? bs : 200);
 
@@ -55,8 +60,38 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
         return Success(new RemoveExpiredProvisionalBookingsResponse(removedIds.ToArray()));
     }
 
-    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(RemoveExpiredProvisionalBookingsRequest request)
+    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, RemoveExpiredProvisionalBookingsRequest request)> ReadRequestAsync(HttpRequest req)
     {
-        return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
+        if (req.ContentLength == 0)
+        {
+            return (Array.Empty<ErrorMessageResponseItem>(), new RemoveExpiredProvisionalBookingsRequest(null, null));
+        }
+
+        if (req.ContentLength.HasValue && req.ContentLength.Value > 0)
+        {
+            return await base.ReadRequestAsync(req).ConfigureAwait(false);
+        }
+
+        var buffer = new System.IO.MemoryStream();
+        await req.Body.CopyToAsync(buffer).ConfigureAwait(false);
+        buffer.Position = 0;
+
+        string bodyText;
+        using (var sr = new System.IO.StreamReader(buffer, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true))
+        {
+            bodyText = await sr.ReadToEndAsync().ConfigureAwait(false);
+        }
+
+        buffer.Position = 0;
+        req.Body = buffer;
+
+        if (string.IsNullOrWhiteSpace(bodyText))
+        {
+            return (Array.Empty<ErrorMessageResponseItem>(), new RemoveExpiredProvisionalBookingsRequest(null, null));
+        }
+
+        return await base.ReadRequestAsync(req).ConfigureAwait(false);
     }
+
+
 }

@@ -390,7 +390,6 @@ public abstract partial class BaseFeatureSteps : Feature
     [Then("the following bookings are now in the following state")]
     public async Task AssertBookings(DataTable dataTable)
     {
-        var siteId = GetSiteId();
         var defaultReferenceOffset = 0;
 
         foreach (var row in dataTable.Rows.Skip(1))
@@ -398,6 +397,8 @@ public abstract partial class BaseFeatureSteps : Feature
             var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                                    BookingReferences.GetBookingReference(defaultReferenceOffset,
                                        BookingType.Confirmed);
+
+            var siteId = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
             defaultReferenceOffset += 1;
 
 

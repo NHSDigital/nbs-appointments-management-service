@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -527,7 +526,16 @@ public abstract partial class BaseFeatureSteps : Feature
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
-        await AssertBookingStatusByReference(bookingReference, expectedStatus);
+        await AssertBookingStatusByReference(bookingReference, GetSiteId(), expectedStatus);
+    }
+
+    [Then(@"the booking at site '(.+)' has been '(\w+)'")]
+    public async Task AssertBookingStatusAtSite(string siteId, string status)
+    {
+        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+
+        await AssertBookingStatusByReference(bookingReference, GetSiteId(siteId), expectedStatus);
     }
 
     [Then(@"the booking with reference '(.+)' has been '(.+)'")]
@@ -536,7 +544,7 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         var customId = CreateCustomBookingReference(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-        await AssertBookingStatusByReference(customId, expectedStatus);
+        await AssertBookingStatusByReference(customId, GetSiteId(), expectedStatus);
     }
 
     [Then(@"the booking with reference '(.+)' has status '(.+)'")]
@@ -545,7 +553,7 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         var customId = CreateCustomBookingReference(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-        await AssertBookingStatusByReference(customId, expectedStatus, false);
+        await AssertBookingStatusByReference(customId, GetSiteId(), expectedStatus, false);
     }
 
     [And("the booking should be deleted")]
@@ -735,10 +743,9 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
-    private async Task AssertBookingStatusByReference(string bookingReference, AppointmentStatus status,
+    private async Task AssertBookingStatusByReference(string bookingReference, string siteId, AppointmentStatus status,
         bool expectStatusToHaveChanged = true)
     {
-        var siteId = GetSiteId();
         var bookingDocument = await Client.GetContainer("appts", "booking_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
         bookingDocument.Resource.Status.Should().Be(status);

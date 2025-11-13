@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -17,11 +18,11 @@ namespace Nhs.Appointments.Api.Functions;
 
 public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
     IBookingWriteService bookingWriteService,
-    IValidator<EmptyRequest> validator,
+    IValidator<RemoveExpiredProvisionalBookingsRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<TriggerBookingRemindersFunction> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<EmptyRequest, RemoveExpiredProvisionalBookingsResponse>(validator, userContextProvider, logger,
+    : BaseApiFunction<RemoveExpiredProvisionalBookingsRequest, RemoveExpiredProvisionalBookingsResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
     [OpenApiOperation(operationId: "TriggerUnconfirmedProvisionalBookingsCollector", tags: ["System"],
@@ -41,13 +42,19 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
     }
 
     protected override async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> HandleRequest(
-        EmptyRequest request, ILogger logger)
+        RemoveExpiredProvisionalBookingsRequest request, ILogger logger)
     {
-        var removedIds = await bookingWriteService.RemoveUnconfirmedProvisionalBookings();
+        var batchSize = request.BatchSize
+         ?? int.Parse(Environment.GetEnvironmentVariable("CleanupBatchSize") ?? "200");
+
+        var degreeOfParallelism = request.DegreeOfParallelism
+            ?? int.Parse(Environment.GetEnvironmentVariable("CleanupDegreeOfParallelism") ?? "8");
+
+        var removedIds = await bookingWriteService.RemoveUnconfirmedProvisionalBookings(batchSize, degreeOfParallelism);
         return Success(new RemoveExpiredProvisionalBookingsResponse(removedIds.ToArray()));
     }
 
-    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
+    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(RemoveExpiredProvisionalBookingsRequest request)
     {
         return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
     }

@@ -1,6 +1,8 @@
+using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using System.Net;
 
 namespace Nhs.Appointments.Core.UnitTests
 {
@@ -1150,6 +1152,32 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Once);
         }
+
+        [Fact]
+        public async Task RemoveUnconfirmedProvisionalBookings_UsesOverrides_WhenParametersProvided()
+        {
+            var expectedIds = new[] { "id2" };
+            _bookingsDocumentStore
+                .Setup(x => x.RemoveUnconfirmedProvisionalBookings(250, 10))
+                .ReturnsAsync(expectedIds);
+
+            var result = await _sut.RemoveUnconfirmedProvisionalBookings(250, 10);
+
+            result.Should().Contain("id2");
+        }
+
+        [Fact]
+        public async Task RemoveUnconfirmedProvisionalBookings_ReturnsEmpty_WhenNoBookingsFound()
+        {
+            _bookingsDocumentStore
+                .Setup(x => x.RemoveUnconfirmedProvisionalBookings(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(Array.Empty<string>());
+
+            var result = await _sut.RemoveUnconfirmedProvisionalBookings(100, 4);
+
+            result.Should().BeEmpty();
+        }
+
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

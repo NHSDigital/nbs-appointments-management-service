@@ -323,30 +323,75 @@ public class BookingCosmosDocumentStore(
         return new DocumentUpdate<Booking, BookingDocument>(bookingStore, site, reference);
     }
 
-    public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
+    public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings(int? batchSize, int? degreeOfParallelism)
     {
-        var expiryDateTime = time.GetUtcNow().AddDays(-1);        
+        var runId = Guid.NewGuid().ToString("N");
+        var startedAt = time.GetUtcNow();
+        var expiryDateTime = startedAt.AddDays(-1);
+        var effectiveBatchSize = batchSize is > 0 ? batchSize.Value : int.MaxValue;        
+        var effectiveDegreeOfParallelism = degreeOfParallelism ?? 8;
 
-        var query = new QueryDefinition(
-                query: "SELECT * " +
-                       "FROM index_data d " +
-                       "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry")
+        logger.LogInformation(
+            "Cleanup run started. RunId:{RunId} StartedAt:{StartedAt} BatchSize:{BatchSize} DegreeOfParallelism:{Degree}",
+            runId,
+            startedAt,
+            effectiveBatchSize,
+            effectiveDegreeOfParallelism);
+
+        var sql = "SELECT TOP @batchSize * FROM index_data d " +
+                "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
+
+        var query = new QueryDefinition(sql)
+            .WithParameter("@batchSize", effectiveBatchSize)
             .WithParameter("@docType", "booking_index")
             .WithParameter("@status", AppointmentStatus.Provisional.ToString())
             .WithParameter("@expiry", expiryDateTime);
+
         var indexDocuments = await indexStore.RunSqlQueryAsync<BookingIndexDocument>(query);
 
-        foreach (var indexDocument in indexDocuments)
-        {
-            await DeleteBooking(indexDocument.Reference, indexDocument.Site);
-        }
+        var startMessage = $"Cleanup run {runId} found {indexDocuments.Count()} candidates. BatchSize:{batchSize}";
+        logger.LogInformation(message: startMessage);
 
-        return indexDocuments.Select(i => i.Reference).ToList();
+        using var sem = new SemaphoreSlim(effectiveDegreeOfParallelism);
+
+        var removed = new ConcurrentBag<string>();
+        var tasks = indexDocuments.Select(async indexDocument =>
+        {
+            await sem.WaitAsync();
+            try
+            {
+                var documentMessage = $"Cleanup {runId} processing reference:{indexDocument.Reference} site:{indexDocument.Site}";
+                logger.LogDebug(message: documentMessage);
+
+                try
+                {
+                    await DeleteBooking(indexDocument.Reference, indexDocument.Site);
+                    removed.Add(indexDocument.Reference);
+                }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    logger.LogInformation($"Cleanup {runId} delete not found treated as success for reference:{indexDocument.Reference} site:{indexDocument.Site} ActivityId:{ex.ActivityId}");
+                    removed.Add(indexDocument.Reference);
+                }
+            }
+            finally
+            {
+                sem.Release();
+            }
+        }).ToList();
+
+        await Task.WhenAll(tasks);
+
+        var finishedAt = time.GetUtcNow();
+        var endMessage = $"Cleanup run finished. RunId:{runId} StartedAt:{startedAt} FinishedAt:{finishedAt} Processed:{indexDocuments.Count()}";
+        logger.LogInformation(message: endMessage);
+
+        return removed.ToList();
     }
 
     public async Task DeleteBooking(string reference, string site) => await Task.WhenAll(
-        indexStore.DeleteDocument(reference, "booking_index"),
-        bookingStore.DeleteDocument(reference, site)
+    indexStore.DeleteDocument(reference, "booking_index"),
+    bookingStore.DeleteDocument(reference, site)
     );
 
     public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date)

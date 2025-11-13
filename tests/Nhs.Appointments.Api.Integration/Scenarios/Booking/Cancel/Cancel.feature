@@ -7,9 +7,30 @@ Feature: Appointment cancellation
     And the following bookings have been made
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
-    When I cancel the appointment
+    When I cancel the appointment without a site parameter
     Then the booking has been 'Cancelled'
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
+
+  Scenario: Cancel a booking appointment and provide the site parameter
+    Given the following sessions exist for site '6e3348bf-3509-45f2-887c-4f9651501f06'
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+    And the following bookings have been made for site '6e3348bf-3509-45f2-887c-4f9651501f06'
+      | Date     | Time  | Duration | Service |
+      | Tomorrow | 09:20 | 5        | COVID   |
+    When I cancel the appointment with site parameter '6e3348bf-3509-45f2-887c-4f9651501f06'
+    Then the booking has been 'Cancelled'
+    And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
+
+  Scenario: Cancel a booking appointment and provide the wrong site parameter
+    Given the following sessions exist for site '1bb81f6c-0e7d-4032-baea-bc32ea80d176'
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+    And the following bookings have been made for site '1bb81f6c-0e7d-4032-baea-bc32ea80d176'
+      | Date     | Time  | Duration | Service |
+      | Tomorrow | 09:20 | 5        | COVID   |
+    When I cancel the appointment with site parameter '51c7d74c-06b6-4375-8008-f2ea312b1a69'
+    Then the call should fail with 404
 
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment
     Given the following sessions

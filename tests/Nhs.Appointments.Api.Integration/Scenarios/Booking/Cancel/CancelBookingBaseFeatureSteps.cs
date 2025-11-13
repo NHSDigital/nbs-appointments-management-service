@@ -35,7 +35,7 @@ public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
 
         var bookingReference = CreateCustomBookingReference(table.GetRowValueOrDefault(row, "Reference")) ??
                                BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        var site = GetSiteId();
+        var url = $"http://localhost:7071/api/booking/{bookingReference}/cancel";
 
         var payload = new Dictionary<string, object>();
 
@@ -51,6 +51,12 @@ public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
             payload["additionalData"] = additionalData;
         }
 
-        return ($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}", payload);
+        var site = table.GetRowValueOrDefault(row, "Site");
+        if (site != null)
+        {
+            return ($"{url}?site={GetSiteId(site)}", payload);
+        }
+
+        return (url, payload);
     }
 }

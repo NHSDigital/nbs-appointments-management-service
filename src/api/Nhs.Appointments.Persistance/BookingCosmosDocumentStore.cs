@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.Net;
+using System.Runtime.Intrinsics.Arm;
+using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core.Bookings;
@@ -328,49 +330,35 @@ public class BookingCosmosDocumentStore(
         var runId = Guid.NewGuid().ToString("N");
         var startedAt = time.GetUtcNow();
         var expiryDateTime = time.GetUtcNow().AddDays(-1);
-        var effectiveDegreeOfParallelism = degreeOfParallelism ?? 8;
 
-        logger.LogInformation(
-            "Cleanup run started. RunId:{RunId} StartedAt:{StartedAt} BatchSize:{BatchSize} DegreeOfParallelism:{Degree}",
-            runId,
-            startedAt,
-            batchSize,
-            effectiveDegreeOfParallelism);
-        
-        string sql;
-        var query = default(QueryDefinition);
+        var effectiveDegreeOfParallelism = Math.Max(1, degreeOfParallelism ?? 8); 
+        var useTop = batchSize is > 0;
+        var top = useTop ? batchSize!.Value : 0;
 
-        if (batchSize is > 0)
-        {
-            sql = "SELECT TOP @batchSize * FROM index_data d " +
-                  "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
+        logger.LogInformation("Sweep {RunId} started at {StartedAt}; expiry {Expiry}; batch {Batch}; dop {Dop}",
+            runId, startedAt, expiryDateTime, useTop ? top : (int?)null, effectiveDegreeOfParallelism);
 
-            query = new QueryDefinition(sql)
-                .WithParameter("@batchSize", batchSize.Value)
-                .WithParameter("@docType", "booking_index")
-                .WithParameter("@status", AppointmentStatus.Provisional.ToString())
-                .WithParameter("@expiry", expiryDateTime);
-        }
-        else
-        {
-            sql = "SELECT * FROM index_data d " +
-                  "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
+        var sql = useTop
+            ? "SELECT TOP @batchSize * FROM index_data d WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry"
+            : "SELECT * FROM index_data d WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
 
-            query = new QueryDefinition(sql)
-                .WithParameter("@docType", "booking_index")
-                .WithParameter("@status", AppointmentStatus.Provisional.ToString())
-                .WithParameter("@expiry", expiryDateTime);
-        }
+        var query = new QueryDefinition(sql)
+            .WithParameter("@docType", "booking_index")
+            .WithParameter("@status", AppointmentStatus.Provisional.ToString())
+            .WithParameter("@expiry", expiryDateTime);
+
+        if (useTop) query = query.WithParameter("@batchSize", top);
 
         var indexDocuments = await indexStore.RunSqlQueryAsync<BookingIndexDocument>(query);
 
-        var startMessage = $"Cleanup run {runId} found {indexDocuments.Count()} candidates. BatchSize:{batchSize}";
-        logger.LogInformation(message: startMessage);
+        logger.LogInformation("Sweep {RunId} candidates: {Count}", runId, indexDocuments.Count());
 
         using var sem = new SemaphoreSlim(effectiveDegreeOfParallelism);
 
         var removed = new ConcurrentBag<string>();
-        var tasks = indexDocuments.Select(async indexDocument =>
+        var tasks = new List<Task>(indexDocuments.Count());
+
+        foreach (var indexDocument in indexDocuments) 
         {
             await sem.WaitAsync();
             try
@@ -393,7 +381,7 @@ public class BookingCosmosDocumentStore(
             {
                 sem.Release();
             }
-        }).ToList();
+        }
 
         await Task.WhenAll(tasks);
 

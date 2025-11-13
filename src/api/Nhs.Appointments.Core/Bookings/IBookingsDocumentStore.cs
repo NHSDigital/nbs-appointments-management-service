@@ -18,7 +18,7 @@ public interface IBookingsDocumentStore
     Task SetReminderSent(string bookingReference, string site);
     Task<BookingConfirmationResult> ConfirmProvisionals(string[] bookingReferences, IEnumerable<ContactItem> contactDetails);
     Task<BookingConfirmationResult> ConfirmProvisional(string bookingReference, IEnumerable<ContactItem> contactDetails, string bookingToReschedule, CancellationReason? cancellationReason = null);
-    Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
+    Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings(int? batchSize, int? degreeOfParallelism);
     Task DeleteBooking(string reference, string site);
     Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status);
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date);

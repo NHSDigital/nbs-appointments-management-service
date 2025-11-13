@@ -2,6 +2,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Authorization;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core;
+using System;
 
 namespace Nhs.Appointments.Api.Functions.TimerFunctions;
 
@@ -11,7 +13,11 @@ public class ScheduledUnconfirmedProvisionalBookingsCollectorFunction(IBookingWr
     [AllowAnonymous]
     public Task RemoveUnconfirmedProvisionalBookings([TimerTrigger("%UnconfirmedProvisionalBookingsCronSchedule%")] TimerInfo timerInfo)
     {
-        return bookingWriteService.RemoveUnconfirmedProvisionalBookings();
+        var batchSize = int.Parse(Environment.GetEnvironmentVariable("CleanupBatchSize") ?? "200");
+
+        var degreeOfParallelism = int.Parse(Environment.GetEnvironmentVariable("CleanupDegreeOfParallelism") ?? "8");
+
+        return bookingWriteService.RemoveUnconfirmedProvisionalBookings(batchSize, degreeOfParallelism);
     }
 }
 

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -6,9 +6,8 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Location;
+using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 

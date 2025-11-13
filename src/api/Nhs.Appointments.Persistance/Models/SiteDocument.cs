@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Persistance.Models;
 

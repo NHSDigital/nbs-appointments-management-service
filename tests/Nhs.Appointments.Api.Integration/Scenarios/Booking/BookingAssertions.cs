@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Nhs.Appointments.Persistance.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             expected.Site.Should().Be(actual.Site);
         }
 
-        public static void BookingsAreEquivalent(Core.Booking actual, Core.Booking expected)
+        public static void BookingsAreEquivalent(Core.Bookings.Booking actual, Core.Bookings.Booking expected)
         {
             expected.ContactDetails.Should().BeEquivalentTo(actual.ContactDetails);
             expected.Duration.Should().Be(actual.Duration);
@@ -38,7 +38,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             expected.Site.Should().Be(actual.Site);
         }
 
-        public static void BookingsAreEquivalent(IEnumerable<Core.Booking> actual, IEnumerable<Core.Booking> expected)
+        public static void BookingsAreEquivalent(IEnumerable<Core.Bookings.Booking> actual, IEnumerable<Core.Bookings.Booking> expected)
         {
             foreach (var expectedItem in expected)
             {

@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Moq;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;

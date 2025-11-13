@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Functions;
 

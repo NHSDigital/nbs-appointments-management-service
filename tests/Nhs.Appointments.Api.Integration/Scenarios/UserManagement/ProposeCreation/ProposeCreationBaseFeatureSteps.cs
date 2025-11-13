@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -9,7 +9,7 @@ using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 using RoleAssignment = Nhs.Appointments.Persistance.Models.RoleAssignment;

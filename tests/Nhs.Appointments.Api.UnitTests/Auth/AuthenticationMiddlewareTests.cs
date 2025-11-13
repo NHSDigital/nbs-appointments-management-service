@@ -1,11 +1,11 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Nhs.Appointments.Api.Auth;
 using System.Security.Claims;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.UnitTests;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Auth
 {

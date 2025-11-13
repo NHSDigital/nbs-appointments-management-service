@@ -2,7 +2,11 @@ using MassTransit.Serialization;
 using Moq;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Notifications;
 

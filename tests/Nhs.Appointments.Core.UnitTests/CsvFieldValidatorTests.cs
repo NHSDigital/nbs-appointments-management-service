@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.BulkImport;
+
 namespace Nhs.Appointments.Core.UnitTests;
 
 public class CsvFieldValidatorTests

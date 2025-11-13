@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.UnitTests;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
@@ -236,7 +238,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
 
         var response = await _sut.RunAsync(request) as ContentResult;
 
-        response.StatusCode.Should().Be(404);
+        response.StatusCode.Should().Be(400);
         _bookingWriteService.Verify(x => x.CancelBooking(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<CancellationReason>(), It.IsAny<object>(), It.IsAny<bool>()), Times.Never);
     }

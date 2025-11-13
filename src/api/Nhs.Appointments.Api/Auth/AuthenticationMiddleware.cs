@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,7 +6,7 @@ using Nhs.Appointments.Api.Json;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Auth;
 

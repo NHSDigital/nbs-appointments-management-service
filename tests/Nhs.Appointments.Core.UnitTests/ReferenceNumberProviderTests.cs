@@ -1,4 +1,7 @@
-﻿namespace Nhs.Appointments.Core.UnitTests;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Sites;
+
+namespace Nhs.Appointments.Core.UnitTests;
 
 public class ReferenceNumberProviderTests
 {

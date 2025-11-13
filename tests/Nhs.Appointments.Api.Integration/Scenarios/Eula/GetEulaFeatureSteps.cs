@@ -1,11 +1,11 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Eula;
 using Xunit.Gherkin.Quick;
 using DataTable = Gherkin.Ast.DataTable;
 

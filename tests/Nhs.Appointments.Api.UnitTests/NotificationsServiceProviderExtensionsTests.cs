@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Api.Notifications.Options;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports.SiteSummary;

@@ -8,12 +8,15 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using System.Text;
 using Nhs.Appointments.Core.Json;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Users;
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
 
 #pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 

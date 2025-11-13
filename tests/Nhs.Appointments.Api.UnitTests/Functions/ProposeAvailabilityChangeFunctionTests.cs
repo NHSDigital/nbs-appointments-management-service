@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Users;
 using System.Text;
 
 namespace Nhs.Appointments.Api.Tests.Functions;

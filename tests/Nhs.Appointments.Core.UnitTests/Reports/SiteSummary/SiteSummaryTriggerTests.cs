@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests.Reports.SiteSummary;
 

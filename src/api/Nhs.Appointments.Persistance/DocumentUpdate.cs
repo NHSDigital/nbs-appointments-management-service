@@ -1,6 +1,6 @@
-﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using System.Linq.Expressions;
 using System.Reflection;
 

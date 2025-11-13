@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 

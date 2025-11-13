@@ -1,3 +1,6 @@
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
+
 namespace Nhs.Appointments.Core.UnitTests.BookingAvailabilityState;
 
 public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase

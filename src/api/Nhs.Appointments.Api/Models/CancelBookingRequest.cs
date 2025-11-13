@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 
 namespace Nhs.Appointments.Api.Models;
 

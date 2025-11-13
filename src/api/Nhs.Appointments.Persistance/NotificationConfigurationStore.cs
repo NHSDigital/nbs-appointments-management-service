@@ -1,5 +1,6 @@
 using AutoMapper;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
@@ -12,7 +13,7 @@ public class NotificationConfigurationStore(ITypedDocumentCosmosStore<Notificati
     {
         var globalDocument = await GetConfig();
 
-        return globalDocument.Configs.Select(mapper.Map<Core.NotificationConfiguration>);        
+        return globalDocument.Configs.Select(mapper.Map<NotificationConfiguration>);        
     }        
 
     private async Task<NotificationConfigurationDocument> GetConfig()

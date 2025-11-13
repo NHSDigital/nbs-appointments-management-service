@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.OdsCodes;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
 

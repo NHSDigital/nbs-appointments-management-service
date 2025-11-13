@@ -1250,6 +1250,62 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "site/reference-details",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"odsCode\": \"ODS1\",\r\n    \"icb\": \"ICB1\",\r\n    \"region\": \"R1\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/sites/{{site}}/reference-details",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "sites", "{{site}}", "reference-details"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "site/details",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Test Name\",\r\n    \"address\": \"Test Address\",\r\n    \"phoneNumber\": \"07777777777\",\r\n    \"longitude\": 0.12,\r\n    \"latitude\": 51.45\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/sites/{{site}}/details",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "sites", "{{site}}", "details"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

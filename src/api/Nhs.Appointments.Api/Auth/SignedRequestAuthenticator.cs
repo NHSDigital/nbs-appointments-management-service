@@ -1,6 +1,7 @@
-﻿using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Users;
 using System;
 using System.Globalization;
 using System.Linq;

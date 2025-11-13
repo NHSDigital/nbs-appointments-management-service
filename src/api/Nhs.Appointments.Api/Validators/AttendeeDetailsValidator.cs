@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Globalization;
 using FluentValidation;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 
 namespace Nhs.Appointments.Api.Validators;
 

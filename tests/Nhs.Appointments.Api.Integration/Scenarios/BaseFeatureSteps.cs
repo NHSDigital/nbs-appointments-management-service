@@ -18,13 +18,16 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Json;
+using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
 using Feature = Xunit.Gherkin.Quick.Feature;
-using Location = Nhs.Appointments.Core.Location;
+using Location = Nhs.Appointments.Core.Sites.Location;
 using Role = Nhs.Appointments.Persistance.Models.Role;
 using RoleAssignment = Nhs.Appointments.Persistance.Models.RoleAssignment;
 

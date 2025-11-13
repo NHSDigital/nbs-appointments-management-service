@@ -1,5 +1,5 @@
 using FluentValidation;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Api.Validators;
 

@@ -1,4 +1,5 @@
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Helpers;
 using Nhs.Appointments.Persistance.Models;
 
 namespace CapacityDataExtracts.Documents;

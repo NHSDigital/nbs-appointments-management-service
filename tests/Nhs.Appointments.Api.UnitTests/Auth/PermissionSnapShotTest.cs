@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Nhs.Appointments.Api.Auth;
 using System.Reflection;
 using Microsoft.Azure.Functions.Worker;

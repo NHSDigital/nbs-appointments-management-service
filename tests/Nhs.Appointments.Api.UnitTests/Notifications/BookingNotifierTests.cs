@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Notifications;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.ClinicalServices;
+using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Api.Tests.Notifications;
 

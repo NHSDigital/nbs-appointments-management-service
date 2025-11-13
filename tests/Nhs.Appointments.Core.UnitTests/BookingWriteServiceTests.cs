@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;

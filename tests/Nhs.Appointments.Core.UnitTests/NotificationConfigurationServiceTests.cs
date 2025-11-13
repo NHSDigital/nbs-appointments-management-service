@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Core.UnitTests;
 public class NotificationConfigurationServiceTests

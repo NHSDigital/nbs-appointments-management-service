@@ -8,7 +8,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
     public class QueryBookingByNhsNumber : BookingBaseFeatureSteps
     {
-        private List<Core.Booking> _actualResponse;
+        private List<Core.Bookings.Booking> _actualResponse;
         private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
 
@@ -26,7 +26,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             _response = await Http.GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
             _statusCode = _response.StatusCode;
             (_, _actualResponse) =
-                await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(
+                await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(
                     await _response.Content.ReadAsStreamAsync());
         }
 
@@ -35,7 +35,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         public void Assert(DataTable expectedBookingDetailsTable)
         {
             var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select((row, index) =>
-                new Core.Booking
+                new Core.Bookings.Booking
                 {
                     Reference =
                         row.Cells.ElementAtOrDefault(4)?.Value ??

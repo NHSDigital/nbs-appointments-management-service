@@ -1,3 +1,6 @@
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Helpers;
+
 namespace Nhs.Appointments.Core.UnitTests;
 public class HasConsecutiveCapacityFilterTests
 {

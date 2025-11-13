@@ -1,6 +1,7 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using Nhs.Appointments.Core.Constants;
+using Nhs.Appointments.Core.Users;
 using static Nhs.Appointments.Core.BulkImport.UserDataImportHandler;
 
 namespace Nhs.Appointments.Core.BulkImport;

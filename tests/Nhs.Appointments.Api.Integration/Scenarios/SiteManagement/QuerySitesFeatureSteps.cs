@@ -15,10 +15,11 @@ using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Location;
+using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable

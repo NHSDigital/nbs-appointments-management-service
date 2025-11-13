@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Core.BulkImport;
 public class AdminUserDataImportHandler(IUserService userService) : IAdminUserDataImportHandler

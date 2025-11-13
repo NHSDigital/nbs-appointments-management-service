@@ -4,7 +4,7 @@ using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;

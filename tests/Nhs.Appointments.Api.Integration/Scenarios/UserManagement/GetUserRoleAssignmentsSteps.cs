@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,8 +7,8 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Users;
 using Xunit;
 using Xunit.Gherkin.Quick;
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,7 +6,7 @@ using System.Net.Http;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Integration.Data;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;

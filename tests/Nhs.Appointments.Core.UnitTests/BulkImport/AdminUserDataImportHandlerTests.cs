@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Nhs.Appointments.Core.BulkImport;
+using Nhs.Appointments.Core.Users;
 using System.Text;
 
 namespace Nhs.Appointments.Core.UnitTests.BulkImport;

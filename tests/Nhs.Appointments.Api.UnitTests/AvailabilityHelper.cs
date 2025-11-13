@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 
 namespace Nhs.Appointments.Api.Tests;
 

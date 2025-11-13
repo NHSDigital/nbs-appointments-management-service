@@ -8,7 +8,7 @@ using Gherkin.Ast;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
 using Xunit;
 using Xunit.Gherkin.Quick;
@@ -18,7 +18,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
 public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
-    private Core.Booking _actualResponse;
+    private Core.Bookings.Booking _actualResponse;
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
 
@@ -57,7 +57,7 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
         _response = await Http.GetAsync($"http://localhost:7071/api/booking/{customId}");
         _statusCode = _response.StatusCode;
         (_, _actualResponse) =
-            await JsonRequestReader.ReadRequestAsync<Core.Booking>(await _response.Content.ReadAsStreamAsync());
+            await JsonRequestReader.ReadRequestAsync<Core.Bookings.Booking>(await _response.Content.ReadAsStreamAsync());
     }
 
     [Then("the following booking is returned")]
@@ -65,7 +65,7 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
-        var expectedBooking = new Core.Booking
+        var expectedBooking = new Core.Bookings.Booking
         {
             Reference = cells.ElementAt(4).Value,
             From = DateTime.ParseExact(

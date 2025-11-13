@@ -1,5 +1,6 @@
-﻿using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.UnitTests.Reports;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Functions.Data;
 

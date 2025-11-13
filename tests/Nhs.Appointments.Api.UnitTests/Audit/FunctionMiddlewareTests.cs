@@ -2,11 +2,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Moq;
-using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
+using Nhs.Appointments.Api.Functions.ServiceBusFunctions;
 using Nhs.Appointments.Audit.Services;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.UnitTests;
+using Nhs.Appointments.Core.Users;
 using System.Collections.Immutable;
 using FunctionMiddleware = Nhs.Appointments.Audit.Functions.Middleware;
 

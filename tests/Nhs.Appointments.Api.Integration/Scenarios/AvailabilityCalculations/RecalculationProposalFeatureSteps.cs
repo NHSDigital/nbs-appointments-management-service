@@ -12,7 +12,7 @@ using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Xunit;

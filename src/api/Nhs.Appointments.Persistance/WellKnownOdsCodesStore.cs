@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.OdsCodes;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;

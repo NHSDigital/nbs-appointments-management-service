@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Models;
 

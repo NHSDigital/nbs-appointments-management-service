@@ -9,6 +9,7 @@ using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;

@@ -1,7 +1,13 @@
 using AutoMapper;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.ClinicalServices;
+using Nhs.Appointments.Core.Eula;
+using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
@@ -21,9 +27,9 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<BookingDocument, Booking>();
 
         CreateMap<EulaDocument, EulaVersion>();
-        CreateMap<Models.RoleAssignment, Core.RoleAssignment>();
-        CreateMap<Core.RoleAssignment, Models.RoleAssignment>();
-        CreateMap<Models.Role, Core.Role>();
+        CreateMap<Models.RoleAssignment, Core.Users.RoleAssignment>();
+        CreateMap<Core.Users.RoleAssignment, Models.RoleAssignment>();
+        CreateMap<Models.Role, Core.Users.Role>();
         
         CreateMap<User, UserDocument>()
             .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));

@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Users;
+
 namespace Nhs.Appointments.Core.Okta;
 
 public class OktaService(IOktaUserDirectory oktaUserDirectory, TimeProvider timeProvider) : IOktaService

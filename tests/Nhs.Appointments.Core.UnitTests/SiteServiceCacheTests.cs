@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests;
 

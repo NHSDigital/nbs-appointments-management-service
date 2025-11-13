@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Text.Json;
 using Newtonsoft.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 
 namespace Nhs.Appointments.Api.Models;
 

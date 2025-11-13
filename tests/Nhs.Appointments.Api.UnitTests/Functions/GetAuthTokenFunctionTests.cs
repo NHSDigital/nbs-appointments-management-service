@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
 using Nhs.Appointments.Audit.Services;
 
 namespace Nhs.Appointments.Api.Tests.Functions;

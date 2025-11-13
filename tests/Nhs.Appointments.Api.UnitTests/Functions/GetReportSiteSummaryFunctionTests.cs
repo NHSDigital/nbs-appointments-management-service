@@ -1,16 +1,18 @@
-﻿using System.Text;
+using System.Text;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
 using Nhs.Appointments.Api.Tests.Functions.Data;
 using Nhs.Appointments.Api.Validators;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 

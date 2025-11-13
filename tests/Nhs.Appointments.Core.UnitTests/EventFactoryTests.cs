@@ -1,3 +1,4 @@
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 

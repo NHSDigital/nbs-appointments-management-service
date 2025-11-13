@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Functions.HttpFunctions;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 

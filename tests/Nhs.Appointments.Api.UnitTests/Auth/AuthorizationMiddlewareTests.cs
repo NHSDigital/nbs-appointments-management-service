@@ -5,9 +5,9 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Moq;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.UnitTests;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Auth;
 

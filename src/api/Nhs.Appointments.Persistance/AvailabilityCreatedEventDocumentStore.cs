@@ -1,5 +1,5 @@
-﻿using Nhs.Appointments.Persistance.Models;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.Models;
+using Nhs.Appointments.Core.Availability;
 
 namespace Nhs.Appointments.Persistance;
 

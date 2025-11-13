@@ -4,7 +4,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Consumers;
-using Nhs.Appointments.Api.Functions;
+using Nhs.Appointments.Api.Functions.ServiceBusFunctions;
 using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Api.Tests.Functions;

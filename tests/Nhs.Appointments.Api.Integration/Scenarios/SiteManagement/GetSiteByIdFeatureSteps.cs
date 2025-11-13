@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Sites;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Location;
+using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 

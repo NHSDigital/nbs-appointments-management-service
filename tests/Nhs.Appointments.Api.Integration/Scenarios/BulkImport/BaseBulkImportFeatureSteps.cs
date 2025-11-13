@@ -3,6 +3,7 @@ using Gherkin.Ast;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.BulkImport;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;

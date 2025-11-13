@@ -4,7 +4,8 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Auth;
 

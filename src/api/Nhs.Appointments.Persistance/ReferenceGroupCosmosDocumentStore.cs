@@ -1,6 +1,6 @@
-﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance

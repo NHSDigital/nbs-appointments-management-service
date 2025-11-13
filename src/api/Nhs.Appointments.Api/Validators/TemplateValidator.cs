@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
 using FluentValidation;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Availability;
 
 namespace Nhs.Appointments.Api.Validators;
 

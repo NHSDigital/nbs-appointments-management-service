@@ -1,9 +1,10 @@
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance.Models;
-using RoleAssignment = Nhs.Appointments.Core.RoleAssignment;
-using User = Nhs.Appointments.Core.User;
+using RoleAssignment = Nhs.Appointments.Core.Users.RoleAssignment;
+using User = Nhs.Appointments.Core.Users.User;
 
 namespace Nhs.Appointments.Persistance;
 

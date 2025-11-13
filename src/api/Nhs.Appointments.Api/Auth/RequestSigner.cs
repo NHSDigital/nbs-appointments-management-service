@@ -1,10 +1,10 @@
-﻿using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker.Http;
 using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Extensions;
 
 namespace Nhs.Appointments.Api.Auth
 {

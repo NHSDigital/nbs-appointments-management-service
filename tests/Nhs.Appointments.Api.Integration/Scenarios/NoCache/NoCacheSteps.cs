@@ -15,14 +15,14 @@ public sealed class NoCacheSteps : BaseFeatureSteps
 {
     private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
-    private List<Core.Booking> _actualResponse;
+    private List<Core.Bookings.Booking> _actualResponse;
 
     [When(@"I query for a site")]
     public async Task QuerySite()
     {
         _response = await Http.GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
         _statusCode = _response.StatusCode;
-        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<List<Core.Booking>>(await _response.Content.ReadAsStreamAsync());
+        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(await _response.Content.ReadAsStreamAsync());
         
     }
 

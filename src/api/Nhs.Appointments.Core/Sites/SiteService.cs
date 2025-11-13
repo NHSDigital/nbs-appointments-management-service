@@ -463,7 +463,7 @@ public class SiteService(
         return sites;
     }
 
-    private async Task UpdateSiteInCacheAsync(string siteId)
+    internal async Task UpdateSiteInCacheAsync(string siteId)
     {
         if (options.Value.DisableSiteCache)
         {

@@ -396,6 +396,35 @@ public class AvailableSlotsFilterTests
         result.Last().From.Should().Be(new DateTime(2025, 10, 10, 9, 30, 0));
     }
 
+    [Fact]
+    public void MultipleAttendees_MultipleServices_DifferentSlotLengths_ReturnCorrectConsecutiveSlots()
+    {
+        var slots = new List<SessionInstance>
+        {
+            SetupSlot(new DateTime(2025, 10, 10, 9, 0, 0), new DateTime(2025, 10, 10, 9, 5, 0), 2, 5, ["RSV"]),
+            SetupSlot(new DateTime(2025, 10, 10, 9, 5, 0), new DateTime(2025, 10, 10, 9, 10, 0), 2, 5, ["RSV"]),
+            SetupSlot(new DateTime(2025, 10, 10, 9, 10, 0), new DateTime(2025, 10, 10, 9, 15, 0), 2, 5, ["RSV"]),
+            SetupSlot(new DateTime(2025, 10, 10, 9, 15, 0), new DateTime(2025, 10, 10, 9, 20, 0), 2, 5, ["RSV"]),
+            SetupSlot(new DateTime(2025, 10, 10, 9, 10, 0), new DateTime(2025, 10, 10, 9, 20, 0), 2, 10, ["FLU"]),
+            SetupSlot(new DateTime(2025, 10, 10, 9, 20, 0), new DateTime(2025, 10, 10, 9, 30, 0), 2, 10, ["FLU"]),
+        };
+
+        var attendees = new List<Attendee>
+        {
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["FLU"])
+        };
+
+        var result = _sut.FilterAvailableSlots(slots, attendees);
+
+        result.Count().Should().Be(4);
+        result.Count(s => s.Services.First() == "RSV").Should().Be(2);
+        result.Count(s => s.Services.First() == "FLU").Should().Be(2);
+    }
+
+    // More tests for different slot lengths
+    // Scenario on the Mural board for 3 services and different slot lengths need adding as well
+
     private static SessionInstance SetupSlot(DateTime from, DateTime until, int capacity, int slotLength, string[] services)
     {
         return new SessionInstance(from, until)

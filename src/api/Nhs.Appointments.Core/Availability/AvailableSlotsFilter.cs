@@ -29,22 +29,12 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
         }
 
         var requiredCount = attendees.Count;
-        var matchingSequences = new List<List<SessionInstance>>();
 
-        // Slide a window of 'requiredCount' consecutive slots
-        for (var i = 0; i <= filterdSlots.Count() - requiredCount; i++)
-        {
-            var sequence = filterdSlots.Skip(i).Take(requiredCount).ToList();
+        var matching = FindConsecutivePeriods(filterdSlots, requiredCount, requiredServices);
 
-            if (AreConsecutive(sequence, requiredServices))
-            {
-                matchingSequences.Add(sequence);
-            }
-        }
-
-        return matchingSequences
-            .SelectMany(s => s)
-            .Distinct()
+        return matching
+            .SelectMany(m => m)
+            .OrderBy(s => s.From)
             .ToList();
     }
 
@@ -56,10 +46,14 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
     /// <param name="sequence">The next 'n' (attendee count) slots in the sequence</param>
     /// <param name="requiredServices">List of distinct requested services for all attendees</param>
     /// <returns></returns>
-    private static bool AreConsecutive(List<SessionInstance> sequence, HashSet<string> requiredServices)
+    private static bool AreConsecutive(List<SessionInstance> sequence, string[] requiredServices)
     {
-        var requiredCount = requiredServices.Count;
+        sequence = [.. sequence.OrderBy(s => s.From)];
 
+        // Scenario can be found in MultipleAttendees_MultipleServices_DifferentSlotLengths_ReturnCorrectConsecutiveSlots test
+        // The issue lies here with indexing on multiple services
+        // There is a chain of 3.. but the FLU one is 3rd and it's matching RSV is 1st not 2nd so this method returns false.
+        // We need to be able to loop through every permutation of the sequence
         for (var i = 0; i < sequence.Count - 1; i++)
         {
             if (sequence[i].Until != sequence[i + 1].From)
@@ -68,18 +62,13 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
             }
         }
 
-        if (sequence.Any(slot => !slot.Services.Any(s => requiredServices.Contains(s))))
-        {
-            return false;
-        }
-
-        var servicesCovered = sequence
+        var servicesInSequence = sequence
+            .Where(s => s.Capacity > 0)
             .SelectMany(s => s.Services)
-            .Where(requiredServices.Contains)
             .Distinct()
-            .Count();
+            .ToList();
 
-        return servicesCovered == requiredCount;
+        return requiredServices.All(servicesInSequence.Contains);
     }
 
     /// <summary>
@@ -90,12 +79,12 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
     /// <param name="slots">All slots passed in from the BASS for a given date range</param>
     /// <param name="attendees">All attendees passed in from the API call</param>
     /// <returns></returns>
-    private static (IEnumerable<SessionInstance> filteredSlots, HashSet<string> requiredServices) FilterSlotsByService(IEnumerable<SessionInstance> slots, IEnumerable<Attendee> attendees)
+    private static (List<SessionInstance> filteredSlots, string[] requiredServices) FilterSlotsByService(IEnumerable<SessionInstance> slots, IEnumerable<Attendee> attendees)
     {
         var requiredServices = attendees
             .SelectMany(a => a.Services)
             .Distinct()
-            .ToHashSet();
+            .ToArray();
 
         var filteredSlots = slots
             .Where(s => s.Services.Any(s => requiredServices.Contains(s)) && s.Capacity > 0)
@@ -103,5 +92,41 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
             .ToList();
 
         return (filteredSlots, requiredServices);
+    }
+
+    private static List<List<SessionInstance>> FindConsecutivePeriods(List<SessionInstance> slots, int requiredCount, string[] requiredServices)
+    {
+        var matching = new List<List<SessionInstance>>();
+
+        var lookup = slots
+            .GroupBy(s => s.From)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        foreach (var startSlot in slots)
+        {
+            var sequence = new List<SessionInstance> { startSlot };
+            var current = startSlot;
+
+            while (lookup.TryGetValue(current.Until, out var nextSlots))
+            {
+                // Add all slots that begin when the current ends
+                sequence.AddRange(nextSlots);
+
+                // Move forward through time using the first next slot 
+                current = nextSlots.First();
+
+                if (sequence.Count >= requiredCount)
+                {
+                    break;
+                }
+            }
+
+            if (sequence.Count >= requiredCount && AreConsecutive(sequence, requiredServices))
+            {
+                matching.Add(sequence);
+            }
+        }
+
+        return matching;
     }
 }

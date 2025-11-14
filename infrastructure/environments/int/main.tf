@@ -82,7 +82,7 @@ module "mya_application_int" {
   auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
   disable_query_availability_function             = true
   create_high_load_function_app                   = true
-  create_app_slot                                 = false
+  create_app_slot                                 = true
   create_autoscale_settings                       = false
   create_frontdoor                                = true
   create_cosmos_db                                = true

@@ -1,5 +1,3 @@
-using Nhs.Appointments.Core.Extensions;
-
 namespace Nhs.Appointments.Core.Availability;
 
 public class AvailableSlotsFilter : IAvailableSlotsFilter

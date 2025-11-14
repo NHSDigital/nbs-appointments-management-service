@@ -25,6 +25,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.BulkImport;
+using Nhs.Appointments.Core.Cache;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Eula;
 using Nhs.Appointments.Core.Features;
@@ -103,7 +104,8 @@ public static class FunctionConfigurationExtensions
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()
             .AddTransient<IBookingQueryService, BookingQueryService>()
-            .AddSingleton<ISiteService, SiteService>()
+            .AddSingleton<ICacheService<Site>, MemoryCacheService<Site>>()
+            .AddTransient<ISiteService, SiteService>()
             .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()
             .AddTransient<IAvailabilityWriteService, AvailabilityWriteService>()
             .AddTransient<IAvailabilityQueryService, AvailabilityQueryService>()

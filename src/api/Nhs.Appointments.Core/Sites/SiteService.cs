@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Cache;
 using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.Sites;
@@ -35,14 +36,12 @@ public interface ISiteService
 public class SiteService(
     ISiteStore siteStore,
     IAvailabilityStore availabilityStore,
-    IMemoryCache memoryCache,
+    ICacheService<Site> memoryCache,
     ILogger<ISiteService> logger,
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
     IOptions<SiteServiceOptions> options) : ISiteService
 {
-    private static readonly SemaphoreSlim _cacheLock = new(1, 1);
-
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
@@ -451,14 +450,13 @@ public class SiteService(
             return await siteStore.GetAllSites();
         }
 
-        var sitesFromCache = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
-        if (sitesFromCache != null)
+        if (memoryCache.TryGetCache<IEnumerable<Site>>(options.Value.SiteCacheKey, out var sitesFromCache))
         {
             return sitesFromCache;
         }
 
         var sites = (await siteStore.GetAllSites()).ToList();
-        memoryCache.Set(options.Value.SiteCacheKey, sites,
+       await memoryCache.SetCache(options.Value.SiteCacheKey, sites,
             time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
         return sites;
     }
@@ -469,49 +467,16 @@ public class SiteService(
         {
             return;
         }
-
-        await _cacheLock.WaitAsync();
-        try
-        {
-            if (!memoryCache.TryGetValue(options.Value.SiteCacheKey, out List<Site> cachedSites))
-            {
-                return;
-            }
-
-            var updatedSite = await siteStore.GetSiteById(siteId);
-
-            var existingIndex = cachedSites.FindIndex(s => s.Id == siteId);
-
-            if (existingIndex >= 0)
-            {
-                if (updatedSite != null)
-                {
-                    cachedSites[existingIndex] = updatedSite;
-                }
-                else
-                {
-                    cachedSites.RemoveAt(existingIndex);
-                }
-            }
-            else if (updatedSite != null)
-            {
-                cachedSites.Add(updatedSite);
-            }
-
-            memoryCache.Set(options.Value.SiteCacheKey, cachedSites,
-                time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
-        }
-        finally
-        {
-            _cacheLock.Release();
-        }
+        var site = await siteStore.GetSiteById(siteId);
+        await memoryCache.PatchCache(options.Value.SiteCacheKey, site, s => s.Id == siteId,
+            time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
     }
 
     private async Task<bool> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from, DateOnly until)
     {
         var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, service, from, until);
 
-        if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
+        if (memoryCache.TryGetCache(cacheKey, out bool siteSupportsService))
         {
             return siteSupportsService;
         }
@@ -519,7 +484,7 @@ public class SiteService(
         var dateStringsInRange = GetDateStringsInRange(from, until);
         var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
         
-        memoryCache.Set(cacheKey, siteOffersServiceDuringPeriod, time.GetUtcNow().AddMinutes(15));
+        await memoryCache.SetCache(cacheKey, siteOffersServiceDuringPeriod, time.GetUtcNow().AddMinutes(15));
         return siteOffersServiceDuringPeriod;
     }
 

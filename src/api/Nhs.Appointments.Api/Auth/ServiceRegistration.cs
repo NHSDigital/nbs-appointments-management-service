@@ -2,9 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System;
-using System.Linq;
 using Microsoft.Extensions.Configuration;
-using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Auth;

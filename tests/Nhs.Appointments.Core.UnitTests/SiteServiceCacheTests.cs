@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Cache;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Sites;
 
@@ -9,7 +10,7 @@ namespace Nhs.Appointments.Core.UnitTests;
 
 public class SiteServiceCacheTests
 {
-    private readonly IMemoryCache _memoryCache = new MemoryCache(new MemoryCacheOptions());
+    private readonly Mock<ICacheService<Site>> _memoryCache = new();
     private readonly Mock<ISiteStore> _siteStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<ILogger<ISiteService>> _logger = new();
@@ -28,7 +29,7 @@ public class SiteServiceCacheTests
         {
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
-        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache, _logger.Object,
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
             TimeProvider.System, _featureToggleHelper.Object, _options.Object);
     }
 

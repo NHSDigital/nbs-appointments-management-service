@@ -33,7 +33,6 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
         var matching = FindConsecutivePeriods(filterdSlots, requiredCount, requiredServices);
 
         return matching
-            .SelectMany(m => m)
             .OrderBy(s => s.From)
             .ToList();
     }
@@ -94,7 +93,7 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
         return (filteredSlots, requiredServices);
     }
 
-    private static List<List<SessionInstance>> FindConsecutivePeriods(List<SessionInstance> slots, int requiredCount, string[] requiredServices)
+    private static List<SessionInstance> FindConsecutivePeriods(List<SessionInstance> slots, int requiredCount, string[] requiredServices)
     {
         var matching = new List<List<SessionInstance>>();
 
@@ -127,6 +126,6 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
             }
         }
 
-        return matching;
+        return [.. matching.SelectMany(s => s)];
     }
 }

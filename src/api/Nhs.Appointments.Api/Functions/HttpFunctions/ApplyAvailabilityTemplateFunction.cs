@@ -14,6 +14,7 @@ using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Extensions;
 using Nhs.Appointments.Core.Inspectors;
+using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;
@@ -23,7 +24,8 @@ public class ApplyAvailabilityTemplateFunction(
     IValidator<ApplyAvailabilityTemplateRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<ApplyAvailabilityTemplateFunction> logger,
-    IMetricsRecorder metricsRecorder)
+    IMetricsRecorder metricsRecorder,
+    ISiteService siteService)
     : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -49,6 +51,11 @@ public class ApplyAvailabilityTemplateFunction(
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(ApplyAvailabilityTemplateRequest request,
         ILogger logger)
     {
+        if (await siteService.GetSiteByIdAsync(request.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Site provided was not found.");
+        }
+
         var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
 
         await availabilityWriteService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until,

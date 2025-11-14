@@ -657,7 +657,7 @@ public class BookingCosmosDocumentStoreTests
         _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
             .ReturnsAsync(Array.Empty<BookingIndexDocument>());
 
-        var result = await _sut.RemoveUnconfirmedProvisionalBookings(null, null);
+        var result = await _sut.RemoveUnconfirmedProvisionalBookings();
 
         result.Should().BeEmpty();
     }
@@ -675,7 +675,7 @@ public class BookingCosmosDocumentStoreTests
         _indexStore.Setup(x => x.DeleteDocument("id1", "booking_index")).Returns(Task.CompletedTask);
         _bookingStore.Setup(x => x.DeleteDocument("id1", "site1")).Returns(Task.CompletedTask);
 
-        var result = await _sut.RemoveUnconfirmedProvisionalBookings(100, 2);
+        var result = await _sut.RemoveUnconfirmedProvisionalBookings();
 
         result.Should().Contain("id1");
     }
@@ -695,7 +695,7 @@ public class BookingCosmosDocumentStoreTests
         _bookingStore.Setup(x => x.DeleteDocument("id2", "site2"))
             .ThrowsAsync(new CosmosException("Not found", HttpStatusCode.NotFound, 0, string.Empty, 0));
 
-        var result = await _sut.RemoveUnconfirmedProvisionalBookings(100, 2);
+        var result = await _sut.RemoveUnconfirmedProvisionalBookings();
 
         result.Should().Contain("id2");
     }
@@ -713,7 +713,7 @@ public class BookingCosmosDocumentStoreTests
         _indexStore.Setup(x => x.DeleteDocument("id3", "booking_index"))
             .ThrowsAsync(new CosmosException("Internal error", HttpStatusCode.InternalServerError, 0, string.Empty, 0));
 
-        var act = async () => await _sut.RemoveUnconfirmedProvisionalBookings(100, 2);
+        var act = async () => await _sut.RemoveUnconfirmedProvisionalBookings();
 
         await act.Should().ThrowAsync<CosmosException>();
     }

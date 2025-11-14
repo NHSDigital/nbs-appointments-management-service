@@ -98,9 +98,7 @@ module "mya_application_stag_ukw" {
   splunk_skip_verify_insecure                     = false
   splunk_data_channel                             = "020C14F4-8609-453E-BCBB-2ED9CC5D24C4"
   splunk_otel_image_version                       = "2.0"
-  auto_cancelled_bookings_disabled                = true 
-  cleanup_batch_size                              = var.CLEANUP_BATCH_SIZE
-  cleanup_degree_of_parallelism                   = var.CLEANUP_DEGREE_OF_PARALLELIS
+  auto_cancelled_bookings_disabled                = true
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

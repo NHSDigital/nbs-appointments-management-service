@@ -22,11 +22,11 @@ namespace Nhs.Appointments.Api.Functions.HttpFunctions;
 
 public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
     IBookingWriteService bookingWriteService,
-    IValidator<RemoveExpiredProvisionalBookingsRequest> validator,
+    IValidator<EmptyRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<TriggerBookingRemindersFunction> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<RemoveExpiredProvisionalBookingsRequest, RemoveExpiredProvisionalBookingsResponse>(validator, userContextProvider, logger,
+    : BaseApiFunction<EmptyRequest, RemoveExpiredProvisionalBookingsResponse>(validator, userContextProvider, logger,
         metricsRecorder)
 {
     [OpenApiOperation(operationId: "TriggerUnconfirmedProvisionalBookingsCollector", tags: ["System"],
@@ -46,52 +46,14 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunction(
     }
 
     protected override async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> HandleRequest(
-        RemoveExpiredProvisionalBookingsRequest request, ILogger logger)
+        EmptyRequest request, ILogger logger)
     {
-        request ??= new RemoveExpiredProvisionalBookingsRequest(null, null);
-
-        var batchSize = request.BatchSize
-            ?? (int.TryParse(Environment.GetEnvironmentVariable("CleanupBatchSize"), out var bs) ? bs : 200);
-
-        var degreeOfParallelism = request.DegreeOfParallelism
-            ?? (int.TryParse(Environment.GetEnvironmentVariable("CleanupDegreeOfParallelism"), out var dop) ? dop : 8);
-
-        var removedIds = await bookingWriteService.RemoveUnconfirmedProvisionalBookings(batchSize, degreeOfParallelism);
+        var removedIds = await bookingWriteService.RemoveUnconfirmedProvisionalBookings();
         return Success(new RemoveExpiredProvisionalBookingsResponse(removedIds.ToArray()));
     }
 
-    protected override async Task<(IReadOnlyCollection<ErrorMessageResponseItem> errors, RemoveExpiredProvisionalBookingsRequest request)> ReadRequestAsync(HttpRequest req)
+    protected override Task<IEnumerable<ErrorMessageResponseItem>> ValidateRequest(EmptyRequest request)
     {
-        if (req.ContentLength == 0)
-        {
-            return (Array.Empty<ErrorMessageResponseItem>(), new RemoveExpiredProvisionalBookingsRequest(null, null));
-        }
-
-        if (req.ContentLength.HasValue && req.ContentLength.Value > 0)
-        {
-            return await base.ReadRequestAsync(req).ConfigureAwait(false);
-        }
-
-        var buffer = new System.IO.MemoryStream();
-        await req.Body.CopyToAsync(buffer).ConfigureAwait(false);
-        buffer.Position = 0;
-
-        string bodyText;
-        using (var sr = new System.IO.StreamReader(buffer, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true))
-        {
-            bodyText = await sr.ReadToEndAsync().ConfigureAwait(false);
-        }
-
-        buffer.Position = 0;
-        req.Body = buffer;
-
-        if (string.IsNullOrWhiteSpace(bodyText))
-        {
-            return (Array.Empty<ErrorMessageResponseItem>(), new RemoveExpiredProvisionalBookingsRequest(null, null));
-        }
-
-        return await base.ReadRequestAsync(req).ConfigureAwait(false);
+        return Task.FromResult(Enumerable.Empty<ErrorMessageResponseItem>());
     }
-
-
 }

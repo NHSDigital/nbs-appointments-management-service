@@ -56,9 +56,7 @@
     "SITE_SUMMARY_DAYS_CHUNK_SIZE": 365,
     "SITE_SUMMARY_FIRST_RUN_DATE": "2025-06-01",
     "DISABLE_SITE_CACHE": true,
-    "AutoCancelledBookingsCronSchedule": "0 8 * * *",
-    "CleanupBatchSize": "200",
-    "CleanupDegreeOfParallelism": "8"
+    "AutoCancelledBookingsCronSchedule": "0 8 * * *"
   },
   "Host": { "CORS": "*" }
 }

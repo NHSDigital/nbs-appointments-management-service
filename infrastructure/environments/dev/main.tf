@@ -87,8 +87,6 @@ module "mya_application_dev" {
   splunk_data_channel                             = "8FF305BB-C5B9-4054-A29A-836A0A69CB24"
   splunk_otel_image_version                       = "2.0"
   auto_cancelled_bookings_disabled                = false
-  cleanup_batch_size                              = var.CLEANUP_BATCH_SIZE
-  cleanup_degree_of_parallelism                   = var.CLEANUP_DEGREE_OF_PARALLELIS
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

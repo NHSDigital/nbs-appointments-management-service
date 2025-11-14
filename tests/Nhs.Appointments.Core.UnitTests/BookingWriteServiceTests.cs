@@ -1158,10 +1158,10 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             var expectedIds = new[] { "id2" };
             _bookingsDocumentStore
-                .Setup(x => x.RemoveUnconfirmedProvisionalBookings(250, 10))
+                .Setup(x => x.RemoveUnconfirmedProvisionalBookings())
                 .ReturnsAsync(expectedIds);
 
-            var result = await _sut.RemoveUnconfirmedProvisionalBookings(250, 10);
+            var result = await _sut.RemoveUnconfirmedProvisionalBookings();
 
             result.Should().Contain("id2");
         }
@@ -1170,10 +1170,10 @@ namespace Nhs.Appointments.Core.UnitTests
         public async Task RemoveUnconfirmedProvisionalBookings_ReturnsEmpty_WhenNoBookingsFound()
         {
             _bookingsDocumentStore
-                .Setup(x => x.RemoveUnconfirmedProvisionalBookings(It.IsAny<int>(), It.IsAny<int>()))
+                .Setup(x => x.RemoveUnconfirmedProvisionalBookings())
                 .ReturnsAsync(Array.Empty<string>());
 
-            var result = await _sut.RemoveUnconfirmedProvisionalBookings(100, 4);
+            var result = await _sut.RemoveUnconfirmedProvisionalBookings();
 
             result.Should().BeEmpty();
         }

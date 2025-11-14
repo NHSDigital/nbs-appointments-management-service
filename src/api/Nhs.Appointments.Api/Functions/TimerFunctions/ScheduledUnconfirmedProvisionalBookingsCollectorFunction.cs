@@ -13,11 +13,7 @@ public class ScheduledUnconfirmedProvisionalBookingsCollectorFunction(IBookingWr
     [AllowAnonymous]
     public Task RemoveUnconfirmedProvisionalBookings([TimerTrigger("%UnconfirmedProvisionalBookingsCronSchedule%")] TimerInfo timerInfo)
     {
-        var batchSize = int.Parse(Environment.GetEnvironmentVariable("CleanupBatchSize") ?? "200");
-
-        var degreeOfParallelism = int.Parse(Environment.GetEnvironmentVariable("CleanupDegreeOfParallelism") ?? "8");
-
-        return bookingWriteService.RemoveUnconfirmedProvisionalBookings(batchSize, degreeOfParallelism);
+        return bookingWriteService.RemoveUnconfirmedProvisionalBookings();
     }
 }
 

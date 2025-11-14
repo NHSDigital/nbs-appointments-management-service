@@ -325,65 +325,42 @@ public class BookingCosmosDocumentStore(
         return new DocumentUpdate<Booking, BookingDocument>(bookingStore, site, reference);
     }
 
-    public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings(int? batchSize, int? degreeOfParallelism)
+    public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
         var runId = Guid.NewGuid().ToString("N");
         var startedAt = time.GetUtcNow();
         var expiryDateTime = time.GetUtcNow().AddDays(-1);
 
-        var effectiveDegreeOfParallelism = Math.Max(1, degreeOfParallelism ?? 8); 
-        var useTop = batchSize is > 0;
-        var top = useTop ? batchSize!.Value : 0;
+        logger.LogInformation("Sweep {RunId} started at {StartedAt}; expiry {Expiry};",
+            runId, startedAt, expiryDateTime);
 
-        logger.LogInformation("Sweep {RunId} started at {StartedAt}; expiry {Expiry}; batch {Batch}; dop {Dop}",
-            runId, startedAt, expiryDateTime, useTop ? top : (int?)null, effectiveDegreeOfParallelism);
-
-        var sql = useTop
-            ? "SELECT TOP @batchSize * FROM index_data d WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry"
-            : "SELECT * FROM index_data d WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry";
-
-        var query = new QueryDefinition(sql)
+        var query = new QueryDefinition(
+        query: "SELECT * " +
+               "FROM index_data d " +
+               "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry")
             .WithParameter("@docType", "booking_index")
             .WithParameter("@status", AppointmentStatus.Provisional.ToString())
             .WithParameter("@expiry", expiryDateTime);
-
-        if (useTop) query = query.WithParameter("@batchSize", top);
-
         var indexDocuments = await indexStore.RunSqlQueryAsync<BookingIndexDocument>(query);
 
-        logger.LogInformation("Sweep {RunId} candidates: {Count}", runId, indexDocuments.Count());
-
-        using var sem = new SemaphoreSlim(effectiveDegreeOfParallelism);
-
         var removed = new ConcurrentBag<string>();
-        var tasks = new List<Task>(indexDocuments.Count());
 
         foreach (var indexDocument in indexDocuments) 
         {
-            await sem.WaitAsync();
             try
             {
                 var documentMessage = $"Cleanup {runId} processing reference:{indexDocument.Reference} site:{indexDocument.Site}";
                 logger.LogDebug(message: documentMessage);
 
-                try
-                {
-                    await DeleteBooking(indexDocument.Reference, indexDocument.Site);
-                    removed.Add(indexDocument.Reference);
-                }
-                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-                {
-                    logger.LogInformation($"Cleanup {runId} delete not found treated as success for reference:{indexDocument.Reference} site:{indexDocument.Site} ActivityId:{ex.ActivityId}");
-                    removed.Add(indexDocument.Reference);
-                }
+                await DeleteBooking(indexDocument.Reference, indexDocument.Site);
+                removed.Add(indexDocument.Reference);
             }
-            finally
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
-                sem.Release();
+                logger.LogInformation($"Cleanup {runId} delete not found treated as success for reference:{indexDocument.Reference} site:{indexDocument.Site} ActivityId:{ex.ActivityId}");
+                removed.Add(indexDocument.Reference);
             }
         }
-
-        await Task.WhenAll(tasks);
 
         var finishedAt = time.GetUtcNow();
         var endMessage = $"Cleanup run finished. RunId:{runId} StartedAt:{startedAt} FinishedAt:{finishedAt} Processed:{indexDocuments.Count()}";

@@ -230,11 +230,3 @@ variable "AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE" {
   type = string
   sensitive = false
 }
-
-variable "CLEANUP_BATCH_SIZE" {
-  type        = string
-}
-
-variable "CLEANUP_DEGREE_OF_PARALLELISM" {
-  type        = string
-}

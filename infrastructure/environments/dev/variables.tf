@@ -179,11 +179,3 @@ variable "KEYVAULT_CLIENT_SECRET" {
   type = string
   sensitive = true
 }
-
-variable "CLEANUP_BATCH_SIZE" {
-  type        = string
-}
-
-variable "CLEANUP_DEGREE_OF_PARALLELISM" {
-  type        = string
-}

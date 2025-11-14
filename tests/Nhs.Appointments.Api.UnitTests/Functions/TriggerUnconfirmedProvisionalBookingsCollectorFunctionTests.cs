@@ -13,7 +13,7 @@ namespace Nhs.Appointments.Api.Tests.Functions;
 public class TriggerUnconfirmedProvisionalBookingsCollectorFunctionTests
 {
     private readonly Mock<IBookingWriteService> _bookingWriteService = new();
-    private readonly Mock<IValidator<RemoveExpiredProvisionalBookingsRequest>> _validator = new();
+    private readonly Mock<IValidator<EmptyRequest>> _validator = new();
     private readonly Mock<IUserContextProvider> _userContext = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly ILogger<TriggerBookingRemindersFunction> _logger =
@@ -34,40 +34,36 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunctionTests
     [Fact]
     public async Task UsesDefaults_WhenRequestEmpty()
     {
-        var request = new RemoveExpiredProvisionalBookingsRequest(null, null);
+        var request = new EmptyRequest();
 
         _bookingWriteService
-            .Setup(s => s.RemoveUnconfirmedProvisionalBookings(It.IsAny<int>(), It.IsAny<int>()))
+            .Setup(s => s.RemoveUnconfirmedProvisionalBookings())
             .ReturnsAsync(new[] { "id1" });
 
         var result = await _sut.Invoke(request);
 
         result.IsSuccess.Should().BeTrue();
         result.ResponseObject.RemovedBookingRefs.Should().Contain("id1");
-        _bookingWriteService.Verify(s => s.RemoveUnconfirmedProvisionalBookings(
-            It.Is<int>(b => b == 200), // default
-            It.Is<int>(d => d == 8)), Times.Once);
+        _bookingWriteService.Verify(s => s.RemoveUnconfirmedProvisionalBookings(), Times.Once);
     }
 
     [Fact]
     public async Task UsesOverrides_WhenRequestHasValues()
     {
-        var request = new RemoveExpiredProvisionalBookingsRequest(250, 10);
+        var request = new EmptyRequest();
 
         _bookingWriteService
-            .Setup(s => s.RemoveUnconfirmedProvisionalBookings(250, 10))
+            .Setup(s => s.RemoveUnconfirmedProvisionalBookings())
             .ReturnsAsync(new[] { "id2" });
 
         var result = await _sut.Invoke(request);
         result.ResponseObject.RemovedBookingRefs.Should().Contain("id2");
-        _bookingWriteService.Verify(s => s.RemoveUnconfirmedProvisionalBookings(
-            It.Is<int>(b => b == 250),
-            It.Is<int>(d => d == 10)), Times.Once);
+        _bookingWriteService.Verify(s => s.RemoveUnconfirmedProvisionalBookings(), Times.Once);
     }
 
     private class TriggerFunctionTestProxy(
         IBookingWriteService bookingWriteService,
-        IValidator<RemoveExpiredProvisionalBookingsRequest> validator,
+        IValidator<EmptyRequest> validator,
         IUserContextProvider userContextProvider,
         ILogger<TriggerBookingRemindersFunction> logger,
         IMetricsRecorder metricsRecorder)
@@ -77,7 +73,7 @@ public class TriggerUnconfirmedProvisionalBookingsCollectorFunctionTests
         private readonly ILogger<TriggerBookingRemindersFunction> _logger = logger;
 
         public async Task<ApiResult<RemoveExpiredProvisionalBookingsResponse>> Invoke(
-            RemoveExpiredProvisionalBookingsRequest request) =>
+            EmptyRequest request) =>
             await HandleRequest(request, _logger);
     }
 }

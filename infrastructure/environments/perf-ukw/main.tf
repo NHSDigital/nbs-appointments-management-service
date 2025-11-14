@@ -99,8 +99,6 @@ module "mya_application_perf" {
   splunk_data_channel                             = "5DCE2AC4-31D8-4A77-93C1-06515670AFD6"
   splunk_otel_image_version                       = "2.0"
   auto_cancelled_bookings_disabled                = true
-  cleanup_batch_size                              = var.CLEANUP_BATCH_SIZE
-  cleanup_degree_of_parallelism                   = var.CLEANUP_DEGREE_OF_PARALLELIS
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

@@ -27,7 +27,7 @@ public interface IBookingWriteService
     Task<BookingConfirmationResult> ConfirmProvisionalBooking(string bookingReference,
         IEnumerable<ContactItem> contactDetails, string bookingToReschedule);
 
-    Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings(int? batchSize, int? degreeOfParallelism);
+    Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings();
 
     Task RecalculateAppointmentStatuses(string site, DateOnly day, bool cancelUnsupportedBookings = false);
 
@@ -224,9 +224,9 @@ public class BookingWriteService(
         }
     }
 
-    public Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings(int? batchSize, int? degreeOfParallelism)
+    public Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
-        return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings(batchSize, degreeOfParallelism);
+        return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
     }
 
     public async Task RecalculateAppointmentStatuses(string site, DateOnly day, bool cancelUnsupportedBookings = false)

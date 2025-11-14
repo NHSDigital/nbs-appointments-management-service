@@ -2,8 +2,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Authorization;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core;
-using System;
 
 namespace Nhs.Appointments.Api.Functions.TimerFunctions;
 

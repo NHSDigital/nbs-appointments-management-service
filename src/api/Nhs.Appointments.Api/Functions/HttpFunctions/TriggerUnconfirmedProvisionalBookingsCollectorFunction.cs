@@ -6,16 +6,13 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
-using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Inspectors;
-using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;

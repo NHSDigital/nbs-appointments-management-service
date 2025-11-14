@@ -1,7 +1,5 @@
 using System.Collections.Concurrent;
 using System.Net;
-using System.Runtime.Intrinsics.Arm;
-using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core.Bookings;

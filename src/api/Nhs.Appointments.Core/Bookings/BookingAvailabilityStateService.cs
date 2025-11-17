@@ -230,7 +230,7 @@ public class BookingAvailabilityStateService(
                     if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
                         booking.Status is AppointmentStatus.Booked)
                     {
-                        state.UpdateProposal.NewlyOrphanedBookingsCount++;
+                        state.UpdateProposal.NewlyUnsupportedBookingsCount++;
                     }
                     break;
                 default:
@@ -413,7 +413,7 @@ public class AvailabilityUpdateProposal
         MatchingSessionNotFound = matchingSessionNotFound;
     }
     public int NewlySupportedBookingsCount { get; set; }
-    public int NewlyOrphanedBookingsCount { get; set; } 
+    public int NewlyUnsupportedBookingsCount { get; set; } 
     public bool MatchingSessionNotFound { get; set; }
 }
 

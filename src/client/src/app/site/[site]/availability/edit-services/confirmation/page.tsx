@@ -99,8 +99,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     >
       <Suspense fallback={<Spinner />}>
         <EditServicesConfirmationPage
-          unsupportedBookingsCount={
-            availabilityProposal.unsupportedBookingsCount
+          newlyUnsupportedBookingsCount={
+            availabilityProposal.newlyUnsupportedBookingsCount
           }
           clinicalServices={clinicalServices}
           session={session}

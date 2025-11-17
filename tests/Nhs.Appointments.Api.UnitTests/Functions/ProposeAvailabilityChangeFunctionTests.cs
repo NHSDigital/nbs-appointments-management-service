@@ -47,7 +47,7 @@ public class ProposeAvailabilityChangeFunctionTests
         var response = new AvailabilityUpdateProposal()
         {
             NewlySupportedBookingsCount = 1,
-            NewlyOrphanedBookingsCount = 1
+            NewlyUnsupportedBookingsCount = 1
         };
 
         _bookingAvailabilityStateService.Setup(x =>
@@ -69,7 +69,7 @@ public class ProposeAvailabilityChangeFunctionTests
         var deserialisedResponse = JsonConvert.DeserializeObject<AvailabilityUpdateProposal>(body);
 
         deserialisedResponse.NewlySupportedBookingsCount.Should().Be(response.NewlySupportedBookingsCount);
-        deserialisedResponse.NewlyOrphanedBookingsCount.Should().Be(response.NewlyOrphanedBookingsCount);
+        deserialisedResponse.NewlyUnsupportedBookingsCount.Should().Be(response.NewlyUnsupportedBookingsCount);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class ProposeAvailabilityChangeFunctionTests
         var response = new AvailabilityUpdateProposal()
         {
             NewlySupportedBookingsCount = 1,
-            NewlyOrphanedBookingsCount = 1,
+            NewlyUnsupportedBookingsCount = 1,
             MatchingSessionNotFound = true
         };
 
@@ -106,7 +106,7 @@ public class ProposeAvailabilityChangeFunctionTests
         var response = new AvailabilityUpdateProposal()
         {
             NewlySupportedBookingsCount = 1,
-            NewlyOrphanedBookingsCount = 1,
+            NewlyUnsupportedBookingsCount = 1,
             MatchingSessionNotFound = true
         };
 

@@ -79,7 +79,7 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
         }
 
         _availabilityChangeProposalResponse.NewlySupportedBookingsCount.Should().Be(counts[0]);
-        _availabilityChangeProposalResponse.NewlyOrphanedBookingsCount.Should().Be(counts[1]);
+        _availabilityChangeProposalResponse.NewlyUnsupportedBookingsCount.Should().Be(counts[1]);
     }
 
     [When(@"I request the edit proposal endpoint")]

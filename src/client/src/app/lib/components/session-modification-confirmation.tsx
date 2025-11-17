@@ -31,7 +31,7 @@ type Mode = 'edit' | 'cancel';
 type FormData = { action?: SessionModificationAction };
 
 type Props = {
-  unsupportedBookingsCount: number;
+  newlyUnsupportedBookingsCount: number;
   clinicalServices: ClinicalService[];
   session: string;
   newSession?: string | null;
@@ -136,7 +136,7 @@ const toAvailabilitySession = (session: Session): AvailabilitySession => ({
 });
 
 export const SessionModificationConfirmation = ({
-  unsupportedBookingsCount,
+  newlyUnsupportedBookingsCount,
   clinicalServices,
   session,
   newSession,
@@ -183,7 +183,7 @@ export const SessionModificationConfirmation = ({
           capacity: sessionSummary.capacity,
         },
         sessionReplacement: null,
-        cancelUnsupportedBookings: cancelBookings,
+        newlyUnsupportedBookingAction: cancelBookings ? 'Cancel' : 'Orphan',
       };
 
       let updatedSessionSummary: AvailabilitySession =
@@ -208,7 +208,7 @@ export const SessionModificationConfirmation = ({
 
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&unsupportedBookingsCount=${unsupportedBookingsCount}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
+        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&newlyUnsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
       );
     });
   };

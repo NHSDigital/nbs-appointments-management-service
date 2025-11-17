@@ -197,7 +197,7 @@ Feature: Change Session Uplifted Journey
 #   Step 1 Result: User 1 is told that only 1 orphaned booking will be cancelled should they choose to continue with cancellation
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 1 |
+      | newlyUnsupportedBookingsCount    | 1 |
   # Step 2 Action: Meanwhile... User 2 proposes to delete one of the sessions (remove session 'D,F')
     When I request the availability proposal for potential availability change
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
@@ -205,7 +205,7 @@ Feature: Change Session Uplifted Journey
 #   Step 2 Result: User 2 is told that ZERO orphaned bookings will be cancelled should they choose to continue
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 0 |
+      | newlyUnsupportedBookingsCount    | 0 |
 #   Step 3 Action: User 2 confirms the session cancellation as nothing is affected
     When I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length  | Capacity |

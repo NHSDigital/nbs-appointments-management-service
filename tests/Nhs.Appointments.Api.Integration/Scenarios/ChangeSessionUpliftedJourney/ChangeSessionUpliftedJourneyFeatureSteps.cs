@@ -36,7 +36,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
-        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
 
         var existingSession = await GetDayAvailability(date);
         SessionToCheck = BuildSession(row, 1);
@@ -59,7 +59,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = GetCell(row, 4),
                 capacity = GetCell(row, 5)
             },
-            newlyUnsupportedBookingAction: newlyOrphanedEnum);
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
 
         await SendSessionEditRequest(payload);
     }
@@ -69,7 +69,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     {
         Session matcher = null;
         Session replacement = null;
-        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
 
         foreach (var row in editSessions.Rows.Skip(1))
         {
@@ -104,7 +104,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
             until,
             matcher: sessionMatcherObj,
             replacement: replacement,
-            newlyUnsupportedBookingAction: newlyOrphanedEnum);
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
 
         await SendSessionEditRequest(payload);
     }
@@ -126,7 +126,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
-        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
         
         SessionToCheck = BuildSession(row, 1);
         var payload = BuildPayload(
@@ -140,7 +140,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 capacity = SessionToCheck.Capacity
             },
             replacement: null,
-            newlyUnsupportedBookingAction: newlyOrphanedEnum);
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
 
         await SendSessionEditRequest(payload);
     }
@@ -151,7 +151,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
         var until = ParseDate(untilDate);
-        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
 
         SessionToCheck = BuildSession(row);
 
@@ -166,7 +166,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 capacity = SessionToCheck.Capacity
             },
             replacement: null,
-            newlyUnsupportedBookingAction: newlyOrphanedEnum);
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
 
         await SendSessionEditRequest(payload);
     }
@@ -177,7 +177,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
         var until = ParseDate(untilDate);
-        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyOrphanedEnum);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
 
         var existingSession = await GetDayAvailability(from);
         SessionToCheck = BuildSession(row);
@@ -200,7 +200,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = GetCell(row, 3),
                 capacity = GetCell(row, 4)
             },
-            newlyUnsupportedBookingAction: newlyOrphanedEnum
+            newlyUnsupportedBookingAction: newlyUnsupportedAction
             );
 
         await SendSessionEditRequest(payload);
@@ -300,7 +300,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         }
 
         _availabilityChangeProposalResponse.NewlySupportedBookingsCount.Should().Be(counts[0]);
-        _availabilityChangeProposalResponse.NewlyOrphanedBookingsCount.Should().Be(counts[1]);
+        _availabilityChangeProposalResponse.NewlyUnsupportedBookingsCount.Should().Be(counts[1]);
     }
 
     [Then(@"the call should fail with (\d*)")]

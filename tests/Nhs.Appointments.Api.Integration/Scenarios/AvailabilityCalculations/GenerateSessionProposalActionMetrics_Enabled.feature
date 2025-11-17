@@ -18,7 +18,7 @@ Feature: Availability Edit Proposal Enabled
       | Replacement |             |           | 09:00 | 10:00 | Green      | 10         | 1        |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 1 |
+      | newlyUnsupportedBookingsCount    | 1 |
 
   Scenario: Update a single session on a single day - metrics dont include currently orphaned bookings
     Given the site is configured for MYA
@@ -37,7 +37,7 @@ Feature: Availability Edit Proposal Enabled
       | Replacement |             |           | 09:00 | 10:00 | Green      | 10         | 1        |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 1 |
+      | newlyUnsupportedBookingsCount    | 1 |
 
   Scenario: Update a single session on a single day - metrics include swapped over support
     Given the site is configured for MYA
@@ -60,7 +60,7 @@ Feature: Availability Edit Proposal Enabled
       | Replacement |             |           | 09:00 | 10:00 | Green      | 10         | 3        |
     Then the following count is returned
       | newlySupportedBookingsCount   | 3 |
-      | newlyOrphanedBookingsCount    | 3 |
+      | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Update a single session on a single day - metrics show greedy inefficiency
     Given the site is configured for MYA
@@ -82,7 +82,7 @@ Feature: Availability Edit Proposal Enabled
       | Replacement |             |           | 09:00 | 10:00 | A,B,D,E    | 10         | 3        |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 3 |
+      | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Update a session across multiple days
     Given the site is configured for MYA
@@ -114,7 +114,7 @@ Feature: Availability Edit Proposal Enabled
       | Replacement |             |           | 09:00 | 10:00 | Green      | 10         | 1        |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 3 |
+      | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Cancel a session across multiple days
     Given the site is configured for MYA
@@ -145,7 +145,7 @@ Feature: Availability Edit Proposal Enabled
       | Matcher     | Today +1    | Today +3  | 09:00 | 10:00 | Green,Blue | 10         | 1        |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 3 |
+      | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Cancel a session on a single day
     Given the site is configured for MYA
@@ -164,7 +164,7 @@ Feature: Availability Edit Proposal Enabled
       | Matcher     | Tomorrow    | Tomorrow  | 09:00 | 10:00 | Green,Blue | 10         | 1        |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 1 |
+      | newlyUnsupportedBookingsCount    | 1 |
     
 # Wildcard cancellation not yet implemented
   @ignore
@@ -184,7 +184,7 @@ Feature: Availability Edit Proposal Enabled
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount    | 3 |
+      | newlyUnsupportedBookingsCount    | 3 |
 
 # Wildcard cancellation not yet implemented
   @ignore
@@ -217,4 +217,4 @@ Feature: Availability Edit Proposal Enabled
       |             | Today +1    | Today +3  |       |       |            |            |          |
     Then the following count is returned
       | newlySupportedBookingsCount   | 0 |
-      | newlyOrphanedBookingsCount | 9 |
+      | newlyUnsupportedBookingsCount | 9 |

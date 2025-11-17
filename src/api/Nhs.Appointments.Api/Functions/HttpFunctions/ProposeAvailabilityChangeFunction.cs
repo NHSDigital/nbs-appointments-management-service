@@ -77,7 +77,7 @@ public class ProposeAvailabilityChangeFunction(
             return ApiResult<AvailabilityChangeProposalResponse>.Success(
                 new AvailabilityChangeProposalResponse(
                     proposalActionMetrics.NewlySupportedBookingsCount,
-                    proposalActionMetrics.NewlyOrphanedBookingsCount
+                    proposalActionMetrics.NewlyUnsupportedBookingsCount
                 )
             );
         }

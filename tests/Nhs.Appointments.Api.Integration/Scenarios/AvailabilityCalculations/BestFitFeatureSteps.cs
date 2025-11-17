@@ -157,7 +157,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
         }
 
         _availabilityChangeProposalResponse.NewlySupportedBookingsCount.Should().Be(counts[0]);
-        _availabilityChangeProposalResponse.NewlyOrphanedBookingsCount.Should().Be(counts[1]);
+        _availabilityChangeProposalResponse.NewlyUnsupportedBookingsCount.Should().Be(counts[1]);
     }
 
     [Then(@"the call should fail with (\d*)")]

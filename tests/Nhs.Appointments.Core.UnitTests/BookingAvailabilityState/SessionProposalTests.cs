@@ -40,13 +40,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
         
         var expectedNewlySupportedBookings = 0;
-        var expectedNewlyOrphanedBookings = 1; //Blue1 no longer supported
+        var expectedNewlyUnsupportedBookings = 1; //Blue1 no longer supported
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
     
     /// <summary>
@@ -90,13 +90,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
         
         var expectedNewlySupportedBookings = 0;
-        var expectedNewlyOrphanedBookings = 3; //the three D bookings no longer have a home due to inefficient greedy model
+        var expectedNewlyUnsupportedBookings = 3; //the three D bookings no longer have a home due to inefficient greedy model
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
     
      /// <summary>
@@ -140,13 +140,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
         
         var expectedNewlySupportedBookings = 0;
-        var expectedNewlyOrphanedBookings = 3; //the three D bookings no longer have a home due to inefficient greedy model
+        var expectedNewlyUnsupportedBookings = 3; //the three D bookings no longer have a home due to inefficient greedy model
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
      
     /// <summary>
@@ -189,13 +189,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
         
         var expectedNewlySupportedBookings = 3; // the three B bookings are now supported
-        var expectedNewlyOrphanedBookings = 3; // the three A bookings are now NOT supported
+        var expectedNewlyUnsupportedBookings = 3; // the three A bookings are now NOT supported
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
 
     [Fact]
@@ -296,13 +296,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
         
         var expectedNewlySupportedBookings = 0;
-        var expectedNewlyOrphanedBookings = 3; // the three blue1 bookings are now orphaned
+        var expectedNewlyUnsupportedBookings = 3; // the three blue1 bookings are now orphaned
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, replacement);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
 
     [Fact]
@@ -368,13 +368,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
         
         var expectedNewlySupportedBookings = 0;
-        var expectedNewlyOrphanedBookings = 1; // Blue1 no longer supported, Orange2 still can be supported
+        var expectedNewlyUnsupportedBookings = 1; // Blue1 no longer supported, Orange2 still can be supported
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
 
     [Fact]
@@ -427,13 +427,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         SetupAvailabilityAndBookings(bookings, sessions);
         
         var expectedNewlySupportedBookings = 0;
-        var expectedNewlyOrphanedBookings = 3;
+        var expectedNewlyUnsupportedBookings = 3;
 
         var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null);
 
         proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
 
     [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
@@ -466,13 +466,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         var expectedNewlySupportedBookings = 0;
         
         //should this be 2??
-        var expectedNewlyOrphanedBookings = 3;
+        var expectedNewlyUnsupportedBookings = 3;
     
         // var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null, true);
         //
         // proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         // proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        // proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        // proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
 
     [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
@@ -517,13 +517,13 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         
         //what should this metric be???
         var expectedNewlySupportedBookings = 0;
-        var expectedNewlyOrphanedBookings = 6;
+        var expectedNewlyUnsupportedBookings = 6;
 
         // var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, null, null, true);
         //
         // proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         // proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
-        // proposalMetrics.NewlyOrphanedBookingsCount.Should().Be(expectedNewlyOrphanedBookings);
+        // proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);
     }
 
     [Fact]

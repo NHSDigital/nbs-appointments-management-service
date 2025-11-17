@@ -1,6 +1,6 @@
+using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Nhs.Appointments.Core.Helpers;
-using System.Text.Json.Serialization;
 
 namespace Nhs.Appointments.Core.Availability;
 
@@ -27,7 +27,7 @@ public class Session
     public int Capacity { get; set; }
 }
 
-public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, until)
+public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, until), IEquatable<SessionInstance>
 {
     public SessionInstance(TimePeriod timePeriod) : this(timePeriod.From, timePeriod.Until) { }
 
@@ -36,6 +36,20 @@ public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, u
     public int Capacity { get; set; }
     public virtual IEnumerable<SessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(sl =>
                 new SessionInstance(sl) { Services = Services, Capacity = Capacity });
+
+    public bool Equals(SessionInstance other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return From == other.From &&
+               Until == other.Until &&
+               SlotLength == other.SlotLength &&
+               Capacity == other.Capacity &&
+               Services.SequenceEqual(other.Services);
+    }
 }
 
 /// <summary>

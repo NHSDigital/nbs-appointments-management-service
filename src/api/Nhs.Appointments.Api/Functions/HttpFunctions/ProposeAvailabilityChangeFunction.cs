@@ -42,48 +42,44 @@ public class ProposeAvailabilityChangeFunction(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest,
         Description = "No matching session was found for the provided request parameters.")]
     [Function("AvailabilityChangeProposalFunction")]
-    public override Task<IActionResult> RunAsync(
+    public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/propose-edit")]
         HttpRequest req)
     {
-        return base.RunAsync(req);
+        return await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney)
+            ? await base.RunAsync(req)
+            : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
     protected override async Task<ApiResult<AvailabilityChangeProposalResponse>> HandleRequest(
         AvailabilityChangeProposalRequest request,
         ILogger logger)
     {
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
+        if (request.SessionMatcher.IsWildcard)
         {
-            if (request.SessionMatcher.IsWildcard)
-            {
-                throw new NotImplementedException("Wildcard journey matcher is not implemented and needs re-developing when required.");
-            }
-            
-            var proposalActionMetrics = await bookingAvailabilityStateService.GenerateSessionProposalActionMetrics(
-                request.Site,
-                request.From.ToDateTime(TimeOnly.MinValue),
-                request.To.ToDateTime(new TimeOnly(23, 59, 59)),
-                request.SessionMatcher.Session,
-                request.SessionReplacement);
+            throw new NotImplementedException(
+                "Wildcard journey matcher is not implemented and needs re-developing when required.");
+        }
 
-            if (proposalActionMetrics.MatchingSessionNotFound)
-            {
-                return ApiResult<AvailabilityChangeProposalResponse>.Failed(
-                    HttpStatusCode.BadRequest, "Matching session was not found"
-                );
-            }
+        var proposalActionMetrics = await bookingAvailabilityStateService.GenerateSessionProposalActionMetrics(
+            request.Site,
+            request.From.ToDateTime(TimeOnly.MinValue),
+            request.To.ToDateTime(new TimeOnly(23, 59, 59)),
+            request.SessionMatcher.Session,
+            request.SessionReplacement);
 
-            return ApiResult<AvailabilityChangeProposalResponse>.Success(
-                new AvailabilityChangeProposalResponse(
-                    proposalActionMetrics.NewlySupportedBookingsCount,
-                    proposalActionMetrics.NewlyUnsupportedBookingsCount
-                )
+        if (proposalActionMetrics.MatchingSessionNotFound)
+        {
+            return ApiResult<AvailabilityChangeProposalResponse>.Failed(
+                HttpStatusCode.BadRequest, "Matching session was not found"
             );
         }
 
-        return ApiResult<AvailabilityChangeProposalResponse>.Failed(
-            HttpStatusCode.NotFound, "Availability change proposal function is not available."
+        return ApiResult<AvailabilityChangeProposalResponse>.Success(
+            new AvailabilityChangeProposalResponse(
+                proposalActionMetrics.NewlySupportedBookingsCount,
+                proposalActionMetrics.NewlyUnsupportedBookingsCount
+            )
         );
     }
 

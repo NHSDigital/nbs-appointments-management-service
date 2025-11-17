@@ -1,4 +1,4 @@
-using Nhs.Appointments.Core.Sites;
+﻿using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -89,4 +89,21 @@ public static class SiteServiceCacheTestsMockData
             status: SiteStatus.Offline, isDeleted: null,
             Type: string.Empty)
     ];
+
+    public static Site CreateMockSite(string id, string name)
+    {
+        return new Site(
+            id,
+            name,
+            "3 Park Row",
+            "0113 1111111",
+            "ABC03",
+            "R1",
+            "ICB1",
+            Location: new Location("Point", [.507, 65]),
+            InformationForCitizens: "",
+            Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
+            status: SiteStatus.Offline, isDeleted: null,
+            Type: string.Empty);
+    }
 }

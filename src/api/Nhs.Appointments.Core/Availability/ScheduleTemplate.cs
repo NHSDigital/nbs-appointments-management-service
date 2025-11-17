@@ -50,6 +50,28 @@ public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, u
                Capacity == other.Capacity &&
                Services.SequenceEqual(other.Services);
     }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hash = 17;
+            hash = (hash * 23) + From.GetHashCode();
+            hash = (hash * 23) + Until.GetHashCode();
+            hash = (hash * 23) + SlotLength.GetHashCode();
+            hash = (hash * 23) + Capacity.GetHashCode();
+
+            if (Services != null)
+            {
+                foreach (var service in Services)
+                {
+                    hash = (hash * 23) + (service?.GetHashCode() ?? 0);
+                }
+            }
+
+            return hash;
+        }
+    }
 }
 
 /// <summary>

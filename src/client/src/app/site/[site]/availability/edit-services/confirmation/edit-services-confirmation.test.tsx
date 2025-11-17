@@ -209,7 +209,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = false;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -228,7 +227,7 @@ describe('submitForm', () => {
         slotLength: 10,
         capacity: 2,
       },
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Orphan',
     });
 
     // Validate navigation
@@ -290,7 +289,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = true;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -309,7 +307,7 @@ describe('submitForm', () => {
         slotLength: 10,
         capacity: 2,
       },
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Cancel',
     });
 
     expect(mockPush).toHaveBeenCalled();

@@ -62,11 +62,30 @@ stages:
             inputs:
               notifyUsers: ""
               instructions: Enter a valid CFG
-      - job: RunTerraformPlan
-        displayName: "Run Terraform Plan"
+
+      - job: StartSwapSlots
+        displayName: "Start swap slots"
         dependsOn:
           - ${{ if eq(parameters.env, 'prod') }}:
               - EnterChangeRequest
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: none
+          - task: AzureCLI@2
+            displayName: "Start Swap Slots"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              addSpnToEnvironment: true
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/deployment/start-swap-slots.ps1"
+              arguments: "-environment '${{parameters.env}}' -region 'uks' -resourceGroup '${{parameters.resourceGroup}}'"
+
+      - job: RunTerraformPlan
+        displayName: "Run Terraform Plan"
+        dependsOn:
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - StartSwapSlots
         steps:
           - checkout: none
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -181,16 +200,6 @@ stages:
               downloadType: "single"
               artifactName: "drop_web"
               downloadPath: $(Pipeline.Workspace)
-          - task: AzureAppServiceManage@0
-            displayName: "Start Web App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Start Azure App Service"
-              WebAppName: ${{parameters.webServerName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
           - task: AzureWebApp@1
             displayName: "Deploy Web App"
             inputs:
@@ -216,16 +225,6 @@ stages:
               downloadType: "single"
               artifactName: "drop_api"
               downloadPath: $(Pipeline.Workspace)
-          - task: AzureAppServiceManage@0
-            displayName: "Start HTTP Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Start Azure App Service"
-              WebAppName: ${{parameters.httpFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
           - task: AzureFunctionApp@2
             displayName: "Deploy"
             inputs:
@@ -251,16 +250,6 @@ stages:
               downloadType: "single"
               artifactName: "drop_api"
               downloadPath: $(Pipeline.Workspace)
-          - task: AzureAppServiceManage@0
-            displayName: "Start High Load Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Start Azure App Service"
-              WebAppName: ${{parameters.highLoadFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
           - task: AzureFunctionApp@2
             displayName: "Deploy"
             inputs:
@@ -285,16 +274,6 @@ stages:
               downloadType: "single"
               artifactName: "drop_api"
               downloadPath: $(Pipeline.Workspace)
-          - task: AzureAppServiceManage@0
-            displayName: "Start Service Bus Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Start Azure App Service"
-              WebAppName: ${{parameters.serviceBusFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
           - task: AzureFunctionApp@2
             displayName: "Deploy"
             inputs:
@@ -319,16 +298,6 @@ stages:
               downloadType: "single"
               artifactName: "drop_api"
               downloadPath: $(Pipeline.Workspace)
-          - task: AzureAppServiceManage@0
-            displayName: "Start Timer Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Start Azure App Service"
-              WebAppName: ${{parameters.timerFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
           - task: AzureFunctionApp@2
             displayName: "Deploy"
             inputs:
@@ -397,16 +366,6 @@ stages:
               WebAppName: ${{parameters.webServerName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-          - task: AzureAppServiceManage@0
-            displayName: "Stop Web App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Stop Azure App Service"
-              WebAppName: ${{parameters.webServerName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
 
       - job: SwapHttpFuncAppSlots
         displayName: "Swap http function app slots"
@@ -421,16 +380,6 @@ stages:
               WebAppName: ${{parameters.httpFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-          - task: AzureAppServiceManage@0
-            displayName: "Stop HTTP Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Stop Azure App Service"
-              WebAppName: ${{parameters.httpFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
 
       - job: SwapHighLoadFuncAppSlots
         displayName: "Swap high load function app slots"
@@ -445,16 +394,6 @@ stages:
               WebAppName: ${{parameters.highLoadFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-          - task: AzureAppServiceManage@0
-            displayName: "Stop High Load Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Stop Azure App Service"
-              WebAppName: ${{parameters.highLoadFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
 
       - job: SwapServiceBusFuncAppSlots
         displayName: "Swap servicebus function app slots"
@@ -469,16 +408,6 @@ stages:
               WebAppName: ${{parameters.serviceBusFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-          - task: AzureAppServiceManage@0
-            displayName: "Stop Service Bus Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Stop Azure App Service"
-              WebAppName: ${{parameters.serviceBusFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
 
       - job: SwapTimerFuncAppSlots
         displayName: "Swap timer function app slots"
@@ -493,21 +422,9 @@ stages:
               WebAppName: ${{parameters.timerFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-          - task: AzureAppServiceManage@0
-            displayName: "Stop Timer Function App Preview Slot"
-            condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
-            inputs:
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              Action: "Stop Azure App Service"
-              WebAppName: ${{parameters.timerFunctionAppName}}
-              ResourceGroupName: ${{parameters.resourceGroup}}
-              SpecifySlotOrASE: true
-              Slot: "preview"
 
-      ## Post-release admin
-      - job: SetEnvironmentTag
-        displayName: "Move Environment Deployment Tag"
-        condition: succeeded()
+      - job: StopSwapSlots
+        displayName: "Stop swap slots"
         dependsOn:
           - UploadCosmosDocuments
           - ${{ if in(parameters.env, 'stag', 'prod') }}:
@@ -516,6 +433,27 @@ stages:
               - SwapHighLoadFuncAppSlots
               - SwapServiceBusFuncAppSlots
               - SwapTimerFuncAppSlots
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: none
+          - task: AzureCLI@2
+            displayName: "Start Swap Slots"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              addSpnToEnvironment: true
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/deployment/start-swap-slots.ps1"
+              arguments: "-environment '${{parameters.env}}' -region 'uks' -resourceGroup '${{parameters.resourceGroup}}'"
+
+      ## Post-release admin
+      - job: SetEnvironmentTag
+        displayName: "Move Environment Deployment Tag"
+        condition: succeeded()
+        dependsOn:
+          - UploadCosmosDocuments
+         - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - StopSwapSlots
         steps:
           - checkout: self
             persistCredentials: true # Ensures authentication for Git push

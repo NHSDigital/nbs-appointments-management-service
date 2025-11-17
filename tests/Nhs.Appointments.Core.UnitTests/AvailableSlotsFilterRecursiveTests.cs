@@ -353,8 +353,108 @@ public class AvailableSlotsFilterRecursiveTests
         result.Count(s => s.Services.First() == "FLU").Should().Be(2);
     }
 
+    [Fact]
+    public void MultipleAttendees_MultipleServicesInSlots_DifferentSlotLengths_ReturnCorrectConsecutiveSlots()
+    {
+        var slots = new List<SessionInstance>
+        {
+            SetupSlot("09:00", "09:05", 2, ["RSV"]),
+            SetupSlot("09:05", "09:10", 2, ["RSV"]),
+            SetupSlot("09:10", "09:15", 2, ["RSV", "COVID"]),
+            SetupSlot("09:15", "09:20", 2, ["RSV"]),
+            SetupSlot("09:10", "09:20", 2, ["FLU", "RSV"]),
+            SetupSlot("09:20", "09:30", 2, ["FLU", "RSV"])
+        };
+
+        var attendees = new List<Attendee> { SetupAttendee(["RSV"]), SetupAttendee(["FLU"]) };
+
+        var result = _sut.FilterAvailableSlots(slots, attendees);
+
+        result.Count().Should().Be(4);
+        result.Count(s => s.Services.First() == "RSV").Should().Be(2);
+        result.Count(s => s.Services.First() == "FLU").Should().Be(2);
+    }
+
     // More tests for different slot lengths
     // Scenario on the Mural board for 3 services and different slot lengths need adding as well
+
+    [Fact]
+    public void MuralScenario__QueryForC_and_B()
+    {
+        var slots = new List<SessionInstance>
+        {
+            SetupSlot("09:00", "09:05", 2, ["RSV", "FLU"]),
+            SetupSlot("09:05", "09:10", 2, ["RSV"]),
+            SetupSlot("09:10", "09:15", 2, ["RSV", "FLU"]),
+            SetupSlot("09:15", "09:20", 2, ["RSV"]),
+            SetupSlot("09:20", "09:25", 2, ["FLU"]),
+            SetupSlot("09:25", "09:30", 2, ["RSV", "FLU"]),
+            SetupSlot("09:30", "09:35", 2, ["RSV"]),
+            SetupSlot("09:10", "09:20", 2, ["COVID"]),
+            SetupSlot("09:30", "09:40", 2, ["COVID"])
+        };
+
+        var attendees = new List<Attendee> { SetupAttendee(["FLU"]), SetupAttendee(["COVID"]) };
+
+        var result = _sut.FilterAvailableSlots(slots, attendees);
+
+        result.Count().Should().Be(4);
+        result.Single(slot =>
+            slot.From == TestDateAt("09:10") &&
+            slot.Until == TestDateAt("09:20") &&
+            slot.Services.SequenceEqual(["COVID"]));
+        result.Single(slot =>
+            slot.From == TestDateAt("09:30") &&
+            slot.Until == TestDateAt("09:40") &&
+            slot.Services.SequenceEqual(["COVID"]));
+        result.Single(slot =>
+            slot.From == TestDateAt("09:20") &&
+            slot.Until == TestDateAt("09:25") &&
+            slot.Services.SequenceEqual(["FLU"]));
+        result.Single(slot =>
+            slot.From == TestDateAt("09:25") &&
+            slot.Until == TestDateAt("09:30") &&
+            slot.Services.SequenceEqual(["RSV", "FLU"]));
+    }
+
+    [Fact]
+    public void MuralScenario__QueryForA_and_B()
+    {
+        var slots = new List<SessionInstance>
+        {
+            SetupSlot("09:00", "09:05", 2, ["RSV", "FLU"]),
+            SetupSlot("09:05", "09:10", 2, ["RSV"]),
+            SetupSlot("09:10", "09:15", 2, ["RSV", "FLU"]),
+            SetupSlot("09:15", "09:20", 2, ["RSV"]),
+            SetupSlot("09:20", "09:25", 2, ["FLU"]),
+            SetupSlot("09:25", "09:30", 2, ["RSV", "FLU"]),
+            SetupSlot("09:30", "09:35", 2, ["RSV"]),
+            SetupSlot("09:10", "09:20", 2, ["COVID"]),
+            SetupSlot("09:30", "09:40", 2, ["COVID"])
+        };
+
+        var attendees = new List<Attendee> { SetupAttendee(["RSV"]), SetupAttendee(["COVID"]) };
+
+        var result = _sut.FilterAvailableSlots(slots, attendees);
+
+        result.Count().Should().Be(4);
+        result.Single(slot =>
+            slot.From == TestDateAt("09:10") &&
+            slot.Until == TestDateAt("09:20") &&
+            slot.Services.SequenceEqual(["COVID"]));
+        result.Single(slot =>
+            slot.From == TestDateAt("09:30") &&
+            slot.Until == TestDateAt("09:40") &&
+            slot.Services.SequenceEqual(["COVID"]));
+        result.Single(slot =>
+            slot.From == TestDateAt("09:05") &&
+            slot.Until == TestDateAt("09:10") &&
+            slot.Services.SequenceEqual(["RSV"]));
+        result.Single(slot =>
+            slot.From == TestDateAt("09:25") &&
+            slot.Until == TestDateAt("09:30") &&
+            slot.Services.SequenceEqual(["RSV", "FLU"]));
+    }
 
     private DateTime TestDateAt(string time)
     {

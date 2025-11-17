@@ -1,5 +1,5 @@
-using Nhs.Appointments.Core.Bookings;
 using System.Globalization;
+using Nhs.Appointments.Core.Bookings;
 
 namespace Nhs.Appointments.Core.Availability;
 
@@ -116,23 +116,19 @@ public class AvailabilityWriteService(
         DateOnly from, 
         DateOnly until, 
         Session sessionMatcher, 
-        Session sessionReplacement, 
-        bool isWildcard, 
-        bool cancelUnsupportedBookings
+        Session sessionReplacement,
+        NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan
     )
     {
         var multipleDays = from != until;
         var hasReplacement = sessionReplacement is not null;
 
-        var updateAction = DetermineSessionUpdateAction(isWildcard, multipleDays, hasReplacement);
+        var updateAction = DetermineSessionUpdateAction(multipleDays, hasReplacement);
 
         (bool success, string message) result;
 
         switch (updateAction)
         {
-            case SessionUpdateAction.CancelAll:
-                await CancelAllSessionInDateRange(site, from, until);
-                return new SessionModificationResult(true, string.Empty);
             case SessionUpdateAction.CancelMultiple:
                 var cancelResult = await availabilityStore.CancelMultipleSessions(site, from, until, sessionMatcher!);
                 result = (cancelResult.Success, cancelResult.Message);
@@ -164,26 +160,13 @@ public class AvailabilityWriteService(
         }
 
         var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1).Select(x => from.AddDays(x)).ToArray();
-        var stats = await bookingWriteService.RecalculateAppointmentStatuses(site, days, cancelUnsupportedBookings);
+        var stats = await bookingWriteService.RecalculateAppointmentStatuses(site, days, newlyUnsupportedBookingAction);
 
         return new SessionModificationResult(true, result.message, stats.BookingsCanceled, stats.BookingsCanceledWithoutDetails);
     }
 
-    private async Task CancelAllSessionInDateRange(string site, DateOnly from, DateOnly until)
+    private static SessionUpdateAction DetermineSessionUpdateAction(bool isMultipleDays, bool hasReplacement)
     {
-        var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1)
-                .Select(offset => CancelDayAsync(site, from.AddDays(offset)));
-
-        await Task.WhenAll(days);
-    }
-
-    private static SessionUpdateAction DetermineSessionUpdateAction(bool isWildcard, bool isMultipleDays, bool hasReplacement)
-    {
-        if (isWildcard)
-        {
-            return SessionUpdateAction.CancelAll;
-        }
-
         if (!hasReplacement && isMultipleDays)
         {
             return SessionUpdateAction.CancelMultiple;

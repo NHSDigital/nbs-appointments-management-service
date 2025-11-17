@@ -1195,7 +1195,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"from\": \"2025-09-15\",\r\n    \"to\": \"2025-09-15\",\r\n    \"site\": \"{{site}}\",\r\n    \"cancelUnsupportedBookings\": \"false\",\r\n    \"sessionMatcher\": {\r\n        \"from\": \"09:00\",\r\n        \"to\": \"17:00\",\r\n        \"services\": [\"RSV:Adult\"],\r\n        \"slotLength\": 5,\r\n        \"capacity\": 2\r\n    },\r\n    \"sessionReplacement\": null\r\n}",
+          "raw": "{\r\n    \"from\": \"2025-09-15\",\r\n    \"to\": \"2025-09-15\",\r\n    \"site\": \"{{site}}\",\r\n    \"newlyUnsupportedBookingAction\": \"Orphan\",\r\n    \"sessionMatcher\": {\r\n        \"from\": \"09:00\",\r\n        \"to\": \"17:00\",\r\n        \"services\": [\"RSV:Adult\"],\r\n        \"slotLength\": 5,\r\n        \"capacity\": 2\r\n    },\r\n    \"sessionReplacement\": null\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1247,62 +1247,6 @@
           "raw": "{{baseUrl}}/api/sites",
           "host": ["{{baseUrl}}"],
           "path": ["api", "sites"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "site/reference-details",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "ClientId",
-            "value": "{{clientId}}",
-            "type": "text"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"odsCode\": \"ODS1\",\r\n    \"icb\": \"ICB1\",\r\n    \"region\": \"R1\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/sites/{{site}}/reference-details",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "sites", "{{site}}", "reference-details"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "site/details",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "ClientId",
-            "value": "{{clientId}}",
-            "type": "text"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"name\": \"Test Name\",\r\n    \"address\": \"Test Address\",\r\n    \"phoneNumber\": \"07777777777\",\r\n    \"longitude\": 0.12,\r\n    \"latitude\": 51.45\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/sites/{{site}}/details",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "sites", "{{site}}", "details"]
         }
       },
       "response": []

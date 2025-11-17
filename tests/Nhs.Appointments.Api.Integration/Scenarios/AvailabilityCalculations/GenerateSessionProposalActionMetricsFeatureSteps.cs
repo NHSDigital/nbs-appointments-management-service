@@ -19,11 +19,10 @@ using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
-public abstract class RecalculationProposalFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
-   
-
+    
     [When(@"I request the availability proposal for potential availability change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
@@ -79,12 +78,12 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
             counts.Add(int.Parse(row.Cells.ElementAt(1).Value));
         }
 
-        _availabilityChangeProposalResponse.SupportedBookingsCount.Should().Be(counts[0]);
-        _availabilityChangeProposalResponse.UnsupportedBookingsCount.Should().Be(counts[1]);
+        _availabilityChangeProposalResponse.NewlySupportedBookingsCount.Should().Be(counts[0]);
+        _availabilityChangeProposalResponse.NewlyOrphanedBookingsCount.Should().Be(counts[1]);
     }
 
-    [When(@"I request recalculation proposal endpoint")]
-    public async Task CallRecalculation()
+    [When(@"I request the edit proposal endpoint")]
+    public async Task CallProposeEditEndpoint()
     {
         var request = new
         {
@@ -123,13 +122,18 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
     {
         _response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
-
+    
+    [Then(@"the call should fail with 500")]
+    public async Task AssertError()
+    {
+        _response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+    }
 
     [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/RecalculationProposal_Disabled.feature")]
-    public class RecalculationProposalFeatureSteps_FeatureDisabled() : RecalculationProposalFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
+    [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Disabled.feature")]
+    public class GenerateSessionProposalActionMetricsFeatureStepsFeatureDisabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 
     [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/RecalculationProposal_Enabled.feature")]
-    public class RecalculationProposalFeatureSteps_FeatureEnabled() : RecalculationProposalFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
+    [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Enabled.feature")]
+    public class GenerateSessionProposalActionMetricsFeatureStepsFeatureEnabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 }

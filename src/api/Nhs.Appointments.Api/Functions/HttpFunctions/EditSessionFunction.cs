@@ -1,3 +1,4 @@
+using System;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -48,14 +49,18 @@ public class EditSessionFunction(
 
     protected override async Task<ApiResult<SessionModificationResult>> HandleRequest(EditSessionRequest request, ILogger logger)
     {
+        if (request.SessionMatcher.IsWildcard)
+        {
+            throw new NotImplementedException("Wildcard journey matcher is not implemented and needs re-developing when required.");
+        }
+        
         var result = await availabilityWriteService.EditOrCancelSessionAsync(
             request.Site,
             request.From,
             request.To,
             request.SessionMatcher.Session,
             request.SessionReplacement,
-            request.SessionMatcher.IsWildcard,
-            request.CancelUnsupportedBookings);
+            request.NewlyUnsupportedBookingAction);
 
         return result.UpdateSuccessful
             ? Success(result)

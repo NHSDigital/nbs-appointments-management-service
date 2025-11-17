@@ -117,17 +117,8 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
         _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
     }
 
-    [Then(@"the call should fail with 404")]
-    public async Task AssertNotFound()
-    {
-        _response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-    
-    [Then(@"the call should fail with 500")]
-    public async Task AssertError()
-    {
-        _response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-    }
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
     [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Disabled.feature")]

@@ -100,7 +100,7 @@ public class ProposeAvailabilityChangeFunctionTests
     }
 
     [Fact]
-    public async Task RunAsync_FeatureToggleDisabled_ResultIsNotFound()
+    public async Task RunAsync_FeatureToggleDisabled_ResultIsNotImplemented()
     {
         var request = BuildRequest();
         var response = new AvailabilityUpdateProposal()
@@ -123,7 +123,7 @@ public class ProposeAvailabilityChangeFunctionTests
 
         var result = await _sut.RunAsync(request) as ContentResult;
 
-        result.StatusCode.Should().Be(404);
+        result.StatusCode.Should().Be(501);
     }
 
     private static HttpRequest BuildRequest()

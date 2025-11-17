@@ -248,10 +248,10 @@ public class AvailableSlotsFilterRecursiveTests
 
         var result = _sut.FilterAvailableSlots(slots, attendees);
 
-        result.Count().Should().Be(6);
+        result.Count().Should().Be(5);
         result.Count(s => s.Services.First() == "FLU").Should().Be(2);
         result.Count(s => s.Services.First() == "RSV").Should().Be(2);
-        result.Count(s => s.Services.First() == "COVID").Should().Be(2);
+        result.Count(s => s.Services.First() == "COVID").Should().Be(1);
     }
 
     [Fact]

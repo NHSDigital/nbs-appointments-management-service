@@ -1152,6 +1152,32 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Once);
         }
+
+        [Fact]
+        public async Task RemoveUnconfirmedProvisionalBookings_UsesOverrides_WhenParametersProvided()
+        {
+            var expectedIds = new[] { "id2" };
+            _bookingsDocumentStore
+                .Setup(x => x.RemoveUnconfirmedProvisionalBookings())
+                .ReturnsAsync(expectedIds);
+
+            var result = await _sut.RemoveUnconfirmedProvisionalBookings();
+
+            result.Should().Contain("id2");
+        }
+
+        [Fact]
+        public async Task RemoveUnconfirmedProvisionalBookings_ReturnsEmpty_WhenNoBookingsFound()
+        {
+            _bookingsDocumentStore
+                .Setup(x => x.RemoveUnconfirmedProvisionalBookings())
+                .ReturnsAsync(Array.Empty<string>());
+
+            var result = await _sut.RemoveUnconfirmedProvisionalBookings();
+
+            result.Should().BeEmpty();
+        }
+
     }
 
     public class FakeLeaseManager : ISiteLeaseManager

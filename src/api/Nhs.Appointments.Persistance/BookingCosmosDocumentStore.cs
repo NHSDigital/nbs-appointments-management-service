@@ -325,28 +325,51 @@ public class BookingCosmosDocumentStore(
 
     public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
-        var expiryDateTime = time.GetUtcNow().AddDays(-1);        
+        var runId = Guid.NewGuid().ToString("N");
+        var startedAt = time.GetUtcNow();
+        var expiryDateTime = time.GetUtcNow().AddDays(-1);
+
+        logger.LogInformation("Sweep {RunId} started at {StartedAt}; expiry {Expiry};",
+            runId, startedAt, expiryDateTime);
 
         var query = new QueryDefinition(
-                query: "SELECT * " +
-                       "FROM index_data d " +
-                       "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry")
+        query: "SELECT * " +
+               "FROM index_data d " +
+               "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry")
             .WithParameter("@docType", "booking_index")
             .WithParameter("@status", AppointmentStatus.Provisional.ToString())
             .WithParameter("@expiry", expiryDateTime);
         var indexDocuments = await indexStore.RunSqlQueryAsync<BookingIndexDocument>(query);
 
-        foreach (var indexDocument in indexDocuments)
+        var removed = new ConcurrentBag<string>();
+
+        foreach (var indexDocument in indexDocuments) 
         {
-            await DeleteBooking(indexDocument.Reference, indexDocument.Site);
+            try
+            {
+                var documentMessage = $"Cleanup {runId} processing reference:{indexDocument.Reference} site:{indexDocument.Site}";
+                logger.LogDebug(message: documentMessage);
+
+                await DeleteBooking(indexDocument.Reference, indexDocument.Site);
+                removed.Add(indexDocument.Reference);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                logger.LogInformation($"Cleanup {runId} delete not found treated as success for reference:{indexDocument.Reference} site:{indexDocument.Site} ActivityId:{ex.ActivityId}");
+                removed.Add(indexDocument.Reference);
+            }
         }
 
-        return indexDocuments.Select(i => i.Reference).ToList();
+        var finishedAt = time.GetUtcNow();
+        var endMessage = $"Cleanup run finished. RunId:{runId} StartedAt:{startedAt} FinishedAt:{finishedAt} Processed:{indexDocuments.Count()}";
+        logger.LogInformation(message: endMessage);
+
+        return removed.ToList();
     }
 
     public async Task DeleteBooking(string reference, string site) => await Task.WhenAll(
-        indexStore.DeleteDocument(reference, "booking_index"),
-        bookingStore.DeleteDocument(reference, site)
+    indexStore.DeleteDocument(reference, "booking_index"),
+    bookingStore.DeleteDocument(reference, site)
     );
 
     public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date)

@@ -30,25 +30,38 @@ public class AvailableSlotsFilterRecursive : IAvailableSlotsFilter
 
         var requiredServices = attendees.SelectMany(attendee => attendee.Services).ToList();
 
-        var validSlots = slots.Where(slot => CanFormValidGroupBooking(slot, slots, requiredServices));
+        var slotsInAValidGroupBookingChain = new List<SessionInstance>();
+        foreach (var slot in slots)
+        {
+            var longestChainStartingFromThisSlot = BuildGroupBookingChain(slot, slots, requiredServices);
+            if (longestChainStartingFromThisSlot.Count == requiredServices.Count)
+            {
+                slotsInAValidGroupBookingChain.AddRange(longestChainStartingFromThisSlot);
+            }
+        }
 
-        return validSlots.OrderBy(s => s.From);
+        // Slots can be found in multiple chains, so remove duplicates
+        var result = slotsInAValidGroupBookingChain
+            .Distinct()
+            .OrderBy(s => s.From);
+        return result;
     }
 
-    private bool CanFormValidGroupBooking(SessionInstance candidateSlot, List<SessionInstance> allSlots,
+    private List<SessionInstance> BuildGroupBookingChain(SessionInstance candidateSlot,
+        List<SessionInstance> allSlots,
         List<string> servicesYetToFulfil)
     {
         var serviceMatchesInSlot = candidateSlot.Services.Intersect(servicesYetToFulfil).ToList();
         if (!serviceMatchesInSlot.Any() || candidateSlot.Capacity < 1)
         {
             // Slot doesn't offer the services we need, return false
-            return false;
+            return new List<SessionInstance>();
         }
 
         if (servicesYetToFulfil.Count == 1)
         {
             // Slot can support our last service, no need to recurse further
-            return true;
+            return new List<SessionInstance> { candidateSlot };
         }
 
         var neighboursOfSlot = allSlots
@@ -57,21 +70,17 @@ public class AvailableSlotsFilterRecursive : IAvailableSlotsFilter
                 || otherSlot.Until == candidateSlot.From)
             .ToList();
 
-        var validPathFound = false;
-
+        var validPath = new List<SessionInstance> { candidateSlot };
         foreach (var serviceMatch in serviceMatchesInSlot)
         {
             var remainingServices = servicesYetToFulfil.RemoveFirstOccurrence(serviceMatch);
 
             foreach (var neighbouringSlot in neighboursOfSlot)
             {
-                if (CanFormValidGroupBooking(neighbouringSlot, allSlots, remainingServices))
-                {
-                    validPathFound = true;
-                }
+                validPath.AddRange(BuildGroupBookingChain(neighbouringSlot, allSlots, remainingServices));
             }
         }
 
-        return validPathFound;
+        return validPath.Distinct().ToList();
     }
 }

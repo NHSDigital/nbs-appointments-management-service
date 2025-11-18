@@ -23,7 +23,7 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
     
-    [When(@"I request the availability proposal for potential availability change")]
+    [When(@"I propose an availability edit with the change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
         Session matcher = null;
@@ -82,7 +82,7 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
         _availabilityChangeProposalResponse.NewlyUnsupportedBookingsCount.Should().Be(counts[1]);
     }
 
-    [When(@"I request the edit proposal endpoint")]
+    [When(@"I propose an availability edit")]
     public async Task CallProposeEditEndpoint()
     {
         var request = new

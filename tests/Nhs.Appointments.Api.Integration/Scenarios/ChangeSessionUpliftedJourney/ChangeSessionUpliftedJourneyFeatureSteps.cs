@@ -121,7 +121,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     //     await SendSessionEditRequest(payload);
     // }
 
-    [When("I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
+    [When("I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
     public async Task CancelSingleSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);

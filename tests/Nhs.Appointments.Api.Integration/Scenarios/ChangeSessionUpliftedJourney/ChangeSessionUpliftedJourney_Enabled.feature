@@ -65,7 +65,7 @@ Feature: Change Session Uplifted Journey
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to 'Orphan'
+    When I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Orphan'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' no longer exists
@@ -80,7 +80,7 @@ Feature: Change Session Uplifted Journey
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to 'Cancel'
+    When I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' no longer exists
@@ -207,7 +207,7 @@ Feature: Change Session Uplifted Journey
       | newlySupportedBookingsCount   | 0 |
       | newlyUnsupportedBookingsCount    | 0 |
 #   Step 3 Action: User 2 confirms the session cancellation as nothing is affected
-    When I cancel the following session using the new endpoint and set newlyUnsupportedBookingAction to 'Cancel'
+    When I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length  | Capacity |
       | Tomorrow | 09:00 | 09:10 | D,F      | 10           | 4        |
 #   Step 3 Result: Confirm all TEN bookings are still supported after User 2's session deletion action

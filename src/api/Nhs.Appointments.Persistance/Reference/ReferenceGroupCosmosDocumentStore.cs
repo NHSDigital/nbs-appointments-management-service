@@ -5,6 +5,7 @@ using Nhs.Appointments.Persistance.Models.Reference;
 
 namespace Nhs.Appointments.Persistance.Reference
 {
+    [Obsolete("Deprecated in favor of ReferenceNumber.V2.IBookingReferenceDocumentStore")]
     public class ReferenceGroupCosmosDocumentStore : IReferenceNumberDocumentStore
     {
         private const string DocumentId = "main";

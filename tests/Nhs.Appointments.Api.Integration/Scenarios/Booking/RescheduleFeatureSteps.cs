@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
@@ -51,12 +52,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         }
     }
     
-    [Collection("BookingReferenceV2SerialToggle")]
+    [Collection(FeatureToggleCollectionNames.BookingReferenceV2Collection)]
     [FeatureFile("./Scenarios/Booking/Reschedule.feature")]
     public class RescheduleBooking_BookingReferenceV2Enabled()
         : RescheduleFeatureSteps(Flags.BookingReferenceV2, true);
 
-    [Collection("BookingReferenceV2SerialToggle")]
+    [Collection(FeatureToggleCollectionNames.BookingReferenceV2Collection)]
     [FeatureFile("./Scenarios/Booking/Reschedule.feature")]
     public class RescheduleBooking_BookingReferenceV2Disabled() 
         : RescheduleFeatureSteps(Flags.BookingReferenceV2, false);

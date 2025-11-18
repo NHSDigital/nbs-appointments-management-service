@@ -22,11 +22,19 @@ public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : Audit
 {
     protected HttpResponseMessage Response { get; set; }
     
-    [When(@"I cancel the appointment")]
+    [When(@"I cancel the appointment without a site parameter")]
     public async Task CancelAppointment()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        var site = GetSiteId();
+        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
+            null);
+    }
+
+    [When(@"I cancel the appointment with site parameter '(.+)'")]
+    public async Task CancelAppointmentAndProvideSite(string siteId)
+    {
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+        var site = GetSiteId(siteId);
         Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
@@ -208,6 +216,7 @@ public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : Audit
 
     public async Task InitializeAsync()
     {
+        await SetupSite(GetSiteId(Guid.NewGuid().ToString()));
         await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
     }
 

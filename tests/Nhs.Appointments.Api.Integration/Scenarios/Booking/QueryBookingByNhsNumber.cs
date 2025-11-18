@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core.Bookings;
@@ -84,12 +85,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
     }
     
     
-    [Collection("BookingReferenceV2Toggle")]
+    [Collection(FeatureToggleCollectionNames.BookingReferenceV2Collection)]
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
     public class QueryBookingByNhsNumber_BookingReferenceV2Enabled()
         : QueryBookingByNhsNumberFeatureSteps(Flags.BookingReferenceV2, true);
 
-    [Collection("BookingReferenceV2Toggle")]
+    [Collection(FeatureToggleCollectionNames.BookingReferenceV2Collection)]
     [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
     public class QueryBookingByNhsNumber_BookingReferenceV2Disabled() 
         : QueryBookingByNhsNumberFeatureSteps(Flags.BookingReferenceV2, false);

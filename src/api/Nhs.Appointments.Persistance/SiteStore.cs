@@ -21,6 +21,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return siteDocument.ReferenceNumberGroup;
     }
 
+    [Obsolete("Only required for Reference Number Provider V1")]
     public Task AssignPrefix(string site, int prefix)
     {
         var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);

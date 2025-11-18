@@ -52,7 +52,7 @@ public class BookingAvailabilityStateService(
     {
         var (bookings, sessions) = await FetchData(site, from, to,  BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics);
 
-        var proposalAction = DetermineAvailabilityUpdateProposalAction((matcher != null && replacement != null));
+        var proposalAction = DetermineAvailabilityUpdateProposalAction(matcher, replacement);
 
         for (var day = from.Date; day <= to.Date; day = day.AddDays(1))
         {
@@ -61,10 +61,7 @@ public class BookingAvailabilityStateService(
             switch (proposalAction)
             {
                 case AvailabilityUpdateProposalAction.Cancel:
-                    if (matcher is null)
-                    {
-                        break;
-                    }
+                    ArgumentNullException.ThrowIfNull(matcher);
 
                     var matchedSession = sessionsForDay.FindMatchingSession(matcher);
 
@@ -145,10 +142,10 @@ public class BookingAvailabilityStateService(
     private BookingAvailabilityState BuildState(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions,
         BookingAvailabilityStateReturnType returnType, DateTime from, DateTime to, NewlyUnsupportedBookingAction? newlyUnsupportedBookingAction = null)
     {
-        //newlyUnsupportedBookingAction if-only required if this is a Recalculation generation
-        if (returnType == BookingAvailabilityStateReturnType.Recalculations && newlyUnsupportedBookingAction is null)
+        if (returnType == BookingAvailabilityStateReturnType.Recalculations)
         {
-            throw new ArgumentNullException(nameof(newlyUnsupportedBookingAction));
+            //newlyUnsupportedBookingAction is only required if this is a Recalculations generation
+            ArgumentNullException.ThrowIfNull(newlyUnsupportedBookingAction);
         }
         
         var state = new BookingAvailabilityState();
@@ -259,9 +256,9 @@ public class BookingAvailabilityStateService(
         return state;
     }
 
-    private static AvailabilityUpdateProposalAction DetermineAvailabilityUpdateProposalAction(bool hasMatcherAndReplacementSessions)
+    private static AvailabilityUpdateProposalAction DetermineAvailabilityUpdateProposalAction(Session matcher, Session replacement)
     {
-        return hasMatcherAndReplacementSessions ? AvailabilityUpdateProposalAction.Edit : AvailabilityUpdateProposalAction.Cancel;
+        return matcher != null && replacement != null ? AvailabilityUpdateProposalAction.Edit : AvailabilityUpdateProposalAction.Cancel;
     }
 
     private enum AvailabilityUpdateProposalAction
@@ -269,6 +266,7 @@ public class BookingAvailabilityStateService(
         Cancel,
         Edit,
     }
+    
     private static AvailabilitySummary GenerateSummary(IEnumerable<Booking> bookings, List<DayAvailabilitySummary> daySummaries)
     {
         foreach (var daySummary in daySummaries)

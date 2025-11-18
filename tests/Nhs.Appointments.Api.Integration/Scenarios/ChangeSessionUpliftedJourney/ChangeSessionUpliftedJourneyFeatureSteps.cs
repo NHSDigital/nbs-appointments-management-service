@@ -70,26 +70,26 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         Session matcher = null;
         Session replacement = null;
         TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
-
+        
         foreach (var row in editSessions.Rows.Skip(1))
         {
             var session = new Session
             {
-                From = string.IsNullOrEmpty(row.Cells.ElementAt(3).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(3).Value),
-                Until = string.IsNullOrEmpty(row.Cells.ElementAt(4).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(4).Value),
-                Services = string.IsNullOrEmpty(row.Cells.ElementAt(5).Value) ? Array.Empty<string>() : row.Cells.ElementAt(5).Value.Split(','),
-                SlotLength = string.IsNullOrEmpty(row.Cells.ElementAt(6).Value) ? 0 : int.Parse(row.Cells.ElementAt(6).Value),
-                Capacity = string.IsNullOrEmpty(row.Cells.ElementAt(7).Value) ? 0 : int.Parse(row.Cells.ElementAt(7).Value),
+                From = editSessions.GetTimeRowValueOrDefault(row, "From"),
+                Until = editSessions.GetTimeRowValueOrDefault(row, "Until"),
+                Services = editSessions.GetListRowValueOrDefault(row, "Services"),
+                SlotLength = editSessions.GetIntRowValueOrDefault(row, "SlotLength", int.MinValue),
+                Capacity = editSessions.GetIntRowValueOrDefault(row, "Capacity", int.MinValue)
             };
 
-            if (row.Cells.ElementAt(0).Value == "Matcher")
+            switch (editSessions.GetRowValueOrDefault(row, "Type"))
             {
-                matcher = session;
-            }
-
-            if (row.Cells.ElementAt(0).Value == "Replacement")
-            {
-                replacement = session;
+                case "Matcher":
+                    matcher = session;
+                    break;
+                case "Replacement":
+                    replacement = session;
+                    break;
             }
         }
 
@@ -249,20 +249,27 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     {
         Session matcher = null;
         Session replacement = null;
-
+        
         foreach (var row in proposalSessions.Rows.Skip(1))
         {
             var session = new Session
             {
-                From = string.IsNullOrEmpty(row.Cells.ElementAt(3).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(3).Value),
-                Until = string.IsNullOrEmpty(row.Cells.ElementAt(4).Value) ? default : TimeOnly.Parse(row.Cells.ElementAt(4).Value),
-                Services = string.IsNullOrEmpty(row.Cells.ElementAt(5).Value) ? Array.Empty<string>() : row.Cells.ElementAt(5).Value.Split(','),
-                SlotLength = string.IsNullOrEmpty(row.Cells.ElementAt(6).Value) ? 0 : int.Parse(row.Cells.ElementAt(6).Value),
-                Capacity = string.IsNullOrEmpty(row.Cells.ElementAt(7).Value) ? 0 : int.Parse(row.Cells.ElementAt(7).Value),
+                From = proposalSessions.GetTimeRowValueOrDefault(row, "From"),
+                Until = proposalSessions.GetTimeRowValueOrDefault(row, "Until"),
+                Services = proposalSessions.GetListRowValueOrDefault(row, "Services"),
+                SlotLength = proposalSessions.GetIntRowValueOrDefault(row, "SlotLength", int.MinValue),
+                Capacity = proposalSessions.GetIntRowValueOrDefault(row, "Capacity", int.MinValue)
             };
 
-            if (row.Cells.ElementAt(0).Value == "Matcher") matcher = session;
-            if (row.Cells.ElementAt(0).Value == "Replacement") replacement = session;
+            switch (proposalSessions.GetRowValueOrDefault(row, "Type"))
+            {
+                case "Matcher":
+                    matcher = session;
+                    break;
+                case "Replacement":
+                    replacement = session;
+                    break;
+            }
         }
 
         var firstRow = proposalSessions.Rows.Skip(1).FirstOrDefault();

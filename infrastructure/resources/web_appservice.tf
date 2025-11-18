@@ -19,9 +19,9 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
   site_config {
     app_command_line = "node standalone/server.js"
     application_stack {
-      node_version = "20-lts"
+      node_version = "22-lts"
     }
-    health_check_path = "/manage-your-appointments/login"
+    health_check_path                 = "/manage-your-appointments/login"
     health_check_eviction_time_in_min = 7
   }
 
@@ -54,9 +54,9 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
   site_config {
     app_command_line = "node standalone/server.js"
     application_stack {
-      node_version = "20-lts"
+      node_version = "22-lts"
     }
-    health_check_path = "/manage-your-appointments/login"
+    health_check_path                 = "/manage-your-appointments/login"
     health_check_eviction_time_in_min = 7
   }
 
@@ -64,7 +64,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
     NBS_API_BASE_URL                    = "https://${azurerm_windows_function_app_slot.nbs_mya_http_func_app_preview[0].default_hostname}"
     AUTH_HOST                           = "https://${azurerm_windows_function_app_slot.nbs_mya_http_func_app_preview[0].default_hostname}"
     CLIENT_BASE_PATH                    = "/manage-your-appointments"
-    BUILD_NUMBER = var.build_number
+    BUILD_NUMBER                        = var.build_number
     OTEL_EXPORTER_OTLP_ENDPOINT         = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}"
     OTEL_EXPORTER_OTLP_TRACES_ENDPOINT  = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/traces"
     OTEL_EXPORTER_OTLP_METRICS_ENDPOINT = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/metrics"
@@ -158,7 +158,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         value     = var.web_app_service_plan_scale_out_worker_count_min
         cooldown  = "PT20M"
       }
-    }    
+    }
 
     # CPU scaling
     rule {
@@ -201,7 +201,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         value     = var.web_app_service_plan_scale_out_worker_count_max
         cooldown  = "PT15M"
       }
-    }    
+    }
 
     rule {
       metric_trigger {
@@ -222,7 +222,7 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         value     = var.web_app_service_plan_scale_out_worker_count_min
         cooldown  = "PT20M"
       }
-    }    
+    }
 
     rule {
       metric_trigger {

@@ -11,31 +11,22 @@ using Newtonsoft.Json;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.ReferenceNumber.V2;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
-using AttendeeDetails = Nhs.Appointments.Core.Bookings.AttendeeDetails;
-using ContactItem = Nhs.Appointments.Core.Bookings.ContactItem;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
-public abstract class BookingBaseFeatureSteps : AuditFeatureSteps, IAsyncLifetime
+public abstract class BookingBaseFeatureSteps(string flag, bool enabled) : AuditFeatureSteps, IAsyncLifetime
 {
     protected HttpResponseMessage Response { get; set; }
-
-    [When(@"I cancel the appointment without a site parameter")]
+    
+    [When(@"I cancel the appointment")]
     public async Task CancelAppointment()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
-            null);
-    }
-
-    [When(@"I cancel the appointment with site parameter '(.+)'")]
-    public async Task CancelAppointmentAndProvideSite(string siteId)
-    {
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        var site = GetSiteId(siteId);
+        var site = GetSiteId();
         Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
@@ -139,8 +130,9 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps, IAsyncLifetim
                 Id = bookingReference,
                 AdditionalData = new { isAppBooking = cells.ElementAt(11).Value }
             };
-
-            result.BookingReference.Should().MatchRegex("([0-9]){2}-([0-9]{2})-([0-9]{6})");
+            
+            ProviderHelper.IsValidBookingReference(result.BookingReference, null).Should().BeTrue();
+            
             var actualBooking = await Client.GetContainer("appts", "booking_data")
                 .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
             BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
@@ -210,11 +202,17 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps, IAsyncLifetim
             $"{NaturalLanguageDate.Parse(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
+    
+    private string Flag { get; } = flag;
+    private bool Enabled { get; } = enabled;
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        return SetupSite(GetSiteId(Guid.NewGuid().ToString()));
+        await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public async Task DisposeAsync()
+    {
+        await Task.CompletedTask;
+    }
 }

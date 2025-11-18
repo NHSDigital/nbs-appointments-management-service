@@ -13,6 +13,7 @@ public static class FeatureToggleCollectionNames
     public const string ChangeSessionUpliftedJourneyCollection = $"{Flags.ChangeSessionUpliftedJourney}Toggle";
     public const string CancelSessionUpliftedJourneyCollection = $"{Flags.CancelSessionUpliftedJourney}Toggle";
     public const string QuerySitesCollection = $"{Flags.QuerySites}Toggle";
+    public const string BookingReferenceV2Collection = $"{Flags.BookingReferenceV2}Toggle";
 }
 
 [CollectionDefinition(FeatureToggleCollectionNames.OktaCollection)]
@@ -54,3 +55,10 @@ public class CancelSessionUpliftedJourneySerialToggleCollection : ICollectionFix
 public class QuerySitesSerialToggleCollection : ICollectionFixture<object>
 {
 }
+
+
+[CollectionDefinition(FeatureToggleCollectionNames.BookingReferenceV2Collection)]
+public class BookingReferenceV2SerialToggleCollection : ICollectionFixture<object>
+{
+}
+

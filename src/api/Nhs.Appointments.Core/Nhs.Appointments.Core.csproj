@@ -10,6 +10,7 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
 		<PackageReference Include="CsvHelper" Version="33.1.0" />
+		<PackageReference Include="LuhnNet" Version="2.0.0" />
 		<PackageReference Include="MassTransit" Version="8.4.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
 		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.52.1" />

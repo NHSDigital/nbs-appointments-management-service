@@ -1,7 +1,10 @@
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
+using Nhs.Appointments.Core.ReferenceNumber.V1;
+using Nhs.Appointments.Core.ReferenceNumber.V2;
 
 namespace Nhs.Appointments.Core.Bookings;
 
@@ -44,12 +47,14 @@ public interface IBookingWriteService
 public class BookingWriteService(
     IBookingsDocumentStore bookingDocumentStore,
     IBookingQueryService bookingQueryService,
-    IReferenceNumberProvider referenceNumberProvider,
+    IReferenceNumberProvider referenceNumberProviderV1,
+    IProvider referenceNumberProviderV2,
     ISiteLeaseManager siteLeaseManager,
     IBookingAvailabilityStateService bookingAvailabilityStateService,
     IBookingEventFactory eventFactory,
     IMessageBus bus,
-    TimeProvider time) : IBookingWriteService
+    TimeProvider time,
+    IFeatureToggleHelper featureToggleHelper) : IBookingWriteService
 {
     private static readonly ContactItemType[] ValidNotificationTypes =
         [ContactItemType.Email, ContactItemType.Phone];
@@ -74,7 +79,18 @@ public class BookingWriteService(
         }
 
         booking.Created = time.GetUtcNow();
-        booking.Reference = await referenceNumberProvider.GetReferenceNumber(booking.Site);
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.BookingReferenceV2))
+        {
+            booking.Reference = await referenceNumberProviderV2.GetReferenceNumber();
+        }
+        else
+        {
+            #pragma warning disable CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
+            booking.Reference = await referenceNumberProviderV1.GetReferenceNumber(booking.Site);
+            #pragma warning restore CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
+        }
+        
         booking.ReminderSent = false;
         booking.AvailabilityStatus = AvailabilityStatus.Supported;
         await bookingDocumentStore.InsertAsync(booking);

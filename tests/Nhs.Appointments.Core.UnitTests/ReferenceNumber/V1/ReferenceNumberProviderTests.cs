@@ -1,7 +1,9 @@
-using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.ReferenceNumber.V1;
 using Nhs.Appointments.Core.Sites;
 
-namespace Nhs.Appointments.Core.UnitTests;
+#pragma warning disable CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
+
+namespace Nhs.Appointments.Core.UnitTests.ReferenceNumber.V1;
 
 public class ReferenceNumberProviderTests
 {

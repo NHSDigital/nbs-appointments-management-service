@@ -216,3 +216,8 @@ variable "AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE" {
   type = string
   sensitive = false
 }
+
+variable "REFERENCE_NUMBER_HMAC_KEY" {
+  type = string
+  sensitive = true
+}

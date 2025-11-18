@@ -89,6 +89,7 @@ services:
       - SITE_SUMMARY_DAYS_CHUNK_SIZE=365
       - SITE_SUMMARY_FIRST_RUN_DATE=2025-06-01
       - DISABLE_SITE_CACHE=true
+      - REFERENCE_NUMBER_HMAC_KEY=dG9uZ3VlZmFybXRyaWVkc2hpbm5pbmdjcm9wZXZlbnR2YXJpb3Vzd2VhcnNhZmVncmE=
   splunk:
     image: splunk/splunk:9.3
     container_name: splunk

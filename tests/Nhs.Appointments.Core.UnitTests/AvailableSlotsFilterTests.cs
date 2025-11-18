@@ -307,8 +307,8 @@ public class AvailableSlotsFilterTests
         var result = _sut.FilterAvailableSlots(slots, attendees);
 
         result.Count().Should().Be(4);
-        result.First().From.Should().Be(new DateTime(2025, 10, 10, 9, 0, 0));
-        result.Last().From.Should().Be(new DateTime(2025, 10, 10, 9, 30, 0));
+        result.First().From.Should().Be(TestDateAt("09:00"));
+        result.Last().From.Should().Be(TestDateAt("09:30"));
     }
 
     [Fact]
@@ -327,8 +327,8 @@ public class AvailableSlotsFilterTests
         var result = _sut.FilterAvailableSlots(slots, attendees);
 
         result.Count().Should().Be(4);
-        result.First().From.Should().Be(new DateTime(2025, 10, 10, 9, 0, 0));
-        result.Last().From.Should().Be(new DateTime(2025, 10, 10, 9, 30, 0));
+        result.First().From.Should().Be(TestDateAt("09:00"));
+        result.Last().From.Should().Be(TestDateAt("09:30"));
     }
 
     [Fact]

@@ -1,6 +1,6 @@
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Reports.SiteSummary;
-using IBookingAvailabilityStateService = Nhs.Appointments.Core.Bookings.IBookingAvailabilityStateService;
 
 namespace Nhs.Appointments.Core.UnitTests.Reports.SiteSummary;
 

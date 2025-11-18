@@ -1,4 +1,4 @@
-using IBookingAvailabilityStateService = Nhs.Appointments.Core.Bookings.IBookingAvailabilityStateService;
+using Nhs.Appointments.Core.Bookings;
 
 namespace Nhs.Appointments.Core.Reports.SiteSummary;
 

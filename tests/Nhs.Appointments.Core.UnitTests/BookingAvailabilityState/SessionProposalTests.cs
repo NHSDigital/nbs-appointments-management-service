@@ -520,7 +520,6 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         var expectedNewlyUnsupportedBookings = 6;
 
         // var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, null, null, true);
-        //
         // proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));
         // proposalMetrics.NewlySupportedBookingsCount.Should().Be(expectedNewlySupportedBookings);
         // proposalMetrics.NewlyUnsupportedBookingsCount.Should().Be(expectedNewlyUnsupportedBookings);

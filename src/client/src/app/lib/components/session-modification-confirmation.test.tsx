@@ -62,7 +62,7 @@ describe('EditSessionConfirmation', () => {
     };
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         newSession={mockNewSessionSummary}
@@ -272,7 +272,7 @@ describe('CancelSessionConfirmation', () => {
   it('"No, go back" click resets decision and action to display previous step on a page ', async () => {
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"

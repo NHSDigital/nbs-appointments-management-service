@@ -17,7 +17,6 @@ import {
   ClinicalService,
   SessionSummary,
   UpdateSessionRequest,
-  Session,
   SessionModificationAction,
   AvailabilitySession,
 } from '@types';
@@ -34,7 +33,7 @@ type Props = {
   unsupportedBookingsCount: number;
   clinicalServices: ClinicalService[];
   session: string;
-  newSession?: string | null;
+  newSession?: SessionSummary | null;
   site: string;
   date: string;
   mode: Mode;
@@ -127,12 +126,14 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
   },
 };
 
-const toAvailabilitySession = (session: Session): AvailabilitySession => ({
-  from: toTimeFormat(session.startTime) ?? '',
-  until: toTimeFormat(session.endTime) ?? '',
+const toAvailabilitySession = (
+  session: SessionSummary,
+): AvailabilitySession => ({
+  from: toTimeFormat(session.ukStartDatetime) ?? '',
+  until: toTimeFormat(session.ukEndDatetime) ?? '',
   slotLength: session.slotLength,
   capacity: session.capacity,
-  services: session.services,
+  services: Object.keys(session.totalSupportedAppointmentsByService),
 });
 
 export const SessionModificationConfirmation = ({
@@ -147,9 +148,6 @@ export const SessionModificationConfirmation = ({
   const router = useRouter();
   const [pendingSubmit, startTransition] = useTransition();
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
-  const newSessionSummary: Session | null = newSession
-    ? JSON.parse(atob(newSession))
-    : null;
 
   const {
     handleSubmit,
@@ -189,17 +187,19 @@ export const SessionModificationConfirmation = ({
       let updatedSessionSummary: AvailabilitySession =
         {} as AvailabilitySession;
 
-      if (mode === 'edit' && newSessionSummary) {
-        updatedSessionSummary = toAvailabilitySession(newSessionSummary);
+      if (mode === 'edit' && newSession) {
+        updatedSessionSummary = toAvailabilitySession(newSession);
 
         request = {
           ...request,
           sessionReplacement: {
-            from: `${newSessionSummary.startTime.hour}:${newSessionSummary.startTime.minute}`,
-            until: `${newSessionSummary.endTime.hour}:${newSessionSummary.endTime.minute}`,
-            services: newSessionSummary.services,
-            slotLength: newSessionSummary.slotLength,
-            capacity: newSessionSummary.capacity,
+            from: toTimeFormat(newSession.ukStartDatetime) || '',
+            until: toTimeFormat(newSession.ukEndDatetime) || '',
+            services: Object.keys(
+              newSession.totalSupportedAppointmentsByService,
+            ),
+            slotLength: newSession.slotLength,
+            capacity: newSession?.capacity,
           },
         };
       }
@@ -263,7 +263,7 @@ export const SessionModificationConfirmation = ({
   return (
     <>
       <SessionSummaryTable
-        sessionSummaries={[sessionSummary]}
+        sessionSummaries={newSession ? [newSession] : []}
         clinicalServices={clinicalServices}
         showUnbooked={false}
         showBooked={false}

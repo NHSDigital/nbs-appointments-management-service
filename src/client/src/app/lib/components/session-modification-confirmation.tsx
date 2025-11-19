@@ -247,7 +247,12 @@ export const SessionModificationConfirmation = ({
         )}
 
         <Link
-          href={`/site/${site}/availability/edit?session=${session}&date=${date}`}
+          href="#"
+          onClick={e => {
+            e.preventDefault();
+            setDecision(undefined);
+            setValue('action', undefined);
+          }}
         >
           No, go back
         </Link>

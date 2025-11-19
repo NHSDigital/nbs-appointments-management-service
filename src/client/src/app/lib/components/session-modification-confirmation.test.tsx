@@ -126,6 +126,24 @@ describe('EditSessionConfirmation', () => {
 });
 
 describe('CancelSessionConfirmation', () => {
+  beforeEach(() => {
+    mockUseRouter.mockReturnValue({ push: mockPush });
+
+    const sessionModificationResult: SessionModificationResponse = {
+      updateSuccessful: true,
+      message: true,
+      bookingsCanceled: 2,
+      bookingsCanceledWithoutDetails: 1,
+    };
+
+    mockModifySession.mockResolvedValue(
+      asServerActionResult<SessionModificationResponse>(
+        sessionModificationResult,
+      ),
+    );
+    jest.clearAllMocks();
+  });
+
   it('No unsupported bookings, renders question to cancel session', () => {
     render(
       <SessionModificationConfirmation
@@ -220,6 +238,13 @@ describe('CancelSessionConfirmation', () => {
       expect(
         screen.getByRole('button', { name: 'Cancel session' }),
       ).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Cancel session' }));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining('unsupportedBookingsCount=3'),
+      );
     });
   });
 });

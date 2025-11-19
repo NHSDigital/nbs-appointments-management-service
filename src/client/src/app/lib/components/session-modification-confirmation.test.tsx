@@ -62,7 +62,7 @@ describe('EditSessionConfirmation', () => {
     };
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         newSession={mockNewSessionSummary}

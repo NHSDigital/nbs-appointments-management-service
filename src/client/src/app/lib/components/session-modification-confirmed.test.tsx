@@ -23,7 +23,7 @@ describe('CancelSessionConfirmation', () => {
         date="2024-06-10"
         modificationAction="cancel-session"
         sessionSummary={mockSessionSummary}
-        unsupportedBookingsCount={0}
+        newlyUnsupportedBookingsCount={0}
         bookingsCanceledWithoutDetails={0}
       />,
     );
@@ -41,7 +41,7 @@ describe('CancelSessionConfirmation', () => {
         date="2024-06-10"
         modificationAction="cancel-appointments"
         sessionSummary={mockSessionSummary}
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         bookingsCanceledWithoutDetails={0}
       />,
     );
@@ -67,7 +67,7 @@ describe('CancelSessionConfirmation', () => {
         date="2024-06-10"
         modificationAction="cancel-appointments"
         sessionSummary={mockSessionSummary}
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         bookingsCanceledWithoutDetails={1}
       />,
     );
@@ -97,7 +97,7 @@ describe('CancelSessionConfirmation', () => {
         date="2024-06-10"
         modificationAction="keep-appointments"
         sessionSummary={mockSessionSummary}
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         bookingsCanceledWithoutDetails={0}
       />,
     );

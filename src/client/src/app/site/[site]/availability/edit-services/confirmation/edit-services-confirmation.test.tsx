@@ -42,7 +42,7 @@ describe('EditSessionConfirmation', () => {
   it('No unsupported bookings, renders question to change session', () => {
     render(
       <EditServicesConfirmationPage
-        unsupportedBookingsCount={0}
+        newlyUnsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
@@ -67,7 +67,7 @@ describe('CancelSessionConfirmation', () => {
   it('No unsupported bookings, renders question to remove the service', () => {
     render(
       <EditServicesConfirmationPage
-        unsupportedBookingsCount={0}
+        newlyUnsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
@@ -90,7 +90,7 @@ describe('CancelSessionConfirmation', () => {
   it('Has unsupported bookings, renders Yes/No question to remove the service', () => {
     render(
       <EditServicesConfirmationPage
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
@@ -120,7 +120,7 @@ describe('CancelSessionConfirmation', () => {
   it('Has unsupported bookings, user choose "Yes" to cancel the appointments', async () => {
     const { user } = render(
       <EditServicesConfirmationPage
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
@@ -141,7 +141,7 @@ describe('CancelSessionConfirmation', () => {
   it('Has unsupported bookings, user choose "No" to cancel the appointments', async () => {
     const { user } = render(
       <EditServicesConfirmationPage
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
@@ -187,7 +187,7 @@ describe('submitForm', () => {
     const mode = 'edit-services';
     const { user } = render(
       <EditServicesConfirmationPage
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
@@ -209,7 +209,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = false;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -228,7 +227,7 @@ describe('submitForm', () => {
         slotLength: 10,
         capacity: 2,
       },
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Orphan',
     });
 
     // Validate navigation
@@ -253,7 +252,7 @@ describe('submitForm', () => {
     // other exact params
     expect(params.get('date')).toBe('2024-06-10');
     expect(params.get('chosenAction')).toBe('remove-services');
-    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('newlyUnsupportedBookingsCount')).toBe('2');
     expect(params.get('cancelAppointments')).toBe('false');
     expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
 
@@ -268,7 +267,7 @@ describe('submitForm', () => {
     const mode = 'edit-services';
     const { user } = render(
       <EditServicesConfirmationPage
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
@@ -290,7 +289,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = true;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -309,7 +307,7 @@ describe('submitForm', () => {
         slotLength: 10,
         capacity: 2,
       },
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Cancel',
     });
 
     expect(mockPush).toHaveBeenCalled();
@@ -333,7 +331,7 @@ describe('submitForm', () => {
     // other exact params
     expect(params.get('date')).toBe('2024-06-10');
     expect(params.get('chosenAction')).toBe('cancel-appointments');
-    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('newlyUnsupportedBookingsCount')).toBe('2');
     expect(params.get('cancelAppointments')).toBe('true');
     expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
 

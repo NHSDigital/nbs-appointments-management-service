@@ -84,7 +84,6 @@ public class Template
 
 public enum SessionUpdateAction
 {
-    CancelAll,
     CancelMultiple,
     EditMultiple,
     EditSingle,

@@ -388,10 +388,12 @@ type UpdateSessionRequest = {
   site: string;
   sessionMatcher: AvailabilitySession | '*';
   sessionReplacement: AvailabilitySession | null;
-  cancelUnsupportedBookings: boolean;
+  newlyUnsupportedBookingAction: NewlyUnsupportedBookingAction;
 };
 
 type SiteStatus = 'Online' | 'Offline';
+
+type NewlyUnsupportedBookingAction = 'Orphan' | 'Cancel';
 
 type UpdateSiteStatusRequest = {
   site: string;
@@ -409,8 +411,8 @@ type CancelDayResponse = {
 };
 
 type AvailabilityChangeProposalResponse = {
-  supportedBookingsCount: number;
-  unsupportedBookingsCount: number;
+  newlySupportedBookingsCount: number;
+  newlyUnsupportedBookingsCount: number;
 };
 
 type AvailabilityChangeProposalRequest = {
@@ -470,6 +472,7 @@ export type {
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   IdentityProvider,
+  NewlyUnsupportedBookingAction,
   NhsMyaCookieConsent,
   Role,
   RoleAssignment,

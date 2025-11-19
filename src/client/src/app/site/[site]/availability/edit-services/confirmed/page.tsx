@@ -15,7 +15,7 @@ type PageProps = {
   searchParams?: Promise<{
     date: string;
     removedServicesSession: string;
-    unsupportedBookingsCount?: number;
+    newlyUnsupportedBookingsCount?: number;
     cancelAppointments?: boolean;
     cancelledWithoutDetailsCount?: number;
     chosenAction: string;
@@ -30,7 +30,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     date,
     removedServicesSession: serialisedSession,
     cancelAppointments,
-    unsupportedBookingsCount,
+    newlyUnsupportedBookingsCount,
     chosenAction,
     cancelledWithoutDetailsCount,
   } = {
@@ -63,7 +63,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const servicesCount = removedServicesSession.services.length;
 
   let cancelledWithDetailsCount =
-    (unsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
+    (newlyUnsupportedBookingsCount ?? 0) - (cancelledWithoutDetailsCount ?? 0);
 
   if (cancelledWithDetailsCount < 0) {
     cancelledWithDetailsCount = 0;
@@ -89,7 +89,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         hasBookings={hasBookings}
         servicesCount={servicesCount}
         chosenAction={chosenAction ?? ''}
-        unsupportedBookingsCount={unsupportedBookingsCount ?? 0}
+        newlyUnsupportedBookingsCount={newlyUnsupportedBookingsCount ?? 0}
         cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}
         cancelledWithoutDetailsCount={cancelledWithoutDetailsCount ?? 0}
         changeSessionUpliftedJourneyEnabled={

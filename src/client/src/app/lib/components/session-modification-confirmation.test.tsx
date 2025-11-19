@@ -34,7 +34,7 @@ describe('EditSessionConfirmation', () => {
   it('No unsupported bookings, renders question to change session', () => {
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={0}
+        newlyUnsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -57,7 +57,7 @@ describe('EditSessionConfirmation', () => {
   it('Has unsupported bookings, renders Yes/No question to cancel the appointments', () => {
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -83,7 +83,7 @@ describe('EditSessionConfirmation', () => {
   it('Has unsupported bookings, user choose "Yes" to cancel the appointments', async () => {
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -104,7 +104,7 @@ describe('EditSessionConfirmation', () => {
   it('Has unsupported bookings, user choose "No" to cancel the appointments', async () => {
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -147,7 +147,7 @@ describe('CancelSessionConfirmation', () => {
   it('No unsupported bookings, renders question to cancel session', () => {
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={0}
+        newlyUnsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -170,7 +170,7 @@ describe('CancelSessionConfirmation', () => {
   it('Has unsupported bookings, renders Yes/No question to cancel the session', () => {
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -200,7 +200,7 @@ describe('CancelSessionConfirmation', () => {
   it('Has unsupported bookings, user choose "Yes" to cancel the appointments', async () => {
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -221,7 +221,7 @@ describe('CancelSessionConfirmation', () => {
   it('Has unsupported bookings, user choose "No" to cancel the appointments', async () => {
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -243,7 +243,7 @@ describe('CancelSessionConfirmation', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel session' }));
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
-        expect.stringContaining('unsupportedBookingsCount=3'),
+        expect.stringContaining('newlyUnsupportedBookingsCount=3'),
       );
     });
   });
@@ -274,7 +274,7 @@ describe('submitForm', () => {
     const mode = 'edit';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -296,7 +296,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = true;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -309,7 +308,7 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Cancel',
     });
 
     // Validate navigation
@@ -334,7 +333,7 @@ describe('submitForm', () => {
     // other exact params
     expect(params.get('date')).toBe('2024-06-10');
     expect(params.get('chosenAction')).toBe('cancel-appointments');
-    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('newlyUnsupportedBookingsCount')).toBe('2');
     expect(params.get('cancelAppointments')).toBe('true');
     expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
 
@@ -349,7 +348,7 @@ describe('submitForm', () => {
     const mode = 'edit';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -371,7 +370,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = false;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -384,7 +382,7 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Orphan',
     });
 
     // Validate navigation
@@ -409,7 +407,7 @@ describe('submitForm', () => {
     // other exact params
     expect(params.get('date')).toBe('2024-06-10');
     expect(params.get('chosenAction')).toBe('change-session');
-    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('newlyUnsupportedBookingsCount')).toBe('2');
     expect(params.get('cancelAppointments')).toBe('false');
     expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
 
@@ -424,7 +422,7 @@ describe('submitForm', () => {
     const mode = 'cancel';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -446,7 +444,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = false;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -459,7 +456,7 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Orphan',
     });
 
     // Validate navigation
@@ -484,7 +481,7 @@ describe('submitForm', () => {
     // other exact params
     expect(params.get('date')).toBe('2024-06-10');
     expect(params.get('chosenAction')).toBe('keep-appointments');
-    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('newlyUnsupportedBookingsCount')).toBe('2');
     expect(params.get('cancelAppointments')).toBe('false');
     expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
 
@@ -499,7 +496,7 @@ describe('submitForm', () => {
     const mode = 'cancel';
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={2}
+        newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"
@@ -521,7 +518,6 @@ describe('submitForm', () => {
     );
 
     // Validate payload
-    const cancelUnsupportedBookings = true;
     expect(mockModifySession).toHaveBeenCalledWith({
       from: '2024-06-10',
       to: '2024-06-10',
@@ -534,13 +530,13 @@ describe('submitForm', () => {
         capacity: 2,
       },
       sessionReplacement: null,
-      cancelUnsupportedBookings: cancelUnsupportedBookings,
+      newlyUnsupportedBookingAction: 'Cancel',
     });
 
     // Validate navigation
     //expect(mockPush).toHaveBeenCalledWith(
     //  expect.stringContaining(
-    //    `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&unsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
+    //    `/site/site-123/availability/${mode}/confirmed?updatedSession=undefined&date=2024-06-10&chosenAction=cancel-appointments&newlyUnsupportedBookingsCount=2&cancelAppointments=${cancelUnsupportedBookings}`,
     //  ),
     //);
 
@@ -565,7 +561,7 @@ describe('submitForm', () => {
     // other exact params
     expect(params.get('date')).toBe('2024-06-10');
     expect(params.get('chosenAction')).toBe('cancel-appointments');
-    expect(params.get('unsupportedBookingsCount')).toBe('2');
+    expect(params.get('newlyUnsupportedBookingsCount')).toBe('2');
     expect(params.get('cancelAppointments')).toBe('true');
     expect(params.get('cancelledWithoutDetailsCount')).toBe('1');
 
@@ -576,7 +572,7 @@ describe('submitForm', () => {
   it('renders the correct impact note when cancelling a session', async () => {
     render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"

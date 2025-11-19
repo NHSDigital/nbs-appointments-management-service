@@ -11,7 +11,7 @@ type PageProps = {
   hasBookings: boolean;
   servicesCount: number;
   chosenAction: string;
-  unsupportedBookingsCount: number;
+  newlyUnsupportedBookingsCount: number;
   cancelledWithDetailsCount: number;
   cancelledWithoutDetailsCount: number;
   changeSessionUpliftedJourneyEnabled: boolean;
@@ -25,7 +25,7 @@ const EditServicesConfirmed = ({
   chosenAction,
   hasBookings,
   servicesCount,
-  unsupportedBookingsCount,
+  newlyUnsupportedBookingsCount,
   cancelledWithDetailsCount,
   cancelledWithoutDetailsCount,
   changeSessionUpliftedJourneyEnabled,
@@ -79,19 +79,21 @@ const EditServicesConfirmed = ({
         <>
           <div className="margin-top-bottom">
             {servicesCount > 1 ? 'These services have' : 'The service has'} been
-            removed and {unsupportedBookingsCount}{' '}
-            {unsupportedBookingsCount > 1 ? 'bookings have' : 'booking has'}{' '}
+            removed and {newlyUnsupportedBookingsCount}{' '}
+            {newlyUnsupportedBookingsCount > 1
+              ? 'bookings have'
+              : 'booking has'}{' '}
             been cancelled.
           </div>
-          {unsupportedBookingsCount > 1 ? (
+          {newlyUnsupportedBookingsCount > 1 ? (
             <Card
-              title={unsupportedBookingsCount.toString()}
+              title={newlyUnsupportedBookingsCount.toString()}
               description="Bookings have been cancelled"
               maxWidth={250}
             />
           ) : (
             <Card
-              title={unsupportedBookingsCount.toString()}
+              title={newlyUnsupportedBookingsCount.toString()}
               description="Booking has been cancelled"
               maxWidth={250}
             />
@@ -128,14 +130,16 @@ const EditServicesConfirmed = ({
         <>
           <div className="margin-top-bottom">
             {servicesCount > 1 ? 'These services have' : 'The service has'} been
-            removed and {unsupportedBookingsCount}{' '}
-            {unsupportedBookingsCount > 1 ? 'bookings have' : 'booking has'}{' '}
+            removed and {newlyUnsupportedBookingsCount}{' '}
+            {newlyUnsupportedBookingsCount > 1
+              ? 'bookings have'
+              : 'booking has'}{' '}
             been cancelled.{' '}
           </div>
-          {unsupportedBookingsCount > 0 && (
+          {newlyUnsupportedBookingsCount > 0 && (
             <div className="margin-top-bottom">
-              {unsupportedBookingsCount}{' '}
-              {unsupportedBookingsCount > 1
+              {newlyUnsupportedBookingsCount}{' '}
+              {newlyUnsupportedBookingsCount > 1
                 ? 'appointments have'
                 : 'appointment has'}{' '}
               not been cancelled.

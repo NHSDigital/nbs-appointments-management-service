@@ -1,18 +1,26 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
 using Xunit.Gherkin.Quick;
+using static System.Enum;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ChangeSessionUpliftedJourney;
 
@@ -20,12 +28,15 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
 {
     private HttpResponseMessage Response { get; set; }
     private Session SessionToCheck { get; set; }
+    
+    private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
-    [When("I replace the session with the following")]
-    public async Task UpdateSession(DataTable dataTable)
+    [When("I replace the session with the following and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task UpdateSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
 
         var existingSession = await GetDayAvailability(date);
         SessionToCheck = BuildSession(row, 1);
@@ -47,29 +58,77 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 services = GetCell(row, 3).Split(",").Select(s => s.Trim()).ToArray(),
                 slotLength = GetCell(row, 4),
                 capacity = GetCell(row, 5)
-            });
+            },
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
 
         await SendSessionEditRequest(payload);
     }
-
-    [When("I cancel all sessions in between '(.+)' and '(.+)'")]
-    public async Task CancelAllSessionsInDateRange(string from, string until)
+    
+    [When(@"I replace a session with a replacement and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task EditSessionReplacement(string newlyUnsupportedBookingAction, DataTable editSessions)
     {
-        var fromDate = ParseDate(from);
-        var untilDate = ParseDate(until);
+        Session matcher = null;
+        Session replacement = null;
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
+        
+        foreach (var row in editSessions.Rows.Skip(1))
+        {
+            var session = new Session
+            {
+                From = editSessions.GetTimeRowValueOrDefault(row, "From"),
+                Until = editSessions.GetTimeRowValueOrDefault(row, "Until"),
+                Services = editSessions.GetListRowValueOrDefault(row, "Services"),
+                SlotLength = editSessions.GetIntRowValueOrDefault(row, "SlotLength", int.MinValue),
+                Capacity = editSessions.GetIntRowValueOrDefault(row, "Capacity", int.MinValue)
+            };
 
-        var payload = BuildPayload(fromDate, untilDate, matcher: "*", replacement: null as Session);
+            switch (editSessions.GetRowValueOrDefault(row, "Type"))
+            {
+                case "Matcher":
+                    matcher = session;
+                    break;
+                case "Replacement":
+                    replacement = session;
+                    break;
+            }
+        }
+
+        var firstRow = editSessions.Rows.Skip(1).FirstOrDefault();
+        var sessionMatcherObj = matcher ?? (object)"*";
+
+        var from = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToDateTime(new TimeOnly(), DateTimeKind.Unspecified);
+        var until = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToDateTime(new TimeOnly(), DateTimeKind.Unspecified);
+        
+        var payload = BuildPayload(
+            from, 
+            until,
+            matcher: sessionMatcherObj,
+            replacement: replacement,
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
+
         await SendSessionEditRequest(payload);
     }
 
-    [When("I cancel the following session using the new endpoint")]
-    public async Task CancelSingleSession(DataTable dataTable)
+    //Cancelling multiple days not yet implemented
+    
+    // [When("I cancel all sessions in between '(.+)' and '(.+)'")]
+    // public async Task CancelAllSessionsInDateRange(string from, string until)
+    // {
+    //     var fromDate = ParseDate(from);
+    //     var untilDate = ParseDate(until);
+    //
+    //     var payload = BuildPayload(fromDate, untilDate, matcher: "*", replacement: null as Session);
+    //     await SendSessionEditRequest(payload);
+    // }
+
+    [When("I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task CancelSingleSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var date = ParseDate(GetCell(row, 0));
-
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
+        
         SessionToCheck = BuildSession(row, 1);
-
         var payload = BuildPayload(
             date, date,
             matcher: new
@@ -80,17 +139,19 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = SessionToCheck.SlotLength,
                 capacity = SessionToCheck.Capacity
             },
-            replacement: null as Session);
+            replacement: null,
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
 
         await SendSessionEditRequest(payload);
     }
 
-    [When("I cancel the sessions matching this between '(.+)' and '(.+)'")]
-    public async Task CancelMultipleSessions(string fromDate, string untilDate, DataTable dataTable)
+    [When("I cancel the sessions matching this between '(.+)' and '(.+)' and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task CancelMultipleSessions(string fromDate, string untilDate, string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
         var until = ParseDate(untilDate);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
 
         SessionToCheck = BuildSession(row);
 
@@ -104,17 +165,19 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 slotLength = SessionToCheck.SlotLength,
                 capacity = SessionToCheck.Capacity
             },
-            replacement: null as Session);
+            replacement: null,
+            newlyUnsupportedBookingAction: newlyUnsupportedAction);
 
         await SendSessionEditRequest(payload);
     }
 
-    [When("I replace multiple sessions between '(.+)' and '(.+)' with this session")]
-    public async Task UpdateMultipleSessions(string fromDate, string untilDate, DataTable dataTable)
+    [When("I replace multiple sessions between '(.+)' and '(.+)' with this session and set newlyUnsupportedBookingAction to '(.+)'")]
+    public async Task UpdateMultipleSessions(string fromDate, string untilDate, string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var from = ParseDate(fromDate);
         var until = ParseDate(untilDate);
+        TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
 
         var existingSession = await GetDayAvailability(from);
         SessionToCheck = BuildSession(row);
@@ -136,7 +199,9 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
                 services = GetCell(row, 2).Split(",").Select(s => s.Trim()).ToArray(),
                 slotLength = GetCell(row, 3),
                 capacity = GetCell(row, 4)
-            });
+            },
+            newlyUnsupportedBookingAction: newlyUnsupportedAction
+            );
 
         await SendSessionEditRequest(payload);
     }
@@ -178,6 +243,72 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var date = ParseDate(dateString);
         await AssertSessionsForDay(date, shouldExist: true);
     }
+    
+    [When(@"I request the availability proposal for potential availability change")]
+    public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
+    {
+        Session matcher = null;
+        Session replacement = null;
+        
+        foreach (var row in proposalSessions.Rows.Skip(1))
+        {
+            var session = new Session
+            {
+                From = proposalSessions.GetTimeRowValueOrDefault(row, "From"),
+                Until = proposalSessions.GetTimeRowValueOrDefault(row, "Until"),
+                Services = proposalSessions.GetListRowValueOrDefault(row, "Services"),
+                SlotLength = proposalSessions.GetIntRowValueOrDefault(row, "SlotLength", int.MinValue),
+                Capacity = proposalSessions.GetIntRowValueOrDefault(row, "Capacity", int.MinValue)
+            };
+
+            switch (proposalSessions.GetRowValueOrDefault(row, "Type"))
+            {
+                case "Matcher":
+                    matcher = session;
+                    break;
+                case "Replacement":
+                    replacement = session;
+                    break;
+            }
+        }
+
+        var firstRow = proposalSessions.Rows.Skip(1).FirstOrDefault();
+        object sessionMatcherObj = matcher ?? (object)"*";
+        var request = new
+        {
+
+            site = GetSiteId(),
+            from = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            to = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToString("yyyy-MM-dd"),
+            sessionMatcher = sessionMatcherObj,
+            sessionReplacement = replacement
+        };
+        var serializerSettings = new JsonSerializerSettings
+        {
+            Converters = { new ShortTimeOnlyJsonConverter() },
+        };
+        var content = new StringContent(JsonConvert.SerializeObject(request, serializerSettings), Encoding.UTF8, "application/json");
+
+        _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        (_, _availabilityChangeProposalResponse) =
+            await JsonRequestReader.ReadRequestAsync<AvailabilityChangeProposalResponse>(await _response.Content.ReadAsStreamAsync());
+    }
+
+    [Then(@"the following count is returned")]
+    public async Task AssertAvailabilityCount(DataTable expectedCounts)
+    {
+        var counts = new List<int>();
+
+        foreach (var row in expectedCounts.Rows)
+        {
+            counts.Add(int.Parse(row.Cells.ElementAt(1).Value));
+        }
+
+        _availabilityChangeProposalResponse.NewlySupportedBookingsCount.Should().Be(counts[0]);
+        _availabilityChangeProposalResponse.NewlyUnsupportedBookingsCount.Should().Be(counts[1]);
+    }
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
@@ -208,16 +339,24 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         return dayAvailabilityDocument.Resource.Sessions.First();
     }
 
-    private async Task SendSessionEditRequest(object payload) => Response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
+    private async Task SendSessionEditRequest(object payload)
+    {
+        var serializerSettings = new JsonSerializerSettings { Converters = { new ShortTimeOnlyJsonConverter() }, };
+        var content = new StringContent(JsonConvert.SerializeObject(payload, serializerSettings), Encoding.UTF8,
+            "application/json");
 
-    private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement) =>
+        Response = await Http.PostAsync("http://localhost:7071/api/session/edit", content);
+    }
+
+    private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan) =>
         new
         {
             site = GetSiteId(),
             from = DateOnly.FromDateTime(from),
             to = DateOnly.FromDateTime(until),
             sessionMatcher = matcher,
-            sessionReplacement = replacement
+            sessionReplacement = replacement,
+            newlyUnsupportedBookingAction
         };
 
     private async Task AssertSessionsForDay(DateTime date, bool shouldExist)

@@ -1,10 +1,5 @@
 import { skip } from 'node:test';
-import {
-  test,
-  expect,
-  overrideFeatureFlag,
-  clearAllFeatureFlagOverrides,
-} from '../fixtures';
+import { test, expect, overrideFeatureFlag } from '../fixtures';
 import {
   ManageUserPage,
   OAuthLoginPage,
@@ -24,7 +19,10 @@ test.describe.configure({ mode: 'serial' });
     });
 
     test.afterAll(async () => {
-      await clearAllFeatureFlagOverrides();
+      //if a flag was enabled, reset to the default state of an existing flag of false
+      if (oktaEnabled) {
+        await overrideFeatureFlag('OktaEnabled', false);
+      }
     });
 
     test.describe('Login tests', () => {

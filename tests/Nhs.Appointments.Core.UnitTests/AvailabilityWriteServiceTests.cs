@@ -211,11 +211,11 @@ public class AvailabilityWriteServiceTests
 
         await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06), false),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 06), NewlyUnsupportedBookingAction.Orphan),
             Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07), false),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 07), NewlyUnsupportedBookingAction.Orphan),
             Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08), false),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2025, 01, 08), NewlyUnsupportedBookingAction.Orphan),
             Times.Once);
     }
 
@@ -267,7 +267,7 @@ public class AvailabilityWriteServiceTests
 
         await _sut.ApplySingleDateSessionAsync(date, site, sessions, ApplyAvailabilityMode.Overwrite, user);
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10), false),
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, new DateOnly(2024, 10, 10), NewlyUnsupportedBookingAction.Orphan),
             Times.Once);
     }
 
@@ -388,7 +388,7 @@ public class AvailabilityWriteServiceTests
         await _sut.CancelSession(site, date, "09:00", "12:00", ["RSV:Adult"], 5, 2);
 
         _availabilityStore.Verify(x => x.CancelSession(site, date, It.IsAny<Session>()), Times.Once());
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, date, false), Times.Once());
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, date, NewlyUnsupportedBookingAction.Orphan), Times.Once());
     }
 
     [Fact]
@@ -405,7 +405,7 @@ public class AvailabilityWriteServiceTests
         _bookingsWriteService.Verify(x => x.CancelAllBookingsInDayAsync("TEST_SITE_123", date), Times.Once);
     }
 
-    [Fact]
+    [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
     public async Task EditOrCancelSession_CancelsMultipleSessions_ForWildcardMultipleDays()
     {
         var site = "TEST123";
@@ -420,16 +420,14 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             null,
-            null,
-            true,
-            false);
+            null);
 
         result.UpdateSuccessful.Should().BeTrue();
 
         _availabilityStore.Verify(x => x.CancelDayAsync(site, It.IsAny<DateOnly>()), Times.Exactly(6));
     }
 
-    [Fact]
+    [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
     public async Task EditOrCancelSession_CancelsDay_ForWildcardSingleDay()
     {
         var site = "TEST123";
@@ -441,9 +439,7 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             null,
-            null,
-            true, 
-            false);
+            null);
 
         result.UpdateSuccessful.Should().BeTrue();
 
@@ -473,7 +469,7 @@ public class AvailabilityWriteServiceTests
         _availabilityStore.Setup(x => x.CancelMultipleSessions(site, from, until, sessionMatcher))
             .ReturnsAsync(new OperationResult(true));
         _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
-            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<NewlyUnsupportedBookingAction>())
         ).ReturnsAsync(recalculationResponse);
 
         var result = await _sut.EditOrCancelSessionAsync(
@@ -481,16 +477,14 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             sessionMatcher,
-            null,
-            false, 
-            false);
+            null);
 
         result.UpdateSuccessful.Should().BeTrue();
         result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
         result.BookingsCanceled.Should().Be(recalculationResponse.BookingsCanceled);
         result.UpdateSuccessful.Should().Be(true);
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), false), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), NewlyUnsupportedBookingAction.Orphan), Times.Once);
     }
 
     [Fact]
@@ -516,14 +510,12 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             sessionMatcher,
-            null,
-            false, 
-            false);
+            null);
 
         result.UpdateSuccessful.Should().BeFalse();
         result.Message.Should().Be("Something went wrong.");
 
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Never);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), NewlyUnsupportedBookingAction.Orphan), Times.Never);
     }
 
     [Fact]
@@ -557,7 +549,7 @@ public class AvailabilityWriteServiceTests
         _availabilityStore.Setup(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement))
             .ReturnsAsync(new OperationResult(true));
         _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
-            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<NewlyUnsupportedBookingAction>())
         ).ReturnsAsync(recalculationResponse);
 
         var result = await _sut.EditOrCancelSessionAsync(
@@ -565,9 +557,7 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             sessionMatcher,
-            sessionReplacement,
-            false, 
-            false);
+            sessionReplacement);
 
         result.UpdateSuccessful.Should().BeTrue();
         result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
@@ -575,7 +565,7 @@ public class AvailabilityWriteServiceTests
         result.UpdateSuccessful.Should().Be(true);
 
         _availabilityStore.Verify(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), false), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.Is<DateOnly[]>(days => days.Count() == 6), NewlyUnsupportedBookingAction.Orphan), Times.Once);
     }
 
     [Fact]
@@ -609,15 +599,13 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             sessionMatcher,
-            sessionReplacement,
-            false, 
-            false);
+            sessionReplacement);
 
         result.UpdateSuccessful.Should().BeFalse();
         result.Message.Should().Be("Something went wrong.");
 
         _availabilityStore.Verify(x => x.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), false), Times.Never);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly>(), NewlyUnsupportedBookingAction.Orphan), Times.Never);
     }
 
     [Fact]
@@ -650,7 +638,7 @@ public class AvailabilityWriteServiceTests
         var sessionReplacements = new Session[] { sessionReplacement };
 
         _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
-            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<NewlyUnsupportedBookingAction>())
         ).ReturnsAsync(recalculationResponse);
 
         var result = await _sut.EditOrCancelSessionAsync(
@@ -658,9 +646,7 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             sessionMatcher,
-            sessionReplacement,
-            false, 
-            false);
+            sessionReplacement);
 
         result.UpdateSuccessful.Should().BeTrue();
         result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
@@ -668,7 +654,7 @@ public class AvailabilityWriteServiceTests
         result.UpdateSuccessful.Should().Be(true);
 
         _availabilityStore.Verify(x => x.ApplyAvailabilityTemplate(site, from, sessionReplacements, ApplyAvailabilityMode.Edit, sessionMatcher), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), false), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), NewlyUnsupportedBookingAction.Orphan), Times.Once);
     }
 
     [Fact]
@@ -692,7 +678,7 @@ public class AvailabilityWriteServiceTests
         };
 
         _bookingsWriteService.Setup(x => x.RecalculateAppointmentStatuses(
-            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<bool>())
+            It.IsAny<string>(), It.IsAny<DateOnly[]>(), It.IsAny<NewlyUnsupportedBookingAction>())
         ).ReturnsAsync(recalculationResponse);
 
         var result = await _sut.EditOrCancelSessionAsync(
@@ -700,9 +686,7 @@ public class AvailabilityWriteServiceTests
             from,
             until,
             sessionMatcher,
-            null,
-            false, 
-            false);
+            null);
 
         result.UpdateSuccessful.Should().BeTrue();
         result.BookingsCanceledWithoutDetails.Should().Be(recalculationResponse.BookingsCanceledWithoutDetails);
@@ -710,6 +694,6 @@ public class AvailabilityWriteServiceTests
         result.UpdateSuccessful.Should().Be(true);
 
         _availabilityStore.Verify(x => x.CancelSession(site, from, sessionMatcher), Times.Once);
-        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), false), Times.Once);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses(site, It.IsAny<DateOnly[]>(), NewlyUnsupportedBookingAction.Orphan), Times.Once);
     }
 }

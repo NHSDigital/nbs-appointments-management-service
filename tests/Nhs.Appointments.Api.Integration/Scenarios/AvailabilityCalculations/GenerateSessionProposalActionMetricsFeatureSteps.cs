@@ -19,12 +19,11 @@ using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
-public abstract class RecalculationProposalFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
-   
-
-    [When(@"I request the availability proposal for potential availability change")]
+    
+    [When(@"I propose an availability edit with the change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
         Session matcher = null;
@@ -79,12 +78,12 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
             counts.Add(int.Parse(row.Cells.ElementAt(1).Value));
         }
 
-        _availabilityChangeProposalResponse.SupportedBookingsCount.Should().Be(counts[0]);
-        _availabilityChangeProposalResponse.UnsupportedBookingsCount.Should().Be(counts[1]);
+        _availabilityChangeProposalResponse.NewlySupportedBookingsCount.Should().Be(counts[0]);
+        _availabilityChangeProposalResponse.NewlyUnsupportedBookingsCount.Should().Be(counts[1]);
     }
 
-    [When(@"I request recalculation proposal endpoint")]
-    public async Task CallRecalculation()
+    [When(@"I propose an availability edit")]
+    public async Task CallProposeEditEndpoint()
     {
         var request = new
         {
@@ -118,18 +117,14 @@ public abstract class RecalculationProposalFeatureSteps(string flag, bool enable
         _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
     }
 
-    [Then(@"the call should fail with 404")]
-    public async Task AssertNotFound()
-    {
-        _response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
     [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/RecalculationProposal_Disabled.feature")]
-    public class RecalculationProposalFeatureSteps_FeatureDisabled() : RecalculationProposalFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
+    [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Disabled.feature")]
+    public class GenerateSessionProposalActionMetricsFeatureStepsFeatureDisabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 
     [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/RecalculationProposal_Enabled.feature")]
-    public class RecalculationProposalFeatureSteps_FeatureEnabled() : RecalculationProposalFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
+    [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Enabled.feature")]
+    public class GenerateSessionProposalActionMetricsFeatureStepsFeatureEnabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 }

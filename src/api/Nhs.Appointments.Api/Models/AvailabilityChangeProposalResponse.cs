@@ -1,2 +1,2 @@
 namespace Nhs.Appointments.Api.Models;
-public record AvailabilityChangeProposalResponse(int SupportedBookingsCount, int UnsupportedBookingsCount);
+public record AvailabilityChangeProposalResponse(int NewlySupportedBookingsCount, int NewlyUnsupportedBookingsCount);

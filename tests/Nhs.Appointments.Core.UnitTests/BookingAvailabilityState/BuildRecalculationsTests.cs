@@ -29,7 +29,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1, 2, 3, 6 and 7 should be supported
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -70,7 +70,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 7 and 5 are no longer supported and should be removed
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.ProvisionalToDelete)
@@ -110,7 +110,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
         
         // Booking 5 is no longer supported and should be removed
         recalculations.Count.Should().Be(1);
@@ -143,7 +143,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         //prove all 6 find a slot 
         recalculations.Where(x => x.Action == AvailabilityUpdateAction.SetToSupported).Should().HaveCount(6);
@@ -173,7 +173,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         //prove all 6 find a slot due to alphabetical ordering
         recalculations.Where(x => x.Action == AvailabilityUpdateAction.SetToSupported).Should().HaveCount(6);
@@ -203,7 +203,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1, 2, 3 should be supported
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -240,7 +240,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
             
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1, 2, 3 should be supported
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -273,7 +273,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 9, 10, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         // Bookings 1 and 2 can be booked
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
@@ -322,7 +322,7 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
 
         SetupAvailabilityAndBookings(bookings, sessions);
 
-        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0))).ToList();
+        var recalculations = (await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), NewlyUnsupportedBookingAction.Orphan)).ToList();
 
         recalculations.Where(r => r.Action == AvailabilityUpdateAction.SetToSupported)
             .Select(r => r.Booking.Reference).Should().BeEquivalentTo("1", "2", "3", "8", "9", "7", "11", "12", "10",
@@ -339,369 +339,9 @@ public class BuildRecalculationsTests : BookingAvailabilityStateServiceTestBase
         var runs = 10;
         while (runs > 0)
         {
-            var newResult = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0));
+            var newResult = await Sut.BuildRecalculations(MockSite, new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), NewlyUnsupportedBookingAction.Orphan);
             newResult.Should().BeEquivalentTo(recalculations);
             runs -= 1;
         }
-    }
-    
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_EditSession_SingleDay()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 0),
-            Until = new TimeOnly(10, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var replacement = new Session() {
-            From = new TimeOnly(9, 0),
-            Until = new TimeOnly(10, 0),
-            Services = ["Green"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 1, 9, 10, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
-            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedReallocatedBookings = 1;
-        var expectedUnaccommodatedBookings = 2;
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, replacement, false));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.SupportedBookingsCount.Should().Be(expectedReallocatedBookings);
-        recalculations.UnsupportedBookingsCount.Should().Be(expectedUnaccommodatedBookings);
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_EditSession_MatchingSessionNotFound()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 30, 0),
-            Until = new TimeOnly(10, 0, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var replacement = new Session()
-        {
-            From = new TimeOnly(9, 0, 0),
-            Until = new TimeOnly(10, 0, 0),
-            Services = ["Green"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 1, 9, 10, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
-            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, replacement, false));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.MatchingSessionNotFound.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_EditSession_MultipleDays()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 0),
-            Until = new TimeOnly(10, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var replacement = new Session()
-        {
-            From = new TimeOnly(9, 0, 0),
-            Until = new TimeOnly(10, 0, 0),
-            Services = ["Green"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 3, 17, 0, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 3),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 4),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 5),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 6),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 7),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 8),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 9)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedReallocatedBookings = 3;
-        var expectedUnaccommodatedBookings = 6;
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, replacement, false));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.SupportedBookingsCount.Should().Be(expectedReallocatedBookings);
-        recalculations.UnsupportedBookingsCount.Should().Be(expectedUnaccommodatedBookings);
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_CancelSingleSession_MatchingSessionNotFound()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 30, 0),
-            Until = new TimeOnly(10, 0, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 1, 9, 10, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
-            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, null, false));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.MatchingSessionNotFound.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_CancelSingleSession_SingleDay()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 0),
-            Until = new TimeOnly(10, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 1, 9, 10, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
-            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedReallocatedBookings = 1;
-        var expectedUnaccommodatedBookings = 2;
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, null, false));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.SupportedBookingsCount.Should().Be(expectedReallocatedBookings);
-        recalculations.UnsupportedBookingsCount.Should().Be(expectedUnaccommodatedBookings);
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_CancelSingleSession_MultipleDays()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 0),
-            Until = new TimeOnly(10, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 3, 17, 0, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 3),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 4),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 5),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 6),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 7),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 8),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 9)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedReallocatedBookings = 3;
-        var expectedUnaccommodatedBookings = 6;
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, null, false));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.SupportedBookingsCount.Should().Be(expectedReallocatedBookings);
-        recalculations.UnsupportedBookingsCount.Should().Be(expectedUnaccommodatedBookings);
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_CancelAllSessions_SingleDay()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 0),
-            Until = new TimeOnly(10, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 1, 9, 10, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
-            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedReallocatedBookings = 0;
-        var expectedUnaccommodatedBookings = 3;
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, null, true));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.SupportedBookingsCount.Should().Be(expectedReallocatedBookings);
-        recalculations.UnsupportedBookingsCount.Should().Be(expectedUnaccommodatedBookings);
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_CancelAllSessions_MultipleDays()
-    {
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 3, 17, 0, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 1, 9, 0, 0), avStatus: "Supported", creationOrder: 3),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 4),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 5),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 2, 9, 0, 0), avStatus: "Supported", creationOrder: 6),
-            TestBooking("1", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 7),
-            TestBooking("2", "Orange", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 8),
-            TestBooking("3", "Blue", new DateTime(2025, 1, 3, 9, 0, 0), avStatus: "Supported", creationOrder: 9)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 1, 9, 0, 0), new DateTime(2025, 1, 1, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 2, 9, 0, 0), new DateTime(2025, 1, 2, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Blue"], capacity: 1),
-            TestSession(new DateTime(2025, 1, 3, 9, 0, 0), new DateTime(2025, 1, 3, 10, 0, 0), ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-        var expectedReallocatedBookings = 0;
-        var expectedUnaccommodatedBookings = 9;
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, null, null, true));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.SupportedBookingsCount.Should().Be(expectedReallocatedBookings);
-        recalculations.UnsupportedBookingsCount.Should().Be(expectedUnaccommodatedBookings);
-    }
-
-    [Fact]
-    public async Task AvailabilityChangeProposal_MatchingSessionNotFound()
-    {
-        var matcher = new Session()
-        {
-            From = new TimeOnly(9, 30, 0),
-            Until = new TimeOnly(10, 0, 0),
-            Services = ["Green", "Blue"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var replacement = new Session()
-        {
-            From = new TimeOnly(9, 0, 0),
-            Until = new TimeOnly(10, 0, 0),
-            Services = ["Green"],
-            SlotLength = 10,
-            Capacity = 1
-        };
-        var from = new DateTime(2025, 1, 1, 9, 0, 0);
-        var to = new DateTime(2025, 1, 1, 9, 10, 0);
-        var bookings = new List<Booking>
-        {
-            TestBooking("1", "Blue", avStatus: "Supported", creationOrder: 1),
-            TestBooking("2", "Orange", avStatus: "Supported", creationOrder: 2),
-            TestBooking("3", "Blue", avStatus: "Supported", creationOrder: 3)
-        };
-        var sessions = new List<LinkedSessionInstance>
-        {
-            TestSession("09:00", "10:00", ["Green", "Blue"], capacity: 1),
-            TestSession("09:00", "10:00", ["Green", "Orange"], capacity: 1),
-        };
-        SetupAvailabilityAndBookings(bookings, sessions);
-
-        var recalculations = (await Sut.BuildRecalculations(MockSite, from, to, matcher, replacement, false));
-
-        recalculations.Should().BeOfType(typeof(AvailabilityUpdateProposal));
-        recalculations.MatchingSessionNotFound.Should().BeTrue();
     }
 }

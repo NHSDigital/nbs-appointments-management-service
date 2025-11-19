@@ -243,7 +243,7 @@ describe('CancelSessionConfirmation', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel session' }));
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
-        expect.stringContaining('unsupportedBookingsCount=3'),
+        expect.stringContaining('newlyUnsupportedBookingsCount=3'),
       );
     });
   });

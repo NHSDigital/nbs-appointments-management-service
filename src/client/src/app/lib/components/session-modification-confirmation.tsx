@@ -208,7 +208,7 @@ export const SessionModificationConfirmation = ({
 
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
       router.push(
-        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&newlyUnsupportedBookingsCount=${response.bookingsCanceled}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
+        `/site/${site}/availability/${mode}/confirmed?session=${mode === 'edit' ? encode(updatedSessionSummary) : session}&date=${date}&chosenAction=${form.action}&newlyUnsupportedBookingsCount=${newlyUnsupportedBookingsCount}&cancelAppointments=${cancelBookings}&cancelledWithoutDetailsCount=${response.bookingsCanceledWithoutDetails}`,
       );
     });
   };

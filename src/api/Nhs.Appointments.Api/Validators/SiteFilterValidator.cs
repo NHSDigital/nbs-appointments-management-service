@@ -1,7 +1,6 @@
 using FluentValidation;
 using Nhs.Appointments.Core.Sites;
 using System;
-using System.Linq;
 
 namespace Nhs.Appointments.Api.Validators;
 public class SiteFilterValidator : AbstractValidator<SiteFilter>
@@ -9,14 +8,20 @@ public class SiteFilterValidator : AbstractValidator<SiteFilter>
     public SiteFilterValidator(TimeProvider timeProvider)
     {
         RuleFor(x => x.Longitude)
+            .NotEmpty()
+            .WithMessage("Provide a longitude value.")
             .LessThanOrEqualTo(180)
             .GreaterThanOrEqualTo(-180)
             .WithMessage("Provide a valid longitude value (between -180 <-> 180 degrees).");
         RuleFor(x => x.Latitude)
+            .NotEmpty()
+            .WithMessage("Provide a latitude value.")
             .LessThanOrEqualTo(90)
             .GreaterThanOrEqualTo(-90)
             .WithMessage("Provide a valid latitude value (between -90 <-> 90 degrees).");
         RuleFor(x => x.SearchRadius)
+            .NotEmpty()
+            .WithMessage("Provide a search radius.")
             .LessThanOrEqualTo(100000)
             .GreaterThanOrEqualTo(1000)
             .WithMessage("Provide a search radius in meters (between 1000 - 100,000m).");

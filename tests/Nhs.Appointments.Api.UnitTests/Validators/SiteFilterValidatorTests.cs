@@ -47,14 +47,16 @@ public class SiteFilterValidatorTests
         result.IsValid.Should().BeFalse();
     }
 
-    [Fact]
-    public void FailsValidation_WhenSearchRadiusOutOfRange()
+    [Theory]
+    [InlineData(300)]
+    [InlineData(300000)]
+    public void FailsValidation_WhenSearchRadiusOutOfRange(int radius)
     {
         var filter = new SiteFilter
         {
             Longitude = 5.4,
             Latitude = 50.7,
-            SearchRadius = 300
+            SearchRadius = radius
         };
 
         var result = _sut.Validate(filter);
@@ -67,7 +69,7 @@ public class SiteFilterValidatorTests
     {
         var filter = new SiteFilter
         {
-            Longitude = 1234,
+            Longitude = 123.4,
             Latitude = 50,
             SearchRadius = 3000,
             Availability = new()
@@ -82,11 +84,49 @@ public class SiteFilterValidatorTests
     }
 
     [Fact]
+    public void FailsValidation_WhenOnlyFromTimeIsProvided()
+    {
+        var filter = new SiteFilter
+        {
+            Longitude = 123.4,
+            Latitude = 50,
+            SearchRadius = 3000,
+            Availability = new()
+            {
+                From = new DateOnly(2024, 9, 1),
+            }
+        };
+
+        var result = _sut.Validate(filter);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FailsValidation_WhenOnlyUntilTimeIsProvided()
+    {
+        var filter = new SiteFilter
+        {
+            Longitude = 123.4,
+            Latitude = 50,
+            SearchRadius = 3000,
+            Availability = new()
+            {
+                Until = new DateOnly(2024, 9, 1),
+            }
+        };
+
+        var result = _sut.Validate(filter);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
     public void FailsValidation_WhenFromServiceFilterIsInThePast()
     {
         var filter = new SiteFilter
         {
-            Longitude = 1234,
+            Longitude = 123.4,
             Latitude = 50,
             SearchRadius = 3000,
             Availability = new()
@@ -107,7 +147,7 @@ public class SiteFilterValidatorTests
     {
         var filter = new SiteFilter
         {
-            Longitude = 1234,
+            Longitude = 123.4,
             Latitude = 50,
             SearchRadius = 3000,
             Availability = new()
@@ -128,7 +168,7 @@ public class SiteFilterValidatorTests
     {
         var filter = new SiteFilter
         {
-            Longitude = 1234,
+            Longitude = 123.4,
             Latitude = 50,
             SearchRadius = 3000,
             Availability = new()
@@ -149,7 +189,7 @@ public class SiteFilterValidatorTests
     {
         var filter = new SiteFilter
         {
-            Longitude = 1234,
+            Longitude = 123.4,
             Latitude = 50,
             SearchRadius = 3000,
             Availability = new()
@@ -158,6 +198,67 @@ public class SiteFilterValidatorTests
                 From = new DateOnly(2025, 9, 2),
                 Until = new DateOnly(2025, 8, 1)
             }
+        };
+
+        var result = _sut.Validate(filter);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FailsValidation_WhenRadiusIsNotProvided()
+    {
+        var filter = new SiteFilter
+        {
+            Longitude = 123.4,
+            Latitude = 50,
+            Availability = new()
+            {
+                Services = ["RSV:Adult"],
+                From = new DateOnly(2025, 9, 2),
+                Until = new DateOnly(2025, 9, 15),
+            },
+            AccessNeeds = ["test_access_need"]
+        };
+
+        var result = _sut.Validate(filter);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FailsValidation_WhenLongitudeIsNotProvided()
+    {
+        var filter = new SiteFilter
+        {
+            Latitude = 50,
+            SearchRadius = 3000,
+            Availability = new()
+            {
+                Services = ["RSV:Adult"],
+                From = new DateOnly(2025, 9, 2),
+                Until = new DateOnly(2025, 9, 15),
+            },
+            AccessNeeds = ["test_access_need"]
+        };
+
+        var result = _sut.Validate(filter);
+    }
+
+    [Fact]
+    public void FailsValdiation_WhenLatitudeIsNotProvided()
+    {
+        var filter = new SiteFilter
+        {
+            Longitude = 123.4,
+            SearchRadius = 3000,
+            Availability = new()
+            {
+                Services = ["RSV:Adult"],
+                From = new DateOnly(2025, 9, 2),
+                Until = new DateOnly(2025, 9, 15),
+            },
+            AccessNeeds = ["test_access_need"]
         };
 
         var result = _sut.Validate(filter);

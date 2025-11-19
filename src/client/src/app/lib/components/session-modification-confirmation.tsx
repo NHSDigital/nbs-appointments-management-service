@@ -269,17 +269,17 @@ export const SessionModificationConfirmation = ({
         showBooked={false}
       />
 
-      {unsupportedBookingsCount > 0 ? (
+      {newlyUnsupportedBookingsCount > 0 ? (
         <>
           {texts.impactNote && (
             <div className="margin-top-bottom">
-              {texts.impactNote(decision, unsupportedBookingsCount)}
+              {texts.impactNote(decision, newlyUnsupportedBookingsCount)}
             </div>
           )}
 
           {texts.impactCard(decision) && (
             <Card
-              title={String(unsupportedBookingsCount)}
+              title={String(newlyUnsupportedBookingsCount)}
               description="Bookings may have to be cancelled"
               maxWidth={250}
             />

@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import asServerActionResult from '@testing/asServerActionResult';
 import * as timeService from '@services/timeService';
-import { SessionModificationResponse } from '@types';
+import { SessionModificationResponse, SessionSummary } from '@types';
 
-const mockSessionSummary = {
+const mockSessionSummary: SessionSummary = {
   ukStartDatetime: '2025-10-23T10:00:00',
   ukEndDatetime: '2025-10-23T12:00:00',
   maximumCapacity: 24,
@@ -52,6 +52,27 @@ describe('EditSessionConfirmation', () => {
     expect(
       screen.getByText('Are you sure you want to change this session?'),
     ).toBeInTheDocument();
+  });
+
+  it('New proposed time is displayed correctly', () => {
+    const newSessionEndTime = '11:00';
+    const mockNewSessionSummary: SessionSummary = {
+      ...mockSessionSummary,
+      ukEndDatetime: `2025-10-23T${newSessionEndTime}:00`,
+    };
+    render(
+      <SessionModificationConfirmation
+        unsupportedBookingsCount={3}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockNewSessionSummary}
+        site="site-123"
+        date="2024-06-10"
+        mode="edit"
+      />,
+    );
+
+    expect(screen.getByText(new RegExp(newSessionEndTime))).toBeInTheDocument();
   });
 
   it('Has unsupported bookings, renders Yes/No question to cancel the appointments', () => {

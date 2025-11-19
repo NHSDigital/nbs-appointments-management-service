@@ -24,9 +24,10 @@ type SetUpSingleSiteFixtureOptions = {
 } & FixtureOptions;
 
 type MyaFixtures = {
-  setUpSingleSite: (
-    options?: SetUpSingleSiteFixtureOptions,
-  ) => Promise<{ sitePage: SitePage; testId: number }>;
+  setUpSingleSite: (options?: SetUpSingleSiteFixtureOptions) => Promise<{
+    sitePage: SitePage;
+    testId: number;
+  }>;
 };
 
 export const test = base.extend<MyaFixtures>({
@@ -48,6 +49,8 @@ export const test = base.extend<MyaFixtures>({
         'canned:user-manager',
       ],
     };
+
+    let featuresUsed: FeatureFlag[] = [];
 
     // Fixture setup. Result of use() is piped to the test
     // This currently accepts a list of roles and feature flags.
@@ -80,6 +83,9 @@ export const test = base.extend<MyaFixtures>({
         .then(siteSelectionPage =>
           siteSelectionPage.selectSite(buildE2ETestSite(testId)),
         );
+
+      featuresUsed = features ?? [];
+
       return { sitePage, testId };
     });
 
@@ -87,7 +93,16 @@ export const test = base.extend<MyaFixtures>({
     await Promise.all([
       await cosmosDbClient.deleteSite(testId),
       await cosmosDbClient.deleteUser(testId),
-      await featureFlagClient.clearAllFeatureFlagOverrides(),
+
+      //revert all flags if they were used in the enabled state
+      featuresUsed.map(async feature => {
+        if (feature.enabled) {
+          featureFlagClient.overrideFeatureFlag({
+            name: feature.name,
+            enabled: false,
+          });
+        }
+      }),
     ]);
   },
 });

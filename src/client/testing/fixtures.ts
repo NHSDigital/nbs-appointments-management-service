@@ -55,13 +55,6 @@ export async function overrideFeatureFlag(
   );
 }
 
-export async function clearAllFeatureFlagOverrides() {
-  const api = await request.newContext();
-  await api.patch(
-    `${process.env.NBS_API_BASE_URL}/api/feature-flag-overrides-clear`,
-  );
-}
-
 const siteById = (testSiteId = 1) => {
   switch (testSiteId) {
     case 1:

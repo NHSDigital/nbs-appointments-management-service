@@ -27,21 +27,6 @@ class FeatureFlagClient {
     );
     return;
   }
-
-  public async clearAllFeatureFlagOverrides() {
-    fetch(`${this.baseUrl}/api/feature-flag-overrides-clear`, {
-      method: 'PATCH',
-    }).then(async response => {
-      if (!response.ok) {
-        throw new Error(
-          `Failed to clear feature flag overrides: ${response.status} ${response.statusText}`,
-        );
-      }
-    });
-
-    console.log(`Successfully cleared all feature flag overrides.`);
-    return;
-  }
 }
 
 export default FeatureFlagClient;

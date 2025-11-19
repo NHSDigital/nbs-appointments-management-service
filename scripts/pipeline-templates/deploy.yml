@@ -68,7 +68,7 @@ stages:
         dependsOn:
           - ${{ if eq(parameters.env, 'prod') }}:
               - EnterChangeRequest
-        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'int', 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureCLI@2
@@ -84,7 +84,7 @@ stages:
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
         dependsOn:
-          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'int', 'stag', 'prod') }}:
               - StartSwapSlots
         steps:
           - checkout: none
@@ -433,7 +433,7 @@ stages:
               - SwapHighLoadFuncAppSlots
               - SwapServiceBusFuncAppSlots
               - SwapTimerFuncAppSlots
-        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'int', 'stag', 'prod') }})
         steps:
           - checkout: none
           - task: AzureCLI@2
@@ -452,7 +452,7 @@ stages:
         condition: succeeded()
         dependsOn:
           - UploadCosmosDocuments
-          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'int', 'stag', 'prod') }}:
               - StopSwapSlots
         steps:
           - checkout: self

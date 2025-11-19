@@ -272,41 +272,7 @@ describe('CancelSessionConfirmation', () => {
   it('"No, go back" click resets decision and action to display previous step on a page ', async () => {
     const { user } = render(
       <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
-        clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
-        site="site-123"
-        date="2024-06-10"
-        mode="cancel"
-      />,
-    );
-
-    await user.click(screen.getByLabelText(/Yes, cancel the appointments/));
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Cancel appointments' }),
-      ).toBeInTheDocument();
-    });
-    await user.click(screen.getByText('No, go back'));
-
-    expect(
-      screen.getByRole('button', { name: 'Continue' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Cancel appointments' }),
-    ).not.toBeInTheDocument();
-
-    const radioYes = screen.getByLabelText(/Yes, cancel the appointments/);
-    const radioNo = screen.getByLabelText(/No, do not cancel the appointments/);
-    expect(radioYes).not.toBeChecked();
-    expect(radioNo).not.toBeChecked();
-  });
-
-  it('"No, go back" click resets decision and action to display previous step on a page ', async () => {
-    const { user } = render(
-      <SessionModificationConfirmation
-        unsupportedBookingsCount={3}
+        newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
         site="site-123"

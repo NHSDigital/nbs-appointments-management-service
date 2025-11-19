@@ -79,7 +79,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/deployment/start-swap-slots.ps1"
-              arguments: "-environment '${{parameters.env}}' -region 'uks' -resourceGroup '${{parameters.resourceGroup}}'"
+              arguments: "-environment '${{parameters.env}}'"
 
       - job: RunTerraformPlan
         displayName: "Run Terraform Plan"
@@ -444,7 +444,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/deployment/stop-swap-slots.ps1"
-              arguments: "-environment '${{parameters.env}}' -region 'uks' -resourceGroup '${{parameters.resourceGroup}}'"
+              arguments: "-environment '${{parameters.env}}'"
 
       ## Post-release admin
       - job: SetEnvironmentTag

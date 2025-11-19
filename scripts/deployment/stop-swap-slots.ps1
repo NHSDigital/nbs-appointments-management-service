@@ -1,24 +1,30 @@
 #!/usr/bin/env pwsh
 param (
-  [string][Parameter(Mandatory)]$resourceGroup,
-  [string][Parameter(Mandatory)]$environment,
-  [string][Parameter(Mandatory)]$region
+  [string][Parameter(Mandatory)]$environment
 )
 
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-$webAppService = "nbs-mya-app-$environment-$region/preview"
-$functionAppServices = @("nbs-mya-func-$environment-$region/preview", "nbs-mya-hlfunc-$environment-$region/preview", "nbs-mya-sbfunc-$environment-$region/preview", "nbs-mya-timerfunc-$environment-$region/preview")
+$slotName = "preview"
+$region = "uks"
+$resourceGroup = "nbs-mya-rg-$environment-uks"
+
+$webAppService = "nbs-mya-app-$environment-$region"
+$functionAppServices = @("nbs-mya-func-$environment-$region", "nbs-mya-hlfunc-$environment-$region", "nbs-mya-sbfunc-$environment-$region", "nbs-mya-timerfunc-$environment-$region")
 
 foreach ($functionApp in $functionAppServices) {
+  Write-Host "Stopping slot '$slotName' for function app '$functionApp' in resource group '$resourceGroup'"
   az functionapp stop `
     --resource-group $resourceGroup `
-    --name $functionApp
+    --name $functionApp `
+    --slot $slotName
 }
 
+Write-Host "Stopping slot '$slotName' for web app '$webAppService' in resource group '$resourceGroup'"
 az webapp stop `
   --name $webAppService `
-  --resource-group $resourceGroup
+  --resource-group $resourceGroup `
+  --slot $slotName
 
 

@@ -18,7 +18,7 @@ type PageProps = {
     session: string;
     date: string;
     chosenAction: SessionModificationAction;
-    bookingsCanceledWithoutDetails: number;
+    cancelledWithoutDetailsCount: number;
     newlyUnsupportedBookingsCount: number;
   }>;
   params: Promise<{
@@ -33,7 +33,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     date,
     chosenAction,
     newlyUnsupportedBookingsCount,
-    bookingsCanceledWithoutDetails,
+    cancelledWithoutDetailsCount,
   } = {
     ...(await searchParams),
   };
@@ -42,7 +42,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     newlyUnsupportedBookingsCount ?? 0,
   );
   const parsedBookingsCanceledWithoutDetailsCount = Number(
-    bookingsCanceledWithoutDetails ?? 0,
+    cancelledWithoutDetailsCount ?? 0,
   );
 
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));

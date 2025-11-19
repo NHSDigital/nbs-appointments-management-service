@@ -452,7 +452,7 @@ stages:
         condition: succeeded()
         dependsOn:
           - UploadCosmosDocuments
-         - ${{ if in(parameters.env, 'stag', 'prod') }}:
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
               - StopSwapSlots
         steps:
           - checkout: self

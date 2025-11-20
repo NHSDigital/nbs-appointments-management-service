@@ -9,8 +9,17 @@ public class GeographyServiceTests
     public GeographyServiceTests() => _sut = new GeographyService();
 
     [Theory]
+    // Same coords, no distance
     [InlineData(0.0, 0.0, 0.0, 0.0, 0)]
     [InlineData(51.5074, -0.1278, 51.5074, -0.1278, 0)]
+
+    // Between two points on Aire St, in both directions
+    [InlineData(53.79575967529175, -1.550056172409011, 53.795892571140456, -1.5513165165237766, 84)]
+    [InlineData(53.795892571140456, -1.5513165165237766, 53.79575967529175, -1.550056172409011, 84)]
+
+    // Manchester Cathedral to Piccadilly Gardens, in both directions
+    [InlineData(53.48519226511998, -2.244328738332362, 53.480833024954016, -2.2371119243182, 680)]
+    [InlineData(53.480833024954016, -2.2371119243182, 53.48519226511998, -2.244328738332362, 680)]
     public void CalculatesDistance(double originLat, double originLong, double destinationLat, double destinationLong,
         int expectedDistance)
     {

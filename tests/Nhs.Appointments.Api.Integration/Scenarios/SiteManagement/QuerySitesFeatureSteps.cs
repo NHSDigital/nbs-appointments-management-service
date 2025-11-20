@@ -186,6 +186,81 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
         await SendRequestAsync(payload);
     }
 
+    [When("I query sites with a low maxRecord count")]
+    public async Task QueryMaxRecords(DataTable dataTable)
+    {
+        var row = dataTable.Rows.Skip(1).First();
+        var cells = row.Cells;
+        var payload = new
+        {
+            maxRecords = int.Parse(cells.ElementAt(3).Value),
+            ignoreCache = true,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
+                    Types = [],
+                    OdsCode = string.Empty,
+                    AccessNeeds = []
+                },
+            }
+        };
+
+        await SendRequestAsync(payload);
+    }
+
+    [When("I query sites by multiple filters in reverse priority order")]
+    public async Task QueryMultipleFiltersReversePriority(DataTable dataTable)
+    {
+        var row = dataTable.Rows.Skip(1).First();
+        var cells = row.Cells;
+        var payload = new
+        {
+            maxRecords = int.Parse(cells.ElementAt(5).Value),
+            ignoreCache = true,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    AccessNeeds = cells.ElementAt(3).Value.Split(','),
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
+                    Types = [],
+                    OdsCode = string.Empty,
+                    Priority = 2
+                },
+                new SiteFilter
+                {
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    Types = cells.ElementAt(4).Value.Split(','),
+                    OdsCode = string.Empty,
+                    AccessNeeds = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
+                    Priority = 1
+                }
+            }
+        };
+
+        await SendRequestAsync(payload);
+    }
+
     [Then("the following sites and distances are returned")]
     public void AssertSites(DataTable dataTable)
     {
@@ -215,6 +290,7 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
 
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         _sitesResponse.Should().BeEquivalentTo(expectedSites);
+        _sitesResponse.Select(s => s.Distance).Should().BeInAscendingOrder();
     }
 
     [Then("no sites are returned")]

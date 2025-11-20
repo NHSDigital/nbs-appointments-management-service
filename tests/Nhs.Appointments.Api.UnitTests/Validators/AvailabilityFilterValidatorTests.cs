@@ -23,8 +23,32 @@ public class AvailabilityFilterValidatorTests
         var filter = new AvailabilityFilter
         {
             Services = ["test_service"],
-            From = new DateOnly(2024, 9, 1),
-            Until = new DateOnly(2025, 10, 1)
+        };
+
+        var result = _sut.Validate(filter);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FailsValidation_WhenOnlyFromTimeIsProvided()
+    {
+        var filter = new AvailabilityFilter
+        {
+            From = new DateOnly(2025, 9, 10),
+        };
+
+        var result = _sut.Validate(filter);
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FailsValidation_WhenOnlyUntilTimeIsProvided()
+    {
+        var filter = new AvailabilityFilter
+        {
+            Until = new DateOnly(2024, 10, 1)
         };
 
         var result = _sut.Validate(filter);

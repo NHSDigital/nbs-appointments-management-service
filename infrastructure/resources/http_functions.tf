@@ -89,6 +89,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"             = true
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"              = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"           = true
+    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = true
   }
 
   sticky_settings {
@@ -182,6 +183,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"              = true
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"             = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"           = true
+    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = true
   }
 
   identity {

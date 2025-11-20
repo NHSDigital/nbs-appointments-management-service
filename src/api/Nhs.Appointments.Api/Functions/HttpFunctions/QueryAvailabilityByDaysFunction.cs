@@ -91,6 +91,8 @@ public class QueryAvailabilityByDaysFunction(
             {
                 dayEntries.Add(BuildDayAvailability(day, slotsForDay));
             }
+
+            day = day.AddDays(1);
         }
 
         return new AvailabilityByDays

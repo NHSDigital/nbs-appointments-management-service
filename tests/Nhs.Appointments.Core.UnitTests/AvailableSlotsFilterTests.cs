@@ -6,7 +6,7 @@ public class AvailableSlotsFilterTests
 {
     private readonly IAvailableSlotsFilter _sut;
 
-    public AvailableSlotsFilterTests() => _sut = new AvailableSlotsFilterRecursive();
+    public AvailableSlotsFilterTests() => _sut = new AvailableSlotsFilter();
 
 
     [Fact]

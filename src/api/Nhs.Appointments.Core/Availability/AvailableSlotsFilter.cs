@@ -2,7 +2,7 @@ using Nhs.Appointments.Core.Extensions;
 
 namespace Nhs.Appointments.Core.Availability;
 
-public class AvailableSlotsFilterRecursive : IAvailableSlotsFilter
+public class AvailableSlotsFilter : IAvailableSlotsFilter
 {
     /// <summary>
     ///     This method will group consecutive slots based on a number of attendees' and their required services

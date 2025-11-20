@@ -32,11 +32,14 @@ using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.OdsCodes;
 using Nhs.Appointments.Core.Okta;
+using Nhs.Appointments.Core.ReferenceNumber.V1;
+using Nhs.Appointments.Core.ReferenceNumber.V2;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
+using Nhs.Appointments.Persistance.Reference;
 
 namespace Nhs.Appointments.Api;
 
@@ -84,10 +87,23 @@ public static class FunctionConfigurationExtensions
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
             .ConfigureSiteService(configuration)
+            .Configure<ReferenceNumberOptions>(opts =>
+            {
+                opts.HmacKey =
+                    Convert.FromBase64String(configuration.GetValue<string>("REFERENCE_NUMBER_HMAC_KEY"));
+            })
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
             .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
+            
+            .AddTransient<IProvider, Provider>()
+            .AddTransient<IBookingReferenceDocumentStore, BookingReferenceCosmosDocumentStore>()
+            
+#pragma warning disable CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
             .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
+            .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
+#pragma warning restore CS0618 // Code to be removed once Flags.BookingReferenceV2 is fully enabled
+            
             .AddTransient<IEulaStore, EulaStore>()
             .AddTransient<IUserStore, UserStore>()
             .AddTransient<IRolesStore, RolesStore>()
@@ -110,7 +126,6 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingAvailabilityStateService, BookingAvailabilityStateService>()
             .AddTransient<IEulaService, EulaService>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
-            .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()

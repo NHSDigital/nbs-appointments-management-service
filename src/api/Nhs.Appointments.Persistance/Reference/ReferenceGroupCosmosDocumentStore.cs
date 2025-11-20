@@ -1,10 +1,11 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Persistance.Models;
+using Nhs.Appointments.Core.ReferenceNumber.V1;
+using Nhs.Appointments.Persistance.Models.Reference;
 
-namespace Nhs.Appointments.Persistance
+namespace Nhs.Appointments.Persistance.Reference
 {
+    [Obsolete("Deprecated in favor of ReferenceNumber.V2.IBookingReferenceDocumentStore")]
     public class ReferenceGroupCosmosDocumentStore : IReferenceNumberDocumentStore
     {
         private const string DocumentId = "main";
@@ -41,10 +42,10 @@ namespace Nhs.Appointments.Persistance
 
                 await _cosmosStore.WriteAsync(referenceGroupDocument);
             }
-            
+
             var target = referenceGroupDocument!.Groups.Where(g => g.Prefix > 0).OrderBy(g => g.SiteCount).ThenBy(g => g.Prefix).First();
             var siteCountIncrement = PatchOperation.Increment($"/Groups/{target.Prefix}/SiteCount", 1);
-            
+
             await _cosmosStore.PatchDocument(docType, DocumentId, siteCountIncrement);
             return target.Prefix;
         }

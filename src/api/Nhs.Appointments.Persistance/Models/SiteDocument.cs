@@ -33,11 +33,12 @@ public class SiteDocument : CoreDataCosmosDocument
     /// </summary>
     public double? Latitude => Location?.Coordinates[1];
 
-    [JsonProperty("informationForCitizens")] public string InformationForCitizens { get; set; }
-
-    [JsonProperty("accessibilities")] public Accessibility[] Accessibilities { get; set; }
+    [JsonProperty("informationForCitizens")]
+    public string InformationForCitizens { get; set; }
 
     [JsonProperty("referenceNumberGroup")] public int ReferenceNumberGroup { get; set; }
+
+    [JsonProperty("accessibilities")] public Accessibility[] Accessibilities { get; set; }
 
     [JsonProperty("type")] public string Type { get; set; }
 

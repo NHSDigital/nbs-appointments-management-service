@@ -6,15 +6,19 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Features;
+using Xunit;
 using Xunit.Gherkin.Quick;
+using AttendeeDetails = Nhs.Appointments.Core.Bookings.AttendeeDetails;
+using ContactItem = Nhs.Appointments.Core.Bookings.ContactItem;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
-    [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
-    public class QueryBookingByNhsNumber : BookingBaseFeatureSteps
+    public abstract class QueryBookingByNhsNumberFeatureSteps(string flag, bool enabled) : BookingBaseFeatureSteps(flag, enabled)
     {
         private List<Core.Bookings.Booking> _actualResponse;
         private HttpResponseMessage _response;
@@ -79,4 +83,15 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
             _actualResponse.Should().BeEmpty();
         }
     }
+    
+    
+    [Collection(FeatureToggleCollectionNames.BookingReferenceV2Collection)]
+    [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
+    public class QueryBookingByNhsNumber_BookingReferenceV2Enabled()
+        : QueryBookingByNhsNumberFeatureSteps(Flags.BookingReferenceV2, true);
+
+    [Collection(FeatureToggleCollectionNames.BookingReferenceV2Collection)]
+    [FeatureFile("./Scenarios/Booking/QueryBookingByNhsNumber.feature")]
+    public class QueryBookingByNhsNumber_BookingReferenceV2Disabled() 
+        : QueryBookingByNhsNumberFeatureSteps(Flags.BookingReferenceV2, false);
 }

@@ -10,6 +10,7 @@ public static class Flags
     public const string ChangeSessionUpliftedJourney = "ChangeSessionUpliftedJourney";
     public const string CancelSessionUpliftedJourney = "CancelSessionUpliftedJourney";
     public const string QuerySites = "QuerySites";
+    public const string BookingReferenceV2 = "BookingReferenceV2";
 
     #region TestFlags
     //a simple on/off global flag

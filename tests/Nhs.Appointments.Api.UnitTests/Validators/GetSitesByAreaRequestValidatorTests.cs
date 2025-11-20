@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
+using Nhs.Appointments.Core.Geography;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
@@ -17,8 +18,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenLongitudeIsInvalid(double longitude)
     {
         var request = new GetSitesByAreaRequest(
-            longitude,
-            0.123,
+            new Coordinates { Longitude = longitude, Latitude = 0.123 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -31,7 +31,8 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.Longitude));
+        result.Errors.Single().ErrorMessage.Should()
+            .Be("Provide a valid longitude value (between -180 <-> 180 degrees).");
     }
     
     [Theory]
@@ -40,8 +41,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenLatitudeIsInvalid(double latitude)
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            latitude,
+            new Coordinates { Longitude = 0.123, Latitude = latitude },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -54,7 +54,28 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeFalse();
         result.Errors.Should().HaveCount(1);
-        result.Errors.Single().PropertyName.Should().Be(nameof(GetSitesByAreaRequest.Latitude));
+        result.Errors.Single().ErrorMessage.Should().Be("Provide a valid latitude value (between -90 <-> 90 degrees).");
+    }
+
+    [Fact]
+    public void Validate_ReturnsError_WhenCoordinatesAreNull()
+    {
+        var request = new GetSitesByAreaRequest(
+            null,
+            50000,
+            50,
+            ["access_need_a", "access_need_b"],
+            false,
+            null,
+            null,
+            null
+        );
+
+        var result = _sut.Validate(request);
+        result.IsValid.Should().BeFalse();
+
+        var error = result.Errors.Single();
+        error.ErrorMessage.Should().Be("Provide lat and long co-ordinates.");
     }
     
     [Theory]
@@ -63,8 +84,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenSearchRadiusIsInvalid(int searchRadius)
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             searchRadius,
             50,
             ["access_need_a", "access_need_b"],
@@ -86,8 +106,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenMaxRecordsIsInvalid(int maxRecords)
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             maxRecords,
             ["access_need_a", "access_need_b"],
@@ -109,8 +128,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsSuccess_WhenRequestIsValid(double longitude, double latitude, int searchRadius, int maxRecords)
     {
         var request = new GetSitesByAreaRequest(
-            longitude,
-            latitude,
+            new Coordinates { Longitude = longitude, Latitude = latitude },
             searchRadius,
             maxRecords,
             ["access_need_a", "access_need_b"],
@@ -132,8 +150,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsSuccess_WhenRequestIsValid_SiteSupportService(string service)
     {
         var request = new GetSitesByAreaRequest(
-            180,
-            90,
+            new Coordinates { Longitude = 180, Latitude = 90 },
             6000,
             50,
             ["access_need_a", "access_need_b"],
@@ -154,8 +171,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_SiteSupportService_MultipleServicesProvided()
     {
         var request = new GetSitesByAreaRequest(
-            180,
-            90,
+            new Coordinates { Longitude = 180, Latitude = 90 },
             6000,
             50,
             ["access_need_a", "access_need_b"],
@@ -179,8 +195,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_SiteSupportService_UnsupportedServiceProvided(string service)
     {
         var request = new GetSitesByAreaRequest(
-            180,
-            90,
+            new Coordinates { Longitude = 180, Latitude = 90 },
             6000,
             50,
             ["access_need_a", "access_need_b"],
@@ -199,8 +214,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_SiteSupportService_FromDateFormatting()
     {
         var request = new GetSitesByAreaRequest(
-            180,
-            90,
+            new Coordinates { Longitude = 180, Latitude = 90 },
             6000,
             50,
             ["access_need_a", "access_need_b"],
@@ -219,8 +233,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_SiteSupportService_UntilDateFormatting()
     {
         var request = new GetSitesByAreaRequest(
-            180,
-            90,
+            new Coordinates { Longitude = 180, Latitude = 90 },
             6000,
             50,
             ["access_need_a", "access_need_b"],
@@ -241,8 +254,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsSuccess_WhenRequestIsValid_EmptyServices(double longitude, double latitude, int searchRadius, int maxRecords)
     {
         var request = new GetSitesByAreaRequest(
-            longitude,
-            latitude,
+            new Coordinates { Longitude = longitude, Latitude = latitude },
             searchRadius,
             maxRecords,
             ["access_need_a", "access_need_b"],
@@ -260,8 +272,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenPartialSupportsServiceFiltersProvided_ServicesOnly()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -281,8 +292,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenPartialSupportsServiceFiltersProvided_FromOnly()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -302,8 +312,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenPartialSupportsServiceFiltersProvided_UntilOnly()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -323,8 +332,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenPartialSupportsServiceFiltersProvided_ServicesAndFromOnly()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -344,8 +352,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenPartialSupportsServiceFiltersProvided_ServicesAndUntilOnly()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -365,8 +372,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenPartialSupportsServiceFiltersProvided_FromAndUntilOnly()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -386,8 +392,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsError_WhenPartialSupportsServiceFiltersProvided_UntilDateLessThanFromDate()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],
@@ -407,8 +412,7 @@ public class GetSitesByAreaRequestValidatorTests
     public void Validate_ReturnsSuccess_WhenPartialSupportsServiceFiltersProvided_UntilDateEqualToFromDate()
     {
         var request = new GetSitesByAreaRequest(
-            0.123,
-            0.456,
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
             50000,
             50,
             ["access_need_a", "access_need_b"],

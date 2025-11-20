@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
@@ -80,7 +81,7 @@ public class GetSitesByAreaFunction(
             siteSupportsServiceFilter = new SiteSupportsServiceFilter(request.Services.Single(), request.FromDate.Value, request.UntilDate.Value);
         }
 
-        var sites = await siteService.FindSitesByArea(request.Longitude, request.Latitude, request.SearchRadius,
+        var sites = await siteService.FindSitesByArea(request.Coordinates, request.SearchRadius,
             request.MaximumRecords, request.AccessNeeds, request.IgnoreCache, siteSupportsServiceFilter);
         return ApiResult<IEnumerable<SiteWithDistance>>.Success(sites);
     }
@@ -104,8 +105,10 @@ public class GetSitesByAreaFunction(
                     errors.AsReadOnly(), null));
         }
 
-        var longitude = double.Parse(req.Query["long"]);
-        var latitude = double.Parse(req.Query["lat"]);
+        var coordinates = req.Query.ContainsKey("long") && req.Query.ContainsKey("lat")
+            ? new Coordinates { Latitude = double.Parse(req.Query["lat"]), Longitude = double.Parse(req.Query["long"]) }
+            : null;
+
         var searchRadius = int.Parse(req.Query["searchRadius"]);
         var maximumRecords = int.Parse(req.Query["maxRecords"]);
 
@@ -123,7 +126,7 @@ public class GetSitesByAreaFunction(
 
         return Task.FromResult<(IReadOnlyCollection<ErrorMessageResponseItem> errors, GetSitesByAreaRequest request)>((
             errors.AsReadOnly(),
-            new GetSitesByAreaRequest(longitude, latitude, searchRadius, maximumRecords, accessNeeds, ignoreCache,
+            new GetSitesByAreaRequest(coordinates, searchRadius, maximumRecords, accessNeeds, ignoreCache,
                 services, from, until)));
     }
 }

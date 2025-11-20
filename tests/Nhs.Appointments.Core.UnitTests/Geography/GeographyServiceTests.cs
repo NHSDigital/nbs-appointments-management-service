@@ -4,9 +4,7 @@ namespace Nhs.Appointments.Core.UnitTests.Geography;
 
 public class GeographyServiceTests
 {
-    private readonly GeographyService _sut;
-
-    public GeographyServiceTests() => _sut = new GeographyService();
+    private readonly GeographyService _sut = new();
 
     [Theory]
     // Same coords, no distance

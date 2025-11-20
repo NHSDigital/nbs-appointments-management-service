@@ -10,7 +10,7 @@ namespace Nhs.Appointments.Core.Sites;
 
 public interface ISiteService
 {
-    Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius,
+    Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache, SiteSupportsServiceFilter siteSupportsServiceFilter = null);
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
@@ -45,7 +45,9 @@ public class SiteService(
 {
     private static readonly SemaphoreSlim _cacheLock = new(1, 1);
 
-    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(double longitude, double latitude, int searchRadius, int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false, SiteSupportsServiceFilter siteSupportsServiceFilter = null)
+    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
+        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
+        SiteSupportsServiceFilter siteSupportsServiceFilter = null)
     {        
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
 
@@ -56,10 +58,9 @@ public class SiteService(
             sites = sites.Where(s => s.status is SiteStatus.Online or null);
         }
 
-        var filterCoordinates = new Coordinates { Latitude = latitude, Longitude = longitude };
         var sitesWithDistance = sites
             .Select(site => new SiteWithDistance(site,
-                geographyService.CalculateDistanceInMetres(filterCoordinates, site.Coordinates)));
+                geographyService.CalculateDistanceInMetres(coordinates, site.Coordinates)));
 
         Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
             s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :

@@ -142,7 +142,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 50, []);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -241,7 +241,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 2, []);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -301,7 +301,8 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 50, 50000, 50, ["access_need_1"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 50 }, 50000, 50,
+            ["access_need_1"]);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -346,7 +347,8 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, ["access_need_1"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50,
+            ["access_need_1"]);
         result.Should().BeEmpty();
     }
 
@@ -392,7 +394,7 @@ public class SiteServiceTests
         };
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, []);
         result.Should().BeEquivalentTo(sites);
     }
 
@@ -449,7 +451,8 @@ public class SiteServiceTests
                 Distance: 13213),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, ["access_need_2"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50,
+            ["access_need_2"]);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -494,7 +497,7 @@ public class SiteServiceTests
                 Distance: 3573),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
     }
     
@@ -539,7 +542,7 @@ public class SiteServiceTests
                 Distance: 3573)
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
     }
@@ -591,8 +594,9 @@ public class SiteServiceTests
         object outResult = true;
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
-        
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
+
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""],
+            false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 15)));
         result.Should().BeEquivalentTo(sites);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
@@ -661,8 +665,9 @@ public class SiteServiceTests
         object outResult = true;
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
-        
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
+
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""],
+            false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 15)));
         result.Should().BeEquivalentTo(sites);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
@@ -756,8 +761,9 @@ public class SiteServiceTests
             var id = $"{i:00}";
             _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
         }
-        
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 1, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,06)));
+
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 1, [""],
+            false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 06)));
         result.Single().Site.Id.Should().Be(validSites.First().Site.Id);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
@@ -792,7 +798,8 @@ public class SiteServiceTests
     {
         var sites = Array.Empty<Site>();
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, ["access_need_1"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 2,
+            ["access_need_1"]);
         result.Should().BeEmpty();
     }
 
@@ -838,7 +845,7 @@ public class SiteServiceTests
         };
         object outSites = sites.Select(s => s.Site);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _siteStore.Verify(x => x.GetAllSites(), Times.Never());
     }
@@ -887,7 +894,8 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], true);
+        var result =
+            await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""], true);
         result.Should().BeEquivalentTo(sites);
         _siteStore.Verify(x => x.GetAllSites(), Times.Once);
     }
@@ -936,7 +944,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(false);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _siteStore.Verify(x => x.GetAllSites(), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);
@@ -1202,7 +1210,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 50, []);
         result.Should().BeEquivalentTo(expectedSites);
     }
 

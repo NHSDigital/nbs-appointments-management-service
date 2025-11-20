@@ -8,6 +8,7 @@ using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
@@ -27,7 +28,8 @@ public class QueryAvailabilityByDaysFunction(
     ILogger<QueryAvailabilityByDaysFunction> logger,
     IMetricsRecorder metricsRecorder,
     IAvailableSlotsFilter availableSlotsFilter,
-    ISiteService siteService
+    ISiteService siteService,
+    IFeatureToggleHelper featureToggleHelper
     ) : BaseApiFunction<AvailabilityQueryRequest, List<AvailabilityByDays>>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "QueryAvailabilityByDays", tags: ["Availability"],
@@ -43,11 +45,13 @@ public class QueryAvailabilityByDaysFunction(
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.QueryAvailability, typeof(MultiSiteBodyRequestInspector))]
     [Function("QueryAvailabilityByDaysFunction")]
-    public override Task<IActionResult> RunAsync(
+    public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/query/days")]
         HttpRequest req)
     {
-        return base.RunAsync(req);
+        return await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceJointBookings)
+            ? await base.RunAsync(req)
+            : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
     protected override async Task<ApiResult<List<AvailabilityByDays>>> HandleRequest(AvailabilityQueryRequest request, ILogger logger)
@@ -89,7 +93,7 @@ public class QueryAvailabilityByDaysFunction(
             var slotsForDay = filteredSlots.Where(s => day == DateOnly.FromDateTime(s.From));
             if (slotsForDay.Any())
             {
-                dayEntries.Add(BuildDayAvailability(day, slotsForDay));
+                dayEntries.Add(AvailabilityGrouper.BuildDayAvailability(day, slotsForDay));
             }
 
             day = day.AddDays(1);
@@ -99,45 +103,6 @@ public class QueryAvailabilityByDaysFunction(
         {
             Site = site,
             Days = dayEntries
-        };
-    }
-
-    // To move into helper class
-    private static DayEntry BuildDayAvailability(DateOnly date, IEnumerable<SessionInstance> slots)
-    {
-        var noon = 12;
-        var amSlots = slots.Where(s => s.From.Hour < noon);
-        var pmSlots = slots.Where(s => s.From.Hour >= noon);
-        var hasSpillover = slots.Any(s => s.From.Hour < noon && s.Until.Hour > noon);
-
-        var blocks = new List<Block>();
-
-        if (amSlots.Any() || hasSpillover)
-        {
-            var earliestAmStart = amSlots.Any() ? amSlots.Min(s => s.From.TimeOfDay) : slots.Min(s => s.From.TimeOfDay);
-
-            blocks.Add(new Block
-            {
-                From = earliestAmStart.ToString("hh:mm"),
-                Until = "12:00"
-            });
-        }
-
-        if (pmSlots.Any() || hasSpillover)
-        {
-            var latestPmFinish = pmSlots.Any() ? pmSlots.Max(s => s.Until.TimeOfDay) : slots.Max(s => s.Until.TimeOfDay);
-
-            blocks.Add(new Block
-            {
-                From = "12:00",
-                Until = latestPmFinish.ToString("hh:mm")
-            });
-        }
-
-        return new DayEntry
-        {
-            Date = date,
-            Blocks = blocks
         };
     }
 }

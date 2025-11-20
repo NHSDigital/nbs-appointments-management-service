@@ -20,6 +20,10 @@ public class GeographyServiceTests
     // Manchester Cathedral to Piccadilly Gardens, in both directions
     [InlineData(53.48519226511998, -2.244328738332362, 53.480833024954016, -2.2371119243182, 680)]
     [InlineData(53.480833024954016, -2.2371119243182, 53.48519226511998, -2.244328738332362, 680)]
+
+    // Belfast Cathedral to Bridge of Sighs, in both directions
+    [InlineData(54.60289987213229, -5.928455876064277, 52.20850298428771, 0.11577497467868834, 480777)]
+    [InlineData(52.20850298428771, 0.11577497467868834, 54.60289987213229, -5.928455876064277, 480777)]
     public void CalculatesDistance(double originLat, double originLong, double destinationLat, double destinationLong,
         int expectedDistance)
     {

@@ -19,8 +19,8 @@ public class SiteReport
         ICB = site.IntegratedCareBoard;
         Region = site.Region;
         OdsCode = site.OdsCode;
-        Longitude = site.Location.Coordinates[0];
-        Latitude = site.Location.Coordinates[1];
+        Longitude = site.Coordinates.Longitude;
+        Latitude = site.Coordinates.Latitude;
         RegionName = regionName;
         ICBName = icbName;
         Bookings = clinicalServices.ToDictionary(

@@ -103,7 +103,7 @@ public class GetSitesPreviewFunctionTests
             IntegratedCareBoard: "ICB1",
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-            Location: new Location("point", [0.1, 10]),
+            new Location("point", [0.1, 10]),
             status: SiteStatus.Online,
             isDeleted: null,
             Type: null
@@ -119,7 +119,7 @@ public class GetSitesPreviewFunctionTests
             IntegratedCareBoard: "ICB3",
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-            Location: new Location("point", [0.1, 10]),
+            new Location("point", [0.1, 10]),
             status: SiteStatus.Online,
             isDeleted: null,
             Type: null

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -29,7 +30,7 @@ public class SiteServiceCacheTests
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _options.Object);
+            TimeProvider.System, _featureToggleHelper.Object, _options.Object, new GeographyService());
     }
 
     [Fact(DisplayName = "The Site Cache is used by default (when excluding deleted sites)")]
@@ -176,7 +177,7 @@ public class SiteServiceCacheTests
         });
 
         var _service = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, disabledOptions);
+            TimeProvider.System, _featureToggleHelper.Object, disabledOptions, new GeographyService());
 
         await _service.UpdateSiteInCacheAsync("ab648be7-f10d-4c5d-a534-fec12b61f998");
 

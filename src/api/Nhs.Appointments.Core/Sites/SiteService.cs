@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Geography;
 
 namespace Nhs.Appointments.Core.Sites;
 
@@ -39,7 +40,8 @@ public class SiteService(
     ILogger<ISiteService> logger,
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
-    IOptions<SiteServiceOptions> options) : ISiteService
+    IOptions<SiteServiceOptions> options,
+    IGeographyService geographyService) : ISiteService
 {
     private static readonly SemaphoreSlim _cacheLock = new(1, 1);
 
@@ -54,9 +56,10 @@ public class SiteService(
             sites = sites.Where(s => s.status is SiteStatus.Online or null);
         }
 
+        var filterCoordinates = new Coordinates { Latitude = latitude, Longitude = longitude };
         var sitesWithDistance = sites
-            .Select(s => new SiteWithDistance(s,
-                CalculateDistanceInMetres(s.Location.Coordinates[1], s.Location.Coordinates[0], latitude, longitude)));
+            .Select(site => new SiteWithDistance(site,
+                geographyService.CalculateDistanceInMetres(filterCoordinates, site.Coordinates)));
 
         Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
             s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
@@ -300,15 +303,12 @@ public class SiteService(
 
             var predicate = BuildPredicate(filter);
             var filteredSites = sites.Where(predicate);
+            var filterCoordinates = new Coordinates { Latitude = filter.Latitude, Longitude = filter.Longitude };
 
             var sitesWithDistance = filteredSites
-                .Select(s => new SiteWithDistance(
-                    s,
-                    CalculateDistanceInMetres(
-                        s.Location.Coordinates[1],
-                        s.Location.Coordinates[0],
-                        filter.Latitude,
-                        filter.Longitude)))
+                .Select(site =>
+                    new SiteWithDistance(site,
+                        geographyService.CalculateDistanceInMetres(filterCoordinates, site.Coordinates)))
                 .ToList();
 
             if (filter.Availability is not null && filter.Availability.Services?.Length > 0)
@@ -379,7 +379,7 @@ public class SiteService(
                 return filter.OdsCode.Equals(site.OdsCode, StringComparison.InvariantCultureIgnoreCase);
             }
 
-            var distance = CalculateDistanceInMetres(site.Location.Coordinates[1], site.Location.Coordinates[0], filter.Latitude, filter.Longitude);
+            var distance = geographyService.CalculateDistanceInMetres(filter.Coordinates, site.Coordinates);
             return distance <= filter.SearchRadius;
         };
     }
@@ -420,29 +420,6 @@ public class SiteService(
                 .ToList()
             : filters;
     }
-
-    private int CalculateDistanceInMetres(double lat1, double lon1, double lat2, double lon2)
-    {
-        var epsilon = 0.000001f;
-        var deltaLatitude = lat1 - lat2;
-        var deltaLongitude = lon1 - lon2;
-
-        if (Math.Abs(deltaLatitude) < epsilon && Math.Abs(deltaLongitude) < epsilon)
-        {
-            return 0;
-        }
-
-        var dist = Math.Sin(DegreesToRadians(lat1)) * Math.Sin(DegreesToRadians(lat2)) +
-                   Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) *
-                   Math.Cos(DegreesToRadians(deltaLongitude));
-        dist = Math.Acos(dist);
-        dist = RadiansToDegrees(dist);
-        return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);
-    }
-
-    private double DegreesToRadians(double deg) => deg * Math.PI / 180.0;
-
-    private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
 
     private async Task<IEnumerable<Site>> GetSitesFromStoreOrCache(bool ignoreCache = false)
     {

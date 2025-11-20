@@ -34,7 +34,7 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
             InformationForCitizens: row.Cells.ElementAt(7).Value,
             Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
-            Location: new Location(
+            new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
             status: null, isDeleted: null,

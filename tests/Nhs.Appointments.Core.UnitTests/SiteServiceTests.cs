@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -25,7 +26,7 @@ public class SiteServiceTests
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _options.Object);
+            TimeProvider.System, _featureToggleHelper.Object, _options.Object, new GeographyService());
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 
@@ -42,7 +43,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -58,7 +59,7 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -74,7 +75,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -94,7 +95,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.505, 65.0]),
+                    location: new Location("Point", [0.505, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -111,7 +112,7 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -128,7 +129,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.507, 65.0]),
+                    location: new Location("Point", [.507, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -158,7 +159,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -174,7 +175,7 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -190,7 +191,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -210,7 +211,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.505, 65.0]),
+                    location: new Location("Point", [.505, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -227,7 +228,7 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -257,7 +258,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 50.0]),
+                location: new Location("Point", [.505, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "true") },
                 status: SiteStatus.Online, isDeleted: null,
@@ -270,7 +271,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 50.0]),
+                location: new Location("Point", [.506, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "false") },
                 status: SiteStatus.Online, isDeleted: null,
@@ -287,7 +288,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.505, 50.0]),
+                    location: new Location("Point", [0.505, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -317,7 +318,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
+                location: new Location("Point", [0.0, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -333,7 +334,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.05, 50.0]),
+                location: new Location("Point", [.05, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -362,7 +363,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -379,7 +380,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -408,7 +409,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
+                location: new Location("Point", [0.0, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>(),
                 status: SiteStatus.Online, isDeleted: null,
@@ -421,7 +422,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
+                location: new Location("Point", [0.1, 50.1]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_2", Value: "true") },
                 status: SiteStatus.Online, isDeleted: null,
@@ -437,7 +438,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
+                    location: new Location("Point", [0.1, 50.1]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -465,7 +466,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -482,7 +483,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -510,7 +511,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -527,7 +528,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -556,7 +557,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -573,7 +574,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -628,7 +629,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -645,7 +646,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -701,7 +702,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -730,7 +731,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, longitude]),
+                    location: new Location("Point", [0.05, longitude]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -808,7 +809,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -825,7 +826,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -855,7 +856,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -872,7 +873,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -904,7 +905,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -921,7 +922,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -953,7 +954,7 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
             status: SiteStatus.Online, isDeleted: null,
@@ -967,7 +968,7 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
             status: SiteStatus.Online, isDeleted: null,
@@ -1003,7 +1004,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode1",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1016,7 +1017,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode2",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1044,7 +1045,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode1",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1057,7 +1058,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode2",
                     Region: "R1",
                     IntegratedCareBoard: "ICB2",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1088,7 +1089,7 @@ public class SiteServiceTests
                 OdsCode: "odsCode1",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                location: new Location("Point", [0.04, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
                 status: SiteStatus.Online, isDeleted: null,
@@ -1118,7 +1119,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -1134,7 +1135,7 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -1150,7 +1151,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -1170,7 +1171,7 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -1187,7 +1188,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.507, 65.0]),
+                    location: new Location("Point", [.507, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -2129,7 +2130,7 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new(Id: "Accessibility 1", Value: "true") },
             status: SiteStatus.Online, isDeleted: true,

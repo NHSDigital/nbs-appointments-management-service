@@ -187,7 +187,6 @@ stages:
                       cd $(Pipeline.Workspace)\drop_terraform\environments\${{parameters.env}}
                       terraform init
                       terraform apply -no-color -input=false -auto-approve -var="GOV_NOTIFY_API_KEY=$(GOV_NOTIFY_API_KEY)" -var="SPLUNK_HEC_TOKEN=$(SPLUNK_HEC_TOKEN)" -var="NHS_MAIL_CLIENT_SECRET=$(AUTH_PROVIDER_CLIENT_SECRET)" -var="OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" -var="OKTA_PRIVATE_KEY_KID=$(OKTA_PRIVATE_KEY_KID)" -var="OKTA_PEM=$(OKTA_PEM)" -var="BUILD_NUMBER=$(extractedBuildNumber)" -var="CONTAINER_REGISTRY_PASSWORD=$(dockerRegistryPassword)" -var="CONTAINER_REGISTRY_SERVER_URL=$(dockerRegistryUrl)" -var="CONTAINER_REGISTRY_USERNAME=$(dockerRegistryUsername)"  -var="KEYVAULT_CLIENT_ID=$(ClientId)" -var="KEYVAULT_CLIENT_SECRET=$(ClientSecret)"
-
       - job: DeployWeb
         dependsOn: ApplyTerraform
         displayName: "Deploy webapp"
@@ -212,7 +211,6 @@ stages:
               ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
-
       - job: DeployHttpFunctionApp
         dependsOn: ApplyTerraform
         displayName: "Deploy http function app"
@@ -236,7 +234,6 @@ stages:
               ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
-
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
         condition: and(succeeded(), ${{ in(parameters.env, 'int', 'stag', 'pen', 'perf', 'prod') }})
@@ -261,7 +258,6 @@ stages:
               ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
-
       - job: DeployServiceBusFunctionApp
         dependsOn: ApplyTerraform
         displayName: "Deploy service bus function app"
@@ -285,7 +281,6 @@ stages:
               ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
-
       - job: DeployTimerFunctionApp
         dependsOn: ApplyTerraform
         displayName: "Deploy timer function app"
@@ -309,7 +304,6 @@ stages:
               ${{ if in(parameters.env, 'stag', 'prod') }}:
                 deployToSlotOrASE: true
                 slotName: "preview"
-
       - job: UploadCosmosDocuments
         displayName: "Upload documents to cosmosdb"
         dependsOn:
@@ -339,7 +333,6 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
-
       - job: WaitForSlotApproval
         dependsOn:
           - UploadCosmosDocuments
@@ -352,7 +345,6 @@ stages:
             inputs:
               notifyUsers: ""
               instructions: Review deployment slots for web app / api and approve
-
       - job: SwapWebAppSlots
         displayName: "Swap web app slots"
         dependsOn: WaitForSlotApproval
@@ -366,7 +358,6 @@ stages:
               WebAppName: ${{parameters.webServerName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-
       - job: SwapHttpFuncAppSlots
         displayName: "Swap http function app slots"
         dependsOn: WaitForSlotApproval
@@ -380,7 +371,6 @@ stages:
               WebAppName: ${{parameters.httpFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-
       - job: SwapHighLoadFuncAppSlots
         displayName: "Swap high load function app slots"
         dependsOn: WaitForSlotApproval
@@ -394,7 +384,6 @@ stages:
               WebAppName: ${{parameters.highLoadFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-
       - job: SwapServiceBusFuncAppSlots
         displayName: "Swap servicebus function app slots"
         dependsOn: WaitForSlotApproval
@@ -408,7 +397,6 @@ stages:
               WebAppName: ${{parameters.serviceBusFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-
       - job: SwapTimerFuncAppSlots
         displayName: "Swap timer function app slots"
         dependsOn: WaitForSlotApproval
@@ -446,7 +434,6 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/deployment/stop-swap-slots.ps1"
               arguments: "-environment '${{parameters.env}}'"
 
-      ## Post-release admin
       - job: SetEnvironmentTag
         displayName: "Move Environment Deployment Tag"
         condition: succeeded()

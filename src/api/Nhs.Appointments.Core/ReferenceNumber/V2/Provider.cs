@@ -19,12 +19,15 @@ public interface IProvider
 public interface IBookingReferenceDocumentStore
 {
     Task<int> GetNextSequenceNumber();
+    
+    Task<int?> TryGetPartitionKeySequenceMultiplier(string partitionKey);
+    
+    Task SetPartitionKeySequenceMultiplier(string partitionKey, int sequenceMultiplier);
 }
 
 public class Provider(
     IOptions<ReferenceNumberOptions> options,
     IBookingReferenceDocumentStore bookingReferenceDocumentStore,
-    IMemoryCache memoryCache,
     ILogger<Provider> logger,
     TimeProvider timeProvider)
     : IProvider
@@ -49,7 +52,7 @@ public class Provider(
     {
         var sequenceNumber = await bookingReferenceDocumentStore.GetNextSequenceNumber();
         var now = timeProvider.GetUtcNow();
-        return Generate(sequenceNumber, now);
+        return await Generate(sequenceNumber, now);
     }
 
     /// <summary>
@@ -65,11 +68,11 @@ public class Provider(
         return dayPartition.ToString("D2") + (dtUtc.Year % 100).ToString("D2");
     }
 
-    private string Generate(int sequenceNumber, DateTimeOffset utcNow)
+    private async Task<string> Generate(int sequenceNumber, DateTimeOffset utcNow)
     {
         var overflowedSequenceNumber = sequenceNumber % SequenceMax;
         var partitionKey = PartitionKey(utcNow);
-        var sequenceBijection = GenerateSequenceValue(overflowedSequenceNumber, partitionKey)
+        var sequenceBijection = (await GenerateSequenceValue(overflowedSequenceNumber, partitionKey))
             .ToString("D8");
         var partitionAndSequenceBijection = partitionKey + sequenceBijection;
 
@@ -89,9 +92,9 @@ public class Provider(
     ///     This is needed to protect against sequential attacks visible in the reference numbers (i.e people guessing the next booking is
     ///     exactly 1 reference number higher)
     /// </summary>
-    private int GenerateSequenceValue(int sequence, string partitionKey)
+    private async Task<int> GenerateSequenceValue(int sequence, string partitionKey)
     {
-        var sequenceMultiplier = GetSequenceMultiplier(partitionKey);
+        var sequenceMultiplier = await GetSequenceMultiplier(partitionKey);
 
         // A bijection is a 1-1 mapping between two sets of numbers.
         // f(i) = ( S * i ) mod N : is a bijection on (0, ..., N-1) when the multiplier (S) is coprime with N (i.e gcd(S,N) = 1)
@@ -99,17 +102,24 @@ public class Provider(
         return (int)((long)sequenceMultiplier * sequence % SequenceMax);
     }
 
-    private int GetSequenceMultiplier(string partitionKey)
+    /// <summary>
+    /// Get the sequence multiplier (stride) for the provided partition key. Once set, this is cached for the duration needed as it should not be regenerated
+    /// This value has to be the same for all bookings for that partition key.
+    /// </summary>
+    /// <param name="partitionKey"></param>
+    /// <returns></returns>
+    private async Task<int> GetSequenceMultiplier(string partitionKey)
     {
-        var cacheKey = $"{Options.Value.HmacKeyVersion}:{partitionKey}";
-        if (memoryCache.TryGetValue(cacheKey, out int sequenceMultiplier))
+        var sequenceMultiplier = await bookingReferenceDocumentStore.TryGetPartitionKeySequenceMultiplier(partitionKey);
+        
+        if (sequenceMultiplier.HasValue)
         {
-            return sequenceMultiplier;
+            return sequenceMultiplier.Value;
         }
 
         sequenceMultiplier = DeriveSequenceMultiplier(partitionKey);
-        memoryCache.Set(cacheKey, sequenceMultiplier, TimeSpan.FromDays(PartitionBucketLengthInDays + 2)); // easily spans the partition length
-        return sequenceMultiplier;
+        _ = bookingReferenceDocumentStore.SetPartitionKeySequenceMultiplier(partitionKey, sequenceMultiplier!.Value);
+        return sequenceMultiplier!.Value;
     }
 
     /// <summary>
@@ -127,12 +137,13 @@ public class Provider(
         var mac = h.ComputeHash(Encoding.ASCII.GetBytes(partitionKey));
         var hmacMultiplier = BitConverter.ToUInt64(mac, 0);
 
-        //next make the hmacMultiplier be a value between 0 - 10 million (we're going to generate the final digit manually to make a number that is coprime with 100 million)
+        //next make the hmacMultiplier be a value between 0 - 10 million (not 100 million)
+        //this is because we generate the final digit manually to make a number that is coprime to 100 million
         var baseMultiplier = (int)(hmacMultiplier % (SequenceMax / 10));
 
         //the following logic is dependent on SequenceMax being a number of format 10^x
 
-        // Pick a last digit from {1,3,7,9} deterministically (since any number ending in any of these are coprime to 100 million (sequence max))
+        // Pick a last digit from {1,3,7,9} deterministically (since ANY number ending in any of these digits is coprime to 100 million (sequence max))
         int[] lastDigitOptions = [1, 3, 7, 9];
 
         //takes the last two bits of hmacMultiplier (so a value 0–3) to pick the last digit deterministically

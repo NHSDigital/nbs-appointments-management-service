@@ -25,13 +25,28 @@ namespace Nhs.Appointments.Persistance.Reference
                 {
                     DocumentType = cosmosStore.GetDocumentType(),
                     Id = DocumentId,
-                    Sequence = 0
+                    Sequence = 0,
+                    PartitionKeyMultipliers = []
                 };
 
                 await cosmosStore.WriteAsync(bookingReferenceDocument);
             }
             
             return bookingReferenceDocument.Sequence;
+        }
+
+        public async Task<int?> TryGetPartitionKeySequenceMultiplier(string partitionKey)
+        {
+            var bookingReferenceDocument = await cosmosStore.GetByIdAsync<BookingReferenceDocument>(DocumentId);
+            var partitionKeyMultiplier = bookingReferenceDocument!.PartitionKeyMultipliers.SingleOrDefault(x => x.PartitionKey == partitionKey);
+            return partitionKeyMultiplier?.SequenceMultiplier;
+        }
+
+        public Task SetPartitionKeySequenceMultiplier(string partitionKey, int sequenceMultiplier)
+        {
+            var setPartitionKeySequenceMultiplier = PatchOperation.Set($"/PartitionKeyMultipliers/{partitionKey}/SequenceMultiplier", sequenceMultiplier);
+            _ = cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), DocumentId, setPartitionKeySequenceMultiplier);
+            return Task.CompletedTask;
         }
     }
 }

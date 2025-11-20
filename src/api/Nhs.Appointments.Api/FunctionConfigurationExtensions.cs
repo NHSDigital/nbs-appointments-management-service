@@ -89,8 +89,6 @@ public static class FunctionConfigurationExtensions
             .ConfigureSiteService(configuration)
             .Configure<ReferenceNumberOptions>(opts =>
             {
-                //for simplicity will keep a single key for now and have it be version 1
-                opts.HmacKeyVersion = 1;
                 opts.HmacKey =
                     Convert.FromBase64String(configuration.GetValue<string>("REFERENCE_NUMBER_HMAC_KEY"));
             })

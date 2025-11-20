@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.ReferenceNumber.V2;
@@ -19,14 +18,13 @@ public class ProviderTests
     private readonly Mock<TimeProvider> _timeProvider = new();
     private readonly Mock<ILogger<Provider>> _logger = new();
     private readonly Mock<IOptions<ReferenceNumberOptions>> _options = new();
-    private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions());
 
     private readonly IProvider _sut;
 
     public ProviderTests()
     {
-        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = HmacTestSecretKey});
-        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, _memoryCache, _logger.Object, _timeProvider.Object);
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKey = HmacTestSecretKey});
+        _sut = new Provider(_options.Object, _bookingReferenceDocumentStore.Object, _logger.Object, _timeProvider.Object);
     }
     
     [Fact]
@@ -81,10 +79,73 @@ public class ProviderTests
     }
 
     [Fact]
-    public async Task GetReferenceNumber_UsesCachedMultiplierDerivationIfExists()
+    public async Task GetReferenceNumber_UsesAndSetsDatabaseMultiplierDerivation()
     {
-        _memoryCache.TryGetValue("1:3825", out var _).Should().BeFalse();
-        _memoryCache.TryGetValue("1:4625", out var _).Should().BeFalse();
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 30, 9, 0, 59));
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345123);
+        _bookingReferenceDocumentStore.Setup(x => x.TryGetPartitionKeySequenceMultiplier("3825")).ReturnsAsync((int?)null);
+        _bookingReferenceDocumentStore.Setup(x => x.TryGetPartitionKeySequenceMultiplier("4625")).ReturnsAsync((int?)null);
+
+        var result1 = await _sut.GetReferenceNumber();
+        result1.Should().Be("3825-69268-6774");
+
+        var expectedMultiplier1 = 28980599;
+        
+        //first time tryGet attempted
+        _bookingReferenceDocumentStore.Verify(x => x.TryGetPartitionKeySequenceMultiplier("3825"), Times.Once);
+        
+        //first time calculated is stored
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3825", expectedMultiplier1), Times.Once);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("4625", expectedMultiplier1), Times.Never);
+        
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 31, 9, 0, 59));
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345124);
+        _bookingReferenceDocumentStore.Setup(x => x.TryGetPartitionKeySequenceMultiplier("3825")).ReturnsAsync(expectedMultiplier1);
+        
+        _bookingReferenceDocumentStore.Invocations.Clear();
+        
+        var result2 = await _sut.GetReferenceNumber();
+        result2.Should().Be("3825-98249-2768");
+        
+        //second time tryGet attempted
+        _bookingReferenceDocumentStore.Verify(x => x.TryGetPartitionKeySequenceMultiplier("3825"), Times.Once);
+        
+        //second time calculated is not stored
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3725", expectedMultiplier1), Times.Never);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3825", expectedMultiplier1), Times.Never);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3925", expectedMultiplier1), Times.Never);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("4625", expectedMultiplier1), Times.Never);
+        
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 6, 30, 9, 0, 59));
+        _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345125);
+        
+        _bookingReferenceDocumentStore.Invocations.Clear();
+        
+        var result3 = await _sut.GetReferenceNumber();
+        result3.Should().Be("4625-68731-6257");
+        
+        var expectedMultiplier2 = 84432373;
+        
+        _bookingReferenceDocumentStore.Verify(x => x.TryGetPartitionKeySequenceMultiplier("3825"), Times.Never);
+        _bookingReferenceDocumentStore.Verify(x => x.TryGetPartitionKeySequenceMultiplier("4625"), Times.Once);
+        
+        //third time is stored as using a new partition key
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3825", expectedMultiplier2), Times.Never);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("4625", expectedMultiplier2), Times.Once);
+    }
+    
+    /// <summary>
+    /// If for an environment the HmacKey is updated, it MUST still use the previous multiplier for the same partition key
+    /// It should only use the new HmacKey value when the partition moves along for the first time and then going forward
+    /// This is to ensure we don't have collisions mid-partition with a HmacKey update!!
+    /// </summary>
+    [Fact]
+    public async Task GetReferenceNumber_HmacKeyChange_UsesPreviousMultiplier_UntilPartitionChanges()
+    {
+        //initial HMAC key set
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKey = HmacTestSecretKey});
+        
+        _bookingReferenceDocumentStore.Setup(x => x.TryGetPartitionKeySequenceMultiplier("3825")).ReturnsAsync((int?)null);
         
         _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 30, 9, 0, 59));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345123);
@@ -92,36 +153,101 @@ public class ProviderTests
         var result1 = await _sut.GetReferenceNumber();
         result1.Should().Be("3825-69268-6774");
         
-        //prove value is set
-        _memoryCache.TryGetValue("1:3825", out var multiplier1).Should().BeTrue();
-        _memoryCache.TryGetValue("1:4625", out var _).Should().BeFalse();
+        var initialHmacKeyPartition1ExpectedMultiplier = 28980599;
         
-        multiplier1.Should().Be(28980599);
+        //first time calculated is stored
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3825", initialHmacKeyPartition1ExpectedMultiplier), Times.Once);
         
-        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 31, 9, 0, 59));
+        //next booking generated in same partition key
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 5, 30, 10, 0, 59));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345124);
+        //the multiplier using HMAC Key 1 is stored for '3825'
+        _bookingReferenceDocumentStore.Setup(x => x.TryGetPartitionKeySequenceMultiplier("3825")).ReturnsAsync(initialHmacKeyPartition1ExpectedMultiplier);
+        
+        byte[] updatedHmacKey =
+        [
+            247,
+            145,
+            228,
+            43,
+            7,
+            70,
+            65,
+            70,
+            122,
+            137,
+            180,
+            68,
+            32,
+            203,
+            250,
+            219,
+            115,
+            45,
+            112,
+            34,
+            112,
+            111,
+            241,
+            124,
+            41,
+            54,
+            169,
+            237,
+            158,
+            201,
+            230,
+            107
+        ];
+        
+        //AND the HMAC KEY is updated!!
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKey = updatedHmacKey});
+        
+        var updatedHmacKeyPartition1ExpectedMultiplier = 54654634;
+        
+        _bookingReferenceDocumentStore.Invocations.Clear();
+        
         var result2 = await _sut.GetReferenceNumber();
+        
+        //this new value is derived using the initial HMAC key value since in same partition as existing record
         result2.Should().Be("3825-98249-2768");
         
-        _memoryCache.TryGetValue("1:3825", out var multiplier2).Should().BeTrue();
-        _memoryCache.TryGetValue("1:3725", out var _).Should().BeFalse();
-        _memoryCache.TryGetValue("1:3925", out var _).Should().BeFalse();
-        _memoryCache.TryGetValue("1:4625", out var _).Should().BeFalse();
+        _bookingReferenceDocumentStore.Verify(x => x.TryGetPartitionKeySequenceMultiplier("3825"), Times.Once);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3825", initialHmacKeyPartition1ExpectedMultiplier), Times.Never);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3825", updatedHmacKeyPartition1ExpectedMultiplier), Times.Never);
         
-        multiplier2.Should().Be(28980599);
-        
-        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 6, 30, 9, 0, 59));
+        //verify new HMAC key used in derivation of new partition key
+        _timeProvider.Setup(x => x.GetUtcNow()).Returns(new DateTime(2025, 6, 3, 11, 0, 59));
         _bookingReferenceDocumentStore.Setup(x => x.GetNextSequenceNumber()).ReturnsAsync(2345125);
         
+        //new partition key has no value as hasn't been generated for the first time yet
+        _bookingReferenceDocumentStore.Setup(x => x.TryGetPartitionKeySequenceMultiplier("3925")).ReturnsAsync((int?)null);
+        
+        //both values are different as partition key has changed
+        //prove it now uses the updated multiplier
+        var initialHmacKeyPartition2ExpectedMultiplier = 7166467;
+        var updatedHmacKeyPartition2ExpectedMultiplier = 45328053;
+        
+        _bookingReferenceDocumentStore.Invocations.Clear();
+        
         var result3 = await _sut.GetReferenceNumber();
-        result3.Should().Be("4625-68731-6257");
         
-        //prove new value is set
-        _memoryCache.TryGetValue("1:3825", out var multiplier3).Should().BeTrue();
-        _memoryCache.TryGetValue("1:4625", out var multiplier4).Should().BeTrue();
+        //this has been generated using the updated hmac value
         
-        multiplier3.Should().Be(28980599);
-        multiplier4.Should().Be(84432373);
+        //the expected result IF the key hadn't been updated
+        result3.Should().NotBe("3925-60923-3759");
+        
+        //the actual expected result now the key has been updated
+        result3.Should().Be("3925-50291-6252");
+        
+        //it tried to fetch an existing value
+        _bookingReferenceDocumentStore.Verify(x => x.TryGetPartitionKeySequenceMultiplier("3925"), Times.Once);
+        
+        //prove only the new updated value is set
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3925", initialHmacKeyPartition2ExpectedMultiplier), Times.Never);
+        _bookingReferenceDocumentStore.Verify(x => x.SetPartitionKeySequenceMultiplier("3925", updatedHmacKeyPartition2ExpectedMultiplier), Times.Once);
+        
+        _bookingReferenceDocumentStore.Invocations.Clear();
     }
     
     [Fact]
@@ -295,6 +421,19 @@ public class ProviderTests
     {
         Provider.SequenceMax.Should().Be(100_000_000);
     }
+    
+    /// <summary>
+    ///  If SequenceMax is ever changed from the original 100 million, it MUST be of the format 10^X to work with the current coprime sequence logic
+    ///  i.e if number A ends in either a {1, 3, 7, 9}, then it is coprime with any number B of format: B = 10^X = (2^X)*(5^X) => all prime factors of B are 2 and 5
+    /// </summary>
+    [Fact]
+    public void SequenceMax_Should_Be_Power_Of_Ten()
+    {
+        var log10 = Math.Log10(Provider.SequenceMax);
+        
+        //floating point check
+        Math.Abs(log10 - Math.Round(log10)).Should().BeLessThan(1e-10);
+    }
 
     /// <summary>
     /// If this value is ever changed/up-versioned the logic will need revisiting to ensure it still works.
@@ -387,10 +526,10 @@ public class ProviderTests
             49
         ];
 
-        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey1});
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKey = hmacKey1});
         var multiplier1 = _sut.DeriveSequenceMultiplier(samePartitionKey);
 
-        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey2});
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKey = hmacKey2});
         var multiplier2 = _sut.DeriveSequenceMultiplier(samePartitionKey);
 
         //this is fine
@@ -441,7 +580,7 @@ public class ProviderTests
             6
         ];
         
-        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey1});
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKey = hmacKey1});
         var partitionKey1 = "5728"; //around about October 15th 2028
         var multiplier1 = _sut.DeriveSequenceMultiplier(partitionKey1);
         
@@ -481,7 +620,7 @@ public class ProviderTests
             107
         ];
         
-        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKeyVersion = 1, HmacKey = hmacKey2});
+        _options.Setup(x => x.Value).Returns(new ReferenceNumberOptions { HmacKey = hmacKey2});
         var partitionKey2 = "5837"; //around about August 20th 2037
         var multiplier2 = _sut.DeriveSequenceMultiplier(partitionKey2);
 

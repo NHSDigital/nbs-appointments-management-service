@@ -162,7 +162,7 @@ describe('Cancellation Confirmed Page', () => {
 
     expect(
       screen.getByText(
-        'The session has been updated and the new time and capacity has been saved.',
+        'This session has been updated and the new time and capacity has been saved.',
       ),
     ).toBeInTheDocument();
     expect(

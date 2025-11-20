@@ -123,7 +123,7 @@ const EditSessionConfirmed = ({
       ) : (
         <>
           <div className="margin-top-bottom">
-            The session has been updated and the new time and capacity has been
+            This session has been updated and the new time and capacity has been
             saved.
           </div>
           {newlyUnsupportedBookingsCount > 0 && (

@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CosmosAuditor;
 
@@ -24,7 +25,7 @@ public class AuditWorker<TConfig>(
         await CreateLeaseContainerIfDoesntExist();
         var leaseContainer = cosmosClient.GetContainer(DatabaseName, leaseContainerName);
         var changeFeedProcessor = cosmosClient.GetContainer(DatabaseName, sourceContainerName)
-            .GetChangeFeedProcessorBuilder<object>(processorName: "changeFeedSample", onChangesDelegate: HandleChangesAsync)
+            .GetChangeFeedProcessorBuilder<JObject>(processorName: "changeFeedSample", onChangesDelegate: HandleChangesAsync)
             .WithLeaseAcquireNotification(_onLeaseAcquiredAsync)
             .WithLeaseReleaseNotification(_onLeaseReleaseAsync)
             .WithErrorNotification(_onErrorAsync)
@@ -72,7 +73,7 @@ public class AuditWorker<TConfig>(
 
     private async Task HandleChangesAsync(
         ChangeFeedProcessorContext context,
-        IReadOnlyCollection<object> changes,
+        IReadOnlyCollection<JObject> changes,
         CancellationToken cancellationToken)
     {
         logger.LogInformation($"Started handling changes for lease {context.LeaseToken}...");

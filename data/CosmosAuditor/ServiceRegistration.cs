@@ -1,5 +1,7 @@
-﻿using CosmosAuditor.Containers;
+﻿using CosmosAuditor.Blob;
+using CosmosAuditor.Containers;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core.Json;
@@ -38,6 +40,19 @@ public static class ServiceRegistration
             clientOptions: options);
         
         services.AddSingleton(cosmos);
+        return services;
+    }
+    
+    public static IServiceCollection AddAzureBlobStorage(this IServiceCollection services,
+        IConfiguration configuration)
+    { 
+        services
+            .AddSingleton<IAzureBlobStorage, AzureBlobStorage>()
+            .AddAzureClients(x =>
+            {
+                x.AddBlobServiceClient(configuration["BLOB_STORAGE_CONNECTION_STRING"]);
+            });
+        
         return services;
     }
 }

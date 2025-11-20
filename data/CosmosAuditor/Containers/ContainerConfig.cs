@@ -1,3 +1,5 @@
-﻿namespace CosmosAuditor.Containers;
+﻿using Newtonsoft.Json.Linq;
 
-public record ContainerConfig(string Name, string LeaseName, string[] Sinks);
+namespace CosmosAuditor.Containers;
+
+public record ContainerConfig(string Name, string LeaseName, string[] Sinks, Func<JObject, string> IdResolver);

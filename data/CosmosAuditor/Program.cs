@@ -18,7 +18,9 @@ builder.Logging.AddConsole();
 
 builder.Services
     .AddTransient<IAuditSink, ConsoleAuditSink>()
+    .AddTransient<IAuditSink, BlobAuditSink>()
     .AddCosmos(builder.Configuration)
+    .AddAzureBlobStorage(builder.Configuration)
     .AddAuditWorker<AuditContainerConfig>()
     .AddAuditWorker<BookingContainerConfig>()
     .AddAuditWorker<CoreContainerConfig>()

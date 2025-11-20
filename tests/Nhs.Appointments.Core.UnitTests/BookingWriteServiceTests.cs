@@ -82,7 +82,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
             _referenceNumberProviderV2.Setup(x => x.GetReferenceNumber()).ReturnsAsync("3825-69268-6774");
             
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("14-90-002345")).ReturnsAsync(new Booking
+            _bookingQueryService.Setup(x => x.GetBookingByReference("14-90-002345")).ReturnsAsync(new Booking
             {
                 Reference = "14-90-002345",
                 Site = MockSite,
@@ -93,7 +93,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked,
                 AttendeeDetails = new AttendeeDetails()
             });
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync("3825-69268-6774")).ReturnsAsync(new Booking
+            _bookingQueryService.Setup(x => x.GetBookingByReference("3825-69268-6774")).ReturnsAsync(new Booking
             {
                 Reference = "3825-69268-6774",
                 Site = MockSite,

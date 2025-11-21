@@ -1320,7 +1320,7 @@
           "const secret = pm.environment.get(\"hmacKey\")\r",
           "const method = pm.request.method;\r",
           "const path = pm.variables.replaceIn(pm.request.url.getPath());\r",
-          "const queryString = pm.variables.replaceIn(pm.request.url.getQueryString())\r",
+          "const queryString = decodeURIComponent(pm.variables.replaceIn(pm.request.url.getQueryString()))\r",
           "const now = moment.utc();\r",
           "const requestTimestamp = now.format();\r",
           "const content = pm.variables.replaceIn(pm.request.body).toString() + queryString;\r",

@@ -12,7 +12,7 @@ describe('<SiteList>', () => {
         address: 'Alpha Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1000',
@@ -27,7 +27,7 @@ describe('<SiteList>', () => {
         address: 'Beta Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1002',
@@ -50,7 +50,7 @@ describe('<SiteList>', () => {
         address: 'Zulu Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1001',
@@ -65,7 +65,7 @@ describe('<SiteList>', () => {
         address: 'Lima Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1002',
@@ -80,7 +80,7 @@ describe('<SiteList>', () => {
         address: 'November Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1003',
@@ -95,7 +95,7 @@ describe('<SiteList>', () => {
         address: 'Beta Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1004',
@@ -129,7 +129,7 @@ describe('<SiteList>', () => {
         name: 'Site Alpha',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         address: 'Alpha Street',
@@ -154,7 +154,7 @@ describe('<SiteList>', () => {
         address: 'Zulu Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1001',
@@ -169,7 +169,7 @@ describe('<SiteList>', () => {
         address: 'Lima Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1002',
@@ -184,7 +184,7 @@ describe('<SiteList>', () => {
         address: 'November Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1003',
@@ -199,7 +199,7 @@ describe('<SiteList>', () => {
         address: 'Beta Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1004',
@@ -246,7 +246,7 @@ describe('<SiteList>', () => {
         address: 'Zulu Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1001',
@@ -261,7 +261,7 @@ describe('<SiteList>', () => {
         address: 'Lima Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1002',
@@ -276,7 +276,7 @@ describe('<SiteList>', () => {
         address: 'November Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1003',
@@ -291,7 +291,7 @@ describe('<SiteList>', () => {
         address: 'Beta Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1004',
@@ -332,7 +332,7 @@ describe('<SiteList>', () => {
         address: 'Zulu Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1001',
@@ -347,7 +347,7 @@ describe('<SiteList>', () => {
         address: 'Lima Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1002',
@@ -362,7 +362,7 @@ describe('<SiteList>', () => {
         address: 'November Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1003',
@@ -377,7 +377,7 @@ describe('<SiteList>', () => {
         address: 'Beta Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1004',
@@ -427,7 +427,7 @@ describe('<SiteList>', () => {
         address: 'Zulu Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1001',
@@ -442,7 +442,7 @@ describe('<SiteList>', () => {
         address: 'Lima Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1002',
@@ -457,7 +457,7 @@ describe('<SiteList>', () => {
         address: 'November Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1003',
@@ -472,7 +472,7 @@ describe('<SiteList>', () => {
         address: 'Beta Street',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         odsCode: '1004',

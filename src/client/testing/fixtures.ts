@@ -15,7 +15,7 @@ const testSite1Data: Site = {
   ...testSite1DataRaw,
   location: {
     type: 'Point',
-    coordinates: testSite2DataRaw.location.coordinates as [
+    coordinates: testSite1DataRaw.location.coordinates as [
       longitude: number,
       latitude: number,
     ],

@@ -1,6 +1,6 @@
 using Nhs.Appointments.Core.Availability;
 
-namespace Nhs.Appointments.Api.Tests;
+namespace Nhs.Appointments.Core.UnitTests;
 
 public static class AvailabilityHelper
 {

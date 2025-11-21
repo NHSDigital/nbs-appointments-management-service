@@ -3,10 +3,12 @@ public static  class AvailabilityGrouper
 {
     public static DayEntry BuildDayAvailability(DateOnly date, IEnumerable<SessionInstance> slots)
     {
+        ArgumentNullException.ThrowIfNull(slots);
+
         var noon = 12;
         var amSlots = slots.Where(s => s.From.Hour < noon);
         var pmSlots = slots.Where(s => s.From.Hour >= noon);
-        var hasSpillover = slots.Any(s => s.From.Hour < noon && s.Until.Hour > noon);
+        var hasSpillover = slots.Any(s => s.From.Hour < noon && s.Until.Hour >= noon);
 
         var blocks = new List<Block>();
 

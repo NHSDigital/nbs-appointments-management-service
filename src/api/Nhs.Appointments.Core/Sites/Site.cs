@@ -1,6 +1,7 @@
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System.Runtime.Serialization;
+using Nhs.Appointments.Core.Geography;
 
 namespace Nhs.Appointments.Core.Sites;
 
@@ -14,13 +15,25 @@ public record Site(
     [JsonProperty("integratedCareBoard")] string IntegratedCareBoard,
     [JsonProperty("informationForCitizens")] string InformationForCitizens,
     [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
-    [JsonProperty("location")] Location Location,
+    [JsonProperty("location")] Location location,
     [JsonProperty("status")] SiteStatus? status,
     [JsonProperty("isDeleted")] bool? isDeleted,
     [JsonProperty("type")] string Type
 )
 {
     public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;
+
+    private Location Location { get; } = location;
+
+    public Coordinates Coordinates
+    {
+        get
+        {
+            return Location?.Coordinates is not { Length: 2 }
+                ? null
+                : new Coordinates { Longitude = Location.Coordinates[0], Latitude = Location.Coordinates[1] };
+        }
+    }
 }
 
 public record Location(

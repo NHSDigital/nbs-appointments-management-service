@@ -1,10 +1,10 @@
 using System;
+using Nhs.Appointments.Core.Geography;
 
 namespace Nhs.Appointments.Api.Models;
 
 public record GetSitesByAreaRequest(
-    double Longitude,
-    double Latitude,
+    Coordinates Coordinates,
     int SearchRadius,
     int MaximumRecords,
     string[] AccessNeeds,

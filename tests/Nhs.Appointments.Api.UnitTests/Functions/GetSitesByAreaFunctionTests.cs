@@ -8,6 +8,7 @@ using Moq;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Functions.HttpFunctions;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 
@@ -41,7 +42,25 @@ public class GetSitesByAreaFunctionTests
         var request = CreateRequest(34.6, 2.1, 10, 10, true, accessNeeds);
         var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(400);
-        _siteService.Verify(x => x.FindSitesByArea(34.6, 2.1, 10, 10, Array.Empty<string>(), false, null), Times.Never());
+        _siteService.Verify(
+            x => x.FindSitesByArea(new Coordinates { Longitude = 34.6, Latitude = 2.1 }, 10, 10, Array.Empty<string>(),
+                false, null), Times.Never());
+    }
+
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(34.6, null)]
+    [InlineData(null, 2.1)]
+    public async Task RunAsync_ParsesMissingCoordinatesAsNull(double? longitude, double? latitude)
+    {
+        var request = CreateRequest(longitude, latitude, 10, 10, true, "attr_1");
+        var result = await _sut.RunAsync(request) as ContentResult;
+
+        _validator.Verify(
+            x => x.ValidateAsync(It.Is<GetSitesByAreaRequest>(x => x.Coordinates == null),
+                It.IsAny<CancellationToken>()),
+            Times.Once());
     }
 
     [Fact]
@@ -65,20 +84,22 @@ public class GetSitesByAreaFunctionTests
                     IntegratedCareBoard: "ICB1",
                     InformationForCitizens: "Information For Citizens 123",
                     Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-                    Location: new Location("point", [0.1, 10]),
+                    new Location("point", [0.1, 10]),
                     status : SiteStatus.Online,
                     isDeleted: null,
                     Type: null),
                 Distance: 100)
         };
         _siteService
-            .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false, null))
+            .Setup(x => x.FindSitesByArea(new Coordinates { Longitude = longitude, Latitude = latitude }, searchRadius,
+                maxRecords, new[] { accessNeeds }, false, null))
             .ReturnsAsync(sites);
         var request = CreateRequest(longitude, latitude, searchRadius, maxRecords, true, accessNeeds);
         var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
         _siteService.Verify(
-            x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, new[] { accessNeeds }, false, null),
+            x => x.FindSitesByArea(It.Is<Coordinates>(x => x.Latitude == latitude && x.Longitude == longitude),
+                searchRadius, maxRecords, new[] { accessNeeds }, false, null),
             Times.Once());
     }
 
@@ -102,30 +123,44 @@ public class GetSitesByAreaFunctionTests
                     IntegratedCareBoard: "ICB1",
                     InformationForCitizens: "Information For Citizens 123",
                     Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
-                    Location: new Location("point", [0.1, 10]),
+                    new Location("point", [0.1, 10]),
                     status : SiteStatus.Online,
                     isDeleted: null,
                     Type: null),
                 Distance: 100)
         };
         _siteService
-            .Setup(x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false, null))
+            .Setup(x => x.FindSitesByArea(new Coordinates { Longitude = longitude, Latitude = latitude }, searchRadius,
+                maxRecords, Array.Empty<string>(), false, null))
             .ReturnsAsync(sites);
         var request = CreateRequest(longitude, latitude, searchRadius, maxRecords, false);
         var result = await _sut.RunAsync(request) as ContentResult;
         result?.StatusCode.Should().Be(200);
         _siteService.Verify(
-            x => x.FindSitesByArea(longitude, latitude, searchRadius, maxRecords, Array.Empty<string>(), false, null),
+            x => x.FindSitesByArea(It.Is<Coordinates>(x => x.Latitude == latitude && x.Longitude == longitude),
+                searchRadius,
+                maxRecords, Array.Empty<string>(), false, null),
             Times.Once());
     }
 
 
-    private static HttpRequest CreateRequest(double longitude, double latitude, int searchRadius, int maxRecords,
+    private static HttpRequest CreateRequest(double? longitude, double? latitude, int searchRadius, int maxRecords,
         bool includeAccessNeedsWhenEmpty, params string[] accessNeeds)
     {
         var context = new DefaultHttpContext();
         var queryString =
-            $"?long={longitude}&lat={latitude}&searchRadius={searchRadius}&maxRecords={maxRecords}&ignoreCache=false";
+            $"?searchRadius={searchRadius}&maxRecords={maxRecords}&ignoreCache=false";
+
+        if (longitude.HasValue)
+        {
+            queryString += $"&long={longitude}";
+        }
+
+        if (latitude.HasValue)
+        {
+            queryString += $"&lat={latitude}";
+        }
+
         if (accessNeeds.Any() || includeAccessNeedsWhenEmpty)
         {
             queryString += $"&accessNeeds={string.Join(",", accessNeeds)}";

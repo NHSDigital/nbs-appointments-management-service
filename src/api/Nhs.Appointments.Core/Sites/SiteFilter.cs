@@ -1,3 +1,5 @@
+using Nhs.Appointments.Core.Geography;
+
 namespace Nhs.Appointments.Core.Sites;
 public class SiteFilter
 {
@@ -9,6 +11,7 @@ public class SiteFilter
     public AvailabilityFilter Availability {  get; set; }
     public string[] AccessNeeds { get; set; }
     public int? Priority { get; set; }
+    public Coordinates Coordinates => new() { Longitude = Longitude, Latitude = Latitude };
 }
 
 public class AvailabilityFilter

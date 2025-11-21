@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -42,7 +43,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -58,7 +59,7 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -74,7 +75,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -94,7 +95,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.505, 65.0]),
+                    location: new Location("Point", [0.505, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -111,7 +112,7 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -128,7 +129,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.507, 65.0]),
+                    location: new Location("Point", [.507, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -141,7 +142,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 50, []);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -158,7 +159,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -174,7 +175,7 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -190,7 +191,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -210,7 +211,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.505, 65.0]),
+                    location: new Location("Point", [.505, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -227,7 +228,7 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -240,7 +241,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 2, []);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -257,7 +258,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 50.0]),
+                location: new Location("Point", [.505, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "true") },
                 status: SiteStatus.Online, isDeleted: null,
@@ -270,7 +271,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 50.0]),
+                location: new Location("Point", [.506, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "false") },
                 status: SiteStatus.Online, isDeleted: null,
@@ -287,7 +288,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.505, 50.0]),
+                    location: new Location("Point", [0.505, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -300,7 +301,8 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 50, 50000, 50, ["access_need_1"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 50 }, 50000, 50,
+            ["access_need_1"]);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -317,7 +319,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
+                location: new Location("Point", [0.0, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -333,7 +335,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.05, 50.0]),
+                location: new Location("Point", [.05, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -345,7 +347,8 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, ["access_need_1"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50,
+            ["access_need_1"]);
         result.Should().BeEmpty();
     }
 
@@ -362,7 +365,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -379,7 +382,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -391,7 +394,7 @@ public class SiteServiceTests
         };
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, []);
         result.Should().BeEquivalentTo(sites);
     }
 
@@ -408,7 +411,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.0, 50.0]),
+                location: new Location("Point", [0.0, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>(),
                 status: SiteStatus.Online, isDeleted: null,
@@ -421,7 +424,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
+                location: new Location("Point", [0.1, 50.1]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_2", Value: "true") },
                 status: SiteStatus.Online, isDeleted: null,
@@ -437,7 +440,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.1, 50.1]),
+                    location: new Location("Point", [0.1, 50.1]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -448,7 +451,8 @@ public class SiteServiceTests
                 Distance: 13213),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, ["access_need_2"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50,
+            ["access_need_2"]);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -465,7 +469,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -482,7 +486,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -493,7 +497,7 @@ public class SiteServiceTests
                 Distance: 3573),
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
     }
     
@@ -510,7 +514,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -527,7 +531,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -538,7 +542,7 @@ public class SiteServiceTests
                 Distance: 3573)
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Never);
     }
@@ -556,7 +560,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -573,7 +577,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -590,8 +594,9 @@ public class SiteServiceTests
         object outResult = true;
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
-        
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
+
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""],
+            false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 15)));
         result.Should().BeEquivalentTo(sites);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
@@ -628,7 +633,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -645,7 +650,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -660,8 +665,9 @@ public class SiteServiceTests
         object outResult = true;
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
-        
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,15)));
+
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""],
+            false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 15)));
         result.Should().BeEquivalentTo(sites);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
@@ -701,7 +707,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -730,7 +736,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, longitude]),
+                    location: new Location("Point", [0.05, longitude]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -755,8 +761,9 @@ public class SiteServiceTests
             var id = $"{i:00}";
             _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(false);
         }
-        
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 1, [""], false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025,10,3), new DateOnly(2025,10,06)));
+
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 1, [""],
+            false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 06)));
         result.Single().Site.Id.Should().Be(validSites.First().Site.Id);
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
@@ -791,7 +798,8 @@ public class SiteServiceTests
     {
         var sites = Array.Empty<Site>();
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 2, ["access_need_1"]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 2,
+            ["access_need_1"]);
         result.Should().BeEmpty();
     }
 
@@ -808,7 +816,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -825,7 +833,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -837,7 +845,7 @@ public class SiteServiceTests
         };
         object outSites = sites.Select(s => s.Site);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _siteStore.Verify(x => x.GetAllSites(), Times.Never());
     }
@@ -855,7 +863,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -872,7 +880,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -886,7 +894,8 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""], true);
+        var result =
+            await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""], true);
         result.Should().BeEquivalentTo(sites);
         _siteStore.Verify(x => x.GetAllSites(), Times.Once);
     }
@@ -904,7 +913,7 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -921,7 +930,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -935,7 +944,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(false);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
-        var result = await _sut.FindSitesByArea(0.0, 50, 50000, 50, [""]);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
         _siteStore.Verify(x => x.GetAllSites(), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry("sites"), Times.Once);
@@ -953,7 +962,7 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
             status: SiteStatus.Online, isDeleted: null,
@@ -967,7 +976,7 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
             status: SiteStatus.Online, isDeleted: null,
@@ -1003,7 +1012,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode1",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1016,7 +1025,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode2",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1044,7 +1053,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode1",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                    location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1057,7 +1066,7 @@ public class SiteServiceTests
                     OdsCode: "odsCode2",
                     Region: "R1",
                     IntegratedCareBoard: "ICB2",
-                    Location: new Location(Type: "Point", Coordinates: [0.05, 50.0]),
+                    location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
                     status: SiteStatus.Online, isDeleted: null,
@@ -1088,7 +1097,7 @@ public class SiteServiceTests
                 OdsCode: "odsCode1",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [0.04, 50.0]),
+                location: new Location("Point", [0.04, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
                 status: SiteStatus.Online, isDeleted: null,
@@ -1118,7 +1127,7 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.507, 65]),
+                location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -1134,7 +1143,7 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.506, 65]),
+                location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -1150,7 +1159,7 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                Location: new Location(Type: "Point", Coordinates: [.505, 65]),
+                location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
@@ -1170,7 +1179,7 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.506, 65.0]),
+                    location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -1187,7 +1196,7 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    Location: new Location(Type: "Point", Coordinates: [.507, 65.0]),
+                    location: new Location("Point", [.507, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
@@ -1201,7 +1210,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
-        var result = await _sut.FindSitesByArea(0.5, 65, 50000, 50, []);
+        var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.5, Latitude = 65 }, 50000, 50, []);
         result.Should().BeEquivalentTo(expectedSites);
     }
 
@@ -2129,7 +2138,7 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            Location: new Location(Type: "Point", Coordinates: [2.0, 70.0]),
+            location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new(Id: "Accessibility 1", Value: "true") },
             status: SiteStatus.Online, isDeleted: true,

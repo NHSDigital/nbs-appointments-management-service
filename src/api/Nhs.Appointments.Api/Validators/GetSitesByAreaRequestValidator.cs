@@ -9,16 +9,26 @@ public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesByAreaRe
 {
     public GetSitesByAreaRequestValidator()
     {
-        RuleFor(x => x.Longitude)
-            .LessThanOrEqualTo(180)
-            .GreaterThanOrEqualTo(-180)
-            .Configure(rule =>
-                rule.MessageBuilder = _ => "Provide a valid longitude value (between -180 <-> 180 degrees).");
-        RuleFor(x => x.Latitude)
-            .LessThanOrEqualTo(90)
-            .GreaterThanOrEqualTo(-90)
-            .Configure(rule =>
-                rule.MessageBuilder = _ => "Provide a valid latitude value (between -90 <-> 90 degrees).");
+        RuleFor(x => x.Coordinates)
+            .NotEmpty()
+            .WithMessage("Provide lat and long co-ordinates.")
+            .DependentRules(() =>
+            {
+                RuleFor(x => x.Coordinates.Longitude)
+                    .LessThanOrEqualTo(180)
+                    .WithName(nameof(GetSitesByAreaRequest.Coordinates.Longitude))
+                    .WithMessage("Provide a valid longitude value (between -180 <-> 180 degrees).")
+                    .GreaterThanOrEqualTo(-180)
+                    .WithName(nameof(GetSitesByAreaRequest.Coordinates.Longitude))
+                    .WithMessage("Provide a valid longitude value (between -180 <-> 180 degrees).");
+                RuleFor(x => x.Coordinates.Latitude)
+                    .LessThanOrEqualTo(90)
+                    .WithName(nameof(GetSitesByAreaRequest.Coordinates.Latitude))
+                    .WithMessage("Provide a valid latitude value (between -90 <-> 90 degrees).")
+                    .GreaterThanOrEqualTo(-90)
+                    .WithName(nameof(GetSitesByAreaRequest.Coordinates.Latitude))
+                    .WithMessage("Provide a valid latitude value (between -90 <-> 90 degrees).");
+            });
         RuleFor(x => x.SearchRadius)
             .LessThanOrEqualTo(100000)
             .GreaterThanOrEqualTo(1000)

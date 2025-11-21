@@ -13,7 +13,6 @@ using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
@@ -275,7 +274,7 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                 IntegratedCareBoard: row.Cells.ElementAt(6).Value,
                 InformationForCitizens: row.Cells.ElementAt(7).Value,
                 Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
-                Location: new Location(Type: "Point",
+                new Location("Point",
                     Coordinates:
                     [
                         double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)

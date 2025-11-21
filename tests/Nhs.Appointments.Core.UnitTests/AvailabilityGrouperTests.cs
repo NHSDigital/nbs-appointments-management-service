@@ -34,7 +34,7 @@ public class AvailabilityGrouperTests
     public void BuildDayAvailability_ReturnsCorrectBlockTimingForMultipleAmSlots()
     {
         var date = new DateOnly(2025, 10, 1);
-        var slots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(10, 30), new TimeOnly(12, 00), TimeSpan.FromMinutes(10));
+        var slots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(10, 30), new TimeOnly(11, 50), TimeSpan.FromMinutes(10));
 
         var result = AvailabilityGrouper.BuildDayAvailability(date, slots);
 

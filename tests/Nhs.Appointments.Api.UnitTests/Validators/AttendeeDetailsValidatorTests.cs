@@ -5,7 +5,7 @@ using Nhs.Appointments.Core.Bookings;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
-public class AttendeeValidatorTests
+public class AttendeeDetailsValidatorTests
 {
     private readonly AttendeeDetailsValidator _sut = new();
 

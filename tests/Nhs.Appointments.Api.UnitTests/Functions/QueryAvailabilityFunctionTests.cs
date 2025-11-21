@@ -17,6 +17,7 @@ using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Api.Functions.HttpFunctions;
+using Nhs.Appointments.Core.UnitTests;
 
 #pragma warning disable CS0618 // Keep availabilityCalculator around until MultipleServicesEnabled is stable
 

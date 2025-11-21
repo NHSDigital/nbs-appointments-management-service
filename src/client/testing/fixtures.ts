@@ -11,10 +11,26 @@ import testSite1DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data
 import testSite2DataRaw from '../../../data/CosmosDbSeeder/items/local/core_data/site_ABC02.json';
 
 const testUsersData: UserSeedDataRaw[] = testUsersDataRaw;
-const testSite1Data: Site = testSite1DataRaw;
+const testSite1Data: Site = {
+  ...testSite1DataRaw,
+  location: {
+    type: 'Point',
+    coordinates: testSite2DataRaw.location.coordinates as [
+      longitude: number,
+      latitude: number,
+    ],
+  },
+};
 const testSite2Data: Site = {
   ...testSite2DataRaw,
   status: testSite2DataRaw.status as SiteStatus,
+  location: {
+    type: 'Point',
+    coordinates: testSite2DataRaw.location.coordinates as [
+      longitude: number,
+      latitude: number,
+    ],
+  },
 };
 
 interface UserSeedDataRaw {

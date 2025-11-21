@@ -351,7 +351,7 @@ describe('Nhs Page', () => {
         region: '',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         accessibilities: [],
@@ -396,7 +396,7 @@ describe('Nhs Page', () => {
         region: '',
         phoneNumber: '01189998819991197253',
         location: {
-          coordinates: [],
+          coordinates: [-2.3, 53.1],
           type: 'point',
         },
         accessibilities: [],

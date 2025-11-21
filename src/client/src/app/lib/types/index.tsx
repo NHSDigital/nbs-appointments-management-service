@@ -171,7 +171,7 @@ type Site = {
 
 type Location = {
   type: string;
-  coordinates: number[];
+  coordinates: [longitude: number, latitude: number];
 };
 
 type User = {

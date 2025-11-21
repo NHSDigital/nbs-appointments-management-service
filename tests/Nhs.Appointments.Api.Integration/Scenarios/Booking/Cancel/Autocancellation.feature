@@ -1,5 +1,19 @@
 Feature: Appointment cancellation
 
+  Scenario: Can cancel a booking when I provide no details for cancellation reason or additional data
+    Given the following sessions
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
+    And the following bookings exist
+      | Reference | Booking Type |
+      | 1         | Confirmed    |
+    When I cancel the following bookings
+      | Reference |
+      | 1         |
+    Then the following bookings are now in the following state
+      | Reference | Status    | Cancellation reason |
+      | 1         | Cancelled | CancelledByCitizen  |
+      
   Scenario: Can set additional data when cancelling a booking and providing no site parameter
     Given the following sessions
       | Date     | From  | Until | Services  | Slot Length | Capacity |

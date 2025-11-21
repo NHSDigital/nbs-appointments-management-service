@@ -131,7 +131,8 @@ public static class FunctionConfigurationExtensions
             .AddUserNotifications(configuration)
             .AddAutoMapper(typeof(CosmosAutoMapperProfile))
             .AddTransient<IAdminUserDataImportHandler, AdminUserDataImportHandler>()
-            .AddTransient<ISiteStatusDataImportHandler, SiteStatusDataImportHandler>();
+            .AddTransient<ISiteStatusDataImportHandler, SiteStatusDataImportHandler>()
+            .AddTransient<IAvailableSlotsFilter, AvailableSlotsFilter>();
 
         var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
         if (leaseManagerConnection == "local")

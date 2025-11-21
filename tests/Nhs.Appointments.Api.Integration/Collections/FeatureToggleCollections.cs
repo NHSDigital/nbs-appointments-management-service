@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Features;
 using Xunit;
 
 namespace Nhs.Appointments.Api.Integration.Collections;
@@ -13,6 +13,7 @@ public static class FeatureToggleCollectionNames
     public const string ChangeSessionUpliftedJourneyCollection = $"{Flags.ChangeSessionUpliftedJourney}Toggle";
     public const string CancelSessionUpliftedJourneyCollection = $"{Flags.CancelSessionUpliftedJourney}Toggle";
     public const string QuerySitesCollection = $"{Flags.QuerySites}Toggle";
+    public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}Toggle";
 }
 
 [CollectionDefinition(FeatureToggleCollectionNames.OktaCollection)]
@@ -52,5 +53,10 @@ public class CancelSessionUpliftedJourneySerialToggleCollection : ICollectionFix
 
 [CollectionDefinition(FeatureToggleCollectionNames.QuerySitesCollection)]
 public class QuerySitesSerialToggleCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.MultiServiceJointBookingsCollection)]
+public class MultiServiceJointBookingsCollection : ICollectionFixture<object>
 {
 }

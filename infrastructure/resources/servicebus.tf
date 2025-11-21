@@ -3,7 +3,7 @@ resource "azurerm_servicebus_namespace" "nbs_mya_service_bus" {
   name                = "${var.application}-sb-${var.environment}-${var.loc}"
   location            = var.location
   resource_group_name = local.resource_group_name
-  sku                 = "Standard"
+  sku                 = var.service_bus_sku
 }
 
 resource "azurerm_servicebus_queue" "nbs_mya_sbq_user_roles" {

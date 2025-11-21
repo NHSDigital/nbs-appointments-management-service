@@ -40,8 +40,7 @@ public class SiteService(
     ILogger<ISiteService> logger,
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
-    IOptions<SiteServiceOptions> options,
-    IGeographyService geographyService) : ISiteService
+    IOptions<SiteServiceOptions> options) : ISiteService
 {
     private static readonly SemaphoreSlim _cacheLock = new(1, 1);
 
@@ -60,7 +59,7 @@ public class SiteService(
 
         var sitesWithDistance = sites
             .Select(site => new SiteWithDistance(site,
-                geographyService.CalculateDistanceInMetres(coordinates, site.Coordinates)));
+                GeographyCalculations.CalculateDistanceInMetres(coordinates, site.Coordinates)));
 
         Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
             s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
@@ -309,7 +308,7 @@ public class SiteService(
             var sitesWithDistance = filteredSites
                 .Select(site =>
                     new SiteWithDistance(site,
-                        geographyService.CalculateDistanceInMetres(filterCoordinates, site.Coordinates)))
+                        GeographyCalculations.CalculateDistanceInMetres(filterCoordinates, site.Coordinates)))
                 .ToList();
 
             if (filter.Availability is not null && filter.Availability.Services?.Length > 0)
@@ -380,7 +379,7 @@ public class SiteService(
                 return filter.OdsCode.Equals(site.OdsCode, StringComparison.InvariantCultureIgnoreCase);
             }
 
-            var distance = geographyService.CalculateDistanceInMetres(filter.Coordinates, site.Coordinates);
+            var distance = GeographyCalculations.CalculateDistanceInMetres(filter.Coordinates, site.Coordinates);
             return distance <= filter.SearchRadius;
         };
     }

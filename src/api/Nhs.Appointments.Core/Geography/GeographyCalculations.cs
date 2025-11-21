@@ -1,8 +1,8 @@
 ﻿namespace Nhs.Appointments.Core.Geography;
 
-public class GeographyService : IGeographyService
+public static class GeographyCalculations
 {
-    public int CalculateDistanceInMetres(Coordinates origin, Coordinates destination)
+    public static int CalculateDistanceInMetres(Coordinates origin, Coordinates destination)
     {
         var epsilon = 0.000001f;
         var deltaLatitude = destination.Latitude - origin.Latitude;
@@ -21,7 +21,7 @@ public class GeographyService : IGeographyService
         return (int)(dist * 60 * 1.1515 * 1.609344 * 1000);
     }
 
-    private double DegreesToRadians(double deg) => deg * Math.PI / 180.0;
+    private static double DegreesToRadians(double deg) => deg * Math.PI / 180.0;
 
-    private double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
+    private static double RadiansToDegrees(double rad) => rad / Math.PI * 180.0;
 }

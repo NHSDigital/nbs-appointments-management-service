@@ -2,10 +2,8 @@
 
 namespace Nhs.Appointments.Core.UnitTests.Geography;
 
-public class GeographyServiceTests
+public class GeographyCalculationsTests
 {
-    private readonly GeographyService _sut = new();
-
     [Theory]
     // Same coords, no distance
     [InlineData(0.0, 0.0, 0.0, 0.0, 0)]
@@ -28,7 +26,7 @@ public class GeographyServiceTests
         var originCoordinates = new Coordinates { Latitude = originLat, Longitude = originLong };
         var destinationCoordinates = new Coordinates { Latitude = destinationLat, Longitude = destinationLong };
 
-        var result = _sut.CalculateDistanceInMetres(originCoordinates, destinationCoordinates);
+        var result = GeographyCalculations.CalculateDistanceInMetres(originCoordinates, destinationCoordinates);
 
         result.Should().Be(expectedDistance);
     }

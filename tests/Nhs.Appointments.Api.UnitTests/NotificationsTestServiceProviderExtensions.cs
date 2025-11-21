@@ -39,7 +39,6 @@ public static class NotificationsTestServiceProviderExtensions
             .AddSingleton<IRolesStore, RolesStore>()
             .AddSingleton<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddSingleton<INotificationConfigurationStore, NotificationConfigurationStore>()
-            .AddSingleton<IGeographyService, GeographyService>()
             .AddSingleton<ISiteService, SiteService>()
             .AddSingleton<INotificationConfigurationService, NotificationConfigurationService>();
 

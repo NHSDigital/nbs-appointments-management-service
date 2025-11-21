@@ -26,7 +26,7 @@ public class SiteServiceTests
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _options.Object, new GeographyService());
+            TimeProvider.System, _featureToggleHelper.Object, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 

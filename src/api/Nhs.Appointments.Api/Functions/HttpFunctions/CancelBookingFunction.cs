@@ -107,24 +107,15 @@ public class CancelBookingFunction(
         }
             
         var cancellationReason = CancellationReason.CancelledByCitizen;
-        object additionalData = null;
-        if (req.Body.Length > 0)
+        var (errorsFromBody, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
+        errors.AddRange(errorsFromBody);
+
+        if (payload?.cancellationReason != null)
         {
-            var (errorsFromBody, payload) = await JsonRequestReader.ReadRequestAsync<CancelBookingRequest>(req.Body, true);
-            errors.AddRange(errorsFromBody);
-
-            if (errors.Any(x => x.Property == "cancellationReason"))
-            {
-                return (errors, null);
-            }
-
-            if (payload?.cancellationReason != null)
-            {
-                cancellationReason = (CancellationReason)payload.cancellationReason;
-            }
-
-            additionalData = payload?.additionalData;
+            cancellationReason = (CancellationReason)payload.cancellationReason;
         }
+
+        var additionalData = payload?.additionalData;
 
         var requestModel = new CancelBookingRequest(bookingReference, site, cancellationReason, additionalData);
 

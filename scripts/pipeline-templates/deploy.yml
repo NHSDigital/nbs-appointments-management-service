@@ -62,11 +62,30 @@ stages:
             inputs:
               notifyUsers: ""
               instructions: Enter a valid CFG
-      - job: RunTerraformPlan
-        displayName: "Run Terraform Plan"
+
+      - job: StartSwapSlots
+        displayName: "Start swap slots"
         dependsOn:
           - ${{ if eq(parameters.env, 'prod') }}:
               - EnterChangeRequest
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "Start Swap Slots"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              addSpnToEnvironment: true
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/deployment/start-swap-slots.ps1"
+              arguments: "-environment '${{parameters.env}}'"
+
+      - job: RunTerraformPlan
+        displayName: "Run Terraform Plan"
+        dependsOn:
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - StartSwapSlots
         steps:
           - checkout: none
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
@@ -391,9 +410,9 @@ stages:
               WebAppName: ${{parameters.timerFunctionAppName}}
               ResourceGroupName: ${{parameters.resourceGroup}}
               SourceSlot: "preview"
-      - job: SetEnvironmentTag
-        displayName: "Move Environment Deployment Tag"
-        condition: succeeded()
+
+      - job: StopSwapSlots
+        displayName: "Stop swap slots"
         dependsOn:
           - UploadCosmosDocuments
           - ${{ if in(parameters.env, 'stag', 'prod') }}:
@@ -402,6 +421,26 @@ stages:
               - SwapHighLoadFuncAppSlots
               - SwapServiceBusFuncAppSlots
               - SwapTimerFuncAppSlots
+        condition: and(succeeded(), ${{ in(parameters.env, 'stag', 'prod') }})
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: "Stop Swap Slots"
+            inputs:
+              azureSubscription: ${{parameters.serviceConnectionName}}
+              addSpnToEnvironment: true
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/deployment/stop-swap-slots.ps1"
+              arguments: "-environment '${{parameters.env}}'"
+
+      - job: SetEnvironmentTag
+        displayName: "Move Environment Deployment Tag"
+        condition: succeeded()
+        dependsOn:
+          - UploadCosmosDocuments
+          - ${{ if in(parameters.env, 'stag', 'prod') }}:
+              - StopSwapSlots
         steps:
           - checkout: self
             persistCredentials: true # Ensures authentication for Git push
@@ -464,7 +503,7 @@ stages:
             displayName: "Retain Release Branch Build"
             inputs:
               failOnStderr: true
-              targetType: 'inline'
+              targetType: "inline"
               script: |
                 Write-Host "Checking if build branch is release/..."
                 $branch = "$(Build.SourceBranch)"

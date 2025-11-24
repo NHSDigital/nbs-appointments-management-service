@@ -6,16 +6,15 @@ import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import asServerActionResult from '@testing/asServerActionResult';
 import * as timeService from '@services/timeService';
-import { SessionModificationResponse, SessionSummary } from '@types';
+import { AvailabilitySession, SessionModificationResponse } from '@types';
+import { parseToUkDatetime } from '@services/timeService';
 
-const mockSessionSummary: SessionSummary = {
-  ukStartDatetime: '2025-10-23T10:00:00',
-  ukEndDatetime: '2025-10-23T12:00:00',
-  maximumCapacity: 24,
-  totalSupportedAppointments: 1,
-  totalSupportedAppointmentsByService: { 'RSV:Adult': 1 },
-  capacity: 2,
+const mockAvailabilitySession: AvailabilitySession = {
+  from: '2025-10-23T10:00:00',
+  until: '2025-10-23T12:00:00',
+  services: ['RSV:Adult'],
   slotLength: 10,
+  capacity: 2,
 };
 
 jest.mock('next/navigation');
@@ -36,9 +35,9 @@ describe('EditSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="edit"
       />,
     );
@@ -56,18 +55,19 @@ describe('EditSessionConfirmation', () => {
 
   it('New proposed time is displayed correctly', () => {
     const newSessionEndTime = '11:00';
-    const mockNewSessionSummary: SessionSummary = {
-      ...mockSessionSummary,
-      ukEndDatetime: `2025-10-23T${newSessionEndTime}:00`,
+    const mockNewSessionSummary: AvailabilitySession = {
+      ...mockAvailabilitySession,
+      until: `2025-10-23T${newSessionEndTime}:00`,
     };
+
     render(
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         newSession={mockNewSessionSummary}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="edit"
       />,
     );
@@ -80,9 +80,9 @@ describe('EditSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="edit"
       />,
     );
@@ -106,9 +106,9 @@ describe('EditSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="edit"
       />,
     );
@@ -127,9 +127,9 @@ describe('EditSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="edit"
       />,
     );
@@ -170,9 +170,9 @@ describe('CancelSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="cancel"
       />,
     );
@@ -193,9 +193,9 @@ describe('CancelSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="cancel"
       />,
     );
@@ -223,9 +223,9 @@ describe('CancelSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="cancel"
       />,
     );
@@ -244,9 +244,9 @@ describe('CancelSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="cancel"
       />,
     );
@@ -274,9 +274,9 @@ describe('CancelSessionConfirmation', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="cancel"
       />,
     );
@@ -331,9 +331,9 @@ describe('submitForm', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode={mode}
       />,
     );
@@ -405,9 +405,9 @@ describe('submitForm', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode={mode}
       />,
     );
@@ -479,9 +479,9 @@ describe('submitForm', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode={mode}
       />,
     );
@@ -553,9 +553,9 @@ describe('submitForm', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode={mode}
       />,
     );
@@ -629,9 +629,9 @@ describe('submitForm', () => {
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
+        session={mockAvailabilitySession}
         site="site-123"
-        date="2024-06-10"
+        date={parseToUkDatetime('2024-06-10')}
         mode="cancel"
       />,
     );

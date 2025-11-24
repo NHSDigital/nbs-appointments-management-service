@@ -15,13 +15,12 @@ import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import {
   ClinicalService,
-  SessionSummary,
   UpdateSessionRequest,
   SessionModificationAction,
   AvailabilitySession,
 } from '@types';
 import { modifySession } from '@services/appointmentsService';
-import { toTimeFormat } from '@services/timeService';
+import { DayJsType, RFC3339Format } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,10 +31,10 @@ type FormData = { action?: SessionModificationAction };
 type Props = {
   newlyUnsupportedBookingsCount: number;
   clinicalServices: ClinicalService[];
-  session: string;
-  newSession?: SessionSummary | null;
+  session: AvailabilitySession;
+  newSession?: AvailabilitySession | null;
   site: string;
-  date: string;
+  date: DayJsType;
   mode: Mode;
 };
 
@@ -126,16 +125,6 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
   },
 };
 
-const toAvailabilitySession = (
-  session: SessionSummary,
-): AvailabilitySession => ({
-  from: toTimeFormat(session.ukStartDatetime) ?? '',
-  until: toTimeFormat(session.ukEndDatetime) ?? '',
-  slotLength: session.slotLength,
-  capacity: session.capacity,
-  services: Object.keys(session.totalSupportedAppointmentsByService),
-});
-
 export const SessionModificationConfirmation = ({
   newlyUnsupportedBookingsCount,
   clinicalServices,
@@ -147,7 +136,6 @@ export const SessionModificationConfirmation = ({
 }: Props) => {
   const router = useRouter();
   const [pendingSubmit, startTransition] = useTransition();
-  const sessionSummary: SessionSummary = JSON.parse(atob(session));
 
   const {
     handleSubmit,
@@ -168,18 +156,10 @@ export const SessionModificationConfirmation = ({
     startTransition(async () => {
       const cancelBookings = form.action === 'cancel-appointments';
       let request: UpdateSessionRequest = {
-        from: date,
-        to: date,
+        from: date.format(RFC3339Format),
+        to: date.format(RFC3339Format),
         site: site,
-        sessionMatcher: {
-          from: toTimeFormat(sessionSummary.ukStartDatetime) || '',
-          until: toTimeFormat(sessionSummary.ukEndDatetime) || '',
-          services: Object.keys(
-            sessionSummary.totalSupportedAppointmentsByService,
-          ),
-          slotLength: sessionSummary.slotLength,
-          capacity: sessionSummary.capacity,
-        },
+        sessionMatcher: session,
         sessionReplacement: null,
         newlyUnsupportedBookingAction: cancelBookings ? 'Cancel' : 'Orphan',
       };
@@ -188,19 +168,11 @@ export const SessionModificationConfirmation = ({
         {} as AvailabilitySession;
 
       if (mode === 'edit' && newSession) {
-        updatedSessionSummary = toAvailabilitySession(newSession);
+        updatedSessionSummary = newSession;
 
         request = {
           ...request,
-          sessionReplacement: {
-            from: toTimeFormat(newSession.ukStartDatetime) || '',
-            until: toTimeFormat(newSession.ukEndDatetime) || '',
-            services: Object.keys(
-              newSession.totalSupportedAppointmentsByService,
-            ),
-            slotLength: newSession.slotLength,
-            capacity: newSession?.capacity,
-          },
+          sessionReplacement: newSession,
         };
       }
 
@@ -267,12 +239,12 @@ export const SessionModificationConfirmation = ({
 
   return (
     <>
-      <SessionSummaryTable
+      {/* <SessionSummaryTable
         sessionSummaries={newSession ? [newSession] : []}
         clinicalServices={clinicalServices}
         showUnbooked={false}
         showBooked={false}
-      />
+      /> */}
 
       {newlyUnsupportedBookingsCount > 0 ? (
         <>

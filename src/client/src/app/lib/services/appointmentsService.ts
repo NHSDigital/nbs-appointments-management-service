@@ -4,9 +4,9 @@ import { notFound, redirect } from 'next/navigation';
 import {
   AccessibilityDefinition,
   ApplyAvailabilityTemplateRequest,
-  AvailabilityChangeProposalRequest,
   AvailabilityChangeProposalResponse,
   AvailabilityCreatedEvent,
+  AvailabilitySession,
   Booking,
   BookingStatus,
   CancelDayRequest,
@@ -42,6 +42,7 @@ import { ApiResponse, ClinicalService } from '@types';
 import { raiseNotification } from '@services/notificationService';
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import {
+  DayJsType,
   RFC3339Format,
   dateTimeFormat,
   parseToUkDatetime,
@@ -659,13 +660,33 @@ export const downloadSiteSummaryReport = async (
     .get<Blob>(`report/site-summary?startDate=${startDate}&endDate=${endDate}`)
     .then(handleBodyResponse);
 
-export const availabilityChangeProposal = async (
-  payload: AvailabilityChangeProposalRequest,
+// export const availabilityChangeProposal = async (
+//   payload: AvailabilityChangeProposalRequest,
+// ): Promise<ServerActionResult<AvailabilityChangeProposalResponse>> =>
+//   appointmentsApi
+//     .post<AvailabilityChangeProposalResponse>(
+//       'availability/propose-edit',
+//       JSON.stringify(payload),
+//     )
+//     .then(handleBodyResponse);
+
+export const proposeAnAvailabilityChange = async (
+  site: string,
+  from: DayJsType,
+  to: DayJsType,
+  sessionMatcher: AvailabilitySession | '*',
+  sessionReplacement: AvailabilitySession | null,
 ): Promise<ServerActionResult<AvailabilityChangeProposalResponse>> =>
   appointmentsApi
     .post<AvailabilityChangeProposalResponse>(
       'availability/propose-edit',
-      JSON.stringify(payload),
+      JSON.stringify({
+        from: from.format(RFC3339Format),
+        to: to.format(RFC3339Format),
+        site,
+        sessionMatcher,
+        sessionReplacement: sessionReplacement ?? null,
+      }),
     )
     .then(handleBodyResponse);
 

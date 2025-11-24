@@ -1,15 +1,12 @@
 import {
   assertPermission,
   fetchSite,
-  availabilityChangeProposal,
+  proposeAnAvailabilityChange,
   fetchClinicalServices,
+  assertFeatureEnabled,
 } from '@services/appointmentsService';
-import {
-  AvailabilityChangeProposalRequest,
-  SessionSummary,
-  AvailabilitySession,
-} from '@types';
-import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
+import { SessionSummary, AvailabilitySession } from '@types';
+import { parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
@@ -45,6 +42,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   }
 
   await assertPermission(siteFromPath, 'availability:setup');
+  await assertFeatureEnabled('ChangeSessionUpliftedJourney');
+
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
@@ -60,28 +59,30 @@ const Page = async ({ searchParams, params }: PageProps) => {
     service => !removedServicesSessionDetails.services.includes(service),
   );
 
-  const availabilityRequest: AvailabilityChangeProposalRequest = {
-    from: date,
-    to: date,
-    site: siteFromPath,
-    sessionMatcher: {
-      from: toTimeFormat(sessionSummary.ukStartDatetime) ?? '',
-      until: toTimeFormat(sessionSummary.ukEndDatetime) ?? '',
-      services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
-      slotLength: sessionSummary.slotLength,
-      capacity: sessionSummary.capacity,
-    },
-    sessionReplacement: {
-      from: removedServicesSessionDetails.from,
-      until: removedServicesSessionDetails.until,
-      services: newSessionDetails.services,
-      slotLength: removedServicesSessionDetails.slotLength,
-      capacity: removedServicesSessionDetails.capacity,
-    },
+  const oldSession: AvailabilitySession = {
+    from: sessionSummary.ukStartDatetime,
+    until: sessionSummary.ukEndDatetime,
+    services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
+    slotLength: sessionSummary.slotLength,
+    capacity: sessionSummary.capacity,
+  };
+
+  const newSession: AvailabilitySession = {
+    from: removedServicesSessionDetails.from,
+    until: removedServicesSessionDetails.until,
+    services: newSessionDetails.services,
+    slotLength: removedServicesSessionDetails.slotLength,
+    capacity: removedServicesSessionDetails.capacity,
   };
 
   const availabilityProposal = await fromServer(
-    availabilityChangeProposal(availabilityRequest),
+    proposeAnAvailabilityChange(
+      site.id,
+      parseToUkDatetime(date),
+      parseToUkDatetime(date),
+      oldSession,
+      newSession,
+    ),
   );
 
   const clinicalServices = await fromServer(fetchClinicalServices());

@@ -1,21 +1,29 @@
 import {
   assertPermission,
   fetchSite,
-  availabilityChangeProposal,
   fetchClinicalServices,
+  assertFeatureEnabled,
+  proposeAnAvailabilityChange,
 } from '@services/appointmentsService';
-import { AvailabilityChangeProposalRequest, SessionSummary } from '@types';
+import { AvailabilitySession, SessionSummary } from '@types';
 import { SessionModificationConfirmation } from '@components/session-modification-confirmation';
-import { parseToUkDatetime, toTimeFormat } from '@services/timeService';
+import { DayJsType, parseToUkDatetime } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
 
+type SearchParams = {
+  date: string;
+  session: string;
+};
+
+type ParsedParams = {
+  date: DayJsType;
+  session: AvailabilitySession;
+};
+
 type PageProps = {
-  searchParams?: Promise<{
-    date: string;
-    session: string;
-  }>;
+  searchParams?: Promise<SearchParams>;
   params: Promise<{
     site: string;
   }>;
@@ -23,36 +31,22 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { session, date } = { ...(await searchParams) };
-  if (session === undefined || date === undefined) {
-    return notFound();
-  }
+  const { date, session } = await parseSearchParams(searchParams);
+
   await assertPermission(siteFromPath, 'availability:setup');
-  const parsedDate = parseToUkDatetime(date);
-  const site = await fromServer(fetchSite(siteFromPath));
-  const sessionSummary: SessionSummary = JSON.parse(atob(session));
-  const availabilityRequest: AvailabilityChangeProposalRequest = {
-    from: date,
-    to: date,
-    site: siteFromPath,
-    sessionMatcher: {
-      from: toTimeFormat(sessionSummary.ukStartDatetime) ?? '',
-      until: toTimeFormat(sessionSummary.ukEndDatetime) ?? '',
-      services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
-      slotLength: sessionSummary.slotLength,
-      capacity: sessionSummary.capacity,
-    },
-    sessionReplacement: null,
-  };
+  await assertFeatureEnabled('CancelSessionUpliftedJourney');
 
-  const availabilityProposal = await fromServer(
-    availabilityChangeProposal(availabilityRequest),
-  );
+  const [site, availabilityProposal, clinicalServices] = await Promise.all([
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(
+      proposeAnAvailabilityChange(siteFromPath, date, date, session, null),
+    ),
+    fromServer(fetchClinicalServices()),
+  ]);
 
-  const clinicalServices = await fromServer(fetchClinicalServices());
   return (
     <NhsTransactionalPage
-      title={`Cancel session for ${parsedDate.format('dddd DD MMMM')}`}
+      title={`Cancel session for ${date}`}
       caption={site.name}
       originPage="edit-session"
       backLink={{
@@ -73,6 +67,29 @@ const Page = async ({ searchParams, params }: PageProps) => {
       />
     </NhsTransactionalPage>
   );
+};
+
+const parseSearchParams = async (
+  params?: Promise<SearchParams>,
+): Promise<ParsedParams> => {
+  const { session, date } = { ...(await params) };
+  if (session === undefined || date === undefined) {
+    notFound();
+  }
+
+  const parsedDate = parseToUkDatetime(date);
+  // TODO: Wouldn't it be better to pass AvailabilitySession rather than SessionSummary?
+  const parsedSession: SessionSummary = JSON.parse(atob(session));
+
+  const availabilitySession: AvailabilitySession = {
+    from: parsedSession.ukStartDatetime,
+    until: parsedSession.ukEndDatetime,
+    services: Object.keys(parsedSession.totalSupportedAppointmentsByService),
+    slotLength: parsedSession.slotLength,
+    capacity: parsedSession.capacity,
+  };
+
+  return { date: parsedDate, session: availabilitySession };
 };
 
 export default Page;

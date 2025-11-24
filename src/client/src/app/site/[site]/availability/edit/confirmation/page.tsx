@@ -1,28 +1,34 @@
 import {
   assertPermission,
   fetchSite,
-  availabilityChangeProposal,
+  proposeAnAvailabilityChange,
   fetchClinicalServices,
+  assertFeatureEnabled,
 } from '@services/appointmentsService';
-import {
-  AvailabilityChangeProposalRequest,
-  SessionSummary,
-  Session,
-} from '@types';
-import {
-  dateTimeFormat,
-  parseToUkDatetime,
-  toTimeFormat,
-  parseDateAndTimeComponentsToUkDateTime,
-} from '@services/timeService';
+import { SessionSummary, AvailabilitySession } from '@types';
+import { parseToUkDatetime, DayJsType } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import fromServer from '@server/fromServer';
 import { SessionModificationConfirmation } from '@components/session-modification-confirmation';
 
+type SearchParams = {
+  date: string;
+  session: string;
+  sessionToEdit: string;
+};
+
+type ParsedParams = {
+  date: DayJsType;
+  session: AvailabilitySession;
+  sessionToEdit: AvailabilitySession;
+};
+
 type PageProps = {
   searchParams?: Promise<{
     date: string;
+    // TODO: What is the difference between Session and Session to edit?
+    // If the 2nd session is the one "to edit", why do we need the first?
     session: string;
     sessionToEdit: string;
   }>;
@@ -33,61 +39,29 @@ type PageProps = {
 
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { session, date, sessionToEdit } = { ...(await searchParams) };
-  if (
-    session === undefined ||
-    date === undefined ||
-    sessionToEdit === undefined
-  ) {
-    return notFound();
-  }
+  const { date, session, sessionToEdit } =
+    await parseSearchParams(searchParams);
 
   await assertPermission(siteFromPath, 'availability:setup');
-  const parsedDate = parseToUkDatetime(date);
-  const site = await fromServer(fetchSite(siteFromPath));
-  const sessionSummary: SessionSummary = JSON.parse(atob(session));
-  const newSessionDetails: Session = JSON.parse(atob(sessionToEdit));
-  const newSessionSummary: SessionSummary = {
-    ...sessionSummary,
-    capacity: newSessionDetails.capacity,
-    ukStartDatetime: parseDateAndTimeComponentsToUkDateTime(
-      date,
-      newSessionDetails.startTime,
-    ).format(dateTimeFormat),
-    ukEndDatetime: parseDateAndTimeComponentsToUkDateTime(
-      date,
-      newSessionDetails.endTime,
-    ).format(dateTimeFormat),
-  };
+  await assertFeatureEnabled('ChangeSessionUpliftedJourney');
 
-  const availabilityRequest: AvailabilityChangeProposalRequest = {
-    from: date,
-    to: date,
-    site: siteFromPath,
-    sessionMatcher: {
-      from: toTimeFormat(sessionSummary.ukStartDatetime) ?? '',
-      until: toTimeFormat(sessionSummary.ukEndDatetime) ?? '',
-      services: Object.keys(sessionSummary.totalSupportedAppointmentsByService),
-      slotLength: sessionSummary.slotLength,
-      capacity: sessionSummary.capacity,
-    },
-    sessionReplacement: {
-      from: `${newSessionDetails.startTime.hour}:${newSessionDetails.startTime.minute}`,
-      until: `${newSessionDetails.endTime.hour}:${newSessionDetails.endTime.minute}`,
-      services: newSessionDetails.services,
-      slotLength: newSessionDetails.slotLength,
-      capacity: newSessionDetails.capacity,
-    },
-  };
-
-  const availabilityProposal = await fromServer(
-    availabilityChangeProposal(availabilityRequest),
-  );
-  const clinicalServices = await fromServer(fetchClinicalServices());
+  const [site, availabilityProposal, clinicalServices] = await Promise.all([
+    fromServer(fetchSite(siteFromPath)),
+    fromServer(
+      proposeAnAvailabilityChange(
+        siteFromPath,
+        date,
+        date,
+        session,
+        sessionToEdit,
+      ),
+    ),
+    fromServer(fetchClinicalServices()),
+  ]);
 
   return (
     <NhsTransactionalPage
-      title={`New time and capacity for ${parsedDate.format('dddd DD MMMM')}`}
+      title={`New time and capacity for ${date.format('dddd DD MMMM')}`}
       caption={site.name}
       originPage="edit-session"
       backLink={{
@@ -102,13 +76,57 @@ const Page = async ({ searchParams, params }: PageProps) => {
         }
         clinicalServices={clinicalServices}
         session={session}
-        newSession={newSessionSummary}
+        newSession={sessionToEdit}
         site={site.id}
         date={date}
         mode="edit"
       />
     </NhsTransactionalPage>
   );
+};
+
+const parseSearchParams = async (
+  params?: Promise<SearchParams>,
+): Promise<ParsedParams> => {
+  const { session, date, sessionToEdit } = { ...(await params) };
+  if (
+    session === undefined ||
+    date === undefined ||
+    sessionToEdit === undefined
+  ) {
+    notFound();
+  }
+
+  const parsedDate = parseToUkDatetime(date);
+  // TODO: Wouldn't it be better to pass AvailabilitySession rather than SessionSummary?
+  const parsedFirstSessionSummary: SessionSummary = JSON.parse(atob(session));
+  const parsedSecondSessionSummary: SessionSummary = JSON.parse(atob(session));
+
+  const firstAvailabilitySession: AvailabilitySession = {
+    from: parsedFirstSessionSummary.ukStartDatetime,
+    until: parsedFirstSessionSummary.ukEndDatetime,
+    services: Object.keys(
+      parsedFirstSessionSummary.totalSupportedAppointmentsByService,
+    ),
+    slotLength: parsedFirstSessionSummary.slotLength,
+    capacity: parsedFirstSessionSummary.capacity,
+  };
+
+  const secondAvailabilitySession: AvailabilitySession = {
+    from: parsedSecondSessionSummary.ukStartDatetime,
+    until: parsedSecondSessionSummary.ukEndDatetime,
+    services: Object.keys(
+      parsedSecondSessionSummary.totalSupportedAppointmentsByService,
+    ),
+    slotLength: parsedSecondSessionSummary.slotLength,
+    capacity: parsedSecondSessionSummary.capacity,
+  };
+
+  return {
+    date: parsedDate,
+    session: firstAvailabilitySession,
+    sessionToEdit: secondAvailabilitySession,
+  };
 };
 
 export default Page;

@@ -1,3 +1,5 @@
+using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
+
 namespace Nhs.Appointments.Core.Availability;
 public static  class AvailabilityGrouper
 {
@@ -38,5 +40,30 @@ public static  class AvailabilityGrouper
             Date = date,
             Blocks = blocks
         };
+    }
+
+    public static AvailabilityByHours BuildHourAvailability(string site, DateOnly date, List<Attendee> attendees, IEnumerable<SessionInstance> slots)
+    {
+        ArgumentNullException.ThrowIfNull(slots);
+
+        var availability = new AvailabilityByHours
+        {
+            Site = site,
+            Attendees = attendees,
+            Date = date
+        };
+
+        var requestedServices = attendees.SelectMany(a => a.Services).Distinct().ToList();
+
+        availability.Hours = [.. slots
+            .GroupBy(x => x.From.Hour)
+            .OrderBy(g => g.Key)
+            .Select(g => new Hour
+            {
+                From = $"{g.Key:D2}:00",
+                Until = g.Key == 23 ? "00:00" : $"{g.Key + 1:D2}:00"
+            })];
+
+        return availability;
     }
 }

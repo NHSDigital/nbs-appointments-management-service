@@ -20,22 +20,20 @@ using System.Net;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;
-
-public class QueryAvailabilityByDaysFunction(
+public class QueryAvailabilityByHoursFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
     IValidator<AvailabilityQueryRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<QueryAvailabilityByDaysFunction> logger,
+    ILogger<QueryAvailabilityByHoursFunction> logger,
     IMetricsRecorder metricsRecorder,
     IAvailableSlotsFilter availableSlotsFilter,
     ISiteService siteService,
-    IFeatureToggleHelper featureToggleHelper
-    ) : BaseApiFunction<AvailabilityQueryRequest, List<AvailabilityByDays>>(validator, userContextProvider, logger, metricsRecorder)
+    IFeatureToggleHelper featureToggleHelper) : BaseApiFunction<AvailabilityQueryRequest, List<AvailabilityByHours>>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "QueryAvailabilityByDays", tags: ["Availability"],
-        Summary = "Query appointment availability by days")]
+    [OpenApiOperation(operationId: "QueryAvailabilityByHours", tags: ["Availability"],
+        Summary = "Query appointment availability by hours")]
     [OpenApiRequestBody("application/json", typeof(AvailabilityQueryRequest), Required = true)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(List<AvailabilityByDays>),
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(List<AvailabilityByHours>),
         Description = "Appointment availability")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
@@ -44,39 +42,34 @@ public class QueryAvailabilityByDaysFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.QueryAvailability, typeof(MultiSiteBodyRequestInspector))]
-    [Function("QueryAvailabilityByDaysFunction")]
-    public override async Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/query/days")]
-        HttpRequest req)
+    [Function("QueryAvailabilityByHoursFunction")]
+    public override async Task<IActionResult> RunAsync(HttpRequest req)
     {
         return await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceJointBookings)
             ? await base.RunAsync(req)
             : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
-    protected override async Task<ApiResult<List<AvailabilityByDays>>> HandleRequest(AvailabilityQueryRequest request, ILogger logger)
+    protected override async Task<ApiResult<List<AvailabilityByHours>>> HandleRequest(AvailabilityQueryRequest request, ILogger logger)
     {
         var sites = await siteService.GetAllSites();
-        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs));
+        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.isDeleted is false or null));
         if (!activeSites.Any())
         {
             return Success([]);
         }
 
-        var concurrentResults = new ConcurrentBag<AvailabilityByDays>();
+        var concurrentResults = new ConcurrentBag<AvailabilityByHours>();
         await Parallel.ForEachAsync(activeSites, async (site, ct) =>
         {
             var siteAvailability = await GetSiteAvailability(site, request.Attendees, request.From, request.Until);
             concurrentResults.Add(siteAvailability);
         });
 
-        var response = new List<AvailabilityByDays>();
-        response.AddRange(concurrentResults.Where(r => r is not null));
-
-        return Success(response);
+        return Success([]);
     }
 
-    private async Task<AvailabilityByDays> GetSiteAvailability(string site, List<Attendee> attendees, DateOnly from, DateOnly until)
+    private async Task<AvailabilityByHours> GetSiteAvailability(string site, List<Attendee> attendees, DateOnly from, DateOnly until)
     {
         var dayStart = from.ToDateTime(new TimeOnly(0, 0));
         var dayEnd = until.ToDateTime(new TimeOnly(23, 59, 59));
@@ -84,24 +77,6 @@ public class QueryAvailabilityByDaysFunction(
         var slots = (await bookingAvailabilityStateService.GetAvailableSlots(site, dayStart, dayEnd)).ToList();
         var filteredSlots = availableSlotsFilter.FilterAvailableSlots(slots, attendees);
 
-        var dayEntries = new List<DayEntry>();
-
-        var day = from;
-        while (day <= until)
-        {
-            var slotsForDay = filteredSlots.Where(s => day == DateOnly.FromDateTime(s.From));
-            if (slotsForDay.Any())
-            {
-                dayEntries.Add(AvailabilityGrouper.BuildDayAvailability(day, slotsForDay));
-            }
-
-            day = day.AddDays(1);
-        }
-
-        return new AvailabilityByDays
-        {
-            Site = site,
-            Days = dayEntries
-        };
+        return AvailabilityGrouper.BuildHourAvailability(site, DateOnly.FromDateTime(dayStart), attendees, filteredSlots);
     }
 }

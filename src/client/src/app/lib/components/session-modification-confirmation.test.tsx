@@ -5,7 +5,6 @@ import { mockMultipleServices } from '@testing/data';
 import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import asServerActionResult from '@testing/asServerActionResult';
-import * as timeService from '@services/timeService';
 import { SessionModificationResponse, SessionSummary } from '@types';
 
 const mockSessionSummary: SessionSummary = {
@@ -13,7 +12,7 @@ const mockSessionSummary: SessionSummary = {
   ukEndDatetime: '2025-10-23T12:00:00',
   maximumCapacity: 24,
   totalSupportedAppointments: 1,
-  totalSupportedAppointmentsByService: { 'RSV:Adult': 1 },
+  totalSupportedAppointmentsByService: { 'RSV:Adult': 3, 'FLU:18_64': 5 },
   capacity: 2,
   slotLength: 10,
 };
@@ -25,11 +24,6 @@ const mockPush = jest.fn();
 jest.mock('@services/appointmentsService');
 const mockModifySession = jest.spyOn(appointmentsService, 'modifySession');
 
-jest.mock('@services/timeService', () => ({
-  ...jest.requireActual('@services/timeService'),
-  toTimeFormat: jest.fn(),
-}));
-
 describe('EditSessionConfirmation', () => {
   it('No unsupported bookings, renders question to change session', () => {
     render(
@@ -37,6 +31,7 @@ describe('EditSessionConfirmation', () => {
         newlyUnsupportedBookingsCount={0}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockSessionSummary}
         site="site-123"
         date="2024-06-10"
         mode="edit"
@@ -54,10 +49,12 @@ describe('EditSessionConfirmation', () => {
     ).toBeInTheDocument();
   });
 
-  it('New proposed time is displayed correctly', () => {
+  it('New edit session details are displayed correctly', () => {
+    const newSessionStartTime = '10:15';
     const newSessionEndTime = '11:00';
     const mockNewSessionSummary: SessionSummary = {
       ...mockSessionSummary,
+      ukStartDatetime: `2025-10-23T${newSessionStartTime}:00`,
       ukEndDatetime: `2025-10-23T${newSessionEndTime}:00`,
     };
     render(
@@ -72,7 +69,12 @@ describe('EditSessionConfirmation', () => {
       />,
     );
 
+    expect(
+      screen.getByText(new RegExp(newSessionStartTime)),
+    ).toBeInTheDocument();
     expect(screen.getByText(new RegExp(newSessionEndTime))).toBeInTheDocument();
+    expect(screen.getByText('RSV Adult')).toBeInTheDocument();
+    expect(screen.getByText('FLU 18-64')).toBeInTheDocument();
   });
 
   it('Has unsupported bookings, renders Yes/No question to cancel the appointments', () => {
@@ -81,6 +83,7 @@ describe('EditSessionConfirmation', () => {
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockSessionSummary}
         site="site-123"
         date="2024-06-10"
         mode="edit"
@@ -107,6 +110,7 @@ describe('EditSessionConfirmation', () => {
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockSessionSummary}
         site="site-123"
         date="2024-06-10"
         mode="edit"
@@ -128,6 +132,7 @@ describe('EditSessionConfirmation', () => {
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockSessionSummary}
         site="site-123"
         date="2024-06-10"
         mode="edit"
@@ -150,6 +155,7 @@ describe('EditSessionConfirmation', () => {
         newlyUnsupportedBookingsCount={3}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockSessionSummary}
         site="site-123"
         date="2024-06-10"
         mode="edit"
@@ -241,6 +247,23 @@ describe('CancelSessionConfirmation', () => {
         /No, do not cancel the appointments but cancel the session/,
       ),
     ).toBeInTheDocument();
+  });
+
+  it('New edit session details are displayed correctly', () => {
+    render(
+      <SessionModificationConfirmation
+        newlyUnsupportedBookingsCount={3}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+        mode="cancel"
+      />,
+    );
+
+    expect(screen.getByText('10:00 - 12:00')).toBeInTheDocument();
+    expect(screen.getByText('RSV Adult')).toBeInTheDocument();
+    expect(screen.getByText('FLU 18-64')).toBeInTheDocument();
   });
 
   it('Has unsupported bookings, user choose "Yes" to cancel the appointments', async () => {
@@ -342,15 +365,22 @@ describe('submitForm', () => {
   });
 
   it('sends correct payload for change session and cancel appointments action', async () => {
-    (timeService.toTimeFormat as jest.Mock)
-      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
-      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
+    const newSessionStartTime = '10:15';
+    const newSessionEndTime = '11:00';
+    const mockNewSessionSummary: SessionSummary = {
+      ...mockSessionSummary,
+      capacity: 1,
+      ukStartDatetime: `2025-10-23T${newSessionStartTime}:00`,
+      ukEndDatetime: `2025-10-23T${newSessionEndTime}:00`,
+    };
+
     const mode = 'edit';
     const { user } = render(
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockNewSessionSummary}
         site="site-123"
         date="2024-06-10"
         mode={mode}
@@ -375,13 +405,19 @@ describe('submitForm', () => {
       to: '2024-06-10',
       site: 'site-123',
       sessionMatcher: {
-        from: '09:00',
+        from: '10:00',
         until: '12:00',
-        services: ['RSV:Adult'],
+        services: ['RSV:Adult', 'FLU:18_64'],
         slotLength: 10,
         capacity: 2,
       },
-      sessionReplacement: null,
+      sessionReplacement: {
+        from: '10:15',
+        until: '11:00',
+        services: ['RSV:Adult', 'FLU:18_64'],
+        slotLength: 10,
+        capacity: 1,
+      },
       newlyUnsupportedBookingAction: 'Cancel',
     });
 
@@ -416,15 +452,22 @@ describe('submitForm', () => {
   });
 
   it('sends correct payload for change session action', async () => {
-    (timeService.toTimeFormat as jest.Mock)
-      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
-      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
+    const newSessionStartTime = '10:45';
+    const newSessionEndTime = '11:45';
+    const mockNewSessionSummary: SessionSummary = {
+      ...mockSessionSummary,
+      capacity: 1,
+      ukStartDatetime: `2025-10-23T${newSessionStartTime}:00`,
+      ukEndDatetime: `2025-10-23T${newSessionEndTime}:00`,
+    };
+
     const mode = 'edit';
     const { user } = render(
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={2}
         clinicalServices={mockMultipleServices}
         session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockNewSessionSummary}
         site="site-123"
         date="2024-06-10"
         mode={mode}
@@ -449,13 +492,19 @@ describe('submitForm', () => {
       to: '2024-06-10',
       site: 'site-123',
       sessionMatcher: {
-        from: '09:00',
+        from: '10:00',
         until: '12:00',
-        services: ['RSV:Adult'],
+        services: ['RSV:Adult', 'FLU:18_64'],
         slotLength: 10,
         capacity: 2,
       },
-      sessionReplacement: null,
+      sessionReplacement: {
+        from: '10:45',
+        until: '11:45',
+        services: ['RSV:Adult', 'FLU:18_64'],
+        slotLength: 10,
+        capacity: 1,
+      },
       newlyUnsupportedBookingAction: 'Orphan',
     });
 
@@ -490,9 +539,6 @@ describe('submitForm', () => {
   });
 
   it('sends correct payload for cancel session action', async () => {
-    (timeService.toTimeFormat as jest.Mock)
-      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
-      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
     const mode = 'cancel';
     const { user } = render(
       <SessionModificationConfirmation
@@ -523,9 +569,9 @@ describe('submitForm', () => {
       to: '2024-06-10',
       site: 'site-123',
       sessionMatcher: {
-        from: '09:00',
+        from: '10:00',
         until: '12:00',
-        services: ['RSV:Adult'],
+        services: ['RSV:Adult', 'FLU:18_64'],
         slotLength: 10,
         capacity: 2,
       },
@@ -564,9 +610,6 @@ describe('submitForm', () => {
   });
 
   it('sends correct payload for cancel session and cancel appointments action', async () => {
-    (timeService.toTimeFormat as jest.Mock)
-      .mockReturnValueOnce('09:00') // for sessionSummary.ukStartDatetime
-      .mockReturnValueOnce('12:00'); // for sessionSummary.ukEndDatetime
     const mode = 'cancel';
     const { user } = render(
       <SessionModificationConfirmation
@@ -597,9 +640,9 @@ describe('submitForm', () => {
       to: '2024-06-10',
       site: 'site-123',
       sessionMatcher: {
-        from: '09:00',
+        from: '10:00',
         until: '12:00',
-        services: ['RSV:Adult'],
+        services: ['RSV:Adult', 'FLU:18_64'],
         slotLength: 10,
         capacity: 2,
       },

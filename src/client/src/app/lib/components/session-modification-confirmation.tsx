@@ -33,7 +33,7 @@ type Props = {
   newlyUnsupportedBookingsCount: number;
   clinicalServices: ClinicalService[];
   session: string;
-  newSession?: SessionSummary | null;
+  newSession?: SessionSummary;
   site: string;
   date: string;
   mode: Mode;
@@ -148,6 +148,10 @@ export const SessionModificationConfirmation = ({
   const router = useRouter();
   const [pendingSubmit, startTransition] = useTransition();
   const sessionSummary: SessionSummary = JSON.parse(atob(session));
+
+  if (mode == 'edit' && !newSession) {
+    throw new Error('Cannot be in edit mode without a new session');
+  }
 
   const {
     handleSubmit,
@@ -273,7 +277,9 @@ export const SessionModificationConfirmation = ({
   return (
     <>
       <SessionSummaryTable
-        sessionSummaries={newSession ? [newSession] : []}
+        sessionSummaries={
+          mode == 'edit' && newSession ? [newSession] : [sessionSummary]
+        }
         clinicalServices={clinicalServices}
         showUnbooked={false}
         showBooked={false}

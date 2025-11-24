@@ -3,6 +3,7 @@ import {
   fetchSite,
   availabilityChangeProposal,
   fetchClinicalServices,
+  assertFeatureEnabled,
 } from '@services/appointmentsService';
 import {
   AvailabilityChangeProposalRequest,
@@ -43,6 +44,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
   }
 
   await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertFeatureEnabled('ChangeSessionUpliftedJourney'));
+
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
   const sessionSummary: SessionSummary = JSON.parse(atob(session));

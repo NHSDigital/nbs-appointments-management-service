@@ -38,32 +38,7 @@ jest.mock('@services/timeService', () => ({
   toTimeFormat: jest.fn(),
 }));
 
-describe('EditSessionConfirmation', () => {
-  it('No unsupported bookings, renders question to change session', () => {
-    render(
-      <EditServicesConfirmationPage
-        newlyUnsupportedBookingsCount={0}
-        clinicalServices={mockMultipleServices}
-        session={btoa(JSON.stringify(mockSessionSummary))}
-        removedServicesSession={btoa(JSON.stringify(mockRemovedService))}
-        site="site-123"
-        date="2024-06-10"
-      />,
-    );
-
-    expect(
-      screen.getByRole('button', { name: 'Remove service' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Continue' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByText('Are you sure you want to remove this service?'),
-    ).toBeInTheDocument();
-  });
-});
-
-describe('CancelSessionConfirmation', () => {
+describe('Edit Service Confirmation', () => {
   it('No unsupported bookings, renders question to remove the service', () => {
     render(
       <EditServicesConfirmationPage
@@ -159,6 +134,31 @@ describe('CancelSessionConfirmation', () => {
         screen.getByRole('button', { name: 'Remove service' }),
       ).toBeInTheDocument();
     });
+  });
+
+  it('"No, go back" click resets decision and action to display previous step on a page ', async () => {
+    const { user } = render(
+      <EditServicesConfirmationPage
+        newlyUnsupportedBookingsCount={3}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+      />,
+    );
+
+    await user.click(screen.getByLabelText(/Yes, cancel the appointments/));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Cancel appointments' }),
+      ).toBeInTheDocument();
+    });
+
+    const href = screen.getByText('No, go back').getAttribute('href');
+    expect(
+      href?.startsWith('/site/site-123/availability/edit-services?session='),
+    ).toBe(true);
   });
 });
 

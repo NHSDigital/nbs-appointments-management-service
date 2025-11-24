@@ -246,16 +246,21 @@ export const SessionModificationConfirmation = ({
           </Button>
         )}
 
-        <Link
-          href="#"
-          onClick={e => {
-            e.preventDefault();
-            setDecision(undefined);
-            setValue('action', undefined);
-          }}
-        >
-          No, go back
-        </Link>
+        {mode == 'edit' && (
+          <Link
+            href={`/site/${site}/availability/edit?session=${session}&date=${date}`}
+          >
+            No, go back
+          </Link>
+        )}
+
+        {mode == 'cancel' && (
+          <Link
+            href={`/site/${site}/view-availability/week/edit-session?date=${date}&session=${session}`}
+          >
+            No, go back
+          </Link>
+        )}
       </ButtonGroup>
     </form>
   );

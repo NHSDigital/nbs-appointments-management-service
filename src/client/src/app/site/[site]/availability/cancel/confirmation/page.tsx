@@ -56,7 +56,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
       caption={site.name}
       originPage="edit-session"
       backLink={{
-        href: `/site/${site.id}/availability/cancel?session=${session}&date=${date}`,
+        href: `/site/${site.id}/view-availability/week/edit-session?date=${date}&session=${session}`,
         renderingStrategy: 'server',
         text: 'Go back',
       }}

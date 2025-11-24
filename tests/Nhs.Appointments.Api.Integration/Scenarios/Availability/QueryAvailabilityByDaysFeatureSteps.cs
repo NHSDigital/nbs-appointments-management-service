@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Common;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -110,6 +111,35 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
         await SendRequestAsync(payload);
     }
 
+    [When("I query availability for two attendees across multiple sites")]
+    public async Task QueryMultipleAttendees_MultipleSites(DataTable dataTable)
+    {
+        var row = dataTable.Rows.Skip(1).First();
+        var cells = row.Cells;
+
+        var sites = cells.ElementAt(0).Value.Split(',');
+        var services = cells.ElementAt(1).Value.Split(',');
+
+        var payload = new AvailabilityQueryRequest(
+            [GetSiteId(sites[0]), GetSiteId(sites[1])],
+            [
+                new() { Services = [services[0]] },
+                new() { Services = [services[1]] }
+            ],
+            NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
+            NaturalLanguageDate.Parse(cells.ElementAt(3).Value));
+
+        await SendRequestAsync(payload);
+    }
+
+    [When("I pass an invalid payload")]
+    public async Task PassInvalidPayload()
+    {
+        var payload = new AvailabilityQueryRequest([], [], new DateOnly(2025, 9, 1), new DateOnly(2025, 10, 1));
+
+        await SendRequestAsync(payload);
+    }
+
     [Then("the following single site availability by days is returned")]
     public void AssertAvailabilityByDays(DataTable dataTable)
     {
@@ -145,11 +175,12 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
             var spec = cells.ElementAt(2).Value;
             var from = cells.ElementAt(3).Value;
             var until = cells.ElementAt(4).Value;
+            var expectedDayEntries = ExpectDayEntries(spec, from, until);
 
             return new AvailabilityByDays
             {
                 Site = GetSiteId(site),
-                Days = [ParseDayEntry(dateString, spec, from, until)]
+                Days = expectedDayEntries ? [ParseDayEntry(dateString, spec, from, until)] : []
             };
         });
 
@@ -159,6 +190,15 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => StatusCode.Should().Be((HttpStatusCode)statusCode);
+
+    [Then("the response should be empty")]
+    public void AssertEmptyResponse()
+    {
+        var expectedReponse = Array.Empty<AvailabilityByDays>();
+
+        Response.StatusCode.Should().Be(HttpStatusCode.OK);
+        AvailabilityResponse.Should().BeEquivalentTo(expectedReponse);
+    }
 
     private async Task SendRequestAsync(object payload)
     {
@@ -174,6 +214,7 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
     private static DayEntry ParseDayEntry(string dateString, string spec, string from, string until)
     {
         var date = NaturalLanguageDate.Parse(dateString);
+
         var blocks = ParseBlocks(spec, from, until);
 
         return new DayEntry
@@ -214,6 +255,11 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
                 await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
             }
         }
+    }
+
+    private static bool ExpectDayEntries(string spec, string from, string until)
+    {
+        return !string.IsNullOrEmpty(spec) && !string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(until);
     }
 
     private enum TimeOfDayBlock

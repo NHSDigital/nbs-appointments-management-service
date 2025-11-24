@@ -76,13 +76,17 @@ export const EditSessionDecision = ({
         sessionSummaries={[session]}
         clinicalServices={clinicalServices}
       />
-      <InsetText>
-        <p>
-          You can only reduce time, capacity or services from this screen. If
-          you want to increase availability for this day, you must create a new
-          session.
-        </p>
-      </InsetText>
+
+      {!cancelSessionUpliftedJourneyFlag && (
+        <InsetText>
+          <p>
+            You can only reduce time, capacity or services from this screen. If
+            you want to increase availability for this day, you must create a
+            new session.
+          </p>
+        </InsetText>
+      )}
+
       <form onSubmit={handleSubmit(submitForm)}>
         <FormGroup
           legend="What do you want to do?"

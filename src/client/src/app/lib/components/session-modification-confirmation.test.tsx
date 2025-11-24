@@ -249,7 +249,7 @@ describe('CancelSessionConfirmation', () => {
     ).toBeInTheDocument();
   });
 
-  it('New edit session details are displayed correctly', () => {
+  it('Cancel session details are displayed correctly', () => {
     render(
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}

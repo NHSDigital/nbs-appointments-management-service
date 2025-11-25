@@ -3,6 +3,7 @@ import {
   fetchSite,
   availabilityChangeProposal,
   fetchClinicalServices,
+  assertFeatureEnabled,
 } from '@services/appointmentsService';
 import { AvailabilityChangeProposalRequest, SessionSummary } from '@types';
 import { SessionModificationConfirmation } from '@components/session-modification-confirmation';
@@ -28,6 +29,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
     return notFound();
   }
   await assertPermission(siteFromPath, 'availability:setup');
+  await fromServer(assertFeatureEnabled('CancelSessionUpliftedJourney'));
+
   const parsedDate = parseToUkDatetime(date);
   const site = await fromServer(fetchSite(siteFromPath));
   const sessionSummary: SessionSummary = JSON.parse(atob(session));

@@ -186,4 +186,26 @@ public class AvailabilityGrouperTests
         result.Blocks.First().From.Should().Be("06:00");
         result.Blocks.Last().Until.Should().Be("15:00");
     }
+    
+    [Fact]
+    public void BuildDayAvailability_Spillover_Until_Time_Is_Greater_Than_Existing_Pm_Slots_Until_Time()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var amSlots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(11, 55), new TimeOnly(12, 10), TimeSpan.FromMinutes(15));
+        var pmSlots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(12, 00), new TimeOnly(12, 05), TimeSpan.FromMinutes(5));
+
+        var combinedSlots = new List<SessionInstance>();
+        combinedSlots.AddRange(pmSlots);
+        combinedSlots.AddRange(amSlots);
+
+        var result = AvailabilityGrouper.BuildDayAvailability(date, combinedSlots);
+
+        result.Blocks.Count.Should().Be(2);
+        result.Blocks.First().From.Should().Be("11:55");
+        result.Blocks.First().Until.Should().Be("12:00");
+        
+        result.Blocks.Last().From.Should().Be("12:00");
+        //TODO is this a correct assertion?
+        result.Blocks.Last().Until.Should().Be("12:10");
+    }
 }

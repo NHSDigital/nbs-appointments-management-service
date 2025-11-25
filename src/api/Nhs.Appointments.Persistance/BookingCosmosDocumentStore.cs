@@ -333,7 +333,7 @@ public class BookingCosmosDocumentStore(
             runId, startedAt, expiryDateTime);
 
         var query = new QueryDefinition(
-        query: "SELECT * " +
+            query: "SELECT * " +
                "FROM index_data d " +
                "WHERE d.docType = @docType AND d.status = @status AND d.created < @expiry")
             .WithParameter("@docType", "booking_index")
@@ -347,9 +347,6 @@ public class BookingCosmosDocumentStore(
         {
             try
             {
-                var documentMessage = $"Cleanup {runId} processing reference:{indexDocument.Reference} site:{indexDocument.Site}";
-                logger.LogDebug(message: documentMessage);
-
                 await DeleteBooking(indexDocument.Reference, indexDocument.Site);
                 removed.Add(indexDocument.Reference);
             }
@@ -368,8 +365,8 @@ public class BookingCosmosDocumentStore(
     }
 
     public async Task DeleteBooking(string reference, string site) => await Task.WhenAll(
-    indexStore.DeleteDocument(reference, "booking_index"),
-    bookingStore.DeleteDocument(reference, site)
+        indexStore.DeleteDocument(reference, "booking_index"),
+        bookingStore.DeleteDocument(reference, site)
     );
 
     public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount, List<Booking> bookingsWithContactDetails)> CancelAllBookingsInDay(string site, DateOnly date)

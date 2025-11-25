@@ -27,7 +27,7 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
     private List<AvailabilityByDays> AvailabilityResponse;
-
+    
     private string _siteId;
 
     public void Dispose()
@@ -35,97 +35,30 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
         var testId = GetTestId;
         DeleteSiteData(Client, testId).GetAwaiter().GetResult();
     }
-
-    [When("I query availability for a single attendee")]
-    public async Task QuerySingleAttendee(DataTable dataTable)
+    
+    [When("I query availability by days")]
+    public async Task Query(DataTable dataTable)
     {
         var row = dataTable.Rows.Skip(1).First();
         var cells = row.Cells;
-        _siteId = cells.ElementAt(0).Value;
-        var payload = new AvailabilityQueryRequest(
-            [GetSiteId(_siteId)],
-            [new() { Services = cells.ElementAt(1).Value.Split(',') }],
-            NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
-            NaturalLanguageDate.Parse(cells.ElementAt(3).Value));
-
-        await SendRequestAsync(payload);
-    }
-
-    [When("I query availability for two attendees")]
-    public async Task QueryTwoAttendees(DataTable dataTable)
-    {
-        var row = dataTable.Rows.Skip(1).First();
-        var cells = row.Cells;
-        _siteId = cells.ElementAt(0).Value;
-
-        var services = cells.ElementAt(1).Value.Split(',');
-
-        var payload = new AvailabilityQueryRequest(
-            [GetSiteId(_siteId)],
-            [
-                new() { Services = [services[0]] },
-                new() { Services = [services[1]] }
-            ],
-            NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
-            NaturalLanguageDate.Parse(cells.ElementAt(3).Value));
-
-        await SendRequestAsync(payload);
-    }
-
-    [When("I query availability for three attendees")]
-    public async Task QueryThreeAttendees(DataTable dataTable)
-    {
-        var row = dataTable.Rows.Skip(1).First();
-        var cells = row.Cells;
-        _siteId = cells.ElementAt(0).Value;
-
-        var services = cells.ElementAt(1).Value.Split(',');
-
-        var payload = new AvailabilityQueryRequest(
-            [GetSiteId(_siteId)],
-            [
-                new() { Services = [services[0]] },
-                new() { Services = [services[1]] },
-                new() { Services = [services[2]] }
-            ],
-            NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
-            NaturalLanguageDate.Parse(cells.ElementAt(3).Value));
-
-        await SendRequestAsync(payload);
-    }
-
-    [When("I query availability for a single attendee across multiple sites")]
-    public async Task QuerySingleAttendee_MultipleSites(DataTable dataTable)
-    {
-        var row = dataTable.Rows.Skip(1).First();
-        var cells = row.Cells;
-
-        var sites = cells.ElementAt(0).Value.Split(',');
-
-        var payload = new AvailabilityQueryRequest(
-            [GetSiteId(sites[0]), GetSiteId(sites[1])],
-            [new() { Services = cells.ElementAt(1).Value.Split(',') }],
-            NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
-            NaturalLanguageDate.Parse(cells.ElementAt(3).Value));
-
-        await SendRequestAsync(payload);
-    }
-
-    [When("I query availability for two attendees across multiple sites")]
-    public async Task QueryMultipleAttendees_MultipleSites(DataTable dataTable)
-    {
-        var row = dataTable.Rows.Skip(1).First();
-        var cells = row.Cells;
-
+        
         var sites = cells.ElementAt(0).Value.Split(',');
         var services = cells.ElementAt(1).Value.Split(',');
 
+        if (sites.Length == 1)
+        {
+            _siteId = sites[0];
+        }
+
+        var siteCollection = sites.Select(GetSiteId).ToArray();
+        var attendeesCollection = services.Select(service => new Attendee
+        {
+            Services = [service]
+        }).ToList();
+        
         var payload = new AvailabilityQueryRequest(
-            [GetSiteId(sites[0]), GetSiteId(sites[1])],
-            [
-                new() { Services = [services[0]] },
-                new() { Services = [services[1]] }
-            ],
+            siteCollection,
+            attendeesCollection,
             NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
             NaturalLanguageDate.Parse(cells.ElementAt(3).Value));
 

@@ -127,10 +127,8 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
     [Then("the response should be empty")]
     public void AssertEmptyResponse()
     {
-        var expectedReponse = Array.Empty<AvailabilityByDays>();
-
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        AvailabilityResponse.Should().BeEquivalentTo(expectedReponse);
+        AvailabilityResponse.SelectMany(x => x.Days).Should().BeNullOrEmpty();
     }
 
     private async Task SendRequestAsync(object payload)

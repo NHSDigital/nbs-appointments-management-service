@@ -5,16 +5,52 @@ Feature: Query Availability By Days
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 41b5fc18-0115-4f84-a780-af5a3025c6fe | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
-      | Date              | From  | Until | Attendee Services  | Slot Length | Capacity |
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
       | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
     When I query availability by days
       | Site                                 | Attendee Services   | From     | Until             |
-      | 41b5fc18-0115-4f84-a780-af5a3025c6fe | RSV:Adult | Tomorrow | 2 days from today |
+      | 41b5fc18-0115-4f84-a780-af5a3025c6fe | RSV:Adult           | Tomorrow | 2 days from today |
     Then the following single site availability by days is returned
       | Date              | Blocks | From  | Until |
       | Tomorrow          | AM,PM  | 09:00 | 17:00 |
       | 2 days from today | PM     | 12:00 | 17:00 |
+
+    Scenario: Can return availability if it crosses multiple sessions
+      Given the following sessions exist for site '41b5fc18-0115-4f84-a780-af5a3025c6fa'
+        | Date              | From  | Until | Services  | Slot Length | Capacity |
+        | Tomorrow          | 09:00 | 16:50 | RSV:Adult | 10          | 1        |
+        | Tomorrow          | 16:50 | 17:00 | RSV:Adult | 10          | 1        |
+      When I query availability by days
+        | Site                                 | Attendee Services   | From     | Until    |
+        | 41b5fc18-0115-4f84-a780-af5a3025c6fa | RSV:Adult           | Tomorrow | Tomorrow |
+      Then the following single site availability by days is returned
+        | Date              | Blocks | From  | Until |
+        | Tomorrow          | AM,PM  | 09:00 | 17:00 |
+
+    Scenario: 'Neighbouring' slot logic is not ideal if slot lengths do not easily divide across services - no results
+      Given the following sessions exist for site '41b5fc18-0115-4f84-a780-af5a3025c6fb'
+        | Date              | From  | Until | Services   | Slot Length | Capacity |
+        | Tomorrow          | 09:00 | 09:21 | RSV:Adult  | 7          | 1        |
+        | Tomorrow          | 09:00 | 09:18 | COVID:5_11 | 3          | 1        |
+      When I query availability by days
+        | Site                                 | Attendee Services      | From     | Until    |
+        | 41b5fc18-0115-4f84-a780-af5a3025c6fb | RSV:Adult,COVID:5_11   | Tomorrow | Tomorrow |
+      # Ideally in future we might return the 9:07-9:14 slot for RSV, and the 9:15-9:18 slot for Covid as they are only a minute apart!
+      Then the response should be empty
+
+    Scenario: 'Neighbouring' slot logic is not ideal if slot lengths do not easily divide across services - single result
+      Given the following sessions exist for site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
+        | Date              | From  | Until | Services   | Slot Length | Capacity |
+        | Tomorrow          | 09:00 | 09:28 | RSV:Adult  | 7           | 1        |
+        | Tomorrow          | 09:00 | 09:30 | COVID:5_11 | 3           | 1        |
+      When I query availability by days
+        | Site                                 | Attendee Services      | From     | Until    |
+        | 41b5fc18-0115-4f84-a780-af5a3025c6fe | RSV:Adult,COVID:5_11   | Tomorrow | Tomorrow |
+      # Only the 9:18-9:21 slot (Covid) and the 9:21-9:28 slot (RSV) are neighboring
+      Then the following single site availability by days is returned
+        | Date              | Blocks | From  | Until |
+        | Tomorrow          | AM     | 09:18 | 09:28 |
 
   Scenario: Only returns matching days for rwo Attendees with two Services at a single Site
     Given The following sites exist in the system
@@ -27,7 +63,7 @@ Feature: Query Availability By Days
       | 2 days from today | 12:00 | 17:00 | COVID:5_11 | 10          | 1        |
     When I query availability by days
       | Site                                 | Attendee Services             | From     | Until             |
-      | 94a19f36-2a34-4921-89e4-a3b95083c362 | RSV:Adult,COVID:5_11 | Tomorrow | 2 days from today |
+      | 94a19f36-2a34-4921-89e4-a3b95083c362 | RSV:Adult,COVID:5_11          | Tomorrow | 2 days from today |
     Then the following single site availability by days is returned
       | Date              | Blocks | From  | Until |
       | 2 days from today | PM     | 12:00 | 17:00 |
@@ -102,7 +138,7 @@ Feature: Query Availability By Days
       | aa0ffcae-89dd-4017-8eda-c5c0dbdcbe07 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
       | 0a377442-1be4-413c-ac36-a2583864704b | Site-B | 1B Site Lane | 0113 1111112 | 15P     | R2     | ICB2 | Info 2                 | accessibility/attr_one=true  | -60       | -60      | Pharmacy    |
     And the following sessions exist for site 'aa0ffcae-89dd-4017-8eda-c5c0dbdcbe07'
-      | Date              | From  | Until | Attendee Services  | Slot Length | Capacity |
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
     And the following sessions exist for site '0a377442-1be4-413c-ac36-a2583864704b'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
@@ -148,7 +184,7 @@ Feature: Query Availability By Days
       | 2 days from today | 12:00 | 17:00 | RSV:Adult  | 10          | 1        |
     When I query availability by days
       | Sites                                                                      | Attendee Services              | From     | Until             |
-      | 41708fe0-6c89-46a4-8183-1a8d0f919cc2,1ac0fd0e-c421-4633-bc23-95dc92003803  | RSV:Adult,COVID:5_11 | Tomorrow | 2 days from today |
+      | 41708fe0-6c89-46a4-8183-1a8d0f919cc2,1ac0fd0e-c421-4633-bc23-95dc92003803  | RSV:Adult,COVID:5_11           | Tomorrow | 2 days from today |
     Then the following multi-site availability is returned
       | Site                                 | Date              | Blocks | From  | Until |
       | 1ac0fd0e-c421-4633-bc23-95dc92003803 | 2 days from today | PM     | 09:00 | 17:00 |
@@ -163,7 +199,7 @@ Feature: Query Availability By Days
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
     When I query availability by days
       | Site                                 | Attendee Services    | From     | Until             |
-      | 2debe217-0cc1-4b53-8a2a-56315ca4528a | COVID:5_11 | Tomorrow | 2 days from today |
+      | 2debe217-0cc1-4b53-8a2a-56315ca4528a | COVID:5_11           | Tomorrow | 2 days from today |
     Then the following single site availability by days is returned
       | Date              | Blocks | From  | Until |
 
@@ -198,7 +234,7 @@ Feature: Query Availability By Days
       | 9e53e798-9b60-442f-b62c-aded0290ae47 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  | true      |
     When I query availability by days
       | Site                                 | Attendee Services    | From     | Until             |
-      | 5fc5b424-07a4-496b-96c6-500a68554435 | COVID:5_11 | Tomorrow | 2 days from today |
+      | 5fc5b424-07a4-496b-96c6-500a68554435 | COVID:5_11           | Tomorrow | 2 days from today |
     Then the response should be empty
 
   Scenario: Returns matching slots of different lengths for two attendees requesting a single service
@@ -210,11 +246,39 @@ Feature: Query Availability By Days
       | Tomorrow          | 11:00 | 12:00 | RSV:Adult | 10          | 1        |
       | Tomorrow          | 12:00 | 13:00 | RSV:Adult | 5           | 1        |
     When I query availability by days
-      | Site                                 | Attendee Services             | From     | Until             |
+      | Site                                 | Attendee Services   | From     | Until             |
       | 6188c242-acfa-4dc2-860a-ead658bfe180 | RSV:Adult,RSV:Adult | Tomorrow | 2 days from today |
     Then the following single site availability by days is returned
       | Date     | Blocks | From  | Until |
       | Tomorrow | AM,PM  | 11:00 | 13:00 |
+
+  Scenario: Not enough availability for the amount of attendees required
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
+      | 6188c242-acfa-4dc2-860a-ead658bfe180 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  |
+    And the following sessions exist for site '6188c242-acfa-4dc2-860a-ead658bfe184'
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 11:00 | 12:00 | RSV:Adult | 15          | 1        |
+    When I query availability by days
+      | Site                                 | Attendee Services                                  | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe184 | RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult  | Tomorrow | Tomorrow |
+    # 5 attendees can't fit within the single hour (4 slots)
+    Then the response should be empty
+
+  Scenario: Just enough availability for the amount of attendees required
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
+      | 6188c242-acfa-4dc2-860a-ead658bfe180 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  |
+    And the following sessions exist for site '6188c242-acfa-4dc2-860a-ead658bfe185'
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 11:00 | 12:00 | RSV:Adult | 10          | 1        |
+    When I query availability by days
+      | Site                                 | Attendee Services                                            | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe185 | RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult  | Tomorrow | Tomorrow |
+    # 6 attendees can just fit within the single hour (6 slots)
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 11:00 | 12:00 |
 
   Scenario: Returns matching slots of different lengths for two attendees requesting multiple services
     Given The following sites exist in the system
@@ -225,8 +289,8 @@ Feature: Query Availability By Days
       | Tomorrow          | 10:00 | 12:00 | RSV:Adult  | 10          | 1        |
       | Tomorrow          | 12:00 | 14:00 | COVID:5_11 | 5           | 1        |
     When I query availability by days
-      | Site                                 | Attendee Services              | From     | Until             |
-      | 091ea500-4b8c-49f1-93cc-ac1fb25f18d3 | RSV:Adult,COVID:5_11 | Tomorrow | 2 days from today |
+      | Site                                 | Attendee Services     | From     | Until             |
+      | 091ea500-4b8c-49f1-93cc-ac1fb25f18d3 | RSV:Adult,COVID:5_11  | Tomorrow | 2 days from today |
     Then the following single site availability by days is returned
       | Date     | Blocks | From  | Until |
       | Tomorrow | AM,PM  | 11:50 | 12:05 |

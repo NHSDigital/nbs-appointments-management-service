@@ -1,9 +1,10 @@
-using System.Linq.Expressions;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Persistance.Models;
+using System.Linq.Expressions;
+using System.Net;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
 
@@ -645,5 +646,75 @@ public class BookingCosmosDocumentStoreTests
         var result = await _sut.GetCrossSiteAsync(DateTime.MinValue, DateTime.MaxValue, AppointmentStatus.Booked);
         
         Assert.Equivalent(expected, result, true);
+    }
+
+    [Fact]
+    public async Task RemoveUnconfirmedProvisionalBookings_ReturnsEmpty_WhenNoCandidates()
+    {
+        var timeNow = new DateTimeOffset(2025, 1, 1, 12, 0, 0, TimeSpan.Zero);
+        _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
+
+        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+            .ReturnsAsync(Array.Empty<BookingIndexDocument>());
+
+        var result = await _sut.RemoveUnconfirmedProvisionalBookings();
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RemoveUnconfirmedProvisionalBookings_RemovesBooking_WhenDeleteSucceeds()
+    {
+        var timeNow = new DateTimeOffset(2025, 1, 1, 12, 0, 0, TimeSpan.Zero);
+        _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
+
+        var doc = new BookingIndexDocument { Reference = "id1", Site = "site1", Status = AppointmentStatus.Provisional };
+        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+            .ReturnsAsync(new[] { doc });
+
+        _indexStore.Setup(x => x.DeleteDocument("id1", "booking_index")).Returns(Task.CompletedTask);
+        _bookingStore.Setup(x => x.DeleteDocument("id1", "site1")).Returns(Task.CompletedTask);
+
+        var result = await _sut.RemoveUnconfirmedProvisionalBookings();
+
+        result.Should().Contain("id1");
+    }
+
+    [Fact]
+    public async Task RemoveUnconfirmedProvisionalBookings_Treats404AsSuccess()
+    {
+        var timeNow = new DateTimeOffset(2025, 1, 1, 12, 0, 0, TimeSpan.Zero);
+        _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
+
+        var doc = new BookingIndexDocument { Reference = "id2", Site = "site2", Status = AppointmentStatus.Provisional };
+        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+            .ReturnsAsync(new[] { doc });
+
+        _indexStore.Setup(x => x.DeleteDocument("id2", "booking_index"))
+            .ThrowsAsync(new CosmosException("Not found", HttpStatusCode.NotFound, 0, string.Empty, 0));
+        _bookingStore.Setup(x => x.DeleteDocument("id2", "site2"))
+            .ThrowsAsync(new CosmosException("Not found", HttpStatusCode.NotFound, 0, string.Empty, 0));
+
+        var result = await _sut.RemoveUnconfirmedProvisionalBookings();
+
+        result.Should().Contain("id2");
+    }
+
+    [Fact]
+    public async Task RemoveUnconfirmedProvisionalBookings_PropagatesNon404Exception()
+    {
+        var timeNow = new DateTimeOffset(2025, 1, 1, 12, 0, 0, TimeSpan.Zero);
+        _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
+
+        var doc = new BookingIndexDocument { Reference = "id3", Site = "site3", Status = AppointmentStatus.Provisional };
+        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+            .ReturnsAsync(new[] { doc });
+
+        _indexStore.Setup(x => x.DeleteDocument("id3", "booking_index"))
+            .ThrowsAsync(new CosmosException("Internal error", HttpStatusCode.InternalServerError, 0, string.Empty, 0));
+
+        var act = _sut.RemoveUnconfirmedProvisionalBookings;
+
+        await act.Should().ThrowAsync<CosmosException>();
     }
 }

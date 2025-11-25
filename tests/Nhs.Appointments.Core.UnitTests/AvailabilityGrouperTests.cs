@@ -205,7 +205,6 @@ public class AvailabilityGrouperTests
         result.Blocks.First().Until.Should().Be("12:00");
         
         result.Blocks.Last().From.Should().Be("12:00");
-        //TODO is this a correct assertion?
         result.Blocks.Last().Until.Should().Be("12:10");
     }
 }

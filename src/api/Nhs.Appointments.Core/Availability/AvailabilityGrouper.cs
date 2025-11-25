@@ -46,24 +46,19 @@ public static  class AvailabilityGrouper
     {
         ArgumentNullException.ThrowIfNull(slots);
 
-        var availability = new AvailabilityByHours
+        return new AvailabilityByHours
         {
             Site = site,
             Attendees = attendees,
-            Date = date
+            Date = date,
+            Hours = [.. slots
+                .GroupBy(x => x.From.Hour)
+                .OrderBy(g => g.Key)
+                .Select(g => new Hour
+                {
+                    From = $"{g.Key:D2}:00",
+                    Until = g.Key == 23 ? "00:00" : $"{g.Key + 1:D2}:00"
+                })]
         };
-
-        var requestedServices = attendees.SelectMany(a => a.Services).Distinct().ToList();
-
-        availability.Hours = [.. slots
-            .GroupBy(x => x.From.Hour)
-            .OrderBy(g => g.Key)
-            .Select(g => new Hour
-            {
-                From = $"{g.Key:D2}:00",
-                Until = g.Key == 23 ? "00:00" : $"{g.Key + 1:D2}:00"
-            })];
-
-        return availability;
     }
 }

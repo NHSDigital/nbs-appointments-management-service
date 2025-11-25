@@ -205,4 +205,156 @@ public class AvailabilityGrouperTests
         result.Blocks.Last().From.Should().Be("12:00");
         result.Blocks.Last().Until.Should().Be("12:05");
     }
+
+    [Fact]
+    public void BuildHourAvailability_ThrowsArgumentNullException()
+    {
+        var action = () => AvailabilityGrouper.BuildHourAvailability("Test Site", new DateOnly(2025, 10, 1), [], null);
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void BuildHourAvailability_ReturnsEmptyHoursList_WhenSlotsIsEmpty()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+
+        var result = AvailabilityGrouper.BuildHourAvailability("Test Site", date, attendees, []);
+
+        result.Hours.Count.Should().Be(0);
+        result.Date.Should().Be(date);
+        result.Site.Should().Be("Test Site");
+    }
+
+    [Fact]
+    public void BuildHourAvailability_EnsureNonHourDetailsAreCorrect()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+        var site = "Test Site";
+        var slots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(9, 0), new TimeOnly(10, 0), TimeSpan.FromMinutes(10));
+
+        var result = AvailabilityGrouper.BuildHourAvailability(site, date, attendees, slots);
+
+        result.Date.Should().Be(date);
+        result.Site.Should().Be(site);
+        result.Attendees.Should().BeEquivalentTo(attendees);
+    }
+
+    [Fact]
+    public void BuildHourAvailability_EnsureHoursOrderedByAscending()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+        var site = "Test Site";
+        var slots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(9, 0), new TimeOnly(13, 0), TimeSpan.FromMinutes(10));
+
+        var result = AvailabilityGrouper.BuildHourAvailability(site, date, attendees, slots);
+
+        result.Hours.Count.Should().Be(4);
+        result.Hours.First().From.Should().Be("09:00");
+        result.Hours.Skip(1).First().From.Should().Be("10:00");
+        result.Hours.Skip(2).First().From.Should().Be("11:00");
+        result.Hours.Skip(3).First().From.Should().Be("12:00");
+    }
+
+    [Fact]
+    public void BuildHourAvailability_CorrectlyFormatsFromAndUntil()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+        var site = "Test Site";
+        var slots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(9, 0), new TimeOnly(10, 0), TimeSpan.FromMinutes(10));
+
+        var result = AvailabilityGrouper.BuildHourAvailability(site, date, attendees, slots);
+
+        result.Hours.Count.Should().Be(1);
+        result.Hours.First().From.Should().Be("09:00");
+        result.Hours.First().Until.Should().Be("10:00");
+    }
+
+    [Fact]
+    public void BuildHourAvailability_CorrectlyFormatsMidnight()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+        var site = "Test Site";
+        var slots = new List<SessionInstance>
+        {
+            new(date.ToDateTime(new TimeOnly(23, 0)), date.AddDays(1).ToDateTime(new TimeOnly(1, 1)))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult"],
+                SlotLength = 10
+            }
+        };
+
+        var result = AvailabilityGrouper.BuildHourAvailability(site, date, attendees, slots);
+
+        result.Hours.Count.Should().Be(1);
+        result.Hours.First().From.Should().Be("23:00");
+        result.Hours.First().Until.Should().Be("00:00");
+    }
+
+    [Fact]
+    public void BuildHourAvailability_DoesntIncludeAllHoursInRange()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+        var site = "Test Site";
+        var amSlots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(8, 0), new TimeOnly(10, 30), TimeSpan.FromMinutes(10));
+        var pmSlots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(14, 0), new TimeOnly(15, 0), TimeSpan.FromMinutes(10));
+
+        var combinedSlots = new List<SessionInstance>();
+        combinedSlots.AddRange(pmSlots);
+        combinedSlots.AddRange(amSlots);
+
+        var result = AvailabilityGrouper.BuildHourAvailability(site, date, attendees, combinedSlots);
+
+        result.Hours.Count.Should().Be(4);
+        result.Hours.Any(h => h.From is "11:00" or "12:00").Should().BeFalse();
+    }
+
+    [Fact]
+    public void BuildHourAvailability_OnlyProducesOneHourInList_WhenMultipleSlotsStartWithinTheHour()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+        var site = "Test Site";
+        var slots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(9, 0), new TimeOnly(12, 0), TimeSpan.FromMinutes(10));
+
+        var result = AvailabilityGrouper.BuildHourAvailability(site, date, attendees, slots);
+
+        result.Hours.Count.Should().Be(3);
+        result.Hours.Count(h => h.From is "09:00").Should().Be(1);
+        result.Hours.Count(h => h.Until is "10:00").Should().Be(1);
+    }
 }

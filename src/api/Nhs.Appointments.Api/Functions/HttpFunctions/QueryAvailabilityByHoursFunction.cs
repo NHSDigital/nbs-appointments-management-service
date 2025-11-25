@@ -22,13 +22,13 @@ using System.Threading.Tasks;
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;
 public class QueryAvailabilityByHoursFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
-    IValidator<AvailabilityQueryRequest> validator,
+    IValidator<AvailabilityQueryByHoursRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<QueryAvailabilityByHoursFunction> logger,
     IMetricsRecorder metricsRecorder,
     IAvailableSlotsFilter availableSlotsFilter,
     ISiteService siteService,
-    IFeatureToggleHelper featureToggleHelper) : BaseApiFunction<AvailabilityQueryRequest, List<AvailabilityByHours>>(validator, userContextProvider, logger, metricsRecorder)
+    IFeatureToggleHelper featureToggleHelper) : BaseApiFunction<AvailabilityQueryByHoursRequest, AvailabilityByHours>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "QueryAvailabilityByHours", tags: ["Availability"],
         Summary = "Query appointment availability by hours")]
@@ -50,23 +50,11 @@ public class QueryAvailabilityByHoursFunction(
             : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
-    protected override async Task<ApiResult<List<AvailabilityByHours>>> HandleRequest(AvailabilityQueryRequest request, ILogger logger)
+    protected override async Task<ApiResult<AvailabilityByHours>> HandleRequest(AvailabilityQueryByHoursRequest request, ILogger logger)
     {
-        var sites = await siteService.GetAllSites();
-        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.isDeleted is false or null));
-        if (!activeSites.Any())
-        {
-            return Success([]);
-        }
-
-        var concurrentResults = new ConcurrentBag<AvailabilityByHours>();
-        await Parallel.ForEachAsync(activeSites, async (site, ct) =>
-        {
-            var siteAvailability = await GetSiteAvailability(site, request.Attendees, request.From, request.Until);
-            concurrentResults.Add(siteAvailability);
-        });
-
-        return Success([]);
+        return await siteService.GetSiteByIdAsync(request.Site) is null
+            ? Failed(HttpStatusCode.NotFound, $"Site: {request.Site} could not be found.")
+            : Success(await GetSiteAvailability(request.Site, request.Attendees, request.From, request.Until));
     }
 
     private async Task<AvailabilityByHours> GetSiteAvailability(string site, List<Attendee> attendees, DateOnly from, DateOnly until)

@@ -8,6 +8,6 @@ public class AttendeeValidator : AbstractValidator<Attendee>
     {
         RuleFor(x => x.Services)
             .NotEmpty()
-            .WithMessage("Provide at least one servivce.");
+            .WithMessage("Provide at least one service.");
     }
 }

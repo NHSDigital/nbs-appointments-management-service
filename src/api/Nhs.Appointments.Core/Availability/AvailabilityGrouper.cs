@@ -8,13 +8,12 @@ public static  class AvailabilityGrouper
         var noon = 12;
         var amSlots = slots.Where(s => s.From.Hour < noon);
         var pmSlots = slots.Where(s => s.From.Hour >= noon);
-        var hasSpillover = slots.Any(s => s.From.Hour < noon && s.Until.Hour >= noon);
 
         var blocks = new List<Block>();
 
-        if (amSlots.Any() || hasSpillover)
+        if (amSlots.Any())
         {
-            var earliestAmStart = amSlots.Any() ? amSlots.Min(s => s.From.TimeOfDay) : slots.Min(s => s.From.TimeOfDay);
+            var earliestAmStart = amSlots.Min(s => s.From.TimeOfDay);
 
             blocks.Add(new Block
             {
@@ -23,9 +22,9 @@ public static  class AvailabilityGrouper
             });
         }
 
-        if (pmSlots.Any() || hasSpillover)
+        if (pmSlots.Any())
         {
-            var latestPmFinish = hasSpillover ? slots.Max(s => s.Until.TimeOfDay) : pmSlots.Max(s => s.Until.TimeOfDay);
+            var latestPmFinish = pmSlots.Max(s => s.Until.TimeOfDay);
 
             blocks.Add(new Block
             {

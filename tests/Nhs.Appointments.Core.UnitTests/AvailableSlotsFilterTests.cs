@@ -375,9 +375,6 @@ public class AvailableSlotsFilterTests
         result.Count(s => s.Services.First() == "FLU").Should().Be(2);
     }
 
-    // More tests for different slot lengths
-    // Scenario on the Mural board for 3 services and different slot lengths need adding as well
-
     [Fact]
     public void MuralScenario__QueryForC_and_B()
     {

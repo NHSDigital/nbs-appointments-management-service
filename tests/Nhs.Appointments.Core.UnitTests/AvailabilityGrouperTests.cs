@@ -77,11 +77,9 @@ public class AvailabilityGrouperTests
 
         var result = AvailabilityGrouper.BuildDayAvailability(date, slots);
 
-        result.Blocks.Count.Should().Be(2);
+        result.Blocks.Count.Should().Be(1);
         result.Blocks.First().From.Should().Be("11:50");
         result.Blocks.First().Until.Should().Be("12:00");
-        result.Blocks.Last().From.Should().Be("12:00");
-        result.Blocks.Last().Until.Should().Be("12:10");
     }
 
     [Fact]
@@ -205,6 +203,6 @@ public class AvailabilityGrouperTests
         result.Blocks.First().Until.Should().Be("12:00");
         
         result.Blocks.Last().From.Should().Be("12:00");
-        result.Blocks.Last().Until.Should().Be("12:10");
+        result.Blocks.Last().Until.Should().Be("12:05");
     }
 }

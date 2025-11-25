@@ -25,7 +25,7 @@ public static  class AvailabilityGrouper
 
         if (pmSlots.Any() || hasSpillover)
         {
-            var latestPmFinish = pmSlots.Any() ? pmSlots.Max(s => s.Until.TimeOfDay) : slots.Max(s => s.Until.TimeOfDay);
+            var latestPmFinish = hasSpillover ? slots.Max(s => s.Until.TimeOfDay) : pmSlots.Max(s => s.Until.TimeOfDay);
 
             blocks.Add(new Block
             {

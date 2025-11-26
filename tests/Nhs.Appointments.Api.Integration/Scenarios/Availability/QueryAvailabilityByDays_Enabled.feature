@@ -47,10 +47,10 @@ Feature: Query Availability By Days
       When I query availability by days
         | Site                                 | Attendee Services      | From     | Until    |
         | 41b5fc18-0115-4f84-a780-af5a3025c6fe | RSV:Adult,COVID:5_11   | Tomorrow | Tomorrow |
-      # Only the 9:18-9:21 slot (Covid) and the 9:21-9:28 slot (RSV) are neighboring
+      # The 9:18-9:21 slot (Covid) and the 9:21-9:28 slot (RSV) are neighboring - as are the 09:14-09:21 (RSV) and the 09:21-09:28 (COVID)
       Then the following single site availability by days is returned
         | Date              | Blocks | From  | Until |
-        | Tomorrow          | AM     | 09:18 | 09:28 |
+        | Tomorrow          | AM     | 09:14 | 12:00 |
 
   Scenario: Only returns matching days for rwo Attendees with two Services at a single Site
     Given The following sites exist in the system

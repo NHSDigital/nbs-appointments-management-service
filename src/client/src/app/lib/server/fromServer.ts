@@ -1,9 +1,6 @@
 import { logError } from '@services/logService';
 import { ServerActionResult } from '@types';
-import {
-  ServerActionException,
-  ServerActionFailure,
-} from './ServerActionFailure';
+import { ServerActionFailure } from './ServerActionFailure';
 
 /**
  * A wrapper for invoking server actions.

@@ -2,6 +2,7 @@ using FluentAssertions;
 using Moq;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
+using Nhs.Appointments.Core.Availability;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 public class AvailabilityQueryRequestValidatorTests
@@ -109,5 +110,32 @@ public class AvailabilityQueryRequestValidatorTests
         var result = _sut.Validate(request);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(6)]
+    [InlineData(10)]
+    [InlineData(20)]
+    public void FailsValidation_WhenThereAreTooManyAttendees(int attendeeCount)
+    {
+        var attendees = new List<Attendee>();
+
+        for (var i = 0; i < attendeeCount; i++)
+        {
+            attendees.Add(new Attendee
+            {
+                Services = ["RSV:Adult"]
+            });
+        }
+
+        var request = new AvailabilityQueryRequest(
+            ["test-site-123"],
+            attendees,
+            new DateOnly(2025, 9, 2),
+            new DateOnly(2025, 10, 1));
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
     }
 }

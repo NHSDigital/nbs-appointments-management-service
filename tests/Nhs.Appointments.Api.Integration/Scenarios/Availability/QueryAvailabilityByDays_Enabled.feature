@@ -271,11 +271,11 @@ Feature: Query Availability By Days
       | 6188c242-acfa-4dc2-860a-ead658bfe180 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  |
     And the following sessions exist for site '6188c242-acfa-4dc2-860a-ead658bfe185'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
-      | Tomorrow          | 11:00 | 12:00 | RSV:Adult | 10          | 1        |
+      | Tomorrow          | 11:00 | 12:00 | RSV:Adult | 15          | 1        |
     When I query availability by days
-      | Site                                 | Attendee Services                                            | From     | Until    |
-      | 6188c242-acfa-4dc2-860a-ead658bfe185 | RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult  | Tomorrow | Tomorrow |
-    # 6 attendees can just fit within the single hour (6 slots)
+      | Site                                 | Attendee Services                       | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe185 | RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult | Tomorrow | Tomorrow |
+    # 4 attendees can just fit within the single hour (4 slots)
     Then the following single site availability by days is returned
       | Date     | Blocks | From  | Until |
       | Tomorrow | AM     | 11:00 | 12:00 |
@@ -294,3 +294,15 @@ Feature: Query Availability By Days
     Then the following single site availability by days is returned
       | Date     | Blocks | From  | Until |
       | Tomorrow | AM,PM  | 11:50 | 12:05 |
+
+  Scenario: Returns bad request when too many attendees are passed up
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
+      | 6188c242-acfa-4dc2-860a-ead658bfe180 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  |
+    And the following sessions exist for site '6188c242-acfa-4dc2-860a-ead658bfe185'
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 11:00 | 12:00 | RSV:Adult | 15          | 1        |
+    When I query availability by days
+      | Site                                 | Attendee Services                                           | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe185 | RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult | Tomorrow | Tomorrow |
+    Then the call should fail with 400

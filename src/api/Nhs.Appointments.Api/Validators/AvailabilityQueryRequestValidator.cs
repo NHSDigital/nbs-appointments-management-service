@@ -12,7 +12,9 @@ public class AvailabilityQueryRequestValidator : AbstractValidator<AvailabilityQ
             .WithMessage("Provide a list of sites.");
         RuleFor(x => x.Attendees)
             .NotEmpty()
-            .WithMessage("Provide a list of attendees.");
+            .WithMessage("Provide a list of attendees.")
+            .Must(x => x.Count <= 5)
+            .WithMessage("Only a maximum of 5 attendees are allowed.");
         RuleForEach(x => x.Attendees)
             .SetValidator(new AttendeeValidator());
         RuleFor(x => x.From)

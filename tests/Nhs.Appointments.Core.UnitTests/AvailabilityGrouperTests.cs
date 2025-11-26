@@ -357,4 +357,23 @@ public class AvailabilityGrouperTests
         result.Hours.Count(h => h.From is "09:00").Should().Be(1);
         result.Hours.Count(h => h.Until is "10:00").Should().Be(1);
     }
+
+    [Fact]
+    public void BuildHourAvailability_OnlyProducesOneHour_WhenSlotEndsInNextHour()
+    {
+        var date = new DateOnly(2025, 10, 1);
+        var attendees = new List<Attendee>
+        {
+            new() { Services = ["RSV:Adult"] },
+            new() { Services = ["RSV:Adult"] }
+        };
+        var site = "Test Site";
+        var slots = AvailabilityHelper.CreateTestSlots(date, new TimeOnly(11, 55), new TimeOnly(12, 10), TimeSpan.FromMinutes(20));
+
+        var result = AvailabilityGrouper.BuildHourAvailability(site, date, attendees, slots);
+
+        result.Hours.Count.Should().Be(1);
+        result.Hours.First().From.Should().Be("11:00");
+        result.Hours.First().Until.Should().Be("12:00");
+    }
 }

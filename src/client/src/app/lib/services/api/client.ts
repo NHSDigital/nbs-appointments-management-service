@@ -1,7 +1,6 @@
 'use server';
 import { cookies } from 'next/headers';
 import { ApiResponse } from '@types';
-import { logError } from '@services/logService';
 
 interface ClientOptions {
   baseUrl: string;
@@ -63,6 +62,13 @@ class Client {
     return this.baseUrl;
   }
 
+  private stripParamsFromUrl(url: string): string {
+    if (url.includes('?')) {
+      return url.split('?')[0];
+    }
+    return url;
+  }
+
   private async handleResponse<T = unknown>(
     response: Response,
   ): Promise<ApiResponse<T>> {
@@ -72,6 +78,7 @@ class Client {
         httpStatusCode: 401,
         errorMessage:
           'Unauthorized: You must be logged in to view this resource',
+        url: this.stripParamsFromUrl(response.url),
       };
     }
 
@@ -80,6 +87,7 @@ class Client {
         success: false,
         httpStatusCode: 403,
         errorMessage: 'Forbidden: You lack the necessary permissions',
+        url: this.stripParamsFromUrl(response.url),
       };
     }
 
@@ -88,6 +96,7 @@ class Client {
         success: false,
         httpStatusCode: 404,
         errorMessage: 'Not found',
+        url: this.stripParamsFromUrl(response.url),
       };
     }
 
@@ -98,14 +107,11 @@ class Client {
       };
     }
 
-    logError(`Unexpected status code`, undefined, {
-      statusCode: `${response.status}`,
-      url: response.url,
-    });
     return {
       success: false,
       httpStatusCode: response.status,
       errorMessage: `Unexpected status ${response.status} from ${response.url}`,
+      url: this.stripParamsFromUrl(response.url),
     };
   }
 

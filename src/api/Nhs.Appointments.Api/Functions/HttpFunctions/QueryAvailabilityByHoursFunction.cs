@@ -13,7 +13,6 @@ using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -43,7 +42,9 @@ public class QueryAvailabilityByHoursFunction(
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.QueryAvailability, typeof(MultiSiteBodyRequestInspector))]
     [Function("QueryAvailabilityByHoursFunction")]
-    public override async Task<IActionResult> RunAsync(HttpRequest req)
+    public override async Task<IActionResult> RunAsync(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/query/hours")]
+        HttpRequest req)
     {
         return await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceJointBookings)
             ? await base.RunAsync(req)
@@ -52,19 +53,17 @@ public class QueryAvailabilityByHoursFunction(
 
     protected override async Task<ApiResult<AvailabilityByHours>> HandleRequest(AvailabilityQueryByHoursRequest request, ILogger logger)
     {
-        return await siteService.GetSiteByIdAsync(request.Site) is null
-            ? Failed(HttpStatusCode.NotFound, $"Site: {request.Site} could not be found.")
-            : Success(await GetSiteAvailability(request.Site, request.Attendees, request.From, request.Until));
-    }
+        if (await siteService.GetSiteByIdAsync(request.Site) is null)
+        {
+            return Failed(HttpStatusCode.NotFound, $"Site: {request.Site} could not be found.");
+        }
 
-    private async Task<AvailabilityByHours> GetSiteAvailability(string site, List<Attendee> attendees, DateOnly from, DateOnly until)
-    {
-        var dayStart = from.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = until.ToDateTime(new TimeOnly(23, 59, 59));
+        var dayStart = request.From.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = request.Until.ToDateTime(new TimeOnly(23, 59, 59));
 
-        var slots = (await bookingAvailabilityStateService.GetAvailableSlots(site, dayStart, dayEnd)).ToList();
-        var filteredSlots = availableSlotsFilter.FilterAvailableSlots(slots, attendees);
+        var slots = (await bookingAvailabilityStateService.GetAvailableSlots(request.Site, dayStart, dayEnd)).ToList();
+        var filteredSlots = availableSlotsFilter.FilterAvailableSlots(slots, request.Attendees);
 
-        return AvailabilityGrouper.BuildHourAvailability(site, DateOnly.FromDateTime(dayStart), attendees, filteredSlots);
+        return Success(AvailabilityGrouper.BuildHourAvailability(request.Site, DateOnly.FromDateTime(dayStart), request.Attendees, filteredSlots));
     }
 }

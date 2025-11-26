@@ -58,7 +58,7 @@ public class QueryAvailabilityByHoursFunctionTests
             new DateOnly(2025, 9, 1),
             new DateOnly(2025, 10, 1));
 
-        var result = await _sut.RunAsync(CreatRequest(payload)) as ContentResult;
+        var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
 
         result.StatusCode.Should().Be(501);
     }
@@ -80,7 +80,7 @@ public class QueryAvailabilityByHoursFunctionTests
             new DateOnly(2025, 10, 1));
         var expectedResponse = new AvailabilityByHours();
 
-        var result = await _sut.RunAsync(CreatRequest(payload)) as ContentResult;
+        var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
 
         result.StatusCode.Should().Be(404);
 
@@ -88,7 +88,167 @@ public class QueryAvailabilityByHoursFunctionTests
         _availableSlotsFilter.Verify(a => a.FilterAvailableSlots(It.IsAny<List<SessionInstance>>(), It.IsAny<List<Attendee>>()), Times.Never);
     }
 
-    private static HttpRequest CreatRequest(AvailabilityQueryByHoursRequest payload)
+    [Fact]
+    public async Task RunAsync_ReturnAvailabilityByHours()
+    {
+        var slots = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0), new DateTime(2077, 1, 1, 9, 5, 0)),
+            new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0), new DateTime(2077, 1, 1, 10, 5, 0)),
+            new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0), new DateTime(2077, 1, 1, 11, 5, 0)),
+            new SessionInstance(new DateTime(2077, 1, 1, 12, 0, 0), new DateTime(2077, 1, 1, 13, 0, 0)),
+        };
+
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultiServiceJointBookings))
+            .ReturnsAsync(true);
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("test_acces/one", "true")
+                },
+                new Location("Coords", [1.234, 5.678]),
+                null,
+                null,
+                string.Empty));
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(slots);
+        _availableSlotsFilter.Setup(x => x.FilterAvailableSlots(It.IsAny<List<SessionInstance>>(), It.IsAny<List<Attendee>>()))
+            .Returns(slots);
+
+        var payload = new AvailabilityQueryByHoursRequest(
+            "34e990af-5dc9-43a6-8895-b9123216d699",
+            [
+                new() { Services = ["RSV:Adult"]}
+            ],
+            new DateOnly(2077, 1, 1),
+            new DateOnly(2077, 1, 1));
+
+        var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
+
+        result.StatusCode.Should().Be(200);
+
+        var body = await new StringReader(result.Content).ReadToEndAsync();
+        var response = JsonConvert.DeserializeObject<AvailabilityByHours>(body);
+
+        response.Hours.Count.Should().Be(4);
+        response.Hours.First().From.Should().Be("09:00");
+        response.Hours.First().Until.Should().Be("10:00");
+        response.Hours.Last().From.Should().Be("12:00");
+        response.Hours.Last().Until.Should().Be("13:00");
+    }
+
+    [Fact]
+    public async Task RunAsync_DoesNotShowFollowingHour_IfSlotSpillsOver()
+    {
+        var slots = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 9, 55, 0), new DateTime(2077, 1, 1, 10, 5, 0)),
+        };
+
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultiServiceJointBookings))
+            .ReturnsAsync(true);
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("test_acces/one", "true")
+                },
+                new Location("Coords", [1.234, 5.678]),
+                null,
+                null,
+                string.Empty));
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(slots);
+        _availableSlotsFilter.Setup(x => x.FilterAvailableSlots(It.IsAny<List<SessionInstance>>(), It.IsAny<List<Attendee>>()))
+            .Returns(slots);
+
+        var payload = new AvailabilityQueryByHoursRequest(
+            "34e990af-5dc9-43a6-8895-b9123216d699",
+            [
+                new() { Services = ["RSV:Adult"]}
+            ],
+            new DateOnly(2077, 1, 1),
+            new DateOnly(2077, 1, 1));
+
+        var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
+
+        result.StatusCode.Should().Be(200);
+
+        var body = await new StringReader(result.Content).ReadToEndAsync();
+        var response = JsonConvert.DeserializeObject<AvailabilityByHours>(body);
+
+        response.Hours.Count.Should().Be(1);
+        response.Hours.First().From.Should().Be("09:00");
+        response.Hours.First().Until.Should().Be("10:00");
+        response.Hours.Any(x => x.From == "10:00").Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RunAsync_ReturnsEmptyHoursArray()
+    {
+        var slots = new List<SessionInstance>();
+        
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultiServiceJointBookings))
+            .ReturnsAsync(true);
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("test_acces/one", "true")
+                },
+                new Location("Coords", [1.234, 5.678]),
+                null,
+                null,
+                string.Empty));
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(slots);
+        _availableSlotsFilter.Setup(x => x.FilterAvailableSlots(It.IsAny<List<SessionInstance>>(), It.IsAny<List<Attendee>>()))
+            .Returns(slots);
+
+        var payload = new AvailabilityQueryByHoursRequest(
+            "34e990af-5dc9-43a6-8895-b9123216d699",
+            [
+                new() { Services = ["RSV:Adult"]}
+            ],
+            new DateOnly(2077, 1, 1),
+            new DateOnly(2077, 1, 1));
+
+        var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
+
+        result.StatusCode.Should().Be(200);
+
+        var body = await new StringReader(result.Content).ReadToEndAsync();
+        var response = JsonConvert.DeserializeObject<AvailabilityByHours>(body);
+
+        response.Hours.Count.Should().Be(0);
+    }
+
+    private static HttpRequest CreateRequest(AvailabilityQueryByHoursRequest payload)
     {
         var context = new DefaultHttpContext();
         var request = context.Request;

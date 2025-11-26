@@ -77,7 +77,8 @@ const EditSessionConfirmed = ({
       ) : chosenAction === 'cancel-appointments' ? (
         <>
           <div className="margin-top-bottom">
-            The session has been updated and a new capacity has been saved.
+            This session has been updated and the new time and capacity has been
+            saved.
           </div>
           {newlyUnsupportedBookingsCount > 1 ? (
             <Card

@@ -1,5 +1,9 @@
 import { logError } from '@services/logService';
 import { ServerActionResult } from '@types';
+import {
+  ServerActionException,
+  ServerActionFailure,
+} from './ServerActionFailure';
 
 /**
  * A wrapper for invoking server actions.
@@ -18,24 +22,21 @@ import { ServerActionResult } from '@types';
 const fromServer = async <T>(
   action: Promise<ServerActionResult<T>>,
 ): Promise<T> => {
-  return action
-    .then(
-      result => {
-        if (result.success) {
-          return result.data;
-        }
-        logError('A server action result did not indicate success');
-        throw new Error('Server action failed');
-      },
-      error => {
-        logError('An unexpected error occurred in a server action', error);
-        throw error;
-      },
-    )
-    .catch(error => {
-      logError('An unexpected error occurred in a server action', error);
-      throw error;
-    });
+  return action.then(
+    result => {
+      if (result.success) {
+        return result.data;
+      }
+
+      // TODO: I think this change to proper reject handling means we can scrap the ServerActionResult and just return Promise<T> again,
+      // then this extra error can be removed, but that can come in a later refactor.
+      logError('A server action result did not indicate success');
+      throw new Error('Server action failed');
+    },
+    async (reasonForRejection: ServerActionFailure) => {
+      return await reasonForRejection.handle();
+    },
+  );
 };
 
 export default fromServer;

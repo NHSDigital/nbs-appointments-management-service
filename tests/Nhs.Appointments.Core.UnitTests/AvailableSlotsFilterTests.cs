@@ -531,6 +531,31 @@ public class AvailableSlotsFilterTests
             slot.Services.SequenceEqual(["RSV", "FLU"]));
     }
 
+    [Fact]
+    public void NotEnoughAvailabilityForAmountOfAttendeesRquired()
+    {
+        var slots = new List<SessionInstance>
+        {
+            SetupSlot("09:00", "09:15", 1, ["RSV"]),
+            SetupSlot("09:15", "09:30", 1, ["RSV"]),
+            SetupSlot("09:30", "09:45", 1, ["RSV"]),
+            SetupSlot("09:45", "10:00", 1, ["RSV"]),
+        };
+
+        var attendees = new List<Attendee>
+        {
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"])
+        };
+
+        var result = _sut.FilterAvailableSlots(slots, attendees);
+
+        result.Count().Should().Be(0);
+    }
+
     private DateTime TestDateAt(string time)
     {
         var hour = time.Split(':')[0];

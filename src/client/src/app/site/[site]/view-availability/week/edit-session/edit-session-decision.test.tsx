@@ -36,7 +36,7 @@ describe('Edit Session Decision Page', () => {
 
     expect(
       screen.getByRole('row', {
-        name: '09:00 - 12:00 RSV Adult 2 booked 70 unbooked',
+        name: '09:00 - 12:00 RSV Adult 2 booked',
       }),
     ).toBeInTheDocument();
   });
@@ -61,11 +61,11 @@ describe('Edit Session Decision Page', () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('radio', { name: 'Cancel this session' }),
+      screen.getByRole('radio', { name: 'Cancel the session' }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('radio', {
-        name: 'Remove services from this session',
+        name: 'Remove a service or multiple services',
       }),
     ).toBeInTheDocument();
   });
@@ -90,12 +90,12 @@ describe('Edit Session Decision Page', () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('radio', { name: 'Cancel this session' }),
+      screen.getByRole('radio', { name: 'Cancel the session' }),
     ).toBeInTheDocument();
 
     expect(
       screen.queryByRole('radio', {
-        name: 'Remove services from this session',
+        name: 'Remove a service or multiple services',
       }),
     ).not.toBeInTheDocument();
   });
@@ -126,18 +126,16 @@ describe('Edit Session Decision Page', () => {
     ).toBeChecked();
 
     expect(
-      screen.getByRole('radio', { name: 'Cancel this session' }),
+      screen.getByRole('radio', { name: 'Cancel the session' }),
     ).not.toBeChecked();
 
     expect(
       screen.getByRole('radio', {
-        name: 'Remove services from this session',
+        name: 'Remove a service or multiple services',
       }),
     ).not.toBeChecked();
 
-    await user.click(
-      screen.getByRole('radio', { name: 'Cancel this session' }),
-    );
+    await user.click(screen.getByRole('radio', { name: 'Cancel the session' }));
 
     expect(
       screen.getByRole('radio', {
@@ -146,24 +144,24 @@ describe('Edit Session Decision Page', () => {
     ).not.toBeChecked();
 
     expect(
-      screen.getByRole('radio', { name: 'Cancel this session' }),
+      screen.getByRole('radio', { name: 'Cancel the session' }),
     ).toBeChecked();
 
     expect(
       screen.getByRole('radio', {
-        name: 'Remove services from this session',
+        name: 'Remove a service or multiple services',
       }),
     ).not.toBeChecked();
 
     await user.click(
       screen.getByRole('radio', {
-        name: 'Remove services from this session',
+        name: 'Remove a service or multiple services',
       }),
     );
 
     expect(
       screen.getByRole('radio', {
-        name: 'Remove services from this session',
+        name: 'Remove a service or multiple services',
       }),
     ).toBeChecked();
 
@@ -174,7 +172,7 @@ describe('Edit Session Decision Page', () => {
     ).not.toBeChecked();
 
     expect(
-      screen.getByRole('radio', { name: 'Cancel this session' }),
+      screen.getByRole('radio', { name: 'Cancel the session' }),
     ).not.toBeChecked();
   });
 
@@ -200,7 +198,7 @@ describe('Edit Session Decision Page', () => {
 
     await user.click(
       screen.getByRole('radio', {
-        name: 'Cancel this session',
+        name: 'Cancel the session',
       }),
     );
 
@@ -254,7 +252,7 @@ describe('Edit Session Decision Page', () => {
 
     await user.click(
       screen.getByRole('radio', {
-        name: /cancel this session/i,
+        name: /cancel the session/i,
       }),
     );
 
@@ -285,7 +283,7 @@ describe('Edit Session Decision Page', () => {
 
     await user.click(
       screen.getByRole('radio', {
-        name: /cancel this session/i,
+        name: /cancel the session/i,
       }),
     );
 

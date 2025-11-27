@@ -1,6 +1,7 @@
 using FluentValidation;
 using Nhs.Appointments.Api.Models;
 using System;
+using System.Linq;
 
 namespace Nhs.Appointments.Api.Validators;
 public class AvailabilityQueryRequestValidator : AbstractValidator<AvailabilityQueryRequest>
@@ -9,7 +10,9 @@ public class AvailabilityQueryRequestValidator : AbstractValidator<AvailabilityQ
     {
         RuleFor(x => x.Sites)
             .NotEmpty()
-            .WithMessage("Provide a list of sites.");
+            .WithMessage("Provide a list of sites.")
+            .Must(x => x.Count() <= 50)
+            .WithMessage("Only a maximum of 50 sites are allowed.");
         RuleFor(x => x.Attendees)
             .NotEmpty()
             .WithMessage("Provide a list of attendees.")

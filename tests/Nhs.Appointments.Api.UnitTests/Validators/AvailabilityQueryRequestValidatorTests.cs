@@ -138,4 +138,30 @@ public class AvailabilityQueryRequestValidatorTests
 
         result.IsValid.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(51)]
+    [InlineData(100)]
+    [InlineData(60)]
+    public void FailsValidation_WhenThereAreTooManySites(int siteCount)
+    {
+        var sites = new List<string>();
+
+        for (var i = 0; i < siteCount; i++)
+        {
+            sites.Add($"test-site-{i}");
+        }
+
+        var request = new AvailabilityQueryRequest(
+            [.. sites],
+            [
+                new() { Services = ["RSV:Adult"] }
+            ],
+            new DateOnly(2025, 9, 2),
+            new DateOnly(2025, 10, 1));
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
 }

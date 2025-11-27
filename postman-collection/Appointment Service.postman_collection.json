@@ -1334,6 +1334,34 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "availability/query/hours",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"attendees\": [\r\n        {\r\n            \"services\": [\"RSV:Adult\"]\r\n        }\r\n    ],\r\n    \"date\": \"2025-12-10\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/availability/query/hours",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "availability", "query", "hours"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

@@ -84,7 +84,6 @@ public class QueryAvailabilityByDaysFunction(
         var slots = (await bookingAvailabilityStateService.GetAvailableSlots(site, dayStart, dayEnd)).ToList();
         var filteredSlots = availableSlotsFilter.FilterAvailableSlots(slots, attendees);
 
-        var availability = new AvailabilityByDays();
         var dayEntries = new List<DayEntry>();
 
         var day = from;

@@ -57,7 +57,7 @@ public class QueryAvailabilityByDaysFunction(
     protected override async Task<ApiResult<List<AvailabilityByDays>>> HandleRequest(AvailabilityQueryRequest request, ILogger logger)
     {
         var sites = await siteService.GetAllSites();
-        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.isDeleted is false or null));
+        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs));
         if (!activeSites.Any())
         {
             return Success([]);

@@ -31,7 +31,7 @@ public class QueryAvailabilityByHoursFunction(
 {
     [OpenApiOperation(operationId: "QueryAvailabilityByHours", tags: ["Availability"],
         Summary = "Query appointment availability by hours")]
-    [OpenApiRequestBody("application/json", typeof(AvailabilityQueryRequest), Required = true)]
+    [OpenApiRequestBody("application/json", typeof(AvailabilityQueryByHoursRequest), Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(List<AvailabilityByHours>),
         Description = "Appointment availability")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",

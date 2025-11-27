@@ -19,6 +19,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
+using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable
@@ -28,6 +29,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
     private AvailabilityByHours AvailabilityResponse { get; set; }
 
     private string _siteId;
+    private List<Attendee> _attendeesCollection;
 
     public void Dispose()
     {
@@ -43,7 +45,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
 
         _siteId = cells.ElementAt(0).Value;
         var services = cells.ElementAt(1).Value.Split(',');
-        var attendeesCollection = services.Select(service => new Attendee
+        _attendeesCollection = services.Select(service => new Attendee
         {
             Services = [service]
         }).ToList();
@@ -51,12 +53,48 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
         var payload = new AvailabilityQueryByHoursRequest
         (
             GetSiteId(_siteId),
-            attendeesCollection,
+            _attendeesCollection,
             NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
             NaturalLanguageDate.Parse(cells.ElementAt(3).Value)
         );
 
         await SendRequestAsync(payload);
+    }
+
+    [When("I pass an invalid payload")]
+    public async Task PassInvalidPayload()
+    {
+        var payload = new AvailabilityQueryByHoursRequest(
+            string.Empty,
+            [],
+            new DateOnly(2025, 9, 1),
+            new DateOnly(2025, 10, 1));
+
+        await SendRequestAsync(payload);
+    }
+
+    [Then("the following '(.+)' availabilty is returned for '(.+)'")]
+    public void AssertAvailability(string services, string date, DataTable dataTable)
+    {
+        var expectedServices = services.Split(',');
+        var expectedDate = NaturalLanguageDate.Parse(date);
+        var expectedHours = dataTable.Rows.Skip(1).Select(row =>
+            new Hour
+            {
+                From = row.Cells.ElementAt(0).Value,
+                Until = row.Cells.ElementAt(1).Value
+            });
+
+        var expectedAvailability = new AvailabilityByHours
+        {
+            Attendees = _attendeesCollection,
+            Date = expectedDate,
+            Hours = [.. expectedHours],
+            Site = GetSiteId(_siteId)
+        };
+
+        StatusCode.Should().Be(HttpStatusCode.OK);
+        AvailabilityResponse.Should().BeEquivalentTo(expectedAvailability);
     }
 
     [Then(@"the call should fail with (\d*)")]

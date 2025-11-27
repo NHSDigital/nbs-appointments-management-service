@@ -375,9 +375,6 @@ public class AvailableSlotsFilterTests
         result.Count(s => s.Services.First() == "FLU").Should().Be(2);
     }
 
-    // More tests for different slot lengths
-    // Scenario on the Mural board for 3 services and different slot lengths need adding as well
-
     [Fact]
     public void MuralScenario__QueryForC_and_B()
     {
@@ -532,6 +529,31 @@ public class AvailableSlotsFilterTests
             slot.From == TestDateAt("09:10") &&
             slot.Until == TestDateAt("09:15") &&
             slot.Services.SequenceEqual(["RSV", "FLU"]));
+    }
+
+    [Fact]
+    public void NotEnoughAvailabilityForAmountOfAttendeesRquired()
+    {
+        var slots = new List<SessionInstance>
+        {
+            SetupSlot("09:00", "09:15", 1, ["RSV"]),
+            SetupSlot("09:15", "09:30", 1, ["RSV"]),
+            SetupSlot("09:30", "09:45", 1, ["RSV"]),
+            SetupSlot("09:45", "10:00", 1, ["RSV"]),
+        };
+
+        var attendees = new List<Attendee>
+        {
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"]),
+            SetupAttendee(["RSV"])
+        };
+
+        var result = _sut.FilterAvailableSlots(slots, attendees);
+
+        result.Count().Should().Be(0);
     }
 
     private DateTime TestDateAt(string time)

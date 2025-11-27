@@ -55,8 +55,7 @@ public class QueryAvailabilityByHoursFunctionTests
             [
                 new() { Services = ["RSV:Adult"]}
             ],
-            new DateOnly(2025, 9, 1),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2025, 9, 1));
 
         var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
 
@@ -76,8 +75,7 @@ public class QueryAvailabilityByHoursFunctionTests
             [
                 new() { Services = ["RSV:Adult"]}
             ],
-            new DateOnly(2025, 9, 1),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2025, 9, 1));
         var expectedResponse = new AvailabilityByHours();
 
         var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
@@ -129,7 +127,6 @@ public class QueryAvailabilityByHoursFunctionTests
             [
                 new() { Services = ["RSV:Adult"]}
             ],
-            new DateOnly(2077, 1, 1),
             new DateOnly(2077, 1, 1));
 
         var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
@@ -184,7 +181,6 @@ public class QueryAvailabilityByHoursFunctionTests
             [
                 new() { Services = ["RSV:Adult"]}
             ],
-            new DateOnly(2077, 1, 1),
             new DateOnly(2077, 1, 1));
 
         var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;
@@ -235,7 +231,6 @@ public class QueryAvailabilityByHoursFunctionTests
             [
                 new() { Services = ["RSV:Adult"]}
             ],
-            new DateOnly(2077, 1, 1),
             new DateOnly(2077, 1, 1));
 
         var result = await _sut.RunAsync(CreateRequest(payload)) as ContentResult;

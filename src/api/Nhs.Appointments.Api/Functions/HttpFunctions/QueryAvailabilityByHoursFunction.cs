@@ -58,8 +58,8 @@ public class QueryAvailabilityByHoursFunction(
             return Failed(HttpStatusCode.NotFound, $"Site: {request.Site} could not be found.");
         }
 
-        var dayStart = request.From.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = request.Until.ToDateTime(new TimeOnly(23, 59, 59));
+        var dayStart = request.Date.ToDateTime(new TimeOnly(0, 0));
+        var dayEnd = request.Date.ToDateTime(new TimeOnly(23, 59, 59));
 
         var slots = (await bookingAvailabilityStateService.GetAvailableSlots(request.Site, dayStart, dayEnd)).ToList();
         var filteredSlots = availableSlotsFilter.FilterAvailableSlots(slots, request.Attendees);

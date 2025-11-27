@@ -9,7 +9,5 @@ public record AvailabilityQueryByHoursRequest(
     string Site,
     [property:JsonProperty("attendees", Required = Required.Always)]
     List<Attendee> Attendees,
-    [property:JsonProperty("from", Required = Required.Always)]
-    DateOnly From,
-    [property:JsonProperty("until", Required = Required.Always)]
-    DateOnly Until);
+    [property:JsonProperty("date", Required = Required.Always)]
+    DateOnly Date);

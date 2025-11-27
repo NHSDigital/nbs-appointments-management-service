@@ -54,8 +54,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
         (
             GetSiteId(_siteId),
             _attendeesCollection,
-            NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
-            NaturalLanguageDate.Parse(cells.ElementAt(3).Value)
+            NaturalLanguageDate.Parse(cells.ElementAt(2).Value)
         );
 
         await SendRequestAsync(payload);
@@ -67,8 +66,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
         var payload = new AvailabilityQueryByHoursRequest(
             string.Empty,
             [],
-            new DateOnly(2025, 9, 1),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2025, 9, 1));
 
         await SendRequestAsync(payload);
     }

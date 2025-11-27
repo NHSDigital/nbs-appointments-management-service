@@ -29,8 +29,7 @@ public class AvailabilityQueryByHoursRequestValidatorTests
             [
                 new() { Services = ["RSV:Adult"] }
             ],
-            new DateOnly(2025, 9, 1),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2025, 9, 1));
 
         var result = _sut.Validate(request);
 
@@ -43,8 +42,7 @@ public class AvailabilityQueryByHoursRequestValidatorTests
         var request = new AvailabilityQueryByHoursRequest(
             "test-site-123",
             [],
-            new DateOnly(2025, 9, 1),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2025, 9, 1));
 
         var result = _sut.Validate(request);
 
@@ -70,8 +68,7 @@ public class AvailabilityQueryByHoursRequestValidatorTests
         var request = new AvailabilityQueryByHoursRequest(
             "test-site-123",
             attendees,
-            new DateOnly(2025, 9, 1),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2025, 9, 1));
 
         var result = _sut.Validate(request);
 
@@ -79,15 +76,14 @@ public class AvailabilityQueryByHoursRequestValidatorTests
     }
 
     [Fact]
-    public void FailsValidation_WhenFromIsInPast()
+    public void FailsValidation_WhenDateIsInPast()
     {
         var request = new AvailabilityQueryByHoursRequest(
             "test-site-123",
             [
                 new() { Services = ["RSV:Adult"] }
             ],
-            new DateOnly(2024, 9, 1),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2024, 9, 1));
 
         var result = _sut.Validate(request);
 
@@ -95,47 +91,14 @@ public class AvailabilityQueryByHoursRequestValidatorTests
     }
 
     [Fact]
-    public void FailsValidation_WhenFromNotProvided()
+    public void FailsValidation_WhenDateNotProvided()
     {
         var request = new AvailabilityQueryByHoursRequest(
             "test-site-123",
             [
                 new() { Services = ["RSV:Adult"] }
             ],
-            default,
-            new DateOnly(2025, 10, 1));
-
-        var result = _sut.Validate(request);
-
-        result.IsValid.Should().BeFalse();
-    }
-
-    [Fact]
-    public void FailsValidation_WhenUntilNotProvided()
-    {
-        var request = new AvailabilityQueryByHoursRequest(
-            "test-site-123",
-            [
-                new() { Services = ["RSV:Adult"] }
-            ],
-            new DateOnly(2025, 9, 1),
             default);
-
-        var result = _sut.Validate(request);
-
-        result.IsValid.Should().BeFalse();
-    }
-
-    [Fact]
-    public void FailsValidation_WhenFromAfterUntlil()
-    {
-        var request = new AvailabilityQueryByHoursRequest(
-            "test-site-123",
-            [
-                new() { Services = ["RSV:Adult"] }
-            ],
-            new DateOnly(2026, 9, 1),
-            new DateOnly(2025, 10, 1));
 
         var result = _sut.Validate(request);
 
@@ -150,8 +113,7 @@ public class AvailabilityQueryByHoursRequestValidatorTests
             [
                 new() { Services = ["RSV:Adult"] }
             ],
-            new DateOnly(2025, 9, 2),
-            new DateOnly(2025, 10, 1));
+            new DateOnly(2025, 9, 2));
 
         var result = _sut.Validate(request);
 

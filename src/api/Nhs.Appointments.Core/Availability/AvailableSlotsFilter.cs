@@ -40,7 +40,7 @@ public class AvailableSlotsFilter : IAvailableSlotsFilter
 
             var longestChainStartingFromThisSlot = BuildGroupBookingChain(slot, slots, requiredServices);
             var distinctSlots = longestChainStartingFromThisSlot?.Distinct().ToList();
-            if (distinctSlots.Count == requiredServices.Count)
+            if (distinctSlots?.Count == requiredServices.Count)
             {
                 foreach (var s in distinctSlots)
                 {

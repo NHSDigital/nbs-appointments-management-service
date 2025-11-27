@@ -24,10 +24,10 @@ export default class ChangeAvailabilityPage extends RootPage {
       name: 'Change the length or capacity of this session',
     });
     this.editServicesRadioOption = page.getByRole('radio', {
-      name: 'Remove services from this session',
+      name: 'Remove a service or multiple services',
     });
     this.cancelRadioOption = page.getByRole('radio', {
-      name: 'Cancel this session',
+      name: 'Cancel the session',
     });
     this.confirmCancelRadioOption = page.getByRole('radio', {
       name: 'Yes, I want to cancel this session',

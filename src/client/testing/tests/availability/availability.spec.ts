@@ -1401,13 +1401,6 @@ test.describe('View Week Availability', () => {
               }),
             ).toBeVisible();
 
-            await expect(
-              changeAvailabilityPage.page.getByRole('columnheader', {
-                name: 'Unbooked',
-                exact: true,
-              }),
-            ).toBeVisible();
-
             //no action header
             await expect(
               changeAvailabilityPage.page.getByRole('columnheader', {
@@ -1424,14 +1417,10 @@ test.describe('View Week Availability', () => {
             const bookedCell = changeAvailabilityPage.page.getByRole('cell', {
               name: `${daySession.booked} booked`,
             });
-            const unbookedCell = changeAvailabilityPage.page.getByRole('cell', {
-              name: `${daySession.unbooked} unbooked`,
-            });
 
             await expect(timeCell).toBeVisible();
             await expect(serviceCell).toBeVisible();
             await expect(bookedCell).toBeVisible();
-            await expect(unbookedCell).toBeVisible();
           });
 
           test('Change session has the correct information on the edit session page', async () => {

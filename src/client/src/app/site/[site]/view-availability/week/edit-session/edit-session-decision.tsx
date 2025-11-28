@@ -75,6 +75,7 @@ export const EditSessionDecision = ({
       <SessionSummaryTable
         sessionSummaries={[session]}
         clinicalServices={clinicalServices}
+        showUnbooked={false}
       />
 
       {!cancelSessionUpliftedJourneyFlag && (
@@ -95,9 +96,17 @@ export const EditSessionDecision = ({
           <RadioGroup>
             <Radio
               label="Change the length or capacity of this session"
-              hint="Shorten the session length or remove capacity"
+              hint="Shorten session length or remove capacity"
               id="edit-session"
               value="edit-session"
+              {...register('action', {
+                required: { value: true, message: 'Select an option' },
+              })}
+            />
+            <Radio
+              label="Cancel the session"
+              id="cancel-session"
+              value="cancel-session"
               {...register('action', {
                 required: { value: true, message: 'Select an option' },
               })}
@@ -105,8 +114,7 @@ export const EditSessionDecision = ({
             {Object.keys(session.totalSupportedAppointmentsByService).length >
               1 && (
               <Radio
-                label="Remove services from this session"
-                hint="Remove booked appointments for individual services"
+                label="Remove a service or multiple services"
                 id="edit-services"
                 value="edit-services"
                 {...register('action', {
@@ -114,14 +122,6 @@ export const EditSessionDecision = ({
                 })}
               />
             )}
-            <Radio
-              label="Cancel this session"
-              id="cancel-session"
-              value="cancel-session"
-              {...register('action', {
-                required: { value: true, message: 'Select an option' },
-              })}
-            />
           </RadioGroup>
         </FormGroup>
         {pendingSubmit ? (

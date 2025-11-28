@@ -1,4 +1,5 @@
 using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
+using static Nhs.Appointments.Core.Availability.AvailabilityBySlots;
 
 namespace Nhs.Appointments.Core.Availability;
 public static  class AvailabilityGrouper
@@ -58,6 +59,28 @@ public static  class AvailabilityGrouper
                 {
                     From = $"{g.Key:D2}:00",
                     Until = g.Key == 23 ? "00:00" : $"{g.Key + 1:D2}:00"
+                })]
+        };
+    }
+
+    public static AvailabilityBySlots BuildSlotsAvailability(string site, DateTime from, DateTime until, List<Attendee> attendees, IEnumerable<SessionInstance> slots)
+    {
+        ArgumentNullException.ThrowIfNull(slots);
+
+        return new AvailabilityBySlots
+        {
+            Site = site,
+            Attendees = attendees,
+            From = from,
+            Until = until,
+            Slots = [.. slots
+                .GroupBy(x => (x.From, x.Duration, x.Services))
+                .OrderBy(g => g.Key)
+                .Select(g => new Slot
+                {
+                    From = TimeOnly.FromDateTime(g.Key.From).ToString("HH:mm"),
+                    Until = TimeOnly.FromDateTime(g.Key.From.Add(g.Key.Duration)).ToString("HH:mm"),
+                    Services = g.Key.Services
                 })]
         };
     }

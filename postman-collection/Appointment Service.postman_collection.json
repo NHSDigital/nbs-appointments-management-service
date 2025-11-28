@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "97279d4c-a1ca-4269-93a0-42b217a78f0f",
+    "_postman_id": "fa8bcc1c-73eb-4b9a-87ce-3e0a1efe44db",
     "name": "Appointment Service",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "39091838"
@@ -1066,37 +1066,8 @@
           "host": ["{{baseUrl}}"],
           "path": ["api", "session", "cancel"]
         }
-      }
-    },
-    {
-      "name": "availability/propose-edit",
-      "request": {
-        "auth": {
-          "type": "noauth"
-        },
-        "method": "POST",
-        "header": [
-          {
-            "key": "ClientId",
-            "value": "{{clientId}}",
-            "type": "text"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"from\": \"2025-10-24\",\r\n    \"to\": \"2025-10-24\",\r\n    \"site\": \"6877d86e-c2df-4def-8508-e1eccf0ea6be\",\r\n    \"sessionMatcher\": {\r\n        \"from\": \"12:00\",\r\n        \"until\": \"16:00\",\r\n        \"services\": [\r\n            \"RSV:Adult\"\r\n        ],\r\n        \"slotLength\": 10,\r\n        \"capacity\": 1\r\n    },\r\n    \"sessionReplacement\": {\r\n        \"from\": \"14:00\",\r\n        \"until\": \"16:00\",\r\n        \"services\": [\r\n            \"RSV:Adult\",\r\n            \"COVID:5_11\"\r\n        ],\r\n        \"slotLength\": 10,\r\n        \"capacity\": 1\r\n    }\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/availability/propose-edit",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "availability", "propose-edit"]
-        }
-      }
+      },
+      "response": []
     },
     {
       "name": "site-status",
@@ -1118,7 +1089,11 @@
             }
           }
         },
-        "url": "{{baseUrl}}/api/site-status"
+        "url": {
+          "raw": "{{baseUrl}}/api/site-status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "site-status"]
+        }
       },
       "response": []
     },
@@ -1195,7 +1170,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"from\": \"2025-09-15\",\r\n    \"to\": \"2025-09-15\",\r\n    \"site\": \"{{site}}\",\r\n    \"newlyUnsupportedBookingAction\": \"Orphan\",\r\n    \"sessionMatcher\": {\r\n        \"from\": \"09:00\",\r\n        \"to\": \"17:00\",\r\n        \"services\": [\"RSV:Adult\"],\r\n        \"slotLength\": 5,\r\n        \"capacity\": 2\r\n    },\r\n    \"sessionReplacement\": null\r\n}",
+          "raw": "{\r\n    \"from\": \"2025-09-15\",\r\n    \"to\": \"2025-09-15\",\r\n    \"site\": \"{{site}}\",\r\n    \"sessionMatcher\": \"*\",\r\n    \"sessionReplacement\": null\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1236,7 +1211,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"maxRecords\": 50,\r\n    \"filters\": [ \r\n        {\r\n            \"types\": [ \"GP Practice\" ],\r\n            \"odsCode\": \"ODS123\",\r\n            \"latitude\": 1.123,\r\n            \"longitude\": 54.321,\r\n            \"searchRadius\": 3000\r\n        },\r\n        {\r\n            \"types\": [],\r\n            \"latitude\": 1.123,\r\n            \"longitude\": 54.321,\r\n            \"searchRadius\": 3000\r\n        },\r\n        {\r\n            \"services\": [ \"RSV:Adult\" ],\r\n            \"from\": \"2025-10-30\",\r\n            \"until\": \"2025-11-30\",\r\n            \"latitude\": 1.123,\r\n            \"longitude\": 54.321,\r\n            \"searchRadius\": 3000\r\n        }\r\n    ]\r\n}",
+          "raw": "{\r\n    \"maxRecords\": 5,\r\n    \"filters\": [\r\n        {            \r\n            \"accessNeeds\": [\r\n                \"step_free_access\"\r\n            ],\r\n            \"latitude\": 53.796638,\r\n            \"longitude\": -1.663038,\r\n            \"searchRadius\": 10000,\r\n\t\t\t\"priority\": 3\r\n        },\r\n        {\r\n            \"types\": [\r\n                \"Pharmacy\"\r\n            ],\r\n            \"odsCode\": \"ABC01\",\r\n            \"latitude\": 53.796638,\r\n            \"longitude\": -1.663038,\r\n            \"searchRadius\": 10000,\r\n\t\t\t\"priority\": 1\r\n        },\r\n        {\r\n          \"availability\": {\r\n            \"services\": [\"RSV:Adult\"],\r\n            \"from\": \"2025-11-28\",\r\n            \"until\": \"2026-12-15\"\r\n          },\r\n          \"latitude\": 53.796638,\r\n          \"longitude\": -1.663038,\r\n          \"searchRadius\": 10000,\r\n          \"priority\": 2\r\n        },\r\n        {\r\n            \"odsCode\": \"ASDFG\",\r\n            \"latitude\": 53.796638,\r\n            \"longitude\": -1.663038,\r\n            \"searchRadius\": 10000,\r\n\t\t\t\"priority\": 4\r\n        }\r\n    ]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1362,6 +1337,34 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "availability/query/slots",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"attendees\": [\r\n        {\r\n            \"services\": [\"RSV:Adult\"]\r\n        }\r\n    ],\r\n    \"from\": \"2025-12-10 09:00\",\r\n    \"until\": \"2025-12-10 17:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/availability/query/slots",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "availability", "query", "slots"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [
@@ -1376,7 +1379,7 @@
           "const secret = pm.environment.get(\"hmacKey\")\r",
           "const method = pm.request.method;\r",
           "const path = pm.variables.replaceIn(pm.request.url.getPath());\r",
-          "const queryString = decodeURIComponent(pm.variables.replaceIn(pm.request.url.getQueryString()))\r",
+          "const queryString = pm.variables.replaceIn(pm.request.url.getQueryString())\r",
           "const now = moment.utc();\r",
           "const requestTimestamp = now.format();\r",
           "const content = pm.variables.replaceIn(pm.request.body).toString() + queryString;\r",

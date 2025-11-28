@@ -12,7 +12,6 @@ using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;

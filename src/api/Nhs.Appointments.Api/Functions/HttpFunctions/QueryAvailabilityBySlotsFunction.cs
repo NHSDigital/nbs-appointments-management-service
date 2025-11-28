@@ -19,20 +19,20 @@ using System.Net;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;
-public class QueryAvailabilityByHoursFunction(
+public class QueryAvailabilityBySlotsFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
-    IValidator<AvailabilityQueryByHoursRequest> validator,
+    IValidator<AvailabilityQueryBySlotsRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<QueryAvailabilityByHoursFunction> logger,
+    ILogger<QueryAvailabilityBySlotsFunction> logger,
     IMetricsRecorder metricsRecorder,
     IAvailableSlotsFilter availableSlotsFilter,
     ISiteService siteService,
-    IFeatureToggleHelper featureToggleHelper) : BaseApiFunction<AvailabilityQueryByHoursRequest, AvailabilityByHours>(validator, userContextProvider, logger, metricsRecorder)
+    IFeatureToggleHelper featureToggleHelper) : BaseApiFunction<AvailabilityQueryBySlotsRequest, AvailabilityBySlots>(validator, userContextProvider, logger, metricsRecorder)
 {
-    [OpenApiOperation(operationId: "QueryAvailabilityByHours", tags: ["Availability"],
-        Summary = "Query appointment availability by hours")]
-    [OpenApiRequestBody("application/json", typeof(AvailabilityQueryByHoursRequest), Required = true)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(AvailabilityByHours),
+    [OpenApiOperation(operationId: "QueryAvailabilityBySlots", tags: ["Availability"],
+        Summary = "Query appointment availability by slts")]
+    [OpenApiRequestBody("application/json", typeof(AvailabilityQueryBySlotsRequest), Required = true)]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json", typeof(AvailabilityBySlots),
         Description = "Appointment availability")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, "application/json",
         typeof(IEnumerable<ErrorMessageResponseItem>), Description = "The body of the request is invalid")]
@@ -41,9 +41,9 @@ public class QueryAvailabilityByHoursFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Forbidden, "application/json", typeof(ErrorMessageResponseItem),
         Description = "Request failed due to insufficient permissions")]
     [RequiresPermission(Permissions.QueryAvailability, typeof(MultiSiteBodyRequestInspector))]
-    [Function("QueryAvailabilityByHoursFunction")]
+    [Function("QueryAvailabilityBySlotsFunction")]
     public override async Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/query/hours")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/query/slots")]
         HttpRequest req)
     {
         return await featureToggleHelper.IsFeatureEnabled(Flags.MultiServiceJointBookings)
@@ -51,19 +51,16 @@ public class QueryAvailabilityByHoursFunction(
             : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
-    protected override async Task<ApiResult<AvailabilityByHours>> HandleRequest(AvailabilityQueryByHoursRequest request, ILogger logger)
+    protected async override Task<ApiResult<AvailabilityBySlots>> HandleRequest(AvailabilityQueryBySlotsRequest request, ILogger logger)
     {
         if (await siteService.GetSiteByIdAsync(request.Site) is null)
         {
             return Failed(HttpStatusCode.NotFound, $"Site: {request.Site} could not be found.");
         }
 
-        var dayStart = request.Date.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = request.Date.ToDateTime(new TimeOnly(23, 59, 59));
-
-        var slots = (await bookingAvailabilityStateService.GetAvailableSlots(request.Site, dayStart, dayEnd)).ToList();
+        var slots = (await bookingAvailabilityStateService.GetAvailableSlots(request.Site, request.From, request.Until)).ToList();
         var filteredSlots = availableSlotsFilter.FilterAvailableSlots(slots, request.Attendees);
 
-        return Success(AvailabilityGrouper.BuildHourAvailability(request.Site, DateOnly.FromDateTime(dayStart), request.Attendees, filteredSlots));
+        return Success(AvailabilityGrouper.BuildSlotsAvailability(request.Site, request.From, request.Until, request.Attendees, filteredSlots));
     }
 }

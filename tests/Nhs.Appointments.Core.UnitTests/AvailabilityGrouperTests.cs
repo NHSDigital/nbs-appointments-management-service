@@ -1,4 +1,5 @@
 using Nhs.Appointments.Core.Availability;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Core.UnitTests;
 public class AvailabilityGrouperTests
@@ -375,5 +376,148 @@ public class AvailabilityGrouperTests
         result.Hours.Count.Should().Be(1);
         result.Hours.First().From.Should().Be("11:00");
         result.Hours.First().Until.Should().Be("12:00");
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_ThrowsArgumentNullException()
+    {
+        var action = () => AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            DateTime.Parse("2025-09-01T09:00:00.000Z"), 
+            DateTime.Parse("2025-09-01T16:00:00.000Z"),
+            [],
+            null);
+
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_ReturnsEmptySlotsList_WhenSlotsIsEmpty()
+    {
+        var from = DateTime.Parse("2025-09-01T09:00:00.000Z");
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            [
+                new() { Services = ["RSV:Adult"] }
+            ],
+            []);
+
+        result.Slots.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_EnsuresNonSlotDetailsAreCorrect()
+    {
+        var from = DateTime.Parse("2025-09-01T09:00:00.000Z");
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult"] } };
+
+        var slots = AvailabilityHelper.CreateTestSlots(DateOnly.FromDateTime(from), new TimeOnly(9, 0), new TimeOnly(17, 0), TimeSpan.FromMinutes(10));
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Site.Should().Be("Test Site");
+        result.Attendees.Should().BeEquivalentTo(attendees);
+        result.From.Should().Be(from);
+        result.Until.Should().Be(until);
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_EnsureSlotsOrderedByTimeAscending()
+    {
+        var from = DateTime.Parse("2025-09-01T09:00:00.000Z");
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult"] } };
+
+        var slots = AvailabilityHelper.CreateTestSlots(DateOnly.FromDateTime(from), new TimeOnly(9, 0), new TimeOnly(17, 0), TimeSpan.FromMinutes(10));
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.First().From.Should().Be("09:00");
+        result.Slots.First().Until.Should().Be("09:10");
+        result.Slots.Last().From.Should().Be("16:50");
+        result.Slots.Last().Until.Should().Be("17:00");
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_CorrectlyFormatsMidnight()
+    {
+        var from = new DateTime(2025, 9, 1, 23, 50, 0);
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult"] } };
+        var slots = new List<SessionInstance>
+        {
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult"],
+                SlotLength = 10
+            }
+        };
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.Last().From.Should().Be("23:50");
+        result.Slots.Last().Until.Should().Be("00:00");
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_AddsCorrectServicesToCorrectSlots()
+    {
+        var from = new DateTime(2025, 9, 1, 10, 00, 0);
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        // TODO: Passing an array like this breaks the grouper
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult", "COVID:18+"] } };
+        var slots = new List<SessionInstance>
+        {
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult"],
+                SlotLength = 10
+            },
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = ["COVID:18+"],
+                SlotLength = 10
+            }
+        };
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.Count.Should().Be(2);
+        result.Slots.First().Services.Should().BeEquivalentTo(slots.First().Services);
+        result.Slots.Last().Services.Should().BeEquivalentTo(slots.Last().Services);
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_AddSlotsOfDifferentLengths()
+    {
+
     }
 }

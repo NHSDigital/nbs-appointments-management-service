@@ -5,6 +5,7 @@ type ApiErrorResponse = {
   success: false;
   httpStatusCode: number;
   errorMessage: string;
+  url: string;
 };
 
 type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;

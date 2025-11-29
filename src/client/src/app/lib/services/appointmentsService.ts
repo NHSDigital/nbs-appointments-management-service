@@ -40,13 +40,16 @@ import {
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
 import { raiseNotification } from '@services/notificationService';
-import { notAuthenticated, notAuthorized } from '@services/authService';
 import {
   RFC3339Format,
   dateTimeFormat,
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
+import {
+  ServerActionException,
+  ServerActionHttpFailure,
+} from '@server/ServerActionFailure';
 
 export const fetchAccessToken = async (
   code: string,
@@ -88,7 +91,9 @@ export const assertEulaAcceptance = async (
     const eulaVersionResponse = await fetchEula();
 
     if (!eulaVersionResponse.success) {
-      return Promise.reject('Failed to fetch EULA version');
+      return Promise.reject(
+        new ServerActionException('Failed to fetch EULA version'),
+      );
     }
 
     if (
@@ -229,11 +234,13 @@ export const assertPermission = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return Promise.reject('Failed to fetch permissions');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch feature flag'),
+    );
   }
 
   if (!response.data.includes(permission)) {
-    notAuthorized();
+    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
   }
 
   return { success: true, data: undefined };
@@ -244,7 +251,9 @@ export const assertFeatureEnabled = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchFeatureFlag(flag);
   if (!response.success) {
-    return Promise.reject('Failed to fetch feature flag');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch feature flag'),
+    );
   }
 
   if (!response.data.enabled) {
@@ -260,11 +269,13 @@ export const assertAnyPermissions = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return Promise.reject('Failed to fetch permissions');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch permissions'),
+    );
   }
 
   if (!permissions.some(permission => response.data.includes(permission))) {
-    notAuthorized();
+    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
   }
 
   return { success: true, data: undefined };
@@ -276,11 +287,13 @@ export const assertAllPermissions = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return Promise.reject('Failed to fetch permissions');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch permissions'),
+    );
   }
 
   if (!permissions.every(permission => response.data.includes(permission))) {
-    notAuthorized();
+    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
   }
 
   return { success: true, data: undefined };
@@ -292,19 +305,24 @@ async function handleBodyResponse<T, Y = T>(
 ): Promise<ServerActionResult<Y>> {
   if (!response.success) {
     if (response.httpStatusCode === 404) {
-      notFound();
+      return Promise.reject(new ServerActionHttpFailure('Not Found', 404));
     }
 
     if (response.httpStatusCode === 401) {
-      await notAuthenticated();
+      return Promise.reject(
+        new ServerActionHttpFailure('Not Authenticated', 401),
+      );
     }
 
     if (response.httpStatusCode === 403) {
-      notAuthorized();
+      return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
     }
 
     return Promise.reject(
-      `Response code ${response.httpStatusCode} did not indicate success.`,
+      new ServerActionHttpFailure(
+        `Response code did not indicate success.`,
+        response.httpStatusCode,
+      ),
     );
   }
 
@@ -323,19 +341,24 @@ async function handleEmptyResponse(
   }
 
   if (response.httpStatusCode === 404) {
-    notFound();
+    return Promise.reject(new ServerActionHttpFailure('Not Found', 404));
   }
 
   if (response.httpStatusCode === 401) {
-    await notAuthenticated();
+    return Promise.reject(
+      new ServerActionHttpFailure('Not Authenticated', 401),
+    );
   }
 
   if (response.httpStatusCode === 403) {
-    notAuthorized();
+    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
   }
 
   return Promise.reject(
-    `Response code ${response.httpStatusCode} did not indicate success.`,
+    new ServerActionHttpFailure(
+      `Response code did not indicate success.`,
+      response.httpStatusCode,
+    ),
   );
 }
 

@@ -30,8 +30,13 @@ const fromServer = async <T>(
       logError('A server action result did not indicate success');
       throw new Error('Server action failed');
     },
-    async (reasonForRejection: ServerActionFailure) => {
-      return await reasonForRejection.handle();
+    async (reasonForRejection: ServerActionFailure | Error) => {
+      if (reasonForRejection instanceof Error) {
+        logError('An error occurred in a server action', reasonForRejection);
+        throw reasonForRejection;
+      } else {
+        return await reasonForRejection.handle();
+      }
     },
   );
 };

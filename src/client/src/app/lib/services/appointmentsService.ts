@@ -49,6 +49,7 @@ import {
 import {
   ServerActionException,
   ServerActionHttpFailure,
+  ServerActionRedirect,
 } from '@server/ServerActionFailure';
 
 export const fetchAccessToken = async (
@@ -100,7 +101,7 @@ export const assertEulaAcceptance = async (
       eulaVersionResponse.data.versionDate !==
       userProfile.latestAcceptedEulaVersion
     ) {
-      redirect(eulaRoute);
+      return Promise.reject(new ServerActionRedirect(eulaRoute));
     }
   }
 };

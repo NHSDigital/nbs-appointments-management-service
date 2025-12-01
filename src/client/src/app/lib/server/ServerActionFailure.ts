@@ -1,19 +1,30 @@
 import { notAuthenticated, notAuthorized } from '@services/authService';
 import { logError } from '@services/logService';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 class ServerActionFailure {
   public readonly Message: string;
   public readonly StatusCode?: number;
   public readonly Error?: Error;
+  public readonly RedirectRequired?: string;
 
-  constructor(message: string, statusCode?: number, error?: Error) {
+  constructor(
+    message: string,
+    statusCode?: number,
+    error?: Error,
+    redirectRequired?: string,
+  ) {
     this.Message = message;
     this.StatusCode = statusCode;
     this.Error = error;
+    this.RedirectRequired = redirectRequired;
   }
 
   public handle() {
+    if (this.RedirectRequired !== undefined) {
+      return redirect(this.RedirectRequired);
+    }
+
     if (this.Error !== undefined) {
       logError('An error occurred in a server action', this.Error, {
         statusCode: `${this.StatusCode}`,
@@ -53,4 +64,20 @@ class ServerActionHttpFailure extends ServerActionFailure {
   }
 }
 
-export { ServerActionFailure, ServerActionHttpFailure, ServerActionException };
+class ServerActionRedirect extends ServerActionFailure {
+  constructor(redirectUrl: string) {
+    super(
+      'A server action has prompted a redirect',
+      undefined,
+      undefined,
+      redirectUrl,
+    );
+  }
+}
+
+export {
+  ServerActionFailure,
+  ServerActionHttpFailure,
+  ServerActionException,
+  ServerActionRedirect,
+};

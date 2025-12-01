@@ -74,13 +74,18 @@ public static  class AvailabilityGrouper
             From = from,
             Until = until,
             Slots = [.. slots
-                .GroupBy(x => (x.From, x.Duration, x.Services))
+                .Select(s => new {
+                    s.From,
+                    s.Duration,
+                    NormalisedServices = string.Join(",", s.Services ?? [])
+                })
+                .GroupBy(x => (x.From, x.Duration, x.NormalisedServices))
                 .OrderBy(g => g.Key)
                 .Select(g => new Slot
                 {
                     From = TimeOnly.FromDateTime(g.Key.From).ToString("HH:mm"),
                     Until = TimeOnly.FromDateTime(g.Key.From.Add(g.Key.Duration)).ToString("HH:mm"),
-                    Services = g.Key.Services
+                    Services = g.Key.NormalisedServices.Split(",", StringSplitOptions.RemoveEmptyEntries)
                 })]
         };
     }

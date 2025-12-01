@@ -49,7 +49,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
   ]);
 
   const cancelledBookingsWithoutContactDetails = cancelledBookings.filter(
-    b => !Array.isArray(b.contactDetails) || b.contactDetails.length === 0,
+    b =>
+      !Array.isArray(b.contactDetails) ||
+      b.contactDetails.length === 0 ||
+      b.contactDetails.every(d => d.type === 'Landline'),
   );
 
   const backLink: NavigationByHrefProps = {

@@ -485,20 +485,19 @@ public class AvailabilityGrouperTests
     {
         var from = new DateTime(2025, 9, 1, 10, 00, 0);
         var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
-        // TODO: Passing an array like this breaks the grouper
         var attendees = new List<Attendee> { new() { Services = ["RSV:Adult", "COVID:18+"] } };
         var slots = new List<SessionInstance>
         {
             new(from, from.AddMinutes(10))
             {
                 Capacity = 1,
-                Services = ["RSV:Adult"],
+                Services = ["COVID:18+"],
                 SlotLength = 10
             },
             new(from, from.AddMinutes(10))
             {
                 Capacity = 1,
-                Services = ["COVID:18+"],
+                Services = ["RSV:Adult"],
                 SlotLength = 10
             }
         };
@@ -518,6 +517,171 @@ public class AvailabilityGrouperTests
     [Fact]
     public void BuildSlotAvailability_AddSlotsOfDifferentLengths()
     {
+        var from = new DateTime(2025, 9, 1, 10, 00, 0);
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult", "COVID:18+"] } };
+        var slots = new List<SessionInstance>
+        {
+            new(from, from.AddMinutes(5))
+            {
+                Capacity = 1,
+                Services = ["COVID:18+"],
+                SlotLength = 10
+            },
+            new(from, from.AddMinutes(15))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult"],
+                SlotLength = 10
+            }
+        };
 
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.Count.Should().Be(2);
+        result.Slots.First().Services.Should().BeEquivalentTo(slots.First().Services);
+        result.Slots.Last().Services.Should().BeEquivalentTo(slots.Last().Services);
+    }
+
+    [Fact]
+    public void BuildSlotAvailabiltiy_CorrectlyAssignsMultipleServicesToSlots()
+    {
+        var from = new DateTime(2025, 9, 1, 10, 00, 0);
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult", "COVID:18+"] } };
+        var slots = new List<SessionInstance>
+        {
+            new(from, from.AddMinutes(15))
+            {
+                Capacity = 1,
+                Services = ["COVID:18+", "FLU:18_65"],
+                SlotLength = 10
+            },
+            new(from, from.AddMinutes(15))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult", "COVID:5_11"],
+                SlotLength = 10
+            }
+        };
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.Count.Should().Be(2);
+        result.Slots.First().Services.Should().BeEquivalentTo(slots.First().Services);
+        result.Slots.Last().Services.Should().BeEquivalentTo(slots.Last().Services);
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_DeduplicatesIdenticalSlots()
+    {
+        var from = new DateTime(2025, 9, 1, 10, 00, 0);
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult", "COVID:18+"] } };
+        var slots = new List<SessionInstance>
+        {
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult", "COVID:5_11"],
+                SlotLength = 10
+            },
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult", "COVID:5_11"],
+                SlotLength = 10
+            }
+        };
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_ReturnsSlotsThatStartAtSameTime_DifferentServices()
+    {
+        var from = new DateTime(2025, 9, 1, 10, 00, 0);
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult", "COVID:18+"] } };
+        var slots = new List<SessionInstance>
+        {
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = [ "COVID:5_11", "FLU:18+"],
+                SlotLength = 10
+            },
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = ["COVID:5_11", "RSV:Adult"],
+                SlotLength = 10
+            }
+        };
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.Count.Should().Be(2);
+        result.Slots.First().Services.Should().BeEquivalentTo(slots.First().Services);
+        result.Slots.Last().Services.Should().BeEquivalentTo(slots.Last().Services);
+    }
+
+    [Fact]
+    public void BuildSlotAvailability_OrdersSlotsByServicesAlphabetically_WhenSlotsStartAtSameTime()
+    {
+        var from = new DateTime(2025, 9, 1, 10, 00, 0);
+        var until = DateTime.Parse("2025-09-01T16:00:00.000Z");
+        var attendees = new List<Attendee> { new() { Services = ["RSV:Adult", "COVID:18+"] } };
+        var slots = new List<SessionInstance>
+        {
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = ["RSV:Adult", "COVID:5_11"],
+                SlotLength = 10
+            },
+            new(from, from.AddMinutes(10))
+            {
+                Capacity = 1,
+                Services = [ "FLU:18+", "COVID:5_11"],
+                SlotLength = 10
+            }
+        };
+
+        var expectedFirstSlotServices = new string[] { "COVID:5_11", "FLU:18+" };
+        var expectedSecondSlotsServices = new string[] { "COVID:5_11", "RSV:Adult" };
+
+        var result = AvailabilityGrouper.BuildSlotsAvailability(
+            "Test Site",
+            from,
+            until,
+            attendees,
+            slots);
+
+        result.Slots.Count.Should().Be(2);
+        result.Slots.First().Services.Should().BeEquivalentTo(expectedFirstSlotServices);
+        result.Slots.Last().Services.Should().BeEquivalentTo(expectedSecondSlotsServices);
     }
 }

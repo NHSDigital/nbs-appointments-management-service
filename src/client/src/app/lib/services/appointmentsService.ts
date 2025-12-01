@@ -1,6 +1,5 @@
 'use server';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { notFound, redirect } from 'next/navigation';
 import {
   AccessibilityDefinition,
   ApplyAvailabilityTemplateRequest,
@@ -48,8 +47,10 @@ import {
 } from '@services/timeService';
 import {
   ServerActionException,
+  ServerActionForbidden,
   ServerActionHttpFailure,
   ServerActionRedirect,
+  ServerActionToggleDisabled,
 } from '@server/ServerActionFailure';
 
 export const fetchAccessToken = async (
@@ -241,7 +242,7 @@ export const assertPermission = async (
   }
 
   if (!response.data.includes(permission)) {
-    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
+    return Promise.reject(new ServerActionForbidden());
   }
 
   return { success: true, data: undefined };
@@ -258,7 +259,7 @@ export const assertFeatureEnabled = async (
   }
 
   if (!response.data.enabled) {
-    notFound();
+    return Promise.reject(new ServerActionToggleDisabled(flag));
   }
 
   return { success: true, data: undefined };
@@ -276,7 +277,7 @@ export const assertAnyPermissions = async (
   }
 
   if (!permissions.some(permission => response.data.includes(permission))) {
-    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
+    return Promise.reject(new ServerActionForbidden());
   }
 
   return { success: true, data: undefined };
@@ -294,7 +295,7 @@ export const assertAllPermissions = async (
   }
 
   if (!permissions.every(permission => response.data.includes(permission))) {
-    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
+    return Promise.reject(new ServerActionForbidden());
   }
 
   return { success: true, data: undefined };
@@ -305,30 +306,13 @@ async function handleBodyResponse<T, Y = T>(
   transformData = (data: T) => data as unknown as Y,
 ): Promise<ServerActionResult<Y>> {
   if (!response.success) {
-    if (response.httpStatusCode === 404) {
-      return Promise.reject(new ServerActionHttpFailure('Not Found', 404));
-    }
-
-    if (response.httpStatusCode === 401) {
-      return Promise.reject(
-        new ServerActionHttpFailure('Not Authenticated', 401),
-      );
-    }
-
-    if (response.httpStatusCode === 403) {
-      return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
-    }
-
-    return Promise.reject(
-      new ServerActionHttpFailure(
-        `Response code did not indicate success.`,
-        response.httpStatusCode,
-      ),
-    );
+    return Promise.reject(new ServerActionHttpFailure(response));
   }
 
   if (!response.data) {
-    return Promise.reject(`Expected data in response, but found none.`);
+    return Promise.reject(
+      new ServerActionException(`Expected data in response, but found none.`),
+    );
   }
 
   return { success: true, data: transformData(response.data) };
@@ -341,26 +325,7 @@ async function handleEmptyResponse(
     return { success: true, data: undefined };
   }
 
-  if (response.httpStatusCode === 404) {
-    return Promise.reject(new ServerActionHttpFailure('Not Found', 404));
-  }
-
-  if (response.httpStatusCode === 401) {
-    return Promise.reject(
-      new ServerActionHttpFailure('Not Authenticated', 401),
-    );
-  }
-
-  if (response.httpStatusCode === 403) {
-    return Promise.reject(new ServerActionHttpFailure('Not Authorised', 403));
-  }
-
-  return Promise.reject(
-    new ServerActionHttpFailure(
-      `Response code did not indicate success.`,
-      response.httpStatusCode,
-    ),
-  );
+  return Promise.reject(new ServerActionHttpFailure(response));
 }
 
 export const saveUserRoleAssignments = async (
@@ -391,7 +356,7 @@ export const saveUserRoleAssignments = async (
 
       revalidateTag('users');
       revalidatePath(`/site/${site}/users`);
-      redirect(`/site/${site}/users`);
+      return { success: true, data: undefined };
     });
 };
 
@@ -431,7 +396,7 @@ export const removeUserFromSite = async (
       await raiseNotification(notificationType, notificationMessage);
 
       revalidatePath(`/site/${site}/users`);
-      redirect(`/site/${site}/users`);
+      return { success: true, data: undefined };
     });
 
 export const applyAvailabilityTemplate = async (

@@ -58,7 +58,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/booking-data-extracts/get-app-config-connection-string.ps1"
-              arguments: "-environment $(env)"
+              arguments: "-environment ${{parameters.env}}"
           - task: DotNetCoreCLI@2
             displayName: "Run tool to create capacity data extract"
             inputs:
@@ -100,7 +100,7 @@ stages:
               scriptType: pscore
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/booking-data-extracts/get-app-config-connection-string.ps1"
-              arguments: "-environment $(env)"
+              arguments: "-environment ${{parameters.env}}"
           - task: DotNetCoreCLI@2
             displayName: "Run tool to create booking data extract"
             inputs:

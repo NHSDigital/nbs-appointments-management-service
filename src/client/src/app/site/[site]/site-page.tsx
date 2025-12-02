@@ -1,6 +1,9 @@
+'use client';
 import { Card, SummaryList } from '@nhsuk-frontend-components';
 import { mapSiteOverviewSummaryData } from '@services/siteService';
 import { Site, WellKnownOdsEntry } from '@types';
+import { getAppInsightsClient } from '../../appInsights';
+import { useEffect } from 'react';
 
 interface SitePageProps {
   site: Site;
@@ -19,6 +22,14 @@ export const SitePage = ({
   siteSummaryEnabled,
   siteStatusEnabled,
 }: SitePageProps) => {
+  useEffect(() => {
+    const appInsightsClient = getAppInsightsClient();
+    appInsightsClient.trackEvent({
+      name: 'Site Loaded',
+      properties: { name: site.name },
+    });
+  }, [site.name]);
+
   const permissionsRelevantToCards = permissions.filter(
     p =>
       p === 'users:view' ||

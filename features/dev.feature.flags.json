@@ -10,6 +10,7 @@
     "CancelSessionUpliftedJourney": true,
     "QuerySites": false,
     "MultiServiceJointBookings": false,
+    "JointBookingsReporting": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

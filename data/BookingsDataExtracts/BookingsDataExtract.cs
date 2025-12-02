@@ -33,7 +33,7 @@ public class BookingDataExtract(
         var dataConverter = new BookingDataConverter(sites);
 
         var includeJointBookingsFields = await featureManager.IsEnabledAsync(Flags.JointBookingsReporting);
-        logger.LogInformation("Running with Feature flag ${JointBookingsReporting} : ${IncludeJointBookingsFields}",
+        logger.LogInformation("Running with Feature flag {JointBookingsReporting} : {IncludeJointBookingsFields}",
             Flags.JointBookingsReporting, includeJointBookingsFields);
 
         var dataFactories = new List<DataFactory>

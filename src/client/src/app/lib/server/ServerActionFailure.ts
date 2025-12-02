@@ -47,6 +47,9 @@ class ServerActionFailure {
       case 'Redirect':
         return redirect(this.details.redirectUrl);
 
+      case 'ForbiddenAction':
+        return notAuthorized();
+
       case 'Exception':
         logError(
           'An exception occurred in a server action',

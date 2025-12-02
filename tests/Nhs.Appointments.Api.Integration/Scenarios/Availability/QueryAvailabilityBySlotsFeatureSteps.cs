@@ -9,6 +9,7 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
+using Okta.Sdk.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
+using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
+using static Nhs.Appointments.Core.Availability.AvailabilityBySlots;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable
@@ -60,6 +63,46 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
             date.ToDateTime(until));
 
         await SendRequestAsync(payload);
+    }
+
+    [When("I pass an invalid payload")]
+    public async Task PassInvalidPayload()
+    {
+        var payload = new AvailabilityQueryBySlotsRequest(
+            string.Empty,
+            [],
+            default,
+            default);
+
+        await SendRequestAsync(payload);
+    }
+
+    [Then("the following availability is returned for '(.+)' between '(.+)' and '(.+)'")]
+    public void AssertAvailability(string date, string from, string until, DataTable dataTable)
+    {
+        var expectedDate = NaturalLanguageDate.Parse(date);
+        var expectedSlots = dataTable.Rows.Skip(1).Select(row =>
+            new Slot
+            {
+                From = row.Cells.ElementAt(0).Value,
+                Until = row.Cells.ElementAt(1).Value,
+                Services = row.Cells.ElementAt(2).Value.Split(',')
+            });
+
+        var fromTime = TimeOnly.Parse(from);
+        var untilTime = TimeOnly.Parse(until);
+
+        var expectedAvailability = new AvailabilityBySlots
+        {
+            Attendees = _attendeesCollection,
+            From = expectedDate.ToDateTime(fromTime),
+            Until = expectedDate.ToDateTime(untilTime),
+            Slots = [.. expectedSlots],
+            Site = GetSiteId(_siteId)
+        };
+
+        StatusCode.Should().Be(HttpStatusCode.OK);
+        AvailabilityResponse.Should().BeEquivalentTo(expectedAvailability);
     }
 
     [Then(@"the call should fail with (\d*)")]

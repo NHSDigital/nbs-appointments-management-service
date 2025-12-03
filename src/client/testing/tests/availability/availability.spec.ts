@@ -838,10 +838,10 @@ test.describe('Update Session', () => {
         );
       });
 
-      test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async ({
+      test('Verify availability with no bookings is cancelled and manual appointments folder is empty', async ({
         page,
       }) => {
-        const dayIncrement = 260;
+        const dayIncrement = 259;
 
         const day = daysFromToday(dayIncrement);
         const formattedDate1 = parseToUkDatetime(day).format('DD MMMM');

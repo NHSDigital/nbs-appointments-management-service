@@ -106,6 +106,11 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
     value = var.keyvault_client_secret
   }
 
+  secret {
+    name  = "app-config-connection-string"
+    value = azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
+  }
+
   registry {
     server   = var.container_registry_server_url
     username = var.container_registry_username
@@ -169,6 +174,10 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
       env {
         name = "KeyVault__ClientSecret"
         secret_name = "key-vault-secret"
+      }
+      env {
+        name = "APP_CONFIG_CONNECTION"
+        secret_name = "app-config-connection-string"
       }
     }
   }
@@ -275,6 +284,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
         name = "KeyVault__ClientSecret"
         secret_name = "key-vault-secret"
       }
+    
     }
   }
 

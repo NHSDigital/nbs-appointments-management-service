@@ -1,6 +1,8 @@
 using DataExtract;
 using DataExtract.Documents;
+using Microsoft.FeatureManagement;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using Parquet;
 using Parquet.Schema;
@@ -11,7 +13,8 @@ public class BookingDataExtract(
     CosmosStore<NbsBookingDocument> bookingsStore,
     CosmosStore<SiteDocument> sitesStore,
     TimeProvider timeProvider,
-    ILogger<BookingDataExtract> logger) : IExtractor
+    ILogger<BookingDataExtract> logger,
+    IFeatureManager featureManager) : IExtractor
 {
     public async Task RunAsync(FileInfo outputFile)
     {
@@ -28,6 +31,10 @@ public class BookingDataExtract(
         logger.LogInformation("Loading sites");
         var sites = await sitesStore.RunQueryAsync(s => s.DocumentType == "site", s => s);
         var dataConverter = new BookingDataConverter(sites);
+
+        var includeJointBookingsFields = await featureManager.IsEnabledAsync(Flags.JointBookingsReporting);
+        logger.LogInformation("Running with Feature flag {JointBookingsReporting} : {IncludeJointBookingsFields}",
+            Flags.JointBookingsReporting, includeJointBookingsFields);
 
         var dataFactories = new List<DataFactory>
         {
@@ -48,8 +55,13 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
-            new DataFactory<BookingDocument, int?>(BookingDataExtractFields.BatchSize, BookingDataConverter.ExtractBatchSize),
         };
+
+        if (includeJointBookingsFields)
+        {
+            dataFactories.Add(new DataFactory<BookingDocument, int?>(BookingDataExtractFields.BatchSize,
+                BookingDataConverter.ExtractBatchSize));
+        }
            
         logger.LogInformation("Preparing to write");
 

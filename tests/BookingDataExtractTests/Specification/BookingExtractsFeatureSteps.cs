@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using Moq;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
@@ -168,6 +169,10 @@ public sealed class BookingExtractsFeatureSteps : Feature
         mockTimeProvider.Setup(x => x.GetUtcNow()).Returns(date);
 
         serviceCollection.AddSingleton(mockTimeProvider.Object);
+
+        var mockFeatureManager = new Mock<IFeatureManager>();
+        mockFeatureManager.Setup(x => x.IsEnabledAsync("JointBookingsReporting")).ReturnsAsync(false);
+        serviceCollection.AddSingleton(mockFeatureManager.Object);
 
         serviceCollection.AddSingleton<TestableDataExtractWorker>();
 

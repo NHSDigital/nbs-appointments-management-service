@@ -51,6 +51,14 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: AzureCLI@2
+            displayName: "Get App Config connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/booking-data-extracts/get-app-config-connection-string.ps1"
+              arguments: "-environment ${{parameters.env}}"
           - task: DotNetCoreCLI@2
             displayName: "Run tool to create capacity data extract"
             inputs:
@@ -69,6 +77,7 @@ stages:
               MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               FileSenderOptions__Type: mesh
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              APP_CONFIG_CONNECTION: $(APP_CONFIG_CONNECTION)
   - stage: "CreateBookingDailyExtract"
     displayName: "Create booking data extract"
     condition: eq('${{ parameters.runBooking }}', 'true')
@@ -84,6 +93,14 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(resourceGroupName) -cosmosAccountName $(cosmosAccountName)"
+          - task: AzureCLI@2
+            displayName: "Get App Config connection string"
+            inputs:
+              azureSubscription: "nbs-mya-rg-${{parameters.env}}"
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/booking-data-extracts/get-app-config-connection-string.ps1"
+              arguments: "-environment ${{parameters.env}}"
           - task: DotNetCoreCLI@2
             displayName: "Run tool to create booking data extract"
             inputs:
@@ -102,3 +119,4 @@ stages:
               MeshAuthorizationOptions__MailboxId: $(fromMeshMailboxId)
               FileSenderOptions__Type: mesh
               MESH_MAILBOX_DESTINATION: $(toMeshMailboxId)
+              APP_CONFIG_CONNECTION: $(APP_CONFIG_CONNECTION)

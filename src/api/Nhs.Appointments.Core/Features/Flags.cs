@@ -11,6 +11,7 @@ public static class Flags
     public const string CancelSessionUpliftedJourney = "CancelSessionUpliftedJourney";
     public const string QuerySites = "QuerySites";
     public const string MultiServiceJointBookings = "MultiServiceJointBookings";
+    public const string JointBookingsReporting = "JointBookingsReporting";
 
     #region TestFlags
     //a simple on/off global flag

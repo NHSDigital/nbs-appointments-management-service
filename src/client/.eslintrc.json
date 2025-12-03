@@ -160,7 +160,18 @@
       "rules": {
         "no-restricted-imports": "off"
       }
+    },
+    {
+      "files": ["src/app/lib/services/appointmentsService.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "name": "next/navigation",
+            "message": "next/navigation should not be imported in appointmentsService.ts, use the redirect function from ServerActionFailure.ts instead."
+          }
+        ]
+      }
     }
   ]
 }
-

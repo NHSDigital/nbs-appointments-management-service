@@ -1,6 +1,5 @@
 'use server';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { notFound, redirect } from 'next/navigation';
 import {
   AccessibilityDefinition,
   ApplyAvailabilityTemplateRequest,
@@ -40,13 +39,19 @@ import {
 import { appointmentsApi } from '@services/api/appointmentsApi';
 import { ApiResponse, ClinicalService } from '@types';
 import { raiseNotification } from '@services/notificationService';
-import { notAuthenticated, notAuthorized } from '@services/authService';
 import {
   RFC3339Format,
   dateTimeFormat,
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
+import {
+  ServerActionException,
+  ServerActionForbidden,
+  ServerActionHttpFailure,
+  ServerActionRedirect,
+  ServerActionToggleDisabled,
+} from '@server/ServerActionFailure';
 
 export const fetchAccessToken = async (
   code: string,
@@ -88,14 +93,16 @@ export const assertEulaAcceptance = async (
     const eulaVersionResponse = await fetchEula();
 
     if (!eulaVersionResponse.success) {
-      return Promise.reject('Failed to fetch EULA version');
+      return Promise.reject(
+        new ServerActionException('Failed to fetch EULA version'),
+      );
     }
 
     if (
       eulaVersionResponse.data.versionDate !==
       userProfile.latestAcceptedEulaVersion
     ) {
-      redirect(eulaRoute);
+      return Promise.reject(new ServerActionRedirect(eulaRoute));
     }
   }
 };
@@ -229,11 +236,13 @@ export const assertPermission = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return Promise.reject('Failed to fetch permissions');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch feature flag'),
+    );
   }
 
   if (!response.data.includes(permission)) {
-    notAuthorized();
+    return Promise.reject(new ServerActionForbidden());
   }
 
   return { success: true, data: undefined };
@@ -244,11 +253,13 @@ export const assertFeatureEnabled = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchFeatureFlag(flag);
   if (!response.success) {
-    return Promise.reject('Failed to fetch feature flag');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch feature flag'),
+    );
   }
 
   if (!response.data.enabled) {
-    notFound();
+    return Promise.reject(new ServerActionToggleDisabled(flag));
   }
 
   return { success: true, data: undefined };
@@ -260,11 +271,13 @@ export const assertAnyPermissions = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return Promise.reject('Failed to fetch permissions');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch permissions'),
+    );
   }
 
   if (!permissions.some(permission => response.data.includes(permission))) {
-    notAuthorized();
+    return Promise.reject(new ServerActionForbidden());
   }
 
   return { success: true, data: undefined };
@@ -276,11 +289,13 @@ export const assertAllPermissions = async (
 ): Promise<ServerActionResult<void>> => {
   const response = await fetchPermissions(site);
   if (!response.success) {
-    return Promise.reject('Failed to fetch permissions');
+    return Promise.reject(
+      new ServerActionException('Failed to fetch permissions'),
+    );
   }
 
   if (!permissions.every(permission => response.data.includes(permission))) {
-    notAuthorized();
+    return Promise.reject(new ServerActionForbidden());
   }
 
   return { success: true, data: undefined };
@@ -291,25 +306,13 @@ async function handleBodyResponse<T, Y = T>(
   transformData = (data: T) => data as unknown as Y,
 ): Promise<ServerActionResult<Y>> {
   if (!response.success) {
-    if (response.httpStatusCode === 404) {
-      notFound();
-    }
-
-    if (response.httpStatusCode === 401) {
-      await notAuthenticated();
-    }
-
-    if (response.httpStatusCode === 403) {
-      notAuthorized();
-    }
-
-    return Promise.reject(
-      `Response code ${response.httpStatusCode} did not indicate success.`,
-    );
+    return Promise.reject(new ServerActionHttpFailure(response));
   }
 
   if (!response.data) {
-    return Promise.reject(`Expected data in response, but found none.`);
+    return Promise.reject(
+      new ServerActionException(`Expected data in response, but found none.`),
+    );
   }
 
   return { success: true, data: transformData(response.data) };
@@ -322,21 +325,7 @@ async function handleEmptyResponse(
     return { success: true, data: undefined };
   }
 
-  if (response.httpStatusCode === 404) {
-    notFound();
-  }
-
-  if (response.httpStatusCode === 401) {
-    await notAuthenticated();
-  }
-
-  if (response.httpStatusCode === 403) {
-    notAuthorized();
-  }
-
-  return Promise.reject(
-    `Response code ${response.httpStatusCode} did not indicate success.`,
-  );
+  return Promise.reject(new ServerActionHttpFailure(response));
 }
 
 export const saveUserRoleAssignments = async (
@@ -367,7 +356,7 @@ export const saveUserRoleAssignments = async (
 
       revalidateTag('users');
       revalidatePath(`/site/${site}/users`);
-      redirect(`/site/${site}/users`);
+      return { success: true, data: undefined };
     });
 };
 
@@ -407,7 +396,7 @@ export const removeUserFromSite = async (
       await raiseNotification(notificationType, notificationMessage);
 
       revalidatePath(`/site/${site}/users`);
-      redirect(`/site/${site}/users`);
+      return { success: true, data: undefined };
     });
 
 export const applyAvailabilityTemplate = async (

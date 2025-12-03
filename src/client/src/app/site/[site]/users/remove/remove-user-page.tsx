@@ -23,6 +23,7 @@ const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
   const submitForm: SubmitHandler<object> = async () => {
     startTransition(async () => {
       await fromServer(removeUserFromSite(site.id, user));
+      replace(`/site/${site.id}/users`);
     });
   };
 

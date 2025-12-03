@@ -95,23 +95,30 @@ public class AvailabilityDocumentStore(
         };
     }
 
-    public async Task<bool> SiteOffersServiceDuringPeriod(string siteId, string service, List<string> datesInPeriod)
+    public async Task<bool> SiteOffersServiceDuringPeriod(string siteId, List<string> services, List<string> datesInPeriod)
     {
         using (metricsRecorder.BeginScope("SiteOffersServiceDuringPeriod"))
         {
             var docType = documentStore.GetDocumentType();
-            
-            var query = new QueryDefinition(
-                    query: "SELECT VALUE COUNT(1) " +
-                           "FROM booking_data bd " +
-                           "JOIN s IN bd.sessions " +
-                           "WHERE ARRAY_CONTAINS(@docIds, bd.id) AND bd.site = @site AND bd.docType = @docType AND ARRAY_CONTAINS(s.services, @service)")
+
+            var servicesArray = string.Join(",", services.Select(s => $"\"{s}\""));
+            var query = @"
+                    SELECT VALUE COUNT(1)
+                    FROM booking_data bd
+                    JOIN s IN bd.sessions
+                    WHERE ARRAY_CONTAINS(@docIds, bd.id)
+                    AND bd.site = @site
+                    AND bd.docType = @docType
+                    AND ARRAY_LENGTH(SETINTERSECT(s.services, @services)) = @requestedServiceCount";
+
+            var queryDef = new QueryDefinition(query)
                 .WithParameter("@docType", docType)
                 .WithParameter("@docIds", datesInPeriod)
                 .WithParameter("@site", siteId)
-                .WithParameter("@service", service);
-        
-            var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(query)).Single();
+                .WithParameter("@services", services.ToArray())
+                .WithParameter("@requestedServiceCount", services.Count);
+
+            var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(queryDef)).Single();
             return dailyAvailabilityCount > 0;
         }
     }

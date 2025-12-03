@@ -838,7 +838,7 @@ test.describe('Update Session', () => {
         );
       });
 
-      test('Verify availibility with no bookings is cancelled and manual appointments folder is empty', async ({
+      test('Verify availability with no bookings is cancelled and manual appointments folder is empty', async ({
         page,
       }) => {
         const dayIncrement = 259;

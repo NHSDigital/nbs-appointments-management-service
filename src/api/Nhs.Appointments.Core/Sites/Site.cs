@@ -56,7 +56,7 @@ public record SiteWithDistance(
 /// Filter sites based on whether they support the provided service within the date range
 /// </summary>
 public record SiteSupportsServiceFilter(
-    string service,
+    List<string> services,
     DateOnly from,
     DateOnly until
 );

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using FluentValidation;
 using Nhs.Appointments.Api.Models;
@@ -58,8 +58,8 @@ public class GetSitesByAreaRequestValidator : AbstractValidator<GetSitesByAreaRe
                     () =>
                     {
                         RuleFor(x => x.Services)
-                            .Must(services => services.Length == 1 && (services.Single() == "RSV:Adult" || services.Single() == "FLU:2_3" || services.Single() == "COVID:5_11" || services.Single() == "COVID:12_17"))
-                            .WithMessage("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3' or  'COVID:5_11' or 'COVID:12_17'");
+                            .Must(services => services.Length > 0)
+                            .WithMessage("At least one service must be provided.");
                         RuleFor(x => x)
                             .Cascade(CascadeMode.Stop)
                             .Must(x => DateOnly.TryParseExact(x.From, "yyyy-MM-dd", out _))

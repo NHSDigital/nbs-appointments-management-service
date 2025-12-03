@@ -11,7 +11,8 @@ namespace Nhs.Appointments.Core.Sites;
 public interface ISiteService
 {
     Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
-        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache, SiteSupportsServiceFilter siteSupportsServiceFilter = null);
+        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache,
+        SiteSupportsServiceFilter siteSupportsServiceFilter = null);
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false);
@@ -25,7 +26,9 @@ public interface ISiteService
     Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb, string region);
 
     Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber,
-        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null);
+        string icb, string region, Location location, IEnumerable<Accessibility> accessibilities, string type,
+        SiteStatus? siteStatus = null);
+
     Task<IEnumerable<Site>> GetSitesInRegion(string region);
     Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status);
     Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb);
@@ -42,13 +45,19 @@ public class SiteService(
     IFeatureToggleHelper featureToggleHelper,
     IOptions<SiteServiceOptions> options) : ISiteService
 {
-    private static readonly SemaphoreSlim _cacheLock = new(1, 1);
+    private static readonly SemaphoreSlim _siteCacheLock = new(1, 1);
+
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _siteSupportsServiceCacheLocks = new();
+
+    private TimeSpan SiteSupportsServiceAbsoluteExpiration => TimeSpan.FromMinutes(60);
+    private TimeSpan SiteSupportsServiceSlideThreshold => TimeSpan.FromMinutes(15);
 
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
         SiteSupportsServiceFilter siteSupportsServiceFilter = null)
-    {        
-        var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false).Select(an => $"accessibility/{an}").ToList();
+    {
+        var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false)
+            .Select(an => $"accessibility/{an}").ToList();
 
         var sites = await GetAllSites(false, ignoreCache);
 
@@ -61,9 +70,10 @@ public class SiteService(
             .Select(site => new SiteWithDistance(site,
                 GeographyCalculations.CalculateDistanceInMetres(coordinates, site.Coordinates)));
 
-        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
-            s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
-            s => true;
+        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any()
+            ? s =>
+                accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true")
+            : s => true;
 
         if (siteSupportsServiceFilter == null)
         {
@@ -73,35 +83,36 @@ public class SiteService(
                 .OrderBy(site => site.Distance)
                 .Take(maximumRecords);
         }
-        
+
         var sitesInDistance = sitesWithDistance
             .Where(s => s.Distance <= searchRadius)
             .Where(filterPredicate);
-        
+
         return await GetSitesSupportingService(
-            sitesInDistance, 
-            siteSupportsServiceFilter.service, 
+            sitesInDistance,
+            siteSupportsServiceFilter.service,
             siteSupportsServiceFilter.from,
             siteSupportsServiceFilter.until,
             maximumRecords,
             maximumRecords * 20);
     }
 
-    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, string service, DateOnly from, DateOnly to,
+    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
+        string service, DateOnly from, DateOnly to,
         int maxRecords = 50, int batchSize = 1000)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
-        
+
         var results = new List<SiteWithDistance>();
 
         var iterations = 0;
-        
+
         //while we are still short of the max, keep appending results
         //ideally, the first batch would contain more than or equal to the max results, so won't need to iterate often...
         while (results.Count < maxRecords)
         {
             var concurrentBatchResults = new ConcurrentBag<SiteWithDistance>();
-            
+
             var orderedSiteBatch = orderedSites.Skip(iterations * batchSize).Take(batchSize).ToList();
 
             //break out if no more sites to query, just have to return the built results, this is likely to be less than the maxResults
@@ -112,25 +123,31 @@ public class SiteService(
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var siteOffersServiceDuringPeriod = await GetSiteSupportingServiceInRange(swd.Site.Id, service, from, to);
-                if (siteOffersServiceDuringPeriod)
+                var siteOffersServiceDuringPeriod =
+                    await GetSiteSupportingServiceInRange(swd.Site.Id, service, from, to, false);
+                
+                ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
+                
+                if (siteOffersServiceDuringPeriod.Value)
                 {
                     concurrentBatchResults.Add(swd);
                 }
             }).ToArray();
 
             await Task.WhenAll(siteOffersServiceDuringPeriodTasks);
-            
+
             //the concurrentBatchResults lose their original order, so we need to order the end result
             results.AddRange(concurrentBatchResults.OrderBy(site => site.Distance).Take(maxRecords));
             iterations++;
         }
-        
-        logger.LogInformation("GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for service '{service}'", results.Count, iterations, service);
+
+        logger.LogInformation(
+            "GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for service '{service}'",
+            results.Count, iterations, service);
 
         return results;
     }
-    
+
     private static List<string> GetDateStringsInRange(DateOnly from, DateOnly to)
     {
         var result = new List<string>();
@@ -147,7 +164,7 @@ public class SiteService(
 
         return result;
     }
-    
+
     public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")
     {
         var site = await siteStore.GetSiteById(siteId);
@@ -176,7 +193,7 @@ public class SiteService(
 
         return includeDeleted ? allSites : allSites.Where(s => s.isDeleted is null or false);
     }
-    
+
     public async Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false)
     {
         var sites = await GetAllSites(includeDeleted);
@@ -184,8 +201,10 @@ public class SiteService(
         return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode, s.IntegratedCareBoard));
     }
 
-    public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address, string phoneNumber, string icb,
-        string region, Location location, IEnumerable<Accessibility> accessibilities, string type, SiteStatus? siteStatus = null)
+    public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address,
+        string phoneNumber, string icb,
+        string region, Location location, IEnumerable<Accessibility> accessibilities, string type,
+        SiteStatus? siteStatus = null)
     {
         var result = await siteStore.SaveSiteAsync(
             siteId,
@@ -280,7 +299,8 @@ public class SiteService(
         return result;
     }
 
-    public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords, bool ignoreCache)
+    public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords,
+        bool ignoreCache)
     {
         var sites = await GetAllSites(false, ignoreCache);
 
@@ -315,7 +335,8 @@ public class SiteService(
             {
                 // Adding .Single() here as the current implementation only allows for filtering on a single service
                 // This will need updating if we decide to allow filtering on multiple services
-                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Availability.Services.Single(), filter.Availability.From!.Value, filter.Availability.Until!.Value);
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Availability.Services.Single(),
+                    filter.Availability.From!.Value, filter.Availability.Until!.Value);
 
                 var serviceResults = await GetSitesSupportingService(
                     sitesWithDistance,
@@ -344,16 +365,20 @@ public class SiteService(
         var accessibilityIds = new List<string>();
         if (hasAccessNeedsFilter)
         {
-            accessibilityIds = [.. filter.AccessNeeds
-                .Where(an => !string.IsNullOrEmpty(an))
-                .Select(an => $"accessibility/{an}")];
+            accessibilityIds =
+            [
+                .. filter.AccessNeeds
+                    .Where(an => !string.IsNullOrEmpty(an))
+                    .Select(an => $"accessibility/{an}")
+            ];
         }
 
         return site =>
         {
             if (hasAccessNeedsFilter)
             {
-                if (!accessibilityIds.All(acc => site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true"))
+                if (!accessibilityIds.All(acc =>
+                        site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true"))
                 {
                     return false;
                 }
@@ -363,12 +388,14 @@ public class SiteService(
             {
                 var (includedTypes, excludedTypes) = ParseSiteTypeFilters(filter.Types);
 
-                if (includedTypes.Count > 0 && !includedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
+                if (includedTypes.Count > 0 &&
+                    !includedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     return false;
                 }
 
-                if (excludedTypes.Count > 0 && excludedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
+                if (excludedTypes.Count > 0 &&
+                    excludedTypes.Any(st => st.Equals(site.Type, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     return false;
                 }
@@ -384,7 +411,8 @@ public class SiteService(
         };
     }
 
-    private static (List<string> IncludedSiteTypes, List<string> ExcludedSiteTypes) ParseSiteTypeFilters(string[] siteTypes)
+    private static (List<string> IncludedSiteTypes, List<string> ExcludedSiteTypes) ParseSiteTypeFilters(
+        string[] siteTypes)
     {
         var includedTypes = new List<string>();
         var excludedTypes = new List<string>();
@@ -413,7 +441,8 @@ public class SiteService(
 
         return anyFilterHasPriority
             ? indexed
-                .OrderBy(x => x.Filter.Priority.HasValue ? 0 : 1) // Any filter with the priority prop set moves to the front
+                .OrderBy(x =>
+                    x.Filter.Priority.HasValue ? 0 : 1) // Any filter with the priority prop set moves to the front
                 .ThenBy(x => x.Filter.Priority ?? int.MaxValue) // Then order by prioirty ascending
                 .ThenBy(x => x.Index) // Then order by index ascending if any filters have no priority set
                 .Select(x => x.Filter)
@@ -447,7 +476,7 @@ public class SiteService(
             return;
         }
 
-        await _cacheLock.WaitAsync();
+        await _siteCacheLock.WaitAsync();
         try
         {
             if (!memoryCache.TryGetValue(options.Value.SiteCacheKey, out List<Site> cachedSites))
@@ -480,24 +509,84 @@ public class SiteService(
         }
         finally
         {
-            _cacheLock.Release();
+            _siteCacheLock.Release();
         }
     }
 
-    private async Task<bool> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from, DateOnly until)
+    private async Task<bool?> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from,
+        DateOnly until, bool isSlide)
     {
+        var utcNow = time.GetUtcNow();
+        var currentHoursAndMinutes = HourAndMinutes(utcNow.DateTime);
         var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, service, from, until);
+        
+        //should this be created for both code paths??
+        var siteSupportsServiceCacheKeyLock =
+            _siteSupportsServiceCacheLocks.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1, 1));
 
-        if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
+        if (isSlide)
         {
-            return siteSupportsService;
+            //a lock exists, and we are unwilling to wait any amount of time for it to be released
+            //this means another request is already sliding this cache value
+            if (!await siteSupportsServiceCacheKeyLock.WaitAsync(0))
+            {
+                siteSupportsServiceCacheKeyLock.Release();
+                _siteSupportsServiceCacheLocks.TryRemove(cacheKey, out _);
+                
+                //no need to invoke the slide as another thread is performing the action concurrently
+                return null;
+            }
         }
-        
-        var dateStringsInRange = GetDateStringsInRange(from, until);
-        var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
-        
-        memoryCache.Set(cacheKey, siteOffersServiceDuringPeriod, time.GetUtcNow().AddMinutes(15));
+        else
+        {
+            //we want to wait until the lock is free'd before
+            await siteSupportsServiceCacheKeyLock.WaitAsync();
+            
+            if (memoryCache.TryGetValue<SiteSupportServiceCache>(cacheKey, out var siteSupportsService))
+            {
+                ArgumentNullException.ThrowIfNull(siteSupportsService);
+                
+                //check if we want to update the existing cache in the background lazily...
+                if (siteSupportsService.TimeUpdated.Add(SiteSupportsServiceSlideThreshold) < currentHoursAndMinutes)
+                {
+                    //Sliding cache functionality
+
+                    //Update the cache value so the NEXT request gets a newer version of the latest DB value
+                    //This approach means the cache entry is never guaranteed to be the exact latest DB value (unless a cache value does not exist) - but it is recent enough to not have a big impact
+                    //The performance gain is a sufficient benefit to the value being potentially slightly behind the current DB state
+                    _ = GetSiteSupportingServiceInRange(siteId, service, from, until, isSlide: true);
+                }
+                
+                siteSupportsServiceCacheKeyLock.Release();
+                _siteSupportsServiceCacheLocks.TryRemove(cacheKey, out _);
+
+                //return the current cached value regardless of whether sliding was invoked
+                return siteSupportsService!.Value;
+            }
+        }
+
+        var siteOffersServiceDuringPeriod = await FetchSiteOffersServiceDuringPeriod(siteId, service, from, until);
+        memoryCache.Set(cacheKey, new SiteSupportServiceCache(siteOffersServiceDuringPeriod, currentHoursAndMinutes),
+                utcNow.Add(SiteSupportsServiceAbsoluteExpiration));
+
+        siteSupportsServiceCacheKeyLock.Release();
+        _siteSupportsServiceCacheLocks.TryRemove(cacheKey, out _);
+            
         return siteOffersServiceDuringPeriod;
+    }
+
+    //TODO just use UTC datetime???
+    //use a minimal version of TimeOnly to keep the cache object as small as possible
+    private static TimeOnly HourAndMinutes(DateTime dateTime)
+    {
+        return new TimeOnly(dateTime.Hour, dateTime.Minute);
+    }
+
+    private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, string service, DateOnly from,
+        DateOnly until)
+    {
+        var dateStringsInRange = GetDateStringsInRange(from, until);
+        return await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
     }
 
     private string GetCacheSiteServiceSupportDateRangeKey(string siteId, string service, DateOnly from, DateOnly until)
@@ -505,4 +594,6 @@ public class SiteService(
         var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
         return $"site_{siteId}_supports_{service}_in_{dateRange}";
     }
+
+    private record SiteSupportServiceCache(bool Value, TimeOnly TimeUpdated);
 }

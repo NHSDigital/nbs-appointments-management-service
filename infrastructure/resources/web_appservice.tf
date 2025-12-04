@@ -34,6 +34,7 @@ resource "azurerm_linux_web_app" "nbs_mya_web_app_service" {
     OTEL_EXPORTER_OTLP_TRACES_ENDPOINT  = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/traces"
     OTEL_EXPORTER_OTLP_METRICS_ENDPOINT = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/metrics"
     OTEL_SERVICE_NAME                   = "mya-web-app"
+    APP_INSIGHTS_CONNECTION_STRING      = "${azurerm_application_insights.nbs_mya_application_insights.connection_string}"
   }
 
   sticky_settings {
@@ -69,6 +70,7 @@ resource "azurerm_linux_web_app_slot" "nbs_mya_web_app_preview" {
     OTEL_EXPORTER_OTLP_TRACES_ENDPOINT  = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/traces"
     OTEL_EXPORTER_OTLP_METRICS_ENDPOINT = "https://${azurerm_container_app.nbs_mya_splunk_otel_collector.latest_revision_fqdn}/v1/metrics"
     OTEL_SERVICE_NAME                   = "mya-web-app"
+    APP_INSIGHTS_CONNECTION_STRING      = "${azurerm_application_insights.nbs_mya_application_insights.connection_string}"
   }
 
   identity {

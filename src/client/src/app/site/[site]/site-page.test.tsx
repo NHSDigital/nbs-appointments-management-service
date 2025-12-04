@@ -7,6 +7,21 @@ import {
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import { getAppInsightsClient } from '../../appInsights';
+
+jest.mock('../../appInsights', () => {
+  const mockFn = jest.fn();
+  return {
+    getAppInsightsClient: () => ({
+      trackEvent: mockFn,
+      trackPageView: mockFn,
+    }),
+    initializeAppInsights: () => ({
+      trackEvent: mockFn,
+      trackPageView: mockFn,
+    }),
+  };
+});
 
 describe('Site Page', () => {
   it('displays a summary of the site', () => {
@@ -192,4 +207,26 @@ describe('Site Page', () => {
       ).not.toBeInTheDocument();
     },
   );
+
+  it('logs a "Site Loaded" custom event on load', () => {
+    const mockSite = mockSites[0];
+
+    const trackEventMock = getAppInsightsClient().trackEvent;
+
+    render(
+      <SitePage
+        site={mockSite}
+        permissions={mockAllPermissions}
+        permissionsAtAnySite={[]}
+        wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
+        siteSummaryEnabled
+        siteStatusEnabled
+      />,
+    );
+
+    expect(trackEventMock).toHaveBeenCalledWith({
+      name: 'Site Loaded',
+      properties: { name: mockSite.name },
+    });
+  });
 });

@@ -490,10 +490,10 @@ public class SiteService(
     {
         var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, services, from, until);
 
-        //if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
-        //{
-        //    return siteSupportsService;
-        //}
+        if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
+        {
+            return siteSupportsService;
+        }
         
         var dateStringsInRange = GetDateStringsInRange(from, until);
         var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, services, dateStringsInRange);

@@ -101,15 +101,16 @@ public class AvailabilityDocumentStore(
         {
             var docType = documentStore.GetDocumentType();
 
-            var servicesArray = string.Join(",", services.Select(s => $"\"{s}\""));
             var query = @"
                     SELECT VALUE COUNT(1)
                     FROM booking_data bd
-                    JOIN s IN bd.sessions
                     WHERE ARRAY_CONTAINS(@docIds, bd.id)
                     AND bd.site = @site
                     AND bd.docType = @docType
-                    AND ARRAY_LENGTH(SETINTERSECT(s.services, @services)) = @requestedServiceCount";
+                    AND ARRAY_LENGTH(SETINTERSECT(
+                        ARRAY(
+                            SELECT VALUE svc FROM session IN bd.sessions JOIN svc IN session.services
+                        ), @services)) = @requestedServiceCount";
 
             var queryDef = new QueryDefinition(query)
                 .WithParameter("@docType", docType)

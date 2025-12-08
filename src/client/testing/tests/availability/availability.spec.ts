@@ -1007,59 +1007,59 @@ test.describe('View Month Availability', () => {
           `manage-your-appointments/site/${site.id}/view-availability?date=2026-03-01`,
         );
         await page.waitForURL(
-          `**/site/${site.id}/view-availability?date=2026-03-01`,
+          `**/site/${site.id}/view-availability?date=2030-03-01`,
         );
         await page.waitForSelector('.nhsuk-loader', {
           state: 'detached',
         });
 
         await monthViewAvailabilityPage.verifyViewNextAndPreviousMonthButtonsAreDisplayed(
-          'February 2026',
-          'April 2026',
+          'February 2030',
+          'April 2030',
         );
 
         const expectedWeekOverviews = [
           {
-            header: '23 February to 1 March',
+            header: '25 February to 3 March',
             sessions: [],
             totalAppointments: 0,
             booked: 0,
             unbooked: 0,
           },
           {
-            header: '2 March to 8 March',
+            header: '4 March to 10 March',
             sessions: [],
             totalAppointments: 0,
             booked: 0,
             unbooked: 0,
           },
           {
-            header: '9 March to 15 March',
+            header: '11 March to 17 March',
             sessions: [],
             totalAppointments: 0,
             booked: 0,
             unbooked: 0,
           },
           {
-            header: '16 March to 22 March',
+            header: '18 March to 24 March',
             sessions: [],
             totalAppointments: 0,
             booked: 0,
             unbooked: 0,
           },
           {
-            header: '23 March to 29 March',
+            header: '25 March to 31 March',
             sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
             totalAppointments: 480,
-            booked: 4,
-            unbooked: 476,
+            booked: 2,
+            unbooked: 478,
           },
           {
             header: '30 March to 5 April',
             sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
             totalAppointments: 240,
-            booked: 2,
-            unbooked: 238,
+            booked: 0,
+            unbooked: 240,
           },
         ];
 

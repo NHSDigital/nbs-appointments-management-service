@@ -1049,17 +1049,10 @@ test.describe('View Month Availability', () => {
           },
           {
             header: '25 March to 31 March',
-            sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 4 }],
+            sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
             totalAppointments: 480,
             booked: 2,
             unbooked: 478,
-          },
-          {
-            header: '30 March to 5 April',
-            sessions: [{ serviceName: 'RSV Adult', bookedAppointments: 2 }],
-            totalAppointments: 240,
-            booked: 0,
-            unbooked: 240,
           },
         ];
 

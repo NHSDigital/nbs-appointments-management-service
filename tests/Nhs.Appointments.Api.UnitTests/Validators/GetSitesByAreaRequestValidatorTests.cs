@@ -418,4 +418,23 @@ public class GetSitesByAreaRequestValidatorTests
         var result = _sut.Validate(request);
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public void PassesValidation_WhenMultipleServicesArePresent()
+    {
+        var request = new GetSitesByAreaRequest(
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
+            50000,
+            50,
+            ["access_need_a", "access_need_b"],
+            false,
+            ["RSV:Adult", "COVID:5_11"],
+            "2025-08-18",
+            "2025-08-25"
+        );
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
 }

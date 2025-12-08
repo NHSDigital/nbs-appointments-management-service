@@ -2381,7 +2381,8 @@ public class SiteServiceTests
                 null,
                 null,
                 "Some other site type"),
-        }; _siteStore.Setup(x => x.GetAllSites())
+        };
+        _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
@@ -2390,5 +2391,546 @@ public class SiteServiceTests
         result.First().Site.Id.Should().Be("test321");
 
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task QuerySitesAsync_ReturnsSitesOnlyWhenAllServicesMatch()
+    {
+        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038,
+                SearchRadius = 1000,
+                Availability = new()
+                {
+                    Services = [.. services],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                }
+            }
+        };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false)
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+
+        var result = await _sut.QuerySitesAsync([.. filters], 50, true);
+
+        result.Count().Should().Be(2);
+        result.Any(x => x.Site.Id == "test654").Should().BeFalse();
+        result.Any(x => x.Site.Id == "test321").Should().BeFalse();
+
+        _availabilityStore.Verify(
+            x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services)), It.IsAny<List<string>>()),
+            Times.Exactly(4));
+    }
+
+    [Fact]
+    public async Task QuerySitesAsync_CachingKeyUsedForFullServiceList()
+    {
+        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038,
+                SearchRadius = 1000,
+                Availability = new()
+                {
+                    Services = [.. services],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                }
+            }
+        };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        
+        object outResult = true;
+        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+
+        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+
+        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task QuerySitesAsync_WritesToCache_WhenKeyNotPresentInitially()
+    {
+        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038,
+                SearchRadius = 1000,
+                Availability = new()
+                {
+                    Services = [.. services],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                }
+            }
+        };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        
+        object outResult = true;
+        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+
+        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+
+        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
+    }
+
+    [Fact]
+    public async Task FindSitesByArea_FiltersSitesOnMultipleServices()
+    {
+        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false)
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+
+        var result = await _sut.FindSitesByArea(
+            new Coordinates
+            { 
+                Latitude = 53.796638,
+                Longitude = -1.663038
+            }, 
+            1000,
+            50,
+            [],
+            siteSupportsServiceFilter: new SiteSupportsServiceFilter(
+                ["RSV:Adult", "COVID:5_11"],
+                new DateOnly(2025, 9, 1),
+                new DateOnly(2025, 10, 1)
+                )
+            );
+
+        result.Count().Should().Be(2);
+        result.Any(x => x.Site.Id == "test654").Should().BeFalse();
+        result.Any(x => x.Site.Id == "test321").Should().BeFalse();
+
+        _availabilityStore.Verify(
+            x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services)), It.IsAny<List<string>>()),
+            Times.Exactly(4));
+    }
+
+    [Fact]
+    public async Task FindSitesByArea_CachingKeyUsedForFullServiceList()
+    {
+        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false)
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+
+        object outResult = true;
+        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+
+        _ = await _sut.FindSitesByArea(
+            new Coordinates
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038
+            },
+            1000,
+            50,
+            [],
+            siteSupportsServiceFilter: new SiteSupportsServiceFilter(
+                ["RSV:Adult", "COVID:5_11"],
+                new DateOnly(2025, 9, 1),
+                new DateOnly(2025, 10, 1)
+                )
+            );
+
+        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task FindSitesByArea_WritesToCache_WhenKeyNotPresentInitially()
+    {
+        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false)
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+
+        object outResult = true;
+        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+
+        _ = await _sut.FindSitesByArea(
+            new Coordinates
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038
+            },
+            1000,
+            50,
+            [],
+            siteSupportsServiceFilter: new SiteSupportsServiceFilter(
+                ["RSV:Adult", "COVID:5_11"],
+                new DateOnly(2025, 9, 1),
+                new DateOnly(2025, 10, 1)
+                )
+            );
+
+        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+
+        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
     }
 }

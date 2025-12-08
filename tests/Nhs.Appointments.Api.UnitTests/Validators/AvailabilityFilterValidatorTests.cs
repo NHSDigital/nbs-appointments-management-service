@@ -116,4 +116,19 @@ public class AvailabilityFilterValidatorTests
 
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public void PassesValidation_WithMultipleServices()
+    {
+        var filter = new AvailabilityFilter
+        {
+            Services = ["RSV:Adult", "COVID:5_11"],
+            From = new DateOnly(2025, 9, 2),
+            Until = new DateOnly(2025, 9, 15),
+        };
+
+        var result = _sut.Validate(filter);
+
+        result.IsValid.Should().BeTrue();
+    }
 }

@@ -232,10 +232,10 @@ resource "azurerm_monitor_autoscale_setting" "nbs_mya_web_app_service_autoscale_
         metric_resource_id = azurerm_service_plan.nbs_mya_web_app_service_plan.id
         time_grain         = "PT1M"
         statistic          = "Average"
-        time_window        = "PT45M"
+        time_window        = "PT30M"
         time_aggregation   = "Average"
         operator           = "LessThan"
-        threshold          = 10
+        threshold          = 15
         metric_namespace   = "microsoft.web/serverfarms"
       }
 

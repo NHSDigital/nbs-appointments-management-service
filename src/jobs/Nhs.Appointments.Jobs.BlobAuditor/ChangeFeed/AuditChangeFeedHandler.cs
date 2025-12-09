@@ -18,7 +18,21 @@ public class AuditChangeFeedHandler(
     public async Task<ChangeFeedProcessor> ResolveChangeFeedForContainer(string containerName)
     {
         var config = containerConfigFactory.CreateContainerConfig(containerName);
-        
+        var leaseContainerName = config.LeaseContainerName;
+
+        await CreateLeaseContainerIfDoesntExist(config);
+        var leaseContainer = cosmosClient.GetContainer(DatabaseName, leaseContainerName);
+        var changeFeedProcessor = CreateChangeFeedProcessorBuilder(config.ContainerName)
+            .WithInstanceName(Environment.MachineName)
+            .WithStartTime(DateTime.MinValue.ToUniversalTime())
+            .WithLeaseContainer(leaseContainer)
+            .Build();
+    
+        return changeFeedProcessor;
+    }
+
+    private ChangeFeedProcessorBuilder CreateChangeFeedProcessorBuilder(string containerName)
+    {
         async Task HandleChangesAsync(
             ChangeFeedProcessorContext context, 
             IReadOnlyCollection<JObject> changes,
@@ -36,24 +50,13 @@ public class AuditChangeFeedHandler(
 
             logger.LogInformation($"Changes processed.");
         }
-    
-        var sourceContainerName = config.ContainerName;
-        var leaseContainerName = config.LeaseContainerName;
-        var processorName = containerName + "_processor";
 
-        await CreateLeaseContainerIfDoesntExist(config);
-        var leaseContainer = cosmosClient.GetContainer(DatabaseName, leaseContainerName);
-        var changeFeedProcessor = cosmosClient.GetContainer(DatabaseName, sourceContainerName)
-            .GetChangeFeedProcessorBuilder<JObject>(processorName: processorName, onChangesDelegate: HandleChangesAsync)
+        return cosmosClient.GetContainer(DatabaseName, containerName)
+            .GetChangeFeedProcessorBuilder<JObject>(processorName: $"{containerName}_processor",
+                onChangesDelegate: HandleChangesAsync)
             .WithLeaseAcquireNotification(OnLeaseAcquiredAsync)
             .WithLeaseReleaseNotification(OnLeaseReleaseAsync)
-            .WithErrorNotification(OnErrorAsync)
-            .WithInstanceName(Environment.MachineName)
-            .WithStartTime(DateTime.MinValue.ToUniversalTime())
-            .WithLeaseContainer(leaseContainer)
-            .Build();
-    
-        return changeFeedProcessor;
+            .WithErrorNotification(OnErrorAsync);
     }
 
     private async Task CreateLeaseContainerIfDoesntExist(ContainerConfiguration config)

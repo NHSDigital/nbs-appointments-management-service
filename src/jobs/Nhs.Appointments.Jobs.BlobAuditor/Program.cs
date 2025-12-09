@@ -17,7 +17,7 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 var mySettingsSection = builder.Configuration.GetSection("AuditWorkerConfigurations");
-builder.Services.Configure<IEnumerable<ContainerConfiguration>>(mySettingsSection);
+builder.Services.Configure<List<ContainerConfiguration>>(mySettingsSection);
 
 builder.Logging.AddConsole();
 

@@ -24,7 +24,7 @@ public class BlobSink(IAzureBlobStorage azureBlobStorage, TimeProvider timeProvi
         await writer.WriteRawAsync(JsonConvert.SerializeObject(item, Formatting.Indented));
     }
 
-    private static string GetContainerName(string source, DateTimeOffset timeStamp) => $"{timeStamp:yyyyMMdd}-{source}";
+    private static string GetContainerName(string source, DateTimeOffset timeStamp) => $"{timeStamp:yyyyMMdd}-{source.Replace("_", "")}";
 
     private string GetBlobName(string entityDocType, string source, JObject item, DateTimeOffset timeStamp) =>
         Path.Combine(

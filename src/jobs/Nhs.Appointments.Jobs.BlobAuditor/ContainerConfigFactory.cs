@@ -7,7 +7,7 @@ public class ContainerConfigFactory : IContainerConfigFactory
 {
     private readonly IEnumerable<ContainerConfiguration> configurations;
 
-    public ContainerConfigFactory(IOptions<IEnumerable<ContainerConfiguration>> configs)
+    public ContainerConfigFactory(IOptions<List<ContainerConfiguration>> configs)
     {
         this.configurations = configs.Value;
     }

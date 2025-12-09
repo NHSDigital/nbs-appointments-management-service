@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Jobs.BlobAuditor.Blob;
 using Nhs.Appointments.Jobs.BlobAuditor.Extensions;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
-public class BlobSink(IAzureBlobStorage azureBlobStorage, TimeProvider timeProvider) : ISink<JObject>
+public class BlobSink(IAzureBlobStorage azureBlobStorage, TimeProvider timeProvider) : IBlobSink<JObject>
 {
     public async Task Consume(string source, JObject item)
     {

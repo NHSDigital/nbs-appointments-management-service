@@ -1,5 +1,4 @@
-
-namespace Nhs.Appointments.Jobs.BlobAuditor.Configuration;
+﻿namespace Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 
 public class ContainerConfiguration
 {

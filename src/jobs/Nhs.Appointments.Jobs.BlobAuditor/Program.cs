@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Jobs.BlobAuditor;
 using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
-using Nhs.Appointments.Jobs.BlobAuditor.Configuration;
+using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -16,8 +16,8 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-var mySettingsSection = builder.Configuration.GetSection("AuditWorkerConfigurations");
-builder.Services.Configure<List<ContainerConfiguration>>(mySettingsSection);
+var containerConfigs = builder.Configuration.GetSection("AuditWorkerConfigurations");
+builder.Services.Configure<List<ContainerConfiguration>>(containerConfigs);
 
 builder.Logging.AddConsole();
 
@@ -27,8 +27,12 @@ builder.Services
     .AddCosmos(builder.Configuration)
     .AddAzureBlobStorage(builder.Configuration)
     .AddTransient<IAuditChangeFeedHandler<JObject>, AuditChangeFeedHandler>()
-    .AddTransient<IContainerConfigFactory, ContainerConfigFactory>()
-    .AddDynamicallyConfiguredAuditWorkers<JObject>(builder.Configuration);
+    .AddTransient<IContainerConfigFactory, ContainerConfigFactory>();
+
+foreach (var config in containerConfigs.Get<List<ContainerConfiguration>>()!)
+{
+    builder.Services.AddAuditWorker<JObject>(config);
+}
 
 var host = builder.Build();
 host.Run();

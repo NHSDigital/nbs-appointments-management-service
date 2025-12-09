@@ -1,7 +1,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Nhs.Appointments.Jobs.BlobAuditor.Configuration;
+using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
@@ -18,6 +18,7 @@ public class AuditChangeFeedHandler(
     public async Task<ChangeFeedProcessor> ResolveChangeFeedForContainer(string containerName)
     {
         var config = containerConfigFactory.CreateContainerConfig(containerName);
+        
         async Task HandleChangesAsync(
             ChangeFeedProcessorContext context, 
             IReadOnlyCollection<JObject> changes,

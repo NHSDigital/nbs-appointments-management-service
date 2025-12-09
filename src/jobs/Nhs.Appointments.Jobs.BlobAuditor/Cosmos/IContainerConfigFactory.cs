@@ -1,6 +1,4 @@
-using Nhs.Appointments.Jobs.BlobAuditor.Configuration;
-
-namespace Nhs.Appointments.Jobs.BlobAuditor;
+namespace Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 public interface IContainerConfigFactory
 {
     ContainerConfiguration CreateContainerConfig(string containerName);

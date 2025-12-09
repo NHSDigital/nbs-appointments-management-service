@@ -6,37 +6,21 @@ using Microsoft.Extensions.Hosting;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Jobs.BlobAuditor.Blob;
 using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
-using Nhs.Appointments.Jobs.BlobAuditor.Configuration;
+using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor;
 
 public static class ServiceRegistration
 {
-    public static IServiceCollection AddDynamicallyConfiguredAuditWorkers<T>(
+    public static IServiceCollection AddAuditWorker<T>(
         this IServiceCollection services,
-        IConfiguration configuration
+        ContainerConfiguration containerConfig
     )
     {
-        var workerConfigs = configuration
-            .GetSection("AuditWorkerConfigurations")
-            .Get<List<ContainerConfiguration>>();
-
-        if (workerConfigs is null || workerConfigs.Count == 0)
-        {
-            Console.WriteLine("No AuditWorkerConfigurations found. Skipping dynamic worker registration.");
-            return services;
-        }
-
-        foreach (var config in workerConfigs)
-        {
-            services.AddSingleton<IHostedService>(provider =>
-            {
-                return new Worker<T>(
-                    config.ContainerName,
-                    provider.GetRequiredService<IAuditChangeFeedHandler<T>>()
-                );
-            });
-        }
+        services.AddSingleton<IHostedService>(provider => new Worker<T>(
+            containerConfig.ContainerName,
+            provider.GetRequiredService<IAuditChangeFeedHandler<T>>()
+        ));
 
         return services;
     }

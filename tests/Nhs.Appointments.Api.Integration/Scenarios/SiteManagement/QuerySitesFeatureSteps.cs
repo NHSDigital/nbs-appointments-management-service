@@ -260,6 +260,67 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
         await SendRequestAsync(payload);
     }
 
+    [When("I query sites by multiple services, site type and access needs")]
+    public async Task QueryServices_SiteType_AcessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.Skip(1).First();
+        var cells = row.Cells;
+        var payload = new
+        {
+            maxRecords = int.Parse(cells.ElementAt(5).Value),
+            ignoreCache = true,
+            filters = new[]
+            {
+                // Service filter
+                new SiteFilter
+                {
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    AccessNeeds = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = cells.ElementAt(6).Value.Split(','),
+                        From = NaturalLanguageDate.Parse(cells.ElementAt(7).Value),
+                        Until = NaturalLanguageDate.Parse(cells.ElementAt(8).Value)
+                    },
+                    Types = [],
+                    OdsCode = string.Empty
+                },
+                // Access needs filter
+                new SiteFilter
+                {
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    AccessNeeds = cells.ElementAt(3).Value.Split(','),
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    },
+                    Types = [],
+                    OdsCode = string.Empty
+                },
+                // Site type filter
+                new SiteFilter
+                {
+                    Longitude = double.Parse(cells.ElementAt(0).Value),
+                    Latitude = double.Parse(cells.ElementAt(1).Value),
+                    SearchRadius = int.Parse(cells.ElementAt(2).Value),
+                    Types = cells.ElementAt(4).Value.Split(','),
+                    OdsCode = string.Empty,
+                    AccessNeeds = [],
+                    Availability = new AvailabilityFilter
+                    {
+                        Services = []
+                    }
+                }
+            }
+        };
+
+        await SendRequestAsync(payload);
+    }
+
     [Then("the following sites and distances are returned")]
     public void AssertSites(DataTable dataTable)
     {

@@ -76,9 +76,9 @@ public class GetSitesByAreaFunction(
         SiteSupportsServiceFilter siteSupportsServiceFilter = null;
 
         //if all 3 params are provided correctly, use the SiteSupportsServiceFilter
-        if (request.Services is { Length: 1 } && request.FromDate != null && request.UntilDate != null)
+        if (request.Services != null && request.Services.Length > 0 && request.FromDate != null && request.UntilDate != null)
         {
-            siteSupportsServiceFilter = new SiteSupportsServiceFilter(request.Services.Single(), request.FromDate.Value, request.UntilDate.Value);
+            siteSupportsServiceFilter = new SiteSupportsServiceFilter([.. request.Services], request.FromDate.Value, request.UntilDate.Value);
         }
 
         var sites = await siteService.FindSitesByArea(request.Coordinates, request.SearchRadius,

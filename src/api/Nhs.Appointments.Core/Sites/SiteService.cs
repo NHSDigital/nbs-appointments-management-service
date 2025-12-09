@@ -80,14 +80,14 @@ public class SiteService(
         
         return await GetSitesSupportingService(
             sitesInDistance, 
-            siteSupportsServiceFilter.service, 
+            siteSupportsServiceFilter.services, 
             siteSupportsServiceFilter.from,
             siteSupportsServiceFilter.until,
             maximumRecords,
             maximumRecords * 20);
     }
 
-    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, string service, DateOnly from, DateOnly to,
+    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, List<string> services, DateOnly from, DateOnly to,
         int maxRecords = 50, int batchSize = 1000)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
@@ -112,7 +112,7 @@ public class SiteService(
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var siteOffersServiceDuringPeriod = await GetSiteSupportingServiceInRange(swd.Site.Id, service, from, to);
+                var siteOffersServiceDuringPeriod = await GetSiteSupportingServiceInRange(swd.Site.Id, services, from, to);
                 if (siteOffersServiceDuringPeriod)
                 {
                     concurrentBatchResults.Add(swd);
@@ -126,7 +126,9 @@ public class SiteService(
             iterations++;
         }
         
-        logger.LogInformation("GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for service '{service}'", results.Count, iterations, service);
+        logger.LogInformation(
+            "GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for services '{service}'",
+            results.Count, iterations, string.Join('|', services));
 
         return results;
     }
@@ -315,11 +317,11 @@ public class SiteService(
             {
                 // Adding .Single() here as the current implementation only allows for filtering on a single service
                 // This will need updating if we decide to allow filtering on multiple services
-                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Availability.Services.Single(), filter.Availability.From!.Value, filter.Availability.Until!.Value);
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter([.. filter.Availability.Services], filter.Availability.From!.Value, filter.Availability.Until!.Value);
 
                 var serviceResults = await GetSitesSupportingService(
                     sitesWithDistance,
-                    siteSupportsServiceFilter.service,
+                    siteSupportsServiceFilter.services,
                     siteSupportsServiceFilter.from,
                     siteSupportsServiceFilter.until);
 
@@ -484,9 +486,9 @@ public class SiteService(
         }
     }
 
-    private async Task<bool> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from, DateOnly until)
+    private async Task<bool> GetSiteSupportingServiceInRange(string siteId, List<string> services, DateOnly from, DateOnly until)
     {
-        var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, service, from, until);
+        var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, services, from, until);
 
         if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
         {
@@ -494,15 +496,16 @@ public class SiteService(
         }
         
         var dateStringsInRange = GetDateStringsInRange(from, until);
-        var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
+        var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, services, dateStringsInRange);
         
         memoryCache.Set(cacheKey, siteOffersServiceDuringPeriod, time.GetUtcNow().AddMinutes(15));
         return siteOffersServiceDuringPeriod;
     }
 
-    private string GetCacheSiteServiceSupportDateRangeKey(string siteId, string service, DateOnly from, DateOnly until)
+    private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from, DateOnly until)
     {
-        var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
-        return $"site_{siteId}_supports_{service}_in_{dateRange}";
+        var joinedServices = string.Join('_', services.OrderBy(x => x));
+        var dateRange = $"{from:yyyyMMdd}_{until:yyyyMMdd}";
+        return $"site_{siteId}_supports_{joinedServices}_in_{dateRange}";
     }
 }

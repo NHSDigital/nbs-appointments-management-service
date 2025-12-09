@@ -1362,6 +1362,34 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "availability/query/slots",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"site\": \"{{site}}\",\r\n    \"attendees\": [\r\n        {\r\n            \"services\": [\"RSV:Adult\"]\r\n        }\r\n    ],\r\n    \"from\": \"2025-12-10 09:00\",\r\n    \"until\": \"2025-12-10 17:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/availability/query/slots",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "availability", "query", "slots"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

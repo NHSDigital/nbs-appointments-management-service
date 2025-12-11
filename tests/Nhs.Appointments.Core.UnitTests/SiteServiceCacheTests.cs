@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Sites;
 
@@ -12,6 +13,7 @@ public class SiteServiceCacheTests
     private readonly IMemoryCache _memoryCache = new MemoryCache(new MemoryCacheOptions());
     private readonly Mock<ISiteStore> _siteStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+    private readonly Mock<ICacheService> _cacheService = new();
     private readonly Mock<ILogger<ISiteService>> _logger = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly SiteService _sut;
@@ -29,7 +31,7 @@ public class SiteServiceCacheTests
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _options.Object);
+            TimeProvider.System, _featureToggleHelper.Object, _cacheService.Object, _options.Object);
     }
 
     [Fact(DisplayName = "The Site Cache is used by default (when excluding deleted sites)")]
@@ -176,7 +178,7 @@ public class SiteServiceCacheTests
         });
 
         var _service = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, disabledOptions);
+            TimeProvider.System, _featureToggleHelper.Object, _cacheService.Object, disabledOptions);
 
         await _service.UpdateSiteInCacheAsync("ab648be7-f10d-4c5d-a534-fec12b61f998");
 

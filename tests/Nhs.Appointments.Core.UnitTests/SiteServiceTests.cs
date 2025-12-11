@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Sites;
@@ -13,6 +14,7 @@ public class SiteServiceTests
     private readonly Mock<ICacheEntry> _cacheEntry = new();
     private readonly Mock<IMemoryCache> _memoryCache = new();
     private readonly Mock<ISiteStore> _siteStore = new();
+    private readonly Mock<ICacheService> _cacheService = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<ILogger<ISiteService>> _logger = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
@@ -26,7 +28,7 @@ public class SiteServiceTests
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _options.Object);
+            TimeProvider.System, _featureToggleHelper.Object, _cacheService.Object, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 

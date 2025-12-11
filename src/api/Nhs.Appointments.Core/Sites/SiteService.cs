@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Geography;
 
@@ -43,15 +44,14 @@ public class SiteService(
     ILogger<ISiteService> logger,
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
+    ICacheService cacheService,
     IOptions<SiteServiceOptions> options) : ISiteService
 {
     private static readonly SemaphoreSlim _siteCacheLock = new(1, 1);
-
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _siteSupportsServiceCacheLocks = new();
-
+    
     private TimeSpan SiteSupportsServiceAbsoluteExpiration => TimeSpan.FromMinutes(60);
     private TimeSpan SiteSupportsServiceSlideThreshold => TimeSpan.FromMinutes(15);
-
+    
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
         SiteSupportsServiceFilter siteSupportsServiceFilter = null)
@@ -123,15 +123,20 @@ public class SiteService(
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
+                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, service, from, to);
                 var siteOffersServiceDuringPeriod =
-                    await GetSiteSupportingServiceInRange(swd.Site.Id, service, from, to, false);
+                    await cacheService.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>(cacheKey, FetchOperation, SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
                 
                 ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
                 
-                if (siteOffersServiceDuringPeriod.Value)
+                if (siteOffersServiceDuringPeriod)
                 {
                     concurrentBatchResults.Add(swd);
                 }
+
+                return;
+
+                async Task<bool> FetchOperation() => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, service, from, to);
             }).ToArray();
 
             await Task.WhenAll(siteOffersServiceDuringPeriodTasks);
@@ -512,88 +517,17 @@ public class SiteService(
             _siteCacheLock.Release();
         }
     }
-
-    private async Task<bool?> GetSiteSupportingServiceInRange(string siteId, string service, DateOnly from,
-        DateOnly until, bool isSlide)
+    
+    private string GetCacheSiteServiceSupportDateRangeKey(string siteId, string service, DateOnly from, DateOnly until)
     {
-        var utcNow = time.GetUtcNow();
-        var currentHoursAndMinutes = HourAndMinutes(utcNow.DateTime);
-        var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, service, from, until);
-        
-        //should this be created for both code paths??
-        var siteSupportsServiceCacheKeyLock =
-            _siteSupportsServiceCacheLocks.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1, 1));
-
-        if (isSlide)
-        {
-            //a lock exists, and we are unwilling to wait any amount of time for it to be released
-            //this means another request is already sliding this cache value
-            if (!await siteSupportsServiceCacheKeyLock.WaitAsync(0))
-            {
-                siteSupportsServiceCacheKeyLock.Release();
-                _siteSupportsServiceCacheLocks.TryRemove(cacheKey, out _);
-                
-                //no need to invoke the slide as another thread is performing the action concurrently
-                return null;
-            }
-        }
-        else
-        {
-            //we want to wait until the lock is free'd before
-            await siteSupportsServiceCacheKeyLock.WaitAsync();
-            
-            if (memoryCache.TryGetValue<SiteSupportServiceCache>(cacheKey, out var siteSupportsService))
-            {
-                ArgumentNullException.ThrowIfNull(siteSupportsService);
-                
-                //check if we want to update the existing cache in the background lazily...
-                if (siteSupportsService.TimeUpdated.Add(SiteSupportsServiceSlideThreshold) < currentHoursAndMinutes)
-                {
-                    //Sliding cache functionality
-
-                    //Update the cache value so the NEXT request gets a newer version of the latest DB value
-                    //This approach means the cache entry is never guaranteed to be the exact latest DB value (unless a cache value does not exist) - but it is recent enough to not have a big impact
-                    //The performance gain is a sufficient benefit to the value being potentially slightly behind the current DB state
-                    _ = GetSiteSupportingServiceInRange(siteId, service, from, until, isSlide: true);
-                }
-                
-                siteSupportsServiceCacheKeyLock.Release();
-                _siteSupportsServiceCacheLocks.TryRemove(cacheKey, out _);
-
-                //return the current cached value regardless of whether sliding was invoked
-                return siteSupportsService!.Value;
-            }
-        }
-
-        var siteOffersServiceDuringPeriod = await FetchSiteOffersServiceDuringPeriod(siteId, service, from, until);
-        memoryCache.Set(cacheKey, new SiteSupportServiceCache(siteOffersServiceDuringPeriod, currentHoursAndMinutes),
-                utcNow.Add(SiteSupportsServiceAbsoluteExpiration));
-
-        siteSupportsServiceCacheKeyLock.Release();
-        _siteSupportsServiceCacheLocks.TryRemove(cacheKey, out _);
-            
-        return siteOffersServiceDuringPeriod;
+        var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
+        return $"site_{siteId}_supports_{service}_in_{dateRange}";
     }
-
-    //TODO just use UTC datetime???
-    //use a minimal version of TimeOnly to keep the cache object as small as possible
-    private static TimeOnly HourAndMinutes(DateTime dateTime)
-    {
-        return new TimeOnly(dateTime.Hour, dateTime.Minute);
-    }
-
+    
     private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, string service, DateOnly from,
         DateOnly until)
     {
         var dateStringsInRange = GetDateStringsInRange(from, until);
         return await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
     }
-
-    private string GetCacheSiteServiceSupportDateRangeKey(string siteId, string service, DateOnly from, DateOnly until)
-    {
-        var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
-        return $"site_{siteId}_supports_{service}_in_{dateRange}";
-    }
-
-    private record SiteSupportServiceCache(bool Value, TimeOnly TimeUpdated);
 }

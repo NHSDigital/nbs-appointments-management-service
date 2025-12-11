@@ -37,7 +37,7 @@ export default class CreateAvailabilityPage extends RootPage {
     });
 
     this.saveSessionButton = page.getByRole('button', {
-      name: 'Save session',
+      name: 'Save and publish availability',
     });
 
     this.selectDateErrorMsg = page.getByText(

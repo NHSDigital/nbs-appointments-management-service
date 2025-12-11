@@ -11,14 +11,12 @@ export default class CheckSessionDetailsPage extends RootPage {
       name: 'Go back',
     });
     this.saveSessionButton = page.getByRole('button', {
-      name: 'Save session',
+      name: 'Save and publish availability',
     });
   }
 
   async verifyCheckSessionDetailsPageDisplayed() {
-    await expect(
-      this.page.getByText('Check single date session'),
-    ).toBeVisible();
+    await expect(this.page.getByText('Check your answers')).toBeVisible();
   }
 
   async saveSession() {

@@ -8,7 +8,7 @@ public class ContainerConfigFactory(IOptions<List<ContainerConfiguration>> confi
 
     public ContainerConfiguration CreateContainerConfig(string containerName)
     {
-        return configurations.First(c => c.ContainerName.Equals(containerName, StringComparison.OrdinalIgnoreCase))
+        return configurations.FirstOrDefault(c => c.ContainerName.Equals(containerName, StringComparison.OrdinalIgnoreCase))
             ?? throw new NullReferenceException($"Container configuration not found for {containerName}");;
     }
 }

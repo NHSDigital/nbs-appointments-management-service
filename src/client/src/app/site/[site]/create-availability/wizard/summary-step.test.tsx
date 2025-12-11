@@ -63,7 +63,7 @@ describe('Summary Step', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Check single date session',
+        name: 'Add availability Check your answers',
       }),
     ).toBeInTheDocument();
   });
@@ -148,29 +148,20 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Save session' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Save and publish availability' }),
+    );
 
     expect(mockOnSubmit).toHaveBeenCalledWith(currentFormState);
   });
 
-  it('hides the appointments per hour calculation if session length is under 1 hour', () => {
+  it('displays assurance content', async () => {
+    const mockOnSubmit = jest.fn();
+
     render(
       <MockForm<CreateAvailabilityFormValues>
-        submitHandler={jest.fn()}
-        defaultValues={{
-          ...currentFormState,
-          session: {
-            ...currentFormState.session,
-            startTime: {
-              hour: 9,
-              minute: 0,
-            },
-            endTime: {
-              hour: 9,
-              minute: 30,
-            },
-          },
-        }}
+        submitHandler={mockOnSubmit}
+        defaultValues={currentFormState}
       >
         <SummaryStep
           stepNumber={1}
@@ -186,13 +177,13 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    expect(screen.getByText('4')).toBeInTheDocument();
     expect(
-      screen.getByText(/total appointments in the session/),
+      screen.getByRole('heading', { name: 'Before you continue' }),
     ).toBeInTheDocument();
-
-    expect(screen.queryByText(/Up to/)).not.toBeInTheDocument();
-    expect(screen.queryByText('8')).not.toBeInTheDocument();
-    expect(screen.queryByText(/appointments per hour/)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'By publishing this availability, you confirm that your site is assured to deliver the services you have selected.',
+      ),
+    ).toBeInTheDocument();
   });
 });

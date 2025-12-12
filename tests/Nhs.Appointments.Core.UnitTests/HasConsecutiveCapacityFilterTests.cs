@@ -22,7 +22,7 @@ public class HasConsecutiveCapacityFilterTests
     private static TimeSpan WithLength(int minutes) => TimeSpan.FromMinutes(minutes);
 
     [Fact]
-    public void APPT_767_Scenario_One()
+    public async Task APPT_767_Scenario_One()
     {
         // In test scenario one for APPT-767, the following sessions exist:
         // "sessions": [{
@@ -66,9 +66,9 @@ public class HasConsecutiveCapacityFilterTests
             new(new TimePeriod(AtTime("09:45"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
             new(new TimePeriod(AtTime("09:50"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] },
             new(new TimePeriod(AtTime("09:55"), WithLength(5))) { Capacity = 1, Services = ["RSV:Adult"] }
-        };
+        }.ToHashSet();
 
-        var slotsAfterFilteringByConsecutive = _sut.SessionHasConsecutiveSessions(sessions, 2);
+        var slotsAfterFilteringByConsecutive = await _sut.SessionHasConsecutiveSessions(sessions, 2);
 
         slotsAfterFilteringByConsecutive
             .Single(slot => slot.From.Hour is 9 & slot.From.Minute is 55)
@@ -76,7 +76,7 @@ public class HasConsecutiveCapacityFilterTests
     }
 
     [Fact]
-    public void APPT_767_Scenario_Two()
+    public async Task APPT_767_Scenario_Two()
     {
         // In test scenario two for APPT-767, the following sessions exist:
         // "sessions": [{
@@ -120,9 +120,9 @@ public class HasConsecutiveCapacityFilterTests
             new(new TimePeriod(AtTime("09:45"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
             new(new TimePeriod(AtTime("09:50"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] },
             new(new TimePeriod(AtTime("09:55"), WithLength(5))) { Capacity = 2, Services = ["RSV:Adult"] }
-        };
+        }.ToHashSet();
 
-        var slotsAfterFilteringByConsecutive = _sut.SessionHasConsecutiveSessions(sessions, 2).ToList();
+        var slotsAfterFilteringByConsecutive = await _sut.SessionHasConsecutiveSessions(sessions, 2);
 
         slotsAfterFilteringByConsecutive.Count.Should().Be(12);
         slotsAfterFilteringByConsecutive.Count(blocks => blocks.Capacity == 3).Should().Be(11);
@@ -133,7 +133,7 @@ public class HasConsecutiveCapacityFilterTests
     }
 
     [Fact]
-    public void SessionHasConsecutiveSessions_ReturnsAll_WhenConsecutive1()
+    public async Task SessionHasConsecutiveSessions_ReturnsAll_WhenConsecutive1()
     {
         var sessions = new List<SessionInstance>() 
         {
@@ -147,15 +147,15 @@ public class HasConsecutiveCapacityFilterTests
                 Capacity = 10,
                 Services = ["test"]
             }
-        };
+        }.ToHashSet();
 
-        var result = _sut.SessionHasConsecutiveSessions(sessions, 1);
+        var result = await _sut.SessionHasConsecutiveSessions(sessions, 1);
 
         Assert.Equivalent(sessions, result);
     }
 
     [Fact]
-    public void SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive2() 
+    public async Task SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive2() 
     {
         var sessions = new List<SessionInstance>()
         {
@@ -169,16 +169,16 @@ public class HasConsecutiveCapacityFilterTests
                 Capacity = 10,
                 Services = ["test"]
             }
-        };
+        }.ToHashSet();
 
-        var result = _sut.SessionHasConsecutiveSessions(sessions, 2);
+        var result = await _sut.SessionHasConsecutiveSessions(sessions, 2);
 
         Assert.Equal(5, result.First().Capacity);
         Assert.Equal(0, result.Last().Capacity);
     }
 
     [Fact]
-    public void SessionHasConsecutiveSessions_ReturnsThree_WhenConsecutive2()
+    public async Task SessionHasConsecutiveSessions_ReturnsThree_WhenConsecutive2()
     {
         var sessions = new List<SessionInstance>()
         {
@@ -202,9 +202,9 @@ public class HasConsecutiveCapacityFilterTests
                 Capacity = 15,
                 Services = ["test"]
             }
-        };
+        }.ToHashSet();
 
-        var result = _sut.SessionHasConsecutiveSessions(sessions, 2).ToArray();
+        var result = (await _sut.SessionHasConsecutiveSessions(sessions, 2)).ToArray();
 
         Assert.Equal(4, result.Count());
         Assert.Equal(5, result[0].Capacity);
@@ -214,7 +214,7 @@ public class HasConsecutiveCapacityFilterTests
     }
 
     [Fact]
-    public void SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive3()
+    public async Task SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive3()
     {
         var sessions = new List<SessionInstance>()
         {
@@ -233,9 +233,9 @@ public class HasConsecutiveCapacityFilterTests
                 Capacity = 12,
                 Services = ["test"]
             }
-        };
+        }.ToHashSet();
 
-        var result = _sut.SessionHasConsecutiveSessions(sessions, 3).ToArray();
+        var result = (await _sut.SessionHasConsecutiveSessions(sessions, 3)).ToArray();
 
         Assert.Equal(5, result[0].Capacity);
         Assert.Equal(0, result[1].Capacity);
@@ -243,7 +243,7 @@ public class HasConsecutiveCapacityFilterTests
     }
 
     [Fact]
-    public void SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive4()
+    public async Task SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive4()
     {
         var sessions = new List<SessionInstance>()
         {
@@ -267,9 +267,9 @@ public class HasConsecutiveCapacityFilterTests
                 Capacity = 2,
                 Services = ["test"]
             }
-        };
+        }.ToHashSet();
 
-        var result = _sut.SessionHasConsecutiveSessions(sessions, 4).ToArray();
+        var result = (await _sut.SessionHasConsecutiveSessions(sessions, 4)).ToArray();
 
         Assert.Equal(2, result[0].Capacity);
         Assert.Equal(0, result[1].Capacity);
@@ -278,7 +278,7 @@ public class HasConsecutiveCapacityFilterTests
     }
 
     [Fact]
-    public void SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive5()
+    public async Task SessionHasConsecutiveSessions_ReturnsOne_WhenConsecutive5()
     {
         var sessions = new List<SessionInstance>()
         {
@@ -307,9 +307,9 @@ public class HasConsecutiveCapacityFilterTests
                 Capacity = 4,
                 Services = ["test"]
             }
-        };
+        }.ToHashSet();
 
-        var result = _sut.SessionHasConsecutiveSessions(sessions, 5).ToArray();
+        var result = (await _sut.SessionHasConsecutiveSessions(sessions, 5)).ToArray();
 
         Assert.Equal(2, result[0].Capacity);
         Assert.Equal(0, result[1].Capacity);

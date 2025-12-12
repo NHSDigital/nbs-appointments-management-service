@@ -2,6 +2,6 @@ namespace Nhs.Appointments.Core.Availability
 {
     public interface IHasConsecutiveCapacityFilter
     {
-        IEnumerable<SessionInstance> SessionHasConsecutiveSessions(IEnumerable<SessionInstance> slots, int consecutive);
+        Task<HashSet<SessionInstance>> SessionHasConsecutiveSessions(HashSet<SessionInstance> slots, int consecutive);
     }
 }

@@ -4,6 +4,10 @@
   "latestAcceptedEulaVersion": "2024-12-01",
   "roleAssignments": [
     {
+      "role": "system:all-permissions",
+      "scope": "global"
+    },
+    {
       "role": "canned:availability-manager",
       "scope": "site:5914b64a-66bb-4ee2-ab8a-94958c1fdfcb"
     },

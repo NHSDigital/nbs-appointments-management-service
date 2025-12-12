@@ -96,7 +96,7 @@ public class QueryAvailabilityFunction(
         var dayEnd = until.ToDateTime(new TimeOnly(23, 59, 59));
 
         var slots = (await bookingAvailabilityStateService.GetAvailableSlots(site, dayStart, dayEnd))
-                .Where(x => x.Services.Contains(service)).ToHashSet();
+                .Where(x => x.Services.Contains(service)).ToArray();
         
         if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings)) 
         {

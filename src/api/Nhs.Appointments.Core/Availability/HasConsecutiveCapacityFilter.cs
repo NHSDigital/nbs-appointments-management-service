@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core.Helpers;
@@ -9,7 +10,7 @@ public class HasConsecutiveCapacityFilter: IHasConsecutiveCapacityFilter
     // Initially added to support joint bookings
     // This method will group consecutive availability by the consecutive input so that availability calculations will take into account consecutive bookings
     // Consecutive availability = availability that are one after another
-    public async Task<HashSet<SessionInstance>> SessionHasConsecutiveSessions(HashSet<SessionInstance> slots, int consecutive)
+    public async Task<SessionInstance[]> SessionHasConsecutiveSessions(SessionInstance[] slots, int consecutive)
     {
         // The logic should work with 1 but no need to do this computation
         if (consecutive <= 1)
@@ -27,14 +28,15 @@ public class HasConsecutiveCapacityFilter: IHasConsecutiveCapacityFilter
                 Capacity = group.Sum(slot => slot.Capacity), Services = group.First().Services
             }).ToHashSet();
 
-        var consecutiveSlots = new List<SessionInstance>();
+        var consecutiveSlots = new ConcurrentBag<SessionInstance>();
         
         await Parallel.ForEachAsync(parallelSlots, async (slot, _) =>
         {
-            consecutiveSlots.Add(await ResolveConsecutiveCapacity(slot, parallelSlots, consecutive));
+            var consecutiveSlot = await ResolveConsecutiveCapacity(slot, parallelSlots, consecutive);
+            consecutiveSlots.Add(consecutiveSlot);
         });
         
-        return consecutiveSlots.ToHashSet();
+        return consecutiveSlots.OrderBy(x => x.From).ToArray();
     }
 
     private static Task<SessionInstance> ResolveConsecutiveCapacity(SessionInstance slot, HashSet<SessionInstance> slots,

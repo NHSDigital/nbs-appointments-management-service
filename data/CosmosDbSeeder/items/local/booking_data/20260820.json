@@ -2,6 +2,20 @@
   "date": "2026-08-20",
   "sessions": [
     {
+      "from": "09:00",
+      "until": "17:00",
+      "services": ["COVID:5_11", "RSV:Adult", "FLU:18_64", "COVID:18+"],
+      "slotLength": 5,
+      "capacity": 2
+    },
+    {
+      "from": "09:15",
+      "until": "17:50",
+      "services": ["COVID:5_11", "FLU:18_64", "RSV:Adult"],
+      "slotLength": 5,
+      "capacity": 2
+    },
+    {
       "from": "11:00",
       "until": "12:00",
       "services": ["COVID:5_11", "RSV:Adult", "FLU:18_64", "COVID:18+"],

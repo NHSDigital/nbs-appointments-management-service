@@ -1,6 +1,6 @@
 {
   "FeatureManagement": {
-    "JointBookings": false,
+    "JointBookings": true,
     "OktaEnabled": false,
     "TestFeatureEnabled": true,
     "MultipleServices": false,

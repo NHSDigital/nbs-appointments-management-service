@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>    
-    <PackageReference Include="Azure.Identity" Version="1.16.0" />    
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />    
     <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.4.0" />
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />

@@ -49,7 +49,7 @@ public class SiteService(
 {
     private static readonly SemaphoreSlim _siteCacheLock = new(1, 1);
     
-    private TimeSpan SiteSupportsServiceAbsoluteExpiration => TimeSpan.FromMinutes(60);
+    private TimeSpan SiteSupportsServiceAbsoluteExpiration => TimeSpan.FromHours(4);
     private TimeSpan SiteSupportsServiceSlideThreshold => TimeSpan.FromMinutes(15);
     
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,

@@ -34,22 +34,35 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
             //this means another request is already sliding this cache value and no work needs to be done
             if (!await lazySlideCacheLock.WaitAsync(0))
             {
-                lazySlideCacheLock.Release();
-                LazySlidingCacheLocks.TryRemove(options.CacheKey, out _);
-                
+                //lock never obtained, nothing to release??
+               
                 //no need to invoke the slide as another thread is performing the action concurrently
                 return default;
             }
+
+            try
+            {
+                //we got access immediately and want to do the work then release
+                var value = await options.UpdateOperation();
+                memoryCache.Set(options.CacheKey, new LazySlideCacheObject(value, currentHoursAndMinutes),
+                    utcNow.Add(options.AbsoluteExpiration));
+                return value;
+            }
+            finally
+            {
+                lazySlideCacheLock.Release();
+            }
         }
-        else
+        
+        //we want to wait until the lock is free before continuing
+        await lazySlideCacheLock.WaitAsync();
+
+        try
         {
-            //we want to wait until the lock is free'd before
-            await lazySlideCacheLock.WaitAsync();
-            
             if (memoryCache.TryGetValue<LazySlideCacheObject>(options.CacheKey, out var lazySlideCacheObject))
             {
                 ArgumentNullException.ThrowIfNull(lazySlideCacheObject);
-                
+            
                 //check if we want to update the existing cache in the background lazily...
                 if (lazySlideCacheObject.DateTimeUpdated.Add(options.SlideThreshold) < currentHoursAndMinutes)
                 {
@@ -60,23 +73,20 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
                     //The performance gain is a sufficient benefit to the value being potentially slightly behind the latest operavalue
                     _ = GetLazySlidingCacheValue(options, true);
                 }
-                
-                lazySlideCacheLock.Release();
-                LazySlidingCacheLocks.TryRemove(options.CacheKey, out _);
-
+            
                 //return the current cached value regardless of whether sliding was invoked
                 return (T)lazySlideCacheObject.Value;
             }
-        }
-
-        var value = await options.UpdateOperation();
-        memoryCache.Set(options.CacheKey, new LazySlideCacheObject(value, currentHoursAndMinutes),
-                utcNow.Add(options.AbsoluteExpiration));
-
-        lazySlideCacheLock.Release();
-        LazySlidingCacheLocks.TryRemove(options.CacheKey, out _);
             
-        return value;
+            var value = await options.UpdateOperation();
+            memoryCache.Set(options.CacheKey, new LazySlideCacheObject(value, currentHoursAndMinutes),
+                utcNow.Add(options.AbsoluteExpiration));
+            return value;
+        }
+        finally
+        {
+            lazySlideCacheLock.Release();
+        }
     }
     
     // //TODO just use UTC datetime???
@@ -86,5 +96,5 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
     //     return new TimeOnly(dateTime.Hour, dateTime.Minute);
     // }
 
-    private record LazySlideCacheObject(object Value, DateTime DateTimeUpdated);
+    internal record LazySlideCacheObject(object Value, DateTime DateTimeUpdated);
 }

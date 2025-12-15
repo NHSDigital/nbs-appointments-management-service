@@ -24,25 +24,22 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         var utcNow = timeProvider.GetUtcNow();
         var currentHoursAndMinutes = utcNow.DateTime;
         
-        //TODO should this be created for both code paths??
         var lazySlideCacheLock =
             LazySlidingCacheLocks.GetOrAdd(options.CacheKey, _ => new SemaphoreSlim(1, 1));
 
         if (isSlide)
         {
             //a lock exists, and we are unwilling to wait any amount of time for it to be released
-            //this means another request is already sliding this cache value and no work needs to be done
+            //this means another thread is updating this cache value and no work needs to be done
             if (!await lazySlideCacheLock.WaitAsync(0))
             {
-                //lock never obtained, nothing to release??
-               
                 //no need to invoke the slide as another thread is performing the action concurrently
                 return default;
             }
 
             try
             {
-                //we got access immediately and want to do the work then release
+                //we got access immediately so want to do the work then release
                 var value = await options.UpdateOperation();
                 memoryCache.Set(options.CacheKey, new LazySlideCacheObject(value, currentHoursAndMinutes),
                     utcNow.Add(options.AbsoluteExpiration));
@@ -68,6 +65,8 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
                 {
                     //Sliding cache functionality
 
+                    lazySlideCacheLock.Release();
+                    
                     //Update the cache value so the NEXT request gets a newer version of the latest expensive value fetch
                     //This approach means the cache entry is never guaranteed to be the exact latest value (unless a cache value does not exist) - but it is recent enough to not have a big impact
                     //The performance gain is a sufficient benefit to the value being potentially slightly behind the latest operavalue

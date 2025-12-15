@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -16,9 +15,7 @@ using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -73,18 +70,8 @@ public class QueryAvailabilityFunction(
             return Success([]);
         }
 
-        var concurrentResults = await Task.WhenAll(activeSites.Select(async site =>
-        {
-            Stopwatch sw = new();
-            sw.Start();
-            
-            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1);
-            
-            sw.Stop();
-            logger.LogInformation($"result: {sw.Elapsed}");
-
-            return siteAvailability;
-        }));
+        var concurrentResults = await Task.WhenAll(activeSites.Select(
+            site => GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1)));
 
         response.AddRange(concurrentResults.Where(r => r is not null).OrderBy(r => r.site));
         return Success(response);

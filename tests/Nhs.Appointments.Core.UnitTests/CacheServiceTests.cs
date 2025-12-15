@@ -54,7 +54,7 @@ public class CacheServiceTests
     }
     
     [Fact]
-    public async Task FakeTimerSetup()
+    public async Task CacheValuesSet()
     {
         var cacheValue = _sut.GetLazySlidingCacheValue(DefaultOptions());
         
@@ -105,6 +105,8 @@ public class CacheServiceTests
         
         (await call1).Should().BeTrue();
         
+        FakeExpensiveBoolOperationCallCount.Should().Be(1);
+        
         _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
         
@@ -123,7 +125,10 @@ public class CacheServiceTests
         //slide threshold has been crossed
         _timeProvider.Advance(DefaultSlideThreshold.Add(TimeSpan.FromMinutes(1)));
         
-        //TODO some better way of asserting a separate thread has updated this value without hacky wait checks??
+        //the slide was invoked so the count increases
+        FakeExpensiveBoolOperationCallCount.Should().Be(2);
+        
+        //some better way of asserting a separate thread has updated this value without hacky wait checks??
         var slideCacheValue1 = true;
         while (slideCacheValue1)
         {
@@ -144,7 +149,10 @@ public class CacheServiceTests
         //expensive operation that changed the flag has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
         
-        //TODO some better way of asserting a separate thread has updated this value without hacky wait checks??
+        //the slide was invoked so the count increases
+        FakeExpensiveBoolOperationCallCount.Should().Be(3);
+        
+        //some better way of asserting a separate thread has updated this value without hacky wait checks??
         var slideCacheValue2 = false;
         while (!slideCacheValue2)
         {
@@ -162,11 +170,37 @@ public class CacheServiceTests
     [Fact]
     public async Task Standard_Lazy_Sliding_Behaviour_2()
     {
-        //TODO
+        var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        
+        //expensive operation has performed
+        _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
+        
+        (await call1).Should().BeTrue();
+        
+        FakeExpensiveBoolOperationCallCount.Should().Be(1);
+        
+        _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
+        ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
+        
+        //slide threshold has NOT YET been crossed
+        _timeProvider.Advance(DefaultSlideThreshold.Subtract(ExpensiveOperationTimespan).Subtract(TimeSpan.FromMinutes(10)));
+        
+        //second request WOULD have returned a new updated cache value, but we haven't hit the threshold yet
+        var call2 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>(DefaultCacheKey, FakeExpensiveFalseOperation, DefaultSlideThreshold, DefaultCacheExpiration));
+        
+        //this await is QUICK, as it does not await the update slide outcome, it just returns the current cache value
+        
+        //the call returns the CURRENT outdated cached value
+        (await call2).Should().BeTrue();
+        
+        _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(10)));
+        
+        //the count has not incremented as the slide was not invoked!
+        FakeExpensiveBoolOperationCallCount.Should().Be(1);
     }
     
     [Fact]
-    public async Task MultipleCallsWithinTimeframe_DoNot_TriggerMultipleExpensiveOperations_Expiration()
+    public async Task MultipleCallsWithinTimeframe_DoNotTriggerMultipleExpensiveOperations_Expiration()
     {
         var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
         _sut.GetLazySlidingCacheValue(DefaultOptions());
@@ -203,7 +237,7 @@ public class CacheServiceTests
     /// All the requests will return the outdated value until the cache is updated
     /// </summary>
     [Fact]
-    public async Task MultipleCallsWithinTimeframe_DoNot_TriggerMultipleExpensiveOperations_SlideThreshold()
+    public async Task MultipleCallsWithinTimeframe_DoNotTriggerMultipleExpensiveOperations_SlideThreshold()
     {
         var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
         

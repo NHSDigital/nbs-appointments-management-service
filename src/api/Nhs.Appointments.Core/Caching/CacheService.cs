@@ -82,6 +82,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
             lazySlideCacheLock.Release();
         }
         
+        //then update the actual value now that no locks are being held
         var value = await options.UpdateOperation();
         memoryCache.Set(options.CacheKey, new LazySlideCacheObject(value, dateTime),
             dateTime.Add(options.AbsoluteExpiration));

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Sites;
@@ -40,6 +41,7 @@ public static class NotificationsTestServiceProviderExtensions
             .AddSingleton<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddSingleton<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddSingleton<ISiteService, SiteService>()
+            .AddSingleton<ICacheService, CacheService>()
             .AddSingleton<INotificationConfigurationService, NotificationConfigurationService>();
 
         return services;

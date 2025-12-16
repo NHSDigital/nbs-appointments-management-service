@@ -1,6 +1,4 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core.Helpers;
 
 namespace Nhs.Appointments.Core.Availability;

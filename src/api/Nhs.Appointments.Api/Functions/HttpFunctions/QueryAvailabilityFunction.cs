@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
@@ -16,7 +15,6 @@ using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -60,24 +58,20 @@ public class QueryAvailabilityFunction(
     protected override async Task<ApiResult<QueryAvailabilityResponse>> HandleRequest(QueryAvailabilityRequest request,
         ILogger logger)
     {
-        var concurrentResults = new ConcurrentBag<QueryAvailabilityResponseItem>();
         var response = new QueryAvailabilityResponse();
         var requestFrom = request.From;
         var requestUntil = request.Until;
         var requestConsecutive = request.Consecutive;
 
         var sites = await siteService.GetAllSites();
-        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.isDeleted is false or null));
+        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.isDeleted is false or null)).ToArray();
         if (!activeSites.Any())
         {
             return Success([]);
         }
 
-        await Parallel.ForEachAsync(activeSites, async (site, ct) =>
-        {
-            var siteAvailability = await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1);
-            concurrentResults.Add(siteAvailability);
-        });
+        var concurrentResults = await Task.WhenAll(activeSites.Select(
+            site => GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1)));
 
         response.AddRange(concurrentResults.Where(r => r is not null).OrderBy(r => r.site));
         return Success(response);
@@ -89,11 +83,11 @@ public class QueryAvailabilityFunction(
         var dayEnd = until.ToDateTime(new TimeOnly(23, 59, 59));
 
         var slots = (await bookingAvailabilityStateService.GetAvailableSlots(site, dayStart, dayEnd))
-                .Where(x => x.Services.Contains(service));
+                .Where(x => x.Services.Contains(service)).ToArray();
         
         if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings)) 
         {
-            slots = hasConsecutiveCapacityFilter.SessionHasConsecutiveSessions(slots, consecutive);
+            slots = await hasConsecutiveCapacityFilter.SessionHasConsecutiveSessions(slots, consecutive);
         }
 
         var availability = new List<QueryAvailabilityResponseInfo>();

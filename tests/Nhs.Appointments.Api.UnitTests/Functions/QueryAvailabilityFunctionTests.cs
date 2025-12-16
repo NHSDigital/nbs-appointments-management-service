@@ -67,7 +67,7 @@ public class QueryAvailabilityFunctionTests
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
-        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>())).ReturnsAsync(slots.ToArray);
         _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
             .ReturnsAsync(new List<Site>
             {
@@ -123,7 +123,7 @@ public class QueryAvailabilityFunctionTests
         {
             result.StatusCode.Should().Be((int)HttpStatusCode.OK);
             _hasConsecutiveCapacityFilter.Verify(
-                x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
+                x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>()),
                 Times.Never);
             var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
             response.Count.Should().Be(2);
@@ -145,7 +145,7 @@ public class QueryAvailabilityFunctionTests
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
-        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>())).ReturnsAsync(slots.ToArray);
         _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
             .ReturnsAsync(new List<Site>
             {
@@ -193,7 +193,7 @@ public class QueryAvailabilityFunctionTests
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
-        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>())).ReturnsAsync(slots.ToArray);
         _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
             .ReturnsAsync(new List<Site>
             {
@@ -231,7 +231,7 @@ public class QueryAvailabilityFunctionTests
         {
             result.StatusCode.Should().Be((int)HttpStatusCode.OK);
             _hasConsecutiveCapacityFilter.Verify(
-                x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
+                x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>()),
                 Times.Never);
             var response = await ReadResponseAsync<QueryAvailabilityResponse>(result.Content);
 
@@ -251,7 +251,7 @@ public class QueryAvailabilityFunctionTests
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(true);
-        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(slots.AsEnumerable());
+        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>())).ReturnsAsync(slots.ToArray);
         _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
             .ReturnsAsync(new List<Site>
             {
@@ -290,7 +290,7 @@ public class QueryAvailabilityFunctionTests
             result.StatusCode.Should().Be((int)HttpStatusCode.OK);
         }
 
-        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Once);
+        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
@@ -307,7 +307,7 @@ public class QueryAvailabilityFunctionTests
         _availabilityGrouper.Setup(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()))
             .Returns(responseBlocks);
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(It.Is<string>(p => p == Flags.JointBookings))).ReturnsAsync(false);
-        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>())).Returns(blocks.AsEnumerable());
+        _hasConsecutiveCapacityFilter.Setup(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>())).ReturnsAsync(blocks.ToArray);
         _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
             .ReturnsAsync(new List<Site>
             {
@@ -345,7 +345,7 @@ public class QueryAvailabilityFunctionTests
 
         _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()),
             Times.Exactly(3));
-        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()), Times.Never);
+        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>()), Times.Never);
     }
     
     [Fact]
@@ -471,7 +471,7 @@ public class QueryAvailabilityFunctionTests
             Times.Never);
         _availabilityGrouper.Verify(x => x.GroupAvailability(It.IsAny<IEnumerable<SessionInstance>>()),
             Times.Never);
-        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<IEnumerable<SessionInstance>>(), It.IsAny<int>()),
+        _hasConsecutiveCapacityFilter.Verify(x => x.SessionHasConsecutiveSessions(It.IsAny<SessionInstance[]>(), It.IsAny<int>()),
             Times.Never);
     }
 

@@ -60,6 +60,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapacityDataExtracts.UnitTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDbSeederTests", "tests\CosmosDbSeederTests\CosmosDbSeederTests.csproj", "{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Jobs.BlobAuditor", "src\jobs\Nhs.Appointments.Jobs.BlobAuditor\Nhs.Appointments.Jobs.BlobAuditor.csproj", "{D663C782-3914-4A0F-8A80-E03F7D9B17FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "jobs", "jobs", "{53083731-B940-4CDF-8159-38F7F6596845}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Jobs.BlobAuditor.Integration", "tests\Nhs.Appointments.Jobs.BlobAuditor.Integration\Nhs.Appointments.Jobs.BlobAuditor.Integration.csproj", "{753D0A58-816E-4879-BE03-B82D23EBD96D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Jobs.BlobAuditor.UnitTests", "tests\Nhs.Appointments.Jobs.BlobAuditor.UnitTests\Nhs.Appointments.Jobs.BlobAuditor.UnitTests.csproj", "{664A5262-92DA-7554-2178-1E8BFE7F2C89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +150,18 @@ Global
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D663C782-3914-4A0F-8A80-E03F7D9B17FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D663C782-3914-4A0F-8A80-E03F7D9B17FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D663C782-3914-4A0F-8A80-E03F7D9B17FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D663C782-3914-4A0F-8A80-E03F7D9B17FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{753D0A58-816E-4879-BE03-B82D23EBD96D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{753D0A58-816E-4879-BE03-B82D23EBD96D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{753D0A58-816E-4879-BE03-B82D23EBD96D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{753D0A58-816E-4879-BE03-B82D23EBD96D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{664A5262-92DA-7554-2178-1E8BFE7F2C89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{664A5262-92DA-7554-2178-1E8BFE7F2C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{664A5262-92DA-7554-2178-1E8BFE7F2C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{664A5262-92DA-7554-2178-1E8BFE7F2C89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -168,6 +188,10 @@ Global
 		{4EAEDFEA-533A-4C5B-B165-D61DD2AEA095} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{6A0DFBAD-1712-42C2-BE22-6F0F58FAE8AE} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{51BB5BE7-DEA6-4C21-A257-D013956EBFB2} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
+		{D663C782-3914-4A0F-8A80-E03F7D9B17FB} = {53083731-B940-4CDF-8159-38F7F6596845}
+		{53083731-B940-4CDF-8159-38F7F6596845} = {894B36CF-9551-4913-9460-995F2A5F1859}
+		{753D0A58-816E-4879-BE03-B82D23EBD96D} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
+		{664A5262-92DA-7554-2178-1E8BFE7F2C89} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

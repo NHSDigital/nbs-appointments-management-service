@@ -18,8 +18,32 @@ const editSessionMock = editSession as jest.Mock<
   Promise<ServerActionResult<void>>
 >;
 
+const localStorageMock = (() => {
+  let store: { [key: string]: string } = {};
+
+  return {
+    getItem(key: string) {
+      return store[key] || null;
+    },
+    setItem(key: string, value: string) {
+      store[key] = value.toString();
+    },
+    removeItem(key: string) {
+      delete store[key];
+    },
+    clear() {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
+
 describe('Edit Session Time And Capacity Form', () => {
   beforeEach(() => {
+    sessionStorage.clear();
     jest.resetAllMocks();
 
     mockUseRouter.mockReturnValue({
@@ -363,5 +387,13 @@ describe('Edit Session Time And Capacity Form', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(editSessionMock).toHaveBeenCalled();
+
+    const setItemSpy = jest.spyOn(sessionStorage, 'setItem');
+    waitFor(() => {
+      expect(setItemSpy).toHaveBeenCalledWith(
+        'availability-edit-draft',
+        expect.stringContaining('"startTime":{"hour":"10","minute":"27"}'),
+      );
+    });
   });
 });

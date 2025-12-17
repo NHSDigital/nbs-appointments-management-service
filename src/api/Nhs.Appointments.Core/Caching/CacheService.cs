@@ -3,19 +3,24 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Nhs.Appointments.Core.Caching;
 
-public record LazySlideCacheOptions<T>(string CacheKey, Func<Task<T>> UpdateOperation, TimeSpan SlideThreshold, TimeSpan AbsoluteExpiration);
+public record LazySlideCacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan SlideThreshold, TimeSpan AbsoluteExpiration);
 
 public interface ICacheService
 {
-    Task<T> GetLazySlidingCacheValue<T>(LazySlideCacheOptions<T> options);
+    Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options);
 }
 
 public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) : ICacheService
 {
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> LazySlidingCacheLocks = new();
+
+    internal static string LazySlideCacheKey(string cacheKey) => $"LazySlide:{cacheKey}";
     
-    public async Task<T> GetLazySlidingCacheValue<T>(LazySlideCacheOptions<T> options)
+    public async Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options)
     {
+        //intentionally prefix cache key indicating that it is a lazy sliding value
+        var lazySlideCacheKey = LazySlideCacheKey(cacheKey);
+        
         if (options.AbsoluteExpiration <= options.SlideThreshold)
         {
             throw new ArgumentException("Configuration not supported.");
@@ -24,7 +29,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         var utcNow = timeProvider.GetUtcNow();
         
         var lazySlideCacheLock =
-            LazySlidingCacheLocks.GetOrAdd(options.CacheKey, _ => new SemaphoreSlim(1, 1));
+            LazySlidingCacheLocks.GetOrAdd(lazySlideCacheKey, _ => new SemaphoreSlim(1, 1));
         
         //we want to wait until the lock is free before continuing
         await lazySlideCacheLock.WaitAsync();
@@ -33,7 +38,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
 
         try
         {
-            if (memoryCache.TryGetValue<LazySlideCacheObject>(options.CacheKey, out var lazySlideCacheObject))
+            if (memoryCache.TryGetValue<LazySlideCacheObject>(lazySlideCacheKey, out var lazySlideCacheObject))
             {
                 ArgumentNullException.ThrowIfNull(lazySlideCacheObject);
             
@@ -45,7 +50,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
                     //Update the cache value so the NEXT request gets a newer version of the latest expensive value fetch
                     //This approach means the cache entry is never guaranteed to be the exact latest value (unless a cache value does not exist) - but it is recent enough to not have a big impact
                     //The performance gain is a sufficient benefit to the value being potentially slightly behind the latest value
-                    _ = SlideCache(options, lazySlideCacheLock, (T)lazySlideCacheObject.Value, utcNow);
+                    _ = SlideCache(lazySlideCacheKey, options, lazySlideCacheLock, (T)lazySlideCacheObject.Value, utcNow);
                     slidePerformed = true;
                 }
             
@@ -54,7 +59,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
             }
             
             var value = await options.UpdateOperation();
-            memoryCache.Set(options.CacheKey, new LazySlideCacheObject(value, utcNow),
+            memoryCache.Set(lazySlideCacheKey, new LazySlideCacheObject(value, utcNow),
                 utcNow.Add(options.AbsoluteExpiration));
             return value;
         }
@@ -68,12 +73,12 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         }
     }
 
-    private async Task SlideCache<T>(LazySlideCacheOptions<T> options, SemaphoreSlim lazySlideCacheLock, T lazyValue, DateTimeOffset dateTime)
+    private async Task SlideCache<T>(string lazySlideCacheKey, LazySlideCacheOptions<T> options, SemaphoreSlim lazySlideCacheLock, T lazyValue, DateTimeOffset dateTime)
     {
         try
         {
             //update the cache datetime prematurely so that concurrent waiting threads do not trigger their own slide operation
-            memoryCache.Set(options.CacheKey, new LazySlideCacheObject(lazyValue, dateTime),
+            memoryCache.Set(lazySlideCacheKey, new LazySlideCacheObject(lazyValue, dateTime),
                 dateTime.Add(options.AbsoluteExpiration));
         }
         finally
@@ -84,7 +89,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         
         //then update the actual value now that no locks are being held
         var value = await options.UpdateOperation();
-        memoryCache.Set(options.CacheKey, new LazySlideCacheObject(value, dateTime),
+        memoryCache.Set(lazySlideCacheKey, new LazySlideCacheObject(value, dateTime),
             dateTime.Add(options.AbsoluteExpiration));
     }
 

@@ -25,8 +25,7 @@ public class CacheServiceTests
 
     private string DefaultCacheKey => "ACacheKey";
 
-    private LazySlideCacheOptions<bool> DefaultOptions(string key = "ACacheKey") => new(key, FakeExpensiveTrueOperation,
-        DefaultSlideThreshold, DefaultCacheExpiration);
+    private LazySlideCacheOptions<bool> DefaultOptions => new(FakeExpensiveTrueOperation, DefaultSlideThreshold, DefaultCacheExpiration);
 
     private async Task<bool> FakeExpensiveTrueOperation()
     {
@@ -53,30 +52,35 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task CacheValuesSet()
+    public async Task LazySlidingCacheValuesSet()
     {
-        var cacheValue = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var cacheValue = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         Assert.False(cacheValue.IsCompleted);
 
-        _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         keyValue1.Should().BeNull();
 
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
 
         (await cacheValue).Should().BeTrue();
         Assert.True(cacheValue.IsCompleted);
-
+        
+        //Need to query by lazy slide prefix
         _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue2);
-        ((CacheService.LazySlideCacheObject)keyValue2)?.Value.Should().Be(true);
-    }
+        keyValue2.Should().BeNull();
 
+        //Need to query by lazy slide prefix
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue3);
+        ((CacheService.LazySlideCacheObject)keyValue3)?.Value.Should().Be(true);
+    }
+    
     [Fact]
     public async Task Standard_Caching_Behaviour()
     {
-        var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
-        var call2 = _sut.GetLazySlidingCacheValue(DefaultOptions());
-        var call3 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call1 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        var call2 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        var call3 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
@@ -87,7 +91,7 @@ public class CacheServiceTests
         call2.Result.Should().BeTrue();
         call3.Result.Should().BeTrue();
 
-        _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
@@ -96,11 +100,11 @@ public class CacheServiceTests
     [Fact]
     public async Task DifferentKeys_Concurrent_CacheValuesSetIndependently()
     {
-        var call1 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key1", FakeExpensiveTrueOperation,
+        var call1 = _sut.GetLazySlidingCacheValue("Key1", new LazySlideCacheOptions<bool>(FakeExpensiveTrueOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
-        var call2 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key2", FakeExpensiveFalseOperation,
+        var call2 = _sut.GetLazySlidingCacheValue("Key2", new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
-        var call3 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key3", FakeExpensiveTrueOperation,
+        var call3 = _sut.GetLazySlidingCacheValue("Key3", new LazySlideCacheOptions<bool>(FakeExpensiveTrueOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
         
         //all expensive operations performed concurrently
@@ -112,10 +116,10 @@ public class CacheServiceTests
         call2.Result.Should().BeFalse();
         call3.Result.Should().BeTrue();
 
-        _memoryCache.TryGetValue("Key1", out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey("Key1"), out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
-        _memoryCache.TryGetValue("Key2", out var keyValue2);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey("Key2"), out var keyValue2);
         ((CacheService.LazySlideCacheObject)keyValue2)?.Value.Should().Be(false);
         
         _memoryCache.TryGetValue("Key3", out var keyValue3);
@@ -131,7 +135,7 @@ public class CacheServiceTests
     [Fact]
     public async Task Standard_Lazy_Sliding_Behaviour()
     {
-        var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call1 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
@@ -140,7 +144,7 @@ public class CacheServiceTests
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
 
-        _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //slide threshold has been crossed
@@ -148,8 +152,7 @@ public class CacheServiceTests
 
         //the expensive operation now returns a DIFFERENT RESULT.
         //this cache value should be slid in the background for the next request, but this first usage returns the old value (lazy)
-        var call2 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>(DefaultCacheKey,
-            FakeExpensiveFalseOperation, DefaultSlideThreshold, DefaultCacheExpiration));
+        var call2 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation, DefaultSlideThreshold, DefaultCacheExpiration));
 
         //this await is QUICK, as it does not await the update slide outcome, it just returns the current cache value
 
@@ -167,13 +170,13 @@ public class CacheServiceTests
         while (slideCacheValue1)
         {
             await Task.Delay(5);
-            _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue2);
+            _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue2);
             slideCacheValue1 = (bool)((CacheService.LazySlideCacheObject)keyValue2)?.Value!;
         }
 
         Assert.False(slideCacheValue1);
 
-        var call3 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call3 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         //the next call gets the previously updated cache value
         (await call3).Should().BeFalse();
@@ -191,7 +194,7 @@ public class CacheServiceTests
         while (!slideCacheValue2)
         {
             await Task.Delay(5);
-            _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue3);
+            _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue3);
             slideCacheValue2 = (bool)(keyValue3 as CacheService.LazySlideCacheObject)?.Value!;
         }
 
@@ -204,7 +207,7 @@ public class CacheServiceTests
     [Fact]
     public async Task Standard_Lazy_Sliding_Behaviour_NotTriggered_Below_Threshold()
     {
-        var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call1 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
@@ -213,7 +216,7 @@ public class CacheServiceTests
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
 
-        _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //slide threshold has NOT YET been crossed
@@ -221,8 +224,7 @@ public class CacheServiceTests
             .Subtract(TimeSpan.FromMinutes(10)));
 
         //second request WOULD have returned a new updated cache value, but we haven't hit the threshold yet
-        var call2 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>(DefaultCacheKey,
-            FakeExpensiveFalseOperation, DefaultSlideThreshold, DefaultCacheExpiration));
+        var call2 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation, DefaultSlideThreshold, DefaultCacheExpiration));
 
         //this await is QUICK, as it does not await the update slide outcome, it just returns the current cache value
 
@@ -238,9 +240,9 @@ public class CacheServiceTests
     [Fact]
     public async Task MultipleCallsWithinTimeframe_DoNotTriggerMultipleExpensiveOperations_Expiration()
     {
-        var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
-        _sut.GetLazySlidingCacheValue(DefaultOptions());
-        _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call1 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
 
@@ -248,16 +250,16 @@ public class CacheServiceTests
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
 
         (await call1).Should().BeTrue();
-        _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //No easy way to simulate timeProvider with memoryCacheOptions
         //Just simulate the cache expiring
-        _memoryCache.Remove(DefaultCacheKey);
+        _memoryCache.Remove(CacheService.LazySlideCacheKey(DefaultCacheKey));
 
-        var call2 = _sut.GetLazySlidingCacheValue(DefaultOptions());
-        _sut.GetLazySlidingCacheValue(DefaultOptions());
-        _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call2 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
@@ -275,7 +277,7 @@ public class CacheServiceTests
     [Fact]
     public async Task MultipleCallsWithinTimeframe_DoNotTriggerMultipleExpensiveOperations_SlideThreshold()
     {
-        var call1 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call1 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
 
@@ -287,15 +289,15 @@ public class CacheServiceTests
         //slide threshold has been crossed
         _timeProvider.Advance(DefaultSlideThreshold.Add(TimeSpan.FromMinutes(1)));
 
-        _memoryCache.TryGetValue(DefaultCacheKey, out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //multiple requests occur during the slide threshold
-        var call2 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call2 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
         //only call2 should trigger a single update operation
-        var call3 = _sut.GetLazySlidingCacheValue(DefaultOptions());
-        var call4 = _sut.GetLazySlidingCacheValue(DefaultOptions());
-        var call5 = _sut.GetLazySlidingCacheValue(DefaultOptions());
+        var call3 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        var call4 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        var call5 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
@@ -317,9 +319,9 @@ public class CacheServiceTests
     public async Task DifferentKeys_MultipleCallsWithinTimeframe_DoNotTriggerMultipleExpensiveOperations_SlideThreshold()
     {
         //initially only 2 requests called
-        var call1 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key1", FakeExpensiveTrueOperation,
+        var call1 = _sut.GetLazySlidingCacheValue("Key1", new LazySlideCacheOptions<bool>(FakeExpensiveTrueOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
-        var call2 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key2", FakeExpensiveFalseOperation,
+        var call2 = _sut.GetLazySlidingCacheValue("Key2", new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
         
         //slide threshold passed
@@ -330,13 +332,13 @@ public class CacheServiceTests
         call1.Result.Should().BeTrue();
         call2.Result.Should().BeFalse();
 
-        _memoryCache.TryGetValue("Key1", out var keyValue1);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey("Key1"), out var keyValue1);
         ((CacheService.LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
-        _memoryCache.TryGetValue("Key2", out var keyValue2);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey("Key2"), out var keyValue2);
         ((CacheService.LazySlideCacheObject)keyValue2)?.Value.Should().Be(false);
         
-        _memoryCache.TryGetValue("Key3", out var keyValue3);
+        _memoryCache.TryGetValue(CacheService.LazySlideCacheKey("Key3"), out var keyValue3);
         keyValue3.Should().BeNull();
         
         //only 2 trigger initially
@@ -344,17 +346,17 @@ public class CacheServiceTests
         
         //multiple new requests occur during the slide threshold
         //notice the bool values have FLIPPED for keys 1+2
-        var call3 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key1", FakeExpensiveFalseOperation,
+        var call3 = _sut.GetLazySlidingCacheValue("Key1", new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
-        var call4 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key1", FakeExpensiveFalseOperation,
+        var call4 = _sut.GetLazySlidingCacheValue("Key1", new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
-        var call5 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key2", FakeExpensiveTrueOperation,
+        var call5 = _sut.GetLazySlidingCacheValue("Key2", new LazySlideCacheOptions<bool>(FakeExpensiveTrueOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
-        var call6 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key2", FakeExpensiveTrueOperation,
+        var call6 = _sut.GetLazySlidingCacheValue("Key2", new LazySlideCacheOptions<bool>(FakeExpensiveTrueOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
         
         //for fun... lets pretend a request for a DIFFERENT key also occurs at the same time!
-        var call7 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key3", FakeExpensiveTrueOperation,
+        var call7 = _sut.GetLazySlidingCacheValue("Key3", new LazySlideCacheOptions<bool>(FakeExpensiveTrueOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
         
         //expensive operation has performed
@@ -368,10 +370,10 @@ public class CacheServiceTests
         while (key1CacheValue && !key2CacheValue)
         {
             await Task.Delay(5);
-            _memoryCache.TryGetValue("Key1", out var key1Value);
+            _memoryCache.TryGetValue(CacheService.LazySlideCacheKey("Key1"), out var key1Value);
             key1CacheValue = (bool)((CacheService.LazySlideCacheObject)key1Value)?.Value!;
             
-            _memoryCache.TryGetValue("Key2", out var key2Value);
+            _memoryCache.TryGetValue(CacheService.LazySlideCacheKey("Key2"), out var key2Value);
             key2CacheValue = (bool)((CacheService.LazySlideCacheObject)key2Value)?.Value!;
         }
 
@@ -392,9 +394,9 @@ public class CacheServiceTests
         
         //the next time keys 1/2 requested, it should now be the new updated FLIPPED value
         //from the previous request slide value
-        var call8 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key1", FakeExpensiveTrueOperation,
+        var call8 = _sut.GetLazySlidingCacheValue("Key1", new LazySlideCacheOptions<bool>(FakeExpensiveTrueOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
-        var call9 = _sut.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>("Key2", FakeExpensiveFalseOperation,
+        var call9 = _sut.GetLazySlidingCacheValue("Key2", new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
         
         Task.WhenAll(call8, call9);

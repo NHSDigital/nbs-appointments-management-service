@@ -1,4 +1,5 @@
 using Moq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Jobs.BlobAuditor.Blob;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
@@ -7,15 +8,18 @@ namespace Nhs.Appointments.Jobs.BlobAuditor.UnitTests.Sink;
 
 public class BlobSinkTests
 {
-    private readonly Mock<IAzureBlobStorage> _mockAzureBlobStorage;
-    private readonly Mock<TimeProvider> _mockTimeProvider;
+    private readonly Mock<IAzureBlobStorage> _mockAzureBlobStorage = new();
+    private readonly Mock<IItemExclusionProcessor> _itemExclusionProcessor = new();
+    private readonly Mock<TimeProvider> _mockTimeProvider = new();
     private readonly BlobSink _blobSink;
 
     public BlobSinkTests()
     {
-        _mockAzureBlobStorage = new Mock<IAzureBlobStorage>();
-        _mockTimeProvider = new Mock<TimeProvider>();
-        _blobSink = new BlobSink(_mockAzureBlobStorage.Object, _mockTimeProvider.Object);
+        _blobSink = new BlobSink(
+            _mockAzureBlobStorage.Object, 
+            _mockTimeProvider.Object, 
+            _itemExclusionProcessor.Object
+        );
     }
 
     [Fact]
@@ -78,5 +82,48 @@ public class BlobSinkTests
             expectedContainerName,
             It.Is<string>(s => s.Contains("patient") && s.Contains("456"))
         ), Times.Once);
+    }
+
+    [Fact]
+    public async Task Consume_CallsAzureBlobStorage_WithExclusionProcessedItem()
+    {
+        // Arrange
+        var source = "audit_data";
+        var item = new JObject
+        {
+            ["docType"] = "patient",
+            ["id"] = "123",
+            ["contactDetails"] = "some private information"
+        };
+        var exclusionProcessedItem = new JObject
+        {
+            ["docType"] = "patient",
+            ["id"] = "123"
+        };
+        var now = new DateTimeOffset(2025, 12, 11, 10, 30, 0, TimeSpan.Zero);
+        string capturedContent = null;
+        _mockTimeProvider.Setup(tp => tp.GetUtcNow()).Returns(now);
+        _itemExclusionProcessor.Setup(x => x.Apply(It.IsAny<string>(), It.IsAny<JObject>())).Returns(exclusionProcessedItem);
+
+        var memStream = new MemoryStream();
+        _mockAzureBlobStorage
+            .Setup(a => a.GetBlobUploadStream(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(memStream)
+            .Callback<string, string>(async (_, __) =>
+            {
+                using var tempStream = new MemoryStream();
+                await tempStream.WriteAsync(System.Text.Encoding.UTF8.GetBytes(
+                    JsonConvert.SerializeObject(exclusionProcessedItem, Formatting.Indented)));
+                tempStream.Seek(0, SeekOrigin.Begin);
+                using var reader = new StreamReader(tempStream);
+                capturedContent = await reader.ReadToEndAsync();
+            });
+
+        // Act
+        await _blobSink.Consume(source, item);
+
+        // Assert
+        var expectedContent = JsonConvert.SerializeObject(exclusionProcessedItem, Formatting.Indented);
+        Assert.Equal(expectedContent, capturedContent);
     }
 }

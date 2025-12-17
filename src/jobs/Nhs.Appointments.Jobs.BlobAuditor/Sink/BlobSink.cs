@@ -1,4 +1,3 @@
-﻿
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Jobs.BlobAuditor.Blob;
@@ -6,7 +5,11 @@ using Nhs.Appointments.Jobs.BlobAuditor.Extensions;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
-public class BlobSink(IAzureBlobStorage azureBlobStorage, TimeProvider timeProvider) : IBlobSink<JObject>
+public class BlobSink(
+    IAzureBlobStorage azureBlobStorage, 
+    TimeProvider timeProvider,
+    IItemExclusionProcessor exclusionProcessor
+) : IBlobSink<JObject>
 {
     public async Task Consume(string source, JObject item)
     {
@@ -20,9 +23,12 @@ public class BlobSink(IAzureBlobStorage azureBlobStorage, TimeProvider timeProvi
 
         item.TryGetValue("docType", out var entityDocType);
         var blobName = GetBlobName(entityDocType?.Value<string>() ?? "unknown", source, item, entityChangeTimestamp);
-        
+
+        var filteredItem = exclusionProcessor.Apply(source, item);
+
         await using var writer = new JsonTextWriter(new StreamWriter(await azureBlobStorage.GetBlobUploadStream(containerName, blobName)));
-        await writer.WriteRawAsync(JsonConvert.SerializeObject(item, Formatting.Indented));
+
+        await writer.WriteRawAsync(JsonConvert.SerializeObject(filteredItem, Formatting.Indented));
     }
 
     private static string GetContainerName(string source, DateTimeOffset timeStamp) => $"{timeStamp:yyyyMMdd}-{source.Replace("_", "")}";

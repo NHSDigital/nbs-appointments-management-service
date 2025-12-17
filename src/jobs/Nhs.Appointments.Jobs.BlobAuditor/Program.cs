@@ -7,6 +7,7 @@ using Nhs.Appointments.Jobs.BlobAuditor;
 using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
 using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
+using Nhs.Appointments.Jobs.BlobAuditor.Sink.Config;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -19,10 +20,14 @@ builder.Configuration
 var containerConfigs = builder.Configuration.GetSection("AuditWorkerConfigurations");
 builder.Services.Configure<List<ContainerConfiguration>>(containerConfigs);
 
+builder.Services.Configure<List<SinkExclusion>>(
+    builder.Configuration.GetSection("SinkExclusions"));
+
 builder.Logging.AddConsole();
 
 builder.Services
     .AddSingleton(TimeProvider.System)
+    .AddSingleton<IItemExclusionProcessor, ItemExclusionProcessor>()
     .AddTransient<IBlobSink<JObject>, BlobSink>()
     .AddCosmos(builder.Configuration)
     .AddAzureBlobStorage(builder.Configuration)

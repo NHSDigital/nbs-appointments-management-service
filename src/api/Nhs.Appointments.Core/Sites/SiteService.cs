@@ -125,7 +125,7 @@ public class SiteService(
             {
                 var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, service, from, to);
                 var siteOffersServiceDuringPeriod =
-                    await cacheService.GetLazySlidingCacheValue(new LazySlideCacheOptions<bool>(cacheKey, FetchOperation, SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
+                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, service, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
                 
                 ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
                 
@@ -134,9 +134,6 @@ public class SiteService(
                     concurrentBatchResults.Add(swd);
                 }
 
-                return;
-
-                async Task<bool> FetchOperation() => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, service, from, to);
             }).ToArray();
 
             await Task.WhenAll(siteOffersServiceDuringPeriodTasks);

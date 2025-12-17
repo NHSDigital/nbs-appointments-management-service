@@ -65,7 +65,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create single session of RSV availability', async ({ page }) => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
@@ -93,7 +93,7 @@ test.describe('Create Availability', () => {
       test('Create single session of RSV and Covid availability', async ({
         page,
       }) => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
@@ -121,7 +121,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create weekly session of RSV availability', async ({ page }) => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterFutureDate = getDateInFuture(dayIncrement + 1);
         await createAvailabilityPage.createAvailabilityButton.click();
@@ -159,7 +159,7 @@ test.describe('Create Availability', () => {
       test('Create weekly session of RSV and Covid availability', async ({
         page,
       }) => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
 
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterFutureDate = getDateInFuture(dayIncrement + 1);
@@ -244,7 +244,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create weekly session of RSV availability check summary page links', async () => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterTomorrowDate = getDateInFuture(dayIncrement + 1);
         await createAvailabilityPage.createAvailabilityButton.click();
@@ -300,7 +300,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create single session of RSV availability check summary page links', async () => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await expect(createAvailabilityPage.sessionTitle).toBeVisible();
@@ -394,7 +394,7 @@ test.describe('Update Session', () => {
       test('Verify user is able to add a session for future date', async ({
         page,
       }) => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -467,7 +467,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify user is able to change availability', async ({ page }) => {
-        const dayIncrement = 76;
+        const dayIncrement = 226;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -523,7 +523,7 @@ test.describe('Update Session', () => {
       test('Verify user is able to reduce services for availability', async ({
         page,
       }) => {
-        const dayIncrement = 77;
+        const dayIncrement = 227;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -646,7 +646,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify user is able to cancel session', async ({ page }) => {
-        const dayIncrement = 78;
+        const dayIncrement = 228;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -701,7 +701,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify session not canceled if not confirmed', async ({ page }) => {
-        const dayIncrement = 79;
+        const dayIncrement = 229;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -761,7 +761,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify view daily appointment link displayed', async ({ page }) => {
-        const dayIncrement = 80;
+        const dayIncrement = 230;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');

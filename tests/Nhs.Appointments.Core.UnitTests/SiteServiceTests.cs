@@ -2,6 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Sites;
@@ -25,8 +26,11 @@ public class SiteServiceTests
         {
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
+
+        var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
+        
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _options.Object);
+            TimeProvider.System, _featureToggleHelper.Object, cacheService, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 
@@ -591,9 +595,9 @@ public class SiteServiceTests
         _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>())).ReturnsAsync(true);
         
         //set up a cache, but it's for a different date range, so its not used
-        object outResult = true;
-        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
 
         var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""],
             false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 15)));
@@ -605,8 +609,8 @@ public class SiteServiceTests
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Once);
         
         //creates new correct cache for queried date range
-        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
-        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
         
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
@@ -662,9 +666,9 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         
-        object outResult = true;
-        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
 
         var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""],
             false, new SiteSupportsServiceFilter("RSV:Adult", new DateOnly(2025, 10, 3), new DateOnly(2025, 10, 15)));
@@ -676,8 +680,8 @@ public class SiteServiceTests
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", "RSV:Adult", docIds), Times.Never);
         _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", "RSV:Adult", docIds), Times.Never);
         
-        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
-        _memoryCache.Verify(x => x.CreateEntry("site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
         
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
@@ -718,8 +722,8 @@ public class SiteServiceTests
                 Distance: 3500+i));
             
             //invalid site results happen to not be cached
-            object outResult = false;
-            _memoryCache.Setup(x => x.TryGetValue($"site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(false);
+            object nullObject = null;
+            _memoryCache.Setup(x => x.TryGetValue($"LazySlide:site_{id}_supports_RSV:Adult_in_20251003_20251006", out nullObject)).Returns(false);
         }
 
         var validSites = new List<SiteWithDistance>();
@@ -747,8 +751,8 @@ public class SiteServiceTests
                 Distance: (int)(3700+i)));
             
             //valid site results happen to be cached
-            object outResult = true;
-            _memoryCache.Setup(x => x.TryGetValue($"site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(true);
+            object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+            _memoryCache.Setup(x => x.TryGetValue($"LazySlide:site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(true);
         }
         
         var sites = invalidSites.Union(validSites).ToList();

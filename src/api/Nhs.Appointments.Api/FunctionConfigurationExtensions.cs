@@ -25,6 +25,7 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.BulkImport;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Eula;
 using Nhs.Appointments.Core.Features;
@@ -105,6 +106,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IBookingWriteService, BookingWriteService>()
             .AddTransient<IBookingQueryService, BookingQueryService>()
             .AddSingleton<ISiteService, SiteService>()
+            .AddSingleton<ICacheService, CacheService>()
             .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()
             .AddTransient<IAvailabilityWriteService, AvailabilityWriteService>()
             .AddTransient<IAvailabilityQueryService, AvailabilityQueryService>()

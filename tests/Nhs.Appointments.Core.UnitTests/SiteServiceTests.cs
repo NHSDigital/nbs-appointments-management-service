@@ -548,7 +548,7 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
     
     [Fact]
@@ -592,7 +592,7 @@ public class SiteServiceTests
                 Distance: 3573)
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
-        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(true);
         
         //set up a cache, but it's for a different date range, so its not used
         object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
@@ -605,8 +605,8 @@ public class SiteServiceTests
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
         
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", new List<string> { "RSV:Adult" }, docIds), Times.Once);
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", new List<string> { "RSV:Adult" }, docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6ba", new List<string> { "RSV:Adult" }, docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6bb", new List<string> { "RSV:Adult" }, docIds), Times.Once);
         
         //creates new correct cache for queried date range
         _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
@@ -677,8 +677,8 @@ public class SiteServiceTests
         var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
         
         //doesn't call the store if cached
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6ba", new List<string> { "RSV:Adult" }, docIds), Times.Never);
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod("6877d86e-c2df-4def-8508-e1eccf0ea6bb", new List<string> { "RSV:Adult" }, docIds), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6ba", new List<string> { "RSV:Adult" }, docIds), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6bb", new List<string> { "RSV:Adult" }, docIds), Times.Never);
         
         _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
         _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
@@ -763,7 +763,7 @@ public class SiteServiceTests
         for (var i = 1; i < 21; i++)
         {
             var id = $"{i:00}";
-            _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(false);
+            _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(false);
         }
 
         var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 1, [""],
@@ -775,14 +775,14 @@ public class SiteServiceTests
         for (var i = 1; i < 21; i++)
         {
             var id = $"{i:00}";
-            _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", new List<string> { "RSV:Adult" }, docIds), Times.Once);
+            _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", new List<string> { "RSV:Adult" }, docIds), Times.Once);
         }
         
         for (var i = 1; i < 21; i++)
         {
             //since the valid sites were cached, it shouldn't look up via DB
             var id = $"{i:00}";
-            _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod($"6877d86e-c2df-4def-8508-e1eccf0ea7{id}", new List<string> { "RSV:Adult" }, docIds), Times.Never);
+            _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea7{id}", new List<string> { "RSV:Adult" }, docIds), Times.Never);
         }
         
         _logger.Verify(x => x.Log(
@@ -1288,7 +1288,7 @@ public class SiteServiceTests
         result.Count().Should().Be(2);
         result.Any(r => r.Site.Id == "test456").Should().BeFalse();
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -1348,7 +1348,7 @@ public class SiteServiceTests
         result.Count().Should().Be(2);
         result.Any(r => r.Site.Id == "test456").Should().BeFalse();
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -1408,7 +1408,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
             .ReturnsAsync(true)
             .ReturnsAsync(false);
@@ -1418,7 +1418,7 @@ public class SiteServiceTests
         result.Count().Should().Be(2);
         result.Any(r => r.Site.Id == "test456").Should().BeFalse();
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(3));
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(3));
     }
 
     [Fact]
@@ -1491,14 +1491,14 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
 
         result.Count().Should().Be(2);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(3));
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(3));
     }
 
     [Fact]
@@ -1577,14 +1577,14 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.Setup(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true);
 
         var result = await _sut.QuerySitesAsync([.. filters], 50, true);
 
         result.Count().Should().Be(3);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(3));
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(3));
     }
 
     [Fact]
@@ -1678,7 +1678,7 @@ public class SiteServiceTests
 
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
             .ReturnsAsync(true)
             .ReturnsAsync(true)
@@ -1688,7 +1688,7 @@ public class SiteServiceTests
 
         result.Count().Should().Be(3);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
     }
 
     [Fact]
@@ -1759,7 +1759,7 @@ public class SiteServiceTests
 
         result.Count().Should().Be(1);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -1831,7 +1831,7 @@ public class SiteServiceTests
 
         result.Count().Should().Be(1);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -1903,7 +1903,7 @@ public class SiteServiceTests
 
         result.Count().Should().Be(0);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -1974,7 +1974,7 @@ public class SiteServiceTests
 
         result.Count().Should().Be(1);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2042,7 +2042,7 @@ public class SiteServiceTests
         result.Count().Should().Be(50);
         result.Any(x => x.Site.Id == "test51").Should().BeFalse();
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2114,7 +2114,7 @@ public class SiteServiceTests
         result.Count().Should().Be(3);
         result.Any(r => r.Site.Id == "test321").Should().BeFalse();
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2241,7 +2241,7 @@ public class SiteServiceTests
         result.Count().Should().Be(50);
         result.Any(x => x.Site.Id == "test51").Should().BeFalse();
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2308,7 +2308,7 @@ public class SiteServiceTests
         result.Count().Should().Be(50);
         result.Any(x => x.Site.Id == "test51").Should().BeFalse();
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2390,7 +2390,7 @@ public class SiteServiceTests
         result.Count().Should().Be(1);
         result.First().Site.Id.Should().Be("test321");
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2465,7 +2465,7 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
             .ReturnsAsync(false)
             .ReturnsAsync(true)
@@ -2478,7 +2478,7 @@ public class SiteServiceTests
         result.Any(x => x.Site.Id == "test321").Should().BeFalse();
 
         _availabilityStore.Verify(
-            x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services)), It.IsAny<List<string>>()),
+            x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services)), It.IsAny<List<string>>()),
             Times.Exactly(4));
     }
 
@@ -2555,20 +2555,20 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
         
-        object outResult = true;
-        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
 
         _ = await _sut.QuerySitesAsync([.. filters], 50, true);
 
-        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
-        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
-        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
-        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2645,19 +2645,19 @@ public class SiteServiceTests
             .ReturnsAsync(sites);
         
         object outResult = true;
-        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
-        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
-        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
-        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
 
         _ = await _sut.QuerySitesAsync([.. filters], 50, true);
 
-        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
-        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
-        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
-        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
     }
 
     [Fact]
@@ -2717,7 +2717,7 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
             .ReturnsAsync(false)
             .ReturnsAsync(true)
@@ -2744,7 +2744,7 @@ public class SiteServiceTests
         result.Any(x => x.Site.Id == "test321").Should().BeFalse();
 
         _availabilityStore.Verify(
-            x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services)), It.IsAny<List<string>>()),
+            x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services)), It.IsAny<List<string>>()),
             Times.Exactly(4));
     }
 
@@ -2805,17 +2805,17 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
             .ReturnsAsync(false)
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
-        object outResult = true;
-        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
-        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(true);
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
 
         _ = await _sut.FindSitesByArea(
             new Coordinates
@@ -2833,12 +2833,12 @@ public class SiteServiceTests
                 )
             );
 
-        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
-        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
-        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
-        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
     }
 
     [Fact]
@@ -2898,17 +2898,17 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
-        _availabilityStore.SetupSequence(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
             .ReturnsAsync(true)
             .ReturnsAsync(false)
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
         object outResult = true;
-        _memoryCache.Setup(x => x.TryGetValue("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
-        _memoryCache.Setup(x => x.TryGetValue("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
-        _memoryCache.Setup(x => x.TryGetValue("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
-        _memoryCache.Setup(x => x.TryGetValue("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001", out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
 
         _ = await _sut.FindSitesByArea(
             new Coordinates
@@ -2926,11 +2926,11 @@ public class SiteServiceTests
                 )
             );
 
-        _memoryCache.Verify(x => x.CreateEntry("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
-        _memoryCache.Verify(x => x.CreateEntry("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
-        _memoryCache.Verify(x => x.CreateEntry("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
-        _memoryCache.Verify(x => x.CreateEntry("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
 
-        _availabilityStore.Verify(x => x.SiteOffersServiceDuringPeriod(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
     }
 }

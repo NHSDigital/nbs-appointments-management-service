@@ -415,3 +415,23 @@ Feature: Query Sites
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance | Type         |
       | 8184c730-b4e6-45af-999a-f67569eb4367 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true | 0.082750916 | 51.494056 | 662      | GP Practice  |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true | 0.040992272 | 51.455788 | 5677     | Another Type |
+
+  Scenario: Returns the site when multiple duplicate sessions exist
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Type         | IsDeleted |
+      | 8184c730-b4e6-45af-999a-f67569eb4367 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true  | 0.082750916 | 51.494056 | GP Practice  | false     |
+    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+      | Date        | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+      | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
+    When I query sites by service
+      | Longitude | Latitude | SearchRadius | Services             | From     | Until    |
+      | 0.082     | 51.5     | 6000         | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |Type          |
+      | 8184c730-b4e6-45af-999a-f67569eb4367 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true | 0.082750916 | 51.494056 | 662      | GP Practice  |

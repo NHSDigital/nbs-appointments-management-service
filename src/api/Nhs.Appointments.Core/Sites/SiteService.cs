@@ -89,16 +89,16 @@ public class SiteService(
 
         return await GetSitesSupportingService(
             sitesInDistance,
-            siteSupportsServiceFilter.service,
+            siteSupportsServiceFilter.services,
             siteSupportsServiceFilter.from,
             siteSupportsServiceFilter.until,
             maximumRecords,
             maximumRecords * 20);
     }
 
-    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
-        string service, DateOnly from, DateOnly to,
-        int maxRecords = 50, int batchSize = 1000)
+    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, List<string> services,
+        DateOnly from, DateOnly to,
+         int maxRecords = 50, int batchSize = 1000)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
 
@@ -122,9 +122,9 @@ public class SiteService(
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, service, from, to);
+                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, services, from, to);
                 var siteOffersServiceDuringPeriod =
-                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, service, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
+                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, services, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
                 
                 ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
                 
@@ -512,22 +512,6 @@ public class SiteService(
         }
     }
 
-    private async Task<bool> GetSiteSupportingServiceInRange(string siteId, List<string> services, DateOnly from, DateOnly until)
-    {
-        var cacheKey = GetCacheSiteServiceSupportDateRangeKey(siteId, services, from, until);
-
-        if (memoryCache.TryGetValue(cacheKey, out bool siteSupportsService))
-        {
-            return siteSupportsService;
-        }
-        
-        var dateStringsInRange = GetDateStringsInRange(from, until);
-        var siteOffersServiceDuringPeriod = await availabilityStore.SiteOffersServiceDuringPeriod(siteId, services, dateStringsInRange);
-        
-        memoryCache.Set(cacheKey, siteOffersServiceDuringPeriod, time.GetUtcNow().AddMinutes(15));
-        return siteOffersServiceDuringPeriod;
-    }
-
     private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from, DateOnly until)
     {
         var joinedServices = string.Join('_', services.OrderBy(x => x));
@@ -535,10 +519,10 @@ public class SiteService(
         return $"site_{siteId}_supports_{joinedServices}_in_{dateRange}";
     }
     
-    private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, string service, DateOnly from,
+    private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, List<string> services, DateOnly from,
         DateOnly until)
     {
         var dateStringsInRange = GetDateStringsInRange(from, until);
-        return await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
+        return await availabilityStore.SiteSupportsAllServicesOnSingleDateInRangeAsync(siteId, services, dateStringsInRange);
     }
 }

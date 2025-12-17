@@ -95,9 +95,9 @@ public class AvailabilityDocumentStore(
         };
     }
 
-    public async Task<bool> SiteOffersServiceDuringPeriod(string siteId, List<string> services, List<string> datesInPeriod)
+    public async Task<bool> SiteSupportsAllServicesOnSingleDateInRangeAsync(string siteId, List<string> services, List<string> datesInPeriod)
     {
-        using (metricsRecorder.BeginScope("SiteOffersServiceDuringPeriod"))
+        using (metricsRecorder.BeginScope("SiteSupportsAllServicesOnSingleDateInRangeAsync"))
         {
             var docType = documentStore.GetDocumentType();
 

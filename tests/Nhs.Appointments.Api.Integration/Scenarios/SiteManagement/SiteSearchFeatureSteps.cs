@@ -102,14 +102,14 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
 
-        var service = row.Cells.ElementAt(4).Value;
+        var services = row.Cells.ElementAt(4).Value;
         var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
         var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
 
         var accessNeeds = row.Cells.ElementAt(7).Value;
 
         Response = await Http.GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from.ToString("yyyy-MM-dd")}&until={until.ToString("yyyy-MM-dd")}&accessNeeds={accessNeeds}&ignoreCache=true");
+            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=true");
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
@@ -124,13 +124,13 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
 
-        var service = row.Cells.ElementAt(4).Value;
+        var services = row.Cells.ElementAt(4).Value;
 
         var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
         var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
 
         Response = await Http.GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={service}&from={from.ToString("yyyy-MM-dd")}&until={until.ToString("yyyy-MM-dd")}&ignoreCache=true");
+            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&ignoreCache=true");
         (_, _sitesResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());

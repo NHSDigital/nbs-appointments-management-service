@@ -164,11 +164,8 @@ public class GetSitesByAreaRequestValidatorTests
         result.Errors.Should().HaveCount(0);            
     }
     
-    /// <summary>
-    /// This might be relaxed later when multiple service querying is supported
-    /// </summary>
     [Fact]
-    public void Validate_ReturnsError_SiteSupportService_MultipleServicesProvided()
+    public void Validate_PassesValidation_SiteSupportService_MultipleServicesProvided()
     {
         var request = new GetSitesByAreaRequest(
             new Coordinates { Longitude = 180, Latitude = 90 },
@@ -181,9 +178,7 @@ public class GetSitesByAreaRequestValidatorTests
             "2025-10-30"
         );
         var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3' or  'COVID:5_11' or 'COVID:12_17'");     
+        result.IsValid.Should().BeTrue();
     }
     
     [Theory]
@@ -192,7 +187,7 @@ public class GetSitesByAreaRequestValidatorTests
     [InlineData("FLU:65+")]
     [InlineData("COVID_FLU:18_64")]
     [InlineData("COVID_FLU:65+")]
-    public void Validate_ReturnsError_SiteSupportService_UnsupportedServiceProvided(string service)
+    public void Validate_PassedValidation_SiteSupportService_WithVariousServices(string service)
     {
         var request = new GetSitesByAreaRequest(
             new Coordinates { Longitude = 180, Latitude = 90 },
@@ -205,9 +200,7 @@ public class GetSitesByAreaRequestValidatorTests
             "2025-10-30"
         );
         var result = _sut.Validate(request);
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
-        result.Errors.Single().ErrorMessage.Should().Be("'Services' currently only supports: 'RSV:Adult or 'FLU:2_3' or  'COVID:5_11' or 'COVID:12_17'");     
+        result.IsValid.Should().BeTrue();
     }
     
     [Fact]
@@ -423,6 +416,25 @@ public class GetSitesByAreaRequestValidatorTests
         );
         
         var result = _sut.Validate(request);
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void PassesValidation_WhenMultipleServicesArePresent()
+    {
+        var request = new GetSitesByAreaRequest(
+            new Coordinates { Longitude = 0.123, Latitude = 0.456 },
+            50000,
+            50,
+            ["access_need_a", "access_need_b"],
+            false,
+            ["RSV:Adult", "COVID:5_11"],
+            "2025-08-18",
+            "2025-08-25"
+        );
+
+        var result = _sut.Validate(request);
+
         result.IsValid.Should().BeTrue();
     }
 }

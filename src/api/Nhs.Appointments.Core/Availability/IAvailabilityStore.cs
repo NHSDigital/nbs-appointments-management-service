@@ -7,8 +7,7 @@ public interface IAvailabilityStore
         Session sessionToEdit = null);
    Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to);
    Task<SessionInstance> CancelSession(string site, DateOnly date, Session session);
-   Task<bool> SiteOffersServiceDuringPeriod(string siteId, string service,
-       List<string> datesInPeriod);
+   Task<bool> SiteSupportsAllServicesOnSingleDateInRangeAsync(string siteId, List<string> services, List<string> datesInPeriod);
     Task CancelDayAsync(string site, DateOnly date);
     Task<OperationResult> EditSessionsAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement);
     Task<OperationResult> CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher = null);

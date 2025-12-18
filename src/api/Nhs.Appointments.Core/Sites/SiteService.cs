@@ -70,10 +70,9 @@ public class SiteService(
             .Select(site => new SiteWithDistance(site,
                 GeographyCalculations.CalculateDistanceInMetres(coordinates, site.Coordinates)));
 
-        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any()
-            ? s =>
-                accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true")
-            : s => true;
+        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
+            s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
+            s => true;
 
         if (siteSupportsServiceFilter == null)
         {
@@ -90,18 +89,19 @@ public class SiteService(
 
         return await GetSitesSupportingService(
             sitesInDistance,
-            siteSupportsServiceFilter.service,
+            siteSupportsServiceFilter.services,
             siteSupportsServiceFilter.from,
             siteSupportsServiceFilter.until,
             maximumRecords,
             maximumRecords * 20);
     }
 
-    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
-        string service, DateOnly from, DateOnly to,
-        int maxRecords = 50, int batchSize = 1000)
+    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, List<string> services,
+        DateOnly from, DateOnly to,
+         int maxRecords = 50, int batchSize = 1000)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
+        var uniqueSortedServices = services.OrderBy(s => s).Distinct().ToList();
 
         var results = new List<SiteWithDistance>();
 
@@ -123,9 +123,9 @@ public class SiteService(
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, service, from, to);
+                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
                 var siteOffersServiceDuringPeriod =
-                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, service, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
+                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
                 
                 ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
                 
@@ -133,7 +133,6 @@ public class SiteService(
                 {
                     concurrentBatchResults.Add(swd);
                 }
-
             }).ToArray();
 
             await Task.WhenAll(siteOffersServiceDuringPeriodTasks);
@@ -144,8 +143,8 @@ public class SiteService(
         }
 
         logger.LogInformation(
-            "GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for service '{service}'",
-            results.Count, iterations, service);
+            "GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for services '{services}'",
+            results.Count, iterations, uniqueSortedServices);
 
         return results;
     }
@@ -195,7 +194,7 @@ public class SiteService(
 
         return includeDeleted ? allSites : allSites.Where(s => s.isDeleted is null or false);
     }
-
+    
     public async Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false)
     {
         var sites = await GetAllSites(includeDeleted);
@@ -337,12 +336,11 @@ public class SiteService(
             {
                 // Adding .Single() here as the current implementation only allows for filtering on a single service
                 // This will need updating if we decide to allow filtering on multiple services
-                var siteSupportsServiceFilter = new SiteSupportsServiceFilter(filter.Availability.Services.Single(),
-                    filter.Availability.From!.Value, filter.Availability.Until!.Value);
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter([.. filter.Availability.Services], filter.Availability.From!.Value, filter.Availability.Until!.Value);
 
                 var serviceResults = await GetSitesSupportingService(
                     sitesWithDistance,
-                    siteSupportsServiceFilter.service,
+                    siteSupportsServiceFilter.services,
                     siteSupportsServiceFilter.from,
                     siteSupportsServiceFilter.until);
 
@@ -514,17 +512,18 @@ public class SiteService(
             _siteCacheLock.Release();
         }
     }
-    
-    private string GetCacheSiteServiceSupportDateRangeKey(string siteId, string service, DateOnly from, DateOnly until)
+
+    private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from, DateOnly until)
     {
-        var dateRange = $"{from.ToString("yyyyMMdd")}_{until.ToString("yyyyMMdd")}";
-        return $"site_{siteId}_supports_{service}_in_{dateRange}";
+        var joinedServices = string.Join('_', services);
+        var dateRange = $"{from:yyyyMMdd}_{until:yyyyMMdd}";
+        return $"site_{siteId}_supports_{joinedServices}_in_{dateRange}";
     }
     
-    private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, string service, DateOnly from,
+    private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, List<string> services, DateOnly from,
         DateOnly until)
     {
         var dateStringsInRange = GetDateStringsInRange(from, until);
-        return await availabilityStore.SiteOffersServiceDuringPeriod(siteId, service, dateStringsInRange);
+        return await availabilityStore.SiteSupportsAllServicesOnSingleDateInRangeAsync(siteId, services, dateStringsInRange);
     }
 }

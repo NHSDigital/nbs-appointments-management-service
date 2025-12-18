@@ -2406,7 +2406,7 @@ public class SiteServiceTests
                 SearchRadius = 1000,
                 Availability = new()
                 {
-                    Services = [.. services],
+                    Services = [ "RSV:Adult", "COVID:5_11", "COVID:5_11", "RSV:Adult" ],
                     From = new DateOnly(2025, 9, 1),
                     Until = new DateOnly(2025, 10, 1),
                 }

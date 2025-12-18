@@ -5,8 +5,13 @@ WORKDIR /App
 COPY ./src/jobs/Nhs.Appointments.Jobs.BlobAuditor  ./src/jobs/Nhs.Appointments.Jobs.BlobAuditor
 COPY ./src/api/Nhs.Appointments.Core/ ./src/api/Nhs.Appointments.Core/
 
+ARG DOTNET_CONFIGURATION=Release
+
 RUN dotnet restore src/jobs/Nhs.Appointments.Jobs.BlobAuditor/Nhs.Appointments.Jobs.BlobAuditor.csproj
-RUN dotnet publish src/jobs/Nhs.Appointments.Jobs.BlobAuditor/Nhs.Appointments.Jobs.BlobAuditor.csproj -o out
+RUN dotnet publish src/jobs/Nhs.Appointments.Jobs.BlobAuditor/Nhs.Appointments.Jobs.BlobAuditor.csproj \
+    -c $DOTNET_CONFIGURATION \
+    -o out \
+    --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App

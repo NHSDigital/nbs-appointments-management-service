@@ -157,7 +157,7 @@ services:
     environment:
       - COSMOS_ENDPOINT=https://host.docker.internal:8081
       - COSMOS_TOKEN=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
-      - BLOB_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;
+      - BLOB_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;TableEndpoint=http://host.docker.internal:10002/devstoreaccount1;
       - AuditWorkerConfigurations__0__ContainerName=audit_data
       - AuditWorkerConfigurations__0__LeaseContainerName=audit_data_lease
       - AuditWorkerConfigurations__1__ContainerName=booking_data
@@ -166,5 +166,7 @@ services:
       - AuditWorkerConfigurations__2__LeaseContainerName=audit_data_lease
       - AuditWorkerConfigurations__3__ContainerName=index_data
       - AuditWorkerConfigurations__3__LeaseContainerName=audit_data_lease
+      - SinkExclusions__0__Source=booking_data
+      - SinkExclusions__0__ExcludedPaths__0=contactDetails
 volumes:
   splunk-data:

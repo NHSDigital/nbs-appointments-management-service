@@ -1,3 +1,4 @@
+using FluentAssertions.Common;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -2932,5 +2933,369 @@ public class SiteServiceTests
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
 
         _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
+    }
+
+    [Fact]
+    public async Task FindSitesByArea_WriteToCache_CacheKeyHasUniqueServicesInAlphabeticalOrder()
+    {
+        var expectedServices = new List<string> { "COVID:5_11", "RSV:Adult" };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false)
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+
+        _ = await _sut.FindSitesByArea(
+            new Coordinates
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038
+            },
+            1000,
+            50,
+            [],
+            siteSupportsServiceFilter: new SiteSupportsServiceFilter(
+                ["RSV:Adult", "RSV:Adult", "RSV:Adult", "COVID:5_11", "COVID:5_11", "COVID:5_11", "RSV:Adult"],
+                new DateOnly(2025, 9, 1),
+                new DateOnly(2025, 10, 1)
+                )
+            );
+
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(expectedServices)), It.IsAny<List<string>>()), Times.Exactly(4));
+    }
+
+    [Fact]
+    public async Task FindSitesByArea_UsesCache_CacheKeyHasUniqueServicesInAlphabeticalOrder()
+    {
+        var expectedServices = new List<string> { "COVID:5_11", "RSV:Adult" };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        _availabilityStore.SetupSequence(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false)
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+
+        _ = await _sut.FindSitesByArea(
+            new Coordinates
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038
+            },
+            1000,
+            50,
+            [],
+            siteSupportsServiceFilter: new SiteSupportsServiceFilter(
+                ["RSV:Adult", "RSV:Adult", "RSV:Adult", "COVID:5_11", "COVID:5_11", "COVID:5_11", "RSV:Adult"],
+                new DateOnly(2025, 9, 1),
+                new DateOnly(2025, 10, 1)
+                )
+            );
+
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(expectedServices)), It.IsAny<List<string>>()), Times.Exactly(0));
+    }
+
+    [Fact]
+    public async Task QuerySitesAsync_WriteToCache_CacheKeyHasUniqueServicesInAlphabeticalOrder()
+    {
+        var expectedServices = new List<string> { "COVID:5_11", "RSV:Adult" };
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038,
+                SearchRadius = 1000,
+                Availability = new()
+                {
+                    Services = ["RSV:Adult", "RSV:Adult", "RSV:Adult", "COVID:5_11", "COVID:5_11", "COVID:5_11", "RSV:Adult"],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                }
+            }
+        };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
+
+        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
+
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(4));
+    }
+
+    [Fact]
+    public async Task QuerySitesAsync_ReadsFromCache_CacheKeyHasUniqueServicesInAlphabeticalOrder()
+    {
+        var expectedServices = new List<string> { "COVID:5_11", "RSV:Adult" };
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038,
+                SearchRadius = 1000,
+                Availability = new()
+                {
+                    Services = ["RSV:Adult", "RSV:Adult", "RSV:Adult", "COVID:5_11", "COVID:5_11", "COVID:5_11", "RSV:Adult"],
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                }
+            }
+        };
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+            new("test456",
+                "Test Site 3",
+                string.Empty,
+                string.Empty,
+                "ODS3", "R3", "ICB3",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "PCN Site"),
+            new("test654",
+                "Test Site 4",
+                string.Empty,
+                string.Empty,
+                "ODS4", "R4", "ICB4",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Some other site type"),
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
+
+        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
+
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Exactly(0));
     }
 }

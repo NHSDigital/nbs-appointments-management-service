@@ -101,6 +101,7 @@ public class SiteService(
          int maxRecords = 50, int batchSize = 1000)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
+        var uniqueSortedServices = services.OrderBy(s => s).Distinct().ToList();
 
         var results = new List<SiteWithDistance>();
 
@@ -122,9 +123,9 @@ public class SiteService(
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, services, from, to);
+                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
                 var siteOffersServiceDuringPeriod =
-                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, services, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
+                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
                 
                 ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
                 
@@ -142,8 +143,8 @@ public class SiteService(
         }
 
         logger.LogInformation(
-            "GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for services '{service}'",
-            results.Count, iterations, string.Join('|', services));
+            "GetSitesSupportingService returned {resultCount} result(s) after {iterationCount} iteration(s) for services '{services}'",
+            results.Count, iterations, uniqueSortedServices);
 
         return results;
     }

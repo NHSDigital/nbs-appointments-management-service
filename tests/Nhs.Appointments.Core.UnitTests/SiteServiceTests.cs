@@ -2396,7 +2396,7 @@ public class SiteServiceTests
     [Fact]
     public async Task QuerySitesAsync_ReturnsSitesOnlyWhenAllServicesMatch()
     {
-        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var services = new List<string> { "COVID:5_11", "RSV:Adult" };
         var filters = new List<SiteFilter>
         {
             new()
@@ -2663,7 +2663,7 @@ public class SiteServiceTests
     [Fact]
     public async Task FindSitesByArea_FiltersSitesOnMultipleServices()
     {
-        var services = new List<string> { "RSV:Adult", "COVID:5_11" };
+        var services = new List<string> { "COVID:5_11", "RSV:Adult" };
         var sites = new List<Site>
         {
             new("test123",
@@ -2733,7 +2733,7 @@ public class SiteServiceTests
             50,
             [],
             siteSupportsServiceFilter: new SiteSupportsServiceFilter(
-                ["RSV:Adult", "COVID:5_11"],
+                ["RSV:Adult", "COVID:5_11", "RSV:Adult", "COVID:5_11"],
                 new DateOnly(2025, 9, 1),
                 new DateOnly(2025, 10, 1)
                 )

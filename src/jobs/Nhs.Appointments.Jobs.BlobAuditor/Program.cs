@@ -8,6 +8,7 @@ using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
 using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink.Config;
+using Nhs.Appointments.Api.Logger;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -23,7 +24,7 @@ builder.Services.Configure<List<ContainerConfiguration>>(containerConfigs);
 builder.Services.Configure<List<SinkExclusion>>(
     builder.Configuration.GetSection("SinkExclusions"));
 
-builder.Logging.AddConsole();
+builder.UseAppointmentsSerilog();
 
 builder.Services
     .AddSingleton(TimeProvider.System)

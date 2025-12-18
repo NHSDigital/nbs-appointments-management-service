@@ -4,6 +4,9 @@ WORKDIR /App
 
 COPY ./src/jobs/Nhs.Appointments.Jobs.BlobAuditor  ./src/jobs/Nhs.Appointments.Jobs.BlobAuditor
 COPY ./src/api/Nhs.Appointments.Core/ ./src/api/Nhs.Appointments.Core/
+COPY ./src/api/Nhs.Appointments.Api/ ./src/api/Nhs.Appointments.Api/
+COPY ./src/api/Nhs.Appointments.Audit ./src/api/Nhs.Appointments.Audit
+COPY ./src/api/Nhs.Appointments.Persistance ./src/api/Nhs.Appointments.Persistance
 
 ARG DOTNET_CONFIGURATION=Release
 

@@ -32,7 +32,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\api\Nhs.Appointments.Api\Nhs.Appointments.Api.csproj" />
       <ProjectReference Include="..\..\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
     </ItemGroup>
 

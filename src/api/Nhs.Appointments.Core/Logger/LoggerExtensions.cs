@@ -2,7 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace Nhs.Appointments.Api.Logger;
+namespace Nhs.Appointments.Core.Logger;
 
 public static class LoggerExtension
 {

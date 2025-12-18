@@ -1,10 +1,8 @@
-using Nhs.Appointments.Api.Logger.Masks;
+using Nhs.Appointments.Core.Logger.Masks;
 using Serilog;
 using Serilog.Enrichers.Sensitive;
-using System;
-using System.Collections.Generic;
 
-namespace Nhs.Appointments.Api.Logger;
+namespace Nhs.Appointments.Core.Logger;
 
 internal static class SerilogSetupExtension
 {

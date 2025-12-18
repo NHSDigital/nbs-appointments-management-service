@@ -1,14 +1,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Nhs.Appointments.Core.Logger;
 using Nhs.Appointments.Jobs.BlobAuditor;
 using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
 using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink.Config;
-using Nhs.Appointments.Api.Logger;
 
 var builder = Host.CreateApplicationBuilder(args);
 

@@ -2482,6 +2482,87 @@ public class SiteServiceTests
             x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services)), It.IsAny<List<string>>()),
             Times.Exactly(4));
     }
+    
+    [Fact]
+    public async Task QuerySitesAsync_SameOrderedCacheKeyUsedForUnorderedAndDuplicatedServices()
+    {
+        var orderedServices = new List<string> { "COVID:5_11", "FLU:2_3", "FLU:3_11", "RSV:Adult" };
+        
+        var services1 = new List<string> { "RSV:Adult", "FLU:2_3", "COVID:5_11", "FLU:3_11" };
+        var services2 = new List<string> { "FLU:2_3", "RSV:Adult",  "FLU:3_11", "COVID:5_11", "FLU:2_3" };
+        var services3 = new List<string> { "RSV:Adult", "COVID:5_11", "FLU:3_11", "FLU:2_3" };
+        var services4 = new List<string> { "COVID:5_11", "FLU:3_11", "RSV:Adult", "FLU:2_3", "COVID:5_11" };
+        
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 53.796638,
+                Longitude = -1.663038,
+                SearchRadius = 1000,
+                Availability = new()
+                {
+                    From = new DateOnly(2025, 9, 1),
+                    Until = new DateOnly(2025, 10, 1),
+                }
+            }
+        };
+        
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy")
+        };
+        _siteStore.Setup(x => x.GetAllSites())
+            .ReturnsAsync(sites);
+        _availabilityStore.Setup(x =>
+                x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(orderedServices)),
+                    It.IsAny<List<string>>()))
+            .ReturnsAsync(true);
+        
+        filters.Single().Availability.Services = services1.ToArray();
+        
+        var result1 = await _sut.QuerySitesAsync([.. filters], 50, true);
+        result1.Count().Should().Be(1);
+        
+        _availabilityStore.Verify(
+            x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(orderedServices)), It.IsAny<List<string>>()),
+            Times.Once);
+        
+        _availabilityStore.Verify(
+            x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services1)), It.IsAny<List<string>>()),
+            Times.Never);
+        
+        filters.Single().Availability.Services = services2.ToArray();
+        var result2 = await _sut.QuerySitesAsync([.. filters], 50, true);
+        result2.Count().Should().Be(1);
+        _availabilityStore.Verify(
+            x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services2)), It.IsAny<List<string>>()),
+            Times.Never);
+        
+        filters.Single().Availability.Services = services3.ToArray();
+        var result3 = await _sut.QuerySitesAsync([.. filters], 50, true);
+        result3.Count().Should().Be(1);
+        _availabilityStore.Verify(
+            x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services3)), It.IsAny<List<string>>()),
+            Times.Never);
+        
+        filters.Single().Availability.Services = services4.ToArray();
+        var result4 = await _sut.QuerySitesAsync([.. filters], 50, true);
+        result4.Count().Should().Be(1);
+        _availabilityStore.Verify(
+            x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(services4)), It.IsAny<List<string>>()),
+            Times.Never);
+    }
 
     [Fact]
     public async Task QuerySitesAsync_CachingKeyUsedForFullServiceList()

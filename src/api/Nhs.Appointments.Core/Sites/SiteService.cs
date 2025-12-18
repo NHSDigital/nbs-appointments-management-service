@@ -515,7 +515,7 @@ public class SiteService(
 
     private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from, DateOnly until)
     {
-        var joinedServices = string.Join('_', services.OrderBy(x => x));
+        var joinedServices = string.Join('_', services);
         var dateRange = $"{from:yyyyMMdd}_{until:yyyyMMdd}";
         return $"site_{siteId}_supports_{joinedServices}_in_{dateRange}";
     }

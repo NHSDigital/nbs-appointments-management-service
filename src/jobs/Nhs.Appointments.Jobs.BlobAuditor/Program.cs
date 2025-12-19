@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Nhs.Appointments.Core.Logger;
 using Nhs.Appointments.Jobs.BlobAuditor;
 using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
 using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
@@ -23,7 +23,7 @@ builder.Services.Configure<List<ContainerConfiguration>>(containerConfigs);
 builder.Services.Configure<List<SinkExclusion>>(
     builder.Configuration.GetSection("SinkExclusions"));
 
-builder.Logging.AddConsole();
+builder.UseAppointmentsSerilog();
 
 builder.Services
     .AddSingleton(TimeProvider.System)

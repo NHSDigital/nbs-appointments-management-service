@@ -1,7 +1,7 @@
 using Serilog.Enrichers.Sensitive;
 using System.Text.RegularExpressions;
 
-namespace Nhs.Appointments.Api.Logger.Masks;
+namespace Nhs.Appointments.Core.Logger.Masks;
 /// <summary>
 /// Serilog mask to prevent NHS Numbers (strings of exactly 10 digits) from being logged.
 /// </summary>

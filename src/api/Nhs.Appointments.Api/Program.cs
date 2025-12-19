@@ -2,7 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Nhs.Appointments.Api;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Features;
-using Nhs.Appointments.Api.Logger;
+using Nhs.Appointments.Core.Logger;
 using Nhs.Appointments.Api.Middleware;
 using Nhs.Appointments.Audit;
 

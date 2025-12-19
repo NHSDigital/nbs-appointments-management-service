@@ -16,7 +16,7 @@ public class GovNotifyClient(
     IOptions<GovNotifyRetryOptions> retryOptions,    
     ILogger<GovNotifyClient> logger) : ISendNotifications
 {
-    private async Task RetryOnExceptionAsync<TException>(Func<Task> action) where TException : Exception
+    private async Task<bool> RetryOnExceptionAsync<TException>(Func<Task> action) where TException : Exception
     {
         var delay = retryOptions.Value.InitialDelayMs;
         for (var attempt = 1; attempt <= retryOptions.Value.MaxRetries; attempt++)
@@ -24,7 +24,7 @@ public class GovNotifyClient(
             try
             {
                 await action();
-                return;
+                return true;
             }
             catch (TException ex) when (attempt <= retryOptions.Value.MaxRetries)
             {
@@ -45,16 +45,18 @@ public class GovNotifyClient(
                     else
                     {
                         logger.LogError(ex, "Non-retryable status code {errorStatusCode}. Aborting.", errorStatusCode);
-                        break;
+                        return false;
                     }
                 }
                 else
                 {
                     logger.LogError(ex, "Could not parse status code from exception message. Aborting.");
-                    break;
+                    return false;
                 }
             }
         }
+
+        return false;
     }
 
     public int? ParseGovNotifyExceptionMessage(string message)
@@ -75,14 +77,14 @@ public class GovNotifyClient(
         return null;
     }
 
-    public async Task SendEmailAsync(string emailAddress, string templateId, Dictionary<string, dynamic> templateValues)
+    public async Task<bool> SendEmailAsync(string emailAddress, string templateId, Dictionary<string, dynamic> templateValues)
     {
         if (string.IsNullOrEmpty(emailAddress)) throw new ArgumentException("Email address cannot be empty", nameof(emailAddress));
         if (string.IsNullOrEmpty(templateId)) throw new ArgumentException("Template id cannot be empty", nameof(templateId));
 
         try
         {
-            await RetryOnExceptionAsync<NotifyClientException>(() =>
+            return await RetryOnExceptionAsync<NotifyClientException>(() =>
                 client.SendEmailAsync(emailAddress, templateId, templateValues)
             );
         }
@@ -96,14 +98,14 @@ public class GovNotifyClient(
         }
     }
 
-    public async Task SendSmsAsync(string phoneNumber, string templateId, Dictionary<string, dynamic> templateValues)
+    public async Task<bool> SendSmsAsync(string phoneNumber, string templateId, Dictionary<string, dynamic> templateValues)
     {
         if (string.IsNullOrEmpty(phoneNumber)) throw new ArgumentException("Phone number cannot be empty", nameof(phoneNumber));
         if (string.IsNullOrEmpty(templateId)) throw new ArgumentException("Template id cannot be empty", nameof(templateId));
 
         try
         {
-            await RetryOnExceptionAsync<NotifyClientException>(() =>
+            return await RetryOnExceptionAsync<NotifyClientException>(() =>
                 client.SendSmsAsync(phoneNumber, templateId, templateValues)
             );
         }

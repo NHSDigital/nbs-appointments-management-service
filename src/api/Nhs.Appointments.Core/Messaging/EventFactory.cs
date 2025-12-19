@@ -38,6 +38,7 @@ public class EventFactory : IBookingEventFactory
     {
         return new T
         {
+            NhsNumber = booking.AttendeeDetails.NhsNumber,
             NotificationType = notificationType,
             FirstName = booking.AttendeeDetails?.FirstName,
             From = booking.From,

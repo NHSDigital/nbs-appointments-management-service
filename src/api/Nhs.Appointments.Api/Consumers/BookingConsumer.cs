@@ -27,7 +27,8 @@ public abstract class BookingConsumer<TNotification>(IBookingNotifier notifier) 
             DateOnly.FromDateTime(context.Message.From),
             TimeOnly.FromDateTime(context.Message.From),
             context.Message.NotificationType,
-            context.Message.Destination);
+            context.Message.Destination,
+            context.Message.NhsNumber);
     }
 
     protected virtual bool NotificationIsValid(TNotification notification) => true;

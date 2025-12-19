@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Nhs.Appointments.Audit.Services;
 
 namespace Nhs.Appointments.Api.Notifications;
 
@@ -17,8 +18,11 @@ public class BookingNotifier(
     ISiteService siteService, 
     IPrivacyUtil privacy,
     ILogger<BookingNotifier> logger,
-    IClinicalServiceProvider clinicalServiceProvider) : IBookingNotifier
+    IClinicalServiceProvider clinicalServiceProvider,
+    IAuditWriteService auditWriteService) : IBookingNotifier
 {
+    private const string NotificationRunningUser = "ServiceBusFunctionApp";
+
     public async Task Notify(
         string eventType, 
         string service, 
@@ -28,7 +32,8 @@ public class BookingNotifier(
         DateOnly date, 
         TimeOnly time, 
         NotificationType notificationType, 
-        string destination
+        string destination,
+        string nhsNumber
     )
     {
         if(notificationType == NotificationType.Unknown)
@@ -78,7 +83,20 @@ public class BookingNotifier(
         };
 
         var templateId = GetTemplateId(notificationConfiguration, notificationType);
-        await SendNotification(notificationType, destination, templateId, templateValues);
+        var success = await SendNotification(notificationType, destination, templateId, templateValues);
+
+        if (success)
+        {
+            await auditWriteService.RecordNotification(
+                $"{Guid.NewGuid()}",
+                DateTime.UtcNow,
+                NotificationRunningUser,
+                nhsNumber,
+                eventType,
+                templateId,
+                notificationType == NotificationType.Email ? "Email" : "SMS",
+                bookingRef);
+        }
     }
 
     private string GetTemplateId(NotificationConfiguration config, NotificationType notificationType) => notificationType switch
@@ -104,7 +122,7 @@ public class BookingNotifier(
         }
     }
 
-    private Task SendNotification(NotificationType notificationType, string destination, string templateId, Dictionary<string, dynamic> templateValues) => notificationType switch
+    private Task<bool> SendNotification(NotificationType notificationType, string destination, string templateId, Dictionary<string, dynamic> templateValues) => notificationType switch
     {
         NotificationType.Email => notificationClient.SendEmailAsync(destination, templateId, templateValues),
         NotificationType.Sms => notificationClient.SendSmsAsync(destination, templateId, templateValues),

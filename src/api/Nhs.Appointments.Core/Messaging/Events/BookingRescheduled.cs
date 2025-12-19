@@ -7,7 +7,7 @@ public class BookingRescheduled : PatientBookingNotificationEventBase
 public abstract class PatientBookingNotificationEventBase
 {
     public NotificationType NotificationType { get; set; }
-
+    public string NhsNumber { get; set; }
     public string Reference { get; set; }
     public DateTime From { get; set; }
     public string Service { get; set; }

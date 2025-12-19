@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Nhs.Appointments.Audit.Services;
 
 namespace Nhs.Appointments.Api.Notifications;
 
@@ -16,9 +17,13 @@ public class UserRolesChangedNotifier(
     ISendNotifications notificationClient, 
     INotificationConfigurationService notificationConfigurationService, 
     IRolesStore rolesStore, 
-    ISiteService siteService
+    ISiteService siteService,
+    IAuditWriteService auditWriteService
 ) : IUserRolesChangedNotifier
 {
+    
+    private const string NotificationRunningUser = "ServiceBusFunctionApp";
+    
     public async Task Notify(string eventType, string user, string siteId, string[] rolesAdded, string[] rolesRemoved)
     {
         var hasRoleChanges = rolesAdded.Any() || rolesRemoved.Any();
@@ -42,7 +47,20 @@ public class UserRolesChangedNotifier(
 
             var templateConfig = await notificationConfigurationService.GetNotificationConfigurationsAsync(eventType);
 
-            await notificationClient.SendEmailAsync(user, templateConfig.EmailTemplateId, templateValues);
+            var success = await notificationClient.SendEmailAsync(user, templateConfig.EmailTemplateId, templateValues);
+            
+            if (success)
+            {
+                await auditWriteService.RecordNotification(
+                    $"{Guid.NewGuid()}",
+                    DateTime.UtcNow,
+                    NotificationRunningUser,
+                    user,
+                    eventType,
+                    templateConfig.EmailTemplateId,
+                    "Email",
+                    null);
+            }
         }
     }
 

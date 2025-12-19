@@ -212,8 +212,8 @@ Feature: Query Availability By Days
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult  | 10          | 1        |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 10          | 1        |
     When I query availability by days
-      | Site                                 | Attendee Services          | From     | Until             |
-      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,FLU:2_3 | Tomorrow | 2 days from today |
+      | Site                                 | Attendee Services    | From     | Until             |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,FLU:2_3    | Tomorrow | 2 days from today |
     Then the following single site availability by days is returned
       | Date              | Blocks | From  | Until |
 
@@ -298,7 +298,7 @@ Feature: Query Availability By Days
   Scenario: Returns bad request when too many attendees are passed up
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
-      | 6188c242-acfa-4dc2-860a-ead658bfe180 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  |
+      | 6188c242-acfa-4dc2-860a-ead658bfe185 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  |
     And the following sessions exist for site '6188c242-acfa-4dc2-860a-ead658bfe185'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 11:00 | 12:00 | RSV:Adult | 15          | 1        |
@@ -306,6 +306,140 @@ Feature: Query Availability By Days
       | Site                                 | Attendee Services                                           | From     | Until    |
       | 6188c242-acfa-4dc2-860a-ead658bfe185 | RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult,RSV:Adult | Tomorrow | Tomorrow |
     Then the call should fail with 400
+    
+  # Due to service length allocation logic, more overall JB combinations are available to the APIs vs a 'first session found' allocation
+  # However, it is not optimal, as some pairings are not offered, when they COULD be in a best fit solution
+  # All 12 combinations of services from sessions A and B should be available
+  # All 6 combinations of services that include 'FLU:2_3' from session C and other services from A/B - however - are unavailable, but they COULD be in best fit solution...
+  Scenario: Greedy allocation by service length - optimal and suboptimal combinations
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  |
+    And the following sessions exist for site '6188c242-acfa-4dc2-860a-ead658bfe187'
+      | Date        | From  | Until | Services                               | Slot Length  | Capacity |
+      # Session 'A'
+      | Tomorrow    | 09:00 | 09:30 | COVID, RSV:Adult, FLU:5_11             | 15           | 1        |
+      # Session 'B'
+      | Tomorrow    | 09:00 | 09:30 | COVID, FLU:64_80, FLU:11_18, FLU:18:40 | 15           | 1        |
+      # Session 'C'
+      | Tomorrow    | 09:00 | 09:30 | COVID, FLU:2_3                         | 15           | 1        |
+    And the following bookings have been made for site '6188c242-acfa-4dc2-860a-ead658bfe187'
+      | Date        | Time  | Duration  | Service |
+      | Tomorrow    | 09:00 | 15        | COVID   |
+      | Tomorrow    | 09:15 | 15        | COVID   |
+    # OPTIMAL
+    # In a 'first fit' algorithm, the two COVID bookings would both be allocated to Session 'A' (the first)
+    # This would remove 'FLU:5_11' availability, making it unavailable to the JB response
+    # Fortunately - the greedy algorithm assigns both bookings to session 'C', allowing this combination
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:64_80, FLU:5_11   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    # -- END OPTIMAL
+    # SUBOPTIMAL
+    # In a best fit solution, the two COVID bookings would both be allocated to Session 'B' (the longest)
+    # This would free up both Sessions 'A' and 'C', to allow availability for the JB requested
+    # Unfortunately - the greedy algorithm assigns them both to session 'C', denying this JB request
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:2_3, FLU:5_11     | Tomorrow | Tomorrow |
+    Then the response should be empty
+    # -- END SUBOPTIMAL
+    # OPTIMAL
+    # Other available combinations
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | COVID, FLU:5_11       | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:11_18, FLU:5_11   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:18:40, FLU:5_11   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:64_80, RSV:Adult   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | COVID, RSV:Adult       | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:11_18, RSV:Adult   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:18:40, RSV:Adult   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:64_80, COVID   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | COVID, COVID       | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:11_18, COVID   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:18:40, COVID   | Tomorrow | Tomorrow |
+    Then the following single site availability by days is returned
+      | Date     | Blocks | From  | Until |
+      | Tomorrow | AM     | 09:00 | 09:30 |
+    # -- END OPTIMAL
+    # SUBOPTIMAL
+    # Other unavailable combinations involving 'FLU:2_3', that COULD be available in a best fit algorithm...
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:2_3, COVID        | Tomorrow | Tomorrow |
+    Then the response should be empty
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:2_3, RSV:Adult    | Tomorrow | Tomorrow |
+    Then the response should be empty
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:2_3, FLU:64_80    | Tomorrow | Tomorrow |
+    Then the response should be empty
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:2_3, FLU:11_18    | Tomorrow | Tomorrow |
+    Then the response should be empty
+    When I query availability by days
+      | Site                                 | Attendee Services     | From     | Until    |
+      | 6188c242-acfa-4dc2-860a-ead658bfe187 | FLU:2_3, FLU:18:40    | Tomorrow | Tomorrow |
+    Then the response should be empty
+    # -- END SUBOPTIMAL
+    
 
   Scenario: One booked slot breaks a consecutive pair
     Given The following sites exist in the system

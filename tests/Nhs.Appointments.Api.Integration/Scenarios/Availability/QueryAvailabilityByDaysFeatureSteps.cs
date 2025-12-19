@@ -53,7 +53,7 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
         var siteCollection = sites.Select(GetSiteId).ToArray();
         var attendeesCollection = services.Select(service => new Attendee
         {
-            Services = [service]
+            Services = [service.Trim()]
         }).ToList();
         
         var payload = new AvailabilityQueryRequest(

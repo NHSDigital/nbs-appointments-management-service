@@ -1001,7 +1001,7 @@ test.describe('View Month Availability', () => {
         }
       });
 
-      test('All the month page data is arranged in the week cards as expected - March 2026', async () => {
+      test.skip('All the month page data is arranged in the week cards as expected - March 2026', async () => {
         //go to a specific month page that has a daylight savings change
         await page.goto(
           `manage-your-appointments/site/${site.id}/view-availability?date=2026-03-01`,

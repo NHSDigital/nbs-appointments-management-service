@@ -18,7 +18,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.1" />
 		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Okta.Sdk" Version="9.2.3" />
@@ -30,6 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+  	<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Nhs.Appointments.Core.UnitTests</_Parameter1>
 		</AssemblyAttribute>

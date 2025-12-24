@@ -11,3 +11,5 @@ export const SPECIAL_CHARACTER_REGEX = /^[ A-Za-z0-9.,-]*$/;
  * If the cookie acceptance text changes, this version should be incremented to prompt users to re-accept.
  */
 export const LATEST_CONSENT_COOKIE_VERSION = 1;
+
+export const AVAILABILITY_EDIT_DRAFT_KEY = 'availability-edit-draft';

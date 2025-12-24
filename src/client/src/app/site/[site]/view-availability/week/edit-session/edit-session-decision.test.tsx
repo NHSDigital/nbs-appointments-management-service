@@ -3,6 +3,7 @@ import render from '@testing/render';
 import { EditSessionDecision } from './edit-session-decision';
 import { screen, waitFor } from '@testing-library/dom';
 import {
+  localStorageMock,
   mockMultipleServices,
   mockSingleService,
   mockSite,
@@ -13,17 +14,23 @@ jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
 const mockPush = jest.fn();
 
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
+
 describe('Edit Session Decision Page', () => {
   beforeEach(() => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
     });
+    sessionStorage.clear();
   });
 
   it('renders the correct session in the table', () => {
     const session = btoa(
       JSON.stringify(mockWeekAvailability__Summary[0].sessions[0]),
     );
+    const getItemSpy = jest.spyOn(sessionStorage, 'getItem');
     render(
       <EditSessionDecision
         sessionSummary={session}
@@ -39,6 +46,10 @@ describe('Edit Session Decision Page', () => {
         name: '09:00 - 12:00 RSV Adult 2 booked',
       }),
     ).toBeInTheDocument();
+
+    waitFor(() => {
+      expect(getItemSpy).toHaveBeenCalledWith('availability-edit-draft');
+    });
   });
 
   it('renders 3 radio buttons', () => {

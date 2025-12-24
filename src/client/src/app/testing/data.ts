@@ -775,6 +775,25 @@ const mockCancelDayResponse: CancelDayResponse = {
   cancelledBookingCount: 10,
 };
 
+const localStorageMock = (() => {
+  let store: { [key: string]: string } = {};
+
+  return {
+    getItem(key: string) {
+      return store[key] || null;
+    },
+    setItem(key: string, value: string) {
+      store[key] = value.toString();
+    },
+    removeItem(key: string) {
+      delete store[key];
+    },
+    clear() {
+      store = {};
+    },
+  };
+})();
+
 export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
@@ -804,4 +823,5 @@ export {
   mockOfflineSite,
   mockCancelDayResponse,
   mockSession1,
+  localStorageMock,
 };

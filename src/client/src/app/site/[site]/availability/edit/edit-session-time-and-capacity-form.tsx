@@ -20,9 +20,10 @@ import {
   isValidStartTime,
   parseDateAndTimeComponentsToUkDateTime,
 } from '@services/timeService';
-import { ChangeEvent, useTransition } from 'react';
+import { ChangeEvent, useEffect, useTransition } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
 import fromServer from '@server/fromServer';
+import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
 
 export type EditSessionFormValues = {
   sessionToEdit: Session;
@@ -54,8 +55,8 @@ const EditSessionTimeAndCapacityForm = ({
 
   const {
     handleSubmit,
-    watch,
     control,
+    reset,
     formState: { errors, dirtyFields },
   } = useForm<EditSessionFormValues>({
     defaultValues: {
@@ -86,14 +87,48 @@ const EditSessionTimeAndCapacityForm = ({
     },
   });
 
-  const sessionToEditWatch = watch('sessionToEdit');
+  const toSession = (): Session => ({
+    startTime: {
+      hour: existingUkStartTime.split(':')[0],
+      minute: existingUkStartTime.split(':')[1],
+    },
+    endTime: {
+      hour: existingUkEndTime.split(':')[0],
+      minute: existingUkEndTime.split(':')[1],
+    },
+    services: Object.keys(
+      existingSession.totalSupportedAppointmentsByService,
+    ).map(service => service),
+    slotLength: existingSession.slotLength,
+    capacity: existingSession.capacity,
+    break: 'no',
+  });
+
+  const sessionToEdit = toSession();
   const router = useRouter();
+
+  useEffect(() => {
+    const storedDraft = sessionStorage.getItem(AVAILABILITY_EDIT_DRAFT_KEY);
+
+    if (storedDraft) {
+      const parsedDraft: Session = JSON.parse(storedDraft);
+
+      reset({
+        newSession: parsedDraft,
+      });
+    }
+  }, [reset]);
 
   const submitForm: SubmitHandler<EditSessionFormValues> = async (
     form: EditSessionFormValues,
   ) => {
     startTransition(async () => {
       const { newSession } = form;
+
+      sessionStorage.setItem(
+        AVAILABILITY_EDIT_DRAFT_KEY,
+        JSON.stringify(newSession),
+      );
 
       const updatedSession = toAvailabilitySession(newSession);
 
@@ -235,9 +270,7 @@ const EditSessionTimeAndCapacityForm = ({
                 return 'Enter a valid start time';
               }
 
-              if (
-                compareTimes(value, sessionToEditWatch.startTime) == 'earlier'
-              ) {
+              if (compareTimes(value, sessionToEdit.startTime) == 'earlier') {
                 return 'Enter a start or end time that reduces the length of this session.';
               }
             },
@@ -331,7 +364,7 @@ const EditSessionTimeAndCapacityForm = ({
                 return 'Session length must be more than 5 minutes';
               }
 
-              if (compareTimes(value, sessionToEditWatch.endTime) == 'later') {
+              if (compareTimes(value, sessionToEdit.endTime) == 'later') {
                 return 'Enter a start or end time that reduces the length of this session.';
               }
             },

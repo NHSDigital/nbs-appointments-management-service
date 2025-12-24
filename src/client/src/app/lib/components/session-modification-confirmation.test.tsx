@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { SessionModificationConfirmation } from './session-modification-confirmation';
 import render from '@testing/render';
-import { mockMultipleServices } from '@testing/data';
+import { localStorageMock, mockMultipleServices } from '@testing/data';
 import { useRouter } from 'next/navigation';
 import * as appointmentsService from '@services/appointmentsService';
 import asServerActionResult from '@testing/asServerActionResult';
@@ -23,6 +23,10 @@ const mockPush = jest.fn();
 
 jest.mock('@services/appointmentsService');
 const mockModifySession = jest.spyOn(appointmentsService, 'modifySession');
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
 
 describe('EditSessionConfirmation', () => {
   it('No unsupported bookings, renders question to change session', () => {
@@ -193,6 +197,7 @@ describe('CancelSessionConfirmation', () => {
         sessionModificationResult,
       ),
     );
+    sessionStorage.clear();
     jest.clearAllMocks();
   });
 
@@ -288,6 +293,7 @@ describe('CancelSessionConfirmation', () => {
   });
 
   it('Has unsupported bookings, user choose "No" to cancel the appointments', async () => {
+    const removeItemSpy = jest.spyOn(sessionStorage, 'removeItem');
     const { user } = render(
       <SessionModificationConfirmation
         newlyUnsupportedBookingsCount={3}
@@ -314,6 +320,7 @@ describe('CancelSessionConfirmation', () => {
       expect(mockPush).toHaveBeenCalledWith(
         expect.stringContaining('newlyUnsupportedBookingsCount=3'),
       );
+      expect(removeItemSpy).toHaveBeenCalledWith('availability-edit-draft');
     });
   });
 
@@ -361,6 +368,7 @@ describe('submitForm', () => {
         sessionModificationResult,
       ),
     );
+    sessionStorage.clear();
     jest.clearAllMocks();
   });
 
@@ -373,6 +381,7 @@ describe('submitForm', () => {
       ukStartDatetime: `2025-10-23T${newSessionStartTime}:00`,
       ukEndDatetime: `2025-10-23T${newSessionEndTime}:00`,
     };
+    const removeItemSpy = jest.spyOn(sessionStorage, 'removeItem');
 
     const mode = 'edit';
     const { user } = render(
@@ -449,6 +458,10 @@ describe('submitForm', () => {
 
     // ensure no stray "undefined" anywhere in the URL
     expect(calledArg).not.toContain('undefined');
+
+    waitFor(() => {
+      expect(removeItemSpy).toHaveBeenCalledWith('availability-edit-draft');
+    });
   });
 
   it('sends correct payload for change session action', async () => {
@@ -473,6 +486,7 @@ describe('submitForm', () => {
         mode={mode}
       />,
     );
+    const removeItemSpy = jest.spyOn(sessionStorage, 'removeItem');
 
     await user.click(
       screen.getByLabelText(
@@ -536,6 +550,10 @@ describe('submitForm', () => {
 
     // ensure no stray "undefined" anywhere in the URL
     expect(calledArg).not.toContain('undefined');
+
+    waitFor(() => {
+      expect(removeItemSpy).toHaveBeenCalledWith('availability-edit-draft');
+    });
   });
 
   it('sends correct payload for cancel session action', async () => {
@@ -550,6 +568,7 @@ describe('submitForm', () => {
         mode={mode}
       />,
     );
+    const removeItemSpy = jest.spyOn(sessionStorage, 'removeItem');
 
     await user.click(
       screen.getByLabelText(
@@ -607,6 +626,10 @@ describe('submitForm', () => {
 
     // ensure no stray "undefined" anywhere in the URL
     expect(calledArg).not.toContain('undefined');
+
+    waitFor(() => {
+      expect(removeItemSpy).toHaveBeenCalledWith('availability-edit-draft');
+    });
   });
 
   it('sends correct payload for cancel session and cancel appointments action', async () => {
@@ -621,6 +644,7 @@ describe('submitForm', () => {
         mode={mode}
       />,
     );
+    const removeItemSpy = jest.spyOn(sessionStorage, 'removeItem');
 
     await user.click(
       screen.getByLabelText(
@@ -684,6 +708,9 @@ describe('submitForm', () => {
 
     // ensure no stray "undefined" anywhere in the URL
     expect(calledArg).not.toContain('undefined');
+    waitFor(() => {
+      expect(removeItemSpy).toHaveBeenCalledWith('availability-edit-draft');
+    });
   });
 
   it('renders the correct impact note when cancelling a session', async () => {

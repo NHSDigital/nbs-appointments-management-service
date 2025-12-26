@@ -7,7 +7,7 @@
     "CancelDay": true,
     "ChangeSessionUpliftedJourney": true,
     "CancelSessionUpliftedJourney": true,
-    "QuerySites": false,
+    "QuerySites": true,
     "MultiServiceJointBookings": false,
     "JointBookingsReporting": false
   }

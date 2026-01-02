@@ -3,7 +3,6 @@ import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
-  InsetText,
   SmallSpinnerWithText,
   SummaryList,
   SummaryListItem,
@@ -15,7 +14,6 @@ import {
 } from '@services/timeService';
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
-import { calculateCapacity } from './capacity-calculation';
 import { ClinicalService } from '@types';
 
 type SummaryStepProps = {
@@ -171,13 +169,6 @@ const SummaryStep = ({
           },
         ];
 
-  const capacity = calculateCapacity({
-    startTime: session.startTime,
-    endTime: session.endTime,
-    slotLength: session.slotLength,
-    capacity: session.capacity,
-  });
-
   return (
     <>
       {stepNumber === 1 ? (
@@ -193,37 +184,21 @@ const SummaryStep = ({
           text="Go back"
         />
       )}
-      <NhsHeading
-        title={
-          sessionType === 'single'
-            ? 'Check single date session'
-            : 'Check weekly session'
-        }
-      />
+      <NhsHeading caption="Add availability" title="Check your answers" />
       <SummaryList items={summary}></SummaryList>
 
+      <h2 className="nhsuk-heading-m nhsuk-u-margin-top-6">
+        Before you continue
+      </h2>
       <p>
-        <strong>{capacity.appointmentsPerSession}</strong> total appointments in
-        the session
-        {capacity.appointmentsPerHour !== undefined && (
-          <>
-            <br />
-            Up to <strong>{capacity.appointmentsPerHour}</strong> appointments
-            per hour
-          </>
-        )}
-        <br />
+        By publishing this availability, you confirm that your site is assured
+        to deliver the services you have selected.
       </p>
-
-      <InsetText>
-        Saving will allow people to book appointments for the availability
-        you've created. Make sure the information is accurate before saving.
-      </InsetText>
 
       {pendingSubmit ? (
         <SmallSpinnerWithText text="Saving..." />
       ) : (
-        <Button type="submit">Save session</Button>
+        <Button type="submit">Save and publish availability</Button>
       )}
     </>
   );

@@ -1,7 +1,7 @@
 import render from '@testing/render';
 import { screen, waitFor } from '@testing-library/react';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
-import { mockSite } from '@testing/data';
+import { localStorageMock, mockSite } from '@testing/data';
 import { mockWeekAvailability__Summary } from '@testing/availability-and-bookings-mock-data';
 import { editSession } from '@services/appointmentsService';
 import { useRouter } from 'next/navigation';
@@ -18,8 +18,13 @@ const editSessionMock = editSession as jest.Mock<
   Promise<ServerActionResult<void>>
 >;
 
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
+
 describe('Edit Session Time And Capacity Form', () => {
   beforeEach(() => {
+    sessionStorage.clear();
     jest.resetAllMocks();
 
     mockUseRouter.mockReturnValue({
@@ -42,6 +47,11 @@ describe('Edit Session Time And Capacity Form', () => {
     expect(
       screen.getByRole('heading', { name: 'Session times' }),
     ).toBeInTheDocument();
+
+    const getItemSpy = jest.spyOn(sessionStorage, 'getItem');
+    waitFor(() => {
+      expect(getItemSpy).toHaveBeenCalledWith('availability-edit-draft');
+    });
   });
 
   it('calls the service and navigates to the confirmation page when the form is submitted', async () => {
@@ -363,5 +373,13 @@ describe('Edit Session Time And Capacity Form', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(editSessionMock).toHaveBeenCalled();
+
+    const setItemSpy = jest.spyOn(sessionStorage, 'setItem');
+    waitFor(() => {
+      expect(setItemSpy).toHaveBeenCalledWith(
+        'availability-edit-draft',
+        expect.stringContaining('"startTime":{"hour":"10","minute":"27"}'),
+      );
+    });
   });
 });

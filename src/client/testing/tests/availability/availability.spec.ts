@@ -25,7 +25,11 @@ import {
   getDateInFuture,
 } from '../../utils/date-utility';
 import { parseToUkDatetime } from '@services/timeService';
-import { sessionTestCases, weekTestCases } from '../../availability';
+import {
+  sessionTestCases,
+  staticHackyDayIncrementToBump,
+  weekTestCases,
+} from '../../availability';
 import EditServicesPage from '../../page-objects/view-availability-appointment-pages/edit-services-page';
 import EditServicesConfirmedPage from '../../page-objects/view-availability-appointment-pages/edit-services-confirmed';
 
@@ -65,7 +69,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create single session of RSV availability', async ({ page }) => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
@@ -93,7 +97,7 @@ test.describe('Create Availability', () => {
       test('Create single session of RSV and Covid availability', async ({
         page,
       }) => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await page.waitForURL(`**/site/${site.id}/create-availability/wizard`);
@@ -121,7 +125,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create weekly session of RSV availability', async ({ page }) => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterFutureDate = getDateInFuture(dayIncrement + 1);
         await createAvailabilityPage.createAvailabilityButton.click();
@@ -159,7 +163,7 @@ test.describe('Create Availability', () => {
       test('Create weekly session of RSV and Covid availability', async ({
         page,
       }) => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
 
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterFutureDate = getDateInFuture(dayIncrement + 1);
@@ -244,7 +248,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create weekly session of RSV availability check summary page links', async () => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
         const futureDate = getDateInFuture(dayIncrement);
         const dayAfterTomorrowDate = getDateInFuture(dayIncrement + 1);
         await createAvailabilityPage.createAvailabilityButton.click();
@@ -300,7 +304,7 @@ test.describe('Create Availability', () => {
       });
 
       test('Create single session of RSV availability check summary page links', async () => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
         const futureDate = getDateInFuture(dayIncrement);
         await createAvailabilityPage.createAvailabilityButton.click();
         await expect(createAvailabilityPage.sessionTitle).toBeVisible();
@@ -394,7 +398,7 @@ test.describe('Update Session', () => {
       test('Verify user is able to add a session for future date', async ({
         page,
       }) => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -438,7 +442,7 @@ test.describe('Update Session', () => {
       test('Verify add availability option displayed for future date', async ({
         page,
       }) => {
-        const dayIncrement = 340;
+        const dayIncrement = staticHackyDayIncrementToBump + 7;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -467,7 +471,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify user is able to change availability', async ({ page }) => {
-        const dayIncrement = 226;
+        const dayIncrement = staticHackyDayIncrementToBump;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -523,7 +527,7 @@ test.describe('Update Session', () => {
       test('Verify user is able to reduce services for availability', async ({
         page,
       }) => {
-        const dayIncrement = 227;
+        const dayIncrement = staticHackyDayIncrementToBump + 1;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -646,7 +650,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify user is able to cancel session', async ({ page }) => {
-        const dayIncrement = 228;
+        const dayIncrement = staticHackyDayIncrementToBump + 2;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -701,7 +705,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify session not canceled if not confirmed', async ({ page }) => {
-        const dayIncrement = 229;
+        const dayIncrement = staticHackyDayIncrementToBump + 3;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -761,7 +765,7 @@ test.describe('Update Session', () => {
       });
 
       test('Verify view daily appointment link displayed', async ({ page }) => {
-        const dayIncrement = 230;
+        const dayIncrement = staticHackyDayIncrementToBump + 4;
 
         const day = daysFromToday(dayIncrement);
         const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
@@ -841,7 +845,7 @@ test.describe('Update Session', () => {
       test('Verify availability with no bookings is cancelled and manual appointments folder is empty', async ({
         page,
       }) => {
-        const dayIncrement = 260;
+        const dayIncrement = staticHackyDayIncrementToBump + 5;
 
         const day = daysFromToday(dayIncrement);
         const formattedDate1 = parseToUkDatetime(day).format('DD MMMM');

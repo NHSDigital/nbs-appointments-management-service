@@ -76,6 +76,10 @@ type CancelDailyAppointment = {
   services: string;
 };
 
+//update this number to stop datetime test collisionsß∂
+//TODO this needs remedying ASAP as this is crap.
+export const staticHackyDayIncrementToBump = 119;
+
 //session test cases to verify, should have session&booking data in the seeder
 export const sessionTestCases: SessionTestCase[] = [
   {

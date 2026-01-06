@@ -19,7 +19,7 @@ stages:
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
           bookingExtractDockerFilePath: "BookingDataExtractDockerfile"
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
-          cosmosAuditorDockerFilePath: "CosmosAuditor"
+          cosmosAuditorDockerFilePath: "CosmosAuditorDockerfile"
         steps:
           - task: PowerShell@2
             displayName: "Run script tests"

@@ -1,6 +1,7 @@
 import { type Locator } from '@playwright/test';
 import { MYALayout } from '@e2etests/types';
 import SiteDetailsPage from './details/site-details-page';
+import Users from '../manage-user/users';
 
 export default class SitePage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -52,10 +53,9 @@ export default class SitePage extends MYALayout {
   //     return new CreateAvailabilityPage(this.page, this.site);
   //   }
 
-  //   async clickManageUsersCard(): Promise<UsersPage> {
-  //     await this.userManagementCard.click();
-  //     await this.page.waitForURL(`**/site/${this.site.id}/users`);
-
-  //     return new UsersPage(this.page, this.site);
-  //   }
+  async clickManageUsersCard(): Promise<Users> {
+    await this.userManagementCard.click();
+    await this.page.waitForURL(`**/site/${this.site?.id}/users`);
+    return new Users(this.page, this.site);
+  }
 }

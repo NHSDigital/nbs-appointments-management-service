@@ -411,10 +411,6 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
     }
   }
 
-  ingress {
-    external_enabled = false
-  }
-
   identity {
     type = "SystemAssigned"
   }

@@ -29,7 +29,7 @@ resource "azurerm_container_app" "nbs_mya_splunk_otel_collector" {
   template {
     container {
       name   = "nbs-mya-splunk-otel-collector"
-      image  = "${var.container_registry_server_url}/otel/splunk:${var.splunk_otel_image_version}"
+      image  = "${var.container_registry_server_url}/otel/splunk:${var.splunk_otel_image_version}" //TODO
       cpu    = 0.25
       memory = "0.5Gi"
 
@@ -211,6 +211,7 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
     name  = "container-cosmos-password"
     value = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
   }
+  
   secret {
     name  = "blob-connection-string"
     value = var.data_extract_file_sender_options_type == "blob" ? azurerm_storage_account.nbs_mya_container_app_storage_account[0].primary_blob_connection_string : "UNSET"
@@ -286,6 +287,132 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       }
     
     }
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+resource "azurerm_container_app" "nbs_mya_auditor" {
+  count                        = var.auditor_enable ? 1 : 0
+  name                         = "${var.application}-auditor-${var.environment}-${var.loc}"
+  container_app_environment_id  = azurerm_container_app_environment.nbs_mya_container_enviroment.id
+  resource_group_name           = local.resource_group_name
+  revision_mode                 = "Single"
+
+  secret {
+    name  = "container-registry-password"
+    value = var.container_registry_password
+  }
+
+  secret {
+    name  = "container-cosmos-token"
+    value = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+  }
+
+  secret {
+    name  = "auditor-blob-connection-string"
+    value = "placeholder-connection-string"
+  }
+
+  secret {
+    name  = "splunk-hec-token"
+    value = var.splunk_hec_token
+  }
+
+  registry {
+    server             = var.container_registry_server_url
+    username           = var.container_registry_username
+    password_secret_name = "container-registry-password"
+  }
+
+  template {
+    container {
+      name   = "nbs-mya-auditor"
+      image  = "${var.container_registry_server_url}/auditor:${var.build_number}"
+      cpu    = 0.5  // Confirm this value
+      memory = "1Gi"  // Confirm this value
+
+      env {
+        name        = "COSMOS_TOKEN"
+        secret_name = "container-cosmos-token"
+      }
+
+      env {
+        name        = "BLOB_STORAGE_CONNECTION_STRING"
+        secret_name = "auditor-blob-connection-string"
+      }
+
+      env {
+        name        = "SPLUNK_HEC_TOKEN"
+        secret_name = "splunk-hec-token"
+      }
+
+      env {
+        name  = "COSMOS_ENDPOINT"
+        value = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
+      }
+
+      env {
+        name  = "SPLUNK_HOST_URL"
+        value = var.splunk_host_url
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__0__ContainerName"
+        value = var.auditor_worker_containers[0]
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__0__LeaseContainerName"
+        value = var.auditor_lease_container_name
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__1__ContainerName"
+        value = var.auditor_worker_containers[1]
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__1__LeaseContainerName"
+        value = var.auditor_lease_container_name
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__2__ContainerName"
+        value = var.auditor_worker_containers[2]
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__2__LeaseContainerName"
+        value = var.auditor_lease_container_name
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__3__ContainerName"
+        value = var.auditor_worker_containers[3]
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__3__LeaseContainerName"
+        value = var.auditor_lease_container_name
+      }
+
+      env {
+        name  = "SinkExclusions__0__Source"
+        value = var.auditor_sink_exclusions[0].source
+      }
+
+      env {
+        name  = "SinkExclusions__0__ExcludedPaths__0"
+        value = var.auditor_sink_exclusions[0].excluded_paths[0]
+      }
+    }
+  }
+
+  ingress {
+    external_enabled = false
   }
 
   identity {

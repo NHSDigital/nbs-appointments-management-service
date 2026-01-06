@@ -98,6 +98,10 @@ module "mya_application_stag" {
   splunk_data_channel                             = "020C14F4-8609-453E-BCBB-2ED9CC5D24C4"
   splunk_otel_image_version                       = "2.0"
   auto_cancelled_bookings_disabled                = false 
+  auditor_enable                                  = var.AUDITOR_ENABLE
+  auditor_lease_container_name                    = var.AUDITOR_LEASE_CONTAINER_NAME
+  auditor_worker_containers                       = var.AUDITOR_WORKER_CONTAINERS
+  auditor_sink_exclusions                         = var.AUDITOR_SINK_EXCLUSIONS
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

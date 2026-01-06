@@ -111,6 +111,10 @@ module "mya_application_prod_ukw" {
   splunk_data_channel                             = "ED1D79AE-2243-4E5A-BCF7-D4B8AB0C6781"
   splunk_otel_image_version                       = "2.0"
   auto_cancelled_bookings_disabled                = false
+  auditor_enable                                  = var.AUDITOR_ENABLE
+  auditor_lease_container_name                    = var.AUDITOR_LEASE_CONTAINER_NAME
+  auditor_worker_containers                       = var.AUDITOR_WORKER_CONTAINERS
+  auditor_sink_exclusions                         = var.AUDITOR_SINK_EXCLUSIONS
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

@@ -313,7 +313,7 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
 
   secret {
     name  = "auditor-blob-connection-string"
-    value = "placeholder-connection-string"
+    value = azurerm_storage_account.nbs_mya_audit_storage_account.primary_connection_string
   }
 
   secret {
@@ -331,8 +331,8 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
     container {
       name   = "nbs-mya-auditor"
       image  = "${var.container_registry_server_url}/auditor:${var.build_number}"
-      cpu    = 0.5  // Confirm this value
-      memory = "1Gi"  // Confirm this value
+      cpu    = 0.5 
+      memory = "1Gi"
 
       env {
         name        = "COSMOS_TOKEN"

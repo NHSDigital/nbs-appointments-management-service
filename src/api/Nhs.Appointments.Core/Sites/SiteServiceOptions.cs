@@ -17,4 +17,16 @@ public class SiteServiceOptions
     ///     The unique string identifying the site cache.
     /// </summary>
     public string SiteCacheKey { get; set; }
+    
+    /// <summary>
+    ///     The duration, in seconds, that a SiteSupportsService 'SlidingCache' value will expire absolutely after created date (if no slide occurs during its lifespan and updates itself)
+    /// </summary>
+    public int SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds { get; set; }
+    
+    /// <summary>
+    ///     The duration, in seconds, for the SiteSupportsService 'SlidingCache' SLIDE_THRESHOLD value
+    ///     A slide WILL NOT occur if a cache value is requested less than this timespan. i.e if utcNow '<' cacheValueCreatedDate.addSeconds(SLIDE_THRESHOLD)
+    ///     A slide WILL occur if a cache value is requested greater than this timespan. i.e if utcNow '>=' cacheValueCreatedDate.addSeconds(SLIDE_THRESHOLD)
+    /// </summary>
+    public int SiteSupportsServiceSlidingCacheSlideThresholdSeconds { get; set; }
 }

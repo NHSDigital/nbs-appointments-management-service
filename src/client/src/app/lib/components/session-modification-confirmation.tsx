@@ -25,6 +25,7 @@ import { toTimeFormat } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
 
 type Mode = 'edit' | 'cancel';
 type FormData = { action?: SessionModificationAction };
@@ -207,6 +208,8 @@ export const SessionModificationConfirmation = ({
           },
         };
       }
+
+      sessionStorage.removeItem(AVAILABILITY_EDIT_DRAFT_KEY);
 
       const response = await fromServer(modifySession(request));
 

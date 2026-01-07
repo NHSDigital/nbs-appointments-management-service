@@ -83,6 +83,8 @@ module "mya_application_prod" {
   keyvault_client_id                              = var.KEYVAULT_CLIENT_ID
   keyvault_client_secret                          = var.KEYVAULT_CLIENT_SECRET
   auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
+  site_supports_service_sliding_cache_absolute_expiration_seconds = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS
+  site_supports_service_sliding_cache_slide_threshold_seconds     = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS
   disable_query_availability_function             = true
   create_high_load_function_app                   = true
   create_app_slot                                 = true
@@ -105,7 +107,11 @@ module "mya_application_prod" {
   splunk_skip_verify_insecure                     = false
   splunk_data_channel                             = "ED1D79AE-2243-4E5A-BCF7-D4B8AB0C6781"
   splunk_otel_image_version                       = "2.0"
-  auto_cancelled_bookings_disabled                = true
+  auto_cancelled_bookings_disabled                = false
+  auditor_enable                                  = var.AUDITOR_ENABLE
+  auditor_lease_container_name                    = var.AUDITOR_LEASE_CONTAINER_NAME
+  auditor_worker_containers                       = var.AUDITOR_WORKER_CONTAINERS
+  auditor_sink_exclusions                         = var.AUDITOR_SINK_EXCLUSIONS
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0

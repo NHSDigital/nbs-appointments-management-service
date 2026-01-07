@@ -48,10 +48,7 @@ public class SiteService(
     IOptions<SiteServiceOptions> options) : ISiteService
 {
     private static readonly SemaphoreSlim _siteCacheLock = new(1, 1);
-    
-    private TimeSpan SiteSupportsServiceAbsoluteExpiration => TimeSpan.FromHours(4);
-    private TimeSpan SiteSupportsServiceSlideThreshold => TimeSpan.FromMinutes(15);
-    
+
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
         SiteSupportsServiceFilter siteSupportsServiceFilter = null)
@@ -70,9 +67,10 @@ public class SiteService(
             .Select(site => new SiteWithDistance(site,
                 GeographyCalculations.CalculateDistanceInMetres(coordinates, site.Coordinates)));
 
-        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any() ?
-            s => accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true") :
-            s => true;
+        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any()
+            ? s =>
+                accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true")
+            : s => true;
 
         if (siteSupportsServiceFilter == null)
         {
@@ -96,9 +94,10 @@ public class SiteService(
             maximumRecords * 20);
     }
 
-    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites, List<string> services,
+    private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
+        List<string> services,
         DateOnly from, DateOnly to,
-         int maxRecords = 50, int batchSize = 1000)
+        int maxRecords = 50, int batchSize = 1000)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
         var uniqueSortedServices = services.OrderBy(s => s).Distinct().ToList();
@@ -124,11 +123,19 @@ public class SiteService(
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
                 var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
+                var slideThreshold =
+                    TimeSpan.FromSeconds(options.Value.SiteSupportsServiceSlidingCacheSlideThresholdSeconds);
+                var slideExpiry = TimeSpan.FromSeconds(options.Value
+                    .SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds);
+                
                 var siteOffersServiceDuringPeriod =
-                    await cacheService.GetLazySlidingCacheValue(cacheKey, new LazySlideCacheOptions<bool>(async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices, from, to), SiteSupportsServiceSlideThreshold, SiteSupportsServiceAbsoluteExpiration));
-                
+                    await cacheService.GetLazySlidingCacheValue(cacheKey,
+                        new LazySlideCacheOptions<bool>(
+                            async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices,
+                                from, to), slideThreshold, slideExpiry));
+
                 ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
-                
+
                 if (siteOffersServiceDuringPeriod)
                 {
                     concurrentBatchResults.Add(swd);
@@ -194,7 +201,7 @@ public class SiteService(
 
         return includeDeleted ? allSites : allSites.Where(s => s.isDeleted is null or false);
     }
-    
+
     public async Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false)
     {
         var sites = await GetAllSites(includeDeleted);
@@ -336,7 +343,8 @@ public class SiteService(
             {
                 // Adding .Single() here as the current implementation only allows for filtering on a single service
                 // This will need updating if we decide to allow filtering on multiple services
-                var siteSupportsServiceFilter = new SiteSupportsServiceFilter([.. filter.Availability.Services], filter.Availability.From!.Value, filter.Availability.Until!.Value);
+                var siteSupportsServiceFilter = new SiteSupportsServiceFilter([.. filter.Availability.Services],
+                    filter.Availability.From!.Value, filter.Availability.Until!.Value);
 
                 var serviceResults = await GetSitesSupportingService(
                     sitesWithDistance,
@@ -513,17 +521,19 @@ public class SiteService(
         }
     }
 
-    private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from, DateOnly until)
+    private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from,
+        DateOnly until)
     {
         var joinedServices = string.Join('_', services);
         var dateRange = $"{from:yyyyMMdd}_{until:yyyyMMdd}";
         return $"site_{siteId}_supports_{joinedServices}_in_{dateRange}";
     }
-    
+
     private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, List<string> services, DateOnly from,
         DateOnly until)
     {
         var dateStringsInRange = GetDateStringsInRange(from, until);
-        return await availabilityStore.SiteSupportsAllServicesOnSingleDateInRangeAsync(siteId, services, dateStringsInRange);
+        return await availabilityStore.SiteSupportsAllServicesOnSingleDateInRangeAsync(siteId, services,
+            dateStringsInRange);
     }
 }

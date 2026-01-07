@@ -9,9 +9,10 @@ import {
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
+import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
 import { ClinicalService, SessionSummary, Site } from '@types';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 type EditSessionDecisionProps = {
@@ -40,6 +41,13 @@ export const EditSessionDecision = ({
     register,
     formState: { errors },
   } = useForm<EditSessionDecisionFormData>({});
+
+  useEffect(() => {
+    const storedDraft = sessionStorage.getItem(AVAILABILITY_EDIT_DRAFT_KEY);
+    if (storedDraft) {
+      sessionStorage.removeItem(AVAILABILITY_EDIT_DRAFT_KEY);
+    }
+  }, []);
 
   const submitForm: SubmitHandler<EditSessionDecisionFormData> = async (
     form: EditSessionDecisionFormData,

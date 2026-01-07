@@ -179,3 +179,32 @@ variable "KEYVAULT_CLIENT_SECRET" {
   type = string
   sensitive = true
 }
+
+variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS" {
+  type = string
+  sensitive = false
+}
+
+variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS" {
+  type = string
+  sensitive = false
+}
+
+variable "AUDITOR_ENABLE" {
+  type = bool
+}
+
+variable "AUDITOR_LEASE_CONTAINER_NAME" {
+  type = string
+}
+
+variable "AUDITOR_WORKER_CONTAINERS" {
+  type = list(string)
+}
+
+variable "AUDITOR_SINK_EXCLUSIONS" {
+  type = list(object({
+    source         = string
+    excluded_paths = list(string)
+  }))
+}

@@ -58,3 +58,30 @@ resource "azurerm_storage_container" "nbs_mya_leases_container" {
   name               = "leases"
   storage_account_id = azurerm_storage_account.nbs_mya_leases_storage_account.id
 }
+
+# Audit storage account
+resource "azurerm_storage_account" "nbs_mya_audit_storage_account" {
+  name                     = "${var.application_short}strgaudit${var.environment}${var.loc}"
+  resource_group_name      = local.resource_group_name
+  location                 = var.location
+  account_replication_type = var.storage_account_replication_type
+  account_tier             = "Standard"
+}
+
+# Audit lifecycle policy to move to Archive tier
+resource "azurerm_storage_management_policy" "audit_lifecycle_policy" {
+  storage_account_id = azurerm_storage_account.nbs_mya_audit_storage_account.id
+
+  rule {
+    name    = "ArchiveOldAudits"
+    enabled = true
+    filters {
+      blob_types   = ["blockBlob"]
+    }
+    actions {
+      base_blob {
+        tier_to_archive_after_days_since_modification_greater_than = var.auditor_archive_after_days
+      }
+    }
+  }
+}

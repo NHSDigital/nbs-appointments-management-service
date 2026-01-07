@@ -23,7 +23,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         
         if (options.AbsoluteExpiration <= options.SlideThreshold)
         {
-            throw new ArgumentException("Configuration not supported.");
+            throw new ArgumentException("Configuration is not supported, AbsoluteExpiration must be greater than the SlideThreshold");
         }
         
         var utcNow = timeProvider.GetUtcNow();

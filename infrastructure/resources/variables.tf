@@ -418,4 +418,34 @@ variable "auto_cancelled_bookings_disabled" {
   type = bool
 }
 
+variable "site_supports_service_sliding_cache_slide_threshold_seconds" {
+  type = string
+}
 
+variable "site_supports_service_sliding_cache_absolute_expiration_seconds" {
+  type = string
+}
+
+variable "auditor_enable" {
+  type = bool
+}
+
+variable "auditor_lease_container_name" {
+  type = string
+}
+
+variable "auditor_worker_containers" {
+  type = list(string)
+}
+
+variable "auditor_sink_exclusions" {
+  type = list(object({
+    source         = string
+    excluded_paths = list(string)
+  }))
+}
+
+variable "auditor_archive_after_days" {
+  type = number
+  default = 1
+}

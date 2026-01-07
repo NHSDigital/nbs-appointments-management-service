@@ -25,7 +25,11 @@ public class SiteServiceTests
     {
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
-            DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
+            DisableSiteCache = false, 
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites", 
+            SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
+            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400
         });
 
         var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);

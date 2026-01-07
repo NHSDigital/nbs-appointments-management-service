@@ -71,6 +71,8 @@ module "mya_application_perf" {
   container_registry_username                     = var.CONTAINER_REGISTRY_USERNAME
   container_registry_password                     = var.CONTAINER_REGISTRY_PASSWORD
   auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
+  site_supports_service_sliding_cache_absolute_expiration_seconds = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS
+  site_supports_service_sliding_cache_slide_threshold_seconds     = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS
   create_data_extracts                            = true
   data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = true

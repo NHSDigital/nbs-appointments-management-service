@@ -245,3 +245,13 @@ variable "AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE" {
   type = string
   sensitive = false
 }
+
+variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS" {
+  type = string
+  sensitive = false
+}
+
+variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS" {
+  type = string
+  sensitive = false
+}

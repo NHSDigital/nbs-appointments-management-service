@@ -198,3 +198,13 @@ variable "KEYVAULT_CLIENT_SECRET" {
   type = string
   sensitive = true
 }
+
+variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS" {
+  type = string
+  sensitive = false
+}
+
+variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS" {
+  type = string
+  sensitive = false
+}

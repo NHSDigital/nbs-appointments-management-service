@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Api.Notifications.Options;
+using Nhs.Appointments.Audit.Persistance;
+using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
@@ -54,6 +56,10 @@ public class NotificationsServiceProviderExtensionsTests
             .AddDependenciesNotUnderTest()
             .AddUserNotifications(configuration)
             .AddCosmosDataStores()
+            .AddTransient<ITypedDocumentCosmosStore<AuditFunctionDocument>, TypedDocumentCosmosStore<AuditFunctionDocument>>()
+            .AddTransient<ITypedDocumentCosmosStore<AuditAuthDocument>, TypedDocumentCosmosStore<AuditAuthDocument>>()
+            .AddTransient<ITypedDocumentCosmosStore<AuditNotificationDocument>, TypedDocumentCosmosStore<AuditNotificationDocument>>()
+            .AddTransient<IAuditWriteService, AuditWriteService>()
             .AddSingleton<ISiteSummaryAggregator, FakeSiteSummaryAggregator>()
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()

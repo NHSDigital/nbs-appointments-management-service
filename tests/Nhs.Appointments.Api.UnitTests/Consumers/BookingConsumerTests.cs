@@ -14,7 +14,7 @@ public class BookingConsumerTests
     {
         var date = new DateOnly(2050, 1, 1);
         var time = new TimeOnly(12, 15);
-        _notifier.Setup(x => x.Notify(nameof(BookingMade), "Service", "Reference", "Site", "FirstName", date, time, NotificationType.Email, "test@test.com")).Verifiable();
+        _notifier.Setup(x => x.Notify(nameof(BookingMade), "Service", "Reference", "Site", "FirstName", date, time, NotificationType.Email, "test@test.com", "NhsNumber")).Verifiable();
         var sut = new TestBookingConsumer(_notifier.Object);
         var ctx = new Mock<ConsumeContext<BookingMade>>();
         ctx.SetupGet(x => x.Message).Returns(new BookingMade

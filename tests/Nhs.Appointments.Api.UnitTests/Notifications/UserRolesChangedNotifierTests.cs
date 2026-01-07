@@ -1,6 +1,7 @@
 using MassTransit.Serialization;
 using Moq;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Messaging;
@@ -19,12 +20,13 @@ public class UserRolesChangedNotifierTests
     private readonly Mock<INotificationConfigurationService> _notificationConfigurationService = new();
     private readonly Mock<IRolesStore> _rolesStore = new();
     private readonly Mock<ISiteService> _siteService = new();
+    private readonly Mock<IAuditWriteService> _auditWriteService = new();
     private readonly UserRolesChangedNotifier _sut;
 
     public UserRolesChangedNotifierTests()
     {
         _sut = new UserRolesChangedNotifier(_notificationClient.Object, _notificationConfigurationService.Object,
-            _rolesStore.Object, _siteService.Object);
+            _rolesStore.Object, _siteService.Object, _auditWriteService.Object);
     }
 
     [Fact]

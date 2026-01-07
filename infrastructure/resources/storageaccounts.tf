@@ -76,7 +76,6 @@ resource "azurerm_storage_management_policy" "audit_lifecycle_policy" {
     name    = "ArchiveOldAudits"
     enabled = true
     filters {
-      prefix_match = [for container in var.auditor_worker_containers : "${replace(container, "_", "-")}/"]
       blob_types   = ["blockBlob"]
     }
     actions {

@@ -73,12 +73,13 @@ export default class Users extends MYALayout {
     ).not.toBeVisible();
   }
 
-  async clickEditLink(newUserName: string) {
+  async clickEditLink(newUserName: string): Promise<ManageUserPage> {
     await this.page
       .getByRole('row')
       .filter({ has: this.page.getByText(newUserName) })
       .getByRole('link', { name: 'Edit' })
       .click();
+    return new ManageUserPage(this.page, this.site);
   }
 
   async verifyUserRoleRemoved(roleName: string, newUserName: string) {

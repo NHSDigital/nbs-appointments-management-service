@@ -282,3 +282,119 @@ Feature: Query Availability By Hours
       | 2c7e2976-354d-4c20-b027-7dd45e22c0ba | RSV:Adult,COVID:5_11,FLU:2_3 | Tomorrow |
     Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
       | From  | Until |
+
+  Scenario: One booked slot breaks a consecutive pair
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date              | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 09:30 | RSV:Adult  | 10          | 1        |
+    And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date        | Time  | Duration | Service   | Reference   |
+      | Tomorrow    | 09:10 | 10       | RSV:Adult | 56345-11111 |
+    When I query availability by hours
+      | Site                                 | Attendee Services   | Date     |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,RSV:Adult | Tomorrow |
+    Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
+      | From  | Until |
+
+  Scenario: Booking at the start still allows later consecutive slots
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date              | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 09:30 | RSV:Adult  | 10          | 1        |
+    And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date        | Time  | Duration | Service   | Reference   |
+      | Tomorrow    | 09:00 | 10       | RSV:Adult | 56345-11111 |
+    When I query availability by hours
+      | Site                                 | Attendee Services   | Date     |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,RSV:Adult | Tomorrow |
+    Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
+      | From  | Until |
+      | 09:00 | 10:00 |
+
+  Scenario: Booking at the end still allows earlier consecutive slots
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date              | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 09:30 | RSV:Adult  | 10          | 1        |
+    And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date        | Time  | Duration | Service   | Reference   |
+      | Tomorrow    | 09:20 | 10       | RSV:Adult | 56345-11111 |
+    When I query availability by hours
+      | Site                                 | Attendee Services   | Date     |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,RSV:Adult | Tomorrow |
+    Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
+      | From  | Until |
+      | 09:00 | 10:00 |
+
+  Scenario: Two non-adjacent bookings split availability into two valid windows
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |      
+    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date              | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 09:50 | RSV:Adult  | 10          | 1        |
+    And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date        | Time  | Duration | Service   | Reference   |
+      | Tomorrow    | 09:10 | 10       | RSV:Adult | 56345-11111 |
+      | Tomorrow    | 09:30 | 10       | RSV:Adult | 12345-11111 |
+    When I query availability by hours
+      | Site                                 | Attendee Services   | Date     |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,RSV:Adult | Tomorrow |
+    Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
+      | From  | Until |
+
+  Scenario: One booking leaves valid consecutive pairs
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date              | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow          | 11:40 | 12:30 | RSV:Adult  | 10          | 1        |
+    And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date        | Time  | Duration | Service   | Reference   |
+      | Tomorrow    | 12:00 | 10       | RSV:Adult | 56345-11111 |
+    When I query availability by hours
+      | Site                                 | Attendee Services   | Date     |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,RSV:Adult | Tomorrow |
+    Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
+      | From  | Until |
+      | 11:00 | 12:00 |
+      | 12:00 | 13:00 |
+
+  Scenario: Only two slots exist and one is booked
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date              | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 09:20 | RSV:Adult  | 10          | 1        |
+    And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date        | Time  | Duration | Service   | Reference   |
+      | Tomorrow    | 09:00 | 10       | RSV:Adult | 56345-11111 |
+    When I query availability by hours
+      | Site                                 | Attendee Services   | Date     |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,RSV:Adult | Tomorrow |
+    Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
+      | From  | Until |
+
+  Scenario: One session too short, another session valid
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+      | Date              | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 09:10 | RSV:Adult  | 10          | 1        |
+      | Tomorrow          | 13:00 | 13:20 | RSV:Adult  | 10          | 1        |
+    When I query availability by hours
+      | Site                                 | Attendee Services   | Date     |
+      | b4f1093b-83fc-4f99-9bd2-7c29080254db | RSV:Adult,RSV:Adult | Tomorrow |
+    Then the following 'RSV:Adult' availabilty is returned for 'Tomorrow'
+      | From  | Until |
+      | 13:00 | 14:00 |

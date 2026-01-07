@@ -208,7 +208,6 @@ variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS" {
   type = string
   sensitive = false
 }
-}
 
 variable "AUDITOR_ENABLE" {
   type = bool

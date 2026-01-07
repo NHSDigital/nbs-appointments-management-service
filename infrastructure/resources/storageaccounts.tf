@@ -68,20 +68,6 @@ resource "azurerm_storage_account" "nbs_mya_audit_storage_account" {
   account_tier             = "Standard"
 }
 
-# Containers for audit logs
-resource "azurerm_storage_container" "data_containers" {
-  for_each              = toset(var.auditor_worker_containers)
-  name                  = replace(each.value, "_", "-") 
-  storage_account_id    = azurerm_storage_account.nbs_mya_audit_storage_account.id
-  container_access_type = "private"
-}
-
-resource "azurerm_storage_container" "lease_container" {
-  name                  = replace(var.auditor_lease_container_name, "_", "-")
-  storage_account_id    = azurerm_storage_account.nbs_mya_audit_storage_account.id
-  container_access_type = "private"
-}
-
 # Audit lifecycle policy to move to Archive tier
 resource "azurerm_storage_management_policy" "audit_lifecycle_policy" {
   storage_account_id = azurerm_storage_account.nbs_mya_audit_storage_account.id
@@ -95,7 +81,7 @@ resource "azurerm_storage_management_policy" "audit_lifecycle_policy" {
     }
     actions {
       base_blob {
-        tier_to_archive_after_days_since_modification_greater_than = 30
+        tier_to_archive_after_days_since_modification_greater_than = 1
       }
     }
   }

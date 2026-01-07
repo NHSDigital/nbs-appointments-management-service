@@ -10,18 +10,17 @@ test('Verify user manager is able to remove a user', async ({
     .clickManageUsersCard()
     .then(async usersPage => usersPage.clickAddUserButton())
     .then(async manageUserPage => {
-      const newUser = `testuser${Date.now()}@example.com`;
+      const newUser = `testuser${Date.now()}@nhs.net`;
 
       await expect(manageUserPage.emailStep.title).toBeVisible();
       await manageUserPage.emailStep.emailInput.fill(newUser);
-      await manageUserPage.emailStep.continueButton.click();
+      const userRoles = await manageUserPage.saveUserEmail();
 
-      await expect(manageUserPage.userRolesStep.title).toBeVisible();
-      await manageUserPage.userRolesStep.appointmentManagerCheckbox.check();
-      await manageUserPage.userRolesStep.continueButton.click();
+      await expect(userRoles.title).toBeVisible();
+      await userRoles.appointmentManagerCheckbox.check();
+      const summaryStep = await manageUserPage.saveUserRoles();
 
-      await expect(manageUserPage.summaryStep.title).toBeVisible();
-      await manageUserPage.summaryStep.continueButton.click();
+      await expect(summaryStep.title).toBeVisible();
 
       const usersPage = await manageUserPage.saveUserDetails();
       return { usersPage, newUser };
@@ -64,18 +63,17 @@ test('Displays a notification banner after removing a user, which disappears whe
     .clickManageUsersCard()
     .then(async usersPage => usersPage.clickAddUserButton())
     .then(async manageUserPage => {
-      const newUser = `testuser${Date.now()}@example.com`;
+      const newUser = `testuser${Date.now()}@nhs.net`;
 
       await expect(manageUserPage.emailStep.title).toBeVisible();
       await manageUserPage.emailStep.emailInput.fill(newUser);
-      await manageUserPage.emailStep.continueButton.click();
+      const userRoles = await manageUserPage.saveUserEmail();
 
-      await expect(manageUserPage.userRolesStep.title).toBeVisible();
-      await manageUserPage.userRolesStep.appointmentManagerCheckbox.check();
-      await manageUserPage.userRolesStep.continueButton.click();
+      await expect(userRoles.title).toBeVisible();
+      await userRoles.appointmentManagerCheckbox.check();
+      const summaryStep = await manageUserPage.saveUserRoles();
 
-      await expect(manageUserPage.summaryStep.title).toBeVisible();
-      await manageUserPage.summaryStep.continueButton.click();
+      await expect(summaryStep.title).toBeVisible();
 
       const usersPage = await manageUserPage.saveUserDetails();
       return { usersPage, newUser };

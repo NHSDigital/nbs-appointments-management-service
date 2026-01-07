@@ -444,3 +444,8 @@ variable "auditor_sink_exclusions" {
     excluded_paths = list(string)
   }))
 }
+
+variable "auditor_archive_after_days" {
+  type = number
+  default = 1
+}

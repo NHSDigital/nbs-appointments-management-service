@@ -80,7 +80,7 @@ resource "azurerm_storage_management_policy" "audit_lifecycle_policy" {
     }
     actions {
       base_blob {
-        tier_to_archive_after_days_since_modification_greater_than = 1
+        tier_to_archive_after_days_since_modification_greater_than = var.auditor_archive_after_days
       }
     }
   }

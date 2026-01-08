@@ -19,6 +19,9 @@ public static class ConfigurationExtensions
         builder.Services
             .AddTransient<ITypedDocumentCosmosStore<AuditAuthDocument>,
                 TypedDocumentCosmosStore<AuditAuthDocument>>();
+        builder.Services
+            .AddTransient<ITypedDocumentCosmosStore<AuditNotificationDocument>,
+                TypedDocumentCosmosStore<AuditNotificationDocument>>();
         builder.Services.AddTransient<IAuditWriteService, AuditWriteService>();
 
         return builder;

@@ -13,6 +13,7 @@ public class ServiceTests
 {
     private readonly Mock<ITypedDocumentCosmosStore<AuditFunctionDocument>> _auditFunctionDocumentStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<AuditAuthDocument>> _auditAuthDocumentStore = new();
+    private readonly Mock<ITypedDocumentCosmosStore<AuditNotificationDocument>> _auditNotificationDocumentStore = new();
 
     private readonly Mock<CosmosClient> _mockCosmosClient = new();
     private readonly Mock<IMapper> _mockMapper = new();
@@ -22,7 +23,7 @@ public class ServiceTests
     [Fact]
     public async Task RecordFunction_WriteAsync_IsCalled()
     {
-        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object);
+        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object, _auditNotificationDocumentStore.Object);
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
         var user = "abd-123@test.com";
@@ -45,7 +46,7 @@ public class ServiceTests
     [Fact]
     public async Task RecordAuth_LoginAction_WriteAsync_IsCalled()
     {
-        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object);
+        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object, _auditNotificationDocumentStore.Object);
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
         var user = "abd-123@test.com";
@@ -62,10 +63,40 @@ public class ServiceTests
         )), Times.Once);
     }
     
+    [Theory]
+    [InlineData(null)]
+    [InlineData("someReference")]
+    public async Task RecordNotification_WriteAsync_IsCalled(string reference)
+    {
+        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object, _auditNotificationDocumentStore.Object);
+
+        var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
+        var user = "abd-123@test.com";
+        var timestamp = DateTime.UtcNow;
+        var destinationId = "SomeIdentifier";
+        var notificationName = "ANotification";
+        var template = $"{Guid.NewGuid()}";
+        var notificationType = "SMSorEmail";
+
+        await sut.RecordNotification(id, timestamp, user, destinationId, notificationName, template, notificationType, reference);
+
+        _auditNotificationDocumentStore.Verify(x => x.WriteAsync(It.Is<AuditNotificationDocument>(
+            y =>
+                y.Id == id
+                && y.Timestamp == timestamp
+                && y.User == user
+                && y.DestinationId == destinationId
+                && y.NotificationName == notificationName
+                && y.Template == template
+                && y.NotificationType == notificationType
+                && y.Reference == reference
+        )), Times.Once);
+    }
+    
     [Fact]
     public async Task RecordAuth_UndefinedAction_ThrowsArgumentException()
     {
-        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object);
+        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object, _auditNotificationDocumentStore.Object);
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
         var user = "abd-123@test.com";
@@ -85,6 +116,19 @@ public class ServiceTests
         auditDocStore._databaseName.Should().Be("appts");
         auditDocStore._containerName.Should().Be("audit_data");
         auditDocStore.GetDocumentType().Should().Be("function");
+    }
+    
+    [Fact]
+    public void AuditNotificationStore_SetsCosmosData_Correctly()
+    {
+        _mockOptions.Setup(x => x.Value).Returns(new CosmosDataStoreOptions { DatabaseName = "appts" });
+
+        var auditDocStore = new TypedDocumentCosmosStore<AuditNotificationDocument>(_mockCosmosClient.Object,
+            _mockOptions.Object, _mockMapper.Object, _mockMetrics.Object);
+
+        auditDocStore._databaseName.Should().Be("appts");
+        auditDocStore._containerName.Should().Be("audit_data");
+        auditDocStore.GetDocumentType().Should().Be("notification");
     }
     
     [Fact]

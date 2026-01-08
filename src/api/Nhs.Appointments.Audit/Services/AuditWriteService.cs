@@ -4,7 +4,8 @@ using Nhs.Appointments.Persistance;
 namespace Nhs.Appointments.Audit.Services;
 
 public class AuditWriteService(ITypedDocumentCosmosStore<AuditFunctionDocument> auditFunctionStore, 
-    ITypedDocumentCosmosStore<AuditAuthDocument> auditAuthStore) : IAuditWriteService
+    ITypedDocumentCosmosStore<AuditAuthDocument> auditAuthStore,
+    ITypedDocumentCosmosStore<AuditNotificationDocument> auditNotificationStore) : IAuditWriteService
 {
     public async Task RecordFunction(string id, DateTime timestamp, string user, string functionName, string site)
     {
@@ -40,5 +41,27 @@ public class AuditWriteService(ITypedDocumentCosmosStore<AuditFunctionDocument> 
         };
 
         await auditAuthStore.WriteAsync(doc);
+    }
+
+    public async Task RecordNotification(string id, DateTime timestamp, string user, string destinationId,
+        string notificationName,
+        string template, string notificationType, string reference)
+    {
+        
+        var docType = auditNotificationStore.GetDocumentType();
+        var doc = new AuditNotificationDocument()
+        {
+            Id = id,
+            DocumentType = docType,
+            DestinationId = destinationId,
+            NotificationName = notificationName,
+            Template = template,
+            NotificationType = notificationType,
+            Reference = reference,
+            Timestamp = timestamp,
+            User = user
+        };
+
+        await auditNotificationStore.WriteAsync(doc);
     }
 }

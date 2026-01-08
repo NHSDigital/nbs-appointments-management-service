@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
@@ -14,6 +15,7 @@ public class BookingNotifierTests
     private const string SmsTemplateId = "sms-template";
     private const string Site = "6877d86e-c2df-4def-8508-e1eccf0ea6ba";
     private const string Email = "test@tempuri.org";
+    private const string NhsNumber = "NhsNumber";
     private const string FirstName = "joe";
     private const string PhoneNumber = "07722333444";
     private const string Reference = "booking-ref-1234";
@@ -24,6 +26,7 @@ public class BookingNotifierTests
     private readonly Mock<INotificationConfigurationService> _notificationConfigurationService = new();
     private readonly Mock<ISiteService> _siteService = new();
     private readonly Mock<IClinicalServiceProvider> _clinicalServiceProviderMock = new();
+    private readonly Mock<IAuditWriteService> _auditWriteService = new();
     private readonly BookingNotifier _sut;
     private readonly DateOnly date = new(2050, 1, 1);
     private readonly TimeOnly time = new(12, 15);
@@ -31,7 +34,7 @@ public class BookingNotifierTests
     public BookingNotifierTests()
     {
         _sut = new BookingNotifier(_notificationClient.Object, _notificationConfigurationService.Object,
-            _siteService.Object, new PrivacyUtil(), _logger.Object, _clinicalServiceProviderMock.Object);
+            _siteService.Object, new PrivacyUtil(), _logger.Object, _clinicalServiceProviderMock.Object, _auditWriteService.Object);
     }
 
     [Fact]
@@ -64,7 +67,7 @@ public class BookingNotifierTests
         ))).Verifiable();
 
         await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Email,
-            Email);
+            Email, NhsNumber);
         _notificationClient.Verify();
     }
 
@@ -97,7 +100,7 @@ public class BookingNotifierTests
         )));
 
         await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Sms,
-            PhoneNumber);
+            PhoneNumber, NhsNumber);
 
         _notificationClient.Verify(x => x.SendSmsAsync(
             It.IsAny<string>(),
@@ -142,7 +145,7 @@ public class BookingNotifierTests
                 dic.ContainsKey("siteLocation")
         )));
 
-        await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Email, Email);
+        await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Email, Email, NhsNumber);
 
         _notificationClient.Verify(x => x.SendEmailAsync(
             It.IsAny<string>(), 
@@ -174,7 +177,7 @@ public class BookingNotifierTests
             x => x.SendEmailAsync(Email, EmailTemplateId, It.IsAny<Dictionary<string, dynamic>>()));
 
         await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Email,
-            Email);
+            Email, NhsNumber);
         _siteService.Verify();
     }
 
@@ -198,7 +201,7 @@ public class BookingNotifierTests
             x => x.SendEmailAsync(Email, EmailTemplateId, It.IsAny<Dictionary<string, dynamic>>()));
 
         await _sut.Notify(nameof(BookingMade), Service, Reference, Site, FirstName, date, time, NotificationType.Email,
-            Email);
+            Email, NhsNumber);
         _notificationConfigurationService.Verify();
     }
 }

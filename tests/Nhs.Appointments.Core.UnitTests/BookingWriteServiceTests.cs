@@ -1022,12 +1022,13 @@ namespace Nhs.Appointments.Core.UnitTests
             {
                 From = new DateTime(2025, 01, 01, 9, 0, 0),
                 Reference = "1",
-                ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890" }],
+                ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
                 Status = AppointmentStatus.Booked,
                 AvailabilityStatus = AvailabilityStatus.Supported,
                 Duration = 10,
                 Site = MockSite,
-                Service = "RSV:Adult"
+                Service = "RSV:Adult",
+                AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber"}
             };
 
             _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
@@ -1170,7 +1171,8 @@ namespace Nhs.Appointments.Core.UnitTests
                     AdditionalData = new
                     {
                         AutoCancellation = false
-                    }
+                    },
+                    AttendeeDetails = new AttendeeDetails() { NhsNumber = "NhsNumber" }
                 },
                 new()
                 {
@@ -1186,7 +1188,8 @@ namespace Nhs.Appointments.Core.UnitTests
                     AdditionalData = new
                     {
                         AutoCancellation = true
-                    }
+                    },
+                    AttendeeDetails = new AttendeeDetails() { NhsNumber = "NhsNumber" }
                 }
             };
 

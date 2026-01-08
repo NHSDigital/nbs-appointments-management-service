@@ -7,7 +7,7 @@ import Header from './header';
 import { E2ETestSite } from '..';
 
 export default abstract class MYALayout extends PageObject {
-  protected readonly site?: E2ETestSite;
+  readonly site?: E2ETestSite;
 
   constructor(page: Page, site?: E2ETestSite) {
     super(page);

@@ -61,11 +61,12 @@ test('Receives 403 when trying to edit self', async ({
   page,
   setUpSingleSite,
 }) => {
-  const { sitePage } = await setUpSingleSite();
+  const { sitePage, testId } = await setUpSingleSite();
   const notAuthorizedPage = new NotAuthorizedPage(page);
+  const testUserEmail = `test-user-${testId}@nhs.net`;
 
   await page.goto(
-    `/manage-your-appointments/site/${sitePage.site?.id}/users/manage?user=zzz_test_user_1@nhs.net`,
+    `/manage-your-appointments/site/${sitePage.site?.id}/users/manage?user=${testUserEmail}`,
   );
   await expect(notAuthorizedPage.title).toBeVisible();
 });

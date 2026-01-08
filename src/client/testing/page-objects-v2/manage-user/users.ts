@@ -105,4 +105,9 @@ export default class Users extends MYALayout {
     await this.page.waitForURL(`**/site/${this.site?.id}/users/manage`);
     return new ManageUserPage(this.page, this.site);
   }
+
+  async getUserCount(): Promise<number> {
+    const userCount = await this.page.getByRole('row').count();
+    return userCount - 1; // Subtract 1 for the header row
+  }
 }

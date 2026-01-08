@@ -41,6 +41,7 @@ test('Navigating straight to the user management page without permission shows 4
   await expect(notAuthorizedPage.title).toBeVisible();
 });
 
+// TODO: This test needs migrating over when we have a way to assign multiple sites to a user
 // test('Permissions are applied per site', )
 
 test('Verify user manager cannot edit or remove themself', async ({

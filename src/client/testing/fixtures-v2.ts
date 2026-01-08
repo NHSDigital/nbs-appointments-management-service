@@ -37,6 +37,7 @@ type MyaFixtures = {
 };
 
 export const test = base.extend<MyaFixtures>({
+  // TODO: Extend this (or create new fixtures) to cover multiple sites and multiple users per site
   setUpSingleSite: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
       env.COSMOS_ENDPOINT,

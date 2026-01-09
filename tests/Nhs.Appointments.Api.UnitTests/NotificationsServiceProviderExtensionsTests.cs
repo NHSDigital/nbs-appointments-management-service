@@ -4,12 +4,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Api.Notifications;
 using Nhs.Appointments.Api.Notifications.Options;
+using Nhs.Appointments.Api.Providers;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests;
@@ -64,6 +67,9 @@ public class NotificationsServiceProviderExtensionsTests
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .AddSingleton<IFeatureToggleHelper, FakeFeatureToggleHelper>()
+            .AddScoped<ILastUpdatedByResolver, LastUpdatedByResolver>()
+            .AddScoped<IUserContextProvider, UserContextProvider>()
+            .AddSingleton<SiteCacheLock>()
             .BuildServiceProvider();
 
         var messageBus = serviceProvider.GetService(typeof(IMessageBus));

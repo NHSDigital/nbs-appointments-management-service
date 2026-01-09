@@ -19,6 +19,7 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
@@ -47,6 +48,7 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly Mapper Mapper;
     protected List<BookingDocument> MadeBookings = new List<BookingDocument>();
     protected readonly Dictionary<int, string> _bookingReferences = new();
+    protected readonly string _userId = "api@test";
     protected HttpResponseMessage _response { get; set; }
 
     public BaseFeatureSteps()
@@ -213,6 +215,40 @@ public abstract partial class BaseFeatureSteps : Feature
             Site = g.First().Site,
             DocumentType = "daily_availability",
             Sessions = g.SelectMany(s => s.Sessions).ToArray()
+        });
+    }
+
+    protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site,
+    DataTable dataTable, bool lastUpdatedByEnabled, string flag)
+    {
+        var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
+        {
+            Id = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
+            Date = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value),
+            Site = site,
+            DocumentType = "daily_availability",
+            Sessions = new[]
+            {
+                new Session
+                {
+                    From = TimeOnly.Parse(row.Cells.ElementAt(1).Value),
+                    Until = TimeOnly.Parse(row.Cells.ElementAt(2).Value),
+                    Services = row.Cells.ElementAt(3).Value.Split(",").Select(x => x.Trim()).ToArray(),
+                    Capacity = int.Parse(row.Cells.ElementAt(5).Value),
+                    SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
+                }
+            },
+            LastUpdatedBy = flag == Flags.AuditLastUpdatedBy && lastUpdatedByEnabled ? _userId : null
+        });
+
+        return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument
+        {
+            Id = g.First().Id,
+            Date = g.Key,
+            Site = g.First().Site,
+            DocumentType = "daily_availability",
+            Sessions = g.SelectMany(s => s.Sessions).ToArray(),
+            LastUpdatedBy = g.First().LastUpdatedBy
         });
     }
 
@@ -971,7 +1007,7 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         var userAssignments = new UserDocument
         {
-            Id = "api@test",
+            Id = _userId,
             ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
             RoleAssignments =

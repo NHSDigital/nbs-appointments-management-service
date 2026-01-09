@@ -1,18 +1,16 @@
+using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core.Features;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Api.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-[FeatureFile("./Scenarios/SiteManagement/UpdateSiteReferenceDetails.feature")]
-public sealed class UpdateSiteReferenceDetailsFeatureSteps : SiteManagementBaseFeatureSteps
+public abstract class UpdateSiteReferenceDetailsFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled)
 {
     [When("I update the reference details for site '(.+)'")]
     public async Task UpdateSiteReferenceDetails(string siteDesignation, DataTable dataTable)
@@ -28,3 +26,12 @@ public sealed class UpdateSiteReferenceDetailsFeatureSteps : SiteManagementBaseF
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/reference-details", payload);
     }
 }
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/UpdateSiteReferenceDetails.feature")]
+public sealed class UpdateSiteReferenceDetailsFeaturesSteps_LastUpdatedByEnabled() : UpdateSiteReferenceDetailsFeatureSteps(Flags.AuditLastUpdatedBy, true);
+
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/UpdateSiteReferenceDetails.feature")]
+public sealed class UpdateSiteReferenceDetailsFeatureSteps_LastUpdatedByDisabled() : UpdateSiteReferenceDetailsFeatureSteps(Flags.AuditLastUpdatedBy, false);

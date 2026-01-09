@@ -1,14 +1,16 @@
 using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core.Features;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-[FeatureFile("./Scenarios/SiteManagement/UpdateSiteDetails.feature")]
-public sealed class UpdateSiteDetailsFeatureSteps : SiteManagementBaseFeatureSteps
+public abstract class UpdateSiteDetailsFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled)
 {
     [When("I update the details for site '(.+)'")]
     public async Task UpdateSiteDetails(string siteDesignation, DataTable dataTable)
@@ -26,3 +28,12 @@ public sealed class UpdateSiteDetailsFeatureSteps : SiteManagementBaseFeatureSte
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
     }
 }
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/UpdateSiteDetails.feature")]
+public sealed class UpdateSiteDetailsFeaturesSteps_LastUpdatedByEnabled() : UpdateSiteDetailsFeatureSteps(Flags.AuditLastUpdatedBy, true);
+
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/UpdateSiteDetails.feature")]
+public sealed class UpdateSiteDetailsFeatureSteps_LastUpdatedByDisabled() : UpdateSiteDetailsFeatureSteps(Flags.AuditLastUpdatedBy, false);

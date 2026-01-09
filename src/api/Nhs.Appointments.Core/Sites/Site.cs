@@ -18,7 +18,8 @@ public record Site(
     [JsonProperty("location")] Location location,
     [JsonProperty("status")] SiteStatus? status,
     [JsonProperty("isDeleted")] bool? isDeleted,
-    [JsonProperty("type")] string Type
+    [JsonProperty("type")] string Type,
+    [JsonProperty("lastUpdatedBy")] string LastUpdatedBy = null
 )
 {
     public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;

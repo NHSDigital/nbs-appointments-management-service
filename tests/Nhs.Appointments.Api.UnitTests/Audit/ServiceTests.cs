@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests.Audit;
@@ -19,6 +20,8 @@ public class ServiceTests
     private readonly Mock<IMapper> _mockMapper = new();
     private readonly Mock<IMetricsRecorder> _mockMetrics = new();
     private readonly Mock<IOptions<CosmosDataStoreOptions>> _mockOptions = new();
+    private readonly Mock<ILastUpdatedByResolver> _mockLastUpdatedByResolver = new();
+    private readonly Mock<IFeatureToggleHelper> _mockFeatureToggleHelper = new();
 
     [Fact]
     public async Task RecordFunction_WriteAsync_IsCalled()
@@ -110,8 +113,13 @@ public class ServiceTests
     {
         _mockOptions.Setup(x => x.Value).Returns(new CosmosDataStoreOptions { DatabaseName = "appts" });
 
-        var auditDocStore = new TypedDocumentCosmosStore<AuditFunctionDocument>(_mockCosmosClient.Object,
-            _mockOptions.Object, _mockMapper.Object, _mockMetrics.Object);
+        var auditDocStore = new TypedDocumentCosmosStore<AuditFunctionDocument>(
+            _mockCosmosClient.Object,
+            _mockOptions.Object, 
+            _mockMapper.Object, 
+            _mockMetrics.Object,
+            _mockLastUpdatedByResolver.Object,
+            _mockFeatureToggleHelper.Object);
 
         auditDocStore._databaseName.Should().Be("appts");
         auditDocStore._containerName.Should().Be("audit_data");
@@ -123,8 +131,13 @@ public class ServiceTests
     {
         _mockOptions.Setup(x => x.Value).Returns(new CosmosDataStoreOptions { DatabaseName = "appts" });
 
-        var auditDocStore = new TypedDocumentCosmosStore<AuditNotificationDocument>(_mockCosmosClient.Object,
-            _mockOptions.Object, _mockMapper.Object, _mockMetrics.Object);
+        var auditDocStore = new TypedDocumentCosmosStore<AuditNotificationDocument>(
+            _mockCosmosClient.Object,
+            _mockOptions.Object, 
+            _mockMapper.Object, 
+            _mockMetrics.Object,
+            _mockLastUpdatedByResolver.Object,
+            _mockFeatureToggleHelper.Object);
 
         auditDocStore._databaseName.Should().Be("appts");
         auditDocStore._containerName.Should().Be("audit_data");
@@ -136,8 +149,13 @@ public class ServiceTests
     {
         _mockOptions.Setup(x => x.Value).Returns(new CosmosDataStoreOptions { DatabaseName = "appts" });
 
-        var auditDocStore = new TypedDocumentCosmosStore<AuditAuthDocument>(_mockCosmosClient.Object,
-            _mockOptions.Object, _mockMapper.Object, _mockMetrics.Object);
+        var auditDocStore = new TypedDocumentCosmosStore<AuditAuthDocument>(
+            _mockCosmosClient.Object,
+            _mockOptions.Object, 
+            _mockMapper.Object, 
+            _mockMetrics.Object,
+            _mockLastUpdatedByResolver.Object,
+            _mockFeatureToggleHelper.Object);
 
         auditDocStore._databaseName.Should().Be("appts");
         auditDocStore._containerName.Should().Be("audit_data");

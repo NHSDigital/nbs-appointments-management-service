@@ -1,10 +1,11 @@
-using System.Linq.Expressions;
-using System.Reflection;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -17,9 +18,16 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     private readonly Lazy<string> _documentType;
     private readonly IMapper _mapper;
     private readonly IMetricsRecorder _metricsRecorder;
+    private readonly ILastUpdatedByResolver _lastUpdatedByResolver;
+    private readonly IFeatureToggleHelper _featureToggleHelper;
 
-    public TypedDocumentCosmosStore(CosmosClient cosmosClient, IOptions<CosmosDataStoreOptions> options, IMapper mapper,
-        IMetricsRecorder metricsRecorder)
+    public TypedDocumentCosmosStore(
+        CosmosClient cosmosClient, 
+        IOptions<CosmosDataStoreOptions> options, 
+        IMapper mapper,
+        IMetricsRecorder metricsRecorder,
+        ILastUpdatedByResolver lastUpdatedByResolver,
+        IFeatureToggleHelper featureToggleHelper)
     {
         _cosmosClient = cosmosClient;
         _mapper = mapper;
@@ -34,6 +42,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
         _containerName = cosmosDocumentAttribute.ContainerName;
         _metricsRecorder = metricsRecorder;
+        _lastUpdatedByResolver = lastUpdatedByResolver;
+        _featureToggleHelper = featureToggleHelper;
     }
 
     public TDocument NewDocument()
@@ -55,6 +65,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         if (document.DocumentType != _documentType.Value)
         {
             throw new InvalidOperationException("Document type does not match the supported type for this writer");
+        }
+
+        if (await _featureToggleHelper.IsFeatureEnabled(Flags.AuditLastUpdatedBy))
+        {
+            if (document is LastUpdatedByCosmosDocument auditable)
+            {
+                auditable.LastUpdatedBy = _lastUpdatedByResolver.GetLastUpdatedBy();
+            }
         }
 
         var container = GetContainer();
@@ -133,7 +151,15 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches)
     {
-        if (patches.Count() > 10)
+        var patchList = patches.ToList();
+
+        if (await _featureToggleHelper.IsFeatureEnabled(Flags.AuditLastUpdatedBy) &&
+        typeof(LastUpdatedByCosmosDocument).IsAssignableFrom(typeof(TDocument)))
+        {
+            patchList.Add(PatchOperation.Set("/lastUpdatedBy", _lastUpdatedByResolver.GetLastUpdatedBy()));
+        }
+
+        if (patchList.Count() > 10)
         {
             throw new NotSupportedException("Only 10 patches can be applied");
         }
@@ -143,7 +169,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var result = await container.PatchItemAsync<TDocument>(
             id: documentId,
             partitionKey: new PartitionKey(partitionKey),
-            patchOperations: patches.ToList().AsReadOnly());
+            patchOperations: patchList.AsReadOnly());
 
         RecordQueryMetrics(result.RequestCharge);
         return result.Resource;

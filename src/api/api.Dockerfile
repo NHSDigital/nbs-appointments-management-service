@@ -1,12 +1,15 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS installer-env
 
+ARG DOTNET_CONFIGURATION=Release
+
 WORKDIR /src/api
 COPY Nhs.Appointments.Api/ ./Nhs.Appointments.Api/
 COPY Nhs.Appointments.Audit/ ./Nhs.Appointments.Audit/
 COPY Nhs.Appointments.Core/ ./Nhs.Appointments.Core/
 COPY Nhs.Appointments.Persistance/ ./Nhs.Appointments.Persistance/
 
-RUN dotnet publish Nhs.Appointments.Api\
+RUN dotnet publish Nhs.Appointments.Api \
+    -c $DOTNET_CONFIGURATION \
     --output /home/site/wwwroot
 
 FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0

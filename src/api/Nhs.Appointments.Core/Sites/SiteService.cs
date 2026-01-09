@@ -45,10 +45,9 @@ public class SiteService(
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
     ICacheService cacheService,
-    IOptions<SiteServiceOptions> options) : ISiteService
+    IOptions<SiteServiceOptions> options,
+    SiteCacheLock siteCacheLock) : ISiteService
 {
-    private static readonly SemaphoreSlim _siteCacheLock = new(1, 1);
-
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
         SiteSupportsServiceFilter siteSupportsServiceFilter = null)
@@ -484,7 +483,7 @@ public class SiteService(
             return;
         }
 
-        await _siteCacheLock.WaitAsync();
+        await siteCacheLock.WaitAsync();
         try
         {
             if (!memoryCache.TryGetValue(options.Value.SiteCacheKey, out List<Site> cachedSites))
@@ -517,7 +516,7 @@ public class SiteService(
         }
         finally
         {
-            _siteCacheLock.Release();
+            siteCacheLock.Release();
         }
     }
 

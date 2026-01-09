@@ -20,6 +20,7 @@ public class SiteServiceTests
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly SiteService _sut;
     private readonly Mock<IOptions<SiteServiceOptions>> _options = new();
+    private readonly Mock<SiteCacheLock> _siteCacheLock = new();
 
     public SiteServiceTests()
     {
@@ -35,7 +36,7 @@ public class SiteServiceTests
         var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
         
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, cacheService, _options.Object);
+            TimeProvider.System, _featureToggleHelper.Object, cacheService, _options.Object, _siteCacheLock.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 

@@ -138,6 +138,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
+    APPLICATION_NAME                                                       = "High Load Function App"
   }
 
   sticky_settings {
@@ -279,6 +280,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
+    APPLICATION_NAME                                                       = "High Load Function App"
   }
 
   identity {

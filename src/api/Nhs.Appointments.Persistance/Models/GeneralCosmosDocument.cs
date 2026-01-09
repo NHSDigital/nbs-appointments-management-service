@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace Nhs.Appointments.Persistance.Models;
 
@@ -11,15 +11,21 @@ public class TypedCosmosDocument
     public string DocumentType { get; set; }
 }
 
+public class LastUpdatedByCosmosDocument : TypedCosmosDocument
+{
+    [JsonProperty("lastUpdatedBy")] 
+    public string LastUpdatedBy { get; set; }
+}
+
 [CosmosDocument("booking_data", "site")]
-public class BookingDataCosmosDocument : TypedCosmosDocument
+public class BookingDataCosmosDocument : LastUpdatedByCosmosDocument
 {
     [JsonProperty("site")]
     public string Site { get; set; }
 }
 
 [CosmosDocument("core_data", "docType")]
-public class CoreDataCosmosDocument : TypedCosmosDocument
+public class CoreDataCosmosDocument : LastUpdatedByCosmosDocument
 {
 
 }

@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
@@ -21,6 +15,7 @@ using Nhs.Appointments.Api.Features;
 using Nhs.Appointments.Api.Functions;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Notifications;
+using Nhs.Appointments.Api.Providers;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
@@ -29,7 +24,6 @@ using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Eula;
 using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.OdsCodes;
@@ -39,6 +33,12 @@ using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api;
 
@@ -105,7 +105,7 @@ public static class FunctionConfigurationExtensions
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()
             .AddTransient<IBookingQueryService, BookingQueryService>()
-            .AddSingleton<ISiteService, SiteService>()
+            .AddScoped<ISiteService, SiteService>()
             .AddSingleton<ICacheService, CacheService>()
             .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()
             .AddTransient<IAvailabilityWriteService, AvailabilityWriteService>()
@@ -135,7 +135,8 @@ public static class FunctionConfigurationExtensions
             .AddAutoMapper(typeof(CosmosAutoMapperProfile))
             .AddTransient<IAdminUserDataImportHandler, AdminUserDataImportHandler>()
             .AddTransient<ISiteStatusDataImportHandler, SiteStatusDataImportHandler>()
-            .AddTransient<IAvailableSlotsFilter, AvailableSlotsFilter>();
+            .AddTransient<IAvailableSlotsFilter, AvailableSlotsFilter>()
+            .AddScoped<ILastUpdatedByResolver, LastUpdatedByResolver>();
 
         var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
         if (leaseManagerConnection == "local")

@@ -85,6 +85,10 @@ public static class FunctionConfigurationExtensions
                 opts.DaysChunkSize = configuration.GetValue<int>("SITE_SUMMARY_DAYS_CHUNK_SIZE");
                 opts.FirstRunDate = configuration.GetValue<DateOnly>("SITE_SUMMARY_FIRST_RUN_DATE");
             })
+            .Configure<ApplicationOptions>(opts =>
+            {
+                opts.ApplicationName = configuration.GetValue<string>("APPLICATION_NAME") ?? "MYA";
+            })
             .ConfigureSiteService(configuration)
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
@@ -105,6 +109,7 @@ public static class FunctionConfigurationExtensions
             .AddCosmosDataStores()
             .AddTransient<IBookingWriteService, BookingWriteService>()
             .AddTransient<IBookingQueryService, BookingQueryService>()
+            .AddSingleton<SiteCacheLock>()
             .AddScoped<ISiteService, SiteService>()
             .AddSingleton<ICacheService, CacheService>()
             .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()

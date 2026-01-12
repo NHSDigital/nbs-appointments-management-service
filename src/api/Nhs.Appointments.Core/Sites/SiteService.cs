@@ -97,7 +97,7 @@ public class SiteService(
     private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
         List<string> services,
         DateOnly from, DateOnly to,
-        int maxRecords = 50, int batchSize = 1000)
+        int maxRecords = 50, int batchSize = 1000, bool ignoreCache = false)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
         var uniqueSortedServices = services.OrderBy(s => s).Distinct().ToList();
@@ -122,23 +122,37 @@ public class SiteService(
 
             var siteOffersServiceDuringPeriodTasks = orderedSiteBatch.Select(async swd =>
             {
-                var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
-                var slideThreshold =
-                    TimeSpan.FromSeconds(options.Value.SiteSupportsServiceSlidingCacheSlideThresholdSeconds);
-                var slideExpiry = TimeSpan.FromSeconds(options.Value
-                    .SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds);
-                
-                var siteOffersServiceDuringPeriod =
-                    await cacheService.GetLazySlidingCacheValue(cacheKey,
-                        new LazySlideCacheOptions<bool>(
-                            async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices,
-                                from, to), slideThreshold, slideExpiry));
-
-                ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
-
-                if (siteOffersServiceDuringPeriod)
+                if (ignoreCache)
                 {
-                    concurrentBatchResults.Add(swd);
+                    var siteOffersServiceDuringPeriod = await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices, from, to);
+                    
+                    ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriod);
+
+                    if (siteOffersServiceDuringPeriod)
+                    {
+                        concurrentBatchResults.Add(swd);
+                    }
+                }
+                else
+                {
+                    var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
+                    var slideThreshold =
+                        TimeSpan.FromSeconds(options.Value.SiteSupportsServiceSlidingCacheSlideThresholdSeconds);
+                    var slideExpiry = TimeSpan.FromSeconds(options.Value
+                        .SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds);
+                
+                    var siteOffersServiceDuringPeriodLazyCache =
+                        await cacheService.GetLazySlidingCacheValue(cacheKey,
+                            new LazySlideCacheOptions<bool>(
+                                async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices,
+                                    from, to), slideThreshold, slideExpiry));
+
+                    ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriodLazyCache);
+
+                    if (siteOffersServiceDuringPeriodLazyCache)
+                    {
+                        concurrentBatchResults.Add(swd);
+                    }
                 }
             }).ToArray();
 

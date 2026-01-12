@@ -91,7 +91,8 @@ public class SiteService(
             siteSupportsServiceFilter.from,
             siteSupportsServiceFilter.until,
             maximumRecords,
-            maximumRecords * 20);
+            maximumRecords * 20,
+            ignoreCache);
     }
 
     private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
@@ -364,7 +365,8 @@ public class SiteService(
                     sitesWithDistance,
                     siteSupportsServiceFilter.services,
                     siteSupportsServiceFilter.from,
-                    siteSupportsServiceFilter.until);
+                    siteSupportsServiceFilter.until,
+                    ignoreCache: ignoreCache);
 
                 sitesWithDistance = [.. serviceResults.DistinctBy(swd => swd.Site.Id)];
             }

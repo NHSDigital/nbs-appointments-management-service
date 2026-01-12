@@ -2647,7 +2647,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
 
-        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+        _ = await _sut.QuerySitesAsync([.. filters], 50, false);
 
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
@@ -2736,7 +2736,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
 
-        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+        _ = await _sut.QuerySitesAsync([.. filters], 50, false);
 
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
@@ -3285,7 +3285,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
 
-        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+        _ = await _sut.QuerySitesAsync([.. filters], 50, false);
 
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Once);
@@ -3374,7 +3374,7 @@ public class SiteServiceTests
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
 
-        _ = await _sut.QuerySitesAsync([.. filters], 50, true);
+        _ = await _sut.QuerySitesAsync([.. filters], 50, false);
 
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);

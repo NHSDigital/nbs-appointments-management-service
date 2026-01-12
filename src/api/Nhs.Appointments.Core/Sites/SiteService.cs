@@ -149,7 +149,6 @@ public class SiteService(
                                     from, to), slideThreshold, slideExpiry));
 
                     ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriodLazyCache);
-
                     if (siteOffersServiceDuringPeriodLazyCache)
                     {
                         concurrentBatchResults.Add(swd);

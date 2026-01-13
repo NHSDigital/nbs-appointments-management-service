@@ -22,19 +22,13 @@ using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
-public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable
+public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
     private List<AvailabilityByDays> AvailabilityResponse;
     
     private string _siteId;
-
-    public void Dispose()
-    {
-        var testId = GetTestId;
-        DeleteSiteData(Client, testId).GetAwaiter().GetResult();
-    }
     
     [When("I query availability by days")]
     public async Task Query(DataTable dataTable)

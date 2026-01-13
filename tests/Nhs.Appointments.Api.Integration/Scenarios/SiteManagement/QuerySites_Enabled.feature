@@ -36,16 +36,16 @@ Feature: Query Sites
       | 7c08e6ba-25b4-4154-95e6-a76b8a92809d | Site-2 | 2 Roadside | 0113 2222222 | ODS2    | R2     | ICB2 | Info 2                 | accessibility/attr_one=false   | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 2bff8018-e99b-4625-ae10-e699bdc42d4e | Site-3 | 3 Roadside | 0113 3333333 | ODS3    | R3     | ICB3 | Info 3                 | accessibility/attr_one=false   | -0.13086317 | 51.583479 | PCN Site     | false     |
       | c5b2c4de-3ed5-4f46-bd6d-c4ba7658fa5c | Site-4 | 4 Roadside | 0113 4444444 | ODS4    | R4     | ICB4 | Info 4                 | accessibility/attr_three=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '27b5b656-31d1-44e4-9851-f38c2a0dcc05'
+    And the following sessions exist for existing site '27b5b656-31d1-44e4-9851-f38c2a0dcc05'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult | 5           | 1        |
-    And the following sessions exist for site '7c08e6ba-25b4-4154-95e6-a76b8a92809d'
+    And the following sessions exist for existing site '7c08e6ba-25b4-4154-95e6-a76b8a92809d'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5_6  | 5           | 1        |
-    And the following sessions exist for site '2bff8018-e99b-4625-ae10-e699bdc42d4e'
+    And the following sessions exist for existing site '2bff8018-e99b-4625-ae10-e699bdc42d4e'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2_3  | 5           | 1        |
-    And the following sessions exist for site 'c5b2c4de-3ed5-4f46-bd6d-c4ba7658fa5c'
+    And the following sessions exist for existing site 'c5b2c4de-3ed5-4f46-bd6d-c4ba7658fa5c'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult | 5           | 1        |
     When I query sites by service
@@ -63,16 +63,16 @@ Feature: Query Sites
       | c2848ba3-8dca-45ca-bacf-4f1769fff8dc | Site-2 | 2 Roadside | 0113 2222222 | ODS2    | R2     | ICB2 | Info 2                 | accessibility/attr_one=false   | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | e448fcf0-7e0a-4c28-ac64-bcf64fa0c33a | Site-3 | 3 Roadside | 0113 3333333 | ODS3    | R3     | ICB3 | Info 3                 | accessibility/attr_one=false   | -0.13086317 | 51.583479 | PCN Site     | false     |
       | 7d4e4c69-5ea7-4e19-a069-bd776df2c491 | Site-4 | 4 Roadside | 0113 4444444 | ODS4    | R4     | ICB4 | Info 4                 | accessibility/attr_three=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '79d5fae3-0988-457b-9b2a-c8a8596e5ac3'
+    And the following sessions exist for existing site '79d5fae3-0988-457b-9b2a-c8a8596e5ac3'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5-11 | 5           | 1        |
-    And the following sessions exist for site 'c2848ba3-8dca-45ca-bacf-4f1769fff8dc'
+    And the following sessions exist for existing site 'c2848ba3-8dca-45ca-bacf-4f1769fff8dc'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5-6  | 5           | 1        |
-    And the following sessions exist for site 'e448fcf0-7e0a-4c28-ac64-bcf64fa0c33a'
+    And the following sessions exist for existing site 'e448fcf0-7e0a-4c28-ac64-bcf64fa0c33a'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3  | 5           | 1        |
-    And the following sessions exist for site '7d4e4c69-5ea7-4e19-a069-bd776df2c491'
+    And the following sessions exist for existing site '7d4e4c69-5ea7-4e19-a069-bd776df2c491'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5-11 | 5           | 1        |
     When I query sites by service
@@ -189,16 +189,16 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5_11,RSV:Adult | 5           | 1        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5-6  | 5           | 1        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3  | 5           | 1        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5_11,RSV:Adult | 5           | 1        |
     When I query sites by service
@@ -216,17 +216,17 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5_6  | 5           | 1        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2_3  | 5           | 1        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
@@ -242,18 +242,18 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5_11,RSV:Adult | 5           | 1        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:5_11,RSV:Adult | 5           | 1        |
     When I query sites by service
@@ -271,19 +271,19 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11 | 5           | 1        |
       | Tomorrow    | 12:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11 | 5           | 1        |
       | Tomorrow    | 12:00 | 17:00 | RSV:Adult  | 5           | 1        |
@@ -302,19 +302,19 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 1        |
       | Tomorrow    | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 1        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
       | 2 days from today | 16:00 | 21:00 | FLU:2_3    | 5           | 1        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date        | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 1        |
       | Tomorrow    | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 1        |
@@ -333,19 +333,19 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 0        |
       | Tomorrow    | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 0        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 0        |
       | 2 days from today | 16:00 | 21:00 | FLU:2_3    | 5           | 0        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 0        |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 0        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 0        |
       | Tomorrow    | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 0        |
@@ -364,19 +364,19 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date              | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 0        |
       | 2 days from today | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 0        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult  | 5           | 0        |
       | 2 days from today | 16:00 | 21:00 | FLU:2_3    | 5           | 0        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 0        |
       | 2 days from today | 09:00 | 17:00 | FLU:2_3    | 5           | 0        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date              | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 0        |
       | 3 days from today | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 0        |
@@ -392,19 +392,19 @@ Feature: Query Sites
       | 83599e38-41cf-4f22-8a12-0e84b861cd1b | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | Pharmacy     | false     |
       | 1993855c-1dba-4ec8-8a09-4096c05ccecb | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | Pharmacy     | false     |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.040992272 | 51.455788 | Another Type | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 1        |
       | Tomorrow    | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 1        |
-    And the following sessions exist for site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
+    And the following sessions exist for existing site '83599e38-41cf-4f22-8a12-0e84b861cd1b'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
       | 2 days from today | 16:00 | 21:00 | FLU:2_3    | 5           | 1        |
-    And the following sessions exist for site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
+    And the following sessions exist for existing site '1993855c-1dba-4ec8-8a09-4096c05ccecb'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |
       | 2 days from today | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
+    And the following sessions exist for existing site 'a3133ea7-9b3b-4264-acc0-2a955eb996b4'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 12:00 | COVID:5_11,RSV:Adult | 5           | 1        |
       | Tomorrow    | 13:00 | 17:00 | RSV:Adult,FLU:2_3    | 5           | 1        |
@@ -420,7 +420,7 @@ Feature: Query Sites
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Type         | IsDeleted |
       | 8184c730-b4e6-45af-999a-f67569eb4367 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true  | 0.082750916 | 51.494056 | GP Practice  | false     |
-    And the following sessions exist for site '8184c730-b4e6-45af-999a-f67569eb4367'
+    And the following sessions exist for existing site '8184c730-b4e6-45af-999a-f67569eb4367'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult  | 5           | 1        |
       | Tomorrow    | 09:00 | 17:00 | COVID:5_11 | 5           | 1        |

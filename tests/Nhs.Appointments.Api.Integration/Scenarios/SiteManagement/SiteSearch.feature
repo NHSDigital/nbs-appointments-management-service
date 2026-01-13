@@ -47,7 +47,7 @@ Feature: Site search
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for site 'a03982ab-f9a8-4d4b-97ca-419d1154896f'
+    And the following sessions exist for existing site 'a03982ab-f9a8-4d4b-97ca-419d1154896f'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     When I make the following request with service filtering
@@ -64,16 +64,16 @@ Feature: Site search
       | 3525af0d-9d89-4b32-ad6b-b85ae94589dc | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | f178d668-a8d7-4fa6-a4b1-b886feef29a6 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
       | 156141af-89ab-4a30-83d4-a4d27a8322c2 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for site '156141af-89ab-4a30-83d4-a4d27a8322c2'
+    And the following sessions exist for existing site '156141af-89ab-4a30-83d4-a4d27a8322c2'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site 'f178d668-a8d7-4fa6-a4b1-b886feef29a6'
+    And the following sessions exist for existing site 'f178d668-a8d7-4fa6-a4b1-b886feef29a6'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '3525af0d-9d89-4b32-ad6b-b85ae94589dc'
+    And the following sessions exist for existing site '3525af0d-9d89-4b32-ad6b-b85ae94589dc'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '3ac1981b-5d62-424a-b403-9d08a40739ce'
+    And the following sessions exist for existing site '3ac1981b-5d62-424a-b403-9d08a40739ce'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     When I make the following request with service filtering
@@ -101,16 +101,16 @@ Feature: Site search
       | 319eb942-1bcd-4d9b-b8b2-777f06d63320 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | 8f3259bf-e44e-43e6-9837-54a5c87198c7 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
       | 55ad05a8-4fb5-47e1-a961-d18f4008862b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for site 'b0fa3eaa-cbab-4736-90dd-31922a021074'
+    And the following sessions exist for existing site 'b0fa3eaa-cbab-4736-90dd-31922a021074'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
-    And the following sessions exist for site '319eb942-1bcd-4d9b-b8b2-777f06d63320'
+    And the following sessions exist for existing site '319eb942-1bcd-4d9b-b8b2-777f06d63320'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
-    And the following sessions exist for site '8f3259bf-e44e-43e6-9837-54a5c87198c7'
+    And the following sessions exist for existing site '8f3259bf-e44e-43e6-9837-54a5c87198c7'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '55ad05a8-4fb5-47e1-a961-d18f4008862b'
+    And the following sessions exist for existing site '55ad05a8-4fb5-47e1-a961-d18f4008862b'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     When I make the following request with service filtering
@@ -128,16 +128,16 @@ Feature: Site search
       | 4aeedaf7-48a8-4071-955c-93ccbcbc925c | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | 1950e7f1-356c-4017-ba62-62f3f973681f | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
       | 78d28642-f429-4164-b758-f770b3dcd705 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for site '12e87824-a2ff-4257-92f3-ee1667c271a3'
+    And the following sessions exist for existing site '12e87824-a2ff-4257-92f3-ee1667c271a3'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
-    And the following sessions exist for site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
+    And the following sessions exist for existing site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
-    And the following sessions exist for site '1950e7f1-356c-4017-ba62-62f3f973681f'
+    And the following sessions exist for existing site '1950e7f1-356c-4017-ba62-62f3f973681f'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '78d28642-f429-4164-b758-f770b3dcd705'
+    And the following sessions exist for existing site '78d28642-f429-4164-b758-f770b3dcd705'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:8-16   | 5           | 1        |
 #    Prove old endpoint doesn't return a supported service site
@@ -162,16 +162,16 @@ Feature: Site search
       | 4aeedaf7-48a8-4071-955c-93ccbcbc925c | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | 1950e7f1-356c-4017-ba62-62f3f973681f | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
       | 78d28642-f429-4164-b758-f770b3dcd705 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for site '12e87824-a2ff-4257-92f3-ee1667c271a3'
+    And the following sessions exist for existing site '12e87824-a2ff-4257-92f3-ee1667c271a3'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
-    And the following sessions exist for site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
+    And the following sessions exist for existing site '4aeedaf7-48a8-4071-955c-93ccbcbc925c'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
-    And the following sessions exist for site '1950e7f1-356c-4017-ba62-62f3f973681f'
+    And the following sessions exist for existing site '1950e7f1-356c-4017-ba62-62f3f973681f'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '78d28642-f429-4164-b758-f770b3dcd705'
+    And the following sessions exist for existing site '78d28642-f429-4164-b758-f770b3dcd705'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:8-16   | 5           | 1        |
     When I make the following request with service filtering
@@ -198,16 +198,16 @@ Feature: Site search
       | 8da01caa-f589-4914-9c4c-42d7adb185ae | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 96f49dd3-f0cb-4b1b-826d-d07065e14c86 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | -0.13086317 | 51.583479 |
       | 7627459e-15b5-44e7-9318-1b1f3ca5c414 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '355ca42f-586c-4f7a-a274-4d53844e3e0c'
+    And the following sessions exist for existing site '355ca42f-586c-4f7a-a274-4d53844e3e0c'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:5-6    | 5           | 1        |
-    And the following sessions exist for site '8da01caa-f589-4914-9c4c-42d7adb185ae'
+    And the following sessions exist for existing site '8da01caa-f589-4914-9c4c-42d7adb185ae'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult-19   | 5           | 1        |
-    And the following sessions exist for site '96f49dd3-f0cb-4b1b-826d-d07065e14c86'
+    And the following sessions exist for existing site '96f49dd3-f0cb-4b1b-826d-d07065e14c86'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
-    And the following sessions exist for site '7627459e-15b5-44e7-9318-1b1f3ca5c414'
+    And the following sessions exist for existing site '7627459e-15b5-44e7-9318-1b1f3ca5c414'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COV        | 5           | 1        |
     When I make the following request with service filtering
@@ -222,16 +222,16 @@ Feature: Site search
       | 6092852c-b454-4249-9e12-0c0152056708 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 96e527f3-5791-4567-a6a7-6691f5dcecb5 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | -0.13086317 | 51.583479 |
       | 38d0905e-9395-4954-ba72-0ae5a81ff876 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site 'b37000df-f261-40ce-b86b-68b31540e804'
+    And the following sessions exist for existing site 'b37000df-f261-40ce-b86b-68b31540e804'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '6092852c-b454-4249-9e12-0c0152056708'
+    And the following sessions exist for existing site '6092852c-b454-4249-9e12-0c0152056708'
       | Date                 | From  | Until | Services   | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '96e527f3-5791-4567-a6a7-6691f5dcecb5'
+    And the following sessions exist for existing site '96e527f3-5791-4567-a6a7-6691f5dcecb5'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '38d0905e-9395-4954-ba72-0ae5a81ff876'
+    And the following sessions exist for existing site '38d0905e-9395-4954-ba72-0ae5a81ff876'
       | Date                 | From  | Until | Services     | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 17:00 | RSV:Adult        | 5           | 1        |
     When I make the following request with service filtering
@@ -246,16 +246,16 @@ Feature: Site search
       | a1a30efa-9506-47aa-b6a6-fa0e74c848f4 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 45a73a10-87c1-4826-a740-e1ebc4585618 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | -0.13086317 | 51.583479 |
       | 61da1c54-0b24-470a-8978-bb7c66a15816 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '9ac67f31-cc79-46c0-b0d2-e3be1d7b8caa'
+    And the following sessions exist for existing site '9ac67f31-cc79-46c0-b0d2-e3be1d7b8caa'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site 'a1a30efa-9506-47aa-b6a6-fa0e74c848f4'
+    And the following sessions exist for existing site 'a1a30efa-9506-47aa-b6a6-fa0e74c848f4'
       | Date                 | From  | Until | Services   | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '45a73a10-87c1-4826-a740-e1ebc4585618'
+    And the following sessions exist for existing site '45a73a10-87c1-4826-a740-e1ebc4585618'
       | Date               | From  | Until | Services   | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '61da1c54-0b24-470a-8978-bb7c66a15816'
+    And the following sessions exist for existing site '61da1c54-0b24-470a-8978-bb7c66a15816'
       | Date                 | From  | Until | Services     | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 17:00 | RSV:Adult        | 5           | 1        |
     When I make the following request with service filtering
@@ -274,16 +274,16 @@ Feature: Site search
       | b06f4be6-16e3-40be-b373-b67a47301185 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 2ba498ab-42b5-4536-9f11-796077922ce1 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | -0.13086317 | 51.583479 |
       | d2f9f101-b145-42ef-93e0-ae449efb9a78 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '4dbaffc9-f476-494b-817a-37dc8aa151c9'
+    And the following sessions exist for existing site '4dbaffc9-f476-494b-817a-37dc8aa151c9'
       | Date        | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COVID:19, RSV:Adult  | 5           | 1        |
-    And the following sessions exist for site 'b06f4be6-16e3-40be-b373-b67a47301185'
+    And the following sessions exist for existing site 'b06f4be6-16e3-40be-b373-b67a47301185'
       | Date                 | From  | Until | Services        | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 17:00 | RSV:Adult, FLU:2-3  | 5           | 1        |
-    And the following sessions exist for site '2ba498ab-42b5-4536-9f11-796077922ce1'
+    And the following sessions exist for existing site '2ba498ab-42b5-4536-9f11-796077922ce1'
       | Date               | From  | Until | Services           | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 17:00 | RSV:Adult, RSV:Adult:5-18  | 5           | 1        |
-    And the following sessions exist for site 'd2f9f101-b145-42ef-93e0-ae449efb9a78'
+    And the following sessions exist for existing site 'd2f9f101-b145-42ef-93e0-ae449efb9a78'
       | Date                 | From  | Until | Services        | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 17:00 | RSV:Adult, FLU:2-3  | 5           | 1        |
     When I make the following request with service filtering
@@ -303,25 +303,25 @@ Feature: Site search
       | 586bc02d-310a-4b02-a117-d0d104de16bb | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | a01e7aec-4721-410b-853d-1bed6ade4c3c | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | a5f2f93e-26e8-45ac-a09b-2485517f1d9c | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
+    And the following sessions exist for existing site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
     And the following bookings have been made for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
       | Date        | Time  | Duration | Service | Reference   |
       | Tomorrow    | 09:00 | 10       | RSV:Adult   | 56345-11111 |
-    And the following sessions exist for site '586bc02d-310a-4b02-a117-d0d104de16bb'
+    And the following sessions exist for existing site '586bc02d-310a-4b02-a117-d0d104de16bb'
       | Date                 | From  | Until | Services  | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
     And the following bookings have been made for site '586bc02d-310a-4b02-a117-d0d104de16bb'
       | Date                 | Time  | Duration | Service | Reference   |
       | 2 days from today    | 09:00 | 10       | RSV:Adult   | 56345-22222 |
-    And the following sessions exist for site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
+    And the following sessions exist for existing site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
       | Date               | From  | Until | Services  | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
     And the following bookings have been made for site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 3 days from today    | 09:00 | 10       | RSV:Adult   | 56345-33333 |
-    And the following sessions exist for site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
+    And the following sessions exist for existing site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
       | Date                 | From  | Until | Services | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 09:10 | RSV:Adult    | 10           | 1       |
     And the following bookings have been made for site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
@@ -364,25 +364,25 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
     And the following bookings have been made for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date        | Time  | Duration | Service | Reference   |
       | Tomorrow    | 09:00 | 10       | RSV:Adult   | 56345-11111 |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date                 | From  | Until | Services  | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
     And the following bookings have been made for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 2 days from today    | 09:00 | 10       | RSV:Adult   | 56345-22222 |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date               | From  | Until | Services  | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
     And the following bookings have been made for site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date                 | Time  | Duration | Service | Reference   |
       | 3 days from today    | 09:00 | 10       | RSV:Adult   | 56345-33333 |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date                 | From  | Until | Services | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 09:20 | RSV:Adult    | 10           | 1       |
     And the following bookings have been made for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
@@ -449,16 +449,16 @@ Feature: Site search
       | 7e7bc5ed-a188-499d-9eab-1566d9e3b972 | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | 3558dad9-d0a6-49f4-942a-c951d07eb283 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
       | ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for site '9635bee5-895c-4368-a106-2d6bc1d74087'
+    And the following sessions exist for existing site '9635bee5-895c-4368-a106-2d6bc1d74087'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '7e7bc5ed-a188-499d-9eab-1566d9e3b972'
+    And the following sessions exist for existing site '7e7bc5ed-a188-499d-9eab-1566d9e3b972'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '3558dad9-d0a6-49f4-942a-c951d07eb283'
+    And the following sessions exist for existing site '3558dad9-d0a6-49f4-942a-c951d07eb283'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2_3    | 5           | 1        |
-    And the following sessions exist for site 'ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b'
+    And the following sessions exist for existing site 'ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     When I make the following request with service filtering and with access needs
@@ -476,19 +476,19 @@ Feature: Site search
       | ab746a05-345f-4c06-829b-2d5d52ec341b | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=false,accessibility/attr_two=false  | 0.040992272 | 51.455788 |
       | 8eb79504-1545-4fd9-a358-430a649e0352 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true,accessibility/attr_two=true    | 0.082750916 | 51.494056 |
       | ae579504-1545-4fd9-a358-430a649e0354 | Site-5 | 5 Roadside | 0113 1111111 | N12     | R5     | ICB5 | Info 5                 | accessibility/attr_one=true,accessibility/attr_two=true    | 0.081750916 | 51.484056 |
-    And the following sessions exist for site '6997851c-0bcd-462e-b1f5-b1c02f24d37d'
+    And the following sessions exist for existing site '6997851c-0bcd-462e-b1f5-b1c02f24d37d'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site '1efc8a32-ad71-4066-821e-e535317c309a'
+    And the following sessions exist for existing site '1efc8a32-ad71-4066-821e-e535317c309a'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site 'ab746a05-345f-4c06-829b-2d5d52ec341b'
+    And the following sessions exist for existing site 'ab746a05-345f-4c06-829b-2d5d52ec341b'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2_3    | 5           | 1        |
-    And the following sessions exist for site '8eb79504-1545-4fd9-a358-430a649e0352'
+    And the following sessions exist for existing site '8eb79504-1545-4fd9-a358-430a649e0352'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    And the following sessions exist for site 'ae579504-1545-4fd9-a358-430a649e0354'
+    And the following sessions exist for existing site 'ae579504-1545-4fd9-a358-430a649e0354'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
     When I make the following request with service filtering and with access needs
@@ -505,19 +505,19 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 09:20 | RSV:Adult | 10          | 1       |
       | Tomorrow | 09:00 | 09:20 | COVID:5_11 | 10         | 1       |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 09:20 | RSV:Adult | 10          | 1       |
       | Tomorrow | 09:00 | 09:20 | COVID:5_11 | 10         | 1       |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 09:20 | RSV:Adult | 10          | 1       |
       | Tomorrow | 09:00 | 09:20 | COVID:5_11 | 10         | 1       |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 09:20 | COVID:5_11 | 10         | 1       |
       | Tomorrow | 09:00 | 09:20 | RSV:Adult | 10          | 1       |
@@ -533,19 +533,19 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:00 | RSV:Adult  | 10          | 1        |
       | Tomorrow | 09:00 | 15:00 | COVID:5_11 | 10          | 1        |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | FLU:2_3   | 10          | 1        |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | FLU:2_3    | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11 | 10          | 1        |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11 | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult  | 10          | 1        |
@@ -564,19 +564,19 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:00 | RSV:Adult,FLU:2_3  | 10          | 1        |
       | Tomorrow | 09:00 | 15:00 | COVID:5_11,FLU:2_3 | 10          | 1        |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date     | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult,COVID:5_11 | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | FLU:2_3              | 10          | 1        |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | FLU:2_3    | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11 | 10          | 1        |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult          | 10          | 1        |
@@ -596,22 +596,22 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 15:00 | RSV:Adult  | 10          | 1        |
       | 2 days from today | 09:00 | 15:00 | COVID:5_11 | 10          | 1        |
       | 3 days from today | 09:00 | 15:00 | FLU:2_3    | 10          | 1        |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date              | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 15:00 | RSV:Adult  | 10          | 1        |
       | 2 days from today | 09:00 | 15:00 | COVID:5_11 | 10          | 1        |
       | 3 days from today | 09:00 | 15:00 | FLU:2_3    | 10          | 1        |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 15:00 | RSV:Adult  | 10          | 1        |
       | 2 days from today | 09:00 | 15:00 | COVID:5_11 | 10          | 1        |
       | 3 days from today | 09:00 | 15:00 | FLU:2_3    | 10          | 1        |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services            | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 15:00 | RSV:Adult  | 10          | 1        |
       | 2 days from today | 09:00 | 15:00 | COVID:5_11 | 10          | 1        |
@@ -628,19 +628,19 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:00 | RSV:Adult,FLU:2_3  | 10          | 0        |
       | Tomorrow | 09:00 | 15:00 | COVID:5_11,FLU:2_3 | 10          | 0        |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date     | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult,COVID:5_11 | 10          | 0        |
       | Tomorrow | 09:00 | 15:20 | FLU:2_3              | 10          | 0        |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | FLU:2_3    | 10          | 0        |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11 | 10          | 0        |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11,FLU:2_3 | 10          | 0        |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult          | 10          | 0        |
@@ -660,19 +660,19 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult,FLU:2_3  | 10          | 1        |
       | Tomorrow | 13:00 | 17:00 | COVID:5_11,FLU:2_3 | 10          | 1        |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date     | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow | 09:00 | 11:20 | RSV:Adult,COVID:5_11 | 10          | 1        |
       | Tomorrow | 12:00 | 15:20 | FLU:2_3              | 10          | 1        |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:20 | FLU:2_3    | 10          | 1        |
       | Tomorrow | 12:00 | 15:20 | COVID:5_11 | 10          | 1        |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |
@@ -692,19 +692,19 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 6beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult,FLU:2_3  | 10          | 1        |
       | Tomorrow | 13:00 | 17:00 | COVID:5_11,FLU:2_3 | 10          | 1        |
-    And the following sessions exist for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date     | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow | 09:00 | 11:20 | RSV:Adult,COVID:5_11 | 10          | 1        |
       | Tomorrow | 12:00 | 15:20 | FLU:2_3              | 10          | 1        |
-    And the following sessions exist for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:20 | RSV:Adult  | 10          | 1        |
       | Tomorrow | 12:00 | 15:20 | COVID:5_11 | 10          | 1        |
-    And the following sessions exist for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |
@@ -724,15 +724,15 @@ Feature: Site search
       | 9cf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 7beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
       | fa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    And the following sessions exist for site '40e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following sessions exist for existing site '40e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult,FLU:2_3  | 10          | 1        |
       | Tomorrow | 13:00 | 17:00 | COVID:5_11,FLU:2_3 | 10          | 1        |
-    And the following sessions exist for site '9cf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following sessions exist for existing site '9cf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date     | From  | Until | Services             | Slot Length | Capacity |
       | Tomorrow | 09:00 | 11:20 | RSV:Adult,COVID:5_11 | 10          | 1        |
       | Tomorrow | 12:00 | 15:20 | FLU:2_3              | 10          | 1        |
-    And the following sessions exist for site '7beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following sessions exist for existing site '7beadf23-2c8c-4080-8be6-896c73634efb'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:20 | RSV:Adult  | 10          | 1        |
       | Tomorrow | 12:00 | 15:20 | COVID:5_11 | 10          | 1        |
@@ -743,7 +743,7 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 #   Now add some availability to a site that should match the request
-    Given the following sessions exist for site 'fa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    Given the following sessions exist for existing site 'fa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |

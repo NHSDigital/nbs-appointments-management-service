@@ -1,7 +1,7 @@
 ﻿Feature: Get daily availability
 
     Scenario: Dates and sessions are returned within date range
-        Given the following sessions
+        Given the following sessions exist for a created default site
           | Date              | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow          | 09:00 | 17:00 | COVID    | 5           | 1        |
           | 2 days from today | 09:00 | 17:00 | COVID    | 5           | 1        |

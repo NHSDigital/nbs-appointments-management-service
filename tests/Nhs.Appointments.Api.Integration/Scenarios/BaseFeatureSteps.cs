@@ -16,7 +16,6 @@ using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Json;
@@ -36,6 +35,8 @@ public abstract partial class BaseFeatureSteps : Feature
 {
     public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional, Orphaned, Cancelled }
 
+    protected const string DefaultSiteId = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51";
+    
     protected const string ApiSigningKey =
         "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
 
@@ -98,7 +99,7 @@ public abstract partial class BaseFeatureSteps : Feature
     };
 
     [Given("the site is configured for MYA")]
-    public Task SetupSite()
+    public async Task SetupSite()
     {
         var site = new SiteDocument
         {
@@ -106,13 +107,13 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "site",
             Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
         };
-        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+        await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
     // TODO: Added for BulkImport tests as it requires a valid Guid
     // To clean up this method & the one above so all siteId's use only a Guid
     [Given("a new site is configured for MYA")]
-    public Task SetupNewSite()
+    public async Task SetupNewSite()
     {
         var site = new SiteDocument
         {
@@ -124,7 +125,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Region = "R1",
             Location = new Location("point", [1.41416002128359, 51.77021027939483])
         };
-        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+        await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
     protected async Task SetLocalFeatureToggleOverride(string name, string state)
@@ -135,24 +136,22 @@ public abstract partial class BaseFeatureSteps : Feature
         response.EnsureSuccessStatusCode();
     }
     
-    [Given("the following sessions exist for site '(.+)'")]
-    [And("the following sessions exist for site '(.+)'")]
-    public Task SetupSessionsForSite(string site, DataTable dataTable)
+    [Given("the following sessions exist for existing site '(.+)'")]
+    [And("the following sessions exist for existing site '(.+)'")]
+    public async Task SetupSessionsForSite(string site, DataTable dataTable)
     {
-        SetupSite(GetSiteId(site));
-        return SetupSessions(site, dataTable);
+        await SetupSessions(site, dataTable);
     }
 
-    [Given("the following sessions")]
-    [And("the following sessions")]
-    public Task SetupSessions(DataTable dataTable)
+    [Given("the following sessions exist for a created default site")]
+    [And("the following sessions exist for a created default site")]
+    public async Task SetupSessions(DataTable dataTable)
     {
-        var siteId = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51";
-        SetupSite(GetSiteId(siteId));
-        return SetupSessions(siteId, dataTable);
+        await SetupSite(GetSiteId());
+        await SetupSessions(DefaultSiteId, dataTable);
     }
 
-    protected Task SetupSite(string siteId)
+    protected async Task SetupSite(string siteId)
     {
         var site = new SiteDocument
         {
@@ -160,7 +159,7 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "site",
             Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
         };
-        return Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+        await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
 
     public async Task SetupSessions(string siteDesignation, DataTable dataTable)
@@ -239,51 +238,51 @@ public abstract partial class BaseFeatureSteps : Feature
 
     [Given("the following bookings have been made")]
     [And("the following bookings have been made")]
-    public Task SetupBookings(DataTable dataTable)
+    public async Task SetupBookings(DataTable dataTable)
     {
-        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Confirmed);
+        await SetupBookings(DefaultSiteId, dataTable, BookingType.Confirmed);
     }
     
     [Given("the following bookings have been made for site '(.+)'")]
     [And("the following bookings have been made for site '(.+)'")]
-    public Task SetupBookingsForSite(string site, DataTable dataTable)
+    public async Task SetupBookingsForSite(string site, DataTable dataTable)
     {
-        return SetupBookings(site, dataTable, BookingType.Confirmed);
+        await SetupBookings(site, dataTable, BookingType.Confirmed);
     }
 
     [Given("the following recent bookings have been made")]
     [And("the following recent bookings have been made")]
-    public Task SetupRecentBookings(DataTable dataTable)
+    public async Task SetupRecentBookings(DataTable dataTable)
     {
-        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Recent);
+        await SetupBookings(DefaultSiteId, dataTable, BookingType.Recent);
     }
 
     [Given("the following provisional bookings have been made")]
     [And("the following provisional bookings have been made")]
-    public Task SetupProvisionalBookings(DataTable dataTable)
+    public async Task SetupProvisionalBookings(DataTable dataTable)
     {
-        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Provisional);
+        await SetupBookings(DefaultSiteId, dataTable, BookingType.Provisional);
     }
 
     [Given("the following expired provisional bookings have been made")]
     [And("the following expired provisional bookings have been made")]
-    public Task SetupExpiredProvisionalBookings(DataTable dataTable)
+    public async Task SetupExpiredProvisionalBookings(DataTable dataTable)
     {
-        return SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.ExpiredProvisional);
+        await SetupBookings(DefaultSiteId, dataTable, BookingType.ExpiredProvisional);
     }
 
     [Given("the following cancelled bookings have been made")]
     [And("the following cancelled bookings have been made")]
-    public Task SetupCancelledBookings(DataTable dataTable) =>
-        SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Cancelled);
+    public async Task SetupCancelledBookings(DataTable dataTable) =>
+        await SetupBookings(DefaultSiteId, dataTable, BookingType.Cancelled);
 
     [And("the following orphaned bookings exist")]
-    public Task SetupOrphanedBookings(DataTable dataTable) =>
-        SetupBookings("beeae4e0-dd4a-4e3a-8f4d-738f9418fb51", dataTable, BookingType.Orphaned);
+    public async Task SetupOrphanedBookings(DataTable dataTable) =>
+        await SetupBookings(DefaultSiteId, dataTable, BookingType.Orphaned);
     
     [And("the following orphaned bookings exist for site '(.+)'")]
-    public Task SetupOrphanedBookingsForSite(string site, DataTable dataTable) =>
-        SetupBookings(site, dataTable, BookingType.Orphaned);
+    public async Task SetupOrphanedBookingsForSite(string site, DataTable dataTable) =>
+        await SetupBookings(site, dataTable, BookingType.Orphaned);
 
     protected DateTime ParseDayAndTime(string day, string time) => DateTime.ParseExact(
         $"{NaturalLanguageDate.Parse(day).ToString("yyyy-MM-dd")} {time}",
@@ -298,7 +297,7 @@ public abstract partial class BaseFeatureSteps : Feature
             var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
             var reference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                             BookingReferences.GetBookingReference(index, bookingType);
-            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
+            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
             var status = dataTable.GetEnumRowValueOrDefault<AppointmentStatus>(row, "Status") ?? MapStatus(bookingType);
 
@@ -398,7 +397,7 @@ public abstract partial class BaseFeatureSteps : Feature
                                    BookingReferences.GetBookingReference(defaultReferenceOffset,
                                        BookingType.Confirmed);
 
-            var siteId = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
+            var siteId = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
             defaultReferenceOffset += 1;
 
 
@@ -519,7 +518,7 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [And(@"the original booking has been '(\w+)'")]
-    public Task AssertRescheduledBookingStatus(string outcome) => AssertBookingStatus(outcome);
+    public async Task AssertRescheduledBookingStatus(string outcome) => await AssertBookingStatus(outcome);
 
     [Then(@"the booking has been '(\w+)'")]
     public async Task AssertBookingStatus(string status)
@@ -827,7 +826,7 @@ public abstract partial class BaseFeatureSteps : Feature
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType))
     };
 
-    protected string GetSiteId(string siteDesignation = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51") =>
+    protected string GetSiteId(string siteDesignation = DefaultSiteId) =>
         $"{_testId}-{siteDesignation}";
 
     // TODO: Update to handle Okta on / off state

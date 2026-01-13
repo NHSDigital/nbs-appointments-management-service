@@ -237,9 +237,9 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps, IA
         actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        return SetupSite(GetSiteId());
+        await SetupSite(GetSiteId());
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

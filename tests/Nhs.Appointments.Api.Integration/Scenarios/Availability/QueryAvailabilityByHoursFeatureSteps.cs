@@ -22,7 +22,7 @@ using Xunit.Gherkin.Quick;
 using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
-public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable
+public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
@@ -30,12 +30,6 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
 
     private string _siteId;
     private List<Attendee> _attendeesCollection;
-
-    public void Dispose()
-    {
-        var testId = GetTestId;
-        DeleteSiteData(Client, testId).GetAwaiter().GetResult();
-    }
 
     [When("I query availability by hours")]
     public async Task Query(DataTable dataTable)

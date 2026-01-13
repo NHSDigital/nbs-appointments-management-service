@@ -4,7 +4,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 41b5fc18-0115-4f84-a780-af5a3025c6fe | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
+    And the following sessions exist for existing site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
     When I query availability by slots
@@ -16,7 +16,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 41b5fc18-0115-4f84-a780-af5a3025c6fe | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
+    And the following sessions exist for existing site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
     When I pass an invalid payload
@@ -26,7 +26,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 41b5fc18-0115-4f84-a780-af5a3025c6fe | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
+    And the following sessions exist for existing site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
     When I query availability by slots
@@ -38,7 +38,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | RSV:Adult | 10          | 1        |
     When I query availability by slots
@@ -57,7 +57,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | RSV:Adult | 10          | 1        |
       | Tomorrow          | 12:00 | 13:00 | RSV:Adult | 10          | 1        |
@@ -83,7 +83,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | RSV:Adult | 10          | 1        |
     When I query availability by slots
@@ -96,7 +96,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:10 | 10:10 | RSV:Adult | 15          | 1        |
     When I query availability by slots
@@ -113,7 +113,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | RSV:Adult | 15          | 1        |
     When I query availability by slots
@@ -126,7 +126,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | RSV:Adult | 10          | 1        |
     When I query availability by slots
@@ -145,7 +145,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | RSV:Adult  | 10          | 1        |
       | Tomorrow          | 09:30 | 10:30 | COVID:5_11 | 10          | 1        |
@@ -167,7 +167,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:30 | RSV:Adult  | 10          | 1        |
       | Tomorrow          | 09:31 | 10:30 | COVID:5_11 | 10          | 1        |
@@ -181,7 +181,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:28 | RSV:Adult  | 7           | 1        |
       | Tomorrow          | 09:00 | 09:30 | COVID:5_11 | 3           | 1        |
@@ -199,7 +199,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 08:50 | 10:00 | RSV:Adult  | 10          | 1        |
       | Tomorrow          | 09:00 | 10:10 | COVID:5_11 | 10          | 1        |
@@ -227,7 +227,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | RSV:Adult | 15          | 1        |
     When I query availability by slots
@@ -244,7 +244,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 09:30 | RSV:Adult | 15          | 1        |
       | Tomorrow | 12:00 | 13:00 | RSV:Adult | 15          | 1        |
@@ -262,7 +262,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8538fc5b-e6fa-4924-a0d4-dcc47ebaa421 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
+    And the following sessions exist for existing site '8538fc5b-e6fa-4924-a0d4-dcc47ebaa421'
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 09:45 | RSV:Adult  | 15          | 1        |
       | Tomorrow | 12:00 | 13:00 | RSV:Adult  | 15          | 1        |
@@ -285,7 +285,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+    And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:30 | RSV:Adult  | 10          | 1        |
     And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -301,7 +301,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+    And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:30 | RSV:Adult  | 10          | 1        |
     And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -319,7 +319,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+    And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:30 | RSV:Adult  | 10          | 1        |
     And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -337,7 +337,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |      
-    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+    And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:50 | RSV:Adult  | 10          | 1        |
     And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -354,7 +354,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+    And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 11:40 | 12:30 | RSV:Adult  | 10          | 1        |
     And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -374,7 +374,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+    And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:20 | RSV:Adult  | 10          | 1        |
     And the following bookings have been made for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -390,7 +390,7 @@ Feature: Query Availability By Slots
     Given The following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
+    And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 09:10 | RSV:Adult  | 10          | 1        |
       | Tomorrow          | 13:00 | 13:20 | RSV:Adult  | 10          | 1        |

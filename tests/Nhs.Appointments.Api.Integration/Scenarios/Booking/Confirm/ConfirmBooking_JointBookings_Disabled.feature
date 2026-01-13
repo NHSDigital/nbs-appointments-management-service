@@ -2,7 +2,7 @@ Feature: Book an appointment
 
   Scenario: Confirm a provisional appointment
     Given the site is configured for MYA
-    And the following sessions
+    And the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist
@@ -14,7 +14,7 @@ Feature: Book an appointment
 
   Scenario: Confirmation can record contact details
     Given the site is configured for MYA
-    And the following sessions
+    And the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist
@@ -30,7 +30,7 @@ Feature: Book an appointment
 
   Scenario: Cannot confirm an appointment that does not exist
     Given the site is configured for MYA
-    And the following sessions
+    And the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     When I confirm the booking
@@ -38,7 +38,7 @@ Feature: Book an appointment
 
   Scenario: Cannot confirm a provisional appointment that has expired
     Given the site is configured for MYA
-    And the following sessions
+    And the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist
@@ -49,7 +49,7 @@ Feature: Book an appointment
 
   Scenario: A provisional booking expires
     Given the site is configured for MYA
-    And the following sessions
+    And the following sessions exist for a created default site
       | Date      | From  | Until | Services  | Slot Length | Capacity |
       | Yesterday | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist
@@ -61,7 +61,7 @@ Feature: Book an appointment
 
   Scenario: Cannot confirm a non-provisional appointment
     Given the site is configured for MYA
-    And the following sessions
+    And the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist

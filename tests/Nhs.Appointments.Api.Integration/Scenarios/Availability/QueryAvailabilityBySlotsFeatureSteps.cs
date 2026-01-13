@@ -24,7 +24,7 @@ using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
 using static Nhs.Appointments.Core.Availability.AvailabilityBySlots;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
-public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable
+public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
@@ -32,12 +32,6 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
 
     private string _siteId;
     private List<Attendee> _attendeesCollection;
-
-    public void Dispose()
-    {
-        var testId = GetTestId;
-        DeleteSiteData(Client, testId).GetAwaiter().GetResult();
-    }
 
     [When("I query availability by slots")]
     public async Task Query(DataTable dataTable)

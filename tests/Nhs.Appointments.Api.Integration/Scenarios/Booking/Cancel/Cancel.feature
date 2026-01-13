@@ -1,7 +1,7 @@
 Feature: Appointment cancellation
 
   Scenario: Cancel a booking appointment
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -12,7 +12,7 @@ Feature: Appointment cancellation
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction' and no site
 
   Scenario: Cancel a booking appointment and provide the site parameter
-    Given the following sessions exist for site '6e3348bf-3509-45f2-887c-4f9651501f06'
+    Given the following sessions exist for existing site '6e3348bf-3509-45f2-887c-4f9651501f06'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made for site '6e3348bf-3509-45f2-887c-4f9651501f06'
@@ -25,7 +25,7 @@ Feature: Appointment cancellation
       | api@test | CancelBookingFunction | 6e3348bf-3509-45f2-887c-4f9651501f06 |
 
   Scenario: Cancel a booking appointment and provide the wrong site parameter
-    Given the following sessions exist for site '1bb81f6c-0e7d-4032-baea-bc32ea80d176'
+    Given the following sessions exist for existing site '1bb81f6c-0e7d-4032-baea-bc32ea80d176'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made for site '1bb81f6c-0e7d-4032-baea-bc32ea80d176'
@@ -35,7 +35,7 @@ Feature: Appointment cancellation
     Then the call should fail with 400
 
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -52,7 +52,7 @@ Feature: Appointment cancellation
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
 
   Scenario: Cancel a booking appointment without cancellation reason
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -63,7 +63,7 @@ Feature: Appointment cancellation
     And default cancellation reason has been used
 
   Scenario: Cancel a booking appointment with invalid cancellation reason
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -73,7 +73,7 @@ Feature: Appointment cancellation
     Then the call should fail with 400
 
   Scenario: Cancel a booking appointment with valid cancellation reason
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -84,7 +84,7 @@ Feature: Appointment cancellation
     And 'CancelledBySite' cancellation reason has been used
 
   Scenario: Cancel a booking appointment with AutoCancelled cancellation reason
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -95,7 +95,7 @@ Feature: Appointment cancellation
     And 'CancelledByService' cancellation reason has been used
 
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment of a different service
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
     And the following bookings have been made
@@ -112,7 +112,7 @@ Feature: Appointment cancellation
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
 
   Scenario: Greedy allocation alphabetical - suboptimal - Cancel a booking appointment can be replaced by an orphaned appointment
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID, RSV | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
@@ -136,7 +136,7 @@ Feature: Appointment cancellation
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
 
   Scenario: Greedy allocation alphabetical - optimal - Cancel a booking appointment can be replaced by an orphaned appointment
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID, RSV | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
@@ -160,7 +160,7 @@ Feature: Appointment cancellation
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
 
   Scenario: Greedy allocation by service length - suboptimal - Cancel a booking appointment can be replaced by an orphaned appointment
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services                        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID, RSV, COVID-16, COVID-75  | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | COVID, FLU                      | 5           | 1        |
@@ -184,7 +184,7 @@ Feature: Appointment cancellation
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction'
 
   Scenario: Greedy allocation by service length - optimal - Cancel a booking appointment can be replaced by an orphaned appointment
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services                        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID, RSV, COVID-16, COVID-75  | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | COVID, FLU                      | 5           | 1        |

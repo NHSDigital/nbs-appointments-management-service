@@ -532,6 +532,10 @@ public class SiteService(
     private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, List<string> services, DateOnly from,
         DateOnly until)
     {
+        logger.LogInformation(
+            "FetchSiteOffersServiceDuringPeriod invocated for site: '{siteId}', services: '{services}', from: '{from}', until: '{until}'",
+            siteId, string.Join('_', services), from.ToString("yyyyMMdd"), until.ToString("yyyyMMdd"));
+        
         var dateStringsInRange = GetDateStringsInRange(from, until);
         return await availabilityStore.SiteSupportsAllServicesOnSingleDateInRangeAsync(siteId, services,
             dateStringsInRange);

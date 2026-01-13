@@ -1,7 +1,7 @@
 ﻿Feature: Get week summary for single service
 
     Scenario: Returns expected sessions based on service lengths
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date            | From  | Until | Services                                  | Slot Length  | Capacity |
         | Next Monday     | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E      | 10           | 1        |
         | Next Monday     | 09:00 | 10:00 | COVID, FLU-B                              | 10           | 1        |
@@ -118,7 +118,7 @@
         | Next Sunday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
   
     Scenario: Returns Bad Request when fetched for a Tuesday
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date         | From  | Until | Services                             | Slot Length  | Capacity |
         | Next Tuesday | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E | 10           | 1        |
         | Next Tuesday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
@@ -134,7 +134,7 @@
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Wednesday
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date           | From  | Until | Services                             | Slot Length | Capacity |
         | Next Wednesday | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E | 10           | 1        |
         | Next Wednesday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
@@ -150,7 +150,7 @@
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Thursday
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date          | From  | Until | Services                             | Slot Length | Capacity |
         | Next Thursday | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E | 10           | 1        |
         | Next Thursday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
@@ -166,7 +166,7 @@
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Friday
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date          | From  | Until | Services                             | Slot Length | Capacity |
         | Next Friday | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E | 10           | 1        |
         | Next Friday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
@@ -182,7 +182,7 @@
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Saturday
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date          | From  | Until | Services                             | Slot Length | Capacity |
         | Next Saturday | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E | 10           | 1        |
         | Next Saturday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
@@ -198,7 +198,7 @@
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Sunday
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date          | From  | Until | Services                             | Slot Length | Capacity |
         | Next Sunday | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E | 10           | 1        |
         | Next Sunday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |

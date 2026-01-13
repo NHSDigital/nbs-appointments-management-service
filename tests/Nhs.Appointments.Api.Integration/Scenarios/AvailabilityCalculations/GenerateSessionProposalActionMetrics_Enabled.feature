@@ -166,7 +166,7 @@ Feature: Availability Edit Proposal Enabled
       | newlySupportedBookingsCount   | 0 |
       | newlyUnsupportedBookingsCount    | 1 |
     
-# Wildcard cancellation not yet implemented
+# Wildcard cancellation not yet implemented.
   @ignore
   Scenario: Cancel all sessions on a single day
     Given the site is configured for MYA

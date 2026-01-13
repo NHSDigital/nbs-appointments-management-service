@@ -24,7 +24,7 @@ using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
 using static Nhs.Appointments.Core.Availability.AvailabilityBySlots;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
-public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IDisposable
+public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
@@ -32,12 +32,6 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
 
     private string _siteId;
     private List<Attendee> _attendeesCollection;
-
-    public void Dispose()
-    {
-        var testId = GetTestId;
-        DeleteSiteData(Client, testId).GetAwaiter().GetResult();
-    }
 
     [When("I query availability by slots")]
     public async Task Query(DataTable dataTable)
@@ -107,22 +101,6 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => StatusCode.Should().Be((HttpStatusCode)statusCode);
-
-    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
-            .ToFeedIterator();
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
-        }
-    }
 
     private async Task SendRequestAsync(object payload)
     {

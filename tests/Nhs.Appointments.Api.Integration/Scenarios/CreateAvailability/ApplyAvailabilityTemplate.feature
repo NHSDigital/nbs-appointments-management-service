@@ -1,7 +1,7 @@
 ﻿Feature: Create daily availability
 
   Scenario: Can apply an availability template
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability template
       | From     | Until             | Days     | TimeFrom | TimeUntil | SlotLength | Capacity | Services | Mode     |
       | Tomorrow | 3 days from today | Relative | 09:00    | 10:00     | 5          | 1        | COVID    | Additive |
@@ -16,7 +16,7 @@
     And an audit function document was created for user 'api@test' and function 'ApplyAvailabilityTemplateFunction'
 
   Scenario: Overwrites existing daily availability
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     When I apply the following availability template
@@ -32,7 +32,7 @@
     And an audit function document was created for user 'api@test' and function 'ApplyAvailabilityTemplateFunction'
 
   Scenario: Can add new sessions to existing availability
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 1        |
     When I apply the following availability template
@@ -49,7 +49,7 @@
     And an audit function document was created for user 'api@test' and function 'ApplyAvailabilityTemplateFunction'
 
   Scenario: Can add new sessions to 2 different availability periods
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | COVID    | 5           | 2        |
       | 2 days from today | 13:00 | 15:00 | RSV      | 10          | 1        |
@@ -68,7 +68,7 @@
     And an audit function document was created for user 'api@test' and function 'ApplyAvailabilityTemplateFunction'
 
   Scenario: Appointment status is recalculated after an availability template is applied
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 57492-10293 |
@@ -85,7 +85,7 @@
     And an audit function document was created for user 'api@test' and function 'ApplyAvailabilityTemplateFunction'
 
   Scenario: Greedy allocation alphabetical - suboptimal - Appointment status is recalculated after an availability template is applied
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date              | Time  | Duration | Service | Reference   |
       | 3 days from today | 09:20 | 5        | COVID   | 37492-16293 |
@@ -105,7 +105,7 @@
     And the booking with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation alphabetical - optimal - Appointment status is recalculated after an availability template is applied
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date              | Time  | Duration | Service | Reference   |
       | 3 days from today | 09:20 | 5        | COVID   | 37492-16293 |
@@ -126,7 +126,7 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through alphabetical shuffling
   Scenario: Greedy allocation alphabetical - shuffling - Appointment is supported after unrelated availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date              | Time  | Duration | Service | Reference   |
       | 3 days from today | 09:20 | 5        | B       | 37492-16293 |
@@ -155,7 +155,7 @@
     And the booking with reference '89999-44622' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - suboptimal - Appointment status is recalculated after an availability template is applied
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date              | Time  | Duration | Service | Reference   |
       | 3 days from today | 09:20 | 5        | COVID   | 37492-16293 |
@@ -175,7 +175,7 @@
     And the booking with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - optimal - Appointment status is recalculated after an availability template is applied
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date              | Time  | Duration | Service | Reference   |
       | 3 days from today | 09:20 | 5        | COVID   | 37492-16293 |
@@ -196,7 +196,7 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through service length shuffling
   Scenario: Greedy allocation service lengths - shuffling - Appointment is supported after an unrelated availability template is applied
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date              | Time  | Duration | Service | Reference   |
       | 3 days from today | 09:20 | 5        | B       | 37492-16293 |

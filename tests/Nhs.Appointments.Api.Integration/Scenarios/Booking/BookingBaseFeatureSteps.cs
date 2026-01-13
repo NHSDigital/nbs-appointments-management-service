@@ -19,7 +19,7 @@ using ContactItem = Nhs.Appointments.Core.Bookings.ContactItem;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
-public abstract class BookingBaseFeatureSteps : AuditFeatureSteps, IAsyncLifetime
+public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
 {
     protected HttpResponseMessage Response { get; set; }
 
@@ -210,11 +210,4 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps, IAsyncLifetim
             $"{NaturalLanguageDate.Parse(naturalLanguageDateOnly):yyyy-MM-dd} {naturalLanguageTime}",
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
-
-    public Task InitializeAsync()
-    {
-        return SetupSite(GetSiteId(Guid.NewGuid().ToString()));
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }

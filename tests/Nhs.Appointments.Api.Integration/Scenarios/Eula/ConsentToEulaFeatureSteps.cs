@@ -76,6 +76,6 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
             ],
             LatestAcceptedEulaVersion = latestAcceptedEulaVersion
         };        
-        await Client.GetContainer("appts", "core_data").UpsertItemAsync(userAssignments);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), userAssignments);
     }
 }

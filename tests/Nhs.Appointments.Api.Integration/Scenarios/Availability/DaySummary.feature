@@ -1,7 +1,7 @@
 Feature: Get day summary
   
   Scenario: Returns expected sessions based on service lengths
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date            | From  | Until | Services                                  | Slot Length  | Capacity |
       | Next Monday     | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E      | 10           | 1        |
       | Next Monday     | 09:00 | 10:00 | COVID, FLU-B                              | 10           | 1        |

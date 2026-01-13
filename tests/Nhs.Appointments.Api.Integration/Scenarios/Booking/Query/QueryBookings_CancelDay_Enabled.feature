@@ -1,7 +1,7 @@
 ﻿Feature: Query for bookings
 
   Scenario: Get all bookings
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |
@@ -18,7 +18,7 @@
       | 2 days from today | 09:20 | 10       | FLU     |
 
   Scenario: Query by time range (inclusive)
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
     And the following bookings exist
@@ -38,7 +38,7 @@
       | 4         | 09:30 |
 
   Scenario: Query by status
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
     And the following bookings exist
@@ -57,7 +57,7 @@
       | 4         | Provisional |
 
   Scenario: Query by cancellation reason
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
     And the following bookings exist
@@ -75,7 +75,7 @@
       | 3         | CancelledBySite     |
 
   Scenario: Query by cancellation notification status
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
     And the following bookings exist
@@ -94,7 +94,7 @@
       | 4         | Unnotified                       |
 
   Scenario: Query by a combination of filters
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV:Adult | 10          | 5        |
     And the following bookings exist

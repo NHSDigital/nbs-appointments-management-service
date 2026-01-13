@@ -36,11 +36,10 @@ public abstract class GetSiteByIdFeatureSteps(string flag, bool enabled) : SiteM
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
             InformationForCitizens: row.Cells.ElementAt(7).Value,
             Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
-            new Location(
-                Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
-            status: null, isDeleted: null,
-            Type: null
+            OutOfTheWayLocation,
+            status: null, 
+            isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Type: dataTable.GetRowValueOrDefault(row, "Type")
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =

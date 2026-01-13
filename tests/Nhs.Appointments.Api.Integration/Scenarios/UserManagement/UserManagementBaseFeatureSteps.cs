@@ -27,6 +27,6 @@ public abstract class UserManagementBaseFeatureSteps(string flag, bool enabled) 
             DocumentType = "user",
             RoleAssignments = roleAssignments
         };    
-        await Client.GetContainer("appts", "core_data").CreateItemAsync(userDocument);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
     }
 }

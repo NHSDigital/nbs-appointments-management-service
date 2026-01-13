@@ -73,8 +73,9 @@ public sealed class BookingExtractsFeatureSteps : Feature
             Region = "North",
             IntegratedCareBoard = "ICB01",
             DocumentType = "site",
-            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+            Location = new Location("Point", new[] { -60d, -60d })
         };
+        
         await _cosmosClient.GetContainer("appts", "core_data").UpsertItemAsync(site);
         return site;
     }
@@ -275,10 +276,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
 
         var meshHttpClient = RestService.CreateHttpClient("http://localhost:4030/", new()
         {
-            AuthorizationHeaderValueGetter = (request, _) =>
-            {
-                return Task.FromResult(meshTokenGenerator.GenerateAuthorizationToken());
-            }
+            AuthorizationHeaderValueGetter = (request, _) => Task.FromResult(meshTokenGenerator.GenerateAuthorizationToken())
         });
 
         var meshClient = RestService.For<IMeshClient>(meshHttpClient);

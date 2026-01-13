@@ -1,7 +1,7 @@
 Feature: Change Session Uplifted Journey
 
   Scenario: Change Session
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made

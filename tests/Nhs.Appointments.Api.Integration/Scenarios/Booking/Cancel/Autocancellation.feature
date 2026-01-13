@@ -1,7 +1,7 @@
 Feature: Appointment cancellation
 
   Scenario: Can cancel a booking when I provide no details for cancellation reason or additional data
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist
@@ -15,7 +15,7 @@ Feature: Appointment cancellation
       | 1         | Cancelled | CancelledByCitizen  |
       
   Scenario: Can set additional data when cancelling a booking and providing no site parameter
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist
@@ -29,7 +29,10 @@ Feature: Appointment cancellation
       | 1         | Cancelled | CancelledByService  | selfReferral,false |
 
   Scenario: Can set additional data when cancelling a booking and providing a site parameter
-    Given the following sessions exist for site 'c305e084-ad5a-4bc3-a567-bd0ffbb23e57'
+    Given the following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
+      | c305e084-ad5a-4bc3-a567-bd0ffbb23e57 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for existing site 'c305e084-ad5a-4bc3-a567-bd0ffbb23e57'
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist
@@ -43,7 +46,7 @@ Feature: Appointment cancellation
       | 1         | Cancelled | CancelledByService  | selfReferral,false | c305e084-ad5a-4bc3-a567-bd0ffbb23e57 |
 
   Scenario: Can patch additional data when cancelling a booking
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
     And the following bookings exist

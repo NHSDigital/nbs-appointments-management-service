@@ -1,0 +1,12 @@
+{
+  "apiSigningKey": "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==",
+  "roleAssignments": [
+    {
+      "role": "system:integration-test-user",
+      "scope": "global"
+    }
+  ],
+  "latestAcceptedEulaVersion": "0001-01-01",
+  "id": "api@test",
+  "docType": "user"
+}

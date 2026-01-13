@@ -68,46 +68,6 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
         }
     }
 
-    [Given("the following sites exist in the system")]
-    public async Task SetUpSites(DataTable dataTable)
-    {
-        var sites = dataTable.Rows.Skip(1).Select(row =>
-        {
-            var siteId = GetSiteId(dataTable.GetRowValueOrDefault(row, "Id"));
-
-            return new SiteDocument
-            {
-                Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Id")),
-                // Site report does not contain ID so we have to match on something else, but only ID is unique per test
-                // Because site report runs for ALL sites regardless of whether they have data, we always get previous test's data
-                // So have to make site name unique per test so we can identify the correct row to assert on
-                Name = dataTable.GetRowValueOrDefault(row, "Name", $"Site {siteId}"),
-                Address = dataTable.GetRowValueOrDefault(row, "Address", "123 Hull Road"),
-                PhoneNumber = dataTable.GetRowValueOrDefault(row, "Phone Number", "0113 1111111"),
-                OdsCode = dataTable.GetRowValueOrDefault(row, "Ods Code", "ABC01"),
-                Region = dataTable.GetRowValueOrDefault(row, "Region", "R1"),
-                IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB", "ICB1"),
-                InformationForCitizens = dataTable.GetRowValueOrDefault(row, "Citizen Info",
-                    "Door buzzer does not work."),
-                DocumentType = "site",
-                Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Access needs")),
-                Location = new Location("Point",
-                    new[]
-                    {
-                        dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -1.67382134),
-                        dataTable.GetDoubleRowValueOrDefault(row, "Latitude", 55.79628754)
-                    }),
-                Type = dataTable.GetRowValueOrDefault(row, "Type"),
-                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "Deleted")
-            };
-        });
-
-        foreach (var site in sites)
-        {
-            await Client.GetContainer("appts", "core_data").UpsertItemAsync(site);
-        }
-    }
-
     [And("the following site reports exist in the system")]
     public async Task SetUpSiteSummaries(DataTable dataTable)
     {
@@ -133,8 +93,7 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
 
         foreach (var site in sites)
         {
-            await Client.GetContainer("appts", "aggregated_data")
-                .UpsertItemAsync(site);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "aggregated_data"), site);
         }
     }
 
@@ -150,7 +109,7 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
 
         var expectedRow = new SiteReportRow
         {
-            SiteName = $"Site {GetSiteId(dataTable.GetRowValueOrDefault(row, "Id"))}",
+            SiteName = dataTable.GetRowValueOrDefault(row, "Name"),
             SiteType = dataTable.GetRowValueOrDefault(row, "Site Type"),
             Region = dataTable.GetRowValueOrDefault(row, "Region"),
             RegionName = dataTable.GetRowValueOrDefault(row, "Region Name"),

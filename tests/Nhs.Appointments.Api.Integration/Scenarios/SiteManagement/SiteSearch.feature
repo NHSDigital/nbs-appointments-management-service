@@ -715,3 +715,62 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+    
+# A test to prove lazy sliding cache behaviours, including delayed updated cache results after a slide
+  Scenario: Lazy Slide Cache Test
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+      | 9cf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
+      | 7beadf23-2c8c-4080-8be6-896c73634efb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 |
+      | fa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
+    And the following sessions exist for site '40e7b709-83c6-416b-b5d8-27d03222e1bf'
+      | Date     | From  | Until | Services           | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 12:00 | RSV:Adult,FLU:2_3  | 10          | 1        |
+      | Tomorrow | 13:00 | 17:00 | COVID:5_11,FLU:2_3 | 10          | 1        |
+    And the following sessions exist for site '9cf7f58b-ca1a-425a-869e-7a574e183a2c'
+      | Date     | From  | Until | Services             | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 11:20 | RSV:Adult,COVID:5_11 | 10          | 1        |
+      | Tomorrow | 12:00 | 15:20 | FLU:2_3              | 10          | 1        |
+    And the following sessions exist for site '7beadf23-2c8c-4080-8be6-896c73634efb'
+      | Date     | From  | Until | Services   | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:20 | RSV:Adult  | 10          | 1        |
+      | Tomorrow | 12:00 | 15:20 | COVID:5_11 | 10          | 1        |
+    When I make the following request with service filtering, access needs, and caching
+      | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
+      | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+#   Now add some availability to a site that should match the request
+    Given the following sessions exist for site 'fa8ceff5-d152-4687-b8ea-030df7d5efb1'
+      | Date     | From  | Until | Services           | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
+      | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |
+    When I make the following request with service filtering, access needs, and caching
+      | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
+      | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
+#   The site with the posted availability is not returned yet
+#   Cache value is returned, and no slide occurs
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+#   Wait for the slide threshold to pass
+    When I wait for '1050' milliseconds
+#   First request should slide the cache, updating the cache value to the new, but still return the old value
+    When I make the following request with service filtering, access needs, and caching
+      | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
+      | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
+#   The site with the posted availability is not returned yet
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+#   Second request should not slide the cache, but return the new value that was saved by the slide
+    When I make the following request with service filtering, access needs, and caching
+      | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
+      | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
+#   The site with the posted availability is returned now!
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
+      | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+      | fa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |

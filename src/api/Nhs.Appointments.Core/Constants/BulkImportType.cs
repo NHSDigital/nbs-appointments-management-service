@@ -5,6 +5,6 @@ public static class BulkImportType
     // TODO: Can apiUser be removed completely?
     public const string ApiUser = "apiUser";
     public const string Site = "site";
-    public const string SiteStatus = "site-status";
+    public const string SiteDeletion = "site-deletion";
     public const string User = "user";
 }

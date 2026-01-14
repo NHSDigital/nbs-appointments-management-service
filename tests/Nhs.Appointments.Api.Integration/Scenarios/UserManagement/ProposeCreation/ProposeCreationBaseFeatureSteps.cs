@@ -73,7 +73,7 @@ public abstract class ProposeCreationBaseFeatureSteps(string flag, bool enabled)
             Id = userEmail, DocumentType = "user", RoleAssignments = [SomeRoleAssignment()]
         };
 
-        await Client.GetContainer("appts", "core_data").CreateItemAsync(userDocument);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
     }
 
     [Given(@"user '(.+)' does not exist in MYA")]

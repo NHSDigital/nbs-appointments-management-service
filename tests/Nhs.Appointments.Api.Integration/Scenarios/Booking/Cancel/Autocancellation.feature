@@ -29,7 +29,7 @@ Feature: Appointment cancellation
       | 1         | Cancelled | CancelledByService  | selfReferral,false |
 
   Scenario: Can set additional data when cancelling a booking and providing a site parameter
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | c305e084-ad5a-4bc3-a567-bd0ffbb23e57 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'c305e084-ad5a-4bc3-a567-bd0ffbb23e57'

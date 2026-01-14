@@ -1,7 +1,7 @@
 ﻿Feature: Set availability
 
   Scenario: Create availability for a single day
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
@@ -45,7 +45,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -104,7 +104,7 @@
       And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status recalculation does not affect cancelled or provisional bookings
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following cancelled bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 10293-45957 |
@@ -166,7 +166,7 @@
     And the booking with reference '61865-10293' has availability status 'Supported'
 
   Scenario: Bookings are prioritised by created date
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 34482-10293 | 2024-12-01T09:00:00.000Z |
@@ -182,7 +182,7 @@
     And the booking with reference '45853-10293' has availability status 'Supported'
 
   Scenario: Create availability for a single day
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
@@ -226,7 +226,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -285,7 +285,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status recalculation does not affect cancelled or provisional bookings
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following cancelled bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 10293-45957 |
@@ -474,7 +474,7 @@
     And the booking with reference '61865-10293' has availability status 'Supported'
 
   Scenario: Bookings are prioritised by created date
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 34482-10293 | 2024-12-01T09:00:00.000Z |
@@ -490,7 +490,7 @@
     And the booking with reference '45853-10293' has availability status 'Supported'
 
   Scenario: Create availability for a single day
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services        | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, FLU, RSV | Overwrite |
@@ -548,7 +548,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Greedy allocation alphabetical - suboptimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -568,7 +568,7 @@
     And the booking with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation alphabetical - optimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -589,7 +589,7 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through alphabetical shuffling
   Scenario: Greedy allocation alphabetical - shuffling - Appointment is supported after unrelated availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | B       | 37492-16293 |
@@ -618,7 +618,7 @@
     And the booking with reference '89999-44622' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - suboptimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -638,7 +638,7 @@
     And the booking with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - optimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -659,7 +659,7 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through service length shuffling
   Scenario: Greedy allocation service lengths - shuffling - Appointment is supported after unrelated availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | B       | 37492-16293 |

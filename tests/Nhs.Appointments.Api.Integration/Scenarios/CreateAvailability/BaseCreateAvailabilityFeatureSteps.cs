@@ -17,16 +17,16 @@ using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 
-public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps, IAsyncLifetime
+public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
 {
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpResponseMessage _response;
     protected HttpStatusCode _statusCode;
 
-    [Given("there is no existing availability")]
-    public Task NoAvailability()
+    [Given("there is no existing availability for a created default site")]
+    public async Task NoAvailability()
     {
-        return Task.CompletedTask; // Could we clear out any existing
+        await SetupSite(GetSiteId());
     }
 
     [And(@"the following availability created events are created")]
@@ -236,11 +236,4 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps, IA
         actualDocuments.Count().Should().Be(expectedDocuments.Count());
         actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }
-
-    public async Task InitializeAsync()
-    {
-        await SetupSite(GetSiteId());
-    }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }

@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
@@ -26,8 +27,6 @@ using Xunit;
 using Xunit.Gherkin.Quick;
 using Feature = Xunit.Gherkin.Quick.Feature;
 using Location = Nhs.Appointments.Core.Sites.Location;
-using Role = Nhs.Appointments.Persistance.Models.Role;
-using RoleAssignment = Nhs.Appointments.Persistance.Models.RoleAssignment;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
@@ -86,6 +85,56 @@ public abstract partial class BaseFeatureSteps : Feature
         });
         Mapper = new Mapper(mapperConfiguration);
     }
+    
+    /// <summary>
+    /// Setting up test data for scenarios can sometimes overload CosmosDB
+    /// Add a backoff retry if the data isn't written
+    /// </summary>
+    protected async Task CosmosAction_RetryOnTooManyRequests<T>(
+        CosmosAction cosmosAction,
+        Container container, 
+        T item,
+        PartitionKey? partitionKey = null,
+        ItemRequestOptions requestOptions = null,
+        CancellationToken cancellationToken = default)
+    {
+        var maxRetries = 5;
+        var delay = 100;
+        var backoffFactor = 2;
+
+        var attempt = 1; 
+        
+        while (attempt <= maxRetries)
+        {
+            try
+            {
+                switch (cosmosAction)
+                {
+                    case CosmosAction.Create:
+                        await container.CreateItemAsync(item, partitionKey, requestOptions, cancellationToken);
+                        return;
+                    case CosmosAction.Upsert:
+                        await container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken);
+                        return;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(cosmosAction), cosmosAction, null);
+                }
+            }
+            catch (CosmosException ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    await Task.Delay(delay, cancellationToken);
+                    delay *= backoffFactor;
+                    attempt++;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+    }
 
     protected string NhsNumber { get; private set; } = CreateRandomTenCharacterString();
 
@@ -110,7 +159,7 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "site",
             Location = OutOfTheWayLocation
         };
-        await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
     }
 
     // TODO: Added for BulkImport tests as it requires a valid Guid
@@ -128,7 +177,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Region = "R1",
             Location = OutOfTheWayLocation
         };
-        await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
     }
 
     protected async Task SetLocalFeatureToggleOverride(string name, string state)
@@ -162,7 +211,7 @@ public abstract partial class BaseFeatureSteps : Feature
             DocumentType = "site",
             Location = OutOfTheWayLocation
         };
-        await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
     }
 
     public async Task SetupSessions(string siteDesignation, DataTable dataTable)
@@ -171,7 +220,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable).ToList();
         foreach (var document in availabilityDocuments)
         {
-            await Client.GetContainer("appts", "booking_data").CreateItemAsync(document);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), document);
         }
     }
 
@@ -382,9 +431,8 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         foreach (var bookingAndIndex in BuildBookingAndIndexDocumentsFromDataTable(dataTable))
         {
-            await Client.GetContainer("appts", "booking_data").CreateItemAsync(bookingAndIndex.booking);
-            await Client.GetContainer("appts", "index_data").CreateItemAsync(bookingAndIndex.bookingIndex);
-
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), bookingAndIndex.booking);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "index_data"), bookingAndIndex.bookingIndex);
             MadeBookings.Add(bookingAndIndex.booking);
         }
     }
@@ -497,12 +545,12 @@ public abstract partial class BaseFeatureSteps : Feature
 
         foreach (var booking in bookings)
         {
-            await Client.GetContainer("appts", "booking_data").CreateItemAsync(booking);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), booking);
         }
 
         foreach (var bookingIndex in bookingIndexDocuments)
         {
-            await Client.GetContainer("appts", "index_data").CreateItemAsync(bookingIndex);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "index_data"), bookingIndex);
         }
 
         MadeBookings.AddRange(bookings);
@@ -718,9 +766,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
         foreach (var site in sites)
         {
-            //TODO why not create? as we have cleanup?
-            await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
-            // await Client.GetContainer("appts", "core_data").UpsertItemAsync(site);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
         }
     }
 
@@ -837,92 +883,6 @@ public abstract partial class BaseFeatureSteps : Feature
     // TODO: Update to handle Okta on / off state
     protected string GetUserId(string userId) => $"{userId}_{_testId}@nhs.net";
 
-    private async Task SetUpRoles()
-    {
-        var roles = new RolesDocument
-        {
-            Id = "global_roles",
-            DocumentType = "system",
-            Roles =
-            [
-                new Role
-                {
-                    Id = "system:integration-test-user",
-                    Name = "Integration Test Api User Role",
-                    Description = "Role for integration test user.",
-                    Permissions =
-                    [
-                        Permissions.MakeBooking,
-                        Permissions.QueryBooking,
-                        Permissions.CancelBooking,
-                        Permissions.ManageUsers,
-                        Permissions.ViewUsers,
-                        Permissions.QuerySites,
-                        Permissions.ViewSiteMetadata,
-                        Permissions.ViewSite,
-                        Permissions.ViewSitePreview,
-                        Permissions.ManageSite,
-                        Permissions.ManageSiteAdmin,
-                        Permissions.QueryAvailability,
-                        Permissions.SetupAvailability,
-                        Permissions.SystemRunProvisionalSweeper,
-                        Permissions.SystemRunReminders,
-                        Permissions.SystemDataImporter,
-                        Permissions.ReportsSiteSummary
-                    ]
-                },
-                new Role
-                {
-                    Id = "canned:availability-manager",
-                    Name = "Availability manager",
-                    Description = "A user can create, view, and manage site availability.",
-                    Permissions =
-                    [
-                        Permissions.SetupAvailability, Permissions.QueryAvailability, Permissions.QueryBooking,
-                        Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
-                    ]
-                },
-                new Role
-                {
-                    Id = "canned:appointment-manager",
-                    Name = "Appointment manager",
-                    Description = "A user can view and cancel appointments.",
-                    Permissions =
-                    [
-                        Permissions.QueryAvailability, Permissions.CancelBooking, Permissions.QueryBooking,
-                        Permissions.ViewSite, Permissions.ViewSitePreview, Permissions.ViewSiteMetadata
-                    ]
-                },
-                new Role
-                {
-                    Id = "canned:site-details-manager",
-                    Name = "Site details manager",
-                    Description = "A user can edit site details and accessibility information.",
-                    Permissions =
-                    [
-                        Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite,
-                        Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata
-                    ]
-                },
-                new Role
-                {
-                    Id = "canned:user-manager",
-                    Name = "User manager",
-                    Description = "A user can view and manage user role assignments.",
-                    Permissions =
-                    [
-                        Permissions.QueryAvailability, Permissions.QueryBooking, Permissions.ViewSite,
-                        Permissions.ViewSitePreview, Permissions.ManageSite, Permissions.ViewSiteMetadata,
-                        Permissions.ViewUsers, Permissions.ManageUsers
-                    ]
-                },
-            ]
-        };
-
-        var coreData = Client.GetContainer("appts", "core_data");
-        await coreData.UpsertItemAsync(roles);
-    }
-
     protected Dictionary<string, string> BuildAdditionalDataFromDataTable(DataTable table, TableRow row)
     {
         var keyValuePairs = new Dictionary<string, string>();
@@ -944,49 +904,6 @@ public abstract partial class BaseFeatureSteps : Feature
         }
 
         return keyValuePairs;
-    }
-
-    private async Task SetUpNotificationConfiguration()
-    {
-        var notificationConfiguration = new NotificationConfigurationDocument
-        {
-            Id = "notification_configuration",
-            DocumentType = "system",
-            Configs =
-            [
-                new NotificationConfigurationItem
-                {
-                    Services = ["COVID", "COVID:18_74"],
-                    EmailTemplateId = "COVID Email Confirmation",
-                    SmsTemplateId = "COVID SMS Confirmation",
-                    EventType = "BookingMade"
-                },
-                new NotificationConfigurationItem
-                {
-                    Services = ["COVID", "COVID:18_74"],
-                    EmailTemplateId = "COVID Email Reminder",
-                    SmsTemplateId = "COVID SMS Reminder",
-                    EventType = "BookingReminder"
-                }
-            ]
-        };
-        await Client.GetContainer("appts", "core_data").UpsertItemAsync(notificationConfiguration);
-    }
-
-    protected async Task SetUpIntegrationTestUserRoleAssignments(DateOnly latestAcceptedEulaVersion = default)
-    {
-        var userAssignments = new UserDocument
-        {
-            Id = "api@test",
-            ApiSigningKey = ApiSigningKey,
-            DocumentType = "user",
-            RoleAssignments =
-            [
-                new RoleAssignment { Role = "system:integration-test-user", Scope = "global" }
-            ],
-            LatestAcceptedEulaVersion = latestAcceptedEulaVersion
-        };
-        await Client.GetContainer("appts", "core_data").UpsertItemAsync(userAssignments);
     }
 
     protected static async Task<IEnumerable<TDocument>> RunQueryAsync<TDocument>(Container container,
@@ -1030,4 +947,10 @@ public class BookingReferenceManager
 
         return _bookingReferences[index];
     }
+}
+
+public enum CosmosAction
+{
+    Create = 0,
+    Upsert = 1,
 }

@@ -75,6 +75,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
             DocumentType = "site",
             Location = new Location("Point", new[] { -60d, -60d })
         };
+        
         await _cosmosClient.GetContainer("appts", "core_data").UpsertItemAsync(site);
         return site;
     }

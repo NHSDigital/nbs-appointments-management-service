@@ -32,7 +32,7 @@ public sealed class AccessibilityDefinitionsFeatureSteps : BaseFeatureSteps
                 AccessibilityDefinitions = AccessibilityDefinitions
             };
         
-        await Client.GetContainer("appts", "core_data").UpsertItemAsync(accessibilityDocument);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), accessibilityDocument);
     }
     
     [When(@"I query for all accessibility definitions")]

@@ -93,8 +93,7 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
 
         foreach (var site in sites)
         {
-            await Client.GetContainer("appts", "aggregated_data")
-                .UpsertItemAsync(site);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "aggregated_data"), site);
         }
     }
 

@@ -1,7 +1,7 @@
 Feature: Query Availability By Days
 
   Scenario: Only returns matching days for a single attendee at a single site with a single service
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 41b5fc18-0115-4f84-a780-af5a3025c6fe | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
@@ -17,7 +17,7 @@ Feature: Query Availability By Days
       | 2 days from today | PM     | 12:00 | 17:00 |
 
     Scenario: Can return availability if it crosses multiple sessions
-      Given The following sites exist in the system
+      Given the following sites exist in the system
         | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
         | 41b5fc18-0115-4f84-a780-af5a3025c6fa | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60        | GP Practice  |
       And the following sessions exist for existing site '41b5fc18-0115-4f84-a780-af5a3025c6fa'
@@ -32,7 +32,7 @@ Feature: Query Availability By Days
         | Tomorrow          | AM,PM  | 09:00 | 17:00 |
 
     Scenario: 'Neighbouring' slot logic is not ideal if slot lengths do not easily divide across services - no results
-      Given The following sites exist in the system
+      Given the following sites exist in the system
         | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
         | 41b5fc18-0115-4f84-a780-af5a3025c6fb | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60        | GP Practice  |
       And the following sessions exist for existing site '41b5fc18-0115-4f84-a780-af5a3025c6fb'
@@ -46,7 +46,7 @@ Feature: Query Availability By Days
       Then the response should be empty
 
     Scenario: 'Neighbouring' slot logic is not ideal if slot lengths do not easily divide across services - single result
-      Given The following sites exist in the system
+      Given the following sites exist in the system
         | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
         | 41b5fc18-0115-4f84-a780-af5a3025c6fe | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60        | GP Practice  |
       And the following sessions exist for existing site '41b5fc18-0115-4f84-a780-af5a3025c6fe'
@@ -62,7 +62,7 @@ Feature: Query Availability By Days
         | Tomorrow          | AM     | 09:14 | 12:00 |
 
   Scenario: Only returns matching days for rwo Attendees with two Services at a single Site
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 94a19f36-2a34-4921-89e4-a3b95083c362 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site '94a19f36-2a34-4921-89e4-a3b95083c362'
@@ -78,7 +78,7 @@ Feature: Query Availability By Days
       | 2 days from today | PM     | 12:00 | 17:00 |
 
   Scenario: Only returns matching days for two attendees with a single service at a single Site
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 3284fc27-3eb4-4e01-b49a-115a74d0958b | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site '3284fc27-3eb4-4e01-b49a-115a74d0958b'
@@ -95,7 +95,7 @@ Feature: Query Availability By Days
       | 2 days from today | PM     | 12:00 | 17:00 |
 
   Scenario: Only return matching slots for three attendees requesting three services at a single site
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 8818249b-e654-46d5-9b50-607c28996abe | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site '8818249b-e654-46d5-9b50-607c28996abe'
@@ -111,7 +111,7 @@ Feature: Query Availability By Days
       | 2 days from today | AM,PM  | 09:00 | 17:00 |
 
   Scenario: Only return matching days for three attendees requesting two services at a single site
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 9fdd5102-49dc-49d3-a9b1-52a447ebd160 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site '9fdd5102-49dc-49d3-a9b1-52a447ebd160'
@@ -127,7 +127,7 @@ Feature: Query Availability By Days
       | 2 days from today | AM,PM  | 09:00 | 17:00 |
 
   Scenario: Only return matching days for three attendees requesting a single service at a single site
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 9ad300b4-7608-497b-b0e2-0a54192dabd4 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site '9ad300b4-7608-497b-b0e2-0a54192dabd4'
@@ -142,7 +142,7 @@ Feature: Query Availability By Days
       | 2 days from today | AM,PM  | 09:00 | 17:00 |
 
   Scenario: Return matching days for a single attendee at multiple sites
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | aa0ffcae-89dd-4017-8eda-c5c0dbdcbe07 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
       | 0a377442-1be4-413c-ac36-a2583864704b | Site-B | 1B Site Lane | 0113 1111112 | 15P     | R2     | ICB2 | Info 2                 | accessibility/attr_one=true  | -60       | -60      | Pharmacy    |
@@ -161,7 +161,7 @@ Feature: Query Availability By Days
       | 0a377442-1be4-413c-ac36-a2583864704b | 2 days from today | PM     | 09:00 | 17:00 |
 
   Scenario: Return matching days for two attendees at multiple sites for a single service
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 252b0be3-cb39-443e-95a9-06ac37c63346 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
       | b17d91f0-4332-4e66-83a9-2978b7e36456 | Site-B | 1B Site Lane | 0113 1111112 | 15P     | R2     | ICB2 | Info 2                 | accessibility/attr_one=true  | -60       | -60      | Pharmacy    |
@@ -180,7 +180,7 @@ Feature: Query Availability By Days
       | b17d91f0-4332-4e66-83a9-2978b7e36456 | 2 days from today | PM     | 09:00 | 17:00 |
 
   Scenario: Return matching days for two attendees at multiple sits for multiple services
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 41708fe0-6c89-46a4-8183-1a8d0f919cc2 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
       | 1ac0fd0e-c421-4633-bc23-95dc92003803 | Site-B | 1B Site Lane | 0113 1111112 | 15P     | R2     | ICB2 | Info 2                 | accessibility/attr_one=true  | -60       | -60      | Pharmacy    |
@@ -200,7 +200,7 @@ Feature: Query Availability By Days
       | 41708fe0-6c89-46a4-8183-1a8d0f919cc2 | 2 days from today |        |       |       |
 
   Scenario: Returns empty days array when there are no matching slots
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | 2debe217-0cc1-4b53-8a2a-56315ca4528a | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site '2debe217-0cc1-4b53-8a2a-56315ca4528a'
@@ -213,7 +213,7 @@ Feature: Query Availability By Days
       | Date              | Blocks | From  | Until |
 
   Scenario: Returns empty days array when there are no matching slots for multiple attendees requesting multiple services even though one service matches
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -227,7 +227,7 @@ Feature: Query Availability By Days
       | Date              | Blocks | From  | Until |
 
   Scenario: Returns Bad Request Response
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b2b3ee1c-3cc3-4903-b3c7-6cdd23c4b799 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b2b3ee1c-3cc3-4903-b3c7-6cdd23c4b799'
@@ -237,7 +237,7 @@ Feature: Query Availability By Days
     Then the call should fail with 400
 
   Scenario: Returns empty array when sites are inactive
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         | IsDeleted |
       | 5fc5b424-07a4-496b-96c6-500a68554435 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60        | GP Practice  | true      |
       | 9e53e798-9b60-442f-b62c-aded0290ae47 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60        | GP Practice  | true      |
@@ -247,7 +247,7 @@ Feature: Query Availability By Days
     Then the response should be empty
 
   Scenario: Returns matching slots of different lengths for two attendees requesting a single service
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
       | 6188c242-acfa-4dc2-860a-ead658bfe180 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60 | GP Practice  |
     And the following sessions exist for existing site '6188c242-acfa-4dc2-860a-ead658bfe180'
@@ -262,7 +262,7 @@ Feature: Query Availability By Days
       | Tomorrow | AM,PM  | 11:00 | 13:00 |
 
   Scenario: Not enough availability for the amount of attendees required
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
       | 6188c242-acfa-4dc2-860a-ead658bfe180 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60 | GP Practice  |
     And the following sessions exist for existing site '6188c242-acfa-4dc2-860a-ead658bfe184'
@@ -275,7 +275,7 @@ Feature: Query Availability By Days
     Then the response should be empty
 
   Scenario: Just enough availability for the amount of attendees required
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
       | 6188c242-acfa-4dc2-860a-ead658bfe185 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60 | GP Practice  |
     And the following sessions exist for existing site '6188c242-acfa-4dc2-860a-ead658bfe185'
@@ -290,7 +290,7 @@ Feature: Query Availability By Days
       | Tomorrow | AM     | 11:00 | 12:00 |
 
   Scenario: Returns matching slots of different lengths for two attendees requesting multiple services
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
       | 091ea500-4b8c-49f1-93cc-ac1fb25f18d3 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60 | GP Practice  |
     And the following sessions exist for existing site '091ea500-4b8c-49f1-93cc-ac1fb25f18d3'
@@ -305,7 +305,7 @@ Feature: Query Availability By Days
       | Tomorrow | AM,PM  | 11:50 | 12:05 |
 
   Scenario: Returns bad request when too many attendees are passed up
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
       | 6188c242-acfa-4dc2-860a-ead658bfe185 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60 | GP Practice  |
     And the following sessions exist for existing site '6188c242-acfa-4dc2-860a-ead658bfe185'
@@ -321,7 +321,7 @@ Feature: Query Availability By Days
   # All 12 combinations of services from sessions A and B should be available
   # All 6 combinations of services that include 'FLU:2_3' from session C and other services from A/B - however - are unavailable, but they COULD be in best fit solution...
   Scenario: Greedy allocation by service length - optimal and suboptimal combinations
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         |
       | 6188c242-acfa-4dc2-860a-ead658bfe187 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  |  -60       | -60 | GP Practice  |
     And the following sessions exist for existing site '6188c242-acfa-4dc2-860a-ead658bfe187'
@@ -451,7 +451,7 @@ Feature: Query Availability By Days
     
 
   Scenario: One booked slot breaks a consecutive pair
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -467,7 +467,7 @@ Feature: Query Availability By Days
       | Date              | Blocks | From  | Until |
 
   Scenario: Booking at the start still allows later consecutive slots
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -484,7 +484,7 @@ Feature: Query Availability By Days
       | Tomorrow | AM     | 09:10 | 12:00 |
     
   Scenario: Booking at the end still allows earlier consecutive slots
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -501,7 +501,7 @@ Feature: Query Availability By Days
       | Tomorrow | AM     | 09:00 | 12:00 |
 
   Scenario: Two non-adjacent bookings split availability into two valid windows
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -518,7 +518,7 @@ Feature: Query Availability By Days
       | Date     | Blocks | From  | Until |
 
   Scenario: One booking leaves valid consecutive pairs
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -535,7 +535,7 @@ Feature: Query Availability By Days
       | Tomorrow | AM,PM  | 11:40 | 12:30 |
 
   Scenario: Only two slots exist and one is booked
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'
@@ -551,7 +551,7 @@ Feature: Query Availability By Days
       | Date     | Blocks | From  | Until |
 
   Scenario: One session too short, another session valid
-    Given The following sites exist in the system
+    Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | b4f1093b-83fc-4f99-9bd2-7c29080254db | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
     And the following sessions exist for existing site 'b4f1093b-83fc-4f99-9bd2-7c29080254db'

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.OdsCodes;
 using Nhs.Appointments.Core.Reports.SiteSummary;
@@ -7,9 +8,10 @@ namespace Nhs.Appointments.Core.Sites;
 public class SiteReportService(
     IDailySiteSummaryStore dailySiteSummaryStore,
     IClinicalServiceStore clinicalServiceStore,
-    IWellKnownOdsCodesStore wellKnownOdsCodesStore) : ISiteReportService
+    IWellKnownOdsCodesStore wellKnownOdsCodesStore,
+    IOptions<SiteSummaryQueryOptions> siteSummaryQueryOptions) : ISiteReportService
 {
-    private readonly int _parallelizationMinimum = 500;
+    private readonly int _parallelizationMinimum = siteSummaryQueryOptions.Value.MinimumParallelization;
     public async Task<IEnumerable<SiteReport>> GenerateReports(IEnumerable<Site> sites, DateOnly startDate,
         DateOnly endDate)
     {

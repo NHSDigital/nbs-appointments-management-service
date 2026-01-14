@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.OdsCodes;
 using Nhs.Appointments.Core.Reports.SiteSummary;
@@ -12,6 +13,7 @@ public class SiteReportServiceTests
     private readonly Mock<IDailySiteSummaryStore> _dailySiteSummaryStore = new();
     private readonly Mock<IClinicalServiceStore> _clinicalServiceStore = new();
     private readonly Mock<IWellKnownOdsCodesStore> _wellKnownOdsCodesStore = new();
+    private readonly Mock<IOptions<SiteSummaryQueryOptions>> _siteSummaryQueryOptions = new();
 
     public SiteReportServiceTests()
     {
@@ -40,9 +42,14 @@ public class SiteReportServiceTests
                 SiteReportServiceMockData.DayOne,
                 SiteReportServiceMockData.DayThree))
             .ReturnsAsync(SiteReportServiceMockData.MockSite3DailySummaries);
+        
+        _siteSummaryQueryOptions.Setup(options => options.Value).Returns(new SiteSummaryQueryOptions
+        {
+            MinimumParallelization = 500
+        });
 
         _sut = new SiteReportService(_dailySiteSummaryStore.Object,
-            _clinicalServiceStore.Object, _wellKnownOdsCodesStore.Object);
+            _clinicalServiceStore.Object, _wellKnownOdsCodesStore.Object,  _siteSummaryQueryOptions.Object);
     }
 
     [Fact]

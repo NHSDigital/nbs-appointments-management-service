@@ -23,6 +23,11 @@ builder.Services.Configure<List<ContainerConfiguration>>(containerConfigs);
 builder.Services.Configure<List<SinkExclusion>>(
     builder.Configuration.GetSection("SinkExclusions"));
 
+builder.Services.Configure<ApplicationNameConfiguration>(opts =>
+{
+    opts.ApplicationName = builder.Configuration.GetValue<string>("Application_Name") ?? throw new NullReferenceException("Application_Name is required");
+});
+
 builder.UseAppointmentsSerilog();
 
 builder.Services

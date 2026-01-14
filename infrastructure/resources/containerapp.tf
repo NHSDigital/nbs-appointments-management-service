@@ -335,6 +335,11 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       memory = "1Gi"
 
       env {
+        name        = "Application_Name"
+        value       = "${var.application}-auditor-${var.environment}-${var.loc}"
+      }
+
+      env {
         name        = "COSMOS_TOKEN"
         secret_name = "container-cosmos-token"
       }

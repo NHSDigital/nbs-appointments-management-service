@@ -275,10 +275,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
 
         var meshHttpClient = RestService.CreateHttpClient("http://localhost:4030/", new()
         {
-            AuthorizationHeaderValueGetter = (request, _) =>
-            {
-                return Task.FromResult(meshTokenGenerator.GenerateAuthorizationToken());
-            }
+            AuthorizationHeaderValueGetter = (request, _) => Task.FromResult(meshTokenGenerator.GenerateAuthorizationToken())
         });
 
         var meshClient = RestService.For<IMeshClient>(meshHttpClient);

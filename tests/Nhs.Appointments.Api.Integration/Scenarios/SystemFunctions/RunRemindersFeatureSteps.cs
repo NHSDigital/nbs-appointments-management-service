@@ -120,10 +120,10 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         await Client.GetContainer("appts", "core_data").UpsertItemAsync(clinicalServicesDocument);
     }
 
-    private Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)
+    private async Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)
     {
         var container = Client.GetContainer("appts", "local_notifications");
-        return RunQueryAsync<NotificationData>(container, nd => nd.recipient == contactInfo);
+        return await RunQueryAsync<NotificationData>(container, nd => nd.recipient == contactInfo);
     }
 
     private string ResolveEventName(string shortEventName) => shortEventName switch

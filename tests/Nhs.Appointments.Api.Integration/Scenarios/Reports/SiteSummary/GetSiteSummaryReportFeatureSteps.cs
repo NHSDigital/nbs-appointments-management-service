@@ -109,7 +109,7 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
 
         var expectedRow = new SiteReportRow
         {
-            SiteName = $"Site {GetSiteId(dataTable.GetRowValueOrDefault(row, "Id"))}",
+            SiteName = dataTable.GetRowValueOrDefault(row, "Name"),
             SiteType = dataTable.GetRowValueOrDefault(row, "Site Type"),
             Region = dataTable.GetRowValueOrDefault(row, "Region"),
             RegionName = dataTable.GetRowValueOrDefault(row, "Region Name"),

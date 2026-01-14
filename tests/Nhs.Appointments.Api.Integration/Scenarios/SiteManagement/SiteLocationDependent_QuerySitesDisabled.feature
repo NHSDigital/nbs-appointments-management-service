@@ -1,6 +1,6 @@
-Feature: Site search
+Feature: Site Location Dependent - Query Sites Disabled
 
-  Scenario: Retrieve all sites within a designated distance
+  Scenario: Site Search - Retrieve all sites within a designated distance
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -16,7 +16,7 @@ Feature: Site search
       | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | 10a54cc1-f052-4c7b-bfc8-de4e5ee7e193 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Only return the number of sites requested
+  Scenario: Site Search - Only return the number of sites requested
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude    | Latitude   |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-5 | 5 Roadside | 0113 5555555 | J12     | R5     | ICB5 | Info 5                 | accessibility/attr_one=true  | -0.082750916 | -51.494056 |
@@ -31,7 +31,7 @@ Feature: Site search
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-5 | 5 Roadside | 0113 5555555 | J12     | R5     | ICB5 | Info 5                 | accessibility/attr_one=true  | -0.082750916 | -51.494056 | 662      |
       | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-6 | 6 Roadside | 0113 6666666 | K12     | R6     | ICB6 | Info 6                 | accessibility/attr_one=false | -0.14566747  | -51.482472 | 4819     |
 
-  Scenario: Only return sites with requested access needs
+  Scenario: Site Search - Only return sites with requested access needs
     Given The following sites exist in the system
       | Site                                 | Name    | Address     | PhoneNumber  | OdsCode | Region | ICB   | InformationForCitizens | Accessibilities                                          | Longitude | Latitude |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9  | 9 Roadside  | 0113 9999999 | J12     | R9     | ICB9  | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true  | -0.0827   | -51.5    |
@@ -43,7 +43,7 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                         | Longitude | Latitude | Distance |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9 | 9 Roadside | 0113 9999999 | J12     | R9     | ICB9 | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true | -0.0827   | -51.5    | 48       |
 
-  Scenario: Retrieve sites by service filter - single result
+  Scenario: Site Search - Retrieve sites by service filter - single result
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -56,8 +56,8 @@ Feature: Site search
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
-    
-  Scenario: Retrieve sites by service filter - multiple results limited to max records ordered by distance
+
+  Scenario: Site Search - Retrieve sites by service filter - multiple results limited to max records ordered by distance
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 3ac1981b-5d62-424a-b403-9d08a40739ce | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -94,7 +94,7 @@ Feature: Site search
       | 3ac1981b-5d62-424a-b403-9d08a40739ce | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | f178d668-a8d7-4fa6-a4b1-b886feef29a6 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Retrieve sites by service filter - limits results to only those that support the service
+  Scenario: Site Search - Retrieve sites by service filter - limits results to only those that support the service
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | b0fa3eaa-cbab-4736-90dd-31922a021074 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -121,7 +121,7 @@ Feature: Site search
       | 55ad05a8-4fb5-47e1-a961-d18f4008862b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | 8f3259bf-e44e-43e6-9837-54a5c87198c7 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Retrieve sites by service filter - finds a site that isn't the closest because it supports the service
+  Scenario: Site Search - Retrieve sites by service filter - finds a site that isn't the closest because it supports the service
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 12e87824-a2ff-4257-92f3-ee1667c271a3 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -155,7 +155,7 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 1950e7f1-356c-4017-ba62-62f3f973681f | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Retrieve sites by service filter - no results if the only site that supports the service is outside the search radius
+  Scenario: Site Search - Retrieve sites by service filter - no results if the only site that supports the service is outside the search radius
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 12e87824-a2ff-4257-92f3-ee1667c271a3 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -179,7 +179,7 @@ Feature: Site search
       | 1           | 5000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Retrieve sites by service filter - no results if no sessions
+  Scenario: Site Search - Retrieve sites by service filter - no results if no sessions
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | beeae4e0-dd4a-4e4a-8f4d-738f9418fb51 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -191,7 +191,7 @@ Feature: Site search
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Retrieve sites by service filter - no results if no sessions for service exist
+  Scenario: Site Search - Retrieve sites by service filter - no results if no sessions for service exist
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 355ca42f-586c-4f7a-a274-4d53844e3e0c | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -215,7 +215,7 @@ Feature: Site search
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Retrieve sites by service filter - no results if no sessions for service exist in the date range required
+  Scenario: Site Search - Retrieve sites by service filter - no results if no sessions for service exist in the date range required
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | b37000df-f261-40ce-b86b-68b31540e804 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -238,8 +238,8 @@ Feature: Site search
       | Max Records | Search Radius | Longitude | Latitude | Service | From              | Until             |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | 2 days from today | 3 days from today |
     Then no sites are returned
-    
-  Scenario: Retrieve sites by service filter - results when service sessions are on different days
+
+  Scenario: Site Search - Retrieve sites by service filter - results when service sessions are on different days
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 9ac67f31-cc79-46c0-b0d2-e3be1d7b8caa | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -267,7 +267,7 @@ Feature: Site search
       | a1a30efa-9506-47aa-b6a6-fa0e74c848f4 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | 61da1c54-0b24-470a-8978-bb7c66a15816 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Retrieve sites by service filter - results when service sessions have multiple services
+  Scenario: Site Search - Retrieve sites by service filter - results when service sessions have multiple services
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 4dbaffc9-f476-494b-817a-37dc8aa151c9 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -296,7 +296,7 @@ Feature: Site search
       | d2f9f101-b145-42ef-93e0-ae449efb9a78 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
     
 # This shows the temporary quicker solution for this hotfix 2.2.2 (APPT-1203) and how it isn't a perfect solution and should be fixed properly in the future
-  Scenario: Retrieve sites by service filter - returns sites that are fully booked and support the service (intended behaviour)
+  Scenario: Site Search - Retrieve sites by service filter - returns sites that are fully booked and support the service (intended behaviour)
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 2d1780ea-73cf-43c1-ad19-1f0cb288e35b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -357,7 +357,7 @@ Feature: Site search
       | 586bc02d-310a-4b02-a117-d0d104de16bb | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | a5f2f93e-26e8-45ac-a09b-2485517f1d9c | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Retrieve sites by service filter - returns sites that are partially booked and support the service (intended behaviour)
+  Scenario: Site Search - Retrieve sites by service filter - returns sites that are partially booked and support the service (intended behaviour)
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -442,7 +442,7 @@ Feature: Site search
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow    | 4 days from today |
     Then no sites are returned
 
-  Scenario: Retrieve sites by service filter - only return sites with requested access needs
+  Scenario: Site Search - Retrieve sites by service filter - only return sites with requested access needs
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 9635bee5-895c-4368-a106-2d6bc1d74087 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -468,7 +468,7 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 
-  Scenario: Retrieve sites by service filter - only return sites with all requested access needs
+  Scenario: Site Search - Retrieve sites by service filter - only return sites with all requested access needs
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                            | Longitude   | Latitude  |
       | 6997851c-0bcd-462e-b1f5-b1c02f24d37d | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false,accessibility/attr_two=true   | 0.14566747  | 51.482472 |
@@ -498,7 +498,7 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                          | Longitude   | Latitude  | Distance |
       | 8eb79504-1545-4fd9-a358-430a649e0352 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true,accessibility/attr_two=true  | 0.082750916 | 51.494056 | 662      |
 
-  Scenario: Filter on multiple services returns no sites as services cannot be satisfied
+  Scenario: Site Search - Filter on multiple services returns no sites as services cannot be satisfied
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -526,7 +526,7 @@ Feature: Site search
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,FLU:2_3 | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Returns correct sites when filtering on multiple services and services are present on same day
+  Scenario: Site Search - Returns correct sites when filtering on multiple services and services are present on same day
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -557,7 +557,7 @@ Feature: Site search
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Filters on multiple services when services are present across multiple sessions
+  Scenario: Site Search - Filters on multiple services when services are present across multiple sessions
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -589,7 +589,7 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Returns no sites when requested services are present but not on the same days
+  Scenario: Site Search - Returns no sites when requested services are present but not on the same days
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -621,7 +621,7 @@ Feature: Site search
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11,FLU:2_3 | Tomorrow | 3 days from today |
     Then no sites are returned
 
-  Scenario: Still returns sites with matching sessions even though their capacity is zero
+  Scenario: Site Search - Still returns sites with matching sessions even though their capacity is zero
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -653,7 +653,7 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Retrieve sites which have requested services even though they're in non overlapping sessions
+  Scenario: Site Search - Retrieve sites which have requested services even though they're in non overlapping sessions
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -685,7 +685,7 @@ Feature: Site search
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Multi service filtering only returns sites which also match the requested access needs even if they have the capacity for the services
+  Scenario: Site Search - Multi service filtering only returns sites which also match the requested access needs even if they have the capacity for the services
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -717,7 +717,7 @@ Feature: Site search
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
     
 # A test to prove lazy sliding cache behaviours, including delayed updated cache results after a slide
-  Scenario: Lazy Slide Cache Test
+  Scenario: Site Search - Lazy Slide Cache Test
     Given The following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -774,3 +774,103 @@ Feature: Site search
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | fa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
+    
+  Scenario: Manage site details - Update details of a site
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name   | Address     | PhoneNumber  | Longitude | Latitude |
+      | Site-B | 2B New Lane | 011322222222 | -4.1      | 58.5     |
+    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-B | 2B New Lane | 011322222222 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
+
+  Scenario: Manage site details - Update details of a site with an valid phone number with spaces
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name   | Address     | PhoneNumber  | Longitude | Latitude |
+      | Site-B | 2B New Lane | 0113 2222222 | -4.1      | 58.5     |
+    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-B | 2B New Lane | 0113 2222222 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
+
+  Scenario: Manage site details - Update details of a site with an empty phone number
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name   | Address     | PhoneNumber | Longitude | Latitude |
+      | Site-B | 2B New Lane |             | -4.1      | 58.5     |
+    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
+      | Site                                 | Name   | Address     | PhoneNumber | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-B | 2B New Lane |             | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
+
+  Scenario: Manage site details - Update details of a site with an invalid phone number
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name   | Address     | PhoneNumber   | Longitude | Latitude |
+      | Site-B | 2B New Lane | 0113 1111111f | -2.3      | 50.1     |
+    Then a bad request response is returned with the following error messages
+      | Phone number must contain numbers and spaces only |
+
+  Scenario: Manage site details - Update details of a site with an invalid phone number
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name   | Address     | PhoneNumber  | Longitude | Latitude |
+      | Site-B | 2B New Lane | abcdefg12345 | -2.3      | 50.1     |
+    Then a bad request response is returned with the following error messages
+      | Phone number must contain numbers and spaces only |
+
+  Scenario: Manage site details - Update details of a site with an empty name and an invalid phone number
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name | Address     | PhoneNumber  | Longitude | Latitude |
+      |      | 2B New Lane | abcdefg12345 | -2.3      | 50.1     |
+    Then a bad request response is returned with the following error messages
+      | Provide a valid name | Phone number must contain numbers and spaces only |
+
+  Scenario: Manage site details - Update details of a site with all info invalid
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name | Address | PhoneNumber | Longitude | Latitude  |
+      |      |         |             | -50.45.34 | dsfsdfdsf |
+    Then a bad request response is returned with the following error messages
+      | Provide a valid name | Provide a valid address | Latitude must be a decimal number | Longitude must be a decimal number |
+    
+  Scenario: Manage site details - Returns site not found message when site does not exist
+    Given The site 'zero' does not exist in the system
+    When I update the details for site 'zero'
+      | Name   | Address     | PhoneNumber  | Longitude | Latitude |
+      | Site-B | 2B New Lane | 011322222222 | -2.3      | 50.1     |
+    Then a message is returned saying the site is not found
+
+  Scenario: Manage site details - Returns site not found message when site update attempted with ODS code
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities       | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true | -2.3      | 50.1     |
+    When I update the details for site '15N'
+      | Name   | Address     | PhoneNumber  | Longitude | Latitude |
+      | Site-B | 2B New Lane | 011322222222 | -2.3      | 50.1     |
+    Then a message is returned saying the site is not found
+    
+  Scenario: Query Sites - By Type and ODS Code
+    Given The following sites exist in the system
+      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude       | Type        |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750915 | 51.494055      | GP Practice |
+      | 2686db3e-18df-416d-82f0-b758fc0d92dd | Site-B | 1B Site Lane | 0113 1111112 | 20N     | R2     | ICB2 | Info 2                 | accessibility/attr_one=true  | 0.082750916 | 51.494056      | Pharmacy    |
+      | a010ae04-98b5-4df5-aa57-9c27673ca854 | Site-C | 1C Site Lane | 0113 1111113 | 25N     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.082750917 | 51.494057      | GP Practice |
+    When I query sites by site type and ODS code
+      | Types    | OdsCode | Longitude   | Latitude     | SearchRadius |
+      | Pharmacy | 20N     | 0.082750916 | 51.494056    | 10000        |
+    Then the call should fail with 501

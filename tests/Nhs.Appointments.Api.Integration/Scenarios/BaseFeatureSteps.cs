@@ -42,6 +42,11 @@ public abstract partial class BaseFeatureSteps : Feature
 
     private const string AppointmentsApiUrl = "http://localhost:7071/api";
 
+    /// <summary>
+    /// A long lat that does not interfere with site location tests
+    /// </summary>
+    protected Location OutOfTheWayLocation => new("Point", new[] { -60d, -60d });
+
     protected readonly Guid _testId = Guid.NewGuid();
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
@@ -105,7 +110,7 @@ public abstract partial class BaseFeatureSteps : Feature
         {
             Id = GetSiteId(),
             DocumentType = "site",
-            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+            Location = OutOfTheWayLocation
         };
         await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
@@ -123,7 +128,7 @@ public abstract partial class BaseFeatureSteps : Feature
             OdsCode = "ODS1",
             IntegratedCareBoard = "ICB1",
             Region = "R1",
-            Location = new Location("point", [1.41416002128359, 51.77021027939483])
+            Location = OutOfTheWayLocation
         };
         await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
@@ -157,7 +162,7 @@ public abstract partial class BaseFeatureSteps : Feature
         {
             Id = siteId,
             DocumentType = "site",
-            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+            Location = OutOfTheWayLocation
         };
         await Client.GetContainer("appts", "core_data").CreateItemAsync(site);
     }
@@ -709,8 +714,8 @@ public abstract partial class BaseFeatureSteps : Feature
                 Accessibilities = ParseAccessibilities(row.Cells.ElementAt(8).Value),
                 Location = new Location("Point",
                     new[] { double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value) }),
-                Type = row.Cells.ElementAt(11)?.Value ?? string.Empty,
-                IsDeleted = row.Cells.Count() > 12 ? bool.Parse(row.Cells.ElementAt(12).Value) : null
+                Type = dataTable.GetRowValueOrDefault(row, "Type"),
+                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
             });
 
         foreach (var site in sites)

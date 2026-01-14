@@ -1,4 +1,4 @@
-Feature: Query Sites
+Feature: Site Location Dependent - Query Sites Enabled
 
   Scenario: Query Sites By Type and ODS Code
     Given The following sites exist in the system
@@ -52,7 +52,7 @@ Feature: Query Sites
       | Longitude | Latitude | SearchRadius | Services  | From     | Until    |
       | 0.082     | 51.5     | 6000         | RSV:Adult | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance |Type          |
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance | Type          |
       | 27b5b656-31d1-44e4-9851-f38c2a0dcc05 | Site-1 | 1 Roadside | 0113 1111111 | ODS1    | R1     | ICB1 | Info 1                 | accessibility/attr_three=true | 0.082750916 | 51.494056 | 662      | GP Practice  |
       | c5b2c4de-3ed5-4f46-bd6d-c4ba7658fa5c | Site-4 | 4 Roadside | 0113 4444444 | ODS4    | R4     | ICB4 | Info 4                 | accessibility/attr_three=true | 0.040992272 | 51.455788 | 5677     | Another Type |
 
@@ -91,7 +91,7 @@ Feature: Query Sites
       | Longitude | Latitude | SearchRadius | AccessNeeds | Types    | OdsCode |
       | 0.082     | 51.5     | 6000         | attr_four   | Pharmacy | ODSB    |
     Then the following sites and distances are returned
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance |Type          |
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance | Type          |
       | 60d5105e-eb83-4a99-8f75-0a8790583233 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true  | 0.082750916 | 51.494056 | 662      | GP Practice  |
       | 5972cb6a-b9bb-4e6e-9a40-53e574d22c7a | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | 4819     | Pharmacy     |
       | 30f48c6e-c65f-48a5-a219-1e073a3a7001 | Site-3 | 3 Roadside | 0113 3333333 | ODSB    | R3     | ICB3 | Info 3                 | accessibility/attr_four=false | -0.13086317 | 51.583479 | 17402    | Pharmacy     |
@@ -108,7 +108,7 @@ Feature: Query Sites
       | Longitude | Latitude | SearchRadius |
       | 0.282     | 53.5     | 6000         |
     Then the following sites and distances are returned
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance |Type          |
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance | Type          |
       | 4739abc0-5eca-4b2f-8960-ada8f2081837 | Site-1 | 1 Roadside | 0113 1111111 | ODS123  | R1     | ICB1 | Info 1                 | accessibility/attr_four=true  | 0.282750916 | 53.494056 | 662      | GP Practice  |
       | d815ea3d-c614-4150-a9b7-f78dd1df853c | Site-4 | 4 Roadside | 0113 4444444 | ODS654  | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.240992272 | 53.455788 | 5615     | Another Type |
 
@@ -123,7 +123,7 @@ Feature: Query Sites
       | Types    | OdsCode | Longitude | Latitude | SearchRadius |
       | !Pharmacy | ODS123 | 0.382     | 54.5     | 6000         |
     Then the following sites and distances are returned
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance |Type          |
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance | Type          |
       | d62690d3-9104-490f-a1bd-57545c7ea70b | Site-1 | 1 Roadside | 0113 1111111 | ODS123  | R1     | ICB1 | Info 1                 | accessibility/attr_four=true  | 0.382750916 | 54.494056 | 662      | GP Practice  |
       | 59bae202-3de1-4a57-8aa8-ac9dde083b1b | Site-4 | 4 Roadside | 0113 4444444 | ODS123  | R4     | ICB4 | Info 4                 | accessibility/attr_four=true  | 0.340992272 | 54.455788 | 5584     | Another Type |
 
@@ -149,7 +149,7 @@ Feature: Query Sites
       | Longitude | Latitude | SearchRadius | MaxRecords |
       | 0.082     | 51.5     | 6000         | 2          |
     Then the following sites and distances are returned
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance |Type          |
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude  | Distance | Type          |
       | 60d5105e-eb83-4a99-8f75-0a8790583233 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true  | 0.082750916 | 51.494056 | 662      | GP Practice  |
       | 5972cb6a-b9bb-4e6e-9a40-53e574d22c7a | Site-2 | 2 Roadside | 0113 2222222 | ODSB    | R2     | ICB2 | Info 2                 | accessibility/attr_four=false | 0.14566747  | 51.482472 | 4819     | Pharmacy     |
 
@@ -205,7 +205,7 @@ Feature: Query Sites
       | Longitude | Latitude | SearchRadius | Services             | From     | Until    |
       | 0.082     | 51.5     | 6000         | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |Type          |
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance | Type         |
       | 8184c730-b4e6-45af-999a-f67569eb4367 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true | 0.082750916 | 51.494056 | 662      | GP Practice  |
       | a3133ea7-9b3b-4264-acc0-2a955eb996b4 | Site-4 | 4 Roadside | 0113 4444444 | ODSD    | R4     | ICB4 | Info 4                 | accessibility/attr_four=true | 0.040992272 | 51.455788 | 5677     | Another Type |
 
@@ -433,5 +433,5 @@ Feature: Query Sites
       | Longitude | Latitude | SearchRadius | Services             | From     | Until    |
       | 0.082     | 51.5     | 6000         | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |Type          |
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance | Type          |
       | 8184c730-b4e6-45af-999a-f67569eb4367 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true | 0.082750916 | 51.494056 | 662      | GP Practice  |

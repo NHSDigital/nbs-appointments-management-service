@@ -91,22 +91,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => StatusCode.Should().Be((HttpStatusCode)statusCode);
-
-    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
-            .ToFeedIterator();
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
-        }
-    }
+    
     private async Task SendRequestAsync(object payload)
     {
         var jsonPayload = JsonSerializer.Serialize(payload);

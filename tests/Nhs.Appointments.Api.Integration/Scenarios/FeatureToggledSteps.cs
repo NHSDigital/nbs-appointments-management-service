@@ -18,7 +18,8 @@ public abstract class FeatureToggledSteps(string flag, bool enabled) : BaseFeatu
 
     public async Task DisposeAsync()
     {
-        await Task.CompletedTask;
+        //disabled is default behaviour
+        await SetLocalFeatureToggleOverride(Flag, "False");
     }
 
     protected void EnsureCollectionIsPresent()

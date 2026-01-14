@@ -166,22 +166,6 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
     private static TimeOfDayBlock[] ParseBlockSpec(string spec) =>
         [.. spec.Split(',').Select(s => Enum.Parse<TimeOfDayBlock>(s.Trim(), ignoreCase: true))];
 
-    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
-            .ToFeedIterator();
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
-        }
-    }
-
     private static bool ExpectDayEntries(string spec, string from, string until)
     {
         return !string.IsNullOrEmpty(spec) && !string.IsNullOrEmpty(from) && !string.IsNullOrEmpty(until);

@@ -61,7 +61,7 @@ public sealed class CapacityExtractsFeatureSteps
             Region = "North",
             IntegratedCareBoard = "ICB01",
             DocumentType = "site",
-            Location = new Location("point", new[] { 21.41416002128359, -157.77021027939483 })
+            Location = new Location("Point", new[] { -60d, -60d })
         };
         await _cosmosClient.GetContainer("appts", "core_data").UpsertItemAsync(site);
         return site;

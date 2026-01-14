@@ -418,4 +418,7 @@ variable "auto_cancelled_bookings_disabled" {
   type = bool
 }
 
-
+variable "site_summary_minimum_parallelization" {
+  type = number
+  default = 500
+}

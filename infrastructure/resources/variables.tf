@@ -449,3 +449,8 @@ variable "auditor_archive_after_days" {
   type = number
   default = 1
 }
+
+variable "site_summary_minimum_parallelization" {
+  type = number
+  default = 500
+}

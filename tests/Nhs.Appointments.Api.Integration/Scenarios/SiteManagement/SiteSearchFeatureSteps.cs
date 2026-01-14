@@ -1,25 +1,28 @@
+using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Api.Availability;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Integration.Data;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Persistance.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
-using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Integration.Data;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core.Sites;
-using Nhs.Appointments.Persistance.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 [FeatureFile("./Scenarios/SiteManagement/SiteSearch.feature")]
-public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDisposable
+public abstract class SiteSearchFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled), IDisposable
 {
     private IEnumerable<SiteWithDistance> _sitesResponse;
     private QueryAvailabilityResponse _queryResponse;
@@ -235,3 +238,12 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
         }
     }
 }
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/SiteSearch.feature")]
+public sealed class SiteSearchFeaturesSteps_LastUpdatedByEnabled() : SiteSearchFeatureSteps(Flags.AuditLastUpdatedBy, true);
+
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/SiteSearch.feature")]
+public sealed class SiteSearchFeatureSteps_LastUpdatedByDisabled() : SiteSearchFeatureSteps(Flags.AuditLastUpdatedBy, false);

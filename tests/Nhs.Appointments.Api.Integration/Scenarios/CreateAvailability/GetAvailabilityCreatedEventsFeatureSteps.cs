@@ -1,16 +1,18 @@
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
 using FluentAssertions;
+using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core.Availability;
+using Nhs.Appointments.Core.Features;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
 {
-    [FeatureFile("./Scenarios/CreateAvailability/GetAvailabilityCreatedEvents.feature")]
-    public class GetAvailabilityCreatedEventsFeatureSteps : BaseCreateAvailabilityFeatureSteps
+    public abstract class GetAvailabilityCreatedEventsFeatureSteps(string flag, bool enabled) : BaseCreateAvailabilityFeatureSteps(flag, enabled)
     {
         private IEnumerable<AvailabilityCreatedEvent> _actualResponse;
 
@@ -34,4 +36,13 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
                 options => options.Excluding(x => x.Created));
         }
     }
+
+    [Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+    [FeatureFile("./Scenarios/CreateAvailability/GetAvailabilityCreatedEvents.feature")]
+    public class GetAvailabilityCreatedEventsFeaturesSteps_LastUpdatedByEnabled() : GetAvailabilityCreatedEventsFeatureSteps(Flags.AuditLastUpdatedBy, true);
+
+
+    [Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+    [FeatureFile("./Scenarios/CreateAvailability/GetAvailabilityCreatedEvents.feature")]
+    public class GetAvailabilityCreatedEventsFeatureSteps_LastUpdatedByDisabled() : GetAvailabilityCreatedEventsFeatureSteps(Flags.AuditLastUpdatedBy, false);
 }

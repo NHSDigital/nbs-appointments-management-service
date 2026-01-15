@@ -13,7 +13,7 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '68537-44913' has been 'Cancelled'
     And there are no sessions for 'Tomorrow'
 
-# Wildcard cancellation not yet implemented
+# Wildcard cancellation not yet implemented.
   @ignore
   Scenario: Cancels All Sessions Over Multiple Days
     Given the following sessions exist for a created default site

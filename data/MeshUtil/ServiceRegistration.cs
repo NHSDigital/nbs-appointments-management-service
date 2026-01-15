@@ -45,9 +45,9 @@ public static class ServiceRegistration
         return services;
     }
 
-    public static AzureKeyVaultConfiguration? GetAzureKeyVaultConfiguration(this IConfiguration configuration, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
+    public static AzureKeyVaultConfiguration GetAzureKeyVaultConfiguration(this IConfiguration configuration, string configSectionName = AzureKeyVaultConfiguration.DefaultConfigSectionName)
     {
-        return configuration.GetSection(configSectionName)?.Get<AzureKeyVaultConfiguration>();
+        return configuration.GetSection(configSectionName).Get<AzureKeyVaultConfiguration>();
     }
 }
 

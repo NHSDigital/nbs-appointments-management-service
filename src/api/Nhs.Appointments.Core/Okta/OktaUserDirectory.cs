@@ -47,7 +47,7 @@ public class OktaUserDirectory : IOktaUserDirectory
         }
     }
 
-    public async Task<bool> CreateUserAsync(string user, string? firstName, string? lastName)
+    public async Task<bool> CreateUserAsync(string user, string firstName, string lastName)
     {
         try
         {
@@ -76,7 +76,7 @@ public class OktaUserDirectory : IOktaUserDirectory
                 ? null
                 : new OktaUserResponse { Created = oktaUser.Created, Status = GetUserStatusForMya(oktaUser.Status) };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _logger.LogInformation($"User not found in okta directory: {user}!");
             return null;

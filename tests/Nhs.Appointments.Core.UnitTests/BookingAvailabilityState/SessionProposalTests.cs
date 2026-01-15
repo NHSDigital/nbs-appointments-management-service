@@ -437,7 +437,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     }
 
     [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
-    public async Task AvailabilityChangeProposal_CancelAllSessions_SingleDay()
+    public Task AvailabilityChangeProposal_CancelAllSessions_SingleDay()
     {
         var matcher = new Session
         {
@@ -462,11 +462,12 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         };
         
         SetupAvailabilityAndBookings(bookings, sessions);
-        
-        var expectedNewlySupportedBookings = 0;
-        
-        //should this be 2??
-        var expectedNewlyUnsupportedBookings = 3;
+        return Task.CompletedTask;
+
+        // var expectedNewlySupportedBookings = 0;
+        //
+        // //should this be 2??
+        // var expectedNewlyUnsupportedBookings = 3;
     
         // var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, matcher, null, true);
         //
@@ -476,7 +477,7 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
     }
 
     [Fact(Skip = "Wildcard implementation needs re-developing when required.")]
-    public async Task AvailabilityChangeProposal_CancelAllSessions_MultipleDays()
+    public Task AvailabilityChangeProposal_CancelAllSessions_MultipleDays()
     {
         var from = new DateTime(2025, 1, 1, 9, 0, 0);
         var to = new DateTime(2025, 1, 3, 17, 0, 0);
@@ -514,10 +515,11 @@ public class SessionProposalTests : BookingAvailabilityStateServiceTestBase
         };
         
         SetupAvailabilityAndBookings(bookings, sessions);
-        
+        return Task.CompletedTask;
+
         //what should this metric be???
-        var expectedNewlySupportedBookings = 0;
-        var expectedNewlyUnsupportedBookings = 6;
+        // var expectedNewlySupportedBookings = 0;
+        // var expectedNewlyUnsupportedBookings = 6;
 
         // var proposalMetrics = await Sut.GenerateSessionProposalActionMetrics(MockSite, from, to, null, null, true);
         // proposalMetrics.Should().BeOfType(typeof(AvailabilityUpdateProposal));

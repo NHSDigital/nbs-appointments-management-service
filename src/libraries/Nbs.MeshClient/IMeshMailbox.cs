@@ -39,7 +39,7 @@ namespace Nbs.MeshClient
         /// <param name="messageId">The ID of the message.</param>        
         /// <param name="folder">The output folder to be written to</param>
         /// <param name="fileName">Optional file name, this overrides the name of the file as specified in the MESH message</param>
-        Task<string> GetMessageAsFileAsync(string messageId, DirectoryInfo folder, string fileName = null);
+        Task<string> GetMessageAsFileAsync(string messageId, DirectoryInfo folder, string? fileName = null);
 
         /// <summary>
         /// Acknowledges receipt of a message.

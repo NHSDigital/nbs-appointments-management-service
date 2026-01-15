@@ -59,7 +59,7 @@ public class CsvFieldValidatorTests
     [InlineData(" ")]
     [InlineData(null)]
     [InlineData("test string")]
-    public void ShouldReturnFalseForValidPhoneNumber(string? phoneNumber)
+    public void ShouldReturnFalseForValidPhoneNumber(string phoneNumber)
     {
         var result = CsvFieldValidator.IsValidPhoneNumber(phoneNumber);
 

@@ -233,7 +233,7 @@ public class BookingCosmosDocumentStore(
     public async Task<BookingConfirmationResult> ConfirmProvisional(
         string bookingReference,
         IEnumerable<ContactItem> contactDetails,
-        string? bookingToReschedule,
+        string bookingToReschedule,
         CancellationReason? cancellationReason = null)
     {
         var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);

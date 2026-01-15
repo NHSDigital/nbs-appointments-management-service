@@ -15,10 +15,10 @@ public record BaseSessionRequest(
     [JsonConverter(typeof(SessionOrWildcardConverter))]
     SessionOrWildcard SessionMatcher,
     [property: JsonProperty("sessionReplacement", Required = Required.AllowNull)]
-    Session? SessionReplacement);
+    Session SessionReplacement);
 
 public class SessionOrWildcard
 {
     public bool IsWildcard { get; set; }
-    public Session? Session { get; set; }
+    public Session Session { get; set; }
 }

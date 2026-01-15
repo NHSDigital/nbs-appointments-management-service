@@ -380,7 +380,7 @@ public static class RecalculationExtensions
         }
     }
 
-    public static LinkedSessionInstance? FindMatchingSession(this List<LinkedSessionInstance> sessions, Session matcher)
+    public static LinkedSessionInstance FindMatchingSession(this List<LinkedSessionInstance> sessions, Session matcher)
     {
         return sessions.FirstOrDefault(s =>
                         s.From.TimeOfDay == matcher.From.ToTimeSpan() &&

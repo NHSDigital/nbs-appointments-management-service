@@ -8,5 +8,5 @@ public record AvailabilityChangeProposalRequest(
     DateOnly From,
     DateOnly To,
     SessionOrWildcard SessionMatcher,
-    Session? SessionReplacement
+    Session SessionReplacement
 ) : BaseSessionRequest(Site, From, To, SessionMatcher, SessionReplacement);

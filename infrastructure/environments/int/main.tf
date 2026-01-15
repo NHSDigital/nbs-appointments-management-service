@@ -94,6 +94,7 @@ module "mya_application_int" {
   app_service_plan_zone_redundancy_enabled        = false
   app_insights_sampling_percentage                = 100
   storage_account_replication_type                = "LRS"
+  audit_storage_account_replication_type          = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
   splunk_skip_verify_insecure                     = false

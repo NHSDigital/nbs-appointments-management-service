@@ -3,7 +3,7 @@ Feature: Change Session Uplifted Journey
 # Wildcard cancellation not yet implemented
   @ignore
   Scenario: Cancels All Sessions In A Single Day
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -16,7 +16,7 @@ Feature: Change Session Uplifted Journey
 # Wildcard cancellation not yet implemented
   @ignore
   Scenario: Cancels All Sessions Over Multiple Days
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
@@ -31,7 +31,7 @@ Feature: Change Session Uplifted Journey
     And there are no sessions for '2 days from today'
 
   Scenario: Edit a single session on a single day orphans newly orphaned booking
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -45,7 +45,7 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '68537-44913' has availability status 'Orphaned'
 
   Scenario: Edit a single session on a single day cancels newly orphaned booking
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made
@@ -58,7 +58,7 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '68537-44913' has status 'Cancelled'
 
   Scenario: Cancel a single session on a single day orphans newly orphaned booking
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
       | Tomorrow | 09:00 | 16:00 | RSV      | 10          | 2        |
@@ -73,7 +73,7 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '68537-44913' has availability status 'Orphaned'
 
   Scenario: Cancel a single session on a single day cancels newly orphaned booking
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
       | Tomorrow | 09:00 | 16:00 | RSV      | 10          | 2        |
@@ -87,7 +87,7 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '68537-44913' has status 'Cancelled'
 
   Scenario: Cancel multiple sessions over multiple days orphans newly orphaned bookings
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
@@ -109,7 +109,7 @@ Feature: Change Session Uplifted Journey
     And the booking with reference '54321-54321' has availability status 'Orphaned'
 
   Scenario: Cancel multiple sessions over multiple days cancels newly orphaned bookings
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
@@ -128,7 +128,7 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '54321-54321' has status 'Cancelled'
 
   Scenario: Edit multiple sessions over multiple days orphans newly orphaned bookings
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
@@ -150,7 +150,7 @@ Feature: Change Session Uplifted Journey
     And the booking with reference '54321-54321' has availability status 'Orphaned'
 
   Scenario: Edit multiple sessions over multiple days cancels newly orphaned bookings
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
@@ -172,7 +172,7 @@ Feature: Change Session Uplifted Journey
 #  The propose metric does not inform them of the potential danger...
 #  This would be resolved with a best fit solution...
   Scenario: Greedy allocation shows that unintended bookings can get cancelled during the two-step propose and edit journey
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services   | Slot Length  | Capacity |
       | Tomorrow          | 09:00 | 09:10 | A,B,C,E    | 10           | 5        |
       | Tomorrow          | 09:00 | 09:10 | A,B,D,F    | 10           | 5        |

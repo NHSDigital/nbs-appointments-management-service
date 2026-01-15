@@ -49,7 +49,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
                 Services = clinicalServices.ToArray()
             };
 
-            await Client.GetContainer("appts", "core_data").UpsertItemAsync(clinicalServicesDocument);
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), clinicalServicesDocument);
         }
 
         [Then("the request should return Clinical Services")]

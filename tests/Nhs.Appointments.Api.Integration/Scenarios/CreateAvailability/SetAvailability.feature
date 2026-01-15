@@ -1,7 +1,7 @@
 ﻿Feature: Set availability
 
   Scenario: Create availability for a single day
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
@@ -14,7 +14,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Overwrite existing availability for a single day
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     When I apply the following availability
@@ -29,7 +29,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Can add new sessions to existing availability for a single day
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     When I apply the following availability
@@ -45,7 +45,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -62,7 +62,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit an existing session
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     When I edit the following availability
@@ -74,7 +74,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit one of multiple sessions
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
@@ -90,7 +90,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit one of two identical sessions
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
@@ -104,7 +104,7 @@
       And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status recalculation does not affect cancelled or provisional bookings
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following cancelled bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 10293-45957 |
@@ -120,7 +120,7 @@
     And the booking with reference '48232-10293' has availability status 'Supported'
 
   Scenario: Provisional bookings that are unsupported are deleted from the DB
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following bookings have been made
@@ -142,7 +142,7 @@
   @ignore
 #  Bug found and raised for disabled code path - APPT-906  
   Scenario: Expired provisional bookings are not considered live and can allow orphaned appointments to take their place
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following bookings have been made
@@ -166,7 +166,7 @@
     And the booking with reference '61865-10293' has availability status 'Supported'
 
   Scenario: Bookings are prioritised by created date
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 34482-10293 | 2024-12-01T09:00:00.000Z |
@@ -182,7 +182,7 @@
     And the booking with reference '45853-10293' has availability status 'Supported'
 
   Scenario: Create availability for a single day
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
@@ -195,7 +195,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Overwrite existing availability for a single day
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     When I apply the following availability
@@ -210,7 +210,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Can add new sessions to existing availability for a single day
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     When I apply the following availability
@@ -226,7 +226,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -243,7 +243,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit an existing session
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     When I edit the following availability
@@ -255,7 +255,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit one of multiple sessions
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
@@ -271,7 +271,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit one of two identical sessions
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
@@ -285,7 +285,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status recalculation does not affect cancelled or provisional bookings
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following cancelled bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 10293-45957 |
@@ -302,7 +302,7 @@
 
   #APPT-999 allocation order fixed for multiple services enabled, but not when disabled
   Scenario: Provisional bookings are still considered live but don't prevent confirmed orphaned appointments taking their place
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following bookings have been made
@@ -325,7 +325,7 @@
 
   #APPT-999 allocation order fixed for multiple services enabled, but not when disabled
   Scenario: Provisional bookings are still considered live but get allocated after booked appointments, despite being created earlier
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 3        |
     And the following bookings have been made
@@ -357,7 +357,7 @@
     
   #APPT-999 allocation order fixed for multiple services enabled, but not when disabled
   Scenario: Provisional bookings are allocated first when confirmed first
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following provisional bookings have been made
@@ -381,7 +381,7 @@
     
   #APPT-999 allocation order fixed for multiple services enabled, but not when disabled
   Scenario: Provisional bookings are allocated first when confirmed second
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following provisional bookings have been made
@@ -405,7 +405,7 @@
     
    #APPT-999 allocation order fixed for multiple services enabled, but not when disabled
   Scenario: Provisional bookings are allocated by created date when both confirmed
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following provisional bookings have been made
@@ -430,7 +430,7 @@
     And the booking with reference '03283-30492' has availability status 'Orphaned'
 
   Scenario: Provisional bookings that are unsupported are deleted from the DB
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following bookings have been made
@@ -450,7 +450,7 @@
     And the booking with reference '92225-30492' should be deleted
 
   Scenario: Expired provisional bookings are not considered live and can allow orphaned appointments to take their place
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And the following bookings have been made
@@ -474,7 +474,7 @@
     And the booking with reference '61865-10293' has availability status 'Supported'
 
   Scenario: Bookings are prioritised by created date
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 34482-10293 | 2024-12-01T09:00:00.000Z |
@@ -490,7 +490,7 @@
     And the booking with reference '45853-10293' has availability status 'Supported'
 
   Scenario: Create availability for a single day
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services        | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, FLU, RSV | Overwrite |
@@ -503,7 +503,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Overwrite existing availability for a single day, remove a service
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 2        |
     When I apply the following availability
@@ -518,7 +518,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit existing availability for a single day, remove a service
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 2        |
     When I edit the following availability
@@ -533,7 +533,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Overwrite existing availability for a single day, add services
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 2        |
     When I apply the following availability
@@ -548,7 +548,7 @@
     And an audit function document was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Greedy allocation alphabetical - suboptimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -568,7 +568,7 @@
     And the booking with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation alphabetical - optimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -589,7 +589,7 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through alphabetical shuffling
   Scenario: Greedy allocation alphabetical - shuffling - Appointment is supported after unrelated availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | B       | 37492-16293 |
@@ -618,7 +618,7 @@
     And the booking with reference '89999-44622' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - suboptimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -638,7 +638,7 @@
     And the booking with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - optimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
@@ -659,7 +659,7 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through service length shuffling
   Scenario: Greedy allocation service lengths - shuffling - Appointment is supported after unrelated availability is created
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     And the following orphaned bookings exist
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | B       | 37492-16293 |

@@ -26,10 +26,10 @@ public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabl
     private string Flag { get; } = flag;
     private bool Enabled { get; } = enabled;
 
-    [Given("there is no existing availability")]
-    public Task NoAvailability()
+    [Given("there is no existing availability for a created default site")]
+    public async Task NoAvailability()
     {
-        return Task.CompletedTask; // Could we clear out any existing
+        await SetupSite(GetSiteId());
     }
 
     [And(@"the following availability created events are created")]
@@ -239,12 +239,12 @@ public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabl
         actualDocuments.Count().Should().Be(expectedDocuments.Count());
         actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }
-
+    
     public async Task InitializeAsync()
     {
-        SetupSite(GetSiteId());
         await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
+
 }

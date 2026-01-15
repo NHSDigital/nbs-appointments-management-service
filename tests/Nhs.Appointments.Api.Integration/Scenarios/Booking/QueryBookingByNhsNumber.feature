@@ -1,7 +1,7 @@
 ﻿Feature: Get all bookings for a person using NHS Number
 
   Scenario: Get all bookings for a patient
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |
@@ -16,7 +16,7 @@
       | 2 days from today | 09:20 | 10       | FLU     |
 
   Scenario: Provisional bookings are not returned
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |
@@ -27,7 +27,7 @@
     Then the request is successful and no bookings are returned
 
   Scenario: Provisional bookings are not returned but confirmed bookings are
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |

@@ -33,32 +33,6 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
         return Task.CompletedTask;
     }
 
-    [Given("The following sites exist in the system")]
-    public async Task SetUpSites(DataTable dataTable)
-    {
-        var sites = dataTable.Rows.Skip(1).Select(
-            row => new SiteDocument
-            {
-                Id = GetSiteId(row.Cells.ElementAt(0).Value),
-                Name = row.Cells.ElementAt(1).Value,
-                Address = row.Cells.ElementAt(2).Value,
-                PhoneNumber = row.Cells.ElementAt(3).Value,
-                OdsCode = row.Cells.ElementAt(4).Value,
-                Region = row.Cells.ElementAt(5).Value,
-                IntegratedCareBoard = row.Cells.ElementAt(6).Value,
-                InformationForCitizens = row.Cells.ElementAt(7).Value,
-                DocumentType = "site",
-                Accessibilities = ParseAccessibilities(row.Cells.ElementAt(8).Value),
-                Location = new Location("Point",
-                    new[] { double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value) })
-            });
-
-        foreach (var site in sites)
-        {
-            await Client.GetContainer("appts", "core_data").UpsertItemAsync(site);
-        }
-    }
-
     [Then("a message is returned saying the site is not found")]
     public async Task AssertNotFound()
     {
@@ -104,8 +78,8 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
             status: null,
-            isDeleted: null,
-            Type: null,
+            isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Type: dataTable.GetRowValueOrDefault(row, "Type"),
             LastUpdatedBy: flag == Flags.AuditLastUpdatedBy && enabled ? _userId : null
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -1,7 +1,7 @@
 ﻿Feature: Create daily availability
 
   Scenario: Can apply an availability template
-    Given there is no existing availability
+    Given there is no existing availability for a created default site
     When I apply the following availability template
       | From     | Until             | Days     | TimeFrom | TimeUntil | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 3 days from today | Relative | 09:00    | 10:00     | 5          | 1        | COVID    | Additive  |

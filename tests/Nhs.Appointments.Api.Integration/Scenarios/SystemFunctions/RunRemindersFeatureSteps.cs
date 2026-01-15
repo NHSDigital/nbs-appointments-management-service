@@ -56,7 +56,8 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             Site = GetSiteId(),
             Created = DateTime.UtcNow
         };
-        await Client.GetContainer("appts", "booking_data").CreateItemAsync(auditEntry);
+           
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), auditEntry);
     }
 
     [Then("the following notifications are sent out")]
@@ -117,13 +118,13 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             Services = clinicalServices.ToArray()
         };
 
-        await Client.GetContainer("appts", "core_data").UpsertItemAsync(clinicalServicesDocument);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), clinicalServicesDocument);
     }
 
-    private Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)
+    private async Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)
     {
         var container = Client.GetContainer("appts", "local_notifications");
-        return RunQueryAsync<NotificationData>(container, nd => nd.recipient == contactInfo);
+        return await RunQueryAsync<NotificationData>(container, nd => nd.recipient == contactInfo);
     }
 
     private string ResolveEventName(string shortEventName) => shortEventName switch

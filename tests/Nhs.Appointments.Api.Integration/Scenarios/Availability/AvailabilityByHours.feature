@@ -1,7 +1,7 @@
 ﻿Feature: Get hourly availability
 
     Scenario: Hourly availability is returned from session templates with 5 min appointments
-        Given the following sessions
+        Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 11:00 | COVID    | 5           | 1        |
         When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
@@ -11,7 +11,7 @@
           | 10:00 | 11:00 | 12    |
 
     Scenario: Hourly availability is returned from sessions with 5 min appointments and multiple capacity
-        Given the following sessions
+        Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 2        |
         When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
@@ -21,7 +21,7 @@
           | 10:00 | 11:00 | 12    |
 
     Scenario: Hourly availability is returned when sessions cover every hour
-        Given the following sessions
+        Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 00:01 | 23:59 | COVID    | 10          | 2        |
         When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
@@ -53,7 +53,7 @@
           | 23:00 | 00:00 | 10    |
 
     Scenario: Hourly availability is returned from overlapping sessions
-        Given the following sessions
+        Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 2        |
           | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 3        |
@@ -64,7 +64,7 @@
           | 10:00 | 11:00 | 30    |
 
     Scenario: Hourly availability is returned for multiple days
-        Given the following sessions
+        Given the following sessions exist for a created default site
           | Date       | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow   | 09:00 | 13:00 | COVID    | 5           | 1        |
           | 2 days from today | 09:00 | 13:00 | COVID    | 5           | 1        |
@@ -90,7 +90,7 @@
           | 12:00 | 13:00 | 12    |
 
     Scenario: Hourly availability is returned in ascending order
-        Given the following sessions
+        Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
           | Tomorrow | 07:00 | 08:00 | COVID    | 5           | 1        |
@@ -101,7 +101,7 @@
           | 09:00 | 10:00 | 12    |
   
     Scenario: Hourly availability is only returned from sessions for that service
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date              | From  | Until | Services      | Slot Length | Capacity |
         | Tomorrow          | 09:00 | 11:00 | RSV           | 5           | 1        |
         | 2 days from today | 09:00 | 11:00 | RSV, COVID    | 5           | 1        |
@@ -123,7 +123,7 @@
         | 10:00 | 11:00 | 12    |
   
     Scenario: Hourly availability is returned from overlapping sessions of different services
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date     | From  | Until | Services    | Slot Length  | Capacity |
         | Tomorrow | 09:00 | 10:00 | RSV, COVID  | 5            | 3        |
         | Tomorrow | 09:00 | 10:00 | COVID       | 5            | 2        |
@@ -134,7 +134,7 @@
         | 09:00 | 10:00 | 60    |
   
     Scenario: Bookings of other services take up availability
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date              | From  | Until | Services      | Slot Length | Capacity |
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
@@ -154,7 +154,7 @@
         | 09:00 | 10:00 | 12    |
   
     Scenario: Provisional bookings of other services take up availability
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date              | From  | Until | Services      | Slot Length | Capacity |
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
@@ -174,7 +174,7 @@
         | 09:00 | 10:00 | 12    |
   
     Scenario: Expired provisional bookings of other services don't take up availability
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date              | From  | Until | Services      | Slot Length | Capacity |
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
@@ -194,7 +194,7 @@
         | 09:00 | 10:00 | 12    |
   
     Scenario: Cancelled bookings of other services don't take up availability
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date              | From  | Until | Services      | Slot Length | Capacity |
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
@@ -218,7 +218,7 @@
   #    the ABBA booking is orphaned, and the COVID/RSV 9:20 slot is still treated as available 
   #    Ideally, in this test, all services would return 22 slots remaining
     Scenario: Greedy allocation alphabetical - suboptimal - availability is affected
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date        | From  | Until | Services | Slot Length | Capacity |
         | Tomorrow    | 09:00 | 10:00 | COVID, RSV    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
@@ -249,7 +249,7 @@
         
   #   Due to optimal allocation, all the existing bookings are supported, so all services return 22 slots remaining
     Scenario: Greedy allocation alphabetical - optimal - availability is affected
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date        | From  | Until | Services | Slot Length | Capacity |
         | Tomorrow    | 09:00 | 10:00 | COVID, RSV    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
@@ -281,7 +281,7 @@
   #    In a best fit scenario, all 4 bookings at 9:20 would have a slot, however, due to sub-optimal service length allocation, 
   #    the FLU-B booking is orphaned, and the COVID/RSV/FLU/FLU-C/FLU-D/FLU-E 9:20 slot is still treated as available
     Scenario: Greedy allocation service lengths - suboptimal - availability is affected
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date        | From  | Until | Services                                  | Slot Length | Capacity |
         | Tomorrow    | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E      | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU-B                              | 5           | 1        |
@@ -324,7 +324,7 @@
         
   #   Due to optimal allocation, all the existing bookings are supported, so all services return minimal slots remaining
     Scenario: Greedy allocation service lengths - optimal - availability is affected
-      Given the following sessions
+      Given the following sessions exist for a created default site
         | Date        | From  | Until | Services                                  | Slot Length | Capacity |
         | Tomorrow    | 09:00 | 10:00 | COVID, RSV, FLU, FLU-C, FLU-D, FLU-E      | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 5           | 1        |

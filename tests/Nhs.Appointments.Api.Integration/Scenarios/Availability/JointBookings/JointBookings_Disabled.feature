@@ -1,7 +1,7 @@
 Feature: Joint Bookings (Disabled)
 
   Scenario: APPT-767 scenario one
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 1        |
@@ -22,7 +22,7 @@ Feature: Joint Bookings (Disabled)
       | 09:55 | 10:00 | 2     |
 
   Scenario: APPT-767 scenario two
-    Given the following sessions
+    Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 2        |

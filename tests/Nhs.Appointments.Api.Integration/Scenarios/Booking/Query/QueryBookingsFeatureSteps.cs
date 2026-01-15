@@ -67,7 +67,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
             var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
             var reference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                             BookingReferences.GetBookingReference(index, bookingType);
-            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51"));
+            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
             var status = dataTable.GetEnumRowValue(row, "Status", AppointmentStatus.Booked);
 

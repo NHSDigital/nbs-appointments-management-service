@@ -38,7 +38,7 @@ public sealed class WellKnownOdsCodeEntriesFeatureSteps : BaseFeatureSteps
                 ]
             };
         
-        await Client.GetContainer("appts", "core_data").UpsertItemAsync(wellKnownOdsCodesDocument);
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), wellKnownOdsCodesDocument);
     }
     
     [When(@"I query for well known ods code entries")]

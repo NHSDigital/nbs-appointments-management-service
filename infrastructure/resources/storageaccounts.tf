@@ -64,7 +64,7 @@ resource "azurerm_storage_account" "nbs_mya_audit_storage_account" {
   name                     = "${var.application_short}strgaudit${var.environment}${var.loc}"
   resource_group_name      = local.resource_group_name
   location                 = var.location
-  account_replication_type = var.storage_account_replication_type
+  account_replication_type = var.audit_storage_account_replication_type
   account_tier             = "Standard"
 }
 

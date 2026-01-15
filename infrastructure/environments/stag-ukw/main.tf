@@ -95,6 +95,7 @@ module "mya_application_stag_ukw" {
   web_app_service_plan_scale_in_worker_count      = 1
   app_insights_sampling_percentage                = 12.5
   storage_account_replication_type                = "LRS"
+  audit_storage_account_replication_type          = "LRS"
   cosmos_automatic_failover_enabled               = false
   disable_bulk_import_function                    = false
   splunk_skip_verify_insecure                     = false

@@ -250,6 +250,10 @@ variable "storage_account_replication_type" {
   type = string
 }
 
+variable "audit_storage_account_replication_type" {
+  type = string
+}
+
 variable "cosmos_automatic_failover_enabled" {
   type = bool
 }

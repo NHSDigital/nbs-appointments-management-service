@@ -79,7 +79,7 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
             status: null,
             isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
-            Type: dataTable.GetRowValueOrDefault(row, "Type")
+            Type: dataTable.GetRowValueOrDefault(row, "Type"),
             LastUpdatedBy: flag == Flags.AuditLastUpdatedBy && enabled ? _userId : null
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);

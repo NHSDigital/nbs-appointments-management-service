@@ -12,7 +12,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.FeatureFlags;
 public sealed class FeatureFlags : BaseFeatureSteps
 {
     private GetFeatureFlagResponse _actualResponse;
-    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     
     [When(@"I request the enabled state for feature flag '(.*)'")]
@@ -26,7 +25,7 @@ public sealed class FeatureFlags : BaseFeatureSteps
     }
 
     [Then(@"the response should be 200 with enabled state '(true|false)'")]
-    public async Task AssertEnabled(bool enabled)
+    public void AssertEnabled(bool enabled)
     {
         _statusCode.Should().Be(HttpStatusCode.OK);
         _actualResponse.Enabled.Should().Be(enabled);

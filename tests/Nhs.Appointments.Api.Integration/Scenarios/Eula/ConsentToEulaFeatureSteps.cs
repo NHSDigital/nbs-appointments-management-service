@@ -17,8 +17,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Eula;
 [FeatureFile("./Scenarios/Eula/ConsentToEula.feature")]
 public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
 {
-    private HttpResponseMessage _response;
-    private HttpStatusCode _statusCode;
     private UserProfile _actualResponse;
     private HttpClient _eulaUserHttpClient; 
 
@@ -56,7 +54,6 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
         var versionDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
 
         _response = await _eulaUserHttpClient.GetAsync($"http://localhost:7071/api/user/profile");
-        _statusCode = _response.StatusCode;
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<UserProfile>(await _response.Content.ReadAsStreamAsync());
 
         _actualResponse.LatestAcceptedEulaVersion.Should().Be(versionDate);

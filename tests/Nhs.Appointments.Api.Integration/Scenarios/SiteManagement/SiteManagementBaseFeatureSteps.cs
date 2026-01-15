@@ -60,7 +60,7 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
     }
 
     [Then("the correct information for site '(.+)' is returned")]
-    public async Task Assert(DataTable dataTable)
+    public async Task AssertSiteInformation(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var siteId = row.Cells.ElementAt(0).Value;
@@ -87,17 +87,6 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
         var actualResult = await Client.GetContainer("appts", "core_data")
             .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site")); 
         actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
-    }
-
-    protected static Accessibility[] ParseAccessibilities(string accessibilities)
-    {
-        if (accessibilities == "__empty__")
-        {
-            return Array.Empty<Accessibility>();
-        }
-
-        var pairs = accessibilities.Split(",");
-        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1])).ToArray();
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

@@ -14,7 +14,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Eula;
 [FeatureFile("./Scenarios/Eula/GetEula.feature")]
 public sealed class GetEulaFeatureSteps : BaseEulaFeatureSteps
 {
-    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private EulaVersion _actualResponse;
 

@@ -20,7 +20,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabled) : AuditFeatureSteps, IAsyncLifetime
 {
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
-    protected HttpResponseMessage _response;
     protected HttpStatusCode _statusCode;
 
     private string Flag { get; } = flag;

@@ -15,7 +15,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
     [FeatureFile("./Scenarios/ClinicalServices/ClinicalServices.feature")]
     public class ClinicalServicesBaseFeatureSteps : BaseFeatureSteps
     {
-        private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
         private IEnumerable<ClinicalServiceType> _actualResponse;
 
@@ -53,7 +52,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         }
 
         [Then("the request should return Clinical Services")]
-        public async Task AssertServicesReturns(DataTable dataTable) 
+        public void AssertServicesReturns(DataTable dataTable) 
         {
             var clinicalServices = dataTable.Rows.Skip(1).Select(row => new ClinicalServiceType
             {
@@ -67,9 +66,9 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         }
 
         [Then(@"the request should be successful")]
-        public async Task AssertHttpOk() => _statusCode.Should().Be(HttpStatusCode.OK);
+        public void AssertHttpOk() => _statusCode.Should().Be(HttpStatusCode.OK);
 
         [Then(@"the request should be Not Implemented")]
-        public async Task AssertHttpNotImplemented() => _statusCode.Should().Be(HttpStatusCode.NotImplemented);
+        public void AssertHttpNotImplemented() => _statusCode.Should().Be(HttpStatusCode.NotImplemented);
     }
 }

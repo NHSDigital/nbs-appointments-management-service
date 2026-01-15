@@ -18,7 +18,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 [FeatureFile("./Scenarios/UserManagement/GetUserRoleAssignments.feature")]
 public sealed class GetUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
-    private  HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private IEnumerable<User> _actualResponse;
     

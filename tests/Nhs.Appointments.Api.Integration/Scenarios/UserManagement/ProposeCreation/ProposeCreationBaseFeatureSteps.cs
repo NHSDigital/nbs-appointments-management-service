@@ -18,7 +18,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement.ProposeCreat
 
 public abstract class ProposeCreationBaseFeatureSteps(string flag, bool enabled) : UserManagementBaseFeatureSteps(flag, enabled)
 {
-    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private ProposePotentialUserResponse _actualResponse;
     
@@ -46,7 +45,7 @@ public abstract class ProposeCreationBaseFeatureSteps(string flag, bool enabled)
     }
 
     [Then(@"the request should be successful")]
-    public async Task AssertHttpOk() => _statusCode.Should().Be(HttpStatusCode.OK);
+    public void AssertHttpOk() => _statusCode.Should().Be(HttpStatusCode.OK);
 
     [Then(@"the user's current status is returned as follows")]
     public async Task AssertRoleAssignments(DataTable dataTable)

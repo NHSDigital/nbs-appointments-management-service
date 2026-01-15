@@ -16,7 +16,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 [FeatureFile("./Scenarios/Availability/DailyAvailability.feature")]
 public class DailyAvailabilityFeatureSteps : BaseFeatureSteps
 {
-    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private List<DailyAvailability> _actualResponse;
 

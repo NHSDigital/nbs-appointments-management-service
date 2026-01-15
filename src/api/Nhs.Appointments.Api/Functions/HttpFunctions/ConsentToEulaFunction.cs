@@ -20,7 +20,7 @@ public class ConsentToEulaFunction(
     IUserContextProvider userContextProvider,
     ILogger<ConsentToEulaFunction> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<ConsentToEulaRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<ConsentToEulaRequest, EmptyResponse>(validator, userContextProvider: userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "ConsentToEula", tags: ["Eula"],
         Summary = "Confirm a user's consent to a specific EULA version.")]
@@ -45,7 +45,7 @@ public class ConsentToEulaFunction(
             return Failed(HttpStatusCode.BadRequest, "The EULA version date provided is not the latest EULA version.");
         }
 
-        var userId = userContextProvider.UserPrincipal.Claims.GetUserEmail();
+        var userId = Principal.Claims.GetUserEmail();
 
         await eulaService.ConsentToEula(userId);
 

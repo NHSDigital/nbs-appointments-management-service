@@ -26,7 +26,7 @@ public class ApplyAvailabilityTemplateFunction(
     ILogger<ApplyAvailabilityTemplateFunction> logger,
     IMetricsRecorder metricsRecorder,
     ISiteService siteService)
-    : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider, logger,
+    : BaseApiFunction<ApplyAvailabilityTemplateRequest, EmptyResponse>(validator, userContextProvider: userContextProvider, logger,
         metricsRecorder)
 {
     [OpenApiOperation("ApplyAvailabilityTemplate", ["Availability"],
@@ -56,7 +56,7 @@ public class ApplyAvailabilityTemplateFunction(
             return Failed(HttpStatusCode.NotFound, "Site provided was not found.");
         }
 
-        var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
+        var user = Principal.Claims.GetUserEmail();
 
         await availabilityWriteService.ApplyAvailabilityTemplateAsync(request.Site, request.From, request.Until,
             request.Template, request.Mode, user);

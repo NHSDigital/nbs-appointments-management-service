@@ -25,7 +25,7 @@ public class SetAvailabilityFunction(
     ILogger<SetAvailabilityFunction> logger,
     IMetricsRecorder metricsRecorder,
     ISiteService siteService)
-    : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<SetAvailabilityRequest, EmptyResponse>(validator, userContextProvider: userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetAvailability", tags: ["Availability"],
         Summary = "Set appointment availability for a single day")]
@@ -56,7 +56,7 @@ public class SetAvailabilityFunction(
             return Failed(HttpStatusCode.NotFound, "Site could not be found.");
         }
 
-        var user = userContextProvider.UserPrincipal.Claims.GetUserEmail();
+        var user = Principal.Claims.GetUserEmail();
 
         await availabilityWriteService.ApplySingleDateSessionAsync(request.Date, request.Site, request.Sessions,
             request.Mode, user, request.SessionToEdit);

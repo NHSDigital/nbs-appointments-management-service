@@ -21,7 +21,7 @@ public class RemoveUserFunction(
     IUserContextProvider userContextProvider,
     ILogger<RemoveUserFunction> logger,
     IMetricsRecorder metricsRecorder)
-    : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<RemoveUserRequest, RemoveUserResponse>(validator, userContextProvider: userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "RemoveUser", tags: ["User"],
         Summary = "Remove all assigned roles from a user at the specified site")]
@@ -48,7 +48,7 @@ public class RemoveUserFunction(
     protected override async Task<ApiResult<RemoveUserResponse>> HandleRequest(RemoveUserRequest request,
         ILogger logger)
     {
-        if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
+        if (Principal.Claims.GetUserEmail() == request.User)
         {
             return Failed(HttpStatusCode.BadRequest, "You cannot remove the currently logged in user.");
         }

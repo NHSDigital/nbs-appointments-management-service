@@ -27,8 +27,6 @@ public class UpdateSiteStatusFunction(
     IMetricsRecorder metricsRecorder,
     IFeatureToggleHelper featureToggleHelper) : BaseApiFunction<SetSiteStatusRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
-    private readonly ILogger<UpdateSiteStatusFunction> _logger;
-
     [OpenApiOperation(operationId: "Set Site Status", tags: ["SiteStatus"], Summary = "Set a site's status to online or offline")]
     [OpenApiRequestBody("application/json", typeof(SetSiteStatusRequest), Required = true)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK, Description = "Site status successfully set or updated")]

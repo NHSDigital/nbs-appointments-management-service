@@ -18,6 +18,7 @@ public class SiteServiceCacheTests
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly SiteService _sut;
     private readonly Mock<IOptions<SiteServiceOptions>> _options = new();
+    private readonly Mock<SiteCacheLock> _siteCacheLock = new();
 
     public SiteServiceCacheTests()
     {
@@ -31,7 +32,7 @@ public class SiteServiceCacheTests
             DisableSiteCache = false, SiteCacheDuration = 10, SiteCacheKey = "sites"
         });
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _cacheService.Object, _options.Object);
+            TimeProvider.System, _featureToggleHelper.Object, _cacheService.Object, _options.Object, _siteCacheLock.Object);
     }
 
     [Fact(DisplayName = "The Site Cache is used by default (when excluding deleted sites)")]
@@ -178,7 +179,7 @@ public class SiteServiceCacheTests
         });
 
         var _service = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, _cacheService.Object, disabledOptions);
+            TimeProvider.System, _featureToggleHelper.Object, _cacheService.Object, disabledOptions, _siteCacheLock.Object);
 
         await _service.UpdateSiteInCacheAsync("ab648be7-f10d-4c5d-a534-fec12b61f998");
 

@@ -56,6 +56,9 @@ public class Booking
     /// </summary>
     [JsonProperty("bookingBatchSize")]
     public int? BookingBatchSize { get; set; }
+
+    [JsonProperty("lastUpdatedBy")]
+    public string LastUpdatedBy = null;
 }
 
 public class AttendeeDetails

@@ -122,6 +122,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"                = true
     "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"               = true
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
+    APPLICATION_NAME                                                       = "Timer Function App"
   }
 
   sticky_settings {
@@ -251,6 +252,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"                = true
     "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"               = true
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
+    APPLICATION_NAME                                                       = "Timer Function App"
   }
 
   identity {

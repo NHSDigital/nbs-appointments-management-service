@@ -17,11 +17,14 @@ using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability;
 
-public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps, IAsyncLifetime
+public abstract class BaseCreateAvailabilityFeatureSteps(string flag, bool enabled) : AuditFeatureSteps, IAsyncLifetime
 {
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpResponseMessage _response;
     protected HttpStatusCode _statusCode;
+
+    private string Flag { get; } = flag;
+    private bool Enabled { get; } = enabled;
 
     [Given("there is no existing availability")]
     public Task NoAvailability()
@@ -229,7 +232,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps, IA
     {
         _statusCode.Should().Be(HttpStatusCode.OK);
         var site = GetSiteId();
-        var expectedDocuments = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable);
+        var expectedDocuments = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable, Enabled, Flag);
         var container = Client.GetContainer("appts", "booking_data");
         var actualDocuments = await RunQueryAsync<DailyAvailabilityDocument>(container,
             d => d.DocumentType == "daily_availability" && d.Site == site);
@@ -237,9 +240,10 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps, IA
         actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        return SetupSite(GetSiteId());
+        SetupSite(GetSiteId());
+        await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

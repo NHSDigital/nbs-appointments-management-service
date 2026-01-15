@@ -1,25 +1,28 @@
+using FluentAssertions;
+using Gherkin.Ast;
+using Microsoft.Azure.Cosmos;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Persistance.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Gherkin.Ast;
-using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core.Sites;
-using Nhs.Appointments.Persistance.Models;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
+public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) : BaseFeatureSteps, IAsyncLifetime
 {
+    private string Flag { get; } = flag;
+    private bool Enabled { get; } = enabled;
     private ErrorMessageResponseItem ErrorResponse { get; set; }
-
     private IEnumerable<ErrorMessageResponseItem> ErrorResponses { get; set; }
     protected HttpResponseMessage Response { get; set; }
     protected Site ActualResponse { get; set; }
@@ -47,7 +50,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 DocumentType = "site",
                 Accessibilities = ParseAccessibilities(row.Cells.ElementAt(8).Value),
                 Location = new Location("Point",
-                    new[] { double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value) }),
+                    new[] { double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value) })
             });
 
         foreach (var site in sites)
@@ -102,7 +105,8 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
             status: null,
             isDeleted: null,
-            Type: null
+            Type: null,
+            LastUpdatedBy: flag == Flags.AuditLastUpdatedBy && enabled ? _userId : null
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -120,5 +124,12 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
 
         var pairs = accessibilities.Split(",");
         return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1])).ToArray();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
+
+    public async Task InitializeAsync()
+    {
+        await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
     }
 }

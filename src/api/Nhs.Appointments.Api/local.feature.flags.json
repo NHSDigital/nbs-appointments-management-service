@@ -11,6 +11,7 @@
     "CancelSessionUpliftedJourney": false,
     "QuerySites": false,
     "MultiServiceJointBookings": false,
+    "AuditLastUpdatedBy": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

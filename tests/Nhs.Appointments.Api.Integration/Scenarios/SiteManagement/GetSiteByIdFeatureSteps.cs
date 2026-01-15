@@ -1,17 +1,19 @@
+using FluentAssertions;
+using Gherkin.Ast;
+using Nhs.Appointments.Api.Integration.Collections;
+using Nhs.Appointments.Api.Json;
+using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Sites;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Gherkin.Ast;
-using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core.Sites;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-[FeatureFile("./Scenarios/SiteManagement/GetSiteBySiteId.feature")]
-public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
+public abstract class GetSiteByIdFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled)
 {
     [When("I request site details for site '(.+)'")]
     public async Task RequestSites(string siteDesignation)
@@ -46,3 +48,12 @@ public sealed class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
         ActualResponse.Should().BeEquivalentTo(expectedSite);
     }
 }
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/GetSiteBySiteId.feature")]
+public sealed class GetSiteByIdFeaturesSteps_LastUpdatedByEnabled() : GetSiteByIdFeatureSteps(Flags.AuditLastUpdatedBy, true);
+
+
+[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
+[FeatureFile("./Scenarios/SiteManagement/GetSiteBySiteId.feature")]
+public sealed class GetSiteByIdFeatureSteps_LastUpdatedByDisabled() : GetSiteByIdFeatureSteps(Flags.AuditLastUpdatedBy, false);

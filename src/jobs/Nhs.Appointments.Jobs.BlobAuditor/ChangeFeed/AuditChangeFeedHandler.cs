@@ -1,5 +1,6 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
@@ -7,6 +8,7 @@ using Nhs.Appointments.Jobs.BlobAuditor.Sink;
 namespace Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
 
 public class AuditChangeFeedHandler(
+    IOptions<ApplicationNameConfiguration> applicationNameConfiguration,
     ILogger<AuditChangeFeedHandler> logger,
     IEnumerable<IBlobSink<JObject>> auditSinks,
     IContainerConfigFactory containerConfigFactory,
@@ -23,7 +25,7 @@ public class AuditChangeFeedHandler(
         await CreateLeaseContainerIfDoesntExist(config);
         var leaseContainer = cosmosClient.GetContainer(DatabaseName, leaseContainerName);
         var changeFeedProcessor = CreateChangeFeedProcessorBuilder(config.ContainerName)
-            .WithInstanceName(Environment.MachineName)
+            .WithInstanceName(applicationNameConfiguration.Value.ApplicationName)
             .WithStartTime(DateTime.MinValue.ToUniversalTime())
             .WithLeaseContainer(leaseContainer)
             .Build();

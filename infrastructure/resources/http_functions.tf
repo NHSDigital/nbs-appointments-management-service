@@ -71,6 +71,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     SITE_SUMMARY_DAYS_FORWARD                                      = var.site_summary_days_forward
     SITE_SUMMARY_DAYS_CHUNK_SIZE                                   = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                    = var.site_summary_first_run_date
+    SITE_SUMMARY_MINIMUM_PARALLELIZATION                           = var.site_summary_minimum_parallelization
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                      = true
@@ -168,6 +169,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     SITE_SUMMARY_DAYS_FORWARD                                      = var.site_summary_days_forward
     SITE_SUMMARY_DAYS_CHUNK_SIZE                                   = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                    = var.site_summary_first_run_date
+    SITE_SUMMARY_MINIMUM_PARALLELIZATION                           = var.site_summary_minimum_parallelization
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                      = true

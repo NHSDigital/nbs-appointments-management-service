@@ -89,6 +89,10 @@ public static class FunctionConfigurationExtensions
             {
                 opts.ApplicationName = configuration.GetValue<string>("APPLICATION_NAME") ?? "MYA";
             })
+            .Configure<SiteSummaryQueryOptions>(opts =>
+            {
+                opts.MinimumParallelization = configuration.GetValue<int>("SITE_SUMMARY_MINIMUM_PARALLELIZATION");
+            })
             .ConfigureSiteService(configuration)
             .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()

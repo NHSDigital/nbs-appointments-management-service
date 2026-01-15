@@ -297,7 +297,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     }
 
     [Then(@"the following count is returned")]
-    public async Task AssertAvailabilityCount(DataTable expectedCounts)
+    public void AssertAvailabilityCount(DataTable expectedCounts)
     {
         var counts = new List<int>();
 

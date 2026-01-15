@@ -69,7 +69,7 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
     }
 
     [Then(@"the following count is returned")]
-    public async Task AssertAvailabilityCount(DataTable expectedCounts)
+    public void AssertAvailabilityCount(DataTable expectedCounts)
     {
         var counts = new List<int>();
 

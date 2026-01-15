@@ -80,7 +80,7 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
             status: null,
             isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Type: dataTable.GetRowValueOrDefault(row, "Type"),
-            LastUpdatedBy: flag == Flags.AuditLastUpdatedBy && enabled ? _userId : null
+            LastUpdatedBy: Flag == Flags.AuditLastUpdatedBy && Enabled ? _userId : null
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 

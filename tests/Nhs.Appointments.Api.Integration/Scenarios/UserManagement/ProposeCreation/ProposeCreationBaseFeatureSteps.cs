@@ -48,7 +48,7 @@ public abstract class ProposeCreationBaseFeatureSteps(string flag, bool enabled)
     public void AssertHttpOk() => _statusCode.Should().Be(HttpStatusCode.OK);
 
     [Then(@"the user's current status is returned as follows")]
-    public async Task AssertRoleAssignments(DataTable dataTable)
+    public void AssertRoleAssignments(DataTable dataTable)
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells.ToList();
 

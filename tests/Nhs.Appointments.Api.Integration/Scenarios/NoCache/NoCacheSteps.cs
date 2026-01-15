@@ -20,7 +20,7 @@ public sealed class NoCacheSteps : BaseFeatureSteps
     }
 
     [Then("the call should be 200 with no cache headers")]
-    public async Task AssertHeaders()
+    public void AssertHeaders()
     {
         var headers = _response.Headers;
 

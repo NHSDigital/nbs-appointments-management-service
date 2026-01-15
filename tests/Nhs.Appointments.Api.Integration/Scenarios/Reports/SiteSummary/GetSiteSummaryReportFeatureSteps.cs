@@ -98,7 +98,7 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
     }
 
     [And("the report contains a row with the following data")]
-    public async Task AssertRowExistence(DataTable dataTable)
+    public void AssertRowExistence(DataTable dataTable)
     {
         var textReader = new StringReader(ReportContent);
         var csvReader = new CsvReader(textReader,

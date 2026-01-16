@@ -26,6 +26,18 @@ stages:
               packageType: "sdk"
               version: "8.x"
               installationPath: $(Agent.ToolsDirectory)/dotnet
+          - script: |
+              echo "=== Agent ==="
+              echo "Agent.OS: $(Agent.OS)"
+              echo "Image: $(ImageVersion)"
+              echo "=== dotnet ==="
+              dotnet --info
+              dotnet --list-sdks
+              dotnet --list-runtimes
+              echo "=== Env (selected) ==="
+              echo "BuildConfiguration=$(BuildConfiguration)"
+              echo "TF_BUILD=$(TF_BUILD)"
+            displayName: "Log agent + dotnet versions"
           - task: PowerShell@2
             displayName: "Run script tests"
             inputs:
@@ -240,6 +252,17 @@ stages:
               packageType: "sdk"
               version: "8.x"
               installationPath: $(Agent.ToolsDirectory)/dotnet
+          - script: |
+              echo "=== Agent ==="
+              echo "Agent.OS: $(Agent.OS)"
+              echo "Image: $(ImageVersion)"
+              echo "=== dotnet ==="
+              dotnet --info
+              dotnet --list-sdks
+              dotnet --list-runtimes
+              echo "=== Env (selected) ==="
+              echo "BuildConfiguration=$(BuildConfiguration)"
+              echo "TF_BUILD=$(TF_BUILD)"
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"

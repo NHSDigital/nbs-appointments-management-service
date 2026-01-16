@@ -128,7 +128,7 @@ resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_query_override_rule"
     url_path_condition {
       operator         = "EndsWith"
       negate_condition = false
-      match_values     = ["/availability/query"]
+      match_values     = ["/availability/query", "/availability/query/days", "/availability/query/hours", "/availability/query/slots"]
       transforms       = ["Lowercase"]
     }
   }

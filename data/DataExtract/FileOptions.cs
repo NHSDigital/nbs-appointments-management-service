@@ -2,5 +2,5 @@ namespace DataExtract;
 
 public class FileOptions
 {
-    public string FileName { get; set; }
+    public required string FileName { get; set; }
 }

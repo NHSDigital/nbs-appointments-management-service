@@ -96,9 +96,10 @@ public class BookingDataConverterTests
     {
         var testDocument = new NbsBookingDocument
         {
-            AdditionalData = new()
+            AdditionalData = new NbsAdditionalData
             {
-                ReferralType = selfReferralValue
+                ReferralType = selfReferralValue,
+                Source = string.Empty
             }
         };
         var result = BookingDataConverter.ExtractSelfReferral(testDocument);
@@ -128,7 +129,8 @@ public class BookingDataConverterTests
         {
             AdditionalData = new()
             {
-                Source = source
+                Source = source,
+                ReferralType = string.Empty
             }
         };
         var result = BookingDataConverter.ExtractSource(testDocument);

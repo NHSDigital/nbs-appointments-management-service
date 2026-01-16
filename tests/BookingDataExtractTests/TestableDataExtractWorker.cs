@@ -22,6 +22,6 @@ public class TestableDataExtractWorker(
 {
     public Task Test()
     {
-        return ExecuteAsync(new CancellationToken());
+        return ExecuteAsync(CancellationToken.None);
     }
 }

@@ -1,5 +1,5 @@
 namespace DataExtract;
 public class BlobFileOptions
 {
-    public string ContainerName { get; set; }
+    public required string ContainerName { get; set; }
 }

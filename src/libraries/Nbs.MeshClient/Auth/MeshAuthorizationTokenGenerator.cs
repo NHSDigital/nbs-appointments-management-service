@@ -1,49 +1,53 @@
-using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Options;
 
-namespace Nbs.MeshClient.Auth
+namespace Nbs.MeshClient.Auth;
+
+/// <summary>
+///     MeshAuthorizationTokenGenerator
+/// </summary>
+public class MeshAuthorizationTokenGenerator(MeshAuthorizationOptions options) : IMeshAuthorizationTokenGenerator
 {
-    public class MeshAuthorizationTokenGenerator(MeshAuthorizationOptions options) : IMeshAuthorizationTokenGenerator
+    private readonly TimeProvider _timeProvider = TimeProvider.System;
+    private readonly Func<string> _uniqueIdProvider = () => Guid.NewGuid().ToString();
+
+    /// <inheritdoc />
+    public MeshAuthorizationTokenGenerator(IOptions<MeshAuthorizationOptions> options) : this(options.Value) { }
+
+    internal MeshAuthorizationTokenGenerator(MeshAuthorizationOptions options, TimeProvider timeProvider,
+        Func<string> uniqueIdProvider)
+        : this(options)
     {
-        private readonly TimeProvider _timeProvider = TimeProvider.System;
-        private readonly Func<string> _uniqueIdProvider = () => Guid.NewGuid().ToString();
+        _timeProvider = timeProvider;
+        _uniqueIdProvider = uniqueIdProvider;
+    }
 
-        public MeshAuthorizationTokenGenerator(IOptions<MeshAuthorizationOptions> options) : this(options.Value) { }
+    private string MailboxId { get; } = options.MailboxId;
+    private string MailboxPassword { get; } = options.MailboxPassword;
+    private string SharedKey { get; } = options.SharedKey;
 
-        internal MeshAuthorizationTokenGenerator(MeshAuthorizationOptions options, TimeProvider timeProvider, Func<string> uniqueIdProvider)
-            : this(options)
-        {
-            _timeProvider = timeProvider;
-            _uniqueIdProvider = uniqueIdProvider;
-        }
+    /// <inheritdoc />
+    public string GenerateAuthorizationToken()
+    {
+        var nonce = _uniqueIdProvider();
+        var timestamp = _timeProvider.GetUtcNow().ToString("yyyyMMddHHmm");
+        var message = GetMessage(timestamp, nonce);
+        var hash = GetHash(message);
 
-        protected string MailboxId { get; } = options.MailboxId;
-        protected string MailboxPassword { get; } = options.MailboxPassword;
-        protected string SharedKey { get; } = options.SharedKey;
+        var result = $"{MailboxId}:{nonce}:0:{timestamp}:{hash}";
+        return result;
+    }
 
-        public string GenerateAuthorizationToken()
-        {
-            var nonce = _uniqueIdProvider();
-            var timestamp = _timeProvider.GetUtcNow().ToString("yyyyMMddHHmm");
-            var message = GetMessage(timestamp, nonce);
-            var hash = GetHash(message);
+    private string GetMessage(string timestamp, string nonce)
+    {
+        return $"{MailboxId}:{nonce}:0:{MailboxPassword}:{timestamp}";
+    }
 
-            var result = $"{MailboxId}:{nonce}:0:{timestamp}:{hash}";
-            return result;
-        }
-
-        protected internal string GetMessage(string timestamp, string nonce)
-        {
-            return $"{MailboxId}:{nonce}:0:{MailboxPassword}:{timestamp}";
-        }
-
-        protected internal string GetHash(string message)
-        {
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(SharedKey)))
-            {
-                return BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "").ToLowerInvariant();
-            }              
-        }
+    private string GetHash(string message)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(SharedKey));
+        return BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "")
+            .ToLowerInvariant();
     }
 }

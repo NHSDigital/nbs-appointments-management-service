@@ -53,5 +53,5 @@ public class CosmosStore<TDocument>(CosmosClient cosmosClient, IOptions<CosmosSt
 
 public class CosmosStoreOptions
 {
-    public string DatabaseName { get; set; }
+    public required string DatabaseName { get; set; }
 }

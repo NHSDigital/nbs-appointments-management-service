@@ -1,7 +1,12 @@
-namespace Nbs.MeshClient.Auth
+namespace Nbs.MeshClient.Auth;
+
+/// <summary>
+///     MeshAuthorizationTokenGenerator interface
+/// </summary>
+public interface IMeshAuthorizationTokenGenerator
 {
-    public interface IMeshAuthorizationTokenGenerator
-    {
-        string GenerateAuthorizationToken();
-    }
+    /// <summary>
+    ///     GenerateAuthorizationToken
+    /// </summary>
+    string GenerateAuthorizationToken();
 }

@@ -1,13 +1,17 @@
-namespace Nbs.MeshClient.Errors
-{
-    public class MeshException : Exception
-    {
-        public MeshException(string message) : base(message)
-        {
-        }
+namespace Nbs.MeshClient.Errors;
 
-        public MeshException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+/// <summary>
+/// Mesh Exception
+/// </summary>
+public class MeshException : Exception
+{
+    /// <inheritdoc />
+    public MeshException(string message) : base(message)
+    {
+    }
+
+    /// <inheritdoc />
+    public MeshException(string message, Exception innerException) : base(message, innerException)
+    {
     }
 }

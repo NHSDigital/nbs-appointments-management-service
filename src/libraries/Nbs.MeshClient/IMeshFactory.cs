@@ -1,7 +1,12 @@
-namespace Nbs.MeshClient
+namespace Nbs.MeshClient;
+
+/// <summary>
+/// MeshFactory interface
+/// </summary>
+public interface IMeshFactory
 {
-    public interface IMeshFactory
-    {
-        IMeshMailbox GetMailbox(string mailboxId);
-    }
+    /// <summary>
+    /// Get Mailbox
+    /// </summary>
+    IMeshMailbox GetMailbox(string mailboxId);
 }

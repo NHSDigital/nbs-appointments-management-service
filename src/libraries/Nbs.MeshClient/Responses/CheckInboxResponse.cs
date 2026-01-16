@@ -1,8 +1,16 @@
-namespace Nbs.MeshClient.Responses
+namespace Nbs.MeshClient.Responses;
+
+/// <summary>
+/// Check Inbox Response
+/// </summary>
+public record CheckInboxResponse
 {
-    public record CheckInboxResponse
-    {
-        public IReadOnlyCollection<string> Messages { get; set; } = Array.Empty<string>();
-        public CollectionLinks? Links { get; set; }
-    }
+    /// <summary>
+    /// Messages
+    /// </summary>
+    public IReadOnlyCollection<string> Messages { get; set; } = Array.Empty<string>();
+    /// <summary>
+    /// Links
+    /// </summary>
+    public CollectionLinks? Links { get; set; }
 }

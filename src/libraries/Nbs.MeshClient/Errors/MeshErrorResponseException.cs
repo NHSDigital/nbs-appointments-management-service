@@ -1,12 +1,19 @@
 using Nbs.MeshClient.Responses;
 
-namespace Nbs.MeshClient.Errors
-{
-    public class MeshErrorResponseException(HttpResponseMessage response, ErrorResponse content) : Exception
-    {
-        public HttpResponseMessage Response { get; } = response;
-        public ErrorResponse Content { get; } = content;
+namespace Nbs.MeshClient.Errors;
 
-        public override string Message => $"Error response received from MESH: {Content}";
-    }
+/// <summary>
+/// Mesh Error Response Exception
+/// </summary>
+public class MeshErrorResponseException(ErrorResponse content) : Exception
+{
+    /// <summary>
+    /// ErrorResponse content
+    /// </summary>
+    private ErrorResponse Content { get; } = content;
+
+    /// <summary>
+    /// ErrorResponse content message
+    /// </summary>
+    public override string Message => $"Error response received from MESH: {Content}";
 }

@@ -117,7 +117,7 @@ test.describe('Create Availability', () => {
         await createAvailabilityPage.appointmentLength('6');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.addService('RSV Adult');
-        await createAvailabilityPage.addService('COVID 5-11');
+        await createAvailabilityPage.addService('COVID 5 to 11');
         await createAvailabilityPage.addService('COVID 18+');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.saveSessionButton.click();
@@ -153,7 +153,7 @@ test.describe('Create Availability', () => {
         await createAvailabilityPage.appointmentLength('5');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.addService('RSV Adult');
-        await createAvailabilityPage.addService('COVID 5-11');
+        await createAvailabilityPage.addService('COVID 5 to 11');
         await createAvailabilityPage.addService('COVID 18+');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.saveSessionButton.click();

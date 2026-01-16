@@ -16,33 +16,13 @@ type SelectServicesStepProps = {
   clinicalServices: ClinicalService[];
 };
 
-const SERVICE_GROUPS_CONFIG = [
-  {
-    category: 'flu',
-    title: 'Flu services',
-    itemOrder: ['FLU:2_3', 'FLU:18_64', 'FLU:65+'],
-  },
-  {
-    category: 'COVID-19',
-    title: 'COVID-19 services',
-    itemOrder: ['COVID:5_11', 'COVID:12_17', 'COVID:18+'],
-  },
-  {
-    category: 'COVID-19 and flu',
-    title: 'Flu and COVID-19 co-admin services',
-    itemOrder: ['COVID_FLU:18_64', 'COVID_FLU:65+'],
-  },
-  {
-    category: 'RSV',
-    title: 'RSV services',
-    itemOrder: ['RSV:Adult'],
-  },
-  {
-    category: 'RSV and COVID-19 co-admin',
-    title: 'RSV and COVID-19 co-admin services',
-    itemOrder: ['COVID_RSV:18+'],
-  },
-];
+const SERVICE_TYPE_TITLES: Record<string, string> = {
+  flu: 'Flu services',
+  'COVID-19': 'COVID-19 services',
+  'COVID-19 and flu': 'Flu and COVID-19 co-admin services',
+  RSV: 'RSV services',
+  'RSV and COVID-19': 'RSV and COVID-19 co-admin services',
+};
 
 const SelectServicesStep = ({
   goToNextStep,
@@ -57,9 +37,19 @@ const SelectServicesStep = ({
   const { errors, isValid: allStepsAreValid, touchedFields } = formState;
 
   const servicesWatch = watch('session.services');
-
   const shouldSkipToSummaryStep =
     touchedFields.session?.services && allStepsAreValid;
+  const groupedServices = clinicalServices.reduce(
+    (acc, service) => {
+      const group = service.serviceType;
+      if (!acc[group]) {
+        acc[group] = [];
+      }
+      acc[group].push(service);
+      return acc;
+    },
+    {} as Record<string, ClinicalService[]>,
+  );
 
   const onContinue = async () => {
     const formIsValid = await trigger(['session.services']);
@@ -106,22 +96,18 @@ const SelectServicesStep = ({
       </p>
 
       <FormGroup error={errors.session?.services?.message}>
-        {SERVICE_GROUPS_CONFIG.map(group => {
-          const servicesInGroup = group.itemOrder
-            .map(val => clinicalServices.find(s => s.value === val))
-            .filter((s): s is ClinicalService => !!s);
-
-          if (servicesInGroup.length === 0) return null;
+        {Object.entries(groupedServices).map(([serviceType, services]) => {
+          const groupTitle = SERVICE_TYPE_TITLES[serviceType] || serviceType;
 
           return (
             <fieldset
-              key={group.category}
+              key={serviceType}
               className="nhsuk-fieldset app-checkbox-group"
               style={{ marginBottom: '32px' }}
             >
               <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
                 <span className="nhsuk-u-visually-hidden">Add </span>
-                {group.title}
+                {groupTitle}
                 <span className="nhsuk-u-visually-hidden">
                   {' '}
                   to your session
@@ -129,7 +115,7 @@ const SelectServicesStep = ({
               </legend>
 
               <CheckBoxes>
-                {servicesInGroup.map(service => (
+                {services.map(service => (
                   <CheckBox
                     id={`checkbox-${service.value}`}
                     label={service.label.replace('-', ' to ')}

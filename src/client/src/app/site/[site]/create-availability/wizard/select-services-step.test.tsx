@@ -87,25 +87,25 @@ describe('Select Services Step', () => {
         {
           value: 'RSV:Adult',
           label: 'RSV Adult',
-          serviceType: 'RSV Adult',
+          serviceType: 'RSV',
           url: 'RSV',
         },
         {
           value: 'COVID:5_11',
           label: 'COVID 5-11',
-          serviceType: 'COVID 5-11',
+          serviceType: 'COVID-19',
           url: 'COVID-19',
         },
         {
           value: 'COVID:12_17',
           label: 'COVID 12-17',
-          serviceType: 'COVID 12-17',
+          serviceType: 'COVID-19',
           url: 'COVID-19',
         },
         {
           value: 'COVID:18+',
           label: 'COVID 18+',
-          serviceType: 'COVID 18+',
+          serviceType: 'COVID-19',
           url: 'COVID-19',
         },
       ];
@@ -168,12 +168,12 @@ describe('Select Services Step', () => {
 
     it('does not render a group heading if no services for that group are provided', () => {
       const filteredServices = mockClinicalServices.filter(
-        s => s.url === 'COVID-19',
+        s => s.serviceType === 'COVID-19',
       );
       renderStep(filteredServices);
 
       expect(screen.getByText('COVID-19 services')).toBeInTheDocument();
-      expect(screen.queryByText('Flu services')).not.toBeInTheDocument();
+      expect(screen.queryByText('RSV services')).not.toBeInTheDocument();
     });
 
     it('clears the validation error immediately once a service is checked', async () => {
@@ -208,6 +208,19 @@ describe('Select Services Step', () => {
       expect(checkboxes[0]).toHaveAttribute('value', 'COVID:5_11');
       expect(checkboxes[1]).toHaveAttribute('value', 'COVID:12_17');
       expect(checkboxes[2]).toHaveAttribute('value', 'COVID:18+');
+    });
+
+    it('renders a default title if the serviceType is not in our mapping', () => {
+      const unknownService: ClinicalService = {
+        value: 'NEW:123',
+        label: 'New Vax',
+        serviceType: 'Monkeypox',
+        url: 'test',
+      };
+
+      renderStep([unknownService]);
+
+      expect(screen.getByText('Monkeypox')).toBeInTheDocument();
     });
   });
 });

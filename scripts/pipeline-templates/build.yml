@@ -24,7 +24,7 @@ stages:
           - task: UseDotNet@2
             inputs:
               packageType: "sdk"
-              version: "10.x"
+              version: "8.x"
               installationPath: $(Agent.ToolsDirectory)/dotnet
           - task: PowerShell@2
             displayName: "Run script tests"
@@ -71,6 +71,7 @@ stages:
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"
             inputs:
+              majorVersion: 8.x
               command: publish
               publishWebProjects: false
               projects: $(apiProjectPath)
@@ -237,7 +238,7 @@ stages:
           - task: UseDotNet@2
             inputs:
               packageType: "sdk"
-              version: "10.x"
+              version: "8.x"
               installationPath: $(Agent.ToolsDirectory)/dotnet
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)

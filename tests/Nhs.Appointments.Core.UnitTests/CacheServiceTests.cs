@@ -52,18 +52,17 @@ public class CacheServiceTests
     }
 
     [Fact]
-    public async Task LazySlidingCacheValuesSet()
+    public void LazySlidingCacheValuesSet()
     {
         var cacheValue = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
-
         Assert.False(cacheValue.IsCompleted);
-
+        
         _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         keyValue1.Should().BeNull();
 
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
 
-        (await cacheValue).Should().BeTrue();
+        cacheValue?.Result.Should().BeTrue();
         Assert.True(cacheValue.IsCompleted);
         
         //Need to query by lazy slide prefix
@@ -85,7 +84,7 @@ public class CacheServiceTests
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
 
-        Task.WhenAll(call1, call2, call3);
+        await Task.WhenAll(call1, call2, call3);
         
         call1.Result.Should().BeTrue();
         call2.Result.Should().BeTrue();
@@ -110,7 +109,7 @@ public class CacheServiceTests
         //all expensive operations performed concurrently
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
         
-        Task.WhenAll(call1, call2, call3);
+        await Task.WhenAll(call1, call2, call3);
         
         call1.Result.Should().BeTrue();
         call2.Result.Should().BeFalse();
@@ -241,8 +240,8 @@ public class CacheServiceTests
     public async Task MultipleCallsWithinTimeframe_DoNotTriggerMultipleExpensiveOperations_Expiration()
     {
         var call1 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
-        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
-        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _ = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _ = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
 
@@ -258,8 +257,8 @@ public class CacheServiceTests
         _memoryCache.Remove(CacheService.LazySlideCacheKey(DefaultCacheKey));
 
         var call2 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
-        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
-        _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _ = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
+        _ = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
@@ -302,7 +301,7 @@ public class CacheServiceTests
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
 
-        Task.WaitAll(call2, call3, call4, call5);
+        await Task.WhenAll(call2, call3, call4, call5);
 
         call2.Result.Should().BeTrue();
         call3.Result.Should().BeTrue();
@@ -327,7 +326,7 @@ public class CacheServiceTests
         //slide threshold passed
         _timeProvider.Advance(DefaultSlideThreshold.Add(TimeSpan.FromMinutes(1)));
         
-        Task.WhenAll(call1, call2);
+        await Task.WhenAll(call1, call2);
         
         call1.Result.Should().BeTrue();
         call2.Result.Should().BeFalse();
@@ -362,7 +361,7 @@ public class CacheServiceTests
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
 
-        Task.WaitAll(call3, call4, call5, call6, call7);
+        await Task.WhenAll(call3, call4, call5, call6, call7);
         
         //some better way of asserting a separate thread has updated this value without hacky wait checks??
         var key1CacheValue = true;
@@ -399,7 +398,7 @@ public class CacheServiceTests
         var call9 = _sut.GetLazySlidingCacheValue("Key2", new LazySlideCacheOptions<bool>(FakeExpensiveFalseOperation,
             DefaultSlideThreshold, DefaultCacheExpiration));
         
-        Task.WhenAll(call8, call9);
+        await Task.WhenAll(call8, call9);
         
         call8.Result.Should().BeFalse();
         call9.Result.Should().BeTrue();

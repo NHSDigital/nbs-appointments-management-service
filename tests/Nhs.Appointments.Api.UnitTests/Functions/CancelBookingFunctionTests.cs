@@ -243,7 +243,7 @@ public class CancelBookingFunctionTests : FeatureToggledTests
                 It.IsAny<CancellationReason>(), It.IsAny<object>(), It.IsAny<bool>()), Times.Never);
     }
 
-    private static HttpRequest BuildRequest(string reference, string site, string? cancellationReason = null)
+    private static HttpRequest BuildRequest(string reference, string site, string cancellationReason = null)
     {
         var context = new DefaultHttpContext();
         var request = context.Request;

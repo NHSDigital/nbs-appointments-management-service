@@ -65,6 +65,19 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
             _actualResponse.Should().BeEquivalentTo(clinicalServices);
         }
 
+        [Then("the request should return Clinical Services in exact order")]
+        public void AssertServicesReturnsInOrder(DataTable dataTable)
+        {
+            var expectedIds = dataTable.Rows
+                .Skip(1)
+                .Select(row => dataTable.GetRowValueOrDefault(row, "Id"))
+                .ToList();
+
+            var actualIds = _actualResponse.Select(s => s.Value).ToList();
+
+            actualIds.Should().Equal(expectedIds);
+        }
+
         [Then(@"the request should be successful")]
         public void AssertHttpOk() => _statusCode.Should().Be(HttpStatusCode.OK);
 

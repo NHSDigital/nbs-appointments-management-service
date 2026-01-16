@@ -297,6 +297,8 @@ type BookedAppointments = {
 type ClinicalService = {
   label: string;
   value: string;
+  serviceType: string;
+  url: string;
 };
 
 type DailyAvailability = {

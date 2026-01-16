@@ -6,6 +6,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <Nullable>disable</Nullable>
     <LangVersion>latestmajor</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PlatformTarget>AnyCPU</PlatformTarget>

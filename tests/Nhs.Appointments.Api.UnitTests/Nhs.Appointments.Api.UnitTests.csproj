@@ -7,6 +7,7 @@
         <IsPackable>false</IsPackable>
         <RootNamespace>Nhs.Appointments.Api.Tests</RootNamespace>
         <LangVersion>latestmajor</LangVersion>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

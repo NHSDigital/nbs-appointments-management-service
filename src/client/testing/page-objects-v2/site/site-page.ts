@@ -1,6 +1,8 @@
 import { type Locator } from '@playwright/test';
 import { MYALayout } from '@e2etests/types';
 import SiteDetailsPage from './details/site-details-page';
+import Users from '../manage-user/users';
+import { expect } from '@playwright/test';
 
 export default class SitePage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -52,10 +54,40 @@ export default class SitePage extends MYALayout {
   //     return new CreateAvailabilityPage(this.page, this.site);
   //   }
 
-  //   async clickManageUsersCard(): Promise<UsersPage> {
-  //     await this.userManagementCard.click();
-  //     await this.page.waitForURL(`**/site/${this.site.id}/users`);
+  async clickManageUsersCard(): Promise<Users> {
+    await this.userManagementCard.click();
+    await this.page.waitForURL(`**/site/${this.site?.id}/users`);
+    return new Users(this.page, this.site);
+  }
 
-  //     return new UsersPage(this.page, this.site);
-  //   }
+  async verifyTileVisible(
+    tileName:
+      | 'ManageAppointment'
+      | 'SiteManagement'
+      | 'UserManagement'
+      | 'CreateAvailability',
+  ) {
+    if (tileName == 'ManageAppointment') {
+      await expect(
+        this.viewAvailabilityAndManageAppointmentsCard,
+      ).toBeVisible();
+    }
+    if (tileName == 'SiteManagement') {
+      await expect(this.siteManagementCard).toBeVisible();
+    }
+    if (tileName == 'CreateAvailability') {
+      await expect(this.createAvailabilityCard).toBeVisible();
+    }
+  }
+
+  async verifyTileNotVisible(
+    tileName: 'UserManagement' | 'CreateAvailability',
+  ) {
+    if (tileName == 'CreateAvailability') {
+      await expect(this.createAvailabilityCard).not.toBeVisible();
+    }
+    if (tileName == 'UserManagement') {
+      await expect(this.userManagementCard).not.toBeVisible();
+    }
+  }
 }

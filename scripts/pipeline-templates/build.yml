@@ -29,6 +29,10 @@ stages:
                 Set-Location ./scripts
                 Invoke-Pester
               pwsh: true
+          - task: UseDotNet@2
+            inputs:
+              packageType: "sdk"
+              version: "10.x"
           - task: PowerShell@2
             displayName: "Extract MYA version"
             name: ExtractVersionStep

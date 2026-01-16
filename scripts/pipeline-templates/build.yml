@@ -38,6 +38,10 @@ stages:
               echo "BuildConfiguration=$(BuildConfiguration)"
               echo "TF_BUILD=$(TF_BUILD)"
             displayName: "Log agent + dotnet versions"
+          - script: |
+              dotnet nuget list source
+              dotnet nuget locals all --list
+            displayName: "NuGet sources + cache locations"
           - task: PowerShell@2
             displayName: "Run script tests"
             inputs:
@@ -263,6 +267,10 @@ stages:
               echo "=== Env (selected) ==="
               echo "BuildConfiguration=$(BuildConfiguration)"
               echo "TF_BUILD=$(TF_BUILD)"
+          - script: |
+              dotnet nuget list source
+              dotnet nuget locals all --list
+            displayName: "NuGet sources + cache locations"
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"

@@ -5,21 +5,28 @@ using Nbs.MeshClient.Auth;
 using Nbs.MeshClient.Errors;
 using Refit;
 
-namespace Nbs.MeshClient
-{
-    public static class ServiceRegistration
-    {
-        public static IHttpClientBuilder AddMesh(this IServiceCollection services, IConfiguration configurationParent)
-        {
-            services
-                .AddSingleton<IMeshFactory, MeshFactory>()
-                .AddTransient<MeshErrorResponseHandler>()
-                .Configure<MeshClientOptions>(configurationParent.GetSection(nameof(MeshClientOptions)));
+namespace Nbs.MeshClient;
 
-            return services.AddRefitClient<IMeshClient>()
-                .AddHttpMessageHandler<MeshErrorResponseHandler>()
-                .AddSingleMailboxMeshAuthorizationHandler(configurationParent)
-                .ConfigureHttpClient((services, client) => client.BaseAddress = new Uri(services.GetRequiredService<IOptions<MeshClientOptions>>().Value.BaseUrl));
-        }
+/// <summary>
+/// Service Registration
+/// </summary>
+public static class ServiceRegistration
+{
+    /// <summary>
+    /// Register Mesh
+    /// </summary>
+    public static IHttpClientBuilder AddMesh(this IServiceCollection services, IConfiguration configurationParent)
+    {
+        services
+            .AddSingleton<IMeshFactory, MeshFactory>()
+            .AddTransient<MeshErrorResponseHandler>()
+            .Configure<MeshClientOptions>(configurationParent.GetSection(nameof(MeshClientOptions)));
+
+        return services.AddRefitClient<IMeshClient>()
+            .AddHttpMessageHandler<MeshErrorResponseHandler>()
+            .AddSingleMailboxMeshAuthorizationHandler(configurationParent)
+            .ConfigureHttpClient((services, client) =>
+                client.BaseAddress =
+                    new Uri(services.GetRequiredService<IOptions<MeshClientOptions>>().Value.BaseUrl));
     }
 }

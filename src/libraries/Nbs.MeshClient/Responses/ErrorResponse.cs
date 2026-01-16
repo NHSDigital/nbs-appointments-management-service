@@ -1,12 +1,20 @@
-namespace Nbs.MeshClient.Responses
-{
-    public record ErrorResponse
-    {
-        public required IReadOnlyCollection<ErrorDetail> Detail { get; set; }
+namespace Nbs.MeshClient.Responses;
 
-        public override string ToString()
-        {
-            return string.Join(", ", Detail);
-        }
+/// <summary>
+/// Error Response
+/// </summary>
+public record ErrorResponse
+{
+    /// <summary>
+    /// Detail
+    /// </summary>
+    public required IReadOnlyCollection<ErrorDetail> Detail { get; set; }
+
+    /// <summary>
+    /// Stringify
+    /// </summary>
+    public override string ToString()
+    {
+        return string.Join(", ", Detail);
     }
 }

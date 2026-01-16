@@ -761,13 +761,28 @@ const mockWeekAvailability: DailyAvailability[] = [
 ];
 
 const mockSingleService: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
+  {
+    label: 'RSV Adult',
+    value: 'RSV:Adult',
+    serviceType: 'RSV Adult',
+    url: 'RSV',
+  },
 ];
 
 const mockMultipleServices: ClinicalService[] = [
-  { label: 'RSV Adult', value: 'RSV:Adult' },
-  { label: 'FLU 18-64', value: 'FLU:18_64' },
-  { label: 'COVID', value: 'COVID:19' },
+  {
+    label: 'RSV Adult',
+    value: 'RSV:Adult',
+    serviceType: 'RSV Adult',
+    url: 'RSV',
+  },
+  {
+    label: 'FLU 18-64',
+    value: 'FLU:18_64',
+    serviceType: 'Flu 18-64',
+    url: 'flu',
+  },
+  { label: 'COVID', value: 'COVID:19', serviceType: 'COVID', url: 'COVID-19' },
 ];
 
 const mockCancelDayResponse: CancelDayResponse = {

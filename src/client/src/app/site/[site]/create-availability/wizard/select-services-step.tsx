@@ -4,7 +4,6 @@ import {
   Button,
   CheckBox,
   CheckBoxes,
-  CheckBoxOrAll,
   FormGroup,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
@@ -16,6 +15,34 @@ import { ClinicalService } from '@types';
 type SelectServicesStepProps = {
   clinicalServices: ClinicalService[];
 };
+
+const SERVICE_GROUPS_CONFIG = [
+  {
+    category: 'flu',
+    title: 'Flu services',
+    itemOrder: ['FLU:2_3', 'FLU:18_64', 'FLU:65+'],
+  },
+  {
+    category: 'COVID-19',
+    title: 'COVID-19 services',
+    itemOrder: ['COVID:5_11', 'COVID:12_17', 'COVID:18+'],
+  },
+  {
+    category: 'COVID-19 and flu',
+    title: 'Flu and COVID-19 co-admin services',
+    itemOrder: ['COVID_FLU:18_64', 'COVID_FLU:65+'],
+  },
+  {
+    category: 'RSV',
+    title: 'RSV services',
+    itemOrder: ['RSV:Adult'],
+  },
+  {
+    category: 'RSV and COVID-19 co-admin',
+    title: 'RSV and COVID-19 co-admin services',
+    itemOrder: ['RSV_COVID:18+'],
+  },
+];
 
 const SelectServicesStep = ({
   goToNextStep,
@@ -73,64 +100,60 @@ const SelectServicesStep = ({
         }
       />
 
+      <p className="nhsuk-body">
+        Co-admin appointments can only be booked by people eligible for both
+        vaccinations.
+      </p>
+
       <FormGroup error={errors.session?.services?.message}>
-        <CheckBoxes>
-          {clinicalServices.map(clinicalService => (
-            <CheckBox
-              id={`checkbox-${clinicalService.value}`}
-              label={clinicalService.label}
-              value={clinicalService.value}
-              key={`checkbox-${clinicalService.value}`}
-              {...register('session.services', {
-                validate: value => {
-                  if (value === undefined || value.length < 1) {
-                    return 'Select a service';
-                  }
-                },
-              })}
-              onChange={() => {
-                if ((servicesWatch ?? []).includes(clinicalService.value)) {
-                  setValue(
-                    'session.services',
-                    servicesWatch.filter(d => d !== clinicalService.value),
-                  );
-                } else {
-                  setValue('session.services', [
-                    clinicalService.value,
-                    ...(servicesWatch ?? []),
-                  ]);
-                }
-                if (errors.session?.services) {
-                  trigger('session.services');
-                }
-              }}
-            />
-          ))}
-          {clinicalServices.length > 1 && (
-            <>
-              <CheckBoxOrAll />
-              <CheckBox
-                label={'Select all services'}
-                value={clinicalServices.map(_ => _.value)}
-                id={'allServices'}
-                checked={servicesWatch?.length == clinicalServices.length}
-                onChange={() => {
-                  if (servicesWatch?.length == clinicalServices.length) {
-                    setValue('session.services', []);
-                  } else {
-                    setValue(
-                      'session.services',
-                      clinicalServices.map(_ => _.value),
-                    );
-                  }
-                  if (errors.session?.services) {
-                    trigger('session.services');
-                  }
-                }}
-              />
-            </>
-          )}
-        </CheckBoxes>
+        {SERVICE_GROUPS_CONFIG.map(group => {
+          const servicesInGroup = group.itemOrder
+            .map(val => clinicalServices.find(s => s.value === val))
+            .filter((s): s is ClinicalService => !!s);
+
+          if (servicesInGroup.length === 0) return null;
+
+          return (
+            <fieldset
+              key={group.category}
+              className="nhsuk-fieldset app-checkbox-group"
+              style={{ marginBottom: '32px' }}
+            >
+              <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
+                <span className="nhsuk-u-visually-hidden">Add </span>
+                {group.title}
+                <span className="nhsuk-u-visually-hidden">
+                  {' '}
+                  to your session
+                </span>
+              </legend>
+
+              <CheckBoxes>
+                {servicesInGroup.map(service => (
+                  <CheckBox
+                    id={`checkbox-${service.value}`}
+                    label={service.serviceType}
+                    value={service.value}
+                    key={service.value}
+                    {...register('session.services', {
+                      validate: val =>
+                        val?.length < 1 ? 'Select a service' : true,
+                    })}
+                    onChange={() => {
+                      const current = servicesWatch ?? [];
+                      const next = current.includes(service.value)
+                        ? current.filter(v => v !== service.value)
+                        : [...current, service.value];
+
+                      setValue('session.services', next);
+                      if (errors.session?.services) trigger('session.services');
+                    }}
+                  />
+                ))}
+              </CheckBoxes>
+            </fieldset>
+          );
+        })}
       </FormGroup>
       <Button
         type="button"

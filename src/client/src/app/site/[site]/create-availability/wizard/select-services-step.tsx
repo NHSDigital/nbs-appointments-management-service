@@ -40,7 +40,7 @@ const SERVICE_GROUPS_CONFIG = [
   {
     category: 'RSV and COVID-19 co-admin',
     title: 'RSV and COVID-19 co-admin services',
-    itemOrder: ['RSV_COVID:18+'],
+    itemOrder: ['COVID_RSV:18+'],
   },
 ];
 
@@ -132,7 +132,7 @@ const SelectServicesStep = ({
                 {servicesInGroup.map(service => (
                   <CheckBox
                     id={`checkbox-${service.value}`}
-                    label={service.serviceType}
+                    label={service.label.replace('-', ' to ')}
                     value={service.value}
                     key={service.value}
                     {...register('session.services', {

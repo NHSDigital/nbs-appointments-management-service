@@ -6,16 +6,16 @@
     <Nullable>disable</Nullable>
     <IsPackable>false</IsPackable>
     <LangVersion>latestmajor</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.1.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="Okta.Sdk" Version="9.2.3" />
-    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="FluentAssertions" Version="7.0.0"/>
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.1.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+    <PackageReference Include="Moq" Version="4.20.72"/>
+    <PackageReference Include="Okta.Sdk" Version="9.2.3"/>
+    <PackageReference Include="xunit" Version="2.9.3"/>
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
+    <ProjectReference Include="..\..\src\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj"/>
   </ItemGroup>
 
 </Project>

@@ -21,6 +21,10 @@ stages:
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
           cosmosAuditorDockerFilePath: "CosmosAuditorDockerfile"
         steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: "sdk"
+              version: "10.x"
           - task: PowerShell@2
             displayName: "Run script tests"
             inputs:
@@ -29,10 +33,6 @@ stages:
                 Set-Location ./scripts
                 Invoke-Pester
               pwsh: true
-          - task: UseDotNet@2
-            inputs:
-              packageType: "sdk"
-              version: "10.x"
           - task: PowerShell@2
             displayName: "Extract MYA version"
             name: ExtractVersionStep
@@ -233,6 +233,10 @@ stages:
           prBuildResourceGroup: "nbs-myacicd-rg-int-uks"
           subscriptionId: "2cf44e0d-817d-4596-b471-0788f8a14ab2"
         steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: "sdk"
+              version: "10.x"
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"

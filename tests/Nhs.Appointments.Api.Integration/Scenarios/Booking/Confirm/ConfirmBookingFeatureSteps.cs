@@ -18,10 +18,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Confirm;
 
 public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
-    private HttpResponseMessage _response;
-    private HttpStatusCode _responseCode;
-    private string _responseBody;
-
     [When("I confirm the booking")]
     public async Task ConfirmBooking()
     {
@@ -31,8 +27,6 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
         _response = await Http.PostAsync(url, content);
-        _responseCode = _response.StatusCode;
-        _responseBody = await _response.Content.ReadAsStringAsync();
     }
 
     [When("I confirm the following bookings")]
@@ -44,8 +38,6 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
         _response = await Http.PostAsync(url, content);
-        _responseCode = _response.StatusCode;
-        _responseBody = await _response.Content.ReadAsStringAsync();
     }
 
     [When("the provisional bookings are cleaned up")]
@@ -53,8 +45,6 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
     {
         _response = await Http.PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep",
             new StringContent(""));
-        _responseCode = _response.StatusCode;
-        _responseBody = await _response.Content.ReadAsStringAsync();
     }
 
     [Then("the call should be successful")]

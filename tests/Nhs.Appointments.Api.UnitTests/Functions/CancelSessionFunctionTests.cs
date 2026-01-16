@@ -33,8 +33,7 @@ public class CancelSessionFunctionTests
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
-            _metricsRecorder.Object,
-            _featureToggleHelper.Object);
+            _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<CancelSessionRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }

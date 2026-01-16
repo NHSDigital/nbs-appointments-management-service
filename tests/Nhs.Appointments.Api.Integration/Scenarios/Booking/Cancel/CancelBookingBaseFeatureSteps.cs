@@ -12,10 +12,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Cancel;
 
 public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
 {
-    private HttpResponseMessage _response;
-    private HttpStatusCode _responseCode;
-    private string _responseBody;
-
+    
     [When("I cancel the following bookings")]
     public async Task CancelBookings(DataTable dataTable)
     {
@@ -25,8 +22,6 @@ public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
         _response = await Http.PostAsync(url, content);
-        _responseCode = _response.StatusCode;
-        _responseBody = await _response.Content.ReadAsStringAsync();
     }
 
     private (string url, object payload) BuildCancelBookingPayload(DataTable table)

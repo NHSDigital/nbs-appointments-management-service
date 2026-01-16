@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -17,22 +16,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
     public class QueryBookingByNhsNumber : BookingBaseFeatureSteps
     {
         private List<Core.Bookings.Booking> _actualResponse;
-        private HttpResponseMessage _response;
         private HttpStatusCode _statusCode;
 
-        [When(@"I query for bookings for a person using their NHS number")]
-        public async Task CheckAvailability()
-        {
-            _response = await Http.GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
-            _statusCode = _response.StatusCode;
-            (_, _actualResponse) =
-                await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(
-                    await _response.Content.ReadAsStreamAsync());
-        }
-
-        // TODO: Need to add this to the base class along with new tests for QueryByReference
         [Then(@"the following bookings are returned")]
-        public void Assert(DataTable expectedBookingDetailsTable)
+        public void AssertMultipleBookings(DataTable expectedBookingDetailsTable)
         {
             var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select((row, index) =>
                 new Core.Bookings.Booking
@@ -68,8 +55,18 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     AdditionalData = new { IsAppBooking = true }
                 }).ToList();
 
-            _statusCode.Should().Be(HttpStatusCode.OK);
+            _response.StatusCode.Should().Be(HttpStatusCode.OK);
             BookingAssertions.BookingsAreEquivalent(_actualResponse, expectedBookings);
+        }
+
+        [When(@"I query for bookings for a person using their NHS number")]
+        public async Task CheckAvailability()
+        {
+            _response = await Http.GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
+            _statusCode = _response.StatusCode;
+            (_, _actualResponse) =
+                await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(
+                    await _response.Content.ReadAsStreamAsync());
         }
 
         [Then(@"the request is successful and no bookings are returned")]

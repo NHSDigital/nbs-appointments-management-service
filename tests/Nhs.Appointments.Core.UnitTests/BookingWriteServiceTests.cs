@@ -560,7 +560,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
             _bookingsDocumentStore
                 .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null,
-                    It.IsAny<object>))
+                    It.IsAny<object>()))
                 .ReturnsAsync(true).Verifiable();
 
             var result = await _sut.CancelBooking(bookingRef, "some-other-site", CancellationReason.CancelledByCitizen);

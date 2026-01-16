@@ -12,7 +12,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.RoleManagement;
 [FeatureFile("./Scenarios/RoleManagement/RoleManagement.feature")]
 public sealed class RoleManagementFeatureSteps : BaseFeatureSteps
 {
-    private  HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private GetRolesResponse _actualResponse;
     

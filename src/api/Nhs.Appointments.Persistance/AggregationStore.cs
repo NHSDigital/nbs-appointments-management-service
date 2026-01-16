@@ -9,7 +9,7 @@ public class AggregationStore(ITypedDocumentCosmosStore<AggregationDocument> sto
     private const string AggregationDocumentId = "daily-site-summary";
     private ITypedDocumentCosmosStore<AggregationDocument> Store { get; } = store;
 
-    public async Task<Aggregation?> GetLastRun()
+    public async Task<Aggregation> GetLastRun()
     {
         return await Store.GetByIdOrDefaultAsync<Aggregation>(AggregationDocumentId);
     }

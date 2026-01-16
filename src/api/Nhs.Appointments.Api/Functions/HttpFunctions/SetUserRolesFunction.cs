@@ -28,7 +28,7 @@ public class SetUserRolesFunction(
     IMetricsRecorder metricsRecorder,
     IFeatureToggleHelper featureToggleHelper
 ) 
-    : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider: userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "SetUserRoles", tags: ["User"],
         Summary = "Set role assignments for a user at a site")]
@@ -51,7 +51,7 @@ public class SetUserRolesFunction(
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetUserRolesRequest request, ILogger logger)
     {
-        if (userContextProvider.UserPrincipal.Claims.GetUserEmail() == request.User)
+        if (Principal.Claims.GetUserEmail() == request.User)
         {
             logger.LogError("Failed to set user roles. Reason: A user may not edit their own roles.");
             return Failed(HttpStatusCode.BadRequest,

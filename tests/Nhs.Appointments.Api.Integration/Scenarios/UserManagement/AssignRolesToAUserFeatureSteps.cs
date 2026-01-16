@@ -18,8 +18,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 [FeatureFile("./Scenarios/UserManagement/AssignRolesToAUser.feature")]
 public sealed class AssignRolesToAUserFeatureSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
-    private  HttpResponseMessage _response;
-
     [When(@"I assign the following roles to user '(.+)'")]
     public async Task AssignRole(string user, DataTable dataTable)
     {

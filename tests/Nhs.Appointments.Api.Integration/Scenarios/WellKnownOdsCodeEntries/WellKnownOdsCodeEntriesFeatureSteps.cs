@@ -15,7 +15,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.WellKnownOdsCodeEntries;
 
 public sealed class WellKnownOdsCodeEntriesFeatureSteps : BaseFeatureSteps
 {
-    private  HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private IEnumerable<WellKnownOdsEntry> _actualResponse;
     

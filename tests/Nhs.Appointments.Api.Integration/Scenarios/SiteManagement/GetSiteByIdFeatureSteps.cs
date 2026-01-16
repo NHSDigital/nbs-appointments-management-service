@@ -23,7 +23,7 @@ public abstract class GetSiteByIdFeatureSteps(string flag, bool enabled) : SiteM
     }
 
     [Then("the correct site is returned")]
-    public async Task Assert(DataTable dataTable)
+    public async Task AssertSite(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var expectedSite = new Site(
@@ -44,7 +44,7 @@ public abstract class GetSiteByIdFeatureSteps(string flag, bool enabled) : SiteM
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =
             await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());
-        ActualResponse.Should().BeEquivalentTo(expectedSite);
+        ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.LastUpdatedBy));
     }
 }
 

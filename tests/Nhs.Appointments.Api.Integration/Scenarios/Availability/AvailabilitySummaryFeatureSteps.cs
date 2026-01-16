@@ -14,7 +14,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
 {
     protected AvailabilitySummary _actualResponse;
-    protected HttpResponseMessage _response;
     protected HttpStatusCode _statusCode;
 
     [And("the following session summaries on day '(.+)' are returned")]

@@ -19,8 +19,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private Core.Bookings.Booking _actualResponse;
-    private HttpResponseMessage _response;
-    private HttpStatusCode _statusCode;
 
     [When("I cancel the following session")]
     public async Task CancelSession(DataTable dataTable)
@@ -55,7 +53,6 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
     {
         var customId = CreateCustomBookingReference(reference);
         _response = await Http.GetAsync($"http://localhost:7071/api/booking/{customId}");
-        _statusCode = _response.StatusCode;
         (_, _actualResponse) =
             await JsonRequestReader.ReadRequestAsync<Core.Bookings.Booking>(await _response.Content.ReadAsStreamAsync());
     }

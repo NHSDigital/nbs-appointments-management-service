@@ -147,7 +147,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
     }
 
     [Then(@"the following count is returned")]
-    public async Task AssertAvailabilityCount(DataTable expectedCounts)
+    public void AssertAvailabilityCount(DataTable expectedCounts)
     {
         var counts = new List<int>();
 

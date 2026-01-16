@@ -15,7 +15,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
 
 public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
 {
-    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
     private QueryAvailabilityResponse _actualResponse;
 

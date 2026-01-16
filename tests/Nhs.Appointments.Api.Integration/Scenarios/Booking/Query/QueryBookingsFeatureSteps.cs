@@ -16,7 +16,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Query;
 public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
 {
     private List<Core.Bookings.Booking> _actualResponse;
-    private HttpResponseMessage _response;
     private HttpStatusCode _statusCode;
 
     [When("I query for bookings using the following parameters")]

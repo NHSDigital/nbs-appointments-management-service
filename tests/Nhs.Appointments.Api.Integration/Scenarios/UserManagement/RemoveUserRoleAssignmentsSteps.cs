@@ -22,10 +22,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 [FeatureFile("./Scenarios/UserManagement/RemoveUserRoleAssignments.feature")]
 public sealed class RemoveUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
 {
-    private HttpResponseMessage _response;
-    private HttpStatusCode _statusCode;
-    private RemoveUserResponse _actualResponse;
-    
     [When(@"I remove user '(.+)' from site '(.+)'")]
     public async Task AssignRole(string user, string site)
     {
@@ -51,8 +47,6 @@ public sealed class RemoveUserRoleAssignmentsSteps() : UserManagementBaseFeature
                 "application/json"
             )
         );
-        _statusCode = _response.StatusCode;
-        (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<RemoveUserResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
     [Then(@"'(.+)' is no longer in the system")]

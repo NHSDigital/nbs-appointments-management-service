@@ -69,10 +69,10 @@ namespace Nbs.MeshClient
             }
         }
 
-        public async Task<string> GetMessageAsFileAsync(string messageId, DirectoryInfo folder, string fileName = null)
+        public async Task<string> GetMessageAsFileAsync(string messageId, DirectoryInfo folder, string? fileName = null)
         {
             var result = await _meshClient.GetMessageBytesAsync(MailboxId, messageId);
-            fileName = fileName ?? result.Headers.GetValues("mex-filename").FirstOrDefault() ?? messageId;
+            fileName ??= result.Headers.GetValues("mex-filename").FirstOrDefault() ?? messageId;
             var file = new FileInfo(Path.Combine(folder.FullName, fileName));
 
             EnsureSuccess(result);
@@ -148,7 +148,7 @@ namespace Nbs.MeshClient
             EnsureSuccess(result);
         }
 
-        public async Task<string> SendMessageAsync(string recipientMailboxId, string workflowId, HttpContent content, int totalParts = 1, string fileName = null)
+        public async Task<string> SendMessageAsync(string recipientMailboxId, string workflowId, HttpContent content, int totalParts = 1, string? fileName = null)
         {
             string? chunkRange = null;
             if (totalParts < 1)

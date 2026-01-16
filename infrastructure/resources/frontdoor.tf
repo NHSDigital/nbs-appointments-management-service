@@ -161,7 +161,7 @@ resource "azurerm_cdn_frontdoor_rule" "nbs_mya_origin_group_bulk_import_override
     url_path_condition {
       operator         = "EndsWith"
       negate_condition = false
-      match_values     = ["/user/import", "/site/import"]
+      match_values     = ["/user/import", "/site/import", "/site-deletion/import", "/admin-user/import"]
       transforms       = ["Lowercase"]
     }
   }

@@ -25,6 +25,7 @@ stages:
             inputs:
               packageType: "sdk"
               version: "10.x"
+              installationPath: $(Agent.ToolsDirectory)/dotnet
           - task: PowerShell@2
             displayName: "Run script tests"
             inputs:
@@ -237,6 +238,7 @@ stages:
             inputs:
               packageType: "sdk"
               version: "10.x"
+              installationPath: $(Agent.ToolsDirectory)/dotnet
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"

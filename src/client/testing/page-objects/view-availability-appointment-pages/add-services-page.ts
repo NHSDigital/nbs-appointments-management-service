@@ -22,13 +22,17 @@ export default class AddServicesPage extends RootPage {
   }
 
   async addService(serviceName: string) {
-    await this.page.getByLabel(serviceName).check();
+    await this.page
+      .getByRole('checkbox', { name: serviceName, exact: true })
+      .click();
     await this.continueButton.click();
   }
 
   async addServices(serviceNames: string[]) {
     for (let index = 0; index < serviceNames.length; index++) {
-      await this.page.getByLabel(serviceNames[index]).check();
+      await this.page
+        .getByRole('checkbox', { name: serviceNames[index], exact: true })
+        .click();
     }
 
     await this.continueButton.click();

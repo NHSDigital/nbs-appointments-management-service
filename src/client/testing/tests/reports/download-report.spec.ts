@@ -101,6 +101,7 @@ const expectedFileDownloadHeaders = [
   'COVID_FLU:18_64 Booked',
   'COVID_FLU:65+ Booked',
   'FLU:2_3 Booked',
+  'COVID_RSV:18+ Booked',
   'Total Bookings',
   'Cancelled',
   'Maximum Capacity',
@@ -113,4 +114,5 @@ const expectedFileDownloadHeaders = [
   'COVID_FLU:18_64 Capacity',
   'COVID_FLU:65+ Capacity',
   'FLU:2_3 Capacity',
+  'COVID_RSV:18+ Capacity',
 ];

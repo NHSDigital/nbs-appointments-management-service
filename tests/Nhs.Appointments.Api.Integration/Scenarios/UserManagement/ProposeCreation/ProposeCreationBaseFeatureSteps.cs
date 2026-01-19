@@ -16,7 +16,7 @@ using RoleAssignment = Nhs.Appointments.Persistance.Models.RoleAssignment;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement.ProposeCreation;
 
-public abstract class ProposeCreationBaseFeatureSteps(string flag, bool enabled) : UserManagementBaseFeatureSteps(flag, enabled)
+public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatureSteps
 {
     private HttpStatusCode _statusCode;
     private ProposePotentialUserResponse _actualResponse;

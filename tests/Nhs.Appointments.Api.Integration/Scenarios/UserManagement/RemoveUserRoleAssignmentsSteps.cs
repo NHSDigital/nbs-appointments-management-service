@@ -18,9 +18,8 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
-[Collection(FeatureToggleCollectionNames.OktaCollection)]
 [FeatureFile("./Scenarios/UserManagement/RemoveUserRoleAssignments.feature")]
-public sealed class RemoveUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
+public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
 {
     [When(@"I remove user '(.+)' from site '(.+)'")]
     public async Task AssignRole(string user, string site)

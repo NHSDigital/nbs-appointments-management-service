@@ -32,8 +32,7 @@ public class SetUserRolesFunctionTests
             _userContext.Object, 
             _oktaService.Object, 
             _logger.Object, 
-            _metricsRecorder.Object,
-            _featureToggleHelper.Object
+            _metricsRecorder.Object
         );
     }
 
@@ -103,38 +102,13 @@ public class SetUserRolesFunctionTests
         _userContext.Setup(x => x.UserPrincipal)
             .Returns(userPrincipal);
         _oktaService.Setup(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(oktaDirectoryResult);
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.OktaEnabled)).ReturnsAsync(true);
-
+        
         var response = await _sut.Invoke(request);
 
         Assert.Multiple(
             () => response.StatusCode.Should().Be(HttpStatusCode.BadRequest),
             () => response.IsSuccess.Should().BeFalse(),
             () => _userService.Verify()
-        );
-    }
-
-    [Fact]
-    public async Task OktaDisabled_ResultIsServiceUnavailable()
-    {
-        const string User = "test@user.com";
-        string[] roles = ["role1"];
-        const string scope = "site:some-site";
-        var userPrincipal = UserDataGenerator.CreateUserPrincipal("test.user2@testdomain.com");
-        var request = new SetUserRolesRequest { User = User, Roles = roles, Scope = scope };
-
-        _userContext.Setup(x => x.UserPrincipal).Returns(userPrincipal);
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.OktaEnabled)).ReturnsAsync(false);
-
-        var response = await _sut.Invoke(request);
-
-        Assert.Multiple(
-            () => response.StatusCode.Should().Be(HttpStatusCode.NotImplemented),
-            () => response.IsSuccess.Should().BeFalse(),
-            () => _userService.Verify(),
-            () => _oktaService.Verify(x => x.CreateIfNotExists(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never),
-            () => _userService.Verify(s => s.UpdateUserRoleAssignmentsAsync(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<RoleAssignment>>(), true), Times.Never)
         );
     }
 
@@ -148,9 +122,8 @@ public class SetUserRolesFunctionTests
             IUserContextProvider userContextProvider,
             IOktaService oktaService,
             ILogger<SetUserRolesFunction> logger,
-            IMetricsRecorder metricsRecorder,
-            IFeatureToggleHelper featureToggleHelper)
-            : base(userService, validator, userContextProvider, oktaService, logger, metricsRecorder, featureToggleHelper)
+            IMetricsRecorder metricsRecorder)
+            : base(userService, validator, userContextProvider, oktaService, logger, metricsRecorder)
         {
             _logger = logger;
         }

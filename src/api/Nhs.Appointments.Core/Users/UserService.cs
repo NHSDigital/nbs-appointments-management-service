@@ -11,8 +11,7 @@ public class UserService(
     IRolesStore rolesStore,
     IMessageBus bus,
     IOktaUserDirectory oktaStore,
-    IEmailWhitelistStore whiteListStore,
-    IFeatureToggleHelper featureToggleHelper)
+    IEmailWhitelistStore whiteListStore)
     : IUserService
 {
     public Task<User> GetUserAsync(string userId)
@@ -136,11 +135,6 @@ public class UserService(
                 return true;
             case IdentityProvider.Okta:
                 {
-                    if (!await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled))
-                    {
-                        return false;
-                    }
-
                     var userExistsInOkta = await oktaStore.GetUserAsync(userId);
                     return userExistsInOkta != null;
                 }

@@ -1,6 +1,5 @@
 {
   "FeatureManagement": {
-    "OktaEnabled": true,
     "JointBookings": true,
     "SiteSummaryReport": true,
     "SiteStatus": true,

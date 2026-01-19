@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
-[Collection(FeatureToggleCollectionNames.OktaCollection)]
 [FeatureFile("./Scenarios/UserManagement/AssignRolesToAUser.feature")]
-public sealed class AssignRolesToAUserFeatureSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
+public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSteps
 {
     [When(@"I assign the following roles to user '(.+)'")]
     public async Task AssignRole(string user, DataTable dataTable)

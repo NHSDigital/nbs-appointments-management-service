@@ -25,7 +25,6 @@ public class UserDataImportHandlerTests
         _sut = new UserDataImportHandler(
             _userServiceMock.Object,
             _siteServiceMock.Object,
-            _featureToggleHelperMock.Object,
             _oktaServiceMock.Object,
             _emailWhitelistStore.Object,
             _wellKnownOdsCodesMock.Object

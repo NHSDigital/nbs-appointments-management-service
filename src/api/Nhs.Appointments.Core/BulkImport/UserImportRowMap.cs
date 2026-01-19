@@ -8,11 +8,8 @@ namespace Nhs.Appointments.Core.BulkImport;
 
 public class UserImportRowMap : ClassMap<UserImportRow>
 {
-    private readonly bool _oktaEnabled;
-    public UserImportRowMap(bool oktaEnabled)
+    public UserImportRowMap()
     {
-        _oktaEnabled = oktaEnabled;
-
         var userRoleKeys = new[]
         {
             "appointment-manager",
@@ -126,9 +123,6 @@ public class UserImportRowMap : ClassMap<UserImportRow>
 
         if (!CsvFieldValidator.StringHasValue(user))
             throw new ArgumentNullException("User must have a value.");
-
-        if (!_oktaEnabled && IsOktaUser(row))
-            throw new ArgumentException($"User: '{user}' is an OKTA user and OKTA is not enabled.");
 
         if (!RegularExpressionConstants.EmailAddressRegex().IsMatch(user))
             throw new ArgumentException($"User: '{user}' is not a valid email address");

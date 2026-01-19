@@ -5,7 +5,6 @@ import {
   fetchPermissions,
   fetchUserProfile,
   assertAnyPermissions,
-  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { UsersPage } from './users-page';
@@ -24,14 +23,13 @@ const Page = async ({ params }: PageProps) => {
     assertAnyPermissions(siteFromPath, ['users:view', 'users:view']),
   );
 
-  const [userProfile, users, rolesResponse, site, permissions, oktaEnabled] =
+  const [userProfile, users, rolesResponse, site, permissions] =
     await Promise.all([
       fromServer(fetchUserProfile()),
       fromServer(fetchUsers(siteFromPath)),
       fromServer(fetchRoles()),
       fromServer(fetchSite(siteFromPath)),
       fromServer(fetchPermissions(siteFromPath)),
-      fromServer(fetchFeatureFlag('OktaEnabled')),
     ]);
 
   return (
@@ -41,7 +39,6 @@ const Page = async ({ params }: PageProps) => {
         users={users}
         roles={rolesResponse}
         permissions={permissions}
-        oktaEnabled={oktaEnabled.enabled}
       />
     </NhsPage>
   );

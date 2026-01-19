@@ -1,5 +1,4 @@
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Core.Okta;
@@ -15,16 +14,16 @@ namespace Nhs.Appointments.Core.UnitTests
         private readonly Mock<IRolesStore> _rolesStore = new();
         private readonly Mock<IOktaUserDirectory> _oktaUserDirectory = new();
         private readonly Mock<IEmailWhitelistStore> _emailWhitelistStore = new();
-        private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
-        private readonly List<string> oktaOnWhiteListedEmails =
+        private readonly List<string> whiteListedEmails =
             ["@nhs.net", "@not-nhs.net", "not-nhs-either.net", "@trailing-space.net "];
 
-        private readonly List<string> oktaOffWhiteListedEmails =
-            ["@nhs.net"];
 
         public UserServiceTests()
         {
+            _emailWhitelistStore.Setup(emailWhitelistStore => emailWhitelistStore.GetWhitelistedEmails())
+                .ReturnsAsync(whiteListedEmails);
+            
             _sut = new UserService(
                 _userStore.Object,
                 _rolesStore.Object,

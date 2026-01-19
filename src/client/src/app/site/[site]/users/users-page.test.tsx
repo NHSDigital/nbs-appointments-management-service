@@ -21,7 +21,6 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
-        oktaEnabled={true}
       />,
     );
 
@@ -39,7 +38,6 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
-        oktaEnabled={true}
       />,
     );
 
@@ -71,7 +69,6 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
-        oktaEnabled={true}
       />,
     );
 
@@ -91,7 +88,6 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAuditerPermissions}
-        oktaEnabled={true}
       />,
     );
 
@@ -111,7 +107,6 @@ describe('Users Page', () => {
         users={getMockUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
-        oktaEnabled={true}
       />,
     );
 
@@ -137,7 +132,6 @@ describe('Users Page', () => {
         users={getMockOktaUserAssignments(mockSiteId)}
         roles={mockRoles}
         permissions={mockAllPermissions}
-        oktaEnabled={false}
       />,
     );
 

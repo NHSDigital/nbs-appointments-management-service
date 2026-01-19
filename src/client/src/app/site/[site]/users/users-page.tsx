@@ -8,7 +8,6 @@ type Props = {
   users: User[];
   roles: Role[];
   permissions: string[];
-  oktaEnabled: boolean;
 };
 
 export const UsersPage = ({
@@ -16,7 +15,6 @@ export const UsersPage = ({
   users,
   roles,
   permissions,
-  oktaEnabled,
 }: Props) => {
   const isVisibleRole = (role: string) =>
     roles.find(r => r.id === role) !== undefined;
@@ -26,10 +24,6 @@ export const UsersPage = ({
   const canSeeAdminControls = useMemo(() => {
     return permissions.includes('users:manage');
   }, [permissions]);
-
-  const canEditUser = (email: string): boolean => {
-    return email.endsWith('@nhs.net') || oktaEnabled;
-  };
 
   return (
     <>
@@ -55,8 +49,7 @@ export const UsersPage = ({
               ?.join(' | '),
             ...(canSeeAdminControls
               ? [
-                  ...(userProfile.emailAddress === user.id ||
-                  !canEditUser(user.id)
+                  ...(userProfile.emailAddress === user.id
                     ? ['', '']
                     : [
                         <EditRoleAssignmentsButton

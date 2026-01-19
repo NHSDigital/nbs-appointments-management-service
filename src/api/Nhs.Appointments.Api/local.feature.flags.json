@@ -1,7 +1,6 @@
 {
   "FeatureManagement": {
     "JointBookings": false,
-    "OktaEnabled": false,
     "TestFeatureEnabled": true,
     "MultipleServices": false,
     "SiteSummaryReport": false,
@@ -50,7 +49,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         }
@@ -79,7 +78,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         },

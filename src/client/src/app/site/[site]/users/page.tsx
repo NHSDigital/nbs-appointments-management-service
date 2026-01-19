@@ -5,7 +5,6 @@ import {
   fetchPermissions,
   fetchUserProfile,
   assertAnyPermissions,
-  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
 import { UsersPage } from './users-page';

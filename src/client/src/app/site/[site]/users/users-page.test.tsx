@@ -1,7 +1,6 @@
 ﻿import { render, screen, waitFor } from '@testing-library/react';
 import { UsersPage } from './users-page';
 import {
-  getMockOktaUserAssignments,
   getMockUserAssignments,
   mockAllPermissions,
   mockAuditerPermissions,

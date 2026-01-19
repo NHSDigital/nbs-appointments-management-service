@@ -54,7 +54,14 @@ describe('Day Card List', () => {
       asServerActionResult(['availability:setup']),
     );
     mockClinicalServices.mockResolvedValue(
-      asServerActionResult([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
+      asServerActionResult([
+        {
+          label: 'RSV Adult',
+          value: 'RSV:Adult',
+          serviceType: 'RSV',
+          url: 'RSV',
+        },
+      ]),
     );
 
     mockFetchFeatureFlag.mockResolvedValue(

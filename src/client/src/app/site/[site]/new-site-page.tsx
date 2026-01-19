@@ -97,7 +97,9 @@ export const NewSitePage = ({
               <Card cardType="primary" clickable>
                 <Card.Content>
                   <Card.Heading className="nhsuk-card__heading nhsuk-heading-m">
-                    <Card.Link href={`/site/${site.id}/create-availability`}>
+                    <Card.Link
+                      href={`/manage-your-appointments/site/${site.id}/create-availability`}
+                    >
                       Create availability
                     </Card.Link>
                   </Card.Heading>
@@ -112,7 +114,9 @@ export const NewSitePage = ({
                 <Card cardType="primary" clickable>
                   <Card.Content>
                     <Card.Heading className="nhsuk-card__heading nhsuk-heading-m">
-                      <Card.Link href={`/site/${site.id}/details`}>
+                      <Card.Link
+                        href={`/manage-your-appointments/site/${site.id}/details`}
+                      >
                         Change site details and accessibility information
                       </Card.Link>
                     </Card.Heading>
@@ -126,7 +130,9 @@ export const NewSitePage = ({
               <Card cardType="primary" clickable>
                 <Card.Content>
                   <Card.Heading className="nhsuk-card__heading nhsuk-heading-m">
-                    <Card.Link href={`/site/${site.id}/users`}>
+                    <Card.Link
+                      href={`/manage-your-appointments/site/${site.id}/users`}
+                    >
                       Manage users
                     </Card.Link>
                   </Card.Heading>

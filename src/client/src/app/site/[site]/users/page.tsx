@@ -8,8 +8,8 @@ import {
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import NhsPage from '@components/nhs-page';
-import { UsersPage } from './users-page';
 import fromServer from '@server/fromServer';
+import { NewUsersPage } from './new-users-page';
 
 type PageProps = {
   params: Promise<{
@@ -36,7 +36,7 @@ const Page = async ({ params }: PageProps) => {
 
   return (
     <NhsPage title="Manage users" site={site} originPage="users">
-      <UsersPage
+      <NewUsersPage
         userProfile={userProfile}
         users={users}
         roles={rolesResponse}

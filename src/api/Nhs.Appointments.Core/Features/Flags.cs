@@ -2,7 +2,6 @@ namespace Nhs.Appointments.Core.Features;
 
 public static class Flags
 {
-    public const string OktaEnabled = "OktaEnabled";
     public const string JointBookings = "JointBookings";
     public const string SiteSummaryReport = "SiteSummaryReport";
     public const string SiteStatus = "SiteStatus";

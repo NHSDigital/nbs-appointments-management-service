@@ -9,8 +9,7 @@ namespace Nhs.Appointments.Core.BulkImport;
 
 public class UserDataImportHandler(
     IUserService userService, 
-    ISiteService siteService, 
-    IFeatureToggleHelper featureToggleHelper,
+    ISiteService siteService,
     IOktaService oktaService,
     IEmailWhitelistStore emailWhitelistStore,
     IWellKnowOdsCodesService wellKnowOdsCodesService
@@ -22,13 +21,11 @@ public class UserDataImportHandler(
 
     public async Task<IEnumerable<ReportItem>> ProcessFile(IFormFile inputFile)
     {
-        var oktaEnabled = await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled);
-
         var userImportRows = new List<UserImportRow>();
         var processor = new CsvProcessor<UserImportRow, UserImportRowMap>(
             ui => Task.Run(() => userImportRows.Add(ui)), 
             ui => ui.UserId,
-            () => new UserImportRowMap(oktaEnabled) 
+            () => new UserImportRowMap() 
         );
         using TextReader fileReader = new StreamReader(inputFile.OpenReadStream());
         var report = (await processor.ProcessFile(fileReader)).ToList();

@@ -25,8 +25,7 @@ public class SetUserRolesFunction(
     IUserContextProvider userContextProvider, 
     IOktaService oktaService, 
     ILogger<SetUserRolesFunction> logger, 
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper
+    IMetricsRecorder metricsRecorder
 ) 
     : BaseApiFunction<SetUserRolesRequest, EmptyResponse>(validator, userContextProvider: userContextProvider, logger, metricsRecorder)
 {
@@ -60,14 +59,6 @@ public class SetUserRolesFunction(
 
         if (IsOktaUser(request.User))
         {
-            var isOktaEnabled = await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled);
-
-            if (!isOktaEnabled)
-            {
-                logger.LogError("Failed to set user roles. Reason: Okta is disabled.");
-                return Failed(HttpStatusCode.NotImplemented, "Okta is disabled.");
-            }
-
             // user is not an nhs mail user, check with okta service to determine if user exists and send an invite if they don't
             var externalDirectoryResult = await oktaService.CreateIfNotExists(request.User, request.FirstName, request.LastName);
             if (!externalDirectoryResult.Success)

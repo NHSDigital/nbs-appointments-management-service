@@ -10,10 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions.ServiceBusFunctions;
-public class NotifyOktaUserRolesChangedFunction(
-    IMessageReceiver receiver, 
-    IFeatureToggleHelper featureToggleHelper,
-    ILogger<NotifyOktaUserRolesChangedFunction> logger)
+public class NotifyOktaUserRolesChangedFunction(IMessageReceiver receiver)
 {
     public const string QueueName = "okta-user-roles-changed";
 
@@ -24,24 +21,8 @@ public class NotifyOktaUserRolesChangedFunction(
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions,
         CancellationToken cancellationToken
-    ){
-        var isOktaEnabled = await featureToggleHelper.IsFeatureEnabled(Flags.OktaEnabled);
-
-        if (!isOktaEnabled)
-        {
-            logger.LogError("Okta is disabled. Cannot process message from queue '{QueueName}'.", QueueName);
-
-            await messageActions.DeadLetterMessageAsync(
-                message,
-                new Dictionary<string, object>(),
-                 "OktaFeatureDisabled" ,
-                 "Okta is disabled. Message cannot be processed.",
-                cancellationToken
-            );
-
-            return;
-        }
-        
+    )
+    {
         await receiver.HandleConsumer<OktaUserRolesChangedConsumer>(QueueName, message, cancellationToken);
     }
 }

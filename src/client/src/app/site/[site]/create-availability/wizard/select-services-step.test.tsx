@@ -1,5 +1,5 @@
 import render from '@testing/render';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SelectServicesStep from './select-services-step';
@@ -15,7 +15,14 @@ let mockClinicalServices: ClinicalService[] = [];
 describe('Select Services Step', () => {
   describe('Multiple Services Disabled', () => {
     beforeAll(() => {
-      mockClinicalServices = [{ label: 'RSV Adult', value: 'RSV:Adult' }];
+      mockClinicalServices = [
+        {
+          label: 'RSV Adult',
+          value: 'RSV:Adult',
+          serviceType: 'RSV Adult',
+          url: 'RSV',
+        },
+      ];
     });
 
     it('renders', async () => {
@@ -72,18 +79,6 @@ describe('Select Services Step', () => {
 
       expect(mockGoToNextStep).toHaveBeenCalled();
     });
-
-    it('continues to the next step if a service is selected', async () => {
-      const { user } = renderStep(mockClinicalServices);
-
-      expect(
-        screen.getByRole('checkbox', { name: 'RSV Adult' }),
-      ).not.toBeChecked();
-      await user.click(screen.getByRole('checkbox', { name: 'RSV Adult' }));
-      await user.click(screen.getByRole('button', { name: 'Continue' }));
-
-      expect(mockGoToNextStep).toHaveBeenCalled();
-    });
   });
 
   describe('Multiple Services Enabled', () => {
@@ -92,18 +87,26 @@ describe('Select Services Step', () => {
         {
           value: 'RSV:Adult',
           label: 'RSV Adult',
+          serviceType: 'RSV',
+          url: 'RSV',
         },
         {
           value: 'COVID:5_11',
           label: 'COVID 5-11',
+          serviceType: 'COVID-19',
+          url: 'COVID-19',
         },
         {
           value: 'COVID:12_17',
           label: 'COVID 12-17',
+          serviceType: 'COVID-19',
+          url: 'COVID-19',
         },
         {
           value: 'COVID:18+',
           label: 'COVID 18+',
+          serviceType: 'COVID-19',
+          url: 'COVID-19',
         },
       ];
     });
@@ -163,108 +166,61 @@ describe('Select Services Step', () => {
       expect(mockGoToNextStep).toHaveBeenCalled();
     });
 
-    it('continues to the next step if a service is selected', async () => {
+    it('does not render a group heading if no services for that group are provided', () => {
+      const filteredServices = mockClinicalServices.filter(
+        s => s.serviceType === 'COVID-19',
+      );
+      renderStep(filteredServices);
+
+      expect(screen.getByText('COVID-19 services')).toBeInTheDocument();
+      expect(screen.queryByText('RSV services')).not.toBeInTheDocument();
+    });
+
+    it('clears the validation error immediately once a service is checked', async () => {
       const { user } = renderStep(mockClinicalServices);
 
-      expect(
-        screen.getByRole('checkbox', { name: 'RSV Adult' }),
-      ).not.toBeChecked();
-      await user.click(screen.getByRole('checkbox', { name: 'RSV Adult' }));
       await user.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByText('Select a service')).toBeInTheDocument();
 
-      expect(mockGoToNextStep).toHaveBeenCalled();
+      const checkbox = screen.getByRole('checkbox', { name: 'RSV Adult' });
+      await user.click(checkbox);
+
+      expect(screen.queryByText('Select a service')).not.toBeInTheDocument();
     });
 
-    it('selects all services when Select All is checked', async () => {
-      const { user } = renderStep(mockClinicalServices);
+    it('renders services grouped by their category headings', () => {
+      renderStep(mockClinicalServices);
 
-      await user.click(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      );
-      expect(screen.getByRole('checkbox', { name: 'RSV Adult' })).toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'COVID 5-11' }),
-      ).toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'COVID 12-17' }),
-      ).toBeChecked();
-      expect(screen.getByRole('checkbox', { name: 'COVID 18+' })).toBeChecked();
+      expect(screen.getByText('COVID-19 services')).toBeInTheDocument();
+      expect(screen.getByText('RSV services')).toBeInTheDocument();
     });
 
-    it('deselects all services when Select All Services is checked', async () => {
-      const { user } = renderStep(mockClinicalServices, [
-        'RSV:Adult',
-        'COVID:5_11',
-        'COVID:12_17',
-        'COVID:18+',
-      ]);
-      expect(screen.getByRole('checkbox', { name: 'RSV Adult' })).toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'COVID 5-11' }),
-      ).toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'COVID 12-17' }),
-      ).toBeChecked();
-      expect(screen.getByRole('checkbox', { name: 'COVID 18+' })).toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      ).toBeChecked();
+    it('renders services in the correct sorted order within a group', () => {
+      renderStep(mockClinicalServices);
 
-      await user.click(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      );
+      const covidGroup = screen.getByRole('group', {
+        name: /Add COVID-19 services to your session/i,
+      });
 
-      expect(
-        screen.getByRole('checkbox', { name: 'RSV Adult' }),
-      ).not.toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'COVID 5-11' }),
-      ).not.toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'COVID 12-17' }),
-      ).not.toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'COVID 18+' }),
-      ).not.toBeChecked();
-      expect(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      ).not.toBeChecked();
+      const checkboxes = within(covidGroup).getAllByRole('checkbox');
+
+      expect(checkboxes).toHaveLength(3);
+      expect(checkboxes[0]).toHaveAttribute('value', 'COVID:5_11');
+      expect(checkboxes[1]).toHaveAttribute('value', 'COVID:12_17');
+      expect(checkboxes[2]).toHaveAttribute('value', 'COVID:18+');
     });
 
-    it('automatically checks Select All Services when each service is checked individually', async () => {
-      const { user } = renderStep(mockClinicalServices);
+    it('renders a default title if the serviceType is not in our mapping', () => {
+      const unknownService: ClinicalService = {
+        value: 'NEW:123',
+        label: 'New Vax',
+        serviceType: 'Monkeypox',
+        url: 'test',
+      };
 
-      expect(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      ).not.toBeChecked();
+      renderStep([unknownService]);
 
-      await user.click(screen.getByRole('checkbox', { name: 'RSV Adult' }));
-      await user.click(screen.getByRole('checkbox', { name: 'COVID 5-11' }));
-      await user.click(screen.getByRole('checkbox', { name: 'COVID 12-17' }));
-      await user.click(screen.getByRole('checkbox', { name: 'COVID 18+' }));
-
-      expect(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      ).toBeChecked();
-    });
-
-    it('automatically unchecks Select All Services when a service is unchecked individually', async () => {
-      const { user } = renderStep(mockClinicalServices, [
-        'RSV:Adult',
-        'COVID:5_11',
-        'COVID:12_17',
-        'COVID:18+',
-      ]);
-
-      expect(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      ).toBeChecked();
-
-      await user.click(screen.getByRole('checkbox', { name: 'COVID 18+' }));
-
-      expect(
-        screen.getByRole('checkbox', { name: 'Select all services' }),
-      ).not.toBeChecked();
+      expect(screen.getByText('Monkeypox')).toBeInTheDocument();
     });
   });
 });

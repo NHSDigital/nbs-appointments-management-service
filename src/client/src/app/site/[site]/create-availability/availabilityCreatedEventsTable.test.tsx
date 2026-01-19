@@ -99,7 +99,14 @@ describe('Availability Created Events Table', () => {
       asServerActionResult(mockAvailabilityCreatedEvents),
     );
     fetchClinicalServicesMock.mockResolvedValue(
-      asServerActionResult([{ label: 'RSV Adult', value: 'RSV:Adult' }]),
+      asServerActionResult([
+        {
+          label: 'RSV Adult',
+          value: 'RSV:Adult',
+          serviceType: 'RSV',
+          url: 'RSV',
+        },
+      ]),
     );
   });
 

@@ -117,7 +117,7 @@ test.describe('Create Availability', () => {
         await createAvailabilityPage.appointmentLength('6');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.addService('RSV Adult');
-        await createAvailabilityPage.addService('COVID 5-11');
+        await createAvailabilityPage.addService('COVID 5 to 11');
         await createAvailabilityPage.addService('COVID 18+');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.saveSessionButton.click();
@@ -153,7 +153,7 @@ test.describe('Create Availability', () => {
         await createAvailabilityPage.appointmentLength('5');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.addService('RSV Adult');
-        await createAvailabilityPage.addService('COVID 5-11');
+        await createAvailabilityPage.addService('COVID 5 to 11');
         await createAvailabilityPage.addService('COVID 18+');
         await createAvailabilityPage.continueButton.click();
         await createAvailabilityPage.saveSessionButton.click();
@@ -559,9 +559,9 @@ test.describe('Update Session', () => {
         await addServicesPage.addServices([
           'RSV Adult',
           'COVID 18+',
-          'Flu 18-64',
-          'Flu and COVID 18-64',
-          'Flu 2-3',
+          'Flu 18 to 64',
+          'Flu and COVID 18 to 64',
+          'Flu 2 to 3',
         ]);
         await checkSessionDetailsPage.saveSession();
 
@@ -575,7 +575,7 @@ test.describe('Update Session', () => {
             sessions: [
               {
                 serviceName:
-                  'RSV AdultCOVID 18+Flu 18-64Flu and COVID 18-64Flu 2-3',
+                  'Flu 2-3Flu 18-64COVID 18+Flu and COVID 18-64RSV Adult',
                 booked: '0 booked0 booked0 booked0 booked',
                 unbooked: 60,
                 sessionTimeInterval: '09:00 - 10:00',
@@ -619,7 +619,7 @@ test.describe('Update Session', () => {
 
         await editServicesConfirmedPage.verifyServicesRemoved({
           date: requiredDateFormat,
-          serviceNames: 'RSV AdultFlu 2-3',
+          serviceNames: 'Flu 2-3RSV Adult',
           sessionTimeInterval: '09:00 - 10:00',
         });
 
@@ -635,7 +635,7 @@ test.describe('Update Session', () => {
             header: requiredDate,
             sessions: [
               {
-                serviceName: 'COVID 18+Flu 18-64Flu and COVID 18-64',
+                serviceName: 'Flu 18-64COVID 18+Flu and COVID 18-64',
                 booked: '0 booked0 booked',
                 unbooked: 60,
                 sessionTimeInterval: '09:00 - 10:00',
@@ -1161,7 +1161,7 @@ test.describe('View Week Availability', () => {
     );
 
     await addSessionPage.addSession('10', '00', '12', '00', '2', '5');
-    await addServicesPage.addService('Flu 18-64');
+    await addServicesPage.addService('Flu 18 to 64');
     await checkSessionDetailsPage.saveSession();
 
     await page.waitForURL(
@@ -1205,7 +1205,7 @@ test.describe('View Week Availability', () => {
     );
 
     await addSessionPage.addSession('11', '05', '11', '55', '2', '5');
-    await addServicesPage.addServices(['COVID 5-11', 'Flu 18-64']);
+    await addServicesPage.addServices(['COVID 5 to 11', 'Flu 18 to 64']);
     await checkSessionDetailsPage.saveSession();
 
     await page.waitForURL(
@@ -1238,8 +1238,8 @@ test.describe('View Week Availability', () => {
           sessionTimeInterval: '10:00 - 12:00',
         },
         {
-          serviceName: 'COVID 5-11Flu 18-64',
-          booked: '1 booked0 booked',
+          serviceName: 'Flu 18-64COVID 5-11',
+          booked: '0 booked1 booked',
           unbooked: 19,
           sessionTimeInterval: '11:05 - 11:55',
         },
@@ -1306,7 +1306,7 @@ test.describe('View Week Availability', () => {
           sessionTimeInterval: '11:15 - 11:50',
         },
         {
-          serviceName: 'COVID 5-11Flu 18-64',
+          serviceName: 'Flu 18-64COVID 5-11',
           booked: '1 booked1 booked',
           unbooked: 18,
           sessionTimeInterval: '11:05 - 11:55',

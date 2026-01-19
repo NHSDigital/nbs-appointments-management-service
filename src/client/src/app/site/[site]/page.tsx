@@ -9,6 +9,7 @@ import {
 import { SitePage } from './site-page';
 import { Metadata } from 'next/types';
 import fromServer from '@server/fromServer';
+import { NewSitePage } from './new-site-page';
 
 // TODO: Get a brief for what titles/description should be on each page
 // Could use the generateMetadata function to dynamically generate this, to include site names / other dynamic content
@@ -46,7 +47,7 @@ const Page = async ({ params }: PageProps) => {
 
   return (
     <NhsPage title={site.name} site={site} originPage="site">
-      <SitePage
+      <NewSitePage
         site={site}
         permissions={sitePermissions}
         permissionsAtAnySite={permissionsAtAnySite}

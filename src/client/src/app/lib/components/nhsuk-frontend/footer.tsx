@@ -20,34 +20,32 @@ type FooterProps = {
  */
 const Footer = ({ supportLinks = [], children }: FooterProps) => {
   return (
-    <footer role="contentinfo">
-      <div className="nhsuk-footer-container">
-        <div className="nhsuk-width-container">
+    <footer className="nhsuk-footer" role="contentinfo">
+      <div className="nhsuk-width-container">
+        <div className="nhsuk-footer__meta">
           <h2 className="nhsuk-u-visually-hidden">Support links</h2>
-          <div className="nhsuk-footer">
-            <ul className="nhsuk-footer__list">
-              {supportLinks.map((link, index) => (
-                <li
-                  key={`support-link-${index}`}
-                  className="nhsuk-footer__list-item nhsuk-footer-default__list-item"
+          <ul className="nhsuk-footer__list">
+            {supportLinks.map((link, index) => (
+              <li
+                key={`support-link-${index}`}
+                className="nhsuk-footer__list-item nhsuk-footer-default__list-item"
+              >
+                <Link
+                  className="nhsuk-footer__list-item-link"
+                  href={link.href}
+                  target={link.target ?? '_self'}
+                  rel="noopener noreferrer"
+                  prefetch={link.internal}
                 >
-                  <Link
-                    className="nhsuk-footer__list-item-link"
-                    href={link.href}
-                    target={link.target ?? '_self'}
-                    rel="noopener noreferrer"
-                    prefetch={link.internal}
-                  >
-                    {link.text}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div>
-              <p className="nhsuk-footer__copyright">© NHS England</p>
-            </div>
-            <div>{children}</div>
+                  {link.text}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div>
+            <p className="nhsuk-footer__copyright">© NHS England</p>
           </div>
+          <div>{children}</div>
         </div>
       </div>
     </footer>

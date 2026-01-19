@@ -1,5 +1,6 @@
 import { Footer } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
+import { NewFooter } from './nhsuk-frontend/newFooter';
 
 type NhsFooterProps = {
   buildNumber: ReactNode;
@@ -7,7 +8,7 @@ type NhsFooterProps = {
 
 const NhsFooter = ({ buildNumber }: NhsFooterProps) => {
   return (
-    <Footer
+    <NewFooter
       supportLinks={[
         {
           text: 'User guidance',
@@ -43,7 +44,7 @@ const NhsFooter = ({ buildNumber }: NhsFooterProps) => {
       <span aria-hidden style={{ display: 'none' }}>
         {buildNumber}
       </span>
-    </Footer>
+    </NewFooter>
   );
 };
 

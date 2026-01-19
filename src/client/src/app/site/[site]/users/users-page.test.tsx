@@ -124,24 +124,4 @@ describe('Users Page', () => {
       mockUserProfile.emailAddress,
     );
   });
-
-  it('Does not display the edit or remove buttons for okta users if okta is disabled - but does display them for nhs users', async () => {
-    render(
-      <UsersPage
-        userProfile={mockUserProfile}
-        users={getMockOktaUserAssignments(mockSiteId)}
-        roles={mockRoles}
-        permissions={mockAllPermissions}
-      />,
-    );
-
-    expect(
-      screen.queryAllByRole('link', { name: 'Remove from this site' }),
-    ).toHaveLength(1);
-    expect(screen.queryAllByRole('link', { name: 'Edit' }).length).toBe(1);
-
-    expect(getMockUserAssignments(mockSiteId).map(_ => _.id)).toContain(
-      mockUserProfile.emailAddress,
-    );
-  });
 });

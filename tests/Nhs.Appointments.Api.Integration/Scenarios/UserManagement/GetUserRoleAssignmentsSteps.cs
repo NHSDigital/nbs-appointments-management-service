@@ -14,9 +14,8 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
-[Collection(FeatureToggleCollectionNames.OktaCollection)]
 [FeatureFile("./Scenarios/UserManagement/GetUserRoleAssignments.feature")]
-public sealed class GetUserRoleAssignmentsSteps() : UserManagementBaseFeatureSteps(Flags.OktaEnabled, false)
+public sealed class GetUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
 {
     private HttpStatusCode _statusCode;
     private IEnumerable<User> _actualResponse;

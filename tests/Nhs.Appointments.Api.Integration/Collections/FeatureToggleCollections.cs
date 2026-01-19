@@ -5,7 +5,6 @@ namespace Nhs.Appointments.Api.Integration.Collections;
 
 public static class FeatureToggleCollectionNames
 {
-    public const string OktaCollection = $"{Flags.OktaEnabled}Toggle";
     public const string JointBookingsCollection = $"{Flags.JointBookings}Toggle";
     public const string SiteSummaryReportCollection = $"{Flags.SiteSummaryReport}Toggle";
     public const string SiteStatusCollection = $"{Flags.SiteStatus}Toggle";
@@ -15,11 +14,6 @@ public static class FeatureToggleCollectionNames
     public const string QuerySitesCollection = $"{Flags.QuerySites}Toggle";
     public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}Toggle";
     public const string LastUpdatedByCollection = $"{Flags.AuditLastUpdatedBy}Toggle";
-}
-
-[CollectionDefinition(FeatureToggleCollectionNames.OktaCollection)]
-public class OktaEnabledSerialToggleCollection : ICollectionFixture<object>
-{
 }
 
 [CollectionDefinition(FeatureToggleCollectionNames.JointBookingsCollection)]

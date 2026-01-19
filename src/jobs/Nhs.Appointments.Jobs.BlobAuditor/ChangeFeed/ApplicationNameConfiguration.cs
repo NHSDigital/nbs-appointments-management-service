@@ -2,5 +2,5 @@ namespace Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
 
 public class ApplicationNameConfiguration
 {
-    public string ApplicationName { get; set; }
+    public required string ApplicationName { get; set; }
 }

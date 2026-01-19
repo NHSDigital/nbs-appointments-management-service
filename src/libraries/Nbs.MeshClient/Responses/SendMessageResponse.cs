@@ -1,10 +1,14 @@
 using System.Text.Json.Serialization;
 
-namespace Nbs.MeshClient.Responses
+namespace Nbs.MeshClient.Responses;
+
+/// <summary>
+/// Send Message Response
+/// </summary>
+public record SendMessageResponse
 {
-    public record SendMessageResponse
-    {
-        [JsonPropertyName("message_id")]
-        public string? MessageId { get; set; }
-    }
+    /// <summary>
+    /// Message Id
+    /// </summary>
+    [JsonPropertyName("message_id")] public string? MessageId { get; set; }
 }

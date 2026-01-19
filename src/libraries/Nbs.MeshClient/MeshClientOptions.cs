@@ -1,7 +1,12 @@
-namespace Nbs.MeshClient
+namespace Nbs.MeshClient;
+
+/// <summary>
+/// Mesh Client Options
+/// </summary>
+public class MeshClientOptions
 {
-    public class MeshClientOptions
-    {
-        public required string BaseUrl { get; set; }
-    }
+    /// <summary>
+    /// Base Url
+    /// </summary>
+    public required string BaseUrl { get; set; }
 }

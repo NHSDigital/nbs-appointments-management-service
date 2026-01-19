@@ -94,8 +94,8 @@ public static class ServiceRegistration
                     .AddTransient<IFileSender, MeshFileSender>()
                     .Configure<MeshSendOptions>(opts =>
                     {
-                        opts.DestinationMailboxId = destinationMailbox;
-                        opts.WorkflowId = meshWorkflow;
+                        opts.DestinationMailboxId = destinationMailbox!;
+                        opts.WorkflowId = meshWorkflow!;
                     })
                     .AddMesh(configuration);
                 
@@ -121,7 +121,7 @@ public static class ServiceRegistration
                 services.Configure<LocalFileOptions>(opts =>
                 {
                     opts.Overwrite = configuration.GetValue<bool>("LocalFileOptions:Overwrite");
-                    opts.TargetPath = configuration.GetValue<string>("LocalFileOptions:TargetPath");
+                    opts.TargetPath = configuration.GetValue<string>("LocalFileOptions:TargetPath")!;
                 });
                 services.AddTransient<IFileSender, LocalFileSender>();
                 break;

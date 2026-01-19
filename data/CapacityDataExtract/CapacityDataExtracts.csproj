@@ -7,13 +7,14 @@
     <Nullable>disable</Nullable>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
+
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="Parquet.Net" Version="5.4.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
+    <PackageReference Include="Parquet.Net" Version="5.4.0"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.1"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -23,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataExtract\DataExtract.csproj" />
+    <ProjectReference Include="..\DataExtract\DataExtract.csproj"/>
   </ItemGroup>
 
 </Project>

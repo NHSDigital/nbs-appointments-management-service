@@ -41,6 +41,8 @@ public sealed class CapacityExtractsFeatureSteps
             ConnectionMode = ConnectionMode.Gateway,
             LimitToEndpoint = true
         };
+        
+        _targetMailbox = SetupMailboxClient("Not configured");
 
         _cosmosClient = new(
             accountEndpoint: CosmosEndpoint,
@@ -112,7 +114,7 @@ public sealed class CapacityExtractsFeatureSteps
             { "MESH_MAILBOX_DESTINATION", targetMailboxId },
             { "MESH_WORKFLOW", workflowId },
             { "FileSenderOptions:Type", "mesh" }
-        });
+        }!);
 
         _targetMailbox = SetupMailboxClient(targetMailboxId);
     }

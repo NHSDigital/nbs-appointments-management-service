@@ -17,6 +17,11 @@ import { Role, FeatureFlag, SiteDocument } from '@e2etests/types';
 type FixtureOptions = {
   roles?: Role[];
   features?: FeatureFlag[];
+  additionalUsers?: AdditionalUserOptions[];
+};
+
+type AdditionalUserOptions = {
+  roles?: Role[];
 };
 
 type SetUpSingleSiteFixtureOptions = {
@@ -27,10 +32,12 @@ type MyaFixtures = {
   setUpSingleSite: (options?: SetUpSingleSiteFixtureOptions) => Promise<{
     sitePage: SitePage;
     testId: number;
+    additionalUserIds: Map<string, number>;
   }>;
 };
 
 export const test = base.extend<MyaFixtures>({
+  // TODO: Extend this (or create new fixtures) to cover multiple sites and multiple users per site
   setUpSingleSite: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
       env.COSMOS_ENDPOINT,
@@ -51,6 +58,7 @@ export const test = base.extend<MyaFixtures>({
     };
 
     let featuresUsed: FeatureFlag[] = [];
+    const additionalUserIds = new Map<string, number>();
 
     // Fixture setup. Result of use() is piped to the test
     // This currently accepts a list of roles and feature flags.
@@ -61,15 +69,30 @@ export const test = base.extend<MyaFixtures>({
         roles = [],
         features,
         siteConfig,
+        additionalUsers = [],
       } = {
         ...defaultFixtureOptions,
         ...options,
       };
 
+      await cosmosDbClient.createSite(testId, siteConfig);
+      await cosmosDbClient.createUser(testId, roles);
+      await mockOidcClient.registerTestUser(testId);
+
+      if (additionalUsers.length > 0) {
+        let index = 1;
+
+        for (const [key, user] of Object.entries(additionalUsers)) {
+          const userTestId = Number(`${testId}${index++}`);
+
+          await cosmosDbClient.createSite(userTestId, siteConfig);
+          await cosmosDbClient.createUser(userTestId, user.roles ?? []);
+          await mockOidcClient.registerTestUser(userTestId);
+          additionalUserIds.set(key, userTestId);
+        }
+      }
+
       await Promise.all([
-        cosmosDbClient.createSite(testId, siteConfig),
-        cosmosDbClient.createUser(testId, roles),
-        mockOidcClient.registerTestUser(testId),
         features?.map(async feature => {
           featureFlagClient.overrideFeatureFlag(feature);
         }),
@@ -86,14 +109,16 @@ export const test = base.extend<MyaFixtures>({
 
       featuresUsed = features ?? [];
 
-      return { sitePage, testId };
+      return { sitePage, testId, additionalUserIds };
     });
 
     // Clean up the fixture.
     await Promise.all([
       await cosmosDbClient.deleteSite(testId),
       await cosmosDbClient.deleteUser(testId),
-
+      ...Array.from(additionalUserIds.values()).map(id =>
+        cosmosDbClient.deleteUser(id),
+      ),
       //revert all flags if they were used in the enabled state
       featuresUsed.map(async feature => {
         if (feature.enabled) {

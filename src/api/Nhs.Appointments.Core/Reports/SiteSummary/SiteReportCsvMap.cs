@@ -8,7 +8,7 @@ public static class SiteReportMap
     {
         var siteHeaders = new[]
         {
-            "Site Name", "Site Type", "ICB", "ICB Name", "Region", "Region Name", "ODS Code", "Longitude", "Latitude"
+            "Site Name", "Status", "Site Type", "ICB", "ICB Name", "Region", "Region Name", "ODS Code", "Longitude", "Latitude"
         };
         var statHeaders = new[] { "Total Bookings", "Cancelled", "Maximum Capacity" };
         var bookingsHeaders = services.Select(service => $"{service} Booked");
@@ -22,6 +22,7 @@ public static class SiteReportMap
     }
 
     public static string SiteName(SiteReport report) => report.SiteName;
+    public static string Status(SiteReport report) => report.Status;
     public static string SiteType(SiteReport report) => report.SiteType;
     public static string ICB(SiteReport report) => report.ICB;
     public static string ICBName(SiteReport report) => report.ICBName;

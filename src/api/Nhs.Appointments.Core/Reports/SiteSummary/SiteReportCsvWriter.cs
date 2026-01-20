@@ -34,6 +34,7 @@ public class SiteReportCsvWriter(TimeProvider timeProvider) : ISiteReportCsvWrit
         foreach (var siteReport in siteReports)
         {
             await csvWriter.WriteLineAsync(string.Join(',', CsvStringValue(SiteReportMap.SiteName(siteReport)),
+                CsvStringValue(SiteReportMap.Status(siteReport)),
                 CsvStringValue(SiteReportMap.SiteType(siteReport)),
                 CsvStringValue(SiteReportMap.ICB(siteReport)), CsvStringValue(SiteReportMap.ICBName(siteReport)),
                 CsvStringValue(SiteReportMap.Region(siteReport)), CsvStringValue(SiteReportMap.RegionName(siteReport)),

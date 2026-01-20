@@ -11,17 +11,13 @@ import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import NhsHeading from '@components/nhs-heading';
 import { ClinicalService } from '@types';
+import {
+  SERVICE_TYPE_TITLES,
+  groupServicesByType,
+} from '@services/clinicalServices';
 
 type SelectServicesStepProps = {
   clinicalServices: ClinicalService[];
-};
-
-const SERVICE_TYPE_TITLES: Record<string, string> = {
-  flu: 'Flu services',
-  'COVID-19': 'COVID-19 services',
-  'COVID-19 and flu': 'Flu and COVID-19 co-admin services',
-  RSV: 'RSV services',
-  'RSV and COVID-19': 'RSV and COVID-19 co-admin services',
 };
 
 const SelectServicesStep = ({
@@ -39,17 +35,7 @@ const SelectServicesStep = ({
   const servicesWatch = watch('session.services');
   const shouldSkipToSummaryStep =
     touchedFields.session?.services && allStepsAreValid;
-  const groupedServices = clinicalServices.reduce(
-    (acc, service) => {
-      const group = service.serviceType;
-      if (!acc[group]) {
-        acc[group] = [];
-      }
-      acc[group].push(service);
-      return acc;
-    },
-    {} as Record<string, ClinicalService[]>,
-  );
+  const groupedServices = groupServicesByType(clinicalServices);
 
   const onContinue = async () => {
     const formIsValid = await trigger(['session.services']);

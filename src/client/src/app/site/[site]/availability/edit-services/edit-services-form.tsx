@@ -25,6 +25,10 @@ import {
 } from '@services/timeService';
 import { useTransition } from 'react';
 import fromServer from '@server/fromServer';
+import {
+  SERVICE_TYPE_TITLES,
+  groupServicesByType,
+} from '@services/clinicalServices';
 
 export type RemoveServicesFormValues = {
   sessionToEdit: Session;
@@ -157,34 +161,53 @@ const EditServicesForm = ({
       ).findIndex(x => x === service.value) !== -1,
   );
 
+  const groupedServices = groupServicesByType(clinicalServicesInSession);
+
   return (
     <form onSubmit={handleSubmit(submitForm)}>
       <InsetText>
         <p>If you need to remove all services, cancel the session instead.</p>
       </InsetText>
       <FormGroup error={errors.servicesToRemove?.message}>
-        <CheckBoxes>
-          {clinicalServicesInSession.map(clinicalService => {
-            return (
-              <CheckBox
-                id={`checkbox-${clinicalService.value}`}
-                label={clinicalService.label}
-                value={clinicalService.value}
-                key={`checkbox-${clinicalService.value}`}
-                {...register('servicesToRemove', {
-                  validate: value => {
-                    if (value === undefined || value.length < 1) {
-                      return 'Select a service to remove';
-                    }
-                    if (value.length === clinicalServicesInSession.length) {
-                      return 'Cancel this session if you need to remove all services';
-                    }
-                  },
+        {Object.entries(groupedServices).map(([serviceType, services]) => {
+          const groupTitle = SERVICE_TYPE_TITLES[serviceType] || serviceType;
+
+          return (
+            <fieldset
+              key={serviceType}
+              className="nhsuk-fieldset app-checkbox-group"
+              style={{ marginBottom: '32px' }}
+            >
+              <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
+                {groupTitle}
+              </legend>
+              <CheckBoxes>
+                {services.map(clinicalService => {
+                  return (
+                    <CheckBox
+                      id={`checkbox-${clinicalService.value}`}
+                      label={clinicalService.label.replace('-', ' to ')}
+                      value={clinicalService.value}
+                      key={`checkbox-${clinicalService.value}`}
+                      {...register('servicesToRemove', {
+                        validate: value => {
+                          if (value === undefined || value.length < 1) {
+                            return 'Select a service to remove';
+                          }
+                          if (
+                            value.length === clinicalServicesInSession.length
+                          ) {
+                            return 'Cancel this session if you need to remove all services';
+                          }
+                        },
+                      })}
+                    />
+                  );
                 })}
-              />
-            );
-          })}
-        </CheckBoxes>
+              </CheckBoxes>
+            </fieldset>
+          );
+        })}
       </FormGroup>
 
       {pendingSubmit ? (

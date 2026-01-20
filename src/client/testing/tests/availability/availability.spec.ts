@@ -606,12 +606,12 @@ test.describe('Update Session', () => {
           [
             'RSV Adult',
             'COVID 18+',
-            'Flu 18-64',
-            'Flu and COVID 18-64',
-            'Flu 2-3',
+            'Flu 18 to 64',
+            'Flu and COVID 18 to 64',
+            'Flu 2 to 3',
           ],
         );
-        await editServicesPage.removeServices(['RSV Adult', 'Flu 2-3']);
+        await editServicesPage.removeServices(['RSV Adult', 'Flu 2 to 3']);
 
         await page.waitForURL(
           '**/site/**/availability/edit-services/confirmed?removedServicesSession=**',

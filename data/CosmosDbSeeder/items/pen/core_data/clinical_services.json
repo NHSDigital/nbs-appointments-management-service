@@ -3,8 +3,16 @@
   "docType": "system",
   "services": [
     {
-      "id": "RSV:Adult",
-      "label": "RSV Adult"
+      "id": "FLU:2_3",
+      "label": "Flu 2-3"
+    },
+    {
+      "id": "FLU:18_64",
+      "label": "Flu 18-64"
+    },
+    {
+      "id": "FLU:65+",
+      "label": "Flu 65+"
     },
     {
       "id": "COVID:5_11",
@@ -19,14 +27,6 @@
       "label": "COVID 18+"
     },
     {
-      "id": "FLU:18_64",
-      "label": "Flu 18-64"
-    },
-    {
-      "id": "FLU:65+",
-      "label": "Flu 65+"
-    },
-    {
       "id": "COVID_FLU:18_64",
       "label": "Flu and COVID 18-64"
     },
@@ -35,8 +35,8 @@
       "label": "Flu and COVID 65+"
     },
     {
-      "id": "FLU:2_3",
-      "label": "Flu 2-3"
+      "id": "RSV:Adult",
+      "label": "RSV Adult"
     },
     {
       "id": "COVID_RSV:18+",

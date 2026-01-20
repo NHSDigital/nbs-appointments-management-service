@@ -3,10 +3,22 @@
   "docType": "system",
   "services": [
     {
-      "id": "RSV:Adult",
-      "label": "RSV Adult",
-      "serviceType": "RSV",
-      "url": "https://www.nhs.uk/book-rsv"
+      "id": "FLU:2_3",
+      "label": "Flu 2-3",
+      "serviceType": "flu",
+      "url": "https://www.nhs.uk/bookflu"
+    },
+    {
+      "id": "FLU:18_64",
+      "label": "Flu 18-64",
+      "serviceType": "flu",
+      "url": "https://www.nhs.uk/bookflu"
+    },
+    {
+      "id": "FLU:65+",
+      "label": "Flu 65+",
+      "serviceType": "flu",
+      "url": "https://www.nhs.uk/bookflu"
     },
     {
       "id": "COVID:5_11",
@@ -27,18 +39,6 @@
       "url": "https://www.nhs.uk/bookcovid"
     },
     {
-      "id": "FLU:18_64",
-      "label": "Flu 18-64",
-      "serviceType": "flu",
-      "url": "https://www.nhs.uk/bookflu"
-    },
-    {
-      "id": "FLU:65+",
-      "label": "Flu 65+",
-      "serviceType": "flu",
-      "url": "https://www.nhs.uk/bookflu"
-    },
-    {
       "id": "COVID_FLU:18_64",
       "label": "Flu and COVID 18-64",
       "serviceType": "COVID-19 and flu",
@@ -51,10 +51,10 @@
       "url": "https://www.nhs.uk/get-vaccination"
     },
     {
-      "id": "FLU:2_3",
-      "label": "Flu 2-3",
-      "serviceType": "flu",
-      "url": "https://www.nhs.uk/bookflu"
+      "id": "RSV:Adult",
+      "label": "RSV Adult",
+      "serviceType": "RSV",
+      "url": "https://www.nhs.uk/book-rsv"
     },
     {
       "id": "COVID_RSV:18+",

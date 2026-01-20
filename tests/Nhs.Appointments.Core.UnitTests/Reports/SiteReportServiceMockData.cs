@@ -41,7 +41,7 @@ public static class SiteReportServiceMockData
             location: new Location("Point", [.506, 65]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
-            status: SiteStatus.Online, isDeleted: null,
+            status: SiteStatus.Offline, isDeleted: null,
             Type: "GP Practice"),
         new(
             Site3Guid.ToString(),
@@ -54,7 +54,7 @@ public static class SiteReportServiceMockData
             location: new Location("Point", [.507, 65]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
-            status: SiteStatus.Online, isDeleted: null,
+            status: null, isDeleted: null,
             Type: "GP Practice")
     ];
 

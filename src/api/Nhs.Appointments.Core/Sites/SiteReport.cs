@@ -15,6 +15,7 @@ public class SiteReport
                 ?.DisplayName ?? "blank";
 
         SiteName = site.Name;
+        Status = (site.status ?? SiteStatus.Online).ToString();
         SiteType = site.Type;
         ICB = site.IntegratedCareBoard;
         Region = site.Region;
@@ -34,6 +35,7 @@ public class SiteReport
     }
     
     public string SiteName { get; }
+    public string Status { get; }
     public string SiteType { get; }
     public string ICB { get; }
     public string ICBName { get; }

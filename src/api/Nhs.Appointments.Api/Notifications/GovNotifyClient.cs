@@ -26,7 +26,7 @@ public class GovNotifyClient(
                 await action();
                 return true;
             }
-            catch (TException ex) when (attempt <= retryOptions.Value.MaxRetries)
+            catch (TException ex)
             {
                 var errorStatusCode = ParseGovNotifyExceptionMessage(ex.Message);
                 if (errorStatusCode != null)
@@ -56,7 +56,7 @@ public class GovNotifyClient(
             }
         }
 
-        return false;
+        throw new NotificationException("Max retries hit in GovNotifyClient");
     }
 
     public int? ParseGovNotifyExceptionMessage(string message)
@@ -88,6 +88,10 @@ public class GovNotifyClient(
                 client.SendEmailAsync(emailAddress, templateId, templateValues)
             );
         }
+        catch (NotificationException ex)
+        {
+            throw new NotificationException($"Gov Notify rejected the attempt to send notification email to {privacy.ObfuscateEmail(emailAddress)} using template id {templateId}.", ex);
+        }
         catch (NotifyClientException ex)
         {
             throw new NotificationException($"Gov Notify rejected the attempt to send notification email to {privacy.ObfuscateEmail(emailAddress)} using template id {templateId}.", ex);
@@ -108,6 +112,10 @@ public class GovNotifyClient(
             return await RetryOnExceptionAsync<NotifyClientException>(() =>
                 client.SendSmsAsync(phoneNumber, templateId, templateValues)
             );
+        }
+        catch (NotificationException ex)
+        {
+            throw new NotificationException($"Gov Notify rejected the attempt to send notification email to {privacy.ObfuscateEmail(phoneNumber)} using template id {templateId}.", ex);
         }
         catch (NotifyClientException ex)
         {

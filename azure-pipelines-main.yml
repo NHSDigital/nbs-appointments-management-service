@@ -14,7 +14,7 @@ parameters:
   - name: environments
     type: object
     default: ["dev"]
-    values: ["dev", "pen", "perf"]
+    values: ["dev", "perf"]
 
 stages:
   - template: scripts/pipeline-templates/build.yml
@@ -39,10 +39,7 @@ stages:
             key_vault_variable_group: covid19bookingkvintuks
           ${{ else }}:
             key_vault_variable_group: covid19bookingkv${{env}}uks
-          ${{ if eq(env, 'pen') }}:
-            resourceGroup: nbs-mya-rg-${{env}}-uks
-            serviceConnectionName: nhsuk-mya-nonprod
-          ${{ elseif eq(env, 'perf') }}:
+          ${{ if eq(env, 'perf') }}:
             resourceGroup: nbs-mya${{env}}-rg-stag-uks
             serviceConnectionName: nbs-mya${{env}}-rg-stag
           ${{ elseif eq(env, 'dev') }}:

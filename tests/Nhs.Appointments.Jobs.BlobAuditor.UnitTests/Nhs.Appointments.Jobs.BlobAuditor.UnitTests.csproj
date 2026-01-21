@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\jobs\Nhs.Appointments.Jobs.BlobAuditor\Nhs.Appointments.Jobs.BlobAuditor.csproj" />
-    <ProjectReference Include="..\Nhs.Appointments.Persistance.UnitTests\Nhs.Appointments.Persistance.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

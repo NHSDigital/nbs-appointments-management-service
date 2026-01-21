@@ -3,7 +3,7 @@
     "JointBookings": false,
     "TestFeatureEnabled": true,
     "MultipleServices": false,
-    "SiteSummaryReport": true,
+    "SiteSummaryReport": false,
     "SiteStatus": false,
     "CancelDay": false,
     "ChangeSessionUpliftedJourney": false,

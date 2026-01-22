@@ -155,8 +155,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
             var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0], (decimal)location.Coordinates[1]);
             var updateAccessiblities = UpdateAccessibilities(siteId, accessibilities);
+            var updateReferenceDetails = UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
 
-            await Task.WhenAll(updateSite, updateAccessiblities);
+            await Task.WhenAll(updateSite, updateAccessiblities, updateReferenceDetails);
 
             return new OperationResult(true);
         }

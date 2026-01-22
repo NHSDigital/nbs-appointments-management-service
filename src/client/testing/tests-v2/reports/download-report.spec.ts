@@ -17,15 +17,18 @@ let site: Site;
 
 test.describe.configure({ mode: 'serial' });
 
+//TODO use features in v2 pattern
 test.beforeAll(async () => {
   await overrideFeatureFlag('SiteSummaryReport', true);
 });
 
+//TODO use features in v2 pattern
 test.afterAll(async () => {
   await overrideFeatureFlag('SiteSummaryReport', false);
 });
 
 test.beforeEach(async ({ page, getTestSite, getTestUser }) => {
+  //TODO setup site per test in v2 pattern using fixtures
   site = getTestSite(1);
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
@@ -34,6 +37,7 @@ test.beforeEach(async ({ page, getTestSite, getTestUser }) => {
 
   await rootPage.goto();
   await rootPage.pageContentLogInButton.click();
+  //TODO setup user per test in v2 pattern using fixtures
   await oAuthPage.signIn(getTestUser(12));
 });
 
@@ -84,6 +88,7 @@ test('Downloads a site summary report', async ({ page }) => {
 
 const expectedFileDownloadHeaders = [
   'Site Name',
+  //TODO missing status
   'Site Type',
   'ICB',
   'ICB Name',

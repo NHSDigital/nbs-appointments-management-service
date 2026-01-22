@@ -85,7 +85,9 @@ export const test = base.extend<MyaFixtures>({
         for (const [key, user] of Object.entries(additionalUsers)) {
           const userTestId = Number(`${testId}${index++}`);
 
+          //TODO is this needed?
           await cosmosDbClient.createSite(userTestId, siteConfig);
+
           await cosmosDbClient.createUser(userTestId, user.roles ?? []);
           await mockOidcClient.registerTestUser(userTestId);
           additionalUserIds.set(key, userTestId);

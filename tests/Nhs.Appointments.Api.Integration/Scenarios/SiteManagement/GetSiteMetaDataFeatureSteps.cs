@@ -47,5 +47,5 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
     }
 
     [FeatureFile("./Scenarios/SiteManagement/GetSiteMetaData.feature")]
-    public class GetSiteMetaDataFeaturesSteps_LastUpdatedByEnabled() : GetSiteMetaDataFeatureSteps;
+    public class GetSiteMetaDataFeaturesSteps : GetSiteMetaDataFeatureSteps;
 }

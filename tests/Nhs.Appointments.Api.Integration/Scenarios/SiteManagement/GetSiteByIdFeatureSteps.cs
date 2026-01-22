@@ -44,7 +44,7 @@ public abstract class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =
             await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());
-        ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.LastUpdatedBy));
+        ActualResponse.Should().BeEquivalentTo(expectedSite);
     }
 }
 

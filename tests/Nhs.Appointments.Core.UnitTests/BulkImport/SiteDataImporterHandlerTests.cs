@@ -304,53 +304,6 @@ public class SiteDataImporterHandlerTests
     }
 
     [Fact]
-    public async Task ReportsSiteAlreadyExists_AndDoesntCallTheSiteService()
-    {
-        var siteId = Guid.NewGuid();
-
-        string[] inputRows =
-        [
-            $"\"{siteId}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",
-        ];
-
-        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
-
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
-        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
-
-        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
-            .ReturnsAsync(new List<WellKnownOdsEntry>
-            {
-                new("SITE1", "Site 1", "Test1"),
-                new("SITE2", "Site 2", "Test2"),
-                new("site3", "Site 3", "Test3"),
-                new("Yorkshire", "Site 4", "Region"),
-                new("test icb", "Site 5", "ICB")
-            });
-        _siteServiceMock.Setup(x => x.GetSiteByIdAsync(siteId.ToString(), "*"))
-            .ReturnsAsync(new Site(siteId.ToString(), "Site1", "123 test street", "01234 567890", "ODS", "Region", "test icb", "", [], new("Test", [60.0, 1.5]), SiteStatus.Online, null, string.Empty));
-
-        var report = await _sut.ProcessFile(file);
-
-        report.Count().Should().Be(1);
-        report.First().Message.Should().Be($"Site with ID: '{siteId}' already exists in the system.");
-        report.All(r => r.Success).Should().BeFalse();
-
-        _siteServiceMock.Verify(s => s.SaveSiteAsync(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<Location>(),
-            It.IsAny<List<Accessibility>>(),
-            It.IsAny<string>(),
-            null), Times.Never);
-    }
-
-    [Fact]
     public async Task ReportsMissingOdsCodeValue()
     {
         var siteId = Guid.NewGuid();

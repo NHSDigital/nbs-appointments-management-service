@@ -114,6 +114,36 @@ public sealed class SiteSearchFeatureSteps : SiteManagementBaseFeatureSteps, IDi
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
     }
+    
+    [When("I make the following request with service filtering, access needs, and caching")]
+    public async Task RequestSitesWithServiceFilteringAndAccessNeedsAndCacheEnabled(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var services = row.Cells.ElementAt(4).Value;
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+
+        var accessNeeds = row.Cells.ElementAt(7).Value;
+
+        Response = await Http.GetAsync(
+            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=false");
+        (_, _sitesResponse) =
+            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
+                await Response.Content.ReadAsStreamAsync());
+    }
+    
+    //Not to be used unless explicitly need to wait
+    [When("I wait for '(.+)' milliseconds")]
+    public async Task WaitForSeconds(string milliseconds)
+    {
+        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
+        await Task.Delay(timespan);
+    }
 
     [When("I make the following request with service filtering")]
     public async Task RequestSitesWithServiceFiltering(DataTable dataTable)

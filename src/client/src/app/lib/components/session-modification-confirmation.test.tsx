@@ -108,6 +108,24 @@ describe('EditSessionConfirmation', () => {
     ).toBeInTheDocument();
   });
 
+  it('Has unsupported booking, renders singular booking text', () => {
+    render(
+      <SessionModificationConfirmation
+        newlyUnsupportedBookingsCount={1}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        newSession={mockSessionSummary}
+        site="site-123"
+        date="2024-06-10"
+        mode="edit"
+      />,
+    );
+
+    expect(
+      screen.getByText(/Booking may have to be cancelled/i),
+    ).toBeInTheDocument();
+  });
+
   it('Has unsupported bookings, user choose "Yes" to cancel the appointments', async () => {
     const { user } = render(
       <SessionModificationConfirmation
@@ -251,6 +269,27 @@ describe('CancelSessionConfirmation', () => {
       screen.getByLabelText(
         /No, do not cancel the appointments but cancel the session/,
       ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(/Bookings may have to be cancelled/i),
+    ).toBeInTheDocument();
+  });
+
+  it('Has unsupported booking, renders singular booking text', () => {
+    render(
+      <SessionModificationConfirmation
+        newlyUnsupportedBookingsCount={1}
+        clinicalServices={mockMultipleServices}
+        session={btoa(JSON.stringify(mockSessionSummary))}
+        site="site-123"
+        date="2024-06-10"
+        mode="cancel"
+      />,
+    );
+
+    expect(
+      screen.getByText(/Booking may have to be cancelled/i),
     ).toBeInTheDocument();
   });
 

@@ -200,6 +200,25 @@ const mockSites: Site[] = [
     informationForCitizens: 'Test information 5',
     status: 'Offline',
   },
+  {
+    id: 'b4eb99a3-92cc-4ce8-a8c6-f1fa686c6c9e',
+    name: 'Site Oscar',
+    phoneNumber: '0118 999 88199 9119 725 3',
+    address: 'Oscar Street, London',
+    odsCode: '1005',
+    integratedCareBoard: 'ICB5',
+    region: 'R5',
+    location: {
+      type: 'Point',
+      coordinates: [0.5646, 56.76457],
+    },
+    accessibilities: [
+      { id: 'site_details/info_for_citizen', value: 'Test information' },
+      { id: 'accessibility/attr_1', value: 'TRUE' },
+    ],
+    informationForCitizens: 'Test information 6',
+    status: 'Online',
+  },
 ];
 
 const mockSite = mockSites[0];

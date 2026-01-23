@@ -435,3 +435,18 @@ Feature: Site Location Dependent - Query Sites Enabled
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance | Type          |
       | 8184c730-b4e6-45af-999a-f67569eb4367 | Site-1 | 1 Roadside | 0113 1111111 | ODSA    | R1     | ICB1 | Info 1                 | accessibility/attr_four=true | 0.082750916 | 51.494056 | 662      | GP Practice  |
+
+  Scenario: Query Sites - Ensure access need values are lowercase
+    Given the following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                | Longitude   | Latitude  | Type         | IsDeleted |
+      | 0d89d01c-b6aa-47c3-8800-38b8ba3917d5 | Site-1 | 1 Roadside | 0113 1111111 | ODS1    | R1     | ICB1 | Info 1                 | accessibility/attr_three=True  | 0.082750916 | 51.494056 | GP Practice  | false     |
+      | baa74fcb-a5b6-434e-9915-14e9743f95d9 | Site-2 | 2 Roadside | 0113 2222222 | ODS2    | R2     | ICB2 | Info 2                 | accessibility/attr_one=false   | 0.14566747  | 51.482472 | Pharmacy     | false     |
+      | b5d6918d-e674-4e0a-a095-e48352f07053 | Site-3 | 3 Roadside | 0113 3333333 | ODS3    | R3     | ICB3 | Info 3                 | accessibility/attr_one=false   | -0.13086317 | 51.583479 | PCN Site     | false     |
+      | 8daeea45-0ac2-424b-a6f0-8d770c31d145 | Site-4 | 4 Roadside | 0113 4444444 | ODS4    | R4     | ICB4 | Info 4                 | accessibility/attr_three=TRUE  | 0.040992272 | 51.455788 | Another Type | false     |
+    When I query sites by access needs
+      | Longitude | Latitude | SearchRadius | AccessNeeds |
+      | 0.082     | 51.5     | 6000         | attr_three |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities               | Longitude   | Latitude   | Distance  | Type         |
+      | 0d89d01c-b6aa-47c3-8800-38b8ba3917d5 | Site-1 | 1 Roadside | 0113 1111111 | ODS1    | R1     | ICB1 | Info 1                 | accessibility/attr_three=true | 0.082750916 | 51.494056  | 662       | GP Practice  |
+      | 8daeea45-0ac2-424b-a6f0-8d770c31d145 | Site-4 | 4 Roadside | 0113 4444444 | ODS4    | R4     | ICB4 | Info 4                 | accessibility/attr_three=true | 0.040992272 | 51.455788  | 5677      | Another Type |

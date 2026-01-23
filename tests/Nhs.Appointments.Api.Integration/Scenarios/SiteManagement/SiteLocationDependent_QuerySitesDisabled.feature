@@ -874,3 +874,15 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Types    | OdsCode | Longitude   | Latitude     | SearchRadius |
       | Pharmacy | 20N     | 0.082750916 | 51.494056    | 10000        |
     Then the call should fail with 501
+
+  Scenario: Site Search - Ensure access need values are lowercase
+    Given the following sites exist in the system
+      | Site                                 | Name    | Address     | PhoneNumber  | OdsCode | Region | ICB   | InformationForCitizens | Accessibilities                                          | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9  | 9 Roadside  | 0113 9999999 | J12     | R9     | ICB9  | Info 9                 | accessibility/attr_one=TRUE,accessibility/attr_two=True  | -0.0827   | -51.5    |
+      | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-10 | 10 Roadside | 0113 1010101 | K12     | R10    | ICB10 | Info 10                | accessibility/attr_one=true,accessibility/attr_two=False | -0.0827   | -51.5    |
+    When I make the following request with access needs
+      | Max Records | Search Radius | Longitude | Latitude | AccessNeeds       |
+      | 50          | 100000        | -0.082    | -51.5    | attr_one,attr_two |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                         | Longitude | Latitude | Distance |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9 | 9 Roadside | 0113 9999999 | J12     | R9     | ICB9 | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true | -0.0827   | -51.5    | 48       |

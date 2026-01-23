@@ -48,6 +48,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                                   = var.site_summary_minimum_parallelization
+    SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS        = var.site_supports_service_sliding_cache_absolute_expiration_seconds
+    SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS            = var.site_supports_service_sliding_cache_slide_threshold_seconds
     Auth__Providers__0__Name                                               = "nhs-mail"
     Auth__Providers__0__Issuer                                             = var.nhs_mail_issuer
     Auth__Providers__0__AuthorizeUri                                       = var.nhs_mail_authorize_uri
@@ -189,6 +191,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     SITE_SUMMARY_DAYS_CHUNK_SIZE                                           = var.site_summary_days_chunk_size
     SITE_SUMMARY_FIRST_RUN_DATE                                            = var.site_summary_first_run_date
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                                   = var.site_summary_minimum_parallelization
+    SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS        = var.site_supports_service_sliding_cache_absolute_expiration_seconds
+    SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS            = var.site_supports_service_sliding_cache_slide_threshold_seconds
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     Auth__Providers__0__Name                                               = "nhs-mail"

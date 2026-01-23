@@ -14,6 +14,7 @@ import {
 import {
   mockAccessibilityDefinitions,
   mockSite,
+  mockSites,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
 import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
@@ -270,5 +271,16 @@ describe('Site Details Page', () => {
     expect(
       screen.queryByRole('link', { name: 'Change site status' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('ensures access needs are correct when they have mixed casing', async () => {
+    const jsx = await SiteDetailsPage({
+      siteId: mockSites[5].id,
+      permissions: ['site:manage', 'site:view'],
+      wellKnownOdsEntries: mockWellKnownOdsCodeEntries,
+    });
+    render(jsx);
+
+    verifySummaryListItem('Accessibility attribute 1', 'Yes');
   });
 });

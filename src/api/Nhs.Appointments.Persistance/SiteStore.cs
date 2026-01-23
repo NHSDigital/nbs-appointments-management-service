@@ -13,7 +13,17 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return GetOrDefault(siteId);
     }
 
-    public Task<IEnumerable<Site>> GetAllSites() => cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site");
+    public async Task<IEnumerable<Site>> GetAllSites()
+    {
+        var sites = await cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site");
+        foreach (var site in sites)
+        {
+            site.Accessibilities = site.Accessibilities
+                .Select(a => a with { Value = a.Value.ToLowerInvariant() });
+        }
+
+        return sites;
+    }
 
     public async Task<int> GetReferenceNumberGroup(string site)
     {

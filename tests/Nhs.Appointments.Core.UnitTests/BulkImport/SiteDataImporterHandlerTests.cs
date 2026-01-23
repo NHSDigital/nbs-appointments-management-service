@@ -471,6 +471,63 @@ public class SiteDataImporterHandlerTests
             null), Times.Exactly(3));
     }
 
+    [Fact]
+    public async Task ConvertsValidAccessNeedsValuesToLowerCase()
+    {
+        var inputRows = new string[]
+        {
+            $"\"{Guid.NewGuid()}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,TRUE,True,TrUe,tRUe,\"TRUE\",truE,true,true,TRUe",
+            $"\"{Guid.NewGuid()}\",\"SITE2\",\"test site 2\",\"123 test street\",\"01234 567890\",1.0,60.0,\"test icb\",\"Yorkshire\",,FALse,faLSe,False,false,\"FALSE\",fAlse,FaLsE,falsE,false",
+        };
+
+        var input = CsvFileBuilder.BuildInputCsv(SitesHeader, inputRows);
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
+        var file = new FormFile(stream, 0, stream.Length, "Test", "test.csv");
+
+        _wellKnownOdsCodesServiceMock.Setup(x => x.GetWellKnownOdsCodeEntries())
+            .ReturnsAsync(new List<WellKnownOdsEntry>
+            {
+                new("site1", "Site 1", "Test1"),
+                new("site2", "Site 2", "Test2"),
+                new("site3", "Site 3", "Test3"),
+                new("Yorkshire", "Site 4", "Region"),
+                new("test icb", "Site 5", "ICB")
+            });
+        _featureToggleHelperMock.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(false);
+
+        var report = await _sut.ProcessFile(file);
+
+        report.Count().Should().Be(2);
+        report.All(r => r.Success).Should().BeTrue();
+
+        _siteServiceMock.Verify(s => s.SaveSiteAsync(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<Location>(),
+            It.Is<Accessibility[]>(x => x.All(a => a.Value == "true")),
+            It.IsAny<string>(),
+            null), Times.Exactly(1));
+
+        _siteServiceMock.Verify(s => s.SaveSiteAsync(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<Location>(),
+            It.Is<Accessibility[]>(x => x.All(a => a.Value == "false")),
+            It.IsAny<string>(),
+            null), Times.Exactly(1));
+    }
+
     private readonly string[] ValidInputRows =
     [
         $"\"{Guid.NewGuid()}\",\"SITE1\",\"test site 1\",\"123 test street\",\"01234 567890\",\"1.0\",\"60.0\",\"test icb\",\"Yorkshire\",,true,True,False,false,\"true\",false,true,true,false",

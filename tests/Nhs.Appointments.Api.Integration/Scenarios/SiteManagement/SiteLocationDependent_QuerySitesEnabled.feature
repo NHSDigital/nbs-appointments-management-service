@@ -591,7 +591,7 @@ Feature: Site Location Dependent - Query Sites Enabled
     And the following sessions exist for existing site '78d28642-f429-4164-b758-f770b3dcd705'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:8-16   | 5           | 1        |
-#    Prove old endpoint doesn't return a supported service site
+#    Prove without service filtering it doesn't return a supported service site
     When I make the 'query sites' request without access needs
       | Max Records | Search Radius | Longitude | Latitude |
       | 1           | 6000          | 0.082     | 51.5     |
@@ -600,7 +600,7 @@ Feature: Site Location Dependent - Query Sites Enabled
       | 78d28642-f429-4164-b758-f770b3dcd705 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 #    Prove new endpoint returns a supported service site
     When I make the 'query sites' request with service filtering
-      | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
+      | Max Records | Search Radius | Longitude | Latitude | Service     | From     | Until    |
       | 1           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |

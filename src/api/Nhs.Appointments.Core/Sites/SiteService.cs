@@ -90,14 +90,13 @@ public class SiteService(
             siteSupportsServiceFilter.from,
             siteSupportsServiceFilter.until,
             maximumRecords,
-            maximumRecords * 20,
             ignoreCache);
     }
 
     private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
         List<string> services,
         DateOnly from, DateOnly to,
-        int maxRecords = 50, int batchSize = 1000, bool ignoreCache = false)
+        int maxRecords, bool ignoreCache = false)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
         var uniqueSortedServices = services.OrderBy(s => s).Distinct().ToList();
@@ -105,6 +104,8 @@ public class SiteService(
         var results = new List<SiteWithDistance>();
 
         var iterations = 0;
+        
+        var batchSize = maxRecords * options.Value.SiteSupportsServiceBatchMultiplier;
 
         //while we are still short of the max, keep appending results
         //ideally, the first batch would contain more than or equal to the max results, so won't need to iterate often...
@@ -364,6 +365,7 @@ public class SiteService(
                     siteSupportsServiceFilter.services,
                     siteSupportsServiceFilter.from,
                     siteSupportsServiceFilter.until,
+                    maxRecords: maxRecords,
                     ignoreCache: ignoreCache);
 
                 sitesWithDistance = [.. serviceResults.DistinctBy(swd => swd.Site.Id)];

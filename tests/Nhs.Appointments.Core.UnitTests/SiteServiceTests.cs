@@ -30,7 +30,8 @@ public class SiteServiceTests
             SiteCacheDuration = 10, 
             SiteCacheKey = "sites", 
             SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
-            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400
+            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
+            SiteSupportsServiceBatchMultiplier = 2,
         });
 
         var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
@@ -701,12 +702,30 @@ public class SiteServiceTests
         );
     }
     
-     [Fact]
-    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed_PartialCached()
+    [Theory]
+    [InlineData(1, 21)]
+    [InlineData(2, 11)]
+    [InlineData(10, 3)]
+    [InlineData(20, 2)]
+    [InlineData(50, 1)]
+    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed_PartialCached(int batchMultiplier, int expectedIterations)
     {
+        //valid sites are 21, so expected iterations deduced off that 
+        var siteCount = 21;
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites", 
+            SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
+            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
+            SiteSupportsServiceBatchMultiplier = batchMultiplier,
+        });
+        
         var invalidSites = new List<SiteWithDistance>();
         
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             var id = $"6877d86e-c2df-4def-8508-e1eccf0ea6{i:00}";
             invalidSites.Add(new SiteWithDistance(new Site(
@@ -734,7 +753,7 @@ public class SiteServiceTests
 
         var validSites = new List<SiteWithDistance>();
         
-        for (double i = 1; i < 21; i++)
+        for (double i = 1; i < siteCount; i++)
         {
             var longitude = 50.2d + (i / 100);
             var id = $"6877d86e-c2df-4def-8508-e1eccf0ea7{i:00}";
@@ -766,7 +785,7 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
         //only setup for invalid sites
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             var id = $"{i:00}";
             _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(false);
@@ -778,13 +797,13 @@ public class SiteServiceTests
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
         
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             var id = $"{i:00}";
             _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", new List<string> { "RSV:Adult" }, docIds), Times.Once);
         }
         
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             //since the valid sites were cached, it shouldn't look up via DB
             var id = $"{i:00}";
@@ -795,7 +814,7 @@ public class SiteServiceTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("GetSitesSupportingService returned 1 result(s) after 2 iteration(s) for services 'RSV:Adult'")
+                    state.ToString().Contains($"GetSitesSupportingService returned 1 result(s) after {expectedIterations} iteration(s) for services 'RSV:Adult'")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()

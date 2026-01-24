@@ -29,4 +29,10 @@ public class SiteServiceOptions
     ///     A slide WILL occur if a cache value is requested greater than this timespan. i.e if utcNow '>=' cacheValueCreatedDate.addSeconds(SLIDE_THRESHOLD)
     /// </summary>
     public int SiteSupportsServiceSlidingCacheSlideThresholdSeconds { get; set; }
+    
+    /// <summary>
+    /// When fetching batched results to build up the max site records, what should the batch size be as a multiplier of the maxRecords required.
+    /// i.e. when SiteSupportsServiceBatchMultiplier = 2, and maxRecords = 50 - then service will fetch data in batches of 100, until 50 valid sites are returned.
+    /// </summary>
+    public int SiteSupportsServiceBatchMultiplier { get; set; }
 }

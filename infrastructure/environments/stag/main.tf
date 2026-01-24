@@ -73,6 +73,7 @@ module "mya_application_stag" {
   auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
   site_supports_service_sliding_cache_absolute_expiration_seconds = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS
   site_supports_service_sliding_cache_slide_threshold_seconds     = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS
+  site_supports_service_batch_multiplier          = var.SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER
   create_data_extracts                            = false
   data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = true

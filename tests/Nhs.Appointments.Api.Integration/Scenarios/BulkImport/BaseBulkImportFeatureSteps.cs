@@ -1,8 +1,6 @@
 using FluentAssertions;
 using Gherkin.Ast;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.BulkImport;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +45,7 @@ public abstract class BaseBulkImportFeatureSteps : BaseFeatureSteps
         return Encoding.UTF8.GetBytes(sb.ToString());
     }
 
-    private static string EscapeCsv(string value)
+    protected static string EscapeCsv(string value)
     {
         if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
         {

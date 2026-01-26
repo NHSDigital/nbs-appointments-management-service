@@ -14,7 +14,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
@@ -768,6 +767,34 @@ public abstract partial class BaseFeatureSteps : Feature
                 IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
             });
 
+        foreach (var site in sites)
+        {
+            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
+        }
+    }
+
+    // Added for the bulk import as it requires valid Guid IDs for sites
+    [Given("the following sites with valid Guid IDs exist in the system")]
+    public async Task SetupSitesWithValidGuidIds(DataTable dataTable)
+    {
+        var sites = dataTable.Rows.Skip(1).Select(
+            row => new SiteDocument
+            {
+                Id = dataTable.GetRowValueOrDefault(row, "Site"),
+                Name = dataTable.GetRowValueOrDefault(row, "Name"),
+                Address = dataTable.GetRowValueOrDefault(row, "Address"),
+                PhoneNumber = dataTable.GetRowValueOrDefault(row, "PhoneNumber"),
+                OdsCode = dataTable.GetRowValueOrDefault(row, "OdsCode"),
+                Region = dataTable.GetRowValueOrDefault(row, "Region"),
+                IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB"),
+                InformationForCitizens = dataTable.GetRowValueOrDefault(row, "InformationForCitizens"),
+                DocumentType = "site",
+                Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Accessibilities")),
+                Location = new Location("Point",
+                    new[] { dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d), dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d) }),
+                Type = dataTable.GetRowValueOrDefault(row, "Type"),
+                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
+            });
         foreach (var site in sites)
         {
             await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);

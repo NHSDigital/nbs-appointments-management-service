@@ -1,8 +1,8 @@
 using Microsoft.Azure.Cosmos;
 
-namespace Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
+namespace Nhs.Appointments.Jobs.ChangeFeed;
 
-public interface IAuditChangeFeedHandler<T>
+public interface IChangeFeedHandler
 {
     Task<ChangeFeedProcessor> ResolveChangeFeedForContainer(string containerName);
 }

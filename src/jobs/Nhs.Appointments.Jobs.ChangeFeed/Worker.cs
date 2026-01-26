@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Hosting;
-using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
 
-namespace Nhs.Appointments.Jobs.BlobAuditor;
-public class Worker<T>(string dataType, IAuditChangeFeedHandler<T> handler) : BackgroundService
+namespace Nhs.Appointments.Jobs.ChangeFeed;
+
+public class Worker<T>(string dataType, IChangeFeedHandler handler) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

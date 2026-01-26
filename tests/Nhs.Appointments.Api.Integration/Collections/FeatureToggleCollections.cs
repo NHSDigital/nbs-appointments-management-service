@@ -56,7 +56,3 @@ public class MultiServiceJointBookingsCollection : ICollectionFixture<object>
 {
 }
 
-[CollectionDefinition(FeatureToggleCollectionNames.LastUpdatedByCollection)]
-public class LastUpdatedByCollection : ICollectionFixture<object>
-{
-}

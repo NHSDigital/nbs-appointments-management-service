@@ -2,18 +2,17 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
-using Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
-namespace Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
+namespace Nhs.Appointments.Jobs.ChangeFeed;
 
-public class AuditChangeFeedHandler(
+public class ChangeFeedHandler<TFeed, TEvent>(
     IOptions<ApplicationNameConfiguration> applicationNameConfiguration,
-    ILogger<AuditChangeFeedHandler> logger,
-    IEnumerable<IBlobSink<JObject>> auditSinks,
+    ILogger<ChangeFeedHandler<TFeed, TEvent>> logger,
+    IEnumerable<ISink<TEvent>> auditSinks,
+    IFeedEventMapper<TFeed, TEvent> feedEventMapper,
     IContainerConfigFactory containerConfigFactory,
     CosmosClient cosmosClient
-) : IAuditChangeFeedHandler<JObject>
+) : IChangeFeedHandler
 {
     private const string DatabaseName = "appts";
 
@@ -26,6 +25,7 @@ public class AuditChangeFeedHandler(
         var leaseContainer = cosmosClient.GetContainer(DatabaseName, leaseContainerName);
         var changeFeedProcessor = CreateChangeFeedProcessorBuilder(config.ContainerName)
             .WithInstanceName(applicationNameConfiguration.Value.ApplicationName)
+            .WithPollInterval(TimeSpan.FromSeconds(60))
             .WithStartTime(DateTime.MinValue.ToUniversalTime())
             .WithLeaseContainer(leaseContainer)
             .Build();
@@ -37,13 +37,13 @@ public class AuditChangeFeedHandler(
     {
         async Task HandleChangesAsync(
             ChangeFeedProcessorContext context, 
-            IReadOnlyCollection<JObject> changes,
+            IReadOnlyCollection<TFeed> changes,
             CancellationToken cancellationToken
         )
         {
             logger.LogInformation($"Changes detected.");
 
-            foreach (var item in changes)
+            foreach (var item in feedEventMapper.MapToEvents(changes))
             {
                 var tasks = auditSinks.Select(sink => sink.Consume(containerName, item));
 
@@ -54,7 +54,7 @@ public class AuditChangeFeedHandler(
         }
 
         return cosmosClient.GetContainer(DatabaseName, containerName)
-            .GetChangeFeedProcessorBuilder<JObject>(processorName: $"{containerName}_processor",
+            .GetChangeFeedProcessorBuilder<TFeed>(processorName: $"{containerName}_processor",
                 onChangesDelegate: HandleChangesAsync)
             .WithLeaseAcquireNotification(OnLeaseAcquiredAsync)
             .WithLeaseReleaseNotification(OnLeaseReleaseAsync)

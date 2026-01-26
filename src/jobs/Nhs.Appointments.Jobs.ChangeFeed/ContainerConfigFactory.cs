@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
+namespace Nhs.Appointments.Jobs.ChangeFeed;
 
 public class ContainerConfigFactory(IOptions<List<ContainerConfiguration>> configs) : IContainerConfigFactory
 {

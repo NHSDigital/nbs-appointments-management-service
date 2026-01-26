@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
+﻿namespace Nhs.Appointments.Jobs.ChangeFeed;
 
 public class ContainerConfiguration
 {

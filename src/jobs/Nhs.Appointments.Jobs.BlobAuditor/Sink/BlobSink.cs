@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Jobs.BlobAuditor.Blob;
-using Nhs.Appointments.Jobs.BlobAuditor.Extensions;
+using Nhs.Appointments.Jobs.ChangeFeed;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
@@ -9,7 +9,7 @@ public class BlobSink(
     IAzureBlobStorage azureBlobStorage, 
     TimeProvider timeProvider,
     IItemExclusionProcessor exclusionProcessor
-) : IBlobSink<JObject>
+) : ISink<JObject>
 {
     public async Task Consume(string source, JObject item)
     {

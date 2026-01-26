@@ -67,7 +67,8 @@ public abstract partial class BaseFeatureSteps : Feature
             }),
             Serializer = new CosmosJsonSerializer(),
             ConnectionMode = ConnectionMode.Gateway,
-            LimitToEndpoint = true
+            LimitToEndpoint = true,
+            MaxRetryAttemptsOnRateLimitedRequests = 0
         };
 
         var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
@@ -100,10 +101,7 @@ public abstract partial class BaseFeatureSteps : Feature
         ItemRequestOptions requestOptions = null,
         CancellationToken cancellationToken = default)
     {
-        var maxRetries = 5;
-        var delay = 100;
-        var backoffFactor = 2;
-
+        const int maxRetries = 20;
         var attempt = 1; 
         
         while (attempt <= maxRetries)
@@ -124,16 +122,8 @@ public abstract partial class BaseFeatureSteps : Feature
             }
             catch (CosmosException ex)
             {
-                if (ex.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    await Task.Delay(delay, cancellationToken);
-                    delay *= backoffFactor;
-                    attempt++;
-                }
-                else
-                {
-                    throw;
-                }
+                attempt++;
+                await Task.Delay(ex.RetryAfter ?? TimeSpan.FromSeconds(30), cancellationToken);
             }
         }
     }

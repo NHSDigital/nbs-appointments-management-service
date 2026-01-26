@@ -69,7 +69,7 @@ public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IDisposabl
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =
             await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());
-        ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.LastUpdatedBy).Excluding(x => x.isDeleted));
+        ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.isDeleted));
     }
 
     public Task InitializeAsync() => throw new System.NotImplementedException();

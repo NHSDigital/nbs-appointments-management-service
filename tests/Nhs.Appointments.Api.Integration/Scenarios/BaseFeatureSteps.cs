@@ -238,39 +238,7 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site,
-        DataTable dataTable)
-    {
-        var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
-        {
-            Id = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyyMMdd"),
-            Date = NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value),
-            Site = site,
-            DocumentType = "daily_availability",
-            Sessions = new[]
-            {
-                new Session
-                {
-                    From = TimeOnly.Parse(row.Cells.ElementAt(1).Value),
-                    Until = TimeOnly.Parse(row.Cells.ElementAt(2).Value),
-                    Services = row.Cells.ElementAt(3).Value.Split(",").Select(x => x.Trim()).ToArray(),
-                    Capacity = int.Parse(row.Cells.ElementAt(5).Value),
-                    SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
-                }
-            }
-        });
-
-        return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument
-        {
-            Id = g.First().Id,
-            Date = g.Key,
-            Site = g.First().Site,
-            DocumentType = "daily_availability",
-            Sessions = g.SelectMany(s => s.Sessions).ToArray()
-        });
-    }
-
-    protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site,
-    DataTable dataTable, bool lastUpdatedByEnabled, string flag)
+    DataTable dataTable)
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
@@ -289,7 +257,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
                 }
             },
-            LastUpdatedBy = flag == Flags.AuditLastUpdatedBy && lastUpdatedByEnabled ? _userId : null
+            LastUpdatedBy = _userId
         });
 
         return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument

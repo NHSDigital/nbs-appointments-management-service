@@ -10,7 +10,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-public abstract class UpdateSiteAccessibilitiesFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled)
+public abstract class UpdateSiteAccessibilitiesFeatureSteps : SiteManagementBaseFeatureSteps
 {
     [When("I update the accessibilities for site '(.+)'")]
     public async Task UpdateSiteAccessibilities(string siteDesignation, DataTable dataTable)
@@ -23,11 +23,5 @@ public abstract class UpdateSiteAccessibilitiesFeatureSteps(string flag, bool en
     }
 }
 
-[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
 [FeatureFile("./Scenarios/SiteManagement/UpdateSiteAccessibilities.feature")]
-public sealed class UpdateSiteAccessibilitiesFeaturesSteps_LastUpdatedByEnabled() : UpdateSiteAccessibilitiesFeatureSteps(Flags.AuditLastUpdatedBy, true);
-
-
-[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
-[FeatureFile("./Scenarios/SiteManagement/UpdateSiteAccessibilities.feature")]
-public sealed class UpdateSiteAccessibilitiesFeatureSteps_LastUpdatedByDisabled() : UpdateSiteAccessibilitiesFeatureSteps(Flags.AuditLastUpdatedBy, false);
+public sealed class UpdateSiteAccessibilitiesFeaturesSteps: UpdateSiteAccessibilitiesFeatureSteps;

@@ -1,19 +1,16 @@
 using FluentAssertions;
 using Gherkin.Ast;
 using Nhs.Appointments.Api.Functions;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Json;
-using Nhs.Appointments.Core.Features;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
 {
     [FeatureFile("./Scenarios/SiteManagement/GetSiteMetaData.feature")]
-    public abstract class GetSiteMetaDataFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled)
+    public abstract class GetSiteMetaDataFeatureSteps : SiteManagementBaseFeatureSteps
     {
         [When("I request site meta data for site '(.+)'")]
         public async Task RequestSiteMetaData(string site)
@@ -49,12 +46,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
         }
     }
 
-    [Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
     [FeatureFile("./Scenarios/SiteManagement/GetSiteMetaData.feature")]
-    public class GetSiteMetaDataFeaturesSteps_LastUpdatedByEnabled() : GetSiteMetaDataFeatureSteps(Flags.AuditLastUpdatedBy, true);
-
-
-    [Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
-    [FeatureFile("./Scenarios/SiteManagement/GetSiteMetaData.feature")]
-    public class GetSiteMetaDataFeatureSteps_LastUpdatedByDisabled() : GetSiteMetaDataFeatureSteps(Flags.AuditLastUpdatedBy, false);
+    public class GetSiteMetaDataFeaturesSteps : GetSiteMetaDataFeatureSteps;
 }

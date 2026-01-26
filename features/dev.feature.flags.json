@@ -10,7 +10,6 @@
     "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,
-    "AuditLastUpdatedBy": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

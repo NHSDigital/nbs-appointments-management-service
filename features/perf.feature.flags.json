@@ -8,7 +8,6 @@
     "CancelSessionUpliftedJourney": true,
     "QuerySites": true,
     "MultiServiceJointBookings": true,
-    "JointBookingsReporting": false,
-    "AuditLastUpdatedBy": true
+    "JointBookingsReporting": false
   }
 }

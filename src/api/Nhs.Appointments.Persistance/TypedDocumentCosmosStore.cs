@@ -19,15 +19,13 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     private readonly IMapper _mapper;
     private readonly IMetricsRecorder _metricsRecorder;
     private readonly ILastUpdatedByResolver _lastUpdatedByResolver;
-    private readonly IFeatureToggleHelper _featureToggleHelper;
 
     public TypedDocumentCosmosStore(
         CosmosClient cosmosClient, 
         IOptions<CosmosDataStoreOptions> options, 
         IMapper mapper,
         IMetricsRecorder metricsRecorder,
-        ILastUpdatedByResolver lastUpdatedByResolver,
-        IFeatureToggleHelper featureToggleHelper)
+        ILastUpdatedByResolver lastUpdatedByResolver)
     {
         _cosmosClient = cosmosClient;
         _mapper = mapper;
@@ -43,7 +41,6 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         _containerName = cosmosDocumentAttribute.ContainerName;
         _metricsRecorder = metricsRecorder;
         _lastUpdatedByResolver = lastUpdatedByResolver;
-        _featureToggleHelper = featureToggleHelper;
     }
 
     public TDocument NewDocument()
@@ -66,13 +63,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         {
             throw new InvalidOperationException("Document type does not match the supported type for this writer");
         }
-
-        if (await _featureToggleHelper.IsFeatureEnabled(Flags.AuditLastUpdatedBy))
+        
+        if (document is LastUpdatedByCosmosDocument auditable)
         {
-            if (document is LastUpdatedByCosmosDocument auditable)
-            {
-                auditable.LastUpdatedBy = _lastUpdatedByResolver.GetLastUpdatedBy();
-            }
+            auditable.LastUpdatedBy = _lastUpdatedByResolver.GetLastUpdatedBy();
         }
 
         var container = GetContainer();
@@ -153,8 +147,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     {
         var patchList = patches.ToList();
 
-        if (await _featureToggleHelper.IsFeatureEnabled(Flags.AuditLastUpdatedBy) &&
-        typeof(LastUpdatedByCosmosDocument).IsAssignableFrom(typeof(TDocument)))
+        if (typeof(LastUpdatedByCosmosDocument).IsAssignableFrom(typeof(TDocument)))
         {
             patchList.Add(PatchOperation.Set("/lastUpdatedBy", _lastUpdatedByResolver.GetLastUpdatedBy()));
         }

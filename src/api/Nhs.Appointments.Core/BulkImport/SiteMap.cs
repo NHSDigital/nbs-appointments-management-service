@@ -117,7 +117,7 @@ public class SiteMap : ClassMap<SiteImportRow>
         {
             return accessibilityKeys
                 .Select(key => new Accessibility($"accessibility/{key}",
-                    CsvFieldValidator.ParseUserEnteredBoolean(x.Row[key]).ToString()))
+                    CsvFieldValidator.ParseUserEnteredBoolean(x.Row[key]).ToString().ToLower()))
                 .ToArray();
         });
         Map(m => m.Type).Convert(x => x.Row.GetField<string>("Site type"));

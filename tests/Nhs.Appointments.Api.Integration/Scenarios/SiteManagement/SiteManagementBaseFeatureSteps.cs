@@ -18,10 +18,8 @@ using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) : BaseFeatureSteps, IAsyncLifetime
+public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
 {
-    private string Flag { get; } = flag;
-    private bool Enabled { get; } = enabled;
     private ErrorMessageResponseItem ErrorResponse { get; set; }
     private IEnumerable<ErrorMessageResponseItem> ErrorResponses { get; set; }
     protected HttpResponseMessage Response { get; set; }
@@ -79,8 +77,7 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
             status: null,
             isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
-            Type: dataTable.GetRowValueOrDefault(row, "Type"),
-            LastUpdatedBy: Flag == Flags.AuditLastUpdatedBy && Enabled ? _userId : null
+            Type: dataTable.GetRowValueOrDefault(row, "Type")
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -90,9 +87,4 @@ public abstract class SiteManagementBaseFeatureSteps(string flag, bool enabled) 
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
-
-    public async Task InitializeAsync()
-    {
-        await SetLocalFeatureToggleOverride(Flag, Enabled ? "True" : "False");
-    }
 }

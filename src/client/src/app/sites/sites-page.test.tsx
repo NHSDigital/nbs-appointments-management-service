@@ -19,7 +19,7 @@ describe('Sites Page', () => {
     const rows = screen.getAllByRole('row');
     const dataRows = rows.slice(1);
 
-    expect(dataRows).toHaveLength(5);
+    expect(dataRows).toHaveLength(6);
 
     const firstRow = dataRows[0];
     expect(within(firstRow).getByText('Site Alpha')).toBeInTheDocument();

@@ -215,12 +215,17 @@ variable "KEYVAULT_CLIENT_SECRET" {
 }
 
 variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS" {
-  type = string
+  type = number
   sensitive = false
 }
 
 variable "SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS" {
-  type = string
+  type = number
+  sensitive = false
+}
+
+variable "SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER" {
+  type = number
   sensitive = false
 }
 

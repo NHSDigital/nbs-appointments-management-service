@@ -112,9 +112,9 @@ const SiteDetailsPage = async ({
               return {
                 title: definition.displayName,
                 value:
-                  site?.accessibilities.find(
-                    value => value.id === definition.id,
-                  )?.value === 'true'
+                  site?.accessibilities
+                    .find(value => value.id === definition.id)
+                    ?.value.toLowerCase() === 'true'
                     ? 'Yes'
                     : 'No',
               };

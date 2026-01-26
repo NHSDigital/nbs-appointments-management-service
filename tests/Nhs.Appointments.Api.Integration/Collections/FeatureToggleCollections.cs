@@ -13,7 +13,6 @@ public static class FeatureToggleCollectionNames
     public const string CancelSessionUpliftedJourneyCollection = $"{Flags.CancelSessionUpliftedJourney}Toggle";
     public const string QuerySitesCollection = $"{Flags.QuerySites}Toggle";
     public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}Toggle";
-    public const string LastUpdatedByCollection = $"{Flags.AuditLastUpdatedBy}Toggle";
 }
 
 [CollectionDefinition(FeatureToggleCollectionNames.JointBookingsCollection)]
@@ -55,4 +54,3 @@ public class QuerySitesSerialToggleCollection : ICollectionFixture<object>
 public class MultiServiceJointBookingsCollection : ICollectionFixture<object>
 {
 }
-

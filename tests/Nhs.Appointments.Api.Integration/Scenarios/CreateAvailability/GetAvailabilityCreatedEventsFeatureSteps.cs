@@ -12,7 +12,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
 {
-    public abstract class GetAvailabilityCreatedEventsFeatureSteps(string flag, bool enabled) : BaseCreateAvailabilityFeatureSteps(flag, enabled)
+    public abstract class GetAvailabilityCreatedEventsFeatureSteps : BaseCreateAvailabilityFeatureSteps
     {
         private IEnumerable<AvailabilityCreatedEvent> _actualResponse;
 
@@ -37,12 +37,6 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
         }
     }
 
-    [Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
     [FeatureFile("./Scenarios/CreateAvailability/GetAvailabilityCreatedEvents.feature")]
-    public class GetAvailabilityCreatedEventsFeaturesSteps_LastUpdatedByEnabled() : GetAvailabilityCreatedEventsFeatureSteps(Flags.AuditLastUpdatedBy, true);
-
-
-    [Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
-    [FeatureFile("./Scenarios/CreateAvailability/GetAvailabilityCreatedEvents.feature")]
-    public class GetAvailabilityCreatedEventsFeatureSteps_LastUpdatedByDisabled() : GetAvailabilityCreatedEventsFeatureSteps(Flags.AuditLastUpdatedBy, false);
+    public class GetAvailabilityCreatedEventsFeaturesSteps : GetAvailabilityCreatedEventsFeatureSteps;
 }

@@ -108,4 +108,24 @@ describe('CancelSessionConfirmation', () => {
       'This session has been cancelled. 2 bookings have not been cancelled.',
     );
   });
+
+  it('Session and booking cancelled', () => {
+    render(
+      <SessionModificationConfirmed
+        clinicalServices={mockMultipleServices}
+        siteId="site-123"
+        date="2024-06-10"
+        modificationAction="cancel-appointments"
+        sessionSummary={mockSessionSummary}
+        newlyUnsupportedBookingsCount={1}
+        bookingsCanceledWithoutDetails={0}
+      />,
+    );
+
+    expect(
+      screen.getByText(/This session has been cancelled/).closest('p'),
+    ).toHaveTextContent(
+      'This session has been cancelled and 1 booking have been cancelled.',
+    );
+  });
 });

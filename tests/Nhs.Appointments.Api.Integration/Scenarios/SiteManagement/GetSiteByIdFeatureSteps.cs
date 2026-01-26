@@ -13,7 +13,7 @@ using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-public abstract class GetSiteByIdFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled)
+public abstract class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
 {
     [When("I request site details for site '(.+)'")]
     public async Task RequestSites(string siteDesignation)
@@ -44,15 +44,9 @@ public abstract class GetSiteByIdFeatureSteps(string flag, bool enabled) : SiteM
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =
             await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());
-        ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.LastUpdatedBy));
+        ActualResponse.Should().BeEquivalentTo(expectedSite);
     }
 }
 
-[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
 [FeatureFile("./Scenarios/SiteManagement/GetSiteBySiteId.feature")]
-public sealed class GetSiteByIdFeaturesSteps_LastUpdatedByEnabled() : GetSiteByIdFeatureSteps(Flags.AuditLastUpdatedBy, true);
-
-
-[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
-[FeatureFile("./Scenarios/SiteManagement/GetSiteBySiteId.feature")]
-public sealed class GetSiteByIdFeatureSteps_LastUpdatedByDisabled() : GetSiteByIdFeatureSteps(Flags.AuditLastUpdatedBy, false);
+public sealed class GetSiteByIdFeaturesSteps : GetSiteByIdFeatureSteps;

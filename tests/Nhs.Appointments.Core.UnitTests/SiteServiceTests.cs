@@ -1,4 +1,3 @@
-using FluentAssertions.Common;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -30,7 +29,8 @@ public class SiteServiceTests
             SiteCacheDuration = 10, 
             SiteCacheKey = "sites", 
             SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
-            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400
+            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
+            SiteSupportsServiceBatchMultiplier = 2,
         });
 
         var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
@@ -701,12 +701,30 @@ public class SiteServiceTests
         );
     }
     
-     [Fact]
-    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed_PartialCached()
+    [Theory]
+    [InlineData(1, 21)]
+    [InlineData(2, 11)]
+    [InlineData(10, 3)]
+    [InlineData(20, 2)]
+    [InlineData(50, 1)]
+    public async Task FindSitesByArea_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed_PartialCached(int batchMultiplier, int expectedIterations)
     {
+        //valid sites are 21, so expected iterations deduced off that 
+        var siteCount = 21;
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites", 
+            SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
+            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
+            SiteSupportsServiceBatchMultiplier = batchMultiplier,
+        });
+        
         var invalidSites = new List<SiteWithDistance>();
         
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             var id = $"6877d86e-c2df-4def-8508-e1eccf0ea6{i:00}";
             invalidSites.Add(new SiteWithDistance(new Site(
@@ -734,7 +752,7 @@ public class SiteServiceTests
 
         var validSites = new List<SiteWithDistance>();
         
-        for (double i = 1; i < 21; i++)
+        for (double i = 1; i < siteCount; i++)
         {
             var longitude = 50.2d + (i / 100);
             var id = $"6877d86e-c2df-4def-8508-e1eccf0ea7{i:00}";
@@ -766,7 +784,7 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
 
         //only setup for invalid sites
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             var id = $"{i:00}";
             _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(false);
@@ -778,13 +796,13 @@ public class SiteServiceTests
 
         var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
         
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             var id = $"{i:00}";
             _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", new List<string> { "RSV:Adult" }, docIds), Times.Once);
         }
         
-        for (var i = 1; i < 21; i++)
+        for (var i = 1; i < siteCount; i++)
         {
             //since the valid sites were cached, it shouldn't look up via DB
             var id = $"{i:00}";
@@ -795,7 +813,7 @@ public class SiteServiceTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("GetSitesSupportingService returned 1 result(s) after 2 iteration(s) for services 'RSV:Adult'")
+                    state.ToString().Contains($"GetSitesSupportingService returned 1 result(s) after {expectedIterations} iteration(s) for services 'RSV:Adult'")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -2121,6 +2139,315 @@ public class SiteServiceTests
         result.Any(r => r.Site.Id == "test321").Should().BeFalse();
 
         _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>()), Times.Never);
+    }
+    
+     [Fact]
+    public async Task QuerySitesAsync_CallsAvailabilityStoreForEachSite_WhenSiteSupportsServiceFilterUsed_NoCache()
+    {
+        var sites = new List<SiteWithDistance>
+        {
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    location: new Location("Point", [0.04, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    },
+                    status: SiteStatus.Online, isDeleted: null,
+                    Type: string.Empty),
+                Distance: 2858),
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    location: new Location("Point", [0.05, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    },
+                    status: SiteStatus.Online, isDeleted: null,
+                    Type: string.Empty),
+                Distance: 3573)
+        };
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+        _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(true);
+        
+        //set up a cache, but it's for a different date range, so its not used
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
+
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 50,
+                Longitude = 0.0,
+                SearchRadius = 50000,
+                Availability = new AvailabilityFilter
+                {
+                    From = new DateOnly(2025, 10, 3),
+                    Until = new DateOnly(2025, 10, 15),
+                    Services = ["RSV:Adult"]
+                }
+            }
+        }.ToArray();
+        
+        var result = await _sut.QuerySitesAsync(filters, 50, false);
+        result.Should().BeEquivalentTo(sites);
+
+        var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
+        
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6ba", new List<string> { "RSV:Adult" }, docIds), Times.Once);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6bb", new List<string> { "RSV:Adult" }, docIds), Times.Once);
+        
+        //creates new correct cache for queried date range
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Once);
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("GetSitesSupportingService returned 2 result(s) after 1 iteration(s) for services 'RSV:Adult'")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
+    }
+    
+    [Fact]
+    public async Task QuerySitesAsync_CallsAvailabilityStoreForEachSite_WhenSiteSupportsServiceFilterUsed_UsesCacheWhenPresent()
+    {
+        var sites = new List<SiteWithDistance>
+        {
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
+                    Name: "Site 1",
+                    Address: "1 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC01",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    location: new Location("Point", [0.04, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "true")
+                    },
+                    status: SiteStatus.Online, isDeleted: null,
+                    Type: string.Empty),
+                Distance: 2858),
+            new(new Site(
+                    Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    location: new Location("Point", [0.05, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    },
+                    status: SiteStatus.Online, isDeleted: null,
+                    Type: string.Empty),
+                Distance: 3573)
+        };
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+        
+        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
+
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 50,
+                Longitude = 0.0,
+                SearchRadius = 50000,
+                Availability = new AvailabilityFilter
+                {
+                    From = new DateOnly(2025, 10, 03),
+                    Until = new DateOnly(2025, 10, 15),
+                    Services = ["RSV:Adult"]
+                }
+            }
+        }.ToArray();
+        
+        var result = await _sut.QuerySitesAsync(filters, 50, false);
+        result.Should().BeEquivalentTo(sites);
+
+        var docIds = new List<string>() { "20251003", "20251004", "20251005","20251006","20251007","20251008","20251009","20251010", "20251011", "20251012","20251013","20251014","20251015"};
+        
+        //doesn't call the store if cached
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6ba", new List<string> { "RSV:Adult" }, docIds), Times.Never);
+        _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync("6877d86e-c2df-4def-8508-e1eccf0ea6bb", new List<string> { "RSV:Adult" }, docIds), Times.Never);
+        
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
+        _memoryCache.Verify(x => x.CreateEntry("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015"), Times.Never);
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("GetSitesSupportingService returned 2 result(s) after 1 iteration(s) for services 'RSV:Adult'")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
+    }
+    
+    [Theory]
+    [InlineData(1, 21)]
+    [InlineData(2, 11)]
+    [InlineData(10, 3)]
+    [InlineData(20, 2)]
+    [InlineData(50, 1)]
+    public async Task QuerySitesAsync_CallsAvailabilityStoreForEachSiteBatched_WhenSiteSupportsServiceFilterUsed_PartialCached(int batchMultiplier, int expectedIterations)
+    {
+        //valid sites are 21, so expected iterations deduced off that 
+        var siteCount = 21;
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites", 
+            SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
+            SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
+            SiteSupportsServiceBatchMultiplier = batchMultiplier,
+        });
+        
+        var invalidSites = new List<SiteWithDistance>();
+        
+        for (var i = 1; i < siteCount; i++)
+        {
+            var id = $"6877d86e-c2df-4def-8508-e1eccf0ea6{i:00}";
+            invalidSites.Add(new SiteWithDistance(new Site(
+                    Id: id,
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    location: new Location("Point", [0.05, 50.0]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    },
+                    status: SiteStatus.Online, isDeleted: null,
+                    Type: string.Empty),
+                Distance: 3500+i));
+            
+            //invalid site results happen to not be cached
+            object nullObject = null;
+            _memoryCache.Setup(x => x.TryGetValue($"LazySlide:site_{id}_supports_RSV:Adult_in_20251003_20251006", out nullObject)).Returns(false);
+        }
+
+        var validSites = new List<SiteWithDistance>();
+        
+        for (double i = 1; i < siteCount; i++)
+        {
+            var longitude = 50.2d + (i / 100);
+            var id = $"6877d86e-c2df-4def-8508-e1eccf0ea7{i:00}";
+            validSites.Add(new SiteWithDistance(new Site(
+                    Id: id,
+                    Name: "Site 2",
+                    Address: "2 Park Row",
+                    PhoneNumber: "0113 1111111",
+                    OdsCode: "ABC02",
+                    Region: "R1",
+                    IntegratedCareBoard: "ICB1",
+                    location: new Location("Point", [0.05, longitude]),
+                    InformationForCitizens: "",
+                    Accessibilities: new List<Accessibility>
+                    {
+                        new(Id: "accessibility/access_need_1", Value: "false")
+                    },
+                    status: SiteStatus.Online, isDeleted: null,
+                    Type: string.Empty),
+                Distance: (int)(3700+i)));
+            
+            //valid site results happen to be cached
+            object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+            _memoryCache.Setup(x => x.TryGetValue($"LazySlide:site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(true);
+        }
+        
+        var sites = invalidSites.Union(validSites).ToList();
+
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
+
+        //only setup for invalid sites
+        for (var i = 1; i < siteCount; i++)
+        {
+            var id = $"{i:00}";
+            _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(false);
+        }
+        
+        var filters = new List<SiteFilter>
+        {
+            new()
+            {
+                Latitude = 50,
+                Longitude = 0.0,
+                SearchRadius = 50000,
+                Availability = new AvailabilityFilter
+                {
+                    From = new DateOnly(2025, 10, 03),
+                    Until = new DateOnly(2025, 10, 06),
+                    Services = ["RSV:Adult"]
+                }
+            }
+        }.ToArray();
+
+        var result = await _sut.QuerySitesAsync(filters, 1, false);
+        result.Single().Site.Id.Should().Be(validSites.First().Site.Id);
+
+        var docIds = new List<string>() { "20251003", "20251004", "20251005", "20251006"};
+        
+        for (var i = 1; i < siteCount; i++)
+        {
+            var id = $"{i:00}";
+            _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea6{id}", new List<string> { "RSV:Adult" }, docIds), Times.Once);
+        }
+        
+        for (var i = 1; i < siteCount; i++)
+        {
+            //since the valid sites were cached, it shouldn't look up via DB
+            var id = $"{i:00}";
+            _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync($"6877d86e-c2df-4def-8508-e1eccf0ea7{id}", new List<string> { "RSV:Adult" }, docIds), Times.Never);
+        }
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains($"GetSitesSupportingService returned 1 result(s) after {expectedIterations} iteration(s) for services 'RSV:Adult'")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
     }
 
     [Fact]

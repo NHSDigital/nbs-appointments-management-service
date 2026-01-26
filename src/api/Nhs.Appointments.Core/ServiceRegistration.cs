@@ -33,6 +33,8 @@ public static class ServiceRegistration
             opts.SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = configuration.GetValue("SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS", 14400);
             //default 15 mins
             opts.SiteSupportsServiceSlidingCacheSlideThresholdSeconds = configuration.GetValue("SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS", 900);
+            //default x2
+            opts.SiteSupportsServiceBatchMultiplier = configuration.GetValue("SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER", 2);
         });
 
         return services;

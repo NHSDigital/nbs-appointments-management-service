@@ -70,7 +70,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
     <NhsPage
       site={site}
       originPage="edit-session"
-      title={`Time and capacity changed for ${parsedDate.format('DD MMMM YYYY')}`}
+      title={`Time and capacity changed for ${parsedDate.format('dddd DD MMMM')}`}
       caption={site.name}
       backLink={{
         href: `/site/${site.id}/view-availability/week/?date=${date}`,

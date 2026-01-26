@@ -13,7 +13,8 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return GetOrDefault(siteId);
     }
 
-    public Task<IEnumerable<Site>> GetAllSites() => cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site");
+    public async Task<IEnumerable<Site>> GetAllSites()
+        => await cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site");
 
     public async Task<int> GetReferenceNumberGroup(string site)
     {

@@ -11,7 +11,6 @@ public static class Flags
     public const string QuerySites = "QuerySites";
     public const string MultiServiceJointBookings = "MultiServiceJointBookings";
     public const string JointBookingsReporting = "JointBookingsReporting";
-    public const string AuditLastUpdatedBy = "AuditLastUpdatedBy";
 
     #region TestFlags
     //a simple on/off global flag

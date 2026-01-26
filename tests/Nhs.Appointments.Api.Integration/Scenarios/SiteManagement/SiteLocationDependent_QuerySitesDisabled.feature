@@ -1,13 +1,13 @@
 Feature: Site Location Dependent - Query Sites Disabled
 
-  Scenario: Site Search - Retrieve all sites within a designated distance
+  Scenario: Site By Area Search - Retrieve all sites within a designated distance
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
       | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 5914b64a-66bb-4ee2-ab8a-94958c1fdfcb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | -0.13086317 | 51.583479 |
       | 10a54cc1-f052-4c7b-bfc8-de4e5ee7e193 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    When I make the following request without access needs
+    When I make the 'get sites by area' request without access needs
       | Max Records | Search Radius | Longitude | Latitude |
       | 50          | 6000          | 0.082     | 51.5     |
     Then the following sites and distances are returned
@@ -16,14 +16,14 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | 10a54cc1-f052-4c7b-bfc8-de4e5ee7e193 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Only return the number of sites requested
+  Scenario: Site By Area Search - Only return the number of sites requested
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude    | Latitude   |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-5 | 5 Roadside | 0113 5555555 | J12     | R5     | ICB5 | Info 5                 | accessibility/attr_one=true  | -0.082750916 | -51.494056 |
       | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-6 | 6 Roadside | 0113 6666666 | K12     | R6     | ICB6 | Info 6                 | accessibility/attr_one=false | -0.14566747  | -51.482472 |
       | 10a54cc1-f052-4c7b-bfc8-de4e5ee7e193 | Site-7 | 7 Roadside | 0113 7777777 | L12     | R7     | ICB7 | Info 7                 | accessibility/attr_one=true  | 0.13086317   | -51.583479 |
       | 5914b64a-66bb-4ee2-ab8a-94958c1fdfcb | Site-8 | 8 Roadside | 0113 8888888 | M12     | R8     | ICB8 | Info 8                 | accessibility/attr_one=false | -0.040992272 | -51.455788 |
-    When I make the following request without access needs
+    When I make the 'get sites by area' request without access needs
       | Max Records | Search Radius | Longitude | Latitude |
       | 2           | 100000        | -0.082    | -51.5    |
     Then the following sites and distances are returned
@@ -31,33 +31,33 @@ Feature: Site Location Dependent - Query Sites Disabled
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-5 | 5 Roadside | 0113 5555555 | J12     | R5     | ICB5 | Info 5                 | accessibility/attr_one=true  | -0.082750916 | -51.494056 | 662      |
       | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-6 | 6 Roadside | 0113 6666666 | K12     | R6     | ICB6 | Info 6                 | accessibility/attr_one=false | -0.14566747  | -51.482472 | 4819     |
 
-  Scenario: Site Search - Only return sites with requested access needs
+  Scenario: Site By Area Search - Only return sites with requested access needs
     Given the following sites exist in the system
       | Site                                 | Name    | Address     | PhoneNumber  | OdsCode | Region | ICB   | InformationForCitizens | Accessibilities                                          | Longitude | Latitude |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9  | 9 Roadside  | 0113 9999999 | J12     | R9     | ICB9  | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true  | -0.0827   | -51.5    |
       | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-10 | 10 Roadside | 0113 1010101 | K12     | R10    | ICB10 | Info 10                | accessibility/attr_one=true,accessibility/attr_two=false | -0.0827   | -51.5    |
-    When I make the following request with access needs
+    When I make the 'get sites by area' request with access needs
       | Max Records | Search Radius | Longitude | Latitude | AccessNeeds       |
       | 50          | 100000        | -0.082    | -51.5    | attr_one,attr_two |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                         | Longitude | Latitude | Distance |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9 | 9 Roadside | 0113 9999999 | J12     | R9     | ICB9 | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true | -0.0827   | -51.5    | 48       |
 
-  Scenario: Site Search - Retrieve sites by service filter - single result
+  Scenario: Site By Area Search - Retrieve sites by service filter - single result
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
     And the following sessions exist for existing site 'a03982ab-f9a8-4d4b-97ca-419d1154896f'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 
-  Scenario: Site Search - Retrieve sites by service filter - multiple results limited to max records ordered by distance
+  Scenario: Site By Area Search - Retrieve sites by service filter - multiple results limited to max records ordered by distance
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 3ac1981b-5d62-424a-b403-9d08a40739ce | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -76,7 +76,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '3ac1981b-5d62-424a-b403-9d08a40739ce'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
@@ -84,7 +84,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 156141af-89ab-4a30-83d4-a4d27a8322c2 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | 3525af0d-9d89-4b32-ad6b-b85ae94589dc | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | 0.13086317  | 51.483479 | 3849     |
       | 3ac1981b-5d62-424a-b403-9d08a40739ce | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
@@ -94,7 +94,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 3ac1981b-5d62-424a-b403-9d08a40739ce | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | f178d668-a8d7-4fa6-a4b1-b886feef29a6 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Retrieve sites by service filter - limits results to only those that support the service
+  Scenario: Site By Area Search - Retrieve sites by service filter - limits results to only those that support the service
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | b0fa3eaa-cbab-4736-90dd-31922a021074 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -113,7 +113,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '55ad05a8-4fb5-47e1-a961-d18f4008862b'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
@@ -121,7 +121,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 55ad05a8-4fb5-47e1-a961-d18f4008862b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | 8f3259bf-e44e-43e6-9837-54a5c87198c7 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Retrieve sites by service filter - finds a site that isn't the closest because it supports the service
+  Scenario: Site By Area Search - Retrieve sites by service filter - finds a site that isn't the closest because it supports the service
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 12e87824-a2ff-4257-92f3-ee1667c271a3 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -141,21 +141,21 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:8-16   | 5           | 1        |
 #    Prove old endpoint doesn't return a supported service site
-    When I make the following request without access needs
+    When I make the 'get sites by area' request without access needs
       | Max Records | Search Radius | Longitude | Latitude |
       | 1           | 6000          | 0.082     | 51.5     |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 78d28642-f429-4164-b758-f770b3dcd705 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 #    Prove new endpoint returns a supported service site
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 1           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 1950e7f1-356c-4017-ba62-62f3f973681f | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Retrieve sites by service filter - no results if the only site that supports the service is outside the search radius
+  Scenario: Site By Area Search - Retrieve sites by service filter - no results if the only site that supports the service is outside the search radius
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 12e87824-a2ff-4257-92f3-ee1667c271a3 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -174,24 +174,24 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '78d28642-f429-4164-b758-f770b3dcd705'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:8-16   | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 1           | 5000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Site Search - Retrieve sites by service filter - no results if no sessions
+  Scenario: Site By Area Search - Retrieve sites by service filter - no results if no sessions
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | beeae4e0-dd4a-4e4a-8f4d-738f9418fb51 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
       | 6877d86e-c2df-1def-8508-e1eccf0ea6be | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
       | 5914b64a-66bb-4ee2-ab8a-94958c1fdfcb | Site-3 | 3 Roadside | 0113 3333333 | L12     | R3     | ICB3 | Info 3                 | accessibility/attr_one=false | -0.13086317 | 51.583479 |
       | 10a54cc1-c052-4c7b-bfc8-de4e5ee7e193 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Site Search - Retrieve sites by service filter - no results if no sessions for service exist
+  Scenario: Site By Area Search - Retrieve sites by service filter - no results if no sessions for service exist
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 355ca42f-586c-4f7a-a274-4d53844e3e0c | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -210,12 +210,12 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '7627459e-15b5-44e7-9318-1b1f3ca5c414'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | COV        | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Site Search - Retrieve sites by service filter - no results if no sessions for service exist in the date range required
+  Scenario: Site By Area Search - Retrieve sites by service filter - no results if no sessions for service exist in the date range required
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | b37000df-f261-40ce-b86b-68b31540e804 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -234,12 +234,12 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '38d0905e-9395-4954-ba72-0ae5a81ff876'
       | Date                 | From  | Until | Services     | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 17:00 | RSV:Adult        | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From              | Until             |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | 2 days from today | 3 days from today |
     Then no sites are returned
 
-  Scenario: Site Search - Retrieve sites by service filter - results when service sessions are on different days
+  Scenario: Site By Area Search - Retrieve sites by service filter - results when service sessions are on different days
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 9ac67f31-cc79-46c0-b0d2-e3be1d7b8caa | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -258,7 +258,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '61da1c54-0b24-470a-8978-bb7c66a15816'
       | Date                 | From  | Until | Services     | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 17:00 | RSV:Adult        | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow    | 4 days from today |
     Then the following sites and distances are returned
@@ -267,7 +267,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | a1a30efa-9506-47aa-b6a6-fa0e74c848f4 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | 61da1c54-0b24-470a-8978-bb7c66a15816 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Retrieve sites by service filter - results when service sessions have multiple services
+  Scenario: Site By Area Search - Retrieve sites by service filter - results when service sessions have multiple services
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 4dbaffc9-f476-494b-817a-37dc8aa151c9 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -286,7 +286,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site 'd2f9f101-b145-42ef-93e0-ae449efb9a78'
       | Date                 | From  | Until | Services        | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 17:00 | RSV:Adult, FLU:2-3  | 5           | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
       | 3           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow    | 4 days from today |
     Then the following sites and distances are returned
@@ -296,7 +296,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | d2f9f101-b145-42ef-93e0-ae449efb9a78 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
     
 # This shows the temporary quicker solution for this hotfix 2.2.2 (APPT-1203) and how it isn't a perfect solution and should be fixed properly in the future
-  Scenario: Site Search - Retrieve sites by service filter - returns sites that are fully booked and support the service (intended behaviour)
+  Scenario: Site By Area Search - Retrieve sites by service filter - returns sites that are fully booked and support the service (intended behaviour)
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 2d1780ea-73cf-43c1-ad19-1f0cb288e35b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -347,7 +347,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | From  | Until | Count |
       | 00:00 | 12:00 | 0     |
       | 12:00 | 00:00 | 0     |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow    | 4 days from today |
     Then the following sites and distances are returned
@@ -357,7 +357,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 586bc02d-310a-4b02-a117-d0d104de16bb | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | a5f2f93e-26e8-45ac-a09b-2485517f1d9c | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Retrieve sites by service filter - returns sites that are partially booked and support the service (intended behaviour)
+  Scenario: Site By Area Search - Retrieve sites by service filter - returns sites that are partially booked and support the service (intended behaviour)
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -408,7 +408,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | From  | Until | Count |
       | 00:00 | 12:00 | 1     |
       | 12:00 | 00:00 | 0     |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow    | 4 days from today |
     Then the following sites and distances are returned
@@ -437,12 +437,12 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following orphaned bookings exist for site '6f2108ef-d1b3-4479-a5dc-cf2bb68dceb9'
       | Date                 | Time  | Duration | Service | Reference   |
       | 4 days from today    | 09:00 | 10       | RSV:Adult   | 56345-44444 |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From        | Until             |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow    | 4 days from today |
     Then no sites are returned
 
-  Scenario: Site Search - Retrieve sites by service filter - only return sites with requested access needs
+  Scenario: Site By Area Search - Retrieve sites by service filter - only return sites with requested access needs
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 9635bee5-895c-4368-a106-2d6bc1d74087 | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 |
@@ -461,14 +461,14 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site 'ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
-    When I make the following request with service filtering and with access needs
+    When I make the 'get sites by area' request with service filtering and with access needs
       | Max Records | Search Radius | Longitude | Latitude | Service     | From     | Until    | AccessNeeds  |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow | attr_one     |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | ad8ef3bd-cf15-47a6-8510-8bffcd52bd7b | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 
-  Scenario: Site Search - Retrieve sites by service filter - only return sites with all requested access needs
+  Scenario: Site By Area Search - Retrieve sites by service filter - only return sites with all requested access needs
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                            | Longitude   | Latitude  |
       | 6997851c-0bcd-462e-b1f5-b1c02f24d37d | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false,accessibility/attr_two=true   | 0.14566747  | 51.482472 |
@@ -491,14 +491,14 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site 'ae579504-1545-4fd9-a358-430a649e0354'
       | Date        | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | FLU:2-3    | 5           | 1        |
-    When I make the following request with service filtering and with access needs
+    When I make the 'get sites by area' request with service filtering and with access needs
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    | AccessNeeds        |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult   | Tomorrow | Tomorrow | attr_one,attr_two  |
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                          | Longitude   | Latitude  | Distance |
       | 8eb79504-1545-4fd9-a358-430a649e0352 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true,accessibility/attr_two=true  | 0.082750916 | 51.494056 | 662      |
 
-  Scenario: Site Search - Filter on multiple services returns no sites as services cannot be satisfied
+  Scenario: Site By Area Search - Filter on multiple services returns no sites as services cannot be satisfied
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -521,12 +521,12 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 09:20 | COVID:5_11 | 10         | 1       |
       | Tomorrow | 09:00 | 09:20 | RSV:Adult | 10          | 1       |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service           | From     | Until    |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,FLU:2_3 | Tomorrow | Tomorrow |
     Then no sites are returned
 
-  Scenario: Site Search - Returns correct sites when filtering on multiple services and services are present on same day
+  Scenario: Site By Area Search - Returns correct sites when filtering on multiple services and services are present on same day
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -549,7 +549,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11 | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult  | 10          | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
@@ -557,7 +557,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Filters on multiple services when services are present across multiple sessions
+  Scenario: Site By Area Search - Filters on multiple services when services are present across multiple sessions
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -580,7 +580,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult          | 10          | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
@@ -589,7 +589,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Returns no sites when requested services are present but not on the same days
+  Scenario: Site By Area Search - Returns no sites when requested services are present but not on the same days
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -616,12 +616,12 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Tomorrow          | 09:00 | 15:00 | RSV:Adult  | 10          | 1        |
       | 2 days from today | 09:00 | 15:00 | COVID:5_11 | 10          | 1        |
       | 3 days from today | 09:00 | 15:00 | FLU:2_3    | 10          | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service                      | From     | Until             |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11,FLU:2_3 | Tomorrow | 3 days from today |
     Then no sites are returned
 
-  Scenario: Site Search - Still returns sites with matching sessions even though their capacity is zero
+  Scenario: Site By Area Search - Still returns sites with matching sessions even though their capacity is zero
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -644,7 +644,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 15:20 | COVID:5_11,FLU:2_3 | 10          | 0        |
       | Tomorrow | 09:00 | 15:20 | RSV:Adult          | 10          | 0        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
@@ -653,7 +653,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Retrieve sites which have requested services even though they're in non overlapping sessions
+  Scenario: Site By Area Search - Retrieve sites which have requested services even though they're in non overlapping sessions
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -676,7 +676,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |
-    When I make the following request with service filtering
+    When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow |
     Then the following sites and distances are returned
@@ -685,7 +685,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | 9bf7f58b-ca1a-425a-869e-7a574e183a2c | Site-2 | 2 Roadside | 0113 2222222 | K12     | R2     | ICB2 | Info 2                 | accessibility/attr_one=false | 0.14566747  | 51.482472 | 4819     |
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
 
-  Scenario: Site Search - Multi service filtering only returns sites which also match the requested access needs even if they have the capacity for the services
+  Scenario: Site By Area Search - Multi service filtering only returns sites which also match the requested access needs even if they have the capacity for the services
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 20e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -708,7 +708,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |
-    When I make the following request with service filtering and with access needs
+    When I make the 'get sites by area' request with service filtering and with access needs
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
     Then the following sites and distances are returned
@@ -717,7 +717,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | aa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
     
 # A test to prove lazy sliding cache behaviours, including delayed updated cache results after a slide
-  Scenario: Site Search - Lazy Slide Cache Test
+  Scenario: Site By Area Search - Lazy Slide Cache Test
     Given the following sites exist in the system
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
@@ -736,7 +736,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:20 | RSV:Adult  | 10          | 1        |
       | Tomorrow | 12:00 | 15:20 | COVID:5_11 | 10          | 1        |
-    When I make the following request with service filtering, access needs, and caching
+    When I make the 'get sites by area' request with service filtering, access needs, and caching
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
     Then the following sites and distances are returned
@@ -747,7 +747,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |
-    When I make the following request with service filtering, access needs, and caching
+    When I make the 'get sites by area' request with service filtering, access needs, and caching
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
 #   The site with the posted availability is not returned yet
@@ -758,7 +758,7 @@ Feature: Site Location Dependent - Query Sites Disabled
 #   Wait for the slide threshold to pass
     When I wait for '1050' milliseconds
 #   First request should slide the cache, updating the cache value to the new, but still return the old value
-    When I make the following request with service filtering, access needs, and caching
+    When I make the 'get sites by area' request with service filtering, access needs, and caching
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
 #   The site with the posted availability is not returned yet
@@ -766,7 +766,7 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
 #   Second request should not slide the cache, but return the new value that was saved by the slide
-    When I make the following request with service filtering, access needs, and caching
+    When I make the 'get sites by area' request with service filtering, access needs, and caching
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
 #   The site with the posted availability is returned now!
@@ -874,3 +874,15 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Types    | OdsCode | Longitude   | Latitude     | SearchRadius |
       | Pharmacy | 20N     | 0.082750916 | 51.494056    | 10000        |
     Then the call should fail with 501
+
+  Scenario: Site By Area Search - Ensure access need values are lowercase
+    Given the following sites exist in the system
+      | Site                                 | Name    | Address     | PhoneNumber  | OdsCode | Region | ICB   | InformationForCitizens | Accessibilities                                          | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9  | 9 Roadside  | 0113 9999999 | J12     | R9     | ICB9  | Info 9                 | accessibility/attr_one=TRUE,accessibility/attr_two=True  | -0.0827   | -51.5    |
+      | 6877d86e-c2df-4def-8508-e1eccf0ea6be | Site-10 | 10 Roadside | 0113 1010101 | K12     | R10    | ICB10 | Info 10                | accessibility/attr_one=true,accessibility/attr_two=False | -0.0827   | -51.5    |
+    When I make the 'get sites by area' request with access needs
+      | Max Records | Search Radius | Longitude | Latitude | AccessNeeds       |
+      | 50          | 100000        | -0.082    | -51.5    | attr_one,attr_two |
+    Then the following sites and distances are returned
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                         | Longitude | Latitude | Distance |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9 | 9 Roadside | 0113 9999999 | J12     | R9     | ICB9 | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true | -0.0827   | -51.5    | 48       |

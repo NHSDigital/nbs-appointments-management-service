@@ -10,7 +10,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-public abstract class UpdateSiteReferenceDetailsFeatureSteps(string flag, bool enabled) : SiteManagementBaseFeatureSteps(flag, enabled)
+public abstract class UpdateSiteReferenceDetailsFeatureSteps : SiteManagementBaseFeatureSteps
 {
     [When("I update the reference details for site '(.+)'")]
     public async Task UpdateSiteReferenceDetails(string siteDesignation, DataTable dataTable)
@@ -27,11 +27,5 @@ public abstract class UpdateSiteReferenceDetailsFeatureSteps(string flag, bool e
     }
 }
 
-[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
 [FeatureFile("./Scenarios/SiteManagement/UpdateSiteReferenceDetails.feature")]
-public sealed class UpdateSiteReferenceDetailsFeaturesSteps_LastUpdatedByEnabled() : UpdateSiteReferenceDetailsFeatureSteps(Flags.AuditLastUpdatedBy, true);
-
-
-[Collection(FeatureToggleCollectionNames.LastUpdatedByCollection)]
-[FeatureFile("./Scenarios/SiteManagement/UpdateSiteReferenceDetails.feature")]
-public sealed class UpdateSiteReferenceDetailsFeatureSteps_LastUpdatedByDisabled() : UpdateSiteReferenceDetailsFeatureSteps(Flags.AuditLastUpdatedBy, false);
+public sealed class UpdateSiteReferenceDetailsFeaturesSteps : UpdateSiteReferenceDetailsFeatureSteps;

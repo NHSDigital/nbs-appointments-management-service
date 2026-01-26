@@ -76,7 +76,8 @@ export const SessionModificationConfirmed = ({
       return (
         <p>
           This session has been cancelled and {newlyUnsupportedBookingsCount}{' '}
-          bookings have been cancelled.
+          {newlyUnsupportedBookingsCount > 1 ? 'bookings' : 'booking'} have been
+          cancelled.
         </p>
       );
     }
@@ -97,7 +98,7 @@ export const SessionModificationConfirmed = ({
         <>
           <Card
             title={String(newlyUnsupportedBookingsCount)}
-            description="Bookings have been cancelled"
+            description={`${newlyUnsupportedBookingsCount > 1 ? 'Bookings' : 'Booking'} have been cancelled`}
             maxWidth={250}
           />
           {renderCommsSummary()}

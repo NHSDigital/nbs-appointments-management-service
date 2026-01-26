@@ -118,8 +118,7 @@ public class ServiceTests
             _mockOptions.Object, 
             _mockMapper.Object, 
             _mockMetrics.Object,
-            _mockLastUpdatedByResolver.Object,
-            _mockFeatureToggleHelper.Object);
+            _mockLastUpdatedByResolver.Object);
 
         auditDocStore._databaseName.Should().Be("appts");
         auditDocStore._containerName.Should().Be("audit_data");
@@ -136,8 +135,7 @@ public class ServiceTests
             _mockOptions.Object, 
             _mockMapper.Object, 
             _mockMetrics.Object,
-            _mockLastUpdatedByResolver.Object,
-            _mockFeatureToggleHelper.Object);
+            _mockLastUpdatedByResolver.Object);
 
         auditDocStore._databaseName.Should().Be("appts");
         auditDocStore._containerName.Should().Be("audit_data");
@@ -154,8 +152,7 @@ public class ServiceTests
             _mockOptions.Object, 
             _mockMapper.Object, 
             _mockMetrics.Object,
-            _mockLastUpdatedByResolver.Object,
-            _mockFeatureToggleHelper.Object);
+            _mockLastUpdatedByResolver.Object);
 
         auditDocStore._databaseName.Should().Be("appts");
         auditDocStore._containerName.Should().Be("audit_data");

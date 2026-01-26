@@ -110,18 +110,6 @@ stages:
               downloadPath: $(Pipeline.Workspace)
 
           - task: AzureCLI@2
-            displayName: "Create Terraform State Container"
-            condition: eq('${{parameters.env}}', 'pen')
-            inputs:
-              scriptType: pscore
-              scriptLocation: scriptPath
-              scriptPath: "$(Pipeline.Workspace)/drop_scripts/storage-account/create-tfstate-container.ps1"
-              addSpnToEnvironment: true
-              azureSubscription: ${{parameters.serviceConnectionName}}
-              ## TODO: When we create our 2nd sandbox onwards, we need to derive workloadType from the environment
-              arguments: "-workloadName 'mya' -workloadType 'nonprod' -workloadRegion 'uks' -tfstateContainerName 'tfstate'"
-
-          - task: AzureCLI@2
             displayName: "Run Terraform Plan"
             inputs:
               scriptType: pscore
@@ -236,7 +224,7 @@ stages:
                 slotName: "preview"
       - job: DeployHighLoadFunctionApp
         dependsOn: ApplyTerraform
-        condition: and(succeeded(), ${{ in(parameters.env, 'int', 'stag', 'pen', 'perf', 'prod') }})
+        condition: and(succeeded(), ${{ in(parameters.env, 'int', 'stag', 'perf', 'prod') }})
         displayName: "Deploy high load function app"
         steps:
           - checkout: none
@@ -311,7 +299,7 @@ stages:
           - DeployHttpFunctionApp
           - DeployServiceBusFunctionApp
           - DeployTimerFunctionApp
-          - ${{ if in(parameters.env, 'int', 'stag', 'pen', 'perf', 'prod') }}:
+          - ${{ if in(parameters.env, 'int', 'stag', 'perf', 'prod') }}:
               - DeployHighLoadFunctionApp
         variables:
           environment: ${{parameters.env}}

@@ -134,7 +134,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [When("I query sites by access needs")]
@@ -158,7 +158,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [When("I query sites by service")]
@@ -187,7 +187,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [When("I query sites by multiple filters")]
@@ -230,7 +230,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [When("I query sites by location")]
@@ -260,7 +260,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [When("I query sites with a low maxRecord count")]
@@ -290,7 +290,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [When("I query sites by multiple filters in reverse priority order")]
@@ -335,7 +335,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [When("I query sites by multiple services, site type and access needs")]
@@ -396,7 +396,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             }
         };
 
-        await SendRequestAsync(payload);
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [Then("the following sites and distances are returned")]
@@ -441,8 +441,8 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => StatusCode.Should().Be((HttpStatusCode)statusCode);
     
-    [When("I make the following request with access needs")]
-    public async Task RequestSitesWithAccessNeeds(DataTable dataTable)
+    [When("I make the 'get sites by area' request with access needs")]
+    public async Task RequestSitesByAreaWithAccessNeeds(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var maxRecords = row.Cells.ElementAt(0).Value;
@@ -455,6 +455,34 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
+    }
+    
+    [When("I make the 'query sites' request with access needs")]
+    public async Task QuerySitesWithAccessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+        var accessNeeds = row.Cells.ElementAt(4).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    AccessNeeds = accessNeeds.Split(',')
+                }
+            }
+        };
+        
+        await PostQuerySitesRequestAsync(payload);
     }
     
     [When(@"I check ([\w:]+) availability for site '(.+)' for '(.+)' between '(.+)' and '(.+)'")]
@@ -504,8 +532,8 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());
     }
     
-    [When("I make the following request with service filtering and with access needs")]
-    public async Task RequestSitesWithServiceFilteringAndAccessNeeds(DataTable dataTable)
+    [When("I make the 'get sites by area' request with service filtering and with access needs")]
+    public async Task RequestSitesByAreaWithServiceFilteringAndAccessNeeds(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var maxRecords = row.Cells.ElementAt(0).Value;
@@ -526,8 +554,47 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
                 await Response.Content.ReadAsStreamAsync());
     }
     
-    [When("I make the following request with service filtering, access needs, and caching")]
-    public async Task RequestSitesWithServiceFilteringAndAccessNeedsAndCacheEnabled(DataTable dataTable)
+    [When("I make the 'query sites' request with service filtering and with access needs")]
+    public async Task QuerySitesWithServiceFilteringAndAccessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var services = row.Cells.ElementAt(4).Value;
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+
+        var accessNeeds = row.Cells.ElementAt(7).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    AccessNeeds = accessNeeds.Split(','),
+                    Availability = new AvailabilityFilter()
+                    {
+                        From = from,
+                        Until = until,
+                        Services = services.Split(',')
+                    }
+                }
+            }
+        };
+        
+        await PostQuerySitesRequestAsync(payload);
+    }
+    
+    [When("I make the 'get sites by area' request with service filtering, access needs, and caching")]
+    public async Task RequestSitesByAreaWithServiceFilteringAndAccessNeedsAndCacheEnabled(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var maxRecords = row.Cells.ElementAt(0).Value;
@@ -548,6 +615,46 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
                 await Response.Content.ReadAsStreamAsync());
     }
     
+    [When("I make the 'query sites' request with service filtering, access needs, and caching")]
+    public async Task QuerySitesWithServiceFilteringAndAccessNeedsAndCacheEnabled(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var services = row.Cells.ElementAt(4).Value;
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+
+        var accessNeeds = row.Cells.ElementAt(7).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            ignoreCache = false,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    AccessNeeds = accessNeeds.Split(','),
+                    Availability = new AvailabilityFilter()
+                    {
+                        From = from,
+                        Until = until,
+                        Services = services.Split(',')
+                    }
+                }
+            }
+        };
+
+        await PostQuerySitesRequestAsync(payload);
+    }
+    
     //Not to be used unless explicitly need to wait
     [When("I wait for '(.+)' milliseconds")]
     public async Task WaitForSeconds(string milliseconds)
@@ -556,8 +663,8 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         await Task.Delay(timespan);
     }
 
-    [When("I make the following request with service filtering")]
-    public async Task RequestSitesWithServiceFiltering(DataTable dataTable)
+    [When("I make the 'get sites by area' request with service filtering")]
+    public async Task RequestSitesByAreaWithServiceFiltering(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var maxRecords = row.Cells.ElementAt(0).Value;
@@ -576,9 +683,46 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
     }
+    
+    [When("I make the 'query sites' request with service filtering")]
+    public async Task QuerySitesWithServiceFiltering(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
 
-    [When("I make the following request without access needs")]
-    public async Task RequestSitesWithoutAccessNeeds(DataTable dataTable)
+        var services = row.Cells.ElementAt(4).Value;
+
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    Availability = new AvailabilityFilter
+                    {
+                        From = from,
+                        Until = until,
+                        Services = services.Split(',')
+                    }
+                }
+            }
+        };
+
+        await PostQuerySitesRequestAsync(payload);
+    }
+
+    [When("I make the 'get sites by area' request without access needs")]
+    public async Task RequestSitesByAreaWithoutAccessNeeds(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
         var maxRecords = row.Cells.ElementAt(0).Value;
@@ -590,6 +734,32 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
+    }
+    
+    [When("I make the 'query sites' request without access needs")]
+    public async Task QuerySitesWithoutAccessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber)
+                }
+            }
+        };
+
+        await PostQuerySitesRequestAsync(payload);
     }
 
     [Then("no sites are returned")]
@@ -615,7 +785,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
     }
 
-    private async Task SendRequestAsync(object payload)
+    private async Task PostQuerySitesRequestAsync(object payload)
     {
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");

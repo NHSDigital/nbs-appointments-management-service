@@ -88,6 +88,7 @@ module "mya_application_prod_ukw" {
   auto_cancelled_bookings_cron_schedule           = var.AUTO_CANCELLED_BOOKINGS_CRON_SCHEDULE
   site_supports_service_sliding_cache_absolute_expiration_seconds = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS
   site_supports_service_sliding_cache_slide_threshold_seconds     = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS
+  site_supports_service_batch_multiplier          = var.SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER
   disable_query_availability_function             = false
   create_high_load_function_app                   = true
   create_app_slot                                 = false

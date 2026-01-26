@@ -22,6 +22,11 @@ public abstract class BaseBulkImportFeatureSteps : BaseFeatureSteps
 
         var result = JsonConvert.DeserializeObject<IEnumerable<ReportItem>>(await Response.Content.ReadAsStringAsync());
 
+        if (result.Any(r => !r.Success))
+        {
+            result.First(r => !r.Success).Message.Should().Be("Testing");
+        }
+
         result.All(r => r.Success).Should().BeTrue();
     }
 

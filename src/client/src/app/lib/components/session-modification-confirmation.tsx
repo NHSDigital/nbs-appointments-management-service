@@ -82,8 +82,8 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
       count: number,
     ) =>
       action === 'change-session'
-        ? `You have chosen not to cancel ${count} bookings.`
-        : `Changing the time and capacity will affect ${count} bookings`,
+        ? `You have chosen not to cancel ${count} ${count > 1 ? 'bookings' : 'booking'}.`
+        : `Changing the time and capacity will affect ${count} ${count > 1 ? 'bookings' : 'booking'}`,
     impactCard: (action: SessionModificationAction | undefined) =>
       action === undefined || action === 'cancel-appointments',
     notificationNote: (action: SessionModificationAction | undefined) =>
@@ -114,10 +114,10 @@ const MODE_TEXTS: Record<Mode, ModeTextConfig> = {
       count: number,
     ) =>
       action === undefined
-        ? `Cancelling the session will affect ${count} bookings.`
+        ? `Cancelling the session will affect ${count} ${count > 1 ? 'bookings' : 'booking'}.`
         : action === 'keep-appointments'
-          ? `You have chosen not to cancel ${count} bookings.`
-          : `${count} bookings may have to be cancelled.`,
+          ? `You have chosen not to cancel ${count} ${count > 1 ? 'bookings' : 'booking'}.`
+          : `${count} ${count > 1 ? 'bookings' : 'booking'} may have to be cancelled.`,
     impactCard: (action: SessionModificationAction | undefined) =>
       action === undefined || action === 'cancel-appointments',
     notificationNote: (action: SessionModificationAction | undefined) =>
@@ -299,7 +299,7 @@ export const SessionModificationConfirmation = ({
           {texts.impactCard(decision) && (
             <Card
               title={String(newlyUnsupportedBookingsCount)}
-              description="Bookings may have to be cancelled"
+              description={`${newlyUnsupportedBookingsCount > 1 ? 'Bookings' : 'Booking'}  may have to be cancelled`}
               maxWidth={250}
             />
           )}

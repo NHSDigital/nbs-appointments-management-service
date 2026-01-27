@@ -108,7 +108,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
 
         var actualResult = await Client.GetContainer("appts", "core_data")
             .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site")); 
-        actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering().Excluding(x => x.LastUpdatedBy));
+        actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
     }
     
     [When("I query sites by site type and ODS code")]

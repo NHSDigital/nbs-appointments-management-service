@@ -45,9 +45,10 @@ public class SiteService(
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
     ICacheService cacheService,
-    IOptions<SiteServiceOptions> options,
-    SiteCacheLock siteCacheLock) : ISiteService
+    IOptions<SiteServiceOptions> options) : ISiteService
 {
+    private static readonly SemaphoreSlim _siteCacheLock = new(1, 1);
+
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
         SiteSupportsServiceFilter siteSupportsServiceFilter = null)
@@ -96,7 +97,7 @@ public class SiteService(
     private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
         List<string> services,
         DateOnly from, DateOnly to,
-        int maxRecords, bool ignoreCache = false)
+        int maxRecords = 50, bool ignoreCache = false)
     {
         var orderedSites = sites.OrderBy(site => site.Distance).ToList();
         var uniqueSortedServices = services.OrderBy(s => s).Distinct().ToList();
@@ -365,8 +366,8 @@ public class SiteService(
                     siteSupportsServiceFilter.services,
                     siteSupportsServiceFilter.from,
                     siteSupportsServiceFilter.until,
-                    maxRecords: maxRecords,
-                    ignoreCache: ignoreCache);
+                    maxRecords,
+                    ignoreCache);
 
                 sitesWithDistance = [.. serviceResults.DistinctBy(swd => swd.Site.Id)];
             }
@@ -500,7 +501,7 @@ public class SiteService(
             return;
         }
 
-        await siteCacheLock.WaitAsync();
+        await _siteCacheLock.WaitAsync();
         try
         {
             if (!memoryCache.TryGetValue(options.Value.SiteCacheKey, out List<Site> cachedSites))
@@ -533,7 +534,7 @@ public class SiteService(
         }
         finally
         {
-            siteCacheLock.Release();
+            _siteCacheLock.Release();
         }
     }
 

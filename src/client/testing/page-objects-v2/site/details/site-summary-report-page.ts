@@ -1,4 +1,3 @@
-import { type Locator } from '@playwright/test';
 import { MYALayout } from '@e2etests/types';
 
 export default class SiteSummaryReportPage extends MYALayout {

@@ -19,7 +19,6 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         var report = (await processor.ProcessFile(fileReader)).ToList();
 
         CheckForDuplicatedSites(siteRows, report);
-        await CheckIfAnySitesAlreadyExist(siteRows, report);
         await CheckForInvalidSites(siteRows, report);
 
         if (report.Any(r => !r.Success))
@@ -45,7 +44,7 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
                     site.Location,
                     site.Accessibilities,
                     site.Type,
-					siteStatus);
+                    siteStatus);
             }
             catch (Exception ex)
             {
@@ -101,24 +100,6 @@ public class SiteDataImporterHandler(ISiteService siteService, IWellKnowOdsCodes
         if (duplicateSiteNames.Count > 0)
         {
             report.AddRange(duplicateSiteNames.Select(dup => new ReportItem(-1, dup, false, $"Duplicate site name provided: '{dup}'. Site names must be unique.")));
-        }
-    }
-
-    private async Task CheckIfAnySitesAlreadyExist(List<SiteImportRow> siteRows, List<ReportItem> report)
-    {
-        var existingSiteIds = new List<string>();
-        var siteIds = siteRows.Select(s => s.Id).Distinct().ToList();
-        foreach (var siteId in siteIds)
-        {
-            if (await siteService.GetSiteByIdAsync(siteId) is not null)
-            {
-                existingSiteIds.Add(siteId);
-            }
-        }
-
-        if (existingSiteIds.Count > 0)
-        {
-            report.AddRange(existingSiteIds.Select(id => new ReportItem(-1, "Site already exists", false, $"Site with ID: '{id}' already exists in the system.")));
         }
     }
 

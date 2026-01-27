@@ -83,7 +83,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber,
-        decimal? longitude, decimal? latitude)
+        decimal? longitude, decimal? latitude, string type = null)
     {
         decimal?[] coords = (longitude != null) & (latitude != null) ? [longitude, latitude] : [];
         
@@ -94,15 +94,20 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             return new OperationResult(false, "The specified site was not found.");
         }
         var documentType = cosmosStore.GetDocumentType();
-        PatchOperation[] detailsPatchOperations =
-        [
+        var detailsPatchOperations = new List<PatchOperation>
+        {
             PatchOperation.Replace("/name", name),
             PatchOperation.Replace("/address", address),
             PatchOperation.Replace("/phoneNumber", phoneNumber),
-            PatchOperation.Replace("/location/coordinates", coords),
-        ];
+            PatchOperation.Replace("/location/coordinates", coords)
+        };
 
-        await cosmosStore.PatchDocument(documentType, siteId, detailsPatchOperations);
+        if (type != null)
+        {
+            detailsPatchOperations.Add(PatchOperation.Replace("/type", type));
+        }
+
+        await cosmosStore.PatchDocument(documentType, siteId, [.. detailsPatchOperations]);
         return new OperationResult(true);
     }
     
@@ -153,10 +158,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
                 return new OperationResult(false, "The specified site can not be updated.");
             }
 
-            var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0], (decimal)location.Coordinates[1]);
+            var updateSite = UpdateSiteDetails(siteId, name, address, phoneNumber, (decimal)location.Coordinates[0], (decimal)location.Coordinates[1], type);
             var updateAccessiblities = UpdateAccessibilities(siteId, accessibilities);
+            var updateReferenceDetails = UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
 
-            await Task.WhenAll(updateSite, updateAccessiblities);
+            await Task.WhenAll(updateSite, updateAccessiblities, updateReferenceDetails);
 
             return new OperationResult(true);
         }

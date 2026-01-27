@@ -1,94 +1,78 @@
 import * as fs from 'fs';
-import {
-  OAuthLoginPage,
-  RootPage,
-  SitePage,
-  SiteSelectionPage,
-} from '@testing-page-objects';
-import { test, expect, overrideFeatureFlag } from '../../fixtures';
-import { Site } from '@types';
-
-let rootPage: RootPage;
-let oAuthPage: OAuthLoginPage;
-let siteSelectionPage: SiteSelectionPage;
-let sitePage: SitePage;
-
-let site: Site;
+import { test, expect } from '../../fixtures-v2';
 
 test.describe.configure({ mode: 'serial' });
 
-//TODO use features in v2 pattern
-test.beforeAll(async () => {
-  await overrideFeatureFlag('SiteSummaryReport', true);
+test('Navigates to the reports page via the header before selecting a site', async ({
+  setUpSingleSite,
+}) => {
+  await setUpSingleSite({
+    features: [{ name: 'SiteSummaryReport', enabled: true }],
+  }).then(async ({ sitePage }) => {
+    const reportsPage = await sitePage.topNav.clickReports();
+    await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
+  });
 });
 
-//TODO use features in v2 pattern
-test.afterAll(async () => {
-  await overrideFeatureFlag('SiteSummaryReport', false);
+test('Navigates to the reports page via a site page', async ({
+  setUpSingleSite,
+}) => {
+  await setUpSingleSite({
+    features: [{ name: 'SiteSummaryReport', enabled: true }],
+  }).then(async ({ sitePage }) => {
+    const reportsPage = await sitePage.clickReportsCard();
+    await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
+  });
 });
 
-test.beforeEach(async ({ page, getTestSite, getTestUser }) => {
-  //TODO setup site per test in v2 pattern using fixtures
-  site = getTestSite(1);
-  rootPage = new RootPage(page);
-  oAuthPage = new OAuthLoginPage(page);
-  siteSelectionPage = new SiteSelectionPage(page);
-  sitePage = new SitePage(page);
-
-  await rootPage.goto();
-  await rootPage.pageContentLogInButton.click();
-  //TODO setup user per test in v2 pattern using fixtures
-  await oAuthPage.signIn(getTestUser(12));
-});
-
-test('Navigates to the reports page via the header before selecting a site', async () => {
-  const reportsPage = await siteSelectionPage.topNav.clickReports();
-
-  await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
-});
-
-test('Navigates to the reports page via a site page', async () => {
-  await siteSelectionPage.selectSite(site);
-  const reportsPage = await sitePage.clickReportsCard();
-
-  await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
-});
-
-test('Downloads a site summary report', async ({ page }) => {
-  const reportsPage = await siteSelectionPage.topNav.clickReports();
-
-  await reportsPage.selectDatesStep.startDateInput.fill('2025-08-10');
-  await reportsPage.selectDatesStep.endDateInput.fill('2025-08-20');
-
-  await reportsPage.selectDatesStep.continueButton.click();
-  await expect(reportsPage.confirmDownloadStep.stepTitle).toBeVisible();
-  await reportsPage.confirmDownloadStep.continueButton.click();
-
-  const download = await page.waitForEvent('download');
-  expect(download).toBeDefined();
-  expect(download.suggestedFilename()).toContain('GeneralSiteSummaryReport');
-
+test('Downloads a site summary report', async ({ page, setUpSingleSite }) => {
   const fileName = 'downloaded-test-report.csv';
-  await download.saveAs(fileName);
-  const csvContent = fs.readFileSync(fileName, 'utf-8');
 
-  const lines = csvContent.split('\n').filter(line => line.trim().length > 0);
-  const headers = lines[0].split(',');
-  expect(lines.length).toBeGreaterThan(1);
+  await setUpSingleSite({
+    features: [{ name: 'SiteSummaryReport', enabled: true }],
+  })
+    .then(async ({ sitePage }) => {
+      return sitePage.topNav.clickReports();
+    })
+    .then(async reportsPage => {
+      const today: string = new Date().toISOString().split('T')[0];
+      await reportsPage.selectDatesStep.startDateInput.fill(today);
+      await reportsPage.selectDatesStep.endDateInput.fill(today);
+      await reportsPage.selectDatesStep.continueButton.click();
 
-  expect(headers.length).toBe(expectedFileDownloadHeaders.length);
+      await expect(reportsPage.confirmDownloadStep.stepTitle).toBeVisible();
 
-  // Last element of the header may contain a line ending character
-  const headersTrimmed = headers.map(header => header.trim());
+      const downloadPromise = page.waitForEvent('download');
+      await reportsPage.confirmDownloadStep.continueButton.click();
+      return downloadPromise;
+    })
+    .then(async download => {
+      expect(download.suggestedFilename()).toContain(
+        'GeneralSiteSummaryReport',
+      );
+      await download.saveAs(fileName);
 
-  expect(headersTrimmed).toEqual(expectedFileDownloadHeaders);
+      const csvContent = fs.readFileSync(fileName, 'utf-8');
+      const lines = csvContent
+        .split('\n')
+        .filter(line => line.trim().length > 0);
 
-  fs.unlinkSync(fileName);
+      // Normalize headers by splitting and trimming whitespace/line endings
+      const headers = lines[0].split(',').map(h => h.trim());
+
+      expect(lines.length).toBeGreaterThan(1);
+      expect(headers).toEqual(expectedFileDownloadHeaders);
+    })
+    .finally(() => {
+      if (fs.existsSync(fileName)) {
+        fs.unlinkSync(fileName);
+      }
+    });
 });
 
 const expectedFileDownloadHeaders = [
   'Site Name',
-  //TODO missing status
+  'Status',
   'Site Type',
   'ICB',
   'ICB Name',

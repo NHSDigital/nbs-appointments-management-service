@@ -31,8 +31,16 @@ public sealed class WellKnownOdsCodeEntriesFeatureSteps : BaseFeatureSteps
                     DisplayName: "Region 1",
                     Type: "region"),
                 new WellKnownOdsEntry(
+                    OdsCode: "R2",
+                    DisplayName: "Region 2",
+                    Type: "region"),
+                new WellKnownOdsEntry(
                     OdsCode: "ICB1",
                     DisplayName: "Integrated Care Board 1",
+                    Type: "icb"),
+                new WellKnownOdsEntry(
+                    OdsCode: "ICB2",
+                    DisplayName: "Integrated Care Board 2",
                     Type: "icb")
                 ]
             };

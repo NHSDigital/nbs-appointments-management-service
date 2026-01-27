@@ -10,6 +10,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
@@ -26,6 +27,8 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
     private IEnumerable<SiteWithDistance> _sitesResponse;
+    
+    private QueryAvailabilityResponse _queryResponse;
 
     public void Dispose()
     {
@@ -341,16 +344,24 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
                         double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)
                     ]),
                 status: null,
-                isDeleted: false,
-                Type: row.Cells.ElementAt(12)?.Value ?? string.Empty
+                isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+                Type: dataTable.GetRowValueOrDefault(row, "Type")
             ), Distance: int.Parse(row.Cells.ElementAt(11).Value)
         )).ToList();
 
         _sitesResponse.Should().HaveCount(dataTable.Rows.Count() - 1);
 
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        _sitesResponse.Should().BeEquivalentTo(expectedSites);
+        _sitesResponse.Should().BeEquivalentTo(expectedSites, options => options.Excluding(x => x.Site.Type));
         _sitesResponse.Select(s => s.Distance).Should().BeInAscendingOrder();
+    }
+    
+    //Not to be used unless explicitly need to wait
+    [When("I wait for '(.+)' milliseconds")]
+    public async Task WaitForSeconds(string milliseconds)
+    {
+        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
+        await Task.Delay(timespan);
     }
 
     [Then("no sites are returned")]
@@ -358,6 +369,223 @@ public abstract class QuerySitesFeatureSteps(string flag, bool enabled) : Featur
     {
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         _sitesResponse.Should().BeEmpty();
+    }
+    
+    [When("I make the 'query sites' request with access needs")]
+    public async Task QuerySitesWithAccessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+        var accessNeeds = row.Cells.ElementAt(4).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    AccessNeeds = accessNeeds.Split(',')
+                }
+            }
+        };
+        
+        await SendRequestAsync(payload);
+    }
+    
+    [When("I make the 'query sites' request with service filtering and with access needs")]
+    public async Task QuerySitesWithServiceFilteringAndAccessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var services = row.Cells.ElementAt(4).Value;
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+
+        var accessNeeds = row.Cells.ElementAt(7).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    AccessNeeds = accessNeeds.Split(','),
+                    Availability = new AvailabilityFilter()
+                    {
+                        From = from,
+                        Until = until,
+                        Services = services.Split(',')
+                    }
+                }
+            }
+        };
+        
+        await SendRequestAsync(payload);
+    }
+    
+    [When("I make the 'query sites' request with service filtering, access needs, and caching")]
+    public async Task QuerySitesWithServiceFilteringAndAccessNeedsAndCacheEnabled(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var services = row.Cells.ElementAt(4).Value;
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+
+        var accessNeeds = row.Cells.ElementAt(7).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            ignoreCache = false,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    AccessNeeds = accessNeeds.Split(','),
+                    Availability = new AvailabilityFilter()
+                    {
+                        From = from,
+                        Until = until,
+                        Services = services.Split(',')
+                    }
+                }
+            }
+        };
+
+        await SendRequestAsync(payload);
+    }
+    
+    [When("I make the 'query sites' request with service filtering")]
+    public async Task QuerySitesWithServiceFiltering(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var services = row.Cells.ElementAt(4).Value;
+
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber),
+                    Availability = new AvailabilityFilter
+                    {
+                        From = from,
+                        Until = until,
+                        Services = services.Split(',')
+                    }
+                }
+            }
+        };
+
+        await SendRequestAsync(payload);
+    }
+    
+    [When("I make the 'query sites' request without access needs")]
+    public async Task QuerySitesWithoutAccessNeeds(DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+        
+        var payload = new
+        {
+            maxRecords,
+            filters = new[]
+            {
+                new SiteFilter
+                {
+                    Longitude = double.Parse(longitude),
+                    Latitude = double.Parse(latitude),
+                    SearchRadius = int.Parse(searchRadiusNumber)
+                }
+            }
+        };
+
+        await SendRequestAsync(payload);
+    }
+    
+    [When(@"I check ([\w:]+) availability for site '(.+)' for '(.+)' between '(.+)' and '(.+)'")]
+    public async Task CheckAvailability(string queryType, string site, string service, string from, string until)
+    {
+        var convertedQueryType = queryType switch
+        {
+            "daily" => QueryType.Days,
+            "hourly" => QueryType.Hours,
+            "slot" => QueryType.Slots,
+            _ => throw new Exception($"{queryType} is not a valid queryType")
+        };
+
+        var payload = new
+        {
+            sites = new[] { GetSiteId(site) },
+            service,
+            from = NaturalLanguageDate.Parse(from),
+            until = NaturalLanguageDate.Parse(until),
+            queryType = convertedQueryType.ToString()
+        };
+
+        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
+        (_, _queryResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await Response.Content.ReadAsStreamAsync());
+    }
+    
+    [Then(@"the following availability is returned for '(.+)'")]
+    [And(@"the following availability is returned for '(.+)'")]
+    public void Assert(string date, DataTable expectedHourlyAvailabilityTable)
+    {
+        var expectedDate = NaturalLanguageDate.Parse(date);
+        var expectedHourBlocks = expectedHourlyAvailabilityTable.Rows.Skip(1).Select(row =>
+            new QueryAvailabilityResponseBlock(
+                TimeOnly.ParseExact(row.Cells.ElementAt(0).Value, "HH:mm"),
+                TimeOnly.ParseExact(row.Cells.ElementAt(1).Value, "HH:mm"),
+                int.Parse(row.Cells.ElementAt(2).Value)
+            ));
+
+        var expectedAvailability = new QueryAvailabilityResponseInfo(
+            expectedDate,
+            expectedHourBlocks);
+
+        Response.StatusCode.Should().Be(HttpStatusCode.OK);
+        _queryResponse
+            .Single().availability
+            .Single(x => x.date == expectedDate)
+            .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());
     }
 
     [Then(@"the call should fail with (\d*)")]

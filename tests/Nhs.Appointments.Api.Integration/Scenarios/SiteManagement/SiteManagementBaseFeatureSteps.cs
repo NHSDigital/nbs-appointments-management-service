@@ -30,7 +30,7 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         return Task.CompletedTask;
     }
 
-    [Given("The following sites exist in the system")]
+    [Given("the following sites exist in the system")]
     public async Task SetUpSites(DataTable dataTable)
     {
         var sites = dataTable.Rows.Skip(1).Select(

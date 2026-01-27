@@ -423,12 +423,20 @@ variable "auto_cancelled_bookings_disabled" {
 }
 
 variable "site_supports_service_sliding_cache_slide_threshold_seconds" {
-  type = string
+  type = number
+  default = 1
 }
 
 variable "site_supports_service_sliding_cache_absolute_expiration_seconds" {
-  type = string
+  type = number
+  default = 10
 }
+
+variable "site_supports_service_batch_multiplier" {
+  type = number
+  default = 2
+}
+
 
 variable "auditor_enable" {
   type = bool

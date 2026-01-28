@@ -144,6 +144,8 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var actualBooking = await Client.GetContainer("appts", "booking_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
         BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
+        
+        await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
     }
 
     [Then(@"I receive a message informing me that the appointment is no longer available")]

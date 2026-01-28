@@ -477,6 +477,8 @@ public abstract partial class BaseFeatureSteps : Feature
             {
                 booking.Resource.AdditionalData.Should().BeEquivalentTo(JObject.FromObject(additionalData));
             }
+            
+            await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
         }
     }
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
@@ -581,6 +583,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
         await AssertBookingStatusByReference(bookingReference, GetSiteId(), expectedStatus);
+        await AssertLastUpdatedBy("booking_data", bookingReference, GetSiteId(), _userId);
     }
 
     [Then(@"the booking at site '(.+)' has been '(\w+)'")]
@@ -590,6 +593,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
         await AssertBookingStatusByReference(bookingReference, GetSiteId(siteId), expectedStatus);
+        await AssertLastUpdatedBy("booking_data", bookingReference, GetSiteId(siteId), _userId);
     }
 
     [Then(@"the booking with reference '(.+)' has been '(.+)'")]
@@ -653,6 +657,30 @@ public abstract partial class BaseFeatureSteps : Feature
         var customId = CreateCustomBookingReference(bookingReference);
         var expectedStatus = Enum.Parse<AvailabilityStatus>(status);
         await AssertAvailabilityStatusByReference(customId, expectedStatus, false);
+    }
+    
+    [Then("the '(.+)' document with id '(.+)' and partition '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the '(.+)' document with id '(.+)' and partition '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertLastUpdatedBy(string container, string id, string partition, string lastUpdatedBy)
+    {
+        var lastUpdatedByDocument = await Client.GetContainer("appts", container)
+            .ReadItemAsync<LastUpdatedByCosmosDocument>(id, new PartitionKey(partition));
+        
+        lastUpdatedByDocument.Resource.LastUpdatedBy.Should().Be(lastUpdatedBy);
+    }
+    
+    [Then("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertSiteLastUpdatedBy(string siteId, string lastUpdatedBy)
+    {
+        await AssertLastUpdatedBy("core_data", GetSiteId(siteId), "site", lastUpdatedBy);
+    }
+    
+    [Then("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertBookingLastUpdatedBy(string reference, string siteId, string lastUpdatedBy)
+    {
+        await AssertLastUpdatedBy("booking_data", reference, GetSiteId(siteId), lastUpdatedBy);
     }
 
     [When(@"I create the following availability")]

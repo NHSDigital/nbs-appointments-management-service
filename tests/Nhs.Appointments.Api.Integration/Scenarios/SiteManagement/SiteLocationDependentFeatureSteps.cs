@@ -100,8 +100,8 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             new Location(
                 Type: "Point",
                 Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
-            status: null,
-            isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Status: null,
+            IsDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Type: dataTable.GetRowValueOrDefault(row, "Type")
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -418,8 +418,8 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
                     [
                         double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)
                     ]),
-                status: null,
-                isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+                Status: null,
+                IsDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
                 Type: dataTable.GetRowValueOrDefault(row, "Type")
             ), Distance: int.Parse(row.Cells.ElementAt(11).Value)
         )).ToList();

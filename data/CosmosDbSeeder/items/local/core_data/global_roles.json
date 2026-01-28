@@ -76,7 +76,8 @@
         "users:view",
         "users:manage",
         "system:data-importer",
-        "reports:sitesummary"
+        "reports:sitesummary",
+        "reports:master-site-list"
       ]
     },
     {

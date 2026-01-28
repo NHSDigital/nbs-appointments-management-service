@@ -59,7 +59,7 @@ public class SiteService(
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
         {
-            sites = sites.Where(s => s.status is SiteStatus.Online or null);
+            sites = sites.Where(s => s.Status is SiteStatus.Online or null);
         }
 
         var sitesWithDistance = sites
@@ -190,7 +190,7 @@ public class SiteService(
     public async Task<Site> GetSiteByIdAsync(string siteId, string scope = "*")
     {
         var site = await siteStore.GetSiteById(siteId);
-        if (site is null || site.isDeleted is true)
+        if (site is null || site.IsDeleted is true)
         {
             return default;
         }
@@ -213,7 +213,7 @@ public class SiteService(
     {
         var allSites = await GetSitesFromStoreOrCache(ignoreCache);
 
-        return includeDeleted ? allSites : allSites.Where(s => s.isDeleted is null or false);
+        return includeDeleted ? allSites : allSites.Where(s => s.IsDeleted is null or false);
     }
 
     public async Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false)
@@ -328,7 +328,7 @@ public class SiteService(
 
         if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
         {
-            sites = sites.Where(s => s.status is SiteStatus.Online or null);
+            sites = sites.Where(s => s.Status is SiteStatus.Online or null);
         }
 
         var allResults = new List<SiteWithDistance>();

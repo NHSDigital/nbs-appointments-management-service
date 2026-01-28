@@ -25,10 +25,10 @@ public static class SiteReportServiceMockData
             "ABC01",
             "R1",
             "ICB1",
-            location: new Location("Point", [.505, 65]),
+            Location: new Location("Point", [.505, 65]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
-            status: SiteStatus.Online, isDeleted: null,
+            Status: SiteStatus.Online, IsDeleted: null,
             Type: "GP Practice"),
         new(
             Site2Guid.ToString(),
@@ -38,10 +38,10 @@ public static class SiteReportServiceMockData
             "ABC02",
             "R1",
             "ICB1",
-            location: new Location("Point", [.506, 65]),
+            Location: new Location("Point", [.506, 65]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
-            status: SiteStatus.Offline, isDeleted: null,
+            Status: SiteStatus.Offline, IsDeleted: null,
             Type: "GP Practice"),
         new(
             Site3Guid.ToString(),
@@ -51,10 +51,10 @@ public static class SiteReportServiceMockData
             "ABC03",
             "R1",
             "ICB1",
-            location: new Location("Point", [.507, 65]),
+            Location: new Location("Point", [.507, 65]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new("accessibility/access_need_1", "true") },
-            status: null, isDeleted: null,
+            Status: null, IsDeleted: null,
             Type: "GP Practice")
     ];
 

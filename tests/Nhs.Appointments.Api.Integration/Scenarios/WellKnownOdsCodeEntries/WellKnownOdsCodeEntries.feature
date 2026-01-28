@@ -6,4 +6,6 @@ Feature: Get Well Known ODS Code Entries
   Then the following entries are returned
     | OdsCode | DisplayName             | Type   |
     | R1      | Region 1                | region |
+    | R2      | Region 2                | region |
     | ICB1    | Integrated Care Board 1 | icb    |
+    | ICB2    | Integrated Care Board 2 | icb    |

@@ -333,7 +333,7 @@ public class SiteServiceCacheTests
     {
         _siteStore.Setup(x =>
                 x.UpdateSiteDetails("f4c231eb-aff5-418b-9ea0-8ccb39a83b68",
-                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null, null))
+                    It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), null, null, null))
             .ReturnsAsync(new OperationResult(operationSuccessful));
 
         _memoryCache.Set("sites", new List<Site>());

@@ -8,8 +8,9 @@ test('Navigates to the reports page via the header before selecting a site', asy
 }) => {
   await setUpSingleSite({
     features: [{ name: 'SiteSummaryReport', enabled: true }],
-  }).then(async ({ sitePage }) => {
-    const reportsPage = await sitePage.topNav.clickReports();
+  })
+  .then(async sitePageFixture => sitePageFixture.sitePage.topNav.clickReports())
+  .then(async reportsPage => {
     await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
   });
 });
@@ -19,8 +20,9 @@ test('Navigates to the reports page via a site page', async ({
 }) => {
   await setUpSingleSite({
     features: [{ name: 'SiteSummaryReport', enabled: true }],
-  }).then(async ({ sitePage }) => {
-    const reportsPage = await sitePage.clickReportsCard();
+  })
+  .then(async sitePageFixture => sitePageFixture.sitePage.clickReportsCard())
+  .then(async reportsPage => {
     await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
   });
 });
@@ -31,43 +33,41 @@ test('Downloads a site summary report', async ({ page, setUpSingleSite }) => {
   await setUpSingleSite({
     features: [{ name: 'SiteSummaryReport', enabled: true }],
   })
-    .then(async ({ sitePage }) => {
-      return sitePage.topNav.clickReports();
-    })
-    .then(async reportsPage => {
-      const today: string = new Date().toISOString().split('T')[0];
-      await reportsPage.selectDatesStep.startDateInput.fill(today);
-      await reportsPage.selectDatesStep.endDateInput.fill(today);
-      await reportsPage.selectDatesStep.continueButton.click();
+  .then(async sitePageFixture => sitePageFixture.sitePage.topNav.clickReports())
+  .then(async reportsPage => {
+    const today: string = new Date().toISOString().split('T')[0];
+    await reportsPage.selectDatesStep.startDateInput.fill(today);
+    await reportsPage.selectDatesStep.endDateInput.fill(today);
+    await reportsPage.selectDatesStep.continueButton.click();
 
-      await expect(reportsPage.confirmDownloadStep.stepTitle).toBeVisible();
+    await expect(reportsPage.confirmDownloadStep.stepTitle).toBeVisible();
 
-      const downloadPromise = page.waitForEvent('download');
-      await reportsPage.confirmDownloadStep.continueButton.click();
-      return downloadPromise;
-    })
-    .then(async download => {
-      expect(download.suggestedFilename()).toContain(
-        'GeneralSiteSummaryReport',
-      );
-      await download.saveAs(fileName);
+    const downloadPromise = page.waitForEvent('download');
+    await reportsPage.confirmDownloadStep.continueButton.click();
+    return downloadPromise;
+  })
+  .then(async download => {
+    expect(download.suggestedFilename()).toContain(
+      'GeneralSiteSummaryReport',
+    );
+    await download.saveAs(fileName);
 
-      const csvContent = fs.readFileSync(fileName, 'utf-8');
-      const lines = csvContent
-        .split('\n')
-        .filter(line => line.trim().length > 0);
+    const csvContent = fs.readFileSync(fileName, 'utf-8');
+    const lines = csvContent
+      .split('\n')
+      .filter(line => line.trim().length > 0);
 
-      // Normalize headers by splitting and trimming whitespace/line endings
-      const headers = lines[0].split(',').map(h => h.trim());
+    // Normalize headers by splitting and trimming whitespace/line endings
+    const headers = lines[0].split(',').map(h => h.trim());
 
-      expect(lines.length).toBeGreaterThan(1);
-      expect(headers).toEqual(expectedFileDownloadHeaders);
-    })
-    .finally(() => {
-      if (fs.existsSync(fileName)) {
-        fs.unlinkSync(fileName);
-      }
-    });
+    expect(lines.length).toBeGreaterThan(1);
+    expect(headers).toEqual(expectedFileDownloadHeaders);
+  })
+  .finally(() => {
+    if (fs.existsSync(fileName)) {
+      fs.unlinkSync(fileName);
+    }
+  });
 });
 
 const expectedFileDownloadHeaders = [

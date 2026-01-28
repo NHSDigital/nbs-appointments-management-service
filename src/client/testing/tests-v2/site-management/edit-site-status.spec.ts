@@ -5,7 +5,6 @@ test.describe.configure({ mode: 'serial' });
 test('A site manager cannot edit site status when the feature toggle is disabled', async ({
   setUpSingleSite,
 }) => {
-  //v2 pattern for creating a new test-specific site, and setting feature flag state for this test
   await setUpSingleSite({
     features: [{ name: 'SiteStatus', enabled: false }],
   })
@@ -63,7 +62,6 @@ test('A site manager takes an offline site online', async ({
 }) => {
   await setUpSingleSite({
     features: [{ name: 'SiteStatus', enabled: true }],
-    //set specific site config for my test
     siteConfig: { status: 'Offline' },
   })
     .then(({ sitePage }) => {

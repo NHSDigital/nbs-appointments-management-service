@@ -41,7 +41,6 @@ export default class SitePage extends MYALayout {
   //     return new MonthViewPage(this.page, this.site);
   //   }
 
-  // Added locator for the Reports card/tile
   readonly reportsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
@@ -78,7 +77,6 @@ export default class SitePage extends MYALayout {
     return new Users(this.page, this.site);
   }
 
-  // Method used in your download-report.spec.ts
   async clickReportsCard(): Promise<SiteSummaryReportPage> {
     await this.reportsCard.click();
     await this.page.waitForURL(`**/reports`);

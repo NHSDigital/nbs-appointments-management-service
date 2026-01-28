@@ -145,7 +145,8 @@
         "system:run-provisional-sweep",
         "system:run-reminders",
         "system:data-importer",
-        "reports:sitesummary"
+        "reports:sitesummary",
+        "reports:siteusers"
       ]
     },
     {

@@ -15,15 +15,15 @@ public record Site(
     [JsonProperty("integratedCareBoard")] string IntegratedCareBoard,
     [JsonProperty("informationForCitizens")] string InformationForCitizens,
     [JsonProperty("accessibilities")] IEnumerable<Accessibility> Accessibilities,
-    [JsonProperty("location")] Location location,
-    [JsonProperty("status")] SiteStatus? status,
-    [JsonProperty("isDeleted")] bool? isDeleted,
+    [JsonProperty("location")] Location Location,
+    [JsonProperty("status")] SiteStatus? Status,
+    [JsonProperty("isDeleted")] bool? IsDeleted,
     [JsonProperty("type")] string Type
 )
 {
     public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities?.Select(a => new Accessibility(a.Id, a.Value.ToLower()));
 
-    private Location Location { get; } = location;
+    private Location Location { get; } = Location;
 
     public Coordinates Coordinates
     {

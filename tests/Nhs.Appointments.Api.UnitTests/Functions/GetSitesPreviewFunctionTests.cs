@@ -104,8 +104,8 @@ public class GetSitesPreviewFunctionTests
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             new Location("point", [0.1, 10]),
-            status: SiteStatus.Online,
-            isDeleted: null,
+            Status: SiteStatus.Online,
+            IsDeleted: null,
             Type: null
         );
 
@@ -120,8 +120,8 @@ public class GetSitesPreviewFunctionTests
             InformationForCitizens: "Information For Citizens 123456",
             Accessibilities: new[] { new Accessibility(Id: "accessibility/attr_1", Value: "true") },
             new Location("point", [0.1, 10]),
-            status: SiteStatus.Online,
-            isDeleted: null,
+            Status: SiteStatus.Online,
+            IsDeleted: null,
             Type: null
         );
 

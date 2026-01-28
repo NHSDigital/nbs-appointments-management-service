@@ -58,8 +58,8 @@ public class GetSiteMetaDataFunctionTests
                 InformationForCitizens: "InformationForCitizens 123",
                 Accessibilities: [new(attrId, attrVal)],
                 new Location("Test", [123.1, 321.3]),
-                status: SiteStatus.Online,
-                isDeleted: null,
+                Status: SiteStatus.Online,
+                IsDeleted: null,
                 Type: null
             ));
         var request = CreateRequest();

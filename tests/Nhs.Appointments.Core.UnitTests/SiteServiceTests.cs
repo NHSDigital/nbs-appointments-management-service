@@ -53,13 +53,13 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.507, 65]),
+                Location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
@@ -69,13 +69,13 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.506, 65]),
+                Location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
@@ -85,13 +85,13 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.505, 65]),
+                Location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty)
         };
 
@@ -105,13 +105,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.505, 65.0]),
+                    Location: new Location("Point", [0.505, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
                 Distance: 234),
             new SiteWithDistance(new Site(
@@ -122,13 +122,13 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [.506, 65.0]),
+                    Location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 281),
             new SiteWithDistance(new Site(
@@ -139,13 +139,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [.507, 65.0]),
+                    Location: new Location("Point", [.507, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 328)
         };
@@ -169,13 +169,13 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.507, 65]),
+                Location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
@@ -185,13 +185,13 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.506, 65]),
+                Location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
@@ -201,13 +201,13 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.505, 65]),
+                Location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty)
         };
 
@@ -221,13 +221,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [.505, 65.0]),
+                    Location: new Location("Point", [.505, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status : SiteStatus.Online, isDeleted: null,
+                    Status : SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
                 Distance: 234),
             new SiteWithDistance(new Site(
@@ -238,13 +238,13 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [.506, 65.0]),
+                    Location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new Accessibility(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status : SiteStatus.Online, isDeleted: null,
+                    Status : SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 281)
         };
@@ -268,10 +268,10 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.505, 50.0]),
+                Location: new Location("Point", [.505, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "true") },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -281,10 +281,10 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.506, 50.0]),
+                Location: new Location("Point", [.506, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_1", Value: "false") },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
         };
 
@@ -298,13 +298,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.505, 50.0]),
+                    Location: new Location("Point", [0.505, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 357),
         };
@@ -329,13 +329,13 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [0.0, 50.0]),
+                Location: new Location("Point", [0.0, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/accessibility/access_need_1", Value: "false")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -345,13 +345,13 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.05, 50.0]),
+                Location: new Location("Point", [.05, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/accessibility/access_need_1", Value: "false")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
         };
 
@@ -375,13 +375,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
                 Distance: 2858),
             new SiteWithDistance(new Site(
@@ -392,13 +392,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_2", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
                 Distance: 3573),
         };
@@ -421,10 +421,10 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [0.0, 50.0]),
+                Location: new Location("Point", [0.0, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>(),
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bb",
@@ -434,10 +434,10 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [0.1, 50.1]),
+                Location: new Location("Point", [0.1, 50.1]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility> { new(Id: "accessibility/access_need_2", Value: "true") },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty)
         };
         var expectedSites = new List<SiteWithDistance>
@@ -450,13 +450,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.1, 50.1]),
+                    Location: new Location("Point", [0.1, 50.1]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_2", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 13213),
         };
@@ -479,13 +479,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new SiteWithDistance(new Site(
@@ -496,13 +496,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573),
         };
@@ -524,13 +524,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new SiteWithDistance(new Site(
@@ -541,13 +541,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573)
         };
@@ -570,13 +570,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new(new Site(
@@ -587,13 +587,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573)
         };
@@ -643,13 +643,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new(new Site(
@@ -660,13 +660,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573)
         };
@@ -735,13 +735,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3500+i));
             
@@ -764,13 +764,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, longitude]),
+                    Location: new Location("Point", [0.05, longitude]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: (int)(3700+i)));
             
@@ -844,13 +844,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new SiteWithDistance(new Site(
@@ -861,13 +861,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573),
         };
@@ -891,13 +891,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new SiteWithDistance(new Site(
@@ -908,13 +908,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573),
         };
@@ -941,13 +941,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new SiteWithDistance(new Site(
@@ -958,13 +958,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573),
         };
@@ -990,10 +990,10 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            location: new Location("Point", [2.0, 70.0]),
+            Location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
-            status: SiteStatus.Online, isDeleted: null,
+            Status: SiteStatus.Online, IsDeleted: null,
             Type: string.Empty);
 
         var expectedSite = new Site(
@@ -1004,10 +1004,10 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            location: new Location("Point", [2.0, 70.0]),
+            Location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new Accessibility(Id: "Accessibility 1", Value: "true") },
-            status: SiteStatus.Online, isDeleted: null,
+            Status: SiteStatus.Online, IsDeleted: null,
             Type: string.Empty);
         _siteStore.Setup(x => x.GetSiteById("6877d86e-c2df-4def-8508-e1eccf0ea6ba")).ReturnsAsync(site);
 
@@ -1040,10 +1040,10 @@ public class SiteServiceTests
                     OdsCode: "odsCode1",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
             new Site(
                     Id: "ABC02",
@@ -1053,10 +1053,10 @@ public class SiteServiceTests
                     OdsCode: "odsCode2",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty)
         };
         object outSites = sites;
@@ -1081,10 +1081,10 @@ public class SiteServiceTests
                     OdsCode: "odsCode1",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
             new Site(
                     Id: "ABC02",
@@ -1094,10 +1094,10 @@ public class SiteServiceTests
                     OdsCode: "odsCode2",
                     Region: "R1",
                     IntegratedCareBoard: "ICB2",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "false")},
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty)
         };
         object outSites = null;
@@ -1125,10 +1125,10 @@ public class SiteServiceTests
                 OdsCode: "odsCode1",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [0.04, 50.0]),
+                Location: new Location("Point", [0.04, 50.0]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
         };
 
@@ -1155,13 +1155,13 @@ public class SiteServiceTests
                 OdsCode: "ABC02",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.507, 65]),
+                Location: new Location("Point", [.507, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6bc",
@@ -1171,13 +1171,13 @@ public class SiteServiceTests
                 OdsCode: "ABC03",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.506, 65]),
+                Location: new Location("Point", [.506, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Online, isDeleted: null,
+                Status: SiteStatus.Online, IsDeleted: null,
                 Type: string.Empty),
             new(
                 Id: "6877d86e-c2df-4def-8508-e1eccf0ea6ba",
@@ -1187,13 +1187,13 @@ public class SiteServiceTests
                 OdsCode: "ABC01",
                 Region: "R1",
                 IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [.505, 65]),
+                Location: new Location("Point", [.505, 65]),
                 InformationForCitizens: "",
                 Accessibilities: new List<Accessibility>
                 {
                     new(Id: "accessibility/access_need_1", Value: "true")
                 },
-                status: SiteStatus.Offline, isDeleted: null,
+                Status: SiteStatus.Offline, IsDeleted: null,
                 Type: string.Empty)
         };
 
@@ -1207,13 +1207,13 @@ public class SiteServiceTests
                     OdsCode: "ABC03",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [.506, 65.0]),
+                    Location: new Location("Point", [.506, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 281),
             new(new Site(
@@ -1224,13 +1224,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [.507, 65.0]),
+                    Location: new Location("Point", [.507, 65.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 328)
         };
@@ -2154,13 +2154,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new(new Site(
@@ -2171,13 +2171,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573)
         };
@@ -2242,13 +2242,13 @@ public class SiteServiceTests
                     OdsCode: "ABC01",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.04, 50.0]),
+                    Location: new Location("Point", [0.04, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "true")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 2858),
             new(new Site(
@@ -2259,13 +2259,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3573)
         };
@@ -2349,13 +2349,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, 50.0]),
+                    Location: new Location("Point", [0.05, 50.0]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: 3500+i));
             
@@ -2378,13 +2378,13 @@ public class SiteServiceTests
                     OdsCode: "ABC02",
                     Region: "R1",
                     IntegratedCareBoard: "ICB1",
-                    location: new Location("Point", [0.05, longitude]),
+                    Location: new Location("Point", [0.05, longitude]),
                     InformationForCitizens: "",
                     Accessibilities: new List<Accessibility>
                     {
                         new(Id: "accessibility/access_need_1", Value: "false")
                     },
-                    status: SiteStatus.Online, isDeleted: null,
+                    Status: SiteStatus.Online, IsDeleted: null,
                     Type: string.Empty),
                 Distance: (int)(3700+i)));
             
@@ -2475,10 +2475,10 @@ public class SiteServiceTests
             OdsCode: "ABC01",
             Region: "R1",
             IntegratedCareBoard: "ICB1",
-            location: new Location("Point", [2.0, 70.0]),
+            Location: new Location("Point", [2.0, 70.0]),
             InformationForCitizens: "",
             Accessibilities: new List<Accessibility> { new(Id: "Accessibility 1", Value: "true") },
-            status: SiteStatus.Online, isDeleted: true,
+            Status: SiteStatus.Online, IsDeleted: true,
             Type: string.Empty);
         _siteStore.Setup(x => x.GetSiteById(siteId)).ReturnsAsync(site);
 

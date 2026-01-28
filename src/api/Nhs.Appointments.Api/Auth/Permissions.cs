@@ -29,4 +29,5 @@ public static class Permissions
     public const string ManageUsers = "users:manage";
     
     public const string ReportsSiteSummary = "reports:sitesummary";
+    public const string ReportsSiteUsers = "reports:siteusers";
 }

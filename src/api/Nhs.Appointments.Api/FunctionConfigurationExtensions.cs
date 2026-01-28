@@ -30,6 +30,7 @@ using Nhs.Appointments.Core.OdsCodes;
 using Nhs.Appointments.Core.Okta;
 using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.SiteSummary;
+using Nhs.Appointments.Core.Reports.Users;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
@@ -145,7 +146,8 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IAdminUserDataImportHandler, AdminUserDataImportHandler>()
             .AddTransient<ISiteStatusDataImportHandler, SiteStatusDataImportHandler>()
             .AddTransient<IAvailableSlotsFilter, AvailableSlotsFilter>()
-            .AddScoped<ILastUpdatedByResolver, LastUpdatedByResolver>();
+            .AddScoped<ILastUpdatedByResolver, LastUpdatedByResolver>()
+            .AddTransient<IUserCsvWriter, UserCsvWriter>();
 
         var leaseManagerConnection = Environment.GetEnvironmentVariable("LEASE_MANAGER_CONNECTION");
         if (leaseManagerConnection == "local")

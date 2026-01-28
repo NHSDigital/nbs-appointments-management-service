@@ -64,7 +64,7 @@ public class QueryAvailabilityFunction(
         var requestConsecutive = request.Consecutive;
 
         var sites = await siteService.GetAllSites();
-        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.isDeleted is false or null)).ToArray();
+        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs && s.IsDeleted is false or null)).ToArray();
         if (!activeSites.Any())
         {
             return Success([]);

@@ -45,7 +45,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
     private static bool ValidateUpdateToSiteAllowed(Site originalDocument)
     {
-        return !originalDocument.isDeleted.HasValue || !originalDocument.isDeleted.Value;
+        return !originalDocument.IsDeleted.HasValue || !originalDocument.IsDeleted.Value;
     }
 
     public Task AssignPrefix(string site, int prefix)
@@ -178,7 +178,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
         var documentType = cosmosStore.GetDocumentType();
 
-        var patchOperation = originalDocument.status is null
+        var patchOperation = originalDocument.Status is null
             ? PatchOperation.Add("/status", status)
             : PatchOperation.Replace("/status", status);
 
@@ -201,9 +201,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
         var docType = cosmosStore.GetDocumentType();
 
-        var patchOperation = originalDocument.isDeleted is null
+        var patchOperation = originalDocument.IsDeleted is null
             ? PatchOperation.Add("/isDeleted", true)
-            : PatchOperation.Replace("/isDeleted", !originalDocument.isDeleted);
+            : PatchOperation.Replace("/isDeleted", !originalDocument.IsDeleted);
 
         await cosmosStore.PatchDocument(docType, siteId, [patchOperation]);
         return new OperationResult(true);

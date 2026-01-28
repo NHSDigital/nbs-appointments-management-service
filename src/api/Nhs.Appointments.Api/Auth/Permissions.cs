@@ -9,9 +9,8 @@ public static class Permissions
     public const string SystemRunProvisionalSweeper = "system:run-provisional-sweep";
     public const string SystemDataImporter = "system:data-importer";
     public const string SystemRunAutoCancellations = "system:run-auto-cancellations";
-    public const string SystemAdminUser = "system:admin-user";
-
     public const string ManageSiteAdmin = "site:manage:admin";
+
     public const string ManageSite = "site:manage";
     public const string ViewSite = "site:view";
     public const string ViewSitePreview = "site:view:preview";
@@ -30,4 +29,5 @@ public static class Permissions
     public const string ManageUsers = "users:manage";
     
     public const string ReportsSiteSummary = "reports:sitesummary";
+    public const string ReportsSiteUsers = "reports:siteusers";
 }

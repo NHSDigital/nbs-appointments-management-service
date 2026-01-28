@@ -36,7 +36,7 @@ public class GetSiteUsersReportFunction(
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [Function("GetSiteUsersReportFunction")]
-    [RequiresPermission(Permissions.SystemAdminUser, typeof(NoSiteRequestInspector))]
+    [RequiresPermission(Permissions.ReportsSiteUsers, typeof(NoSiteRequestInspector))]
     public override async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "report/site/{site}/users")]
         HttpRequest req)
     {

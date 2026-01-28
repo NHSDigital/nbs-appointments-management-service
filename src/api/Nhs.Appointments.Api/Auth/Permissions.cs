@@ -30,4 +30,5 @@ public static class Permissions
     
     public const string ReportsSiteSummary = "reports:sitesummary";
     public const string ReportsSiteUsers = "reports:siteusers";
+    public const string ReportsMasterSiteList = "reports:master-site-list";
 }

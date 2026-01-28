@@ -1,12 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -22,6 +13,15 @@ using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
 using Feature = Xunit.Gherkin.Quick.Feature;
@@ -53,6 +53,8 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly Dictionary<int, string> _bookingReferences = new();
     protected readonly string _userId = "api@test";
     protected HttpResponseMessage _response { get; set; }
+    protected HttpStatusCode _statusCode;
+
     
     /// <summary>
     /// Http client desired for a specific test case
@@ -871,6 +873,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     new[] { dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d), dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d) }),
                 Type = dataTable.GetRowValueOrDefault(row, "Type"),
                 IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+                Status = dataTable.GetEnumRowValueOrDefault<SiteStatus>(row, "Status"),
                 LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
             });
 
@@ -932,6 +935,12 @@ public abstract partial class BaseFeatureSteps : Feature
 
         throw new TimeoutException($"A single {nameof(TDocument)} not found within the timeout period.");
     }
+
+    [Then(@"the call should fail with (\d*)")]
+    public void AssertFailureCode(int statusCode) => _statusCode.Should().Be((HttpStatusCode)statusCode);
+
+    [Then(@"the call should be successful")]
+    public void AssertSuccessCode() => _response.EnsureSuccessStatusCode();
 
     protected static Accessibility[] ParseAccessibilities(string accessibilities)
     {

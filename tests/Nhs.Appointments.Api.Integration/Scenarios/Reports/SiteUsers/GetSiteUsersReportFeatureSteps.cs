@@ -12,8 +12,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
@@ -32,9 +30,7 @@ public class GetSiteUsersReportFeatureSteps_Disabled()
 
 public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IAsyncLifetime
 {
-    private HttpResponseMessage Response { get; set; }
     private string ReportContent { get; set; }
-    private HttpStatusCode StatusCode;
 
     public new async Task InitializeAsync()
     {
@@ -53,16 +49,10 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
     {
         var url = $"http://localhost:7071/api/report/sites/users";
 
-        Response = await GetHttpClientForTest().GetAsync(url);
-        StatusCode = Response.StatusCode;
-        ReportContent = await Response.Content.ReadAsStringAsync();
+        _response = await Http.GetAsync(url);
+        _statusCode = _response.StatusCode;
+        ReportContent = await _response.Content.ReadAsStringAsync();
     }
-
-    [Then(@"the call should fail with (\d*)")]
-    public void AssertFailureCode(int statusCode) => StatusCode.Should().Be((HttpStatusCode)statusCode);
-
-    [Then(@"the call should be successful")]
-    public void AssertSuccessCode() => Response.EnsureSuccessStatusCode();
 
     [And("the report has the following headers")]
     public void AssertHeaders(DataTable dataTable)

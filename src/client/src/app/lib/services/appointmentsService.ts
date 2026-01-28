@@ -648,6 +648,15 @@ export const downloadSiteSummaryReport = async (
     .get<Blob>(`report/site-summary?startDate=${startDate}&endDate=${endDate}`)
     .then(handleBodyResponse);
 
+export const downloadMasterSiteListReport = async (): Promise<
+  ServerActionResult<Blob>
+> =>
+  appointmentsApi.get<Blob>('report/master-site-list').then(handleBodyResponse);
+
+export const downloadSiteUsersReport = async (): Promise<
+  ServerActionResult<Blob>
+> => appointmentsApi.get<Blob>(`report/sites/users`).then(handleBodyResponse);
+
 export const availabilityChangeProposal = async (
   payload: AvailabilityChangeProposalRequest,
 ): Promise<ServerActionResult<AvailabilityChangeProposalResponse>> =>

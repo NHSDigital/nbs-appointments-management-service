@@ -1,13 +1,18 @@
 import { parseToUkDatetime } from '@services/timeService';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import BackLink from '@components/nhsuk-frontend/back-link';
-import { Button, SmallSpinnerWithText } from '@components/nhsuk-frontend';
+import {
+  Button,
+  ButtonGroup,
+  SmallSpinnerWithText,
+} from '@components/nhsuk-frontend';
 import NhsHeading from '@components/nhs-heading';
 import { ukNow } from '@services/timeService';
 import { saveAs } from 'file-saver';
 import { downloadSiteSummaryReport } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
+import Link from 'next/link';
 
 type DownloadReportConfirmationProps = {
   reportRequest: DownloadReportFormValues;
@@ -38,21 +43,30 @@ const DownloadReportConfirmation = ({
       <br />
       <NhsHeading title="Download the report" />
       <p>
-        Download all data between{' '}
-        {parseToUkDatetime(reportRequest.startDate).format('dddd, D MMMM YYYY')}{' '}
-        and{' '}
-        {parseToUkDatetime(reportRequest.endDate).format('dddd, D MMMM YYYY')}
+        Download all days between
+        {' ' +
+          parseToUkDatetime(reportRequest.startDate).format(
+            'dddd, D MMMM YYYY',
+          ) +
+          ' '}
+        and
+        {' ' +
+          parseToUkDatetime(reportRequest.endDate).format('dddd, D MMMM YYYY') +
+          '.'}
       </p>
       <p>
-        Bookings, availability, and cancellations made today will not be
-        included in this report
+        Bookings availability and cancellations made today will not be available
+        in this report.
       </p>
       {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (
-        <Button styleType="secondary" onClick={handleDownload}>
-          Export data
-        </Button>
+        <ButtonGroup>
+          <Button styleType="primary" onClick={handleDownload}>
+            Download report
+          </Button>
+          <Link href="/sites">Return to sites list</Link>
+        </ButtonGroup>
       )}
     </>
   );

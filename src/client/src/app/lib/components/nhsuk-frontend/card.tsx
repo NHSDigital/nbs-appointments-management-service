@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, MouseEventHandler } from 'react';
 import RightChevron from '@components/nhsuk-frontend/icons/right-chevron';
 import Link from 'next/link';
 
@@ -12,6 +12,7 @@ type Props = {
   children?: ReactNode;
   actionLinks?: ReactNode;
   maxWidth?: number;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 };
 
 /**
@@ -27,17 +28,20 @@ const Card = ({
   children,
   actionLinks,
   maxWidth,
+  onClick,
 }: Props) => {
+  const isClickable = !!href || !!onClick;
+
   return (
     <div
-      className={`nhsuk-card nhsuk-card--${type} ${href ? 'nhsuk-card--clickable' : ''}`}
+      className={`nhsuk-card nhsuk-card--${type} ${isClickable ? 'nhsuk-card--clickable' : ''}`}
       style={maxWidth ? { maxWidth } : undefined}
     >
       <div className={`nhsuk-card__content nhsuk-card__content--${type}`}>
         <div className="card-title-wrapper">
           <h2 className="nhsuk-card__heading nhsuk-heading-m">
             {href ? (
-              <Link className="nhsuk-card__link" href={href}>
+              <Link className="nhsuk-card__link" href={href} onClick={onClick}>
                 {title}
               </Link>
             ) : (
@@ -55,7 +59,7 @@ const Card = ({
 
         {children ? children : null}
 
-        {href ? <RightChevron /> : null}
+        {isClickable ? <RightChevron /> : null}
       </div>
     </div>
   );

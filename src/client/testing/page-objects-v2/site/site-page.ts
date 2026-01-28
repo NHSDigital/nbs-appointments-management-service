@@ -34,13 +34,6 @@ export default class SitePage extends MYALayout {
       name: 'View availability and manage appointments for your site',
     });
 
-  //   async clickViewAvailabilityCard(): Promise<MonthViewPage> {
-  //     await this.viewAvailabilityAndManageAppointmentsCard.click();
-  //     await this.page.waitForURL(`**/site/${this.site.id}/view-availability`);
-
-  //     return new MonthViewPage(this.page, this.site);
-  //   }
-
   readonly reportsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
@@ -63,13 +56,6 @@ export default class SitePage extends MYALayout {
 
     return new SiteDetailsPage(this.page, this.site);
   }
-
-  //   async clickCreateAvailabilityCard(): Promise<CreateAvailabilityPage> {
-  //     await this.createAvailabilityCard.click();
-  //     await this.page.waitForURL(`**/site/${this.site.id}/create-availability`);
-
-  //     return new CreateAvailabilityPage(this.page, this.site);
-  //   }
 
   async clickManageUsersCard(): Promise<Users> {
     await this.userManagementCard.click();

@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\jobs\Nhs.Appointments.Jobs.BlobAuditor\Nhs.Appointments.Jobs.BlobAuditor.csproj" />
+    <ProjectReference Include="..\..\src\jobs\Nhs.Appointments.Jobs.BlobAuditor\Nhs.Appointments.Jobs.BlobAuditor.csproj"/>
   </ItemGroup>
 
 </Project>

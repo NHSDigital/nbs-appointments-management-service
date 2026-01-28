@@ -6,7 +6,7 @@ public class UserCsvWriter(TimeProvider timeProvider) : IUserCsvWriter
 {
     private readonly string[] Headers = ["User"];
 
-    public async Task<(string fileName, MemoryStream fileContent)> CompileSiteUsersReportCsv(string siteId, IEnumerable<User> users)
+    public async Task<(string FileName, MemoryStream FileContent)> CompileSiteUsersReportCsv(string siteId, IEnumerable<User> users)
     {
         var fileName = $"UserReport_Site_{siteId}_{timeProvider.GetUtcNow():yyyyMMddhhmmss}.csv";
 

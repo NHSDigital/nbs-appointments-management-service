@@ -17,10 +17,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SystemFunctions;
 [FeatureFile("./Scenarios/SystemFunctions/RunReminders.feature")]
 public class RunRemindersFeatureSteps : BaseFeatureSteps
 {
-    [When("the reminders job runs")]
-    public async Task RunRemindersJob()
+    [When("the reminders job runs for api user '(.+)'")]
+    public async Task RunRemindersJob(string apiUser)
     {
-        var response = await Http.PostAsync("http://localhost:7071/api/system/run-reminders", new StringContent(""));
+        var client = GetCustomHttpClient(apiUser);
+        var response = await client.PostAsync("http://localhost:7071/api/system/run-reminders", new StringContent(""));
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
@@ -105,10 +106,10 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
     {
         var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceTypeDocument()
         {
-            Id = x.Cells.ElementAt(0).Value,
-            Label = x.Cells.ElementAt(0).Value,
-            ServiceType = x.Cells.ElementAt(1).Value,
-            Url = x.Cells.ElementAt(2).Value
+            Id = dataTable.GetRowValueOrDefault(x, "Id"),
+            Label = dataTable.GetRowValueOrDefault(x, "Label"),
+            ServiceType = dataTable.GetRowValueOrDefault(x, "ServiceType"),
+            Url = dataTable.GetRowValueOrDefault(x, "Url")
         });
 
         var clinicalServicesDocument = new ClinicalServiceDocument()

@@ -18,7 +18,6 @@ using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
@@ -50,10 +49,12 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly CosmosClient Client;
     protected readonly HttpClient Http;
     protected readonly Mapper Mapper;
-    protected List<BookingDocument> MadeBookings = new List<BookingDocument>();
+    protected List<BookingDocument> MadeBookings = new();
     protected readonly Dictionary<int, string> _bookingReferences = new();
     protected readonly string _userId = "api@test";
     protected HttpResponseMessage _response { get; set; }
+    protected readonly Dictionary<string, HttpClient> _customHttpClients = new();
+    
 
     public BaseFeatureSteps()
     {
@@ -150,6 +151,36 @@ public abstract partial class BaseFeatureSteps : Feature
         ContactItemType.Phone => $"07777{NhsNumber.Substring(0, 6)}",
         _ => throw new ArgumentOutOfRangeException()
     };
+    
+    [When("a new api user '(.+)' is registered with a http client")]
+    [And("a new api user '(.+)' is registered with a http client")]
+    public async Task RegisterNewTestUserAndClient(string apiUser)
+    {
+        var userAssignments = new UserDocument()
+        {
+            
+            Id = $"api@{apiUser}",
+            ApiSigningKey = ApiSigningKey,
+            DocumentType = "user",
+            RoleAssignments = [
+                new RoleAssignment()
+                    { Role = "system:integration-test-user", Scope = "global" }
+            ],
+            LatestAcceptedEulaVersion = DateOnly.FromDateTime(DateTime.UtcNow)
+        };
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), userAssignments);
+        
+        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
+        requestSigner.InnerHandler = new HttpClientHandler();
+        var newUserClient = new HttpClient(requestSigner);
+        newUserClient.DefaultRequestHeaders.Add("ClientId", apiUser);
+        _customHttpClients[apiUser] = newUserClient;
+    }
+
+    public HttpClient GetCustomHttpClient(string apiUser)
+    {
+        return !_customHttpClients.TryGetValue(apiUser, out var client) ? throw new InvalidOperationException($"User {apiUser} does not have a Http Client") : client;
+    }
 
     [Given("the site is configured for MYA")]
     public async Task SetupSite()
@@ -256,7 +287,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
                 }
             },
-            LastUpdatedBy = _userId
+            // LastUpdatedBy = _userId
         });
 
         return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument
@@ -266,7 +297,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Site = g.First().Site,
             DocumentType = "daily_availability",
             Sessions = g.SelectMany(s => s.Sessions).ToArray(),
-            LastUpdatedBy = g.First().LastUpdatedBy
+            // LastUpdatedBy = g.First().LastUpdatedBy
         });
     }
 
@@ -678,9 +709,16 @@ public abstract partial class BaseFeatureSteps : Feature
     
     [Then("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
     [And("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
-    public async Task AssertBookingLastUpdatedBy(string reference, string siteId, string lastUpdatedBy)
+    public async Task AssertBookingLastUpdatedBy(string reference, string lastUpdatedBy)
     {
-        await AssertLastUpdatedBy("booking_data", reference, GetSiteId(siteId), lastUpdatedBy);
+        await AssertLastUpdatedBy("booking_data", CreateCustomBookingReference(reference), GetSiteId(), lastUpdatedBy);
+    }
+    
+    [Then("the booking document with reference '(.+)' has null lastUpdatedBy")]
+    [And("the booking document with reference '(.+)' has null lastUpdatedBy")]
+    public async Task AssertBookingLastUpdatedBy(string reference)
+    {
+        await AssertLastUpdatedBy("booking_data", CreateCustomBookingReference(reference), GetSiteId(), null);
     }
 
     [When(@"I create the following availability")]

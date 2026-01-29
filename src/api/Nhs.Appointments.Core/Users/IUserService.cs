@@ -16,4 +16,5 @@ public interface IUserService
     Task SaveAdminUserAsync(string userId);
     Task RemoveAdminUserAsync(string userId);
     Task UpdateIcbUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
+    Task<IEnumerable<User>> GetUsersWithPermissionScope(string scope);
 }

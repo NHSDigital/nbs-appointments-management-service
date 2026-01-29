@@ -93,9 +93,9 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"             = true
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"              = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"           = true
-    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = true
-    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = true
-    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = true
+    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = var.disable_query_availability_function
     APPLICATION_NAME                                               = "HTTP Function App"
   }
 
@@ -175,6 +175,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                           = var.site_summary_minimum_parallelization
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS = var.site_supports_service_sliding_cache_absolute_expiration_seconds
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS    = var.site_supports_service_sliding_cache_slide_threshold_seconds
+    SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER                         = var.site_supports_service_batch_multiplier
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                      = true
@@ -193,9 +194,9 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"              = true
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"             = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"           = true
-    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = true
-    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = true
-    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = true
+    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = var.disable_query_availability_function
     APPLICATION_NAME                                               = "HTTP Function App"
   }
 

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Gherkin.Ast;
 using Nhs.Appointments.Persistance.Models;
@@ -26,7 +26,7 @@ public abstract class UserManagementBaseFeatureSteps : BaseFeatureSteps
             Id = GetUserId(user),
             DocumentType = "user",
             RoleAssignments = roleAssignments
-        };    
+        };
         await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
     }
 }

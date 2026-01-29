@@ -9,6 +9,7 @@ namespace Nhs.Appointments.Persistance.UnitTests
     {
         private readonly Mock<ITypedDocumentCosmosStore<UserDocument>> _cosmosStore = new();
         private readonly Mock<IMapper> _mapper = new();
+        private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
         private readonly UserStore _sut;
 
         private const string IcbRole = "system:icb-user";
@@ -18,7 +19,8 @@ namespace Nhs.Appointments.Persistance.UnitTests
         {
             _sut = new UserStore(
                 _cosmosStore.Object,
-                _mapper.Object
+                _mapper.Object,
+                _metricsRecorder.Object
                 );
         }
 

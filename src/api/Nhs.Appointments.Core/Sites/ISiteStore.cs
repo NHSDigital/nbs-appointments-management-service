@@ -8,7 +8,8 @@ public interface ISiteStore
 
     Task<OperationResult> UpdateSiteDetails(string siteId, string name, string address, string phoneNumber,
         decimal? longitude,
-        decimal? latitude);
+        decimal? latitude,
+        string type = null);
     
     Task<OperationResult> UpdateSiteReferenceDetails(string siteId, string odsCode, string icb, string region);
     

@@ -76,7 +76,8 @@
         "users:view",
         "users:manage",
         "system:data-importer",
-        "reports:sitesummary"
+        "reports:sitesummary",
+        "reports:siteusers"
       ]
     },
     {
@@ -117,7 +118,8 @@
         "system:run-reminders",
         "system:run-provisional-sweep",
         "reports:sitesummary",
-        "system:run-auto-cancellations"
+        "system:run-auto-cancellations",
+        "reports:siteusers"
       ]
     },
     {
@@ -143,7 +145,8 @@
         "system:run-provisional-sweep",
         "system:run-reminders",
         "system:data-importer",
-        "reports:sitesummary"
+        "reports:sitesummary",
+        "reports:siteusers"
       ]
     },
     {

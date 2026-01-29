@@ -1390,6 +1390,25 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "report/site/users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/sites/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "report", "site", "users"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

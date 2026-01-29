@@ -50,6 +50,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                                   = var.site_summary_minimum_parallelization
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS        = var.site_supports_service_sliding_cache_absolute_expiration_seconds
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS            = var.site_supports_service_sliding_cache_slide_threshold_seconds
+    SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER                                 = var.site_supports_service_batch_multiplier
     Auth__Providers__0__Name                                               = "nhs-mail"
     Auth__Providers__0__Issuer                                             = var.nhs_mail_issuer
     Auth__Providers__0__AuthorizeUri                                       = var.nhs_mail_authorize_uri
@@ -141,6 +142,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
+    "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     APPLICATION_NAME                                                       = "High Load Function App"
   }
 
@@ -287,6 +289,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"                      = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"                   = true
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
+    "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     APPLICATION_NAME                                                       = "High Load Function App"
   }
 

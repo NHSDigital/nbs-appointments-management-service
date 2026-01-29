@@ -37,8 +37,7 @@ public class CosmosAutoMapperProfile : Profile
         CreateMap<UserDocument, User>()
             .ForMember(x => x.LatestAcceptedEulaVersion, opt => opt.AllowNull())
             .ForMember(x => x.RoleAssignments, opt => opt.MapFrom(src => src.RoleAssignments));
-        CreateMap<SiteDocument, Site>()
-            .ForMember(x => x.Accessibilities, opt => opt.MapFrom(src => src.Accessibilities.Select(a => a.Value.ToLower())));
+        CreateMap<SiteDocument, Site>();
 
         CreateMap<NotificationConfigurationItem, NotificationConfiguration>();
 

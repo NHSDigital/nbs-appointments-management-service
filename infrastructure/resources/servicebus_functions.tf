@@ -113,6 +113,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"                = true
     "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"               = true
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
+    "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     APPLICATION_NAME                                                       = "Service Bus Function App"
   }
 
@@ -238,6 +239,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"                = true
     "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"               = true
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
+    "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     APPLICATION_NAME                                                       = "Service Bus Function App"
   }
 

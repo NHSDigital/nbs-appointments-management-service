@@ -9,10 +9,10 @@ public interface IUserStore
     Task<IEnumerable<User>> GetUsersAsync(string site);
     Task<User> GetOrDefaultAsync(string userId);
     Task<OperationResult> RemoveUserAsync(string userId, string siteId);
-
     Task<OperationResult> RecordEulaAgreementAsync(string userId, DateOnly versionDate);
     Task UpdateUserRegionPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
     Task SaveAdminUserAsync(User adminUser);
     Task RemoveAdminUserAsync(string userId);
     Task UpdateUserIcbPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments);
+    Task<IEnumerable<User>> GetUsersWithPermissionScope(string scope);
 }

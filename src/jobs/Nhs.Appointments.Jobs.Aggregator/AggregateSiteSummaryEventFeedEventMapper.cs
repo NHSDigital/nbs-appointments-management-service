@@ -21,7 +21,8 @@ public class AggregateSiteSummaryEventFeedEventMapper : IFeedEventMapper<JObject
                 var from = item.Value<DateTime>("from");
                 return new DateOnly(from.Year, from.Month, from.Day);
             case "daily_availability":
-                return item.Value<DateOnly>("date")!;
+                var date = item.Value<string>("date")!;
+                return DateOnly.Parse(date);
             default:
                 throw new InvalidOperationException($"Unknown document type: {item.Value<string>("docType")}");
         }

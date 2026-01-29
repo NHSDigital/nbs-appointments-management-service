@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Logger;
@@ -16,10 +17,21 @@ builder.Configuration
 builder.UseAppointmentsSerilog();
 var applicationName = builder.Configuration.GetValue<string>("Application_Name") ?? throw new NullReferenceException("Application_Name is required");
 
+var containerConfiguration =
+    new ContainerConfiguration { ContainerName = "booking_data", LeaseContainerName = "booking_aggregation_lease" };
+
 builder.Services
+    .AddSingleton(TimeProvider.System)
     .AddCosmos(builder.Configuration)
+    .AddAggregationDomain(applicationName)
+    .AddSingleton<ICosmosTransaction, CosmosTransaction>()
+    .Configure<CosmosTransactionOptions>(builder.Configuration.GetSection("CosmosTransactionOptions"))
     .AddChangeFeedSink<AggregateSiteSummaryEvent, AggregatorSink>()
     .AddFeedEventMapper<JObject, AggregateSiteSummaryEvent, AggregateSiteSummaryEventFeedEventMapper>()
     .AddDefaultChangeFeed<JObject, AggregateSiteSummaryEvent>([
-        new ContainerConfiguration { ContainerName = "booking_data", LeaseContainerName = "booking_aggregation_lease" }
-    ], applicationName);
+        containerConfiguration
+    ], applicationName)
+    .AddChangeFeedWorker<JObject>(containerConfiguration);
+
+var host = builder.Build();
+host.Run();

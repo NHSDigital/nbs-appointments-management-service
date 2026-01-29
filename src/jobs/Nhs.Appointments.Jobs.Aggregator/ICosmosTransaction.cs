@@ -2,5 +2,5 @@
 
 public interface ICosmosTransaction
 {
-    Task RunJobWithTry(string transactionType, Func<Task> action);
+    Task RunJobWithTry(Func<Task> action);
 }

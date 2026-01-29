@@ -1,58 +1,33 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Nhs.Appointments.Jobs.Aggregator;
 
-public class CosmosTransaction(ILogger<CosmosTransaction> logger) : ICosmosTransaction
+public class CosmosTransaction(ILogger<CosmosTransaction> logger, IOptions<CosmosTransactionOptions> options) : ICosmosTransaction
 {
-    private readonly ConcurrentDictionary<string, bool> _cosmosTransactionLocks = new();
+    private readonly CosmosTransactionOptions _options = options.Value;
 
-    public async Task RunJobWithTry(string transactionType, Func<Task> action)
+    public async Task RunJobWithTry(Func<Task> action)
     {
         var retryCount = 0;
-        const int maxRetries = 50;
-        await ResolveTransactionLock(transactionType);
-        while (retryCount <= maxRetries) {
+        while (retryCount <= _options.MaxRetry)
+        {
             try
             {
                 await action();
+                logger.LogInformation("Transaction executed successfully after {RetryCount} trys", retryCount);
+                return;
             }
             catch (CosmosException ex)
             {
-                SetLock(transactionType, true);
                 retryCount++;
-                logger.LogError(ex, "Failed to execute transaction {TransactionType} {RetryCount} times", transactionType, retryCount);
-                await Task.Delay(ex.RetryAfter ?? TimeSpan.FromSeconds(30));
-            }
-            finally
-            {
-                if (retryCount > 0)
-                {
-                    SetLock(transactionType, false);
-                }
+                logger.LogInformation("Failed to execute transaction {RetryCount} times, retrying in {RetryTime}", retryCount, ex.RetryAfter ?? TimeSpan.FromSeconds(_options.DefaultWaitSeconds));
+                await Task.Delay(ex.RetryAfter ?? TimeSpan.FromSeconds(_options.DefaultWaitSeconds));
             }
         }
         
-    }
-
-    private void SetLock(string transactionType, bool lockValue)
-    {
-        _cosmosTransactionLocks.AddOrUpdate(transactionType, lockValue, (_, _) => lockValue);
-    }
-
-    private async Task ResolveTransactionLock(string transactionType)
-    {
-        while (true)
-        {
-            if (_cosmosTransactionLocks.GetOrAdd(transactionType, false))
-            {
-                logger.LogInformation("Awaiting lease to execute transaction {TransactionType}", transactionType);
-                await Task.Delay(1000);
-                continue;
-            }
-
-            break;
-        }
+        throw new Exception("Failed to execute transaction");
     }
 }

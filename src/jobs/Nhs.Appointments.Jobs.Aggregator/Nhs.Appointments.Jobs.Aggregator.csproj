@@ -6,7 +6,17 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+  
+    <ItemGroup>
+      <None Remove="appsettings.json"/>
+    </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+  
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0"/>
@@ -21,6 +31,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj" />
+      <ProjectReference Include="..\..\api\Nhs.Appointments.Persistance\Nhs.Appointments.Persistance.csproj" />
       <ProjectReference Include="..\Nhs.Appointments.Jobs.ChangeFeed\Nhs.Appointments.Jobs.ChangeFeed.csproj" />
     </ItemGroup>
 

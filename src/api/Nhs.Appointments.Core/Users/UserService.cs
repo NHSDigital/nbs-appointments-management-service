@@ -165,6 +165,9 @@ public class UserService(
 
     public async Task UpdateIcbUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
         => await userStore.UpdateUserIcbPermissionsAsync(userId, scope, roleAssignments);
+
+    public async Task<IEnumerable<User>> GetUsersWithPermissionScope(string scope)
+        => await userStore.GetUsersWithPermissionScope(scope);
 }
 
 public record UpdateUserRoleAssignmentsResult(bool success, string errorUser, IEnumerable<string> errorRoles)

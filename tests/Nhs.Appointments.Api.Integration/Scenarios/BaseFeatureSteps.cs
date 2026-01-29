@@ -801,25 +801,6 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
-    [Given(@"The following role assignments for '(.+)' exist")]
-    [And(@"the following role assignments for '(.+)' exist")]
-    public async Task AddRoleAssignments(string user, DataTable dataTable)
-    {
-        var roleAssignments = dataTable.Rows.Skip(1).Select(
-            row => new RoleAssignment()
-            {
-                Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
-                Role = row.Cells.ElementAt(1).Value
-            }).ToArray();
-        var userDocument = new UserDocument()
-        {
-            Id = GetUserId(user),
-            DocumentType = "user",
-            RoleAssignments = roleAssignments
-        };
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
-    }
-
     protected static Accessibility[] ParseAccessibilities(string accessibilities)
     {
         if (string.IsNullOrWhiteSpace(accessibilities) || accessibilities == "__empty__")

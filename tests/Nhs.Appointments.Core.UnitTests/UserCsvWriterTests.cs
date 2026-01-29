@@ -20,9 +20,9 @@ public class UserCsvWriterTests
     [Fact]
     public async Task CompilesEmptyFile_WhenNoUsersAssignedToSite()
     {
-        var (FileName, FileContent) = await _sut.CompileSiteUsersReportCsv("site-123", Array.Empty<User>());
+        var (FileName, FileContent) = await _sut.CompileSiteUsersReportCsv(Array.Empty<User>());
 
-        FileName.Should().Be("UserReport_Site_site-123_20260101010101.csv");
+        FileName.Should().Be("UserReport_Sites_20260101010101.csv");
 
         var fileContents = Encoding.UTF8.GetString(FileContent.ToArray());
         var csvLines = fileContents.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
@@ -37,13 +37,13 @@ public class UserCsvWriterTests
     [Fact]
     public async Task CompilesFileWithUsers_WhenUsersAssignedToSite()
     {
-        var (FileName, FileContent) = await _sut.CompileSiteUsersReportCsv("site-321", new[]
+        var (FileName, FileContent) = await _sut.CompileSiteUsersReportCsv(new[]
         {
             new User { Id = "test-user1@nhs.net" },
             new User { Id = "test-user2@nhs.net" }
         });
 
-        FileName.Should().Be("UserReport_Site_site-321_20260101010101.csv");
+        FileName.Should().Be("UserReport_Sites_20260101010101.csv");
 
         var fileContents = Encoding.UTF8.GetString(FileContent.ToArray());
         var csvLines = fileContents.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);

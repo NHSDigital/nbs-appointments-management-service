@@ -1392,7 +1392,7 @@
       "response": []
     },
     {
-      "name": "report/site/{site}/users",
+      "name": "report/site/users",
       "request": {
         "method": "GET",
         "header": [
@@ -1403,11 +1403,12 @@
           }
         ],
         "url": {
-          "raw": "{{baseUrl}}/api/report/site/{{site}}/users",
+          "raw": "{{baseUrl}}/api/report/site/users",
           "host": ["{{baseUrl}}"],
-          "path": ["api", "report", "site", "{{site}}", "users"]
+          "path": ["api", "report", "site", "users"]
         }
-      }
+      },
+      "response": []
     }
   ],
   "event": [

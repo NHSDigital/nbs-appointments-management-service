@@ -8,7 +8,7 @@ using User = Nhs.Appointments.Core.Users.User;
 
 namespace Nhs.Appointments.Persistance;
 
-public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMapper mapper) : IUserStore
+public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMapper mapper, IMetricsRecorder metricsRecorder) : IUserStore
 {
     private const string IcbUserRole = "system:icb-user";
     private const string RegionalUserRole = "system:regional-user";
@@ -206,4 +206,26 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return updatedRoleAssignments;
     }
 
+    public async Task<IEnumerable<User>> GetUsersWithPermissionScope(string scope)
+    {
+        using (metricsRecorder.BeginScope("GetUsersWithPermissionScope"))
+        {
+            var docType = cosmosStore.GetDocumentType();
+
+            var query = @"
+                    SELECT * FROM c
+                    WHERE c.docType = @docType
+                    AND EXISTS (
+                        SELECT 1 FROM a
+                        IN c.roleAssignments
+                        WHERE CONTAINS(a['scope'], @scope)
+                    )";
+
+            var queryDefinition = new QueryDefinition(query)
+                .WithParameter("@docType", docType)
+                .WithParameter("@scope", scope);
+
+            return await cosmosStore.RunSqlQueryAsync<User>(queryDefinition);
+        }
+    }
 }

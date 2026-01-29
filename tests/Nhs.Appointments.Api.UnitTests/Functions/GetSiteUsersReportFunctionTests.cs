@@ -19,7 +19,7 @@ public class GetSiteUsersReportFunctionTests
 {
     private readonly Mock<IUserService> _userService = new();
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
-    private readonly Mock<IValidator<GetSiteUsersReportRequest>> _validator = new();
+    private readonly Mock<IValidator<EmptyRequest>> _validator = new();
     private readonly Mock<ILogger<GetSiteUsersReportFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
@@ -40,7 +40,7 @@ public class GetSiteUsersReportFunctionTests
             _logger.Object,
             _metricsRecorder.Object,
             _userContextProvider.Object);
-        _validator.Setup(v => v.ValidateAsync(It.IsAny<GetSiteUsersReportRequest>()))
+        _validator.Setup(v => v.ValidateAsync(It.IsAny<EmptyRequest>()))
             .ReturnsAsync(new ValidationResult());
     }
 
@@ -62,7 +62,7 @@ public class GetSiteUsersReportFunctionTests
     {
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ReportsUplift))
             .ReturnsAsync(true);
-        _userService.Setup(x => x.GetUsersAsync(It.IsAny<string>()))
+        _userService.Setup(x => x.GetUsersWithPermissionScope(It.IsAny<string>()))
             .ReturnsAsync(new List<User>
             {
                 new() { Id = "test.user1@nhs.net" },
@@ -75,7 +75,7 @@ public class GetSiteUsersReportFunctionTests
         var fileContentResult = Assert.IsType<FileContentResult>(result);
 
         fileContentResult.ContentType.Should().Be("text/csv");
-        fileContentResult.FileDownloadName.Should().Be("UserReport_Site_test-site-123_20260101010101.csv");
+        fileContentResult.FileDownloadName.Should().Be("UserReport_Sites_20260101010101.csv");
         
         var contentString = Encoding.UTF8.GetString(fileContentResult.FileContents);
         var csvLines = contentString.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);

@@ -4,5 +4,5 @@ namespace Nhs.Appointments.Core.Reports.Users;
 
 public interface IUserCsvWriter
 {
-    Task<(string FileName, MemoryStream FileContent)> CompileSiteUsersReportCsv(string siteId, IEnumerable<User> users);
+    Task<(string FileName, MemoryStream FileContent)> CompileSiteUsersReportCsv(IEnumerable<User> users);
 }

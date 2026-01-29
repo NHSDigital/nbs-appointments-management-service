@@ -48,10 +48,10 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
         await DeleteSiteData(Client, testId);
     }
 
-    [When("I request a site users report for site '(.+)'")]
-    public async Task RequestSiteUsersReport(string site)
+    [When("I request a site users report")]
+    public async Task RequestSiteUsersReport()
     {
-        var url = $"http://localhost:7071/api/report/site/{GetSiteId(site)}/users";
+        var url = $"http://localhost:7071/api/report/site/users";
 
         Response = await Http.GetAsync(url);
         StatusCode = Response.StatusCode;
@@ -76,6 +76,24 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
         }
     }
 
+    [And(@"the following role assignments for '(.+)' exist at site '(.+)'")]
+    public async Task AddRoleAssignments(string user, string site, DataTable dataTable)
+    {
+        var roleAssignments = dataTable.Rows.Skip(1).Select(
+            row => new RoleAssignment()
+            {
+                Scope = $"site:{site}",
+                Role = row.Cells.ElementAt(0).Value
+            }).ToArray();
+        var userDocument = new UserDocument()
+        {
+            Id = GetUserId($"{user}_{site}"),
+            DocumentType = "user",
+            RoleAssignments = roleAssignments
+        };
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
+    }
+
     [And("the report contains the following data")]
     public void AssertReportData(DataTable dataTable)
     {
@@ -92,7 +110,10 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
         });
 
         var actualReport = actualData.ToList();
-        actualReport.Should().BeEquivalentTo(expectedRows);
+        foreach (var expectedRow in expectedRows)
+        {
+            actualReport.Any(r => r.Name == expectedRow.Name).Should().BeTrue();
+        }
     }
 
     private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)

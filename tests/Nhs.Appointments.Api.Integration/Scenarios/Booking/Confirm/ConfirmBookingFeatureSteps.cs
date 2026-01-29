@@ -39,6 +39,19 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
 
         _response = await Http.PostAsync(url, content);
     }
+    
+    [When("I confirm the following bookings for api user '(.+)'")]
+    public async Task ConfirmBookingsTwoWithApiUser(string apiUser, DataTable dataTable)
+    {
+        var client = GetCustomHttpClient(apiUser);
+        
+        var (url, payload) = BuildConfirmBookingPayload(dataTable);
+
+        var jsonPayload = JsonSerializer.Serialize(payload);
+        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+        _response = await client.PostAsync(url, content);
+    }
 
     [When("the provisional bookings are cleaned up")]
     public async Task CleanUpProvisionalBookings()

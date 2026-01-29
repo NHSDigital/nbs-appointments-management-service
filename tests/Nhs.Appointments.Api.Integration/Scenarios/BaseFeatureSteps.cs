@@ -156,6 +156,12 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("a new api user '(.+)' is registered with a http client")]
     public async Task RegisterNewTestUserAndClient(string apiUser)
     {
+        if (apiUser != apiUser.ToLower())
+        {
+            //our user bulk import lowers everything, and permissions check depends on casing
+            throw new ArgumentException("Api User has to be lower case");
+        }
+        
         var userAssignments = new UserDocument()
         {
             
@@ -179,6 +185,12 @@ public abstract partial class BaseFeatureSteps : Feature
 
     public HttpClient GetCustomHttpClient(string apiUser)
     {
+        if (apiUser != apiUser.ToLower())
+        {
+            //our user bulk import lowers everything, and permissions check depends on casing
+            throw new ArgumentException("Api User has to be lower case");
+        }
+        
         return !_customHttpClients.TryGetValue(apiUser, out var client) ? throw new InvalidOperationException($"User {apiUser} does not have a Http Client") : client;
     }
 
@@ -286,8 +298,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     Capacity = int.Parse(row.Cells.ElementAt(5).Value),
                     SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
                 }
-            },
-            // LastUpdatedBy = _userId
+            }
         });
 
         return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument
@@ -296,8 +307,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Date = g.Key,
             Site = g.First().Site,
             DocumentType = "daily_availability",
-            Sessions = g.SelectMany(s => s.Sessions).ToArray(),
-            // LastUpdatedBy = g.First().LastUpdatedBy
+            Sessions = g.SelectMany(s => s.Sessions).ToArray()
         });
     }
 
@@ -716,7 +726,7 @@ public abstract partial class BaseFeatureSteps : Feature
     
     [Then("the booking document with reference '(.+)' has null lastUpdatedBy")]
     [And("the booking document with reference '(.+)' has null lastUpdatedBy")]
-    public async Task AssertBookingLastUpdatedBy(string reference)
+    public async Task AssertBookingLastUpdatedByNull(string reference)
     {
         await AssertLastUpdatedBy("booking_data", CreateCustomBookingReference(reference), GetSiteId(), null);
     }

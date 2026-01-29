@@ -417,6 +417,8 @@ public abstract partial class BaseFeatureSteps : Feature
                     "Cancellation Notification Status");
 
             var nhsNumber = dataTable.GetRowValueOrDefault(row, "Nhs Number", NhsNumber);
+            
+            var createdBy = dataTable.GetRowValueOrDefault(row, "Created By", _userId);
 
             var additionalData = BuildAdditionalDataFromDataTable(dataTable, row);
 
@@ -451,7 +453,8 @@ public abstract partial class BaseFeatureSteps : Feature
                         Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
                     }
                 ],
-                AdditionalData = additionalData
+                AdditionalData = additionalData,
+                LastUpdatedBy = createdBy
             };
 
             var bookingIndex = new BookingIndexDocument

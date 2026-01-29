@@ -39,7 +39,7 @@ public class GetSiteUsersReportFunction(
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
     [Function("GetSiteUsersReportFunction")]
     [RequiresPermission(Permissions.ReportsSiteUsers, typeof(NoSiteRequestInspector))]
-    public override async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "report/site/users")]
+    public override async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "report/sites/users")]
         HttpRequest req)
     {
         return await featureToggleHelper.IsFeatureEnabled(Flags.ReportsUplift)

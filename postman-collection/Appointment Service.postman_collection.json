@@ -1403,7 +1403,7 @@
           }
         ],
         "url": {
-          "raw": "{{baseUrl}}/api/report/site/users",
+          "raw": "{{baseUrl}}/api/report/sites/users",
           "host": ["{{baseUrl}}"],
           "path": ["api", "report", "site", "users"]
         }

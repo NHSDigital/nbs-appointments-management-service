@@ -51,7 +51,7 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
     [When("I request a site users report")]
     public async Task RequestSiteUsersReport()
     {
-        var url = $"http://localhost:7071/api/report/site/users";
+        var url = $"http://localhost:7071/api/report/sites/users";
 
         Response = await Http.GetAsync(url);
         StatusCode = Response.StatusCode;

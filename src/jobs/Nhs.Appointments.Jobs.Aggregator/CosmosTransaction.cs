@@ -9,7 +9,7 @@ public class CosmosTransaction(ILogger<CosmosTransaction> logger, IOptions<Cosmo
 {
     private readonly CosmosTransactionOptions _options = options.Value;
 
-    public async Task RunJobWithTry(Func<Task> action)
+    public async Task RunJobWithRetry(Func<Task> action)
     {
         var retryCount = 0;
         while (retryCount <= _options.MaxRetry)

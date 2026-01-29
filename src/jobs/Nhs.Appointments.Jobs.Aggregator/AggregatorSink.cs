@@ -9,6 +9,6 @@ public class AggregatorSink(ILogger<AggregatorSink> logger, ISiteSummaryAggregat
     public async Task Consume(string source, AggregateSiteSummaryEvent item)
     {
         logger.LogInformation($"Site Summary Aggregation started for {item.Site} {item.Date.ToString("yyyy-MM-dd")}");
-        await cosmosTransaction.RunJobWithTry(() => siteSummaryAggregator.AggregateForSite(item.Site, item.Date, item.Date));
+        await cosmosTransaction.RunJobWithRetry(() => siteSummaryAggregator.AggregateForSite(item.Site, item.Date, item.Date));
     }
 }

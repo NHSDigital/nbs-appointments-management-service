@@ -298,7 +298,8 @@ public abstract partial class BaseFeatureSteps : Feature
                     Capacity = int.Parse(row.Cells.ElementAt(5).Value),
                     SlotLength = int.Parse(row.Cells.ElementAt(4).Value)
                 }
-            }
+            },
+            LastUpdatedBy = _userId
         });
 
         return sessions.GroupBy(s => s.Date).Select(g => new DailyAvailabilityDocument
@@ -307,7 +308,8 @@ public abstract partial class BaseFeatureSteps : Feature
             Date = g.Key,
             Site = g.First().Site,
             DocumentType = "daily_availability",
-            Sessions = g.SelectMany(s => s.Sessions).ToArray()
+            Sessions = g.SelectMany(s => s.Sessions).ToArray(),
+            LastUpdatedBy = g.First().LastUpdatedBy
         });
     }
 
@@ -567,7 +569,8 @@ public abstract partial class BaseFeatureSteps : Feature
                         Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
                     }
                 ],
-                AdditionalData = new { IsAppBooking = true }
+                AdditionalData = new { IsAppBooking = true },
+                LastUpdatedBy = _userId
             };
         });
 
@@ -725,13 +728,6 @@ public abstract partial class BaseFeatureSteps : Feature
     public async Task AssertBookingLastUpdatedBy(string reference, string lastUpdatedBy)
     {
         await AssertLastUpdatedBy("booking_data", CreateCustomBookingReference(reference), GetSiteId(), lastUpdatedBy);
-    }
-    
-    [Then("the booking document with reference '(.+)' has null lastUpdatedBy")]
-    [And("the booking document with reference '(.+)' has null lastUpdatedBy")]
-    public async Task AssertBookingLastUpdatedByNull(string reference)
-    {
-        await AssertLastUpdatedBy("booking_data", CreateCustomBookingReference(reference), GetSiteId(), null);
     }
 
     [When(@"I create the following availability")]

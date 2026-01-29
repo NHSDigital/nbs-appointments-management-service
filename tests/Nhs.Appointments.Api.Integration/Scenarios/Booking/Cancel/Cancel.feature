@@ -11,6 +11,20 @@ Feature: Appointment cancellation
     Then the booking has been 'Cancelled'
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction' and no site
 
+  Scenario: Cancel a booking appointment updates LastUpdatedBy property
+    Given the following sessions exist for a created default site
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+    And a new api user 'mya_user' is registered with a http client
+    And the following bookings have been made
+      | Date     | Time  | Duration | Service | Reference   |
+      | Tomorrow | 09:20 | 5        | COVID   | 43567-29374 |
+    #Verify default setup
+    And the booking document with reference '43567-29374' has lastUpdatedBy 'api@test'
+    When I cancel appointment with reference '43567-29374' for api user 'mya_user'
+    Then the booking with reference '43567-29374' has been 'Cancelled'
+    And the booking document with reference '43567-29374' has lastUpdatedBy 'api@mya_user'
+
   Scenario: Cancel a booking appointment and provide the site parameter
     Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |

@@ -42,8 +42,8 @@
         And the following bookings have been made
           | Date               | Time  | Duration | Service | Reference   |
           | 1 days from today  | 17:30 | 5        | FLU:2_3 | 98067-23487 |
-        # default state is null (verify it changes)
-        And the booking document with reference '98067-23487' has null lastUpdatedBy
+        # default state is api@test
+        And the booking document with reference '98067-23487' has lastUpdatedBy 'api@test'
         When the reminders job runs for api user 'reminderjob'
         Then the following notifications are sent out
           | Contact Type | TemplateId                             | Vaccine | Url                          | Reference   |
@@ -69,8 +69,8 @@
         And the following bookings have been made
           | Date               | Time  | Duration  | Service   | Reference   |
           | 1 days from today  | 17:30 | 5         | FLU:94-95 | 68754-23487 |
-        # default state is null (verify it changes)
-        And the booking document with reference '68754-23487' has null lastUpdatedBy
+        # default state is api@test
+        And the booking document with reference '68754-23487' has lastUpdatedBy 'api@test'
         When the reminders job runs for api user 'reminderjob'
         Then no notifications are sent out
         # Questionable existing behaviour due to how we set the 'ReminderSent' flag to represent the event being created, rather than successful consumption and notification actually sent

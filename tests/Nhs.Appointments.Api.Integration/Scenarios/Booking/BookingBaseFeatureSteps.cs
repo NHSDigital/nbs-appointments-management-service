@@ -64,6 +64,15 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var site = GetSiteId();
         Response = await Http.PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
     }
+    
+    [When(@"I cancel appointment with reference '(.+)' for api user '(.+)'")]
+    public async Task CancelAppointmentForApiUser(string reference, string apiUser)
+    {
+        var client = GetCustomHttpClient(apiUser);
+        var customId = CreateCustomBookingReference(reference);
+        var site = GetSiteId();
+        Response = await client.PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
+    }
 
     [When("I make the appointment with the following details")]
     public async Task MakeBooking(DataTable dataTable)

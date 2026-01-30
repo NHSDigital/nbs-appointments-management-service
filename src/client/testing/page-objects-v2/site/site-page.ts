@@ -50,6 +50,8 @@ export default class SitePage extends MYALayout {
     },
   };
 
+  readonly buildNumber: Locator = this.page.getByText(/^Build number: /);
+
   async clickSiteDetailsCard(): Promise<SiteDetailsPage> {
     await this.siteManagementCard.click();
     await this.page.waitForURL(`**/site/${this.site?.id}/details`);

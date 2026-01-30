@@ -21,14 +21,14 @@ public abstract class CancelBookingBaseFeatureSteps : BookingBaseFeatureSteps
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-        _response = await Http.PostAsync(url, content);
+        _response = await GetHttpClientForTest().PostAsync(url, content);
     }
 
     private (string url, object payload) BuildCancelBookingPayload(DataTable table)
     {
         var row = table.Rows.ElementAt(1);
 
-        var bookingReference = CreateCustomBookingReference(table.GetRowValueOrDefault(row, "Reference")) ??
+        var bookingReference = CreateUniqueTestValue(table.GetRowValueOrDefault(row, "Reference")) ??
                                BookingReferences.GetBookingReference(0, BookingType.Confirmed);
         var url = $"http://localhost:7071/api/booking/{bookingReference}/cancel";
 

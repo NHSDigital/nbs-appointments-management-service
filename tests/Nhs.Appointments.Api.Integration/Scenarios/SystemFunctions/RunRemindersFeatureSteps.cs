@@ -17,18 +17,17 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SystemFunctions;
 [FeatureFile("./Scenarios/SystemFunctions/RunReminders.feature")]
 public class RunRemindersFeatureSteps : BaseFeatureSteps
 {
-    [When("the reminders job runs for api user '(.+)'")]
-    public async Task RunRemindersJob(string apiUser)
-    {
-        var client = GetCustomHttpClient(apiUser);
-        var response = await client.PostAsync("http://localhost:7071/api/system/run-reminders", new StringContent(""));
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
     [Then("there are no errors")]
     public Task AssertOk()
     {
         return Task.CompletedTask;
+    }
+    
+    [When("the reminders job runs")]
+    public async Task RunRemindersJob()
+    {
+        var response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/system/run-reminders", new StringContent(""));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [And("those appointments have already had notifications sent")]
@@ -79,7 +78,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             var contactDetails = GetContactInfo(contactItemType);
             var notifications = await GetNotificationsForRecipient(contactDetails);
             
-            var customId = CreateCustomBookingReference(item.Item5);
+            var customId = CreateUniqueTestValue(item.Item5);
 
             var notification = notifications.Single();
             notification.templateId.Should().Be(item.Item2);

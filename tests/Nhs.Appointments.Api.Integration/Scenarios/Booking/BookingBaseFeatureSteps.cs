@@ -26,7 +26,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     public async Task CancelAppointment()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
             null);
     }
 
@@ -35,7 +35,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
         var site = GetSiteId(siteId);
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
 
@@ -53,25 +53,16 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             "application/json"
         );
 
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             jsonContent);
     }
 
     [When(@"I cancel the appointment with reference '(.+)'")]
     public async Task CancelAppointmentWithReference(string reference)
     {
-        var customId = CreateCustomBookingReference(reference);
+        var customId = CreateUniqueTestValue(reference);
         var site = GetSiteId();
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
-    }
-    
-    [When(@"I cancel appointment with reference '(.+)' for api user '(.+)'")]
-    public async Task CancelAppointmentForApiUser(string reference, string apiUser)
-    {
-        var client = GetCustomHttpClient(apiUser);
-        var customId = CreateCustomBookingReference(reference);
-        var site = GetSiteId();
-        Response = await client.PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
     }
 
     [When("I make the appointment with the following details")]
@@ -104,7 +95,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                 },
             additionalData = new { isAppBooking = cells.ElementAt(10).Value }
         };
-        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
 
     [Then(@"a reference number is returned and the following booking is created")]
@@ -189,7 +180,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             }
         };
 
-        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
 
     [Then(@"the call should fail with (\d*)")]

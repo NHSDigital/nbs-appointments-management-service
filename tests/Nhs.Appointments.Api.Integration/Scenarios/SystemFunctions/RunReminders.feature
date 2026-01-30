@@ -2,7 +2,9 @@
   
     Scenario: Running reminders sends reminders for upcoming appointments - Covid 19
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -17,7 +19,7 @@
         And the following bookings have been made
             | Date              | Time  | Duration | Service     | Reference   |
             | 2 days from today | 09:20 | 5        | COVID:12_17 | 56345-09354 |
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then the following notifications are sent out
             | Contact Type | TemplateId                             | Vaccine  | Url                          | Reference   | 
             | email        | 36b50be4-fad7-440e-8958-b0dc66efe33a   | COVID-19 | https://www.nhs.uk/bookcovid | 56345-09354 |
@@ -27,7 +29,9 @@
       
     Scenario: Running reminders sends reminders for upcoming appointments - Flu
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -44,7 +48,7 @@
           | 1 days from today  | 17:30 | 5        | FLU:2_3 | 98067-23487 |
         # default state is api@test
         And the booking document with reference '98067-23487' has lastUpdatedBy 'api@test'
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then the following notifications are sent out
           | Contact Type | TemplateId                             | Vaccine | Url                          | Reference   |
           | email        | 36b50be4-fad7-440e-8958-b0dc66efe33a   | flu     | https://www.nhs.uk/bookflu   | 98067-23487 | 
@@ -54,7 +58,9 @@
 
     Scenario: Running reminders does not send a reminder if the service is not supported
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -71,7 +77,7 @@
           | 1 days from today  | 17:30 | 5         | FLU:94-95 | 68754-23487 |
         # default state is api@test
         And the booking document with reference '68754-23487' has lastUpdatedBy 'api@test'
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then no notifications are sent out
         # Questionable existing behaviour due to how we set the 'ReminderSent' flag to represent the event being created, rather than successful consumption and notification actually sent
         # So even though the notification isn't sent, the lastUpdatedBy is the Reminder Job
@@ -79,7 +85,9 @@
 
     Scenario: Running reminders does not send reminders for recently made appointments	
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -94,12 +102,14 @@
         And the following recent bookings have been made
             | Date              | Time  | Duration | Service |
             | 2 days from today | 09:20 | 5        | COVID:12_17   |
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then no notifications are sent out            
 
     Scenario: Running reminders targets correct document types
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -116,12 +126,14 @@
             | Tomorrow          | 12:00 | 5        | COVID:12_17   |
             | 2 days from today | 17:20 | 5        | COVID:12_17   |
         And there are audit entries in the database
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then there are no errors
     
     Scenario: Running reminders does not send reminders for past appointments	
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -136,12 +148,14 @@
         And the following bookings have been made
             | Date              | Time  | Duration | Service |
             | 2 days before today | 09:20 | 5        | COVID:12_17   |
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then no notifications are sent out
 
     Scenario: Running reminders does not send reminders for future appointments outside the reminder window
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -156,12 +170,14 @@
         And the following bookings have been made
             | Date              | Time  | Duration | Service |
             | 4 days from today | 09:20 | 5        | COVID:12_17   |
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then no notifications are sent out
     
     Scenario: Running reminders does not send reminders when a reminder has already been sent
         Given the site is configured for MYA
-        And a new api user 'reminderjob' is registered with a http client
+        And I register and use a http client with details
+          | User Id     | Role                         | Scope  |
+          | reminderjob | system:integration-test-user | global |
         And I have Clinical Services
           | Id              | Label               | ServiceType      | Url                                |
           | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
@@ -177,5 +193,5 @@
             | Date              | Time  | Duration | Service |
             | 2 days from today | 09:20 | 5        | COVID:12_17   |
         And those appointments have already had notifications sent
-        When the reminders job runs for api user 'reminderjob'
+        When the reminders job runs
         Then no notifications are sent out

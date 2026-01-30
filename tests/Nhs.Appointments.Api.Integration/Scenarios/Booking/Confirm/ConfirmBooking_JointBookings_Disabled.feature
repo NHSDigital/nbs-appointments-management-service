@@ -30,13 +30,15 @@ Feature: Book an appointment
       Given the following sessions exist for a created default site
         | Date     | From  | Until | Services  | Slot Length | Capacity |
         | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-      And a new api user 'nbs' is registered with a http client
+      And I register and use a http client with details
+        | User Id  | Role                         | Scope  |
+        | nbs      | system:integration-test-user | global |
       And the following bookings exist
         | Reference | Booking Type |
         | 1         | Provisional  |
       # default state is api@test in setup
       And the booking document with reference '1' has lastUpdatedBy 'api@test'
-      When I confirm the following bookings for api user 'nbs'
+      When I confirm the following bookings
         | Reference | Email         | Phone         | Landline    |
         | 1         | test@test.com | 07654 3210987 | 00001234567 |
       Then the call should be successful

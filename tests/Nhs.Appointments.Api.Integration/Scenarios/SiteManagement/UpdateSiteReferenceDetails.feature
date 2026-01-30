@@ -17,8 +17,10 @@ Feature: Manage site reference details
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
     #Verify default setup
     And the site document with siteId 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' has lastUpdatedBy 'api@test'
-    And a new api user 'mya_admin' is registered with a http client
-    When I update reference details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' for api user 'mya_admin'
+    And I register and use a http client with details
+      | User Id    | Role                         | Scope  |
+      | mya_admin  | system:integration-test-user | global |
+    When I update the reference details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
       | OdsCode     | ICB  | Region |
       | 16B         | ICB2 | R34    |
     Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned

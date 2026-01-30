@@ -21,7 +21,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
             var requestUrl =
                 $"http://localhost:7071/api/week-summary?site={siteId}&from={NaturalLanguageDate.Parse(from).ToString("yyyy-MM-dd")}";
 
-            _response = await Http.GetAsync(requestUrl);
+            _response = await GetHttpClientForTest().GetAsync(requestUrl);
             _statusCode = _response.StatusCode;
 
             var (_, result) =

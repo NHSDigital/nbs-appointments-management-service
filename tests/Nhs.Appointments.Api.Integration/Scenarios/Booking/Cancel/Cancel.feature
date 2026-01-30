@@ -15,13 +15,15 @@ Feature: Appointment cancellation
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And a new api user 'mya_user' is registered with a http client
+    And I register and use a http client with details
+      | User Id  | Role                         | Scope  |
+      | mya_user | system:integration-test-user | global |
     And the following bookings have been made
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 43567-29374 |
     #Verify default setup
     And the booking document with reference '43567-29374' has lastUpdatedBy 'api@test'
-    When I cancel appointment with reference '43567-29374' for api user 'mya_user'
+    When I cancel the appointment with reference '43567-29374'
     Then the booking with reference '43567-29374' has been 'Cancelled'
     And the booking document with reference '43567-29374' has lastUpdatedBy 'api@mya_user'
 

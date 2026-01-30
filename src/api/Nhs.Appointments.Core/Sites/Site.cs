@@ -21,7 +21,7 @@ public record Site(
     [JsonProperty("type")] string Type
 )
 {
-    public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities?.Select(a => new Accessibility(a.Id, a.Value.ToLower()));
+    public IEnumerable<Accessibility> Accessibilities { get; set; } = Accessibilities;
 
     private Location Location { get; } = location;
 

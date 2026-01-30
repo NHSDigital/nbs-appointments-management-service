@@ -41,7 +41,7 @@ public class GetSiteMetaDataFunctionTests
     }
 
     [Theory]
-    [InlineData("site_details/info_for_citizen", "Test information", "test information")]
+    [InlineData("site_details/info_for_citizen", "Test information", "Test information")]
     [InlineData("attr_one/test_attr", "Another test", "")]
     public async Task RunAsync_ReturnsInformationForCitizen(string attrId, string attrVal, string expectedInformation)
     {

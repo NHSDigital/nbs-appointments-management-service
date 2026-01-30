@@ -32,7 +32,11 @@ export type ReportsFormValues = DownloadReportFormValues & {
   reportType: ReportType;
 };
 
-const ReportsTemplateWizard = () => {
+interface Props {
+  userPermissions: string[];
+}
+
+const ReportsTemplateWizard = ({ userPermissions }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const today = ukNow();
   const reportsWizardSchema = downloadReportFormSchema.concat(
@@ -103,7 +107,12 @@ const ReportsTemplateWizard = () => {
           pendingSubmit={pendingSubmit}
         >
           <WizardStep>
-            {stepProps => <SelectReportTypeStep {...stepProps} />}
+            {stepProps => (
+              <SelectReportTypeStep
+                {...stepProps}
+                userPermissions={userPermissions}
+              />
+            )}
           </WizardStep>
           <WizardStep>
             {stepProps => <ReportDateRangeStep {...stepProps} />}

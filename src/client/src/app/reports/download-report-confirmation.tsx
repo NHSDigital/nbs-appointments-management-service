@@ -62,7 +62,7 @@ const DownloadReportConfirmation = ({
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <ButtonGroup>
-          <Button styleType="secondary" onClick={handleDownload}>
+          <Button styleType="primary" onClick={handleDownload}>
             Download report
           </Button>
           <Link href="/sites">Return to sites list</Link>

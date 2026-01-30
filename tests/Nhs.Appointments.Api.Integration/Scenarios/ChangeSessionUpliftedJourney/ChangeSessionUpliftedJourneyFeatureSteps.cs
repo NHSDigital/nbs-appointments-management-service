@@ -289,7 +289,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         };
         var content = new StringContent(JsonConvert.SerializeObject(request, serializerSettings), Encoding.UTF8, "application/json");
 
-        _response = await Http.PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
         _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         (_, _availabilityChangeProposalResponse) =
@@ -345,7 +345,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var content = new StringContent(JsonConvert.SerializeObject(payload, serializerSettings), Encoding.UTF8,
             "application/json");
 
-        Response = await Http.PostAsync("http://localhost:7071/api/session/edit", content);
+        Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/session/edit", content);
     }
 
     private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan) =>

@@ -21,6 +21,6 @@ public class SiteSoftDeletionFeatureSteps : BaseBulkImportFeatureSteps
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         content.Add(fileContent, "file", "user-upload.csv");
 
-        Response = await Http.PostAsync("http://localhost:7071/api/site-deletion/import", content);
+        Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/site-deletion/import", content);
     }
 }

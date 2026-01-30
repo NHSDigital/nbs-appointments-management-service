@@ -21,7 +21,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.ClinicalServices
         [When(@"I request Clinical Services")]
         public async Task RequestClinicalServices() 
         {
-            _response = await Http.GetAsync("http://localhost:7071/api/clinical-services");
+            _response = await GetHttpClientForTest().GetAsync("http://localhost:7071/api/clinical-services");
 
             _statusCode = _response.StatusCode;
             (_, _actualResponse) =

@@ -96,7 +96,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
     {
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/availability/query/hours", content);
+        Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/availability/query/hours", content);
         StatusCode = Response.StatusCode;
         (_, AvailabilityResponse) =
             await JsonRequestReader.ReadRequestAsync<AvailabilityByHours>(

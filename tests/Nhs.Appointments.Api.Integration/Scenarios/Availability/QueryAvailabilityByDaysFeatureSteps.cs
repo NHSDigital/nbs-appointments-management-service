@@ -129,7 +129,7 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
     {
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/availability/query/days", content);
+        Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/availability/query/days", content);
         StatusCode = Response.StatusCode;
         (_, AvailabilityResponse) =
             await JsonRequestReader.ReadRequestAsync<List<AvailabilityByDays>>(

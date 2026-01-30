@@ -15,7 +15,7 @@ public sealed class NoCacheSteps : BaseFeatureSteps
     [When(@"I query for a site")]
     public async Task QuerySite()
     {
-        _response = await Http.GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
+        _response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
         _statusCode = _response.StatusCode;
     }
 

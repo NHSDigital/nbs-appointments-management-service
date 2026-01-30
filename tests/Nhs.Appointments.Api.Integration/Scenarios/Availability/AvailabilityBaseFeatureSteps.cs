@@ -67,7 +67,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
             queryType = convertedQueryType.ToString()
         };
 
-        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
         _statusCode = _response.StatusCode;
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
     }
@@ -93,7 +93,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
             consecutive = int.Parse(consecutive)
         };
 
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability/query", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/availability/query", payload);
         _statusCode = _response.StatusCode;
         (_, _actualResponse) =
             await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(
@@ -144,7 +144,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
             from = NaturalLanguageDate.Parse("Tomorrow"),
             until = NaturalLanguageDate.Parse("Tomorrow")
         };
-        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
     }
 
     [Then(@"a bad request error is returned")]

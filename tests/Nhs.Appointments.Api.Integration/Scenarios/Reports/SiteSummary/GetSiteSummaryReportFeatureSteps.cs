@@ -46,7 +46,7 @@ public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled
         var url =
             $"http://localhost:7071/api/report/site-summary?startDate={startDate.ToString("yyyy-MM-dd")}&endDate={endDate.ToString("yyyy-MM-dd")}";
 
-        Response = await Http.GetAsync(url);
+        Response = await GetHttpClientForTest().GetAsync(url);
         ReportContent = await Response.Content.ReadAsStringAsync();
     }
 

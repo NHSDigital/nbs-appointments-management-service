@@ -37,7 +37,7 @@ public sealed class AccessibilityDefinitionsFeatureSteps : BaseFeatureSteps
     [When(@"I query for all accessibility definitions")]
     public async Task QueryForAccessibilityDefinitions()
     {
-        _response = await Http.GetAsync("http://localhost:7071/api/AccessibilityDefinitions");
+        _response = await GetHttpClientForTest().GetAsync("http://localhost:7071/api/AccessibilityDefinitions");
         _statusCode = _response.StatusCode;
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<AccessibilityDefinition>>(await _response.Content.ReadAsStreamAsync());
     }

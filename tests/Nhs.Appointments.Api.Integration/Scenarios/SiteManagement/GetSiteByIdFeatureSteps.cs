@@ -19,7 +19,7 @@ public abstract class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
     public async Task RequestSites(string siteDesignation)
     {
         var siteId = GetSiteId(siteDesignation);
-        Response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}");
+        Response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/sites/{siteId}");
     }
 
     [Then("the correct site is returned")]

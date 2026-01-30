@@ -45,7 +45,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
             cancellationNotificationStatuses
         };
 
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking/query", payload);
         _statusCode = _response.StatusCode;
         (_, _actualResponse) =
             await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(
@@ -64,7 +64,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
         return dataTable.Rows.Skip(1).Select((row, index) =>
         {
             var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
-            var reference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+            var reference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                             BookingReferences.GetBookingReference(index, bookingType);
             var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");

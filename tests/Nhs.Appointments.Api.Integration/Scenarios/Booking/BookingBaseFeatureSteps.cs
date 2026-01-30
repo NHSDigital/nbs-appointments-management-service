@@ -26,7 +26,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     public async Task CancelAppointment()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
             null);
     }
 
@@ -35,7 +35,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
         var site = GetSiteId(siteId);
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
 
@@ -53,16 +53,16 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             "application/json"
         );
 
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             jsonContent);
     }
 
     [When(@"I cancel the appointment with reference '(.+)'")]
     public async Task CancelAppointmentWithReference(string reference)
     {
-        var customId = CreateCustomBookingReference(reference);
+        var customId = CreateUniqueTestValue(reference);
         var site = GetSiteId();
-        Response = await Http.PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
     }
 
     [When("I make the appointment with the following details")]
@@ -95,7 +95,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                 },
             additionalData = new { isAppBooking = cells.ElementAt(10).Value }
         };
-        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
 
     [Then(@"a reference number is returned and the following booking is created")]
@@ -144,6 +144,8 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var actualBooking = await Client.GetContainer("appts", "booking_data")
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
         BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
+        
+        await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
     }
 
     [Then(@"I receive a message informing me that the appointment is no longer available")]
@@ -178,7 +180,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             }
         };
 
-        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
 
     [Then(@"the call should fail with (\d*)")]

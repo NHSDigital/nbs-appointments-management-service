@@ -33,7 +33,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     },
                 bookingToReschedule
             };
-            Response = await Http.PostAsJsonAsync(
+            Response = await GetHttpClientForTest().PostAsJsonAsync(
                 $"http://localhost:7071/api/booking/{_reschduledBookingReference}/confirm", payload);
         }
 

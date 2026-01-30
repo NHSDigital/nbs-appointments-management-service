@@ -3,5 +3,5 @@
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
 {
     [FeatureFile("./Scenarios/Booking/MakeBooking.feature")]
-    public class MakeBookingSingleServiceFeatureSteps : BookingBaseFeatureSteps;
+    public class MakeBooking : BookingBaseFeatureSteps;
 }

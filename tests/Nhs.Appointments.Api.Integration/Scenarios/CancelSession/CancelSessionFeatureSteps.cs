@@ -45,14 +45,14 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
             sessionReplacement = null as Session
         };
 
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/session/edit", payload);
     }
 
     [When("I query for a booking with the reference number '(.+)'")]
     public async Task QueryBooking(string reference)
     {
-        var customId = CreateCustomBookingReference(reference);
-        _response = await Http.GetAsync($"http://localhost:7071/api/booking/{customId}");
+        var customId = CreateUniqueTestValue(reference);
+        _response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/booking/{customId}");
         (_, _actualResponse) =
             await JsonRequestReader.ReadRequestAsync<Core.Bookings.Booking>(await _response.Content.ReadAsStreamAsync());
     }
@@ -73,7 +73,7 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
             Site = GetSiteId(),
         };
 
-        var customId = CreateCustomBookingReference(expectedBooking.Reference);
+        var customId = CreateUniqueTestValue(expectedBooking.Reference);
 
         _actualResponse.Reference.Should().Be(customId);
         _actualResponse.From.Should().Be(expectedBooking.From);

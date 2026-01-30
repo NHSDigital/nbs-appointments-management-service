@@ -38,7 +38,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
             Site = siteId
         };
 
-        _response = await Http.PostAsync(
+        _response = await GetHttpClientForTest().PostAsync(
             $"http://localhost:7071/api/user/remove", 
             new StringContent(
                 JsonResponseWriter.Serialize(requestBody), 

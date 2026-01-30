@@ -62,7 +62,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         [When(@"I query for bookings for a person using their NHS number")]
         public async Task CheckAvailability()
         {
-            _response = await Http.GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
+            _response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/booking?nhsNumber={NhsNumber}");
             _statusCode = _response.StatusCode;
             (_, _actualResponse) =
                 await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(

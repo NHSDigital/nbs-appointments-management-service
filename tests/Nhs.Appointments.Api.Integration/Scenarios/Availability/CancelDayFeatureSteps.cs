@@ -25,7 +25,7 @@ public class CancelDayFeatureSteps : BaseFeatureSteps
         };
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/day/cancel", content);
+        Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/day/cancel", content);
         Response.EnsureSuccessStatusCode();
     }
 }

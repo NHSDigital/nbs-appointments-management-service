@@ -22,7 +22,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
             var siteId = GetSiteId();
             var dateFrom = NaturalLanguageDate.Parse("Yesterday");
 
-            _response = await Http.GetAsync(
+            _response = await GetHttpClientForTest().GetAsync(
                 $"http://localhost:7071/api/availability-created?site={siteId}&from={dateFrom:yyyy-MM-dd}");
             _statusCode = _response.StatusCode;
             var content = await _response.Content.ReadAsStreamAsync();

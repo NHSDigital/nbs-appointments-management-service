@@ -27,7 +27,7 @@ public class DailyAvailabilityFeatureSteps : BaseFeatureSteps
         var untilDate = NaturalLanguageDate.Parse(until).ToString("yyyy-MM-dd");
         var requestUrl = $"http://localhost:7071/api/daily-availability?site={siteId}&from={fromDate}&until={untilDate}";
 
-        _response = await Http.GetAsync(requestUrl);
+        _response = await GetHttpClientForTest().GetAsync(requestUrl);
         _statusCode = _response.StatusCode;
 
         (_, var result) = await JsonRequestReader.ReadRequestAsync<IEnumerable<DailyAvailability>>(await _response.Content.ReadAsStreamAsync());

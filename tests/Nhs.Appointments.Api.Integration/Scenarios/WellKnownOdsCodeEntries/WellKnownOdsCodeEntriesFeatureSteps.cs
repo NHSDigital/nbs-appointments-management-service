@@ -51,7 +51,7 @@ public sealed class WellKnownOdsCodeEntriesFeatureSteps : BaseFeatureSteps
     [When(@"I query for well known ods code entries")]
     public async Task QueryForWellKnownOdsCodeEntries()
     {
-        _response = await Http.GetAsync("http://localhost:7071/api/wellKnownOdsCodeEntries");
+        _response = await GetHttpClientForTest().GetAsync("http://localhost:7071/api/wellKnownOdsCodeEntries");
         _statusCode = _response.StatusCode;
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<WellKnownOdsEntry>>(await _response.Content.ReadAsStreamAsync());
     }

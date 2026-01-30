@@ -26,7 +26,7 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-        _response = await Http.PostAsync(url, content);
+        _response = await GetHttpClientForTest().PostAsync(url, content);
     }
 
     [When("I confirm the following bookings")]
@@ -37,13 +37,15 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-        _response = await Http.PostAsync(url, content);
+        var client = GetHttpClientForTest();
+        
+        _response = await client.PostAsync(url, content);
     }
 
     [When("the provisional bookings are cleaned up")]
     public async Task CleanUpProvisionalBookings()
     {
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep",
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/system/run-provisional-sweep",
             new StringContent(""));
     }
 
@@ -73,12 +75,11 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
 
         foreach (var row in dataTable.Rows.Skip(1))
         {
-            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+            var bookingReference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                                    BookingReferences.GetBookingReference(defaultReferenceOffset,
                                        BookingType.Provisional);
             defaultReferenceOffset += 1;
-
-
+            
             var booking = await Client.GetContainer("appts", "booking_data")
                 .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
             booking.Resource.Status.Should().Be(AppointmentStatus.Booked);
@@ -97,7 +98,7 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
 
         foreach (var row in dataTable.Rows.Skip(1))
         {
-            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+            var bookingReference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                                    BookingReferences.GetBookingReference(defaultReferenceOffset,
                                        BookingType.Provisional);
             defaultReferenceOffset += 1;
@@ -118,7 +119,7 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
 
         foreach (var row in dataTable.Rows.Skip(1))
         {
-            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+            var bookingReference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                                    BookingReferences.GetBookingReference(defaultReferenceOffset,
                                        BookingType.Provisional);
             defaultReferenceOffset += 1;
@@ -138,11 +139,11 @@ public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : Fe
     {
         var row = table.Rows.ElementAt(1);
 
-        var primaryReference = CreateCustomBookingReference(table.GetRowValueOrDefault(row, "Reference")) ??
+        var primaryReference = CreateUniqueTestValue(table.GetRowValueOrDefault(row, "Reference")) ??
                                BookingReferences.GetBookingReference(0, BookingType.Provisional);
 
         var relatedBookings = table.GetListRowValueOrDefault(row, "Related bookings")
-            ?.Select(CreateCustomBookingReference).ToArray();
+            ?.Select(CreateUniqueTestValue).ToArray();
 
         var bookingToReschedule = table.GetRowValueOrDefault(row, "Booking to Reschedule");
 

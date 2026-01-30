@@ -24,7 +24,7 @@ public sealed class GetUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
     public async Task AssignRole(string site)
     {
         var siteId = GetSiteId(site);
-        _response = await Http.GetAsync($"http://localhost:7071/api/users?site={siteId}");
+        _response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/users?site={siteId}");
         _statusCode = _response.StatusCode;
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<IEnumerable<User>>(await _response.Content.ReadAsStreamAsync());
     }

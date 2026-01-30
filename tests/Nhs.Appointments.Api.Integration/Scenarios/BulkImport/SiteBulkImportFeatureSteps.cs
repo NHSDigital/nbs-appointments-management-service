@@ -37,14 +37,14 @@ public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IDisposabl
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         content.Add(fileContent, "file", "user-upload.csv");
 
-        Response = await Http.PostAsync("http://localhost:7071/api/site/import", content);
+        Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/site/import", content);
         TestSiteIds = [.. dataTable.Rows.Skip(1).Select(r => r.Cells.ElementAt(18).Value)];
     }
 
     [When("I request site information for site '(.+)'")]
     public async Task RequestSites(string siteId)
     {
-        Response = await Http.GetAsync($"http://localhost:7071/api/sites/{siteId}");
+        Response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/sites/{siteId}");
     }
 
     [Then("the correct site is returned")]

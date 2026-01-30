@@ -1,14 +1,22 @@
 import {
   assertFeatureEnabled,
   assertPermission,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
 import { ReportsPage } from './reports-page';
 import fromServer from '@server/fromServer';
+import { redirect } from 'next/navigation';
 
 const Page = async () => {
   await fromServer(assertFeatureEnabled('SiteSummaryReport'));
   await fromServer(assertPermission('*', 'reports:sitesummary'));
+
+  const reportsUplift = await fromServer(fetchFeatureFlag('ReportsUplift'));
+
+  if (reportsUplift.enabled) {
+    redirect('/reports/wizard');
+  }
 
   return (
     <NhsTransactionalPage originPage="reports">

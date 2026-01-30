@@ -9,6 +9,7 @@ type Props = {
   type?: CardType;
   description?: string;
   href?: string;
+  onClick?: () => void;
   children?: ReactNode;
   actionLinks?: ReactNode;
   maxWidth?: number;
@@ -24,6 +25,7 @@ const Card = ({
   type = 'primary',
   description,
   href,
+  onClick,
   children,
   actionLinks,
   maxWidth,
@@ -40,6 +42,14 @@ const Card = ({
               <Link className="nhsuk-card__link" href={href}>
                 {title}
               </Link>
+            ) : onClick ? (
+              <button
+                className="nhsuk-card__link-button"
+                onClick={onClick}
+                type="button"
+              >
+                {title}
+              </button>
             ) : (
               title
             )}

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
+using Nhs.Appointments.Jobs.ChangeFeed;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor.UnitTests.Cosmos;
 

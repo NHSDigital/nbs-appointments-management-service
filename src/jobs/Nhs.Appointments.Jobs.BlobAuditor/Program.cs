@@ -4,10 +4,9 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Core.Logger;
 using Nhs.Appointments.Jobs.BlobAuditor;
-using Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
-using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink;
 using Nhs.Appointments.Jobs.BlobAuditor.Sink.Config;
+using Nhs.Appointments.Jobs.ChangeFeed;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -17,31 +16,26 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-var containerConfigs = builder.Configuration.GetSection("AuditWorkerConfigurations");
-builder.Services.Configure<List<ContainerConfiguration>>(containerConfigs);
-
 builder.Services.Configure<List<SinkExclusion>>(
     builder.Configuration.GetSection("SinkExclusions"));
 
-builder.Services.Configure<ApplicationNameConfiguration>(opts =>
-{
-    opts.ApplicationName = builder.Configuration.GetValue<string>("Application_Name") ?? throw new NullReferenceException("Application_Name is required");
-});
+var containerConfigs = builder.Configuration.GetSection("AuditWorkerConfigurations").Get<List<ContainerConfiguration>>()!;
+var applicationName = builder.Configuration.GetValue<string>("Application_Name") ?? throw new NullReferenceException("Application_Name is required");
 
 builder.UseAppointmentsSerilog();
 
 builder.Services
     .AddSingleton(TimeProvider.System)
     .AddSingleton<IItemExclusionProcessor, ItemExclusionProcessor>()
-    .AddTransient<IBlobSink<JObject>, BlobSink>()
     .AddCosmos(builder.Configuration)
     .AddAzureBlobStorage(builder.Configuration)
-    .AddTransient<IAuditChangeFeedHandler<JObject>, AuditChangeFeedHandler>()
-    .AddTransient<IContainerConfigFactory, ContainerConfigFactory>();
+    .AddChangeFeedSink<JObject, BlobSink>()
+    .AddFeedEventMapper<JObject, JObject, AuditFeedEventMapper>()
+    .AddDefaultChangeFeed<JObject, JObject>(containerConfigs, applicationName);
 
-foreach (var config in containerConfigs.Get<List<ContainerConfiguration>>()!)
+foreach (var config in containerConfigs)
 {
-    builder.Services.AddAuditWorker<JObject>(config);
+    builder.Services.AddChangeFeedWorker<JObject>(config);
 }
 
 var host = builder.Build();

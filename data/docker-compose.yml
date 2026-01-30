@@ -16,3 +16,6 @@ services:
     healthcheck:
       test: curl --fail http://localhost:80/health || exit 1
       interval: 10s
+
+
+      

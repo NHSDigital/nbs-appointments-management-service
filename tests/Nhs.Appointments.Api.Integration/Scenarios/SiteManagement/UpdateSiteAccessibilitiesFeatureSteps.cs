@@ -21,6 +21,17 @@ public abstract class UpdateSiteAccessibilitiesFeatureSteps : SiteManagementBase
         var payload = new SetSiteAccessibilitiesRequest(siteId, accessibilities);
         Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/accessibilities", payload);
     }
+    
+    [When("I update accessibilities for site '(.+)' for api user '(.+)'")]
+    public async Task UpdateSiteAccessibilitiesForApiUser(string siteDesignation, string apiUser, DataTable dataTable)
+    {
+        var customHttpClient = GetCustomHttpClient(apiUser);
+        var siteId = GetSiteId(siteDesignation);
+        var row = dataTable.Rows.ElementAt(1);
+        var accessibilities = ParseAccessibilities(row.Cells.ElementAt(0).Value);
+        var payload = new SetSiteAccessibilitiesRequest(siteId, accessibilities);
+        Response = await customHttpClient.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/accessibilities", payload);
+    }
 }
 
 [FeatureFile("./Scenarios/SiteManagement/UpdateSiteAccessibilities.feature")]

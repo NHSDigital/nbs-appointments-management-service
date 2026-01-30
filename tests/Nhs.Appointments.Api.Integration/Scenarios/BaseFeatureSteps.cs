@@ -839,7 +839,8 @@ public abstract partial class BaseFeatureSteps : Feature
                 Location = new Location("Point",
                     new[] { dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d), dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d) }),
                 Type = dataTable.GetRowValueOrDefault(row, "Type"),
-                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
+                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+                LastUpdatedBy = dataTable.GetRowValueOrDefault(row, "LastUpdatedBy", _userId),
             });
 
         foreach (var site in sites)

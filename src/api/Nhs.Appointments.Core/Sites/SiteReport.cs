@@ -15,7 +15,7 @@ public class SiteReport
                 ?.DisplayName ?? "blank";
 
         SiteName = site.Name;
-        Status = (site.status ?? SiteStatus.Online).ToString();
+        Status = (site.Status ?? SiteStatus.Online).ToString();
         SiteType = site.Type;
         ICB = site.IntegratedCareBoard;
         Region = site.Region;

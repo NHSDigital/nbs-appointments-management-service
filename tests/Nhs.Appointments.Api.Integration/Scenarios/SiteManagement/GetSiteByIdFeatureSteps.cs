@@ -37,8 +37,8 @@ public abstract class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
             InformationForCitizens: row.Cells.ElementAt(7).Value,
             Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
             OutOfTheWayLocation,
-            status: null, 
-            isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Status: null, 
+            IsDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Type: dataTable.GetRowValueOrDefault(row, "Type")
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);

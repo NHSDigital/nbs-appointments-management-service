@@ -61,15 +61,15 @@ public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IDisposabl
             IntegratedCareBoard: row.Cells.ElementAt(6).Value,
             InformationForCitizens: row.Cells.ElementAt(7).Value,
             Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
-            location: new Location("Point", [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
-            status: null,
-            isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Location: new Location("Point", [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
+            Status: null,
+            IsDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Type: dataTable.GetRowValueOrDefault(row, "Type")
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         (_, ActualResponse) =
             await JsonRequestReader.ReadRequestAsync<Site>(await Response.Content.ReadAsStreamAsync());
-        ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.isDeleted));
+        ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.IsDeleted));
     }
 
     public Task InitializeAsync() => throw new System.NotImplementedException();

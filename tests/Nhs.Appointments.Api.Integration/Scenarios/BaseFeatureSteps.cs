@@ -799,7 +799,7 @@ public abstract partial class BaseFeatureSteps : Feature
         }
 
         var pairs = accessibilities.Split(",");
-        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1].ToLower())).ToArray();
+        return pairs.Select(p => p.Trim().Split("=")).Select(kvp => new Accessibility(kvp[0], kvp[1])).ToArray();
     }
 
     private async Task AssertAvailabilityStatusByReference(string bookingReference, AvailabilityStatus status,

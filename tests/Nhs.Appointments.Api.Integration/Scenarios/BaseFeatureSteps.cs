@@ -999,14 +999,11 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Cancelled => AvailabilityStatus.Unknown,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType))
     };
+    
+    protected string GetSiteId(string siteDesignation = DefaultSiteId) => CreateUniqueTestValue(siteDesignation);
 
-    //TODO use new method
-    protected string GetSiteId(string siteDesignation = DefaultSiteId) =>
-        $"{_testId}-{siteDesignation}";
-
-    //TODO use new method
     // TODO: Update to handle Okta on / off state
-    protected string GetUserId(string userId) => $"{userId}_{_testId}@nhs.net";
+    protected string GetUserId(string userId) => $"{CreateUniqueTestValue(userId)}@nhs.net";
 
     protected Dictionary<string, string> BuildAdditionalDataFromDataTable(DataTable table, TableRow row)
     {

@@ -122,10 +122,10 @@ public class BookingNotifier(
         }
     }
 
-    private Task<bool> SendNotification(NotificationType notificationType, string destination, string templateId, Dictionary<string, dynamic> templateValues) => notificationType switch
+    private async Task<bool> SendNotification(NotificationType notificationType, string destination, string templateId, Dictionary<string, dynamic> templateValues) => notificationType switch
     {
-        NotificationType.Email => notificationClient.SendEmailAsync(destination, templateId, templateValues),
-        NotificationType.Sms => notificationClient.SendSmsAsync(destination, templateId, templateValues),
+        NotificationType.Email => await notificationClient.SendEmailAsync(destination, templateId, templateValues),
+        NotificationType.Sms => await notificationClient.SendSmsAsync(destination, templateId, templateValues),
         _ => throw new NotSupportedException("Unknown notification type")
     };
 

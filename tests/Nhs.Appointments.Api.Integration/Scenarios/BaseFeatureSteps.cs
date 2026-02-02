@@ -163,11 +163,19 @@ public abstract partial class BaseFeatureSteps : Feature
         var httpUserAssignment = httpClientDetails.Rows.Skip(1).Take(1).Single();
 
         var userId = CreateUniqueTestValue(httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "User Id"));
-
+        
         if (string.IsNullOrEmpty(userId) || userId != userId.ToLower())
         {
             //our user bulk import lowers everything, and permissions check depends on casing
             throw new ArgumentException("'User Id' has to be provided and be lower case");
+        }
+        
+        var eulaAcceptedDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        var eulaAcceptedDateString = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Eula Accepted Date");
+
+        if (!string.IsNullOrEmpty(eulaAcceptedDateString))
+        {
+            eulaAcceptedDate = NaturalLanguageDate.Parse(eulaAcceptedDateString);
         }
         
         var userDocument = new UserDocument
@@ -182,7 +190,7 @@ public abstract partial class BaseFeatureSteps : Feature
                         Scope = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Scope", "global") 
                     }
             ],
-            LatestAcceptedEulaVersion = DateOnly.FromDateTime(DateTime.UtcNow)
+            LatestAcceptedEulaVersion = eulaAcceptedDate
         };
        
         await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), userDocument);

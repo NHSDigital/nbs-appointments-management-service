@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core.Extensions;
 using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
-using System.Security.Claims;
 
 namespace Nhs.Appointments.Api.Providers;
 
@@ -12,7 +12,10 @@ public class LastUpdatedByResolver(
 {
     private readonly ApplicationOptions _settings = options.Value;
     public string GetLastUpdatedBy(){
-        var user = userContextProvider.UserPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return user ?? _settings.ApplicationName;
+        var user = userContextProvider.UserPrincipal?.Claims.GetUserEmail();
+
+        return !string.IsNullOrWhiteSpace(user)
+            ? user
+            : _settings.ApplicationName;
     }
 }

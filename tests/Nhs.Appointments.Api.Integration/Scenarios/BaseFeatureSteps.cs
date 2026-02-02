@@ -907,6 +907,31 @@ public abstract partial class BaseFeatureSteps : Feature
             await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
         }
     }
+    
+    /// <summary>
+    /// This is only needed for tests that need to check for DB items that are written/updated by a non-async process.
+    /// These processes are not awaitable, so need to retry for existence of the document, with a timeout for failures.
+    /// i.e. Usages: Notifications, Audit, Aggregation
+    /// </summary>
+    public static async Task<TDocument> FindSingleItemWithRetryAsync<TDocument>(Container container,
+        Expression<Func<TDocument, bool>> predicate, TimeSpan delay, TimeSpan timeout)
+    {
+        var startTime = DateTime.UtcNow;
+
+        while (DateTime.UtcNow - startTime < timeout)
+        {
+            var documentsFound = (await RunQueryAsync(container, predicate)).ToList();
+
+            if (documentsFound.Count > 0)
+            {
+                return documentsFound.Single();
+            }
+
+            await Task.Delay(delay); // Wait before retrying
+        }
+
+        throw new TimeoutException($"A single {nameof(TDocument)} not found within the timeout period.");
+    }
 
     protected static Accessibility[] ParseAccessibilities(string accessibilities)
     {

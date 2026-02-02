@@ -34,9 +34,9 @@ public class FakeNotificationClient(ILogger<FakeNotificationClient> logger) : IS
 
 public class CosmosNotificationClient(CosmosClient cosmosClient, IOptions<CosmosDataStoreOptions> options) : ISendNotifications
 {
-    public async Task<bool> SendEmailAsync(string emailAddress, string templateId, Dictionary<string, dynamic> templateValues) => await WriteNotification(emailAddress, templateId, templateValues);
+    public Task<bool> SendEmailAsync(string emailAddress, string templateId, Dictionary<string, dynamic> templateValues) => WriteNotification(emailAddress, templateId, templateValues);
     
-    public async Task<bool> SendSmsAsync(string phoneNumber, string templateId, Dictionary<string, dynamic> templateValues) => await WriteNotification(phoneNumber, templateId, templateValues);
+    public Task<bool> SendSmsAsync(string phoneNumber, string templateId, Dictionary<string, dynamic> templateValues) => WriteNotification(phoneNumber, templateId, templateValues);
 
     private async Task<bool> WriteNotification(string recipient, string templateId, Dictionary<string, object> templateValues)
     {

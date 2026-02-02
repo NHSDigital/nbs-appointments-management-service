@@ -450,7 +450,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
         var accessNeeds = row.Cells.ElementAt(4).Value;
-        Response = await Http.GetAsync(
+        Response = await GetHttpClientForTest().GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&accessNeeds={accessNeeds}&ignoreCache=true");
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
@@ -505,7 +505,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             queryType = convertedQueryType.ToString()
         };
 
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
         (_, _queryResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await Response.Content.ReadAsStreamAsync());
     }
 
@@ -547,7 +547,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
 
         var accessNeeds = row.Cells.ElementAt(7).Value;
 
-        Response = await Http.GetAsync(
+        Response = await GetHttpClientForTest().GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=true");
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
@@ -608,7 +608,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
 
         var accessNeeds = row.Cells.ElementAt(7).Value;
 
-        Response = await Http.GetAsync(
+        Response = await GetHttpClientForTest().GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=false");
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
@@ -677,7 +677,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
         var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
 
-        Response = await Http.GetAsync(
+        Response = await GetHttpClientForTest().GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&ignoreCache=true");
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
@@ -729,7 +729,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         var searchRadiusNumber = row.Cells.ElementAt(1).Value;
         var longitude = row.Cells.ElementAt(2).Value;
         var latitude = row.Cells.ElementAt(3).Value;
-        Response = await Http.GetAsync(
+        Response = await GetHttpClientForTest().GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&ignoreCache=true");
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
@@ -782,14 +782,14 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         var latitude = row.Cells.ElementAt(4).Value;
 
         var payload = new SetSiteDetailsRequest(siteId, name, address, phoneNumber, longitude, latitude);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
     }
 
     private async Task PostQuerySitesRequestAsync(object payload)
     {
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        Response = await Http.PostAsync("http://localhost:7071/api/sites", content);
+        Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/sites", content);
         StatusCode = Response.StatusCode;
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(

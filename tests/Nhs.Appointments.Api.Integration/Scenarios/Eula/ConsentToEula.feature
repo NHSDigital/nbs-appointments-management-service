@@ -4,12 +4,13 @@
     Given the latest EULA is as follows
       | VersionDate |
       | Today       |
-    And the current user has agreed the EULA on the following date
-      | VersionDate |
-      | Yesterday   |
-    When the current user agrees to a EULA with the following date
-      | VersionDate |
-      | Today   |
-    Then the current user now has the following latest agreed EULA date
+    And I register and use a http client with details
+      | User Id       | Eula Accepted Date  |
+      | eulatestuser  | Yesterday           |
+    When the api user agrees to a EULA with the following date
       | VersionDate |
       | Today       |
+    Then the api user now has the following latest agreed EULA date
+      | VersionDate |
+      | Today       |
+    And the user document with id 'api@eulatestuser' has lastUpdatedBy 'api@eulatestuser'

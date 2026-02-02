@@ -29,7 +29,7 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
     {
         var requestBody = new ProposePotentialUserRequest(GetSiteId(), userEmail);
 
-        _response = await Http.PostAsync(
+        _response = await GetHttpClientForTest().PostAsync(
             "http://localhost:7071/api/user/propose-potential",
             new StringContent(
                 JsonResponseWriter.Serialize(requestBody),

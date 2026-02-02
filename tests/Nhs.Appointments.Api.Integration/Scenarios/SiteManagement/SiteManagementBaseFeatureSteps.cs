@@ -84,7 +84,8 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         var actualResult = await Client.GetContainer("appts", "core_data")
             .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site")); 
         actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
+        
+        //TODO assert in .feature
+        // AssertSiteLastUpdatedBy()
     }
-
-    public Task DisposeAsync() => Task.CompletedTask;
 }

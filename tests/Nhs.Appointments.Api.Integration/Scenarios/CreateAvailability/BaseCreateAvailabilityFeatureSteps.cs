@@ -137,7 +137,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         };
 
         var payload = JsonResponseWriter.Serialize(request);
-        _response = await Http.PostAsync("http://localhost:7071/api/availability/apply-template",
+        _response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/availability/apply-template",
             new StringContent(payload));
         _statusCode = _response.StatusCode;
     }
@@ -146,7 +146,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
     [When("I confirm the booking with reference '(.+)'")]
     public async Task ConfirmBookingWithReference(string bookingReference)
     {
-        var customId = CreateCustomBookingReference(bookingReference);
+        var customId = CreateUniqueTestValue(bookingReference);
         
         var payload = new ConfirmBookingRequestPayload(
             contactDetails: [],
@@ -154,7 +154,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             ""
         );
         
-        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/booking/{customId}/confirm", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/booking/{customId}/confirm", payload);
     }
 
     [When(@"I apply the following availability")]
@@ -182,7 +182,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             mode = cells.ElementAt(6).Value
         };
 
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/availability", payload);
         _statusCode = _response.StatusCode;
     }
 
@@ -219,7 +219,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
             mode = cells.ElementAt(11).Value
         };
 
-        _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/availability", payload);
         _statusCode = _response.StatusCode;
     }
 

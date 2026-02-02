@@ -23,7 +23,7 @@ public abstract class UpdateSiteReferenceDetailsFeatureSteps : SiteManagementBas
         var region = row.Cells.ElementAt(2).Value;
         
         var payload = new SetSiteReferenceDetailsRequest(siteId, odsCode, icb, region);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/reference-details", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/reference-details", payload);
     }
 }
 

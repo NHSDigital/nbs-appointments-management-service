@@ -53,7 +53,7 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
     {
         var url = $"http://localhost:7071/api/report/sites/users";
 
-        Response = await Http.GetAsync(url);
+        Response = await GetHttpClientForTest().GetAsync(url);
         StatusCode = Response.StatusCode;
         ReportContent = await Response.Content.ReadAsStringAsync();
     }

@@ -11,6 +11,23 @@ Feature: Manage site accessibilities
       | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                                                 | Longitude | Latitude |
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/accessibility_one=true, def_one/accessibility_two=false, def_two/accessibility_one=true | -60       | -60      |
 
+  Scenario: Add accessibility to a site - lastUpdatedBy property updates
+    Given the following sites exist in the system
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | __empty__       | -60       | -60      |
+    #Verify default setup
+    And the site document with siteId 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' has lastUpdatedBy 'api@test'
+    And I register and use a http client with details
+      | User Id  | Role                         | Scope  |
+      | mya_user | system:integration-test-user | global |
+    When I update the accessibilities for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Accessibilities                                                           |
+      | def_one/accessibility_one=true, def_one/accessibility_two=false, def_two/accessibility_one=true |
+    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
+      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                                                 | Longitude | Latitude |
+      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/accessibility_one=true, def_one/accessibility_two=false, def_two/accessibility_one=true | -60       | -60      |
+    And the site document with siteId 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' has lastUpdatedBy 'api@mya_user'
+    
   Scenario: Switch off accessibilities for a site
     Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                                                | Longitude | Latitude |

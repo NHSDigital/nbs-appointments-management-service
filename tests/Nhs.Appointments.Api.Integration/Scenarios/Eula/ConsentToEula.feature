@@ -13,4 +13,4 @@
     Then the api user now has the following latest agreed EULA date
       | VersionDate |
       | Today       |
-    And the 'core_data' document with id 'eula' and partition 'system' has lastUpdatedBy 'api@eulatestuser'
+    And the user document with id 'api@eulatestuser' has lastUpdatedBy 'api@eulatestuser'

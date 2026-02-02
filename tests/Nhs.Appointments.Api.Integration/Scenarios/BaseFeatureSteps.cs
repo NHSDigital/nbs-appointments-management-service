@@ -740,6 +740,13 @@ public abstract partial class BaseFeatureSteps : Feature
         lastUpdatedByDocument.Resource.LastUpdatedBy.Should().Be(expectedLastUpdatedBy);
     }
     
+    [Then("the user document with id '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the user document with id '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertUserLastUpdatedBy(string userId, string lastUpdatedBy)
+    {
+        await AssertLastUpdatedBy("core_data", CreateUniqueTestValue(userId), "user", lastUpdatedBy);
+    }
+    
     [Then("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
     [And("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
     public async Task AssertSiteLastUpdatedBy(string siteId, string lastUpdatedBy)

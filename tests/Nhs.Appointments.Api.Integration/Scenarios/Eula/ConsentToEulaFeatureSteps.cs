@@ -18,18 +18,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Eula;
 public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
 {
     private UserProfile _actualResponse;
-    private HttpClient _eulaUserHttpClient; 
 
-    [And(@"the current user has agreed the EULA on the following date")]
-    public async Task UpsertIntTestUserEulaDate(DataTable dataTable)
-    {
-        var cells = dataTable.Rows.Skip(1).Single().Cells;
-        var versionDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
-
-        await SetupEulaUser(versionDate);
-    }
-
-    [When(@"the current user agrees to a EULA with the following date")]
+    [When(@"the api user agrees to a EULA with the following date")]
     public async Task ConsentToLatestEula(DataTable dataTable)
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells;
@@ -39,40 +29,19 @@ public sealed class ConsentToEulaFeatureSteps : BaseEulaFeatureSteps
         {
             versionDate = $"{versionDate:yyyy-MM-dd}"
         };
-
-        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
-        requestSigner.InnerHandler = new HttpClientHandler();
-        _eulaUserHttpClient = new HttpClient(requestSigner);
-        _eulaUserHttpClient.DefaultRequestHeaders.Add("ClientId", "eulatestuser");
-        _response = await _eulaUserHttpClient.PostAsync($"http://localhost:7071/api/eula/consent", new StringContent(JsonResponseWriter.Serialize(payload), Encoding.UTF8, "application/json"));
+       
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/eula/consent", new StringContent(JsonResponseWriter.Serialize(payload), Encoding.UTF8, "application/json"));
     }
 
-    [Then(@"the current user now has the following latest agreed EULA date")]
+    [Then(@"the api user now has the following latest agreed EULA date")]
     public async Task AssertLatestUserEulaVersion(DataTable dataTable)
     {
         var cells = dataTable.Rows.Skip(1).Single().Cells;
         var versionDate = NaturalLanguageDate.Parse(cells.ElementAt(0).Value);
 
-        _response = await _eulaUserHttpClient.GetAsync($"http://localhost:7071/api/user/profile");
+        _response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/user/profile");
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<UserProfile>(await _response.Content.ReadAsStreamAsync());
 
         _actualResponse.LatestAcceptedEulaVersion.Should().Be(versionDate);
-    }
-
-    private async Task SetupEulaUser(DateOnly latestAcceptedEulaVersion = default)
-    {
-        var userAssignments = new UserDocument()
-        {
-            
-            Id = "api@eulatestuser",
-            ApiSigningKey = ApiSigningKey,
-            DocumentType = "user",
-            RoleAssignments = [
-                new RoleAssignment()
-                    { Role = "system:integration-test-user", Scope = "global" }
-            ],
-            LatestAcceptedEulaVersion = latestAcceptedEulaVersion
-        };        
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), userAssignments);
     }
 }

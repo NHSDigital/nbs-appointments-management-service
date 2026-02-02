@@ -19,7 +19,7 @@ public abstract class UpdateSiteAccessibilitiesFeatureSteps : SiteManagementBase
         var row = dataTable.Rows.ElementAt(1);
         var accessibilities = ParseAccessibilities(row.Cells.ElementAt(0).Value);
         var payload = new SetSiteAccessibilitiesRequest(siteId, accessibilities);
-        Response = await Http.PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/accessibilities", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/accessibilities", payload);
     }
 }
 

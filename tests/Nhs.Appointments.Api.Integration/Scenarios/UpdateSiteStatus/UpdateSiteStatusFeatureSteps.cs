@@ -39,7 +39,7 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
             };
         }
 
-        Response = await Http.PostAsJsonAsync("http://localhost:7071/api/site-status", payload);
+        Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/site-status", payload);
     }
 
     [Then(@"the call should fail with (\d*)")]

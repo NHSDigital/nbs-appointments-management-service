@@ -18,7 +18,6 @@ using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
@@ -48,13 +47,18 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected readonly Guid _testId = Guid.NewGuid();
     protected readonly CosmosClient Client;
-    protected readonly HttpClient Http;
+    private readonly HttpClient _defaultHttpClient;
     protected readonly Mapper Mapper;
-    protected List<BookingDocument> MadeBookings = new List<BookingDocument>();
+    protected List<BookingDocument> MadeBookings = new();
     protected readonly Dictionary<int, string> _bookingReferences = new();
     protected readonly string _userId = "api@test";
     protected HttpResponseMessage _response { get; set; }
-
+    
+    /// <summary>
+    /// Http client desired for a specific test case
+    /// </summary>
+    protected readonly Dictionary<Guid, HttpClient> _customTestHttpClients = new();
+    
     public BaseFeatureSteps()
     {
         CosmosClientOptions options = new()
@@ -71,8 +75,8 @@ public abstract partial class BaseFeatureSteps : Feature
 
         var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
         requestSigner.InnerHandler = new HttpClientHandler();
-        Http = new HttpClient(requestSigner);
-        Http.DefaultRequestHeaders.Add("ClientId", "test");
+        _defaultHttpClient = new HttpClient(requestSigner);
+        _defaultHttpClient.DefaultRequestHeaders.Add("ClientId", "test");
 
         Client = new(
             accountEndpoint: Environment.GetEnvironmentVariable("COSMOS_ENDPOINT") ?? "https://localhost:8081/",
@@ -150,6 +154,63 @@ public abstract partial class BaseFeatureSteps : Feature
         ContactItemType.Phone => $"07777{NhsNumber.Substring(0, 6)}",
         _ => throw new ArgumentOutOfRangeException()
     };
+    
+    [When("I register and use a http client with details")]
+    [And("I register and use a http client with details")]
+    public async Task RegisterTestUserAndClient(DataTable httpClientDetails)
+    {
+        //only one client per test currently supported, feel free to extend if needed
+        var httpUserAssignment = httpClientDetails.Rows.Skip(1).Take(1).Single();
+
+        var userId = CreateUniqueTestValue(httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "User Id"));
+        
+        if (string.IsNullOrEmpty(userId) || userId != userId.ToLower())
+        {
+            //our user bulk import lowers everything, and permissions check depends on casing
+            throw new ArgumentException("'User Id' has to be provided and be lower case");
+        }
+        
+        var eulaAcceptedDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        var eulaAcceptedDateString = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Eula Accepted Date");
+
+        if (!string.IsNullOrEmpty(eulaAcceptedDateString))
+        {
+            eulaAcceptedDate = NaturalLanguageDate.Parse(eulaAcceptedDateString);
+        }
+        
+        var userDocument = new UserDocument
+        {
+            Id = $"api@{userId}",
+            ApiSigningKey = ApiSigningKey,
+            DocumentType = "user",
+            RoleAssignments = [
+                new RoleAssignment
+                    { 
+                        Role = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Role", "system:integration-test-user"), 
+                        Scope = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Scope", "global") 
+                    }
+            ],
+            LatestAcceptedEulaVersion = eulaAcceptedDate
+        };
+       
+        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), userDocument);
+        
+        var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
+        requestSigner.InnerHandler = new HttpClientHandler();
+        var newTestClient = new HttpClient(requestSigner);
+        newTestClient.DefaultRequestHeaders.Add("ClientId", userId);
+        _customTestHttpClients[_testId] = newTestClient;
+    }
+
+    /// <summary>
+    /// If a custom http client has been registered for a specific test, return it
+    /// Else, use the default client
+    /// </summary>
+    /// <returns></returns>
+    protected HttpClient GetHttpClientForTest()
+    {
+        return !_customTestHttpClients.TryGetValue(_testId, out var client) ? _defaultHttpClient : client;
+    }
 
     [Given("the site is configured for MYA")]
     public async Task SetupSite()
@@ -183,7 +244,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected async Task SetLocalFeatureToggleOverride(string name, string state)
     {
-        var response = await Http.PatchAsync($"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
+        var response = await _defaultHttpClient.PatchAsync($"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
             null);
 
         response.EnsureSuccessStatusCode();
@@ -350,7 +411,7 @@ public abstract partial class BaseFeatureSteps : Feature
         return dataTable.Rows.Skip(1).Select((row, index) =>
         {
             var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
-            var reference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+            var reference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                             BookingReferences.GetBookingReference(index, bookingType);
             var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
@@ -376,6 +437,8 @@ public abstract partial class BaseFeatureSteps : Feature
                     "Cancellation Notification Status");
 
             var nhsNumber = dataTable.GetRowValueOrDefault(row, "Nhs Number", NhsNumber);
+
+            var createdBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Created By")) ?? _userId;
 
             var additionalData = BuildAdditionalDataFromDataTable(dataTable, row);
 
@@ -410,7 +473,8 @@ public abstract partial class BaseFeatureSteps : Feature
                         Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
                     }
                 ],
-                AdditionalData = additionalData
+                AdditionalData = additionalData,
+                LastUpdatedBy = createdBy
             };
 
             var bookingIndex = new BookingIndexDocument
@@ -447,7 +511,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
         foreach (var row in dataTable.Rows.Skip(1))
         {
-            var bookingReference = CreateCustomBookingReference(dataTable.GetRowValueOrDefault(row, "Reference")) ??
+            var bookingReference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                                    BookingReferences.GetBookingReference(defaultReferenceOffset,
                                        BookingType.Confirmed);
 
@@ -477,13 +541,15 @@ public abstract partial class BaseFeatureSteps : Feature
             {
                 booking.Resource.AdditionalData.Should().BeEquivalentTo(JObject.FromObject(additionalData));
             }
+            
+            await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
         }
     }
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
         {
-            var customId = CreateCustomBookingReference(row.Cells.ElementAtOrDefault(4)?.Value);
+            var customId = CreateUniqueTestValue(row.Cells.ElementAtOrDefault(4)?.Value);
 
             return new BookingDocument
             {
@@ -521,13 +587,14 @@ public abstract partial class BaseFeatureSteps : Feature
                         Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
                     }
                 ],
-                AdditionalData = new { IsAppBooking = true }
+                AdditionalData = new { IsAppBooking = true },
+                LastUpdatedBy = _userId
             };
         });
 
         var bookingIndexDocuments = dataTable.Rows.Skip(1).Select((row, index) =>
         {
-            var customId = CreateCustomBookingReference(row.Cells.ElementAtOrDefault(4)?.Value);
+            var customId = CreateUniqueTestValue(row.Cells.ElementAtOrDefault(4)?.Value);
 
             return new BookingIndexDocument
             {
@@ -559,16 +626,19 @@ public abstract partial class BaseFeatureSteps : Feature
         MadeBookings.AddRange(bookings);
     }
 
-    protected string CreateCustomBookingReference(string identifier)
+    /// <summary>
+    /// Create a test value that has the testId run suffixed, so that it is unique to that test run
+    /// </summary>
+    protected string CreateUniqueTestValue(string value)
     {
-        var customId = identifier;
+        var uniqueTestValue = value;
 
-        if (!string.IsNullOrWhiteSpace(customId))
+        if (!string.IsNullOrWhiteSpace(uniqueTestValue))
         {
-            customId += $"_{_testId}";
+            uniqueTestValue += $"_{_testId}".ToLower();
         }
 
-        return customId;
+        return uniqueTestValue;
     }
 
     [And(@"the original booking has been '(\w+)'")]
@@ -581,6 +651,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
         await AssertBookingStatusByReference(bookingReference, GetSiteId(), expectedStatus);
+        await AssertLastUpdatedBy("booking_data", bookingReference, GetSiteId(), _userId);
     }
 
     [Then(@"the booking at site '(.+)' has been '(\w+)'")]
@@ -590,13 +661,14 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
         await AssertBookingStatusByReference(bookingReference, GetSiteId(siteId), expectedStatus);
+        await AssertLastUpdatedBy("booking_data", bookingReference, GetSiteId(siteId), _userId);
     }
 
     [Then(@"the booking with reference '(.+)' has been '(.+)'")]
     [And(@"the booking with reference '(.+)' has been '(.+)'")]
     public async Task AssertSpecificBookingStatusChange(string bookingReference, string status)
     {
-        var customId = CreateCustomBookingReference(bookingReference);
+        var customId = CreateUniqueTestValue(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
         await AssertBookingStatusByReference(customId, GetSiteId(), expectedStatus);
     }
@@ -605,7 +677,7 @@ public abstract partial class BaseFeatureSteps : Feature
     [And(@"the booking with reference '(.+)' has status '(.+)'")]
     public async Task AssertSpecificBookingStatus(string bookingReference, string status)
     {
-        var customId = CreateCustomBookingReference(bookingReference);
+        var customId = CreateUniqueTestValue(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
         await AssertBookingStatusByReference(customId, GetSiteId(), expectedStatus, false);
     }
@@ -633,7 +705,7 @@ public abstract partial class BaseFeatureSteps : Feature
     public async Task AssertBookingDeleted(string bookingReference)
     {
         var siteId = GetSiteId();
-        var customId = CreateCustomBookingReference(bookingReference);
+        var customId = CreateUniqueTestValue(bookingReference);
 
         var exception = await Assert.ThrowsAsync<CosmosException>(async () =>
             await Client.GetContainer("appts", "booking_data")
@@ -650,9 +722,43 @@ public abstract partial class BaseFeatureSteps : Feature
     [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
     public async Task AssertSpecificAvailabilityStatus(string bookingReference, string status)
     {
-        var customId = CreateCustomBookingReference(bookingReference);
+        var customId = CreateUniqueTestValue(bookingReference);
         var expectedStatus = Enum.Parse<AvailabilityStatus>(status);
         await AssertAvailabilityStatusByReference(customId, expectedStatus, false);
+    }
+    
+    [Then("the '(.+)' document with id '(.+)' and partition '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the '(.+)' document with id '(.+)' and partition '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertLastUpdatedBy(string container, string id, string partition, string lastUpdatedBy)
+    {
+        var lastUpdatedByDocument = await Client.GetContainer("appts", container)
+            .ReadItemAsync<LastUpdatedByCosmosDocument>(id, new PartitionKey(partition));
+
+        //if lastUpdatedBy is the default api@test value, do not create unique test value
+        var expectedLastUpdatedBy = lastUpdatedBy == _userId ? _userId : CreateUniqueTestValue(lastUpdatedBy);
+        
+        lastUpdatedByDocument.Resource.LastUpdatedBy.Should().Be(expectedLastUpdatedBy);
+    }
+    
+    [Then("the user document with id '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the user document with id '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertUserLastUpdatedBy(string userId, string lastUpdatedBy)
+    {
+        await AssertLastUpdatedBy("core_data", CreateUniqueTestValue(userId), "user", lastUpdatedBy);
+    }
+    
+    [Then("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertSiteLastUpdatedBy(string siteId, string lastUpdatedBy)
+    {
+        await AssertLastUpdatedBy("core_data", GetSiteId(siteId), "site", lastUpdatedBy);
+    }
+    
+    [Then("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
+    public async Task AssertBookingLastUpdatedBy(string reference, string lastUpdatedBy)
+    {
+        await AssertLastUpdatedBy("booking_data", CreateUniqueTestValue(reference), GetSiteId(), lastUpdatedBy);
     }
 
     [When(@"I create the following availability")]
@@ -687,7 +793,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 mode = "additive"
             };
 
-            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
+            _response = await _defaultHttpClient.PostAsJsonAsync("http://localhost:7071/api/availability", payload);
             _response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
     }
@@ -721,7 +827,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     dateOfBirth = "1987-03-13"
                 }
             };
-            _response = await Http.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+            _response = await _defaultHttpClient.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
             _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var result =
@@ -764,7 +870,8 @@ public abstract partial class BaseFeatureSteps : Feature
                 Location = new Location("Point",
                     new[] { dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d), dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d) }),
                 Type = dataTable.GetRowValueOrDefault(row, "Type"),
-                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
+                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+                LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
             });
 
         foreach (var site in sites)
@@ -799,6 +906,31 @@ public abstract partial class BaseFeatureSteps : Feature
         {
             await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
         }
+    }
+    
+    /// <summary>
+    /// This is only needed for tests that need to check for DB items that are written/updated by a non-async process.
+    /// These processes are not awaitable, so need to retry for existence of the document, with a timeout for failures.
+    /// i.e. Usages: Notifications, Audit, Aggregation
+    /// </summary>
+    public static async Task<TDocument> FindSingleItemWithRetryAsync<TDocument>(Container container,
+        Expression<Func<TDocument, bool>> predicate, TimeSpan delay, TimeSpan timeout)
+    {
+        var startTime = DateTime.UtcNow;
+
+        while (DateTime.UtcNow - startTime < timeout)
+        {
+            var documentsFound = (await RunQueryAsync(container, predicate)).ToList();
+
+            if (documentsFound.Count > 0)
+            {
+                return documentsFound.Single();
+            }
+
+            await Task.Delay(delay); // Wait before retrying
+        }
+
+        throw new TimeoutException($"A single {nameof(TDocument)} not found within the timeout period.");
     }
 
     protected static Accessibility[] ParseAccessibilities(string accessibilities)
@@ -907,12 +1039,11 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Cancelled => AvailabilityStatus.Unknown,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType))
     };
-
-    protected string GetSiteId(string siteDesignation = DefaultSiteId) =>
-        $"{_testId}-{siteDesignation}";
+    
+    protected string GetSiteId(string siteDesignation = DefaultSiteId) => CreateUniqueTestValue(siteDesignation);
 
     // TODO: Update to handle Okta on / off state
-    protected string GetUserId(string userId) => $"{userId}_{_testId}@nhs.net";
+    protected string GetUserId(string userId) => $"{CreateUniqueTestValue(userId)}@nhs.net";
 
     protected Dictionary<string, string> BuildAdditionalDataFromDataTable(DataTable table, TableRow row)
     {

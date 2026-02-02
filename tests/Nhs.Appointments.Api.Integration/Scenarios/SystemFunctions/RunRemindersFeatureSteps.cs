@@ -17,17 +17,17 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SystemFunctions;
 [FeatureFile("./Scenarios/SystemFunctions/RunReminders.feature")]
 public class RunRemindersFeatureSteps : BaseFeatureSteps
 {
-    [When("the reminders job runs")]
-    public async Task RunRemindersJob()
-    {
-        var response = await Http.PostAsync("http://localhost:7071/api/system/run-reminders", new StringContent(""));
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
     [Then("there are no errors")]
     public Task AssertOk()
     {
         return Task.CompletedTask;
+    }
+    
+    [When("the reminders job runs")]
+    public async Task RunRemindersJob()
+    {
+        var response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/system/run-reminders", new StringContent(""));
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [And("those appointments have already had notifications sent")]
@@ -76,11 +76,10 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             var contactItemType = Enum.Parse<ContactItemType>(item.Item1, true);
 
             var contactDetails = GetContactInfo(contactItemType);
-            var notifications = await GetNotificationsForRecipient(contactDetails);
+            var notification = await GetSingleNotificationForRecipientWithRetry(contactDetails);
             
-            var customId = CreateCustomBookingReference(item.Item5);
+            var customId = CreateUniqueTestValue(item.Item5);
 
-            var notification = notifications.Single();
             notification.templateId.Should().Be(item.Item2);
             notification.templateValues["firstName"].Should().Be("FirstName");
             notification.templateValues["vaccine"].Should().Be(item.Item3);
@@ -93,6 +92,13 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
     public async Task AssertNotificationsAreNotSent()
     {
         var allNotifications = new List<NotificationData>();
+
+        //we are verifying nothing has been written for an async non-awaitable process
+        //not sure how we can wait for existence of no items written?
+        //we can't check immediately as data may be written after a short delay, and missed by the assertion
+        //a very hacky fix that needs proper resolution
+        await Task.Delay(1000);
+        
         allNotifications.AddRange(await GetNotificationsForRecipient(GetContactInfo(ContactItemType.Phone)));
         allNotifications.AddRange(await GetNotificationsForRecipient(GetContactInfo(ContactItemType.Email)));
         allNotifications.AddRange(await GetNotificationsForRecipient(GetContactInfo(ContactItemType.Landline)));
@@ -105,10 +111,10 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
     {
         var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceTypeDocument()
         {
-            Id = x.Cells.ElementAt(0).Value,
-            Label = x.Cells.ElementAt(0).Value,
-            ServiceType = x.Cells.ElementAt(1).Value,
-            Url = x.Cells.ElementAt(2).Value
+            Id = dataTable.GetRowValueOrDefault(x, "Id"),
+            Label = dataTable.GetRowValueOrDefault(x, "Label"),
+            ServiceType = dataTable.GetRowValueOrDefault(x, "ServiceType"),
+            Url = dataTable.GetRowValueOrDefault(x, "Url")
         });
 
         var clinicalServicesDocument = new ClinicalServiceDocument()
@@ -125,6 +131,15 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
     {
         var container = Client.GetContainer("appts", "local_notifications");
         return await RunQueryAsync<NotificationData>(container, nd => nd.recipient == contactInfo);
+    }
+    
+    private async Task<NotificationData> GetSingleNotificationForRecipientWithRetry(string contactInfo)
+    {
+        var container = Client.GetContainer("appts", "local_notifications");
+        return await FindSingleItemWithRetryAsync<NotificationData>(container, 
+            nd => nd.recipient == contactInfo,
+            TimeSpan.FromSeconds(1),
+            TimeSpan.FromSeconds(10));
     }
 
     private string ResolveEventName(string shortEventName) => shortEventName switch

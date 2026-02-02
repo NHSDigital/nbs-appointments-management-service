@@ -40,7 +40,7 @@ public class GetSiteUsersReportFunctionTests
             _logger.Object,
             _metricsRecorder.Object,
             _userContextProvider.Object);
-        _validator.Setup(v => v.ValidateAsync(It.IsAny<EmptyRequest>()))
+        _validator.Setup(v => v.ValidateAsync(It.IsAny<EmptyRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
     }
 

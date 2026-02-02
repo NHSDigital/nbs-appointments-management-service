@@ -32,7 +32,7 @@ public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSt
             lastName = "lastName"
         };
         
-        _response = await Http.PostAsJsonAsync($"http://localhost:7071/api/user/roles", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/user/roles", payload);
     }
 
     [Then(@"user '(.+)' would have the following role assignments")] 

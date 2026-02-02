@@ -17,7 +17,7 @@ public sealed class FeatureFlags : BaseFeatureSteps
     [When(@"I request the enabled state for feature flag '(.*)'")]
     public async Task FeatureFlagEnabled(string featureFlag)
     {
-        _response = await Http.GetAsync(
+        _response = await GetHttpClientForTest().GetAsync(
             $"http://localhost:7071/api/feature-flag/{featureFlag}");
         _statusCode = _response.StatusCode;
         (_, _actualResponse) =

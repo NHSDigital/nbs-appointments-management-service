@@ -190,5 +190,6 @@ services:
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
       - CosmosTransactionOptions__MaxRetry=50
       - CosmosTransactionOptions__DefaultWaitSeconds=30
+      - ChangeFeedPollingIntervalSeconds=1
 volumes:
   splunk-data:

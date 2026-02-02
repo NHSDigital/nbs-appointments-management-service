@@ -18,7 +18,7 @@ builder.UseAppointmentsSerilog();
 var applicationName = builder.Configuration.GetValue<string>("Application_Name") ?? throw new NullReferenceException("Application_Name is required");
 
 var containerConfiguration =
-    new ContainerConfiguration { ContainerName = "booking_data", LeaseContainerName = "booking_aggregation_lease" };
+    new ContainerConfiguration { ContainerName = "booking_data", LeaseContainerName = "booking_aggregation_lease", PollingIntervalSeconds = builder.Configuration.GetValue<int>("ChangeFeedPollingIntervalSeconds") };
 
 builder.Services
     .AddSingleton(TimeProvider.System)

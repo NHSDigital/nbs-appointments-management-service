@@ -1,7 +1,6 @@
 {
   "FeatureManagement": {
     "TestFeatureEnabled": true,
-    "JointBookings": true,
     "SiteSummaryReport": true,
     "SiteStatus": true,
     "CancelDay": true,

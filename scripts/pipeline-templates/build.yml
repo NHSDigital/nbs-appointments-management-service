@@ -205,6 +205,15 @@ stages:
               containerRegistry: ${{parameters.prDockerServiceConnectionName}}
               tags: |
                 $(ExtractVersionStep.extractedBuildNumber)
+          - task: Docker@2
+            displayName: Build and push cosmos aggregator image to container registry
+            inputs:
+              command: buildAndPush
+              repository: aggregator
+              dockerfile: $(cosmosAuditorDockerFilePath)
+              containerRegistry: ${{parameters.prDockerServiceConnectionName}}
+              tags: |
+                $(ExtractVersionStep.extractedBuildNumber)
           - task: PublishBuildArtifacts@1
             displayName: "Publish Terraform"
             inputs:

@@ -17,8 +17,7 @@ namespace Nhs.Appointments.Api.Notifications
             }
 
             const string pattern = @"(?<=[\w]{1})[\w\-._\+%]*(?=[\w]{1}@)";
-            string result = Regex.Replace(email, pattern, m => new string('*', m.Length));
-            return result;
+            return Regex.Replace(email, pattern, m => new string('*', m.Length), RegexOptions.None, TimeSpan.FromMilliseconds(100));
         }
 
         public string ObfuscatePhoneNumber(string phoneNumber)

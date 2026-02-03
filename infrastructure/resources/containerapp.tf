@@ -365,6 +365,11 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       }
 
       env {
+        name  = "AuditWorkerConfigurations__0__PollingIntervalSeconds"
+        value = 60
+      }
+
+      env {
         name  = "AuditWorkerConfigurations__0__ContainerName"
         value = var.auditor_worker_containers[0]
       }
@@ -380,6 +385,11 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       }
 
       env {
+        name  = "AuditWorkerConfigurations__1__PollingIntervalSeconds"
+        value = 60
+      }
+
+      env {
         name  = "AuditWorkerConfigurations__1__LeaseContainerName"
         value = var.auditor_lease_container_name
       }
@@ -390,6 +400,11 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       }
 
       env {
+        name  = "AuditWorkerConfigurations__2__PollingIntervalSeconds"
+        value = 60
+      }
+
+      env {
         name  = "AuditWorkerConfigurations__2__LeaseContainerName"
         value = var.auditor_lease_container_name
       }
@@ -397,6 +412,11 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       env {
         name  = "AuditWorkerConfigurations__3__ContainerName"
         value = var.auditor_worker_containers[3]
+      }
+
+      env {
+        name  = "AuditWorkerConfigurations__3__PollingIntervalSeconds"
+        value = 60
       }
 
       env {
@@ -412,6 +432,93 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       env {
         name  = "SinkExclusions__0__ExcludedPaths__0"
         value = var.auditor_sink_exclusions[0].excluded_paths[0]
+      }
+
+      env {
+        name  = "ChangeFeedPollingIntervalSeconds"
+        value = var.aggregator_polling_interval_seconds
+      }
+    }
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+resource "azurerm_container_app" "nbs_mya_auditor" {
+  count                        = var.auditor_enable ? 1 : 0
+  name                         = "${var.application}-auditor-${var.environment}-${var.loc}"
+  container_app_environment_id  = azurerm_container_app_environment.nbs_mya_container_enviroment.id
+  resource_group_name           = local.resource_group_name
+  revision_mode                 = "Single"
+
+  secret {
+    name  = "container-registry-password"
+    value = var.container_registry_password
+  }
+
+  secret {
+    name  = "container-cosmos-token"
+    value = var.cosmos_token != "" ? var.cosmos_token : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].primary_key
+  }
+
+  secret {
+    name  = "splunk-hec-token"
+    value = var.splunk_hec_token
+  }
+
+  registry {
+    server             = var.container_registry_server_url
+    username           = var.container_registry_username
+    password_secret_name = "container-registry-password"
+  }
+
+  template {
+    container {
+      name   = "nbs-mya-aggregator"
+      image  = "${var.container_registry_server_url}/aggregator:${var.build_number}"
+      cpu    = 0.5 
+      memory = "1Gi"
+
+      env {
+        name        = "Application_Name"
+        value       = "${var.application}-aggregator-${var.environment}-${var.loc}"
+      }
+
+      env {
+        name        = "COSMOS_TOKEN"
+        secret_name = "container-cosmos-token"
+      }
+
+      env {
+        name        = "SPLUNK_HEC_TOKEN"
+        secret_name = "splunk-hec-token"
+      }
+
+      env {
+        name  = "COSMOS_ENDPOINT"
+        value = var.cosmos_endpoint != "" ? var.cosmos_endpoint : azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].endpoint
+      }
+
+      env {
+        name  = "SPLUNK_HOST_URL"
+        value = var.splunk_host_url
+      }
+
+      env {
+        name  = "CosmosTransactionOptions__MaxRetry"
+        value = var.splunk_host_url
+      }
+
+      env {
+        name  = "CosmosTransactionOptions__DefaultWaitSeconds"
+        value = var.aggregator_default_wait_seconds
+      }
+
+      env {
+        name  = "ChangeFeedPollingIntervalSeconds"
+        value = var.aggregator_polling_interval_seconds
       }
     }
   }

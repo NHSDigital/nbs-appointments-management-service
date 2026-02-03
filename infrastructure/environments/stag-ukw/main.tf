@@ -107,6 +107,7 @@ module "mya_application_stag_ukw" {
   auditor_lease_container_name                    = var.AUDITOR_LEASE_CONTAINER_NAME
   auditor_worker_containers                       = var.AUDITOR_WORKER_CONTAINERS
   auditor_sink_exclusions                         = var.AUDITOR_SINK_EXCLUSIONS
+  aggregator_changefeed_enable                    = false
   cosmos_booking_autoscale_settings = [{
     max_throughput = 60000
   }]

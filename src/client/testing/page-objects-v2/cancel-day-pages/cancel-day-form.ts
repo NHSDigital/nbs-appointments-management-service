@@ -1,4 +1,3 @@
-//import { RootPage } from '@testing-page-objects';
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { parseToUkDatetime } from '@services/timeService';

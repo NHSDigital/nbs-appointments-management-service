@@ -365,13 +365,13 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       }
 
       env {
-        name  = "AuditWorkerConfigurations__0__PollingIntervalSeconds"
-        value = 60
+        name  = "AuditWorkerConfigurations__0__ContainerName"
+        value = var.auditor_worker_containers[0]
       }
 
       env {
-        name  = "AuditWorkerConfigurations__0__ContainerName"
-        value = var.auditor_worker_containers[0]
+        name  = "AuditWorkerConfigurations__0__PollingIntervalSeconds"
+        value = var.auditor_polling_interval_seconds
       }
 
       env {
@@ -386,7 +386,7 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
 
       env {
         name  = "AuditWorkerConfigurations__1__PollingIntervalSeconds"
-        value = 60
+        value = var.auditor_polling_interval_seconds
       }
 
       env {
@@ -401,7 +401,7 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
 
       env {
         name  = "AuditWorkerConfigurations__2__PollingIntervalSeconds"
-        value = 60
+        value = var.auditor_polling_interval_seconds
       }
 
       env {
@@ -416,7 +416,7 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
 
       env {
         name  = "AuditWorkerConfigurations__3__PollingIntervalSeconds"
-        value = 60
+        value = var.auditor_polling_interval_seconds
       }
 
       env {
@@ -432,11 +432,6 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
       env {
         name  = "SinkExclusions__0__ExcludedPaths__0"
         value = var.auditor_sink_exclusions[0].excluded_paths[0]
-      }
-
-      env {
-        name  = "ChangeFeedPollingIntervalSeconds"
-        value = var.aggregator_polling_interval_seconds
       }
     }
   }

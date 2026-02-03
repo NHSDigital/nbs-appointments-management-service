@@ -28,7 +28,6 @@ public class ConfirmProvisionalBookingFunction(
     IUserContextProvider userContextProvider,
     ILogger<ConfirmProvisionalBookingFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper,
     ISiteService siteService,
     IBookingQueryService bookingQueryService)
     : BaseApiFunction<ConfirmBookingRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
@@ -70,10 +69,9 @@ public class ConfirmProvisionalBookingFunction(
             return Failed(HttpStatusCode.NotFound, "Site for booking not found.");
         }
 
-        var result = BookingConfirmationResult.NotFound;
+        BookingConfirmationResult result;
 
-        // If Joint Bookings disabled ignore the child bookings param
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings) && bookingRequest.relatedBookings.Any()) 
+        if (bookingRequest.relatedBookings.Any()) 
         {
             result = await bookingWriteService.ConfirmProvisionalBookings(new[] { bookingRequest.bookingReference }.Concat(bookingRequest.relatedBookings).ToArray(),
             bookingRequest.contactDetails.Select(x => new ContactItem { Type = x.Type, Value = x.Value }));

@@ -29,7 +29,6 @@ public class QueryAvailabilityFunction(
     IUserContextProvider userContextProvider,
     ILogger<QueryAvailabilityFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper,
     IHasConsecutiveCapacityFilter hasConsecutiveCapacityFilter,
     ISiteService siteService)
     : BaseApiFunction<QueryAvailabilityRequest, QueryAvailabilityResponse>(validator, userContextProvider, logger,
@@ -85,11 +84,8 @@ public class QueryAvailabilityFunction(
         var slots = (await bookingAvailabilityStateService.GetAvailableSlots(site, dayStart, dayEnd))
                 .Where(x => x.Services.Contains(service)).ToArray();
         
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.JointBookings)) 
-        {
-            slots = await hasConsecutiveCapacityFilter.SessionHasConsecutiveSessions(slots, consecutive);
-        }
-
+        slots = await hasConsecutiveCapacityFilter.SessionHasConsecutiveSessions(slots, consecutive);
+        
         var availability = new List<QueryAvailabilityResponseInfo>();
 
         var day = from;

@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures-v2';
+import { test } from '../fixtures-v2';
 import { daysFromToday, weekHeaderText } from '../utils/date-utility';
 
 test.describe.configure({ mode: 'serial' });
@@ -21,7 +21,7 @@ test.beforeEach(async ({
   checkSessionDetailsPage 
 }) => {
   // 1. Setup site/user and feature flag via v2 fixture
-  const setup = await setUpSingleSite({
+  await setUpSingleSite({
     features: [{ name: 'CancelDay', enabled: true }],
   });
 

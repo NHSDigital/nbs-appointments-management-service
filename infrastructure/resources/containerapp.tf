@@ -441,9 +441,9 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
   }
 }
 
-resource "azurerm_container_app" "nbs_mya_auditor" {
-  count                        = var.auditor_enable ? 1 : 0
-  name                         = "${var.application}-auditor-${var.environment}-${var.loc}"
+resource "azurerm_container_app" "nbs_mya_aggregator" {
+  count                        = var.aggregator_changefeed_enable ? 1 : 0
+  name                         = "${var.application}-aggregator-${var.environment}-${var.loc}"
   container_app_environment_id  = azurerm_container_app_environment.nbs_mya_container_enviroment.id
   resource_group_name           = local.resource_group_name
   revision_mode                 = "Single"

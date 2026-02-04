@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /App
 
 COPY ./src/jobs/Nhs.Appointments.Jobs.BlobAuditor  ./src/jobs/Nhs.Appointments.Jobs.BlobAuditor
+COPY ./src/jobs/Nhs.Appointments.Jobs.ChangeFeed  ./src/jobs/Nhs.Appointments.Jobs.ChangeFeed
 COPY ./src/api/Nhs.Appointments.Core/ ./src/api/Nhs.Appointments.Core/
 
 ARG DOTNET_CONFIGURATION=Release

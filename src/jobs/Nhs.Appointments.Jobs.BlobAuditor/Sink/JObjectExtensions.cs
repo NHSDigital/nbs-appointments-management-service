@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
-using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
+using Nhs.Appointments.Jobs.ChangeFeed;
 
-namespace Nhs.Appointments.Jobs.BlobAuditor.Extensions;
+namespace Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
 public static class JObjectExtensions
 {

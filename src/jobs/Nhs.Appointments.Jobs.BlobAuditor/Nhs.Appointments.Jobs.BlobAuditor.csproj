@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\api\Nhs.Appointments.Core\Nhs.Appointments.Core.csproj"/>
+    <ProjectReference Include="..\Nhs.Appointments.Jobs.ChangeFeed\Nhs.Appointments.Jobs.ChangeFeed.csproj" />
   </ItemGroup>
 
 </Project>

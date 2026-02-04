@@ -20,6 +20,7 @@ stages:
           bookingExtractDockerFilePath: "BookingDataExtractDockerfile"
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
           cosmosAuditorDockerFilePath: "CosmosAuditorDockerfile"
+          cosmosAggregatorDockerFilePath: "CosmosAggregatorDockerfile"
         steps:
           - task: PowerShell@2
             displayName: "Run script tests"
@@ -202,6 +203,15 @@ stages:
               command: buildAndPush
               repository: auditor
               dockerfile: $(cosmosAuditorDockerFilePath)
+              containerRegistry: ${{parameters.prDockerServiceConnectionName}}
+              tags: |
+                $(ExtractVersionStep.extractedBuildNumber)
+          - task: Docker@2
+            displayName: Build and push cosmos aggregator image to container registry
+            inputs:
+              command: buildAndPush
+              repository: aggregator
+              dockerfile: $(cosmosAggregatorDockerFilePath)
               containerRegistry: ${{parameters.prDockerServiceConnectionName}}
               tags: |
                 $(ExtractVersionStep.extractedBuildNumber)

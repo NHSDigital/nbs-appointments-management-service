@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+WORKDIR /App
+
+COPY ./src/jobs/Nhs.Appointments.Jobs.Aggregator  ./src/jobs/Nhs.Appointments.Jobs.Aggregator
+COPY ./src/jobs/Nhs.Appointments.Jobs.ChangeFeed  ./src/jobs/Nhs.Appointments.Jobs.ChangeFeed
+COPY ./src/api/Nhs.Appointments.Core/ ./src/api/Nhs.Appointments.Core/
+COPY ./src/api/Nhs.Appointments.Persistance/ ./src/api/Nhs.Appointments.Persistance/
+
+ARG DOTNET_CONFIGURATION=Release
+
+RUN dotnet restore src/jobs/Nhs.Appointments.Jobs.Aggregator/Nhs.Appointments.Jobs.Aggregator.csproj
+RUN dotnet publish src/jobs/Nhs.Appointments.Jobs.Aggregator/Nhs.Appointments.Jobs.Aggregator.csproj \
+    -c $DOTNET_CONFIGURATION \
+    -o out \
+    --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /App
+COPY --from=build /App/out .
+
+ENTRYPOINT ["dotnet", "Nhs.Appointments.Jobs.Aggregator.dll"]

@@ -508,7 +508,7 @@ resource "azurerm_container_app" "nbs_mya_aggregator" {
 
       env {
         name  = "CosmosTransactionOptions__DefaultWaitSeconds"
-        value = var.aggregator_default_wait_seconds
+        value = var.aggregator_max_retry
       }
 
       env {

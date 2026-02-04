@@ -36,7 +36,7 @@ public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, u
     public int Capacity { get; set; }
     public virtual IEnumerable<SessionInstance> ToSlots() => Divide(TimeSpan.FromMinutes(SlotLength)).Select(sl =>
                 new SessionInstance(sl) { Services = Services, Capacity = Capacity });
-
+    
     public bool Equals(SessionInstance other)
     {
         if (other is null)
@@ -50,6 +50,8 @@ public class SessionInstance(DateTime from, DateTime until) : TimePeriod(from, u
                Capacity == other.Capacity &&
                Services.SequenceEqual(other.Services);
     }
+    
+    public override bool Equals(object obj) => Equals(obj as SessionInstance);
 
     public override int GetHashCode()
     {

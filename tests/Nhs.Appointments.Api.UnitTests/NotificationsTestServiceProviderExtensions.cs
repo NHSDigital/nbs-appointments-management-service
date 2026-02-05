@@ -6,6 +6,7 @@ using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Messaging;
+using Nhs.Appointments.Core.Metrics;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;

@@ -16,7 +16,16 @@ public class InMemoryMetricsRecorder : IMetricsRecorder
         }
     }
 
-    public IReadOnlyCollection<(string Path, double Value)> Metrics => _metrics.ToList().AsReadOnly();
+    public IReadOnlyCollection<(string Path, double Value)> Metrics
+    {
+        get
+        {
+            lock (_metrics)
+            {
+                return _metrics.ToList().AsReadOnly();
+            }
+        }
+    }
 
     public IDisposable BeginScope(string scopeName)
     {

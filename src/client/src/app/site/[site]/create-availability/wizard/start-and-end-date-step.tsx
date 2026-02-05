@@ -130,7 +130,7 @@ const StartAndEndDateStep = ({
           }}
           render={() => (
             <DateInput
-              heading={sessionType === 'single' ? 'Session date' : 'Start date'}
+              legend={sessionType === 'single' ? 'Session date' : 'Start date'}
               hint="For example, 15 3 2024"
               id="start-date-input"
             >
@@ -233,7 +233,7 @@ const StartAndEndDateStep = ({
               <br />
               <FormGroup error={errors.endDate?.message}>
                 <DateInput
-                  heading="End date"
+                  legend="End date"
                   hint="For example, 15 3 2024"
                   id="end-date-input"
                 >

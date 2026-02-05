@@ -1,4 +1,6 @@
-﻿namespace Nhs.Appointments.Core.UnitTests.Metrics;
+﻿using Nhs.Appointments.Core.Metrics;
+
+namespace Nhs.Appointments.Core.UnitTests.Metrics;
 
 public class InMemoryMetricsRecorderTests
 {

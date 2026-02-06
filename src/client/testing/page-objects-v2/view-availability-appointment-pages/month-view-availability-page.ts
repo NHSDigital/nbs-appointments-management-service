@@ -1,10 +1,18 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { WeekOverview } from '../../availability';
+import { daysFromToday } from '../../utils/date-utility';
 
 export default class MonthViewAvailabilityPage extends MYALayout {
+  private get headingText(): string {
+    const dayIncrement = 29;
+    const requiredDate = daysFromToday(dayIncrement, 'MMMM YYYY');
+
+    return `View availability for ${requiredDate}`;
+  }
+  
   readonly title = this.page.getByRole('heading', {
-    name: this.site?.name,
+    name: this.headingText,
   });
 
   readonly nextButton = this.page.getByRole('link', {

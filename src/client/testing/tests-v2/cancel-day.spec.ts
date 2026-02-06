@@ -34,6 +34,7 @@ test.beforeEach(async ({
   await page.goto(`/manage-your-appointments/site/${siteId}/view-availability?date=${date}`);
   
   // 4. Navigate through Month View to Week View (matching your old working test)
+  await expect(monthViewAvailabilityPage.title).toBeVisible();
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
 

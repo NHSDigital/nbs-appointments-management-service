@@ -8,22 +8,29 @@ import {
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { useFormContext } from 'react-hook-form';
-import { ReportsFormValues, ReportType } from './reports-template-wizard';
+import { ReportType } from './reports-template-wizard';
+import { DownloadReportFormValues } from '../download-report-form-schema';
 import Link from 'next/link';
 import { parseToUkDatetime } from '@services/timeService';
+import { redirect } from 'next/navigation';
+
+interface Props {
+  reportType: ReportType;
+}
 
 const ReportConfirmationStep = ({
-  setCurrentStep,
   returnRouteUponCancellation,
   goToPreviousStep,
   pendingSubmit,
-}: InjectedWizardProps) => {
-  const { watch } = useFormContext<ReportsFormValues>();
+  reportType,
+}: InjectedWizardProps & Props) => {
+  const { watch } = useFormContext<DownloadReportFormValues>();
   const formData = watch();
-  const isSiteSummary = formData.reportType === ReportType.SiteSummary;
 
   const handleBack = () => {
-    isSiteSummary ? goToPreviousStep() : setCurrentStep(1);
+    reportType == ReportType.SiteSummary
+      ? goToPreviousStep()
+      : redirect('/reports/select');
   };
 
   return (
@@ -32,7 +39,7 @@ const ReportConfirmationStep = ({
       <br />
       <NhsHeading title="Download the report" />
 
-      {isSiteSummary ? (
+      {reportType === ReportType.SiteSummary ? (
         <>
           <p>
             Download all days between

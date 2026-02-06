@@ -2,8 +2,8 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import ReportDateRangeStep from './report-date-range-step';
 import { DayJsType, parseToUkDatetime, ukNow } from '@services/timeService';
-import { ReportsFormValues } from './reports-template-wizard';
 import MockForm from '@testing/mockForm';
+import { DownloadReportFormValues } from '../download-report-form-schema';
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
@@ -28,7 +28,7 @@ describe('ReportDateRangeStep', () => {
 
   it('navigates to next step when "Create report" is clicked', async () => {
     const { user } = render(
-      <MockForm<ReportsFormValues>
+      <MockForm<DownloadReportFormValues>
         submitHandler={jest.fn()}
         defaultValues={{ startDate: '2025-10-01', endDate: '2025-10-01' }}
       >
@@ -58,7 +58,7 @@ describe('ReportDateRangeStep', () => {
 
   it('renders the date range step correctly', async () => {
     render(
-      <MockForm<ReportsFormValues>
+      <MockForm<DownloadReportFormValues>
         submitHandler={jest.fn()}
         defaultValues={{ startDate: '2025-10-01', endDate: '2025-10-01' }}
       >

@@ -4,7 +4,6 @@ import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
 import { useTransition } from 'react';
 import { RFC3339Format } from '@services/timeService';
-import SelectReportTypeStep from './select-report-type-step';
 import ReportDateRangeStep from './report-date-range-step';
 import ReportConfirmationStep from './report-confirmation-step';
 import {
@@ -20,7 +19,6 @@ import {
   downloadReportFormSchema,
 } from '../download-report-form-schema';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 
 export enum ReportType {
   SiteSummary = 'site-summary',
@@ -28,42 +26,28 @@ export enum ReportType {
   SitesUsers = 'site-users',
 }
 
-export type ReportsFormValues = DownloadReportFormValues & {
-  reportType: ReportType;
-};
-
 interface Props {
-  userPermissions: string[];
+  reportType: ReportType;
 }
 
-const ReportsTemplateWizard = ({ userPermissions }: Props) => {
+const ReportsTemplateWizard = ({ reportType }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const today = ukNow();
-  const reportsWizardSchema = downloadReportFormSchema.concat(
-    yup.object({
-      reportType: yup
-        .mixed<ReportType>()
-        .oneOf(Object.values(ReportType))
-        .required(),
-    }),
-  );
-
-  const methods = useForm<ReportsFormValues>({
-    resolver: yupResolver(reportsWizardSchema),
+  const methods = useForm<DownloadReportFormValues>({
+    resolver: yupResolver(downloadReportFormSchema),
     defaultValues: {
       startDate: today.format(RFC3339Format),
       endDate: today.format(RFC3339Format),
-      reportType: undefined,
     },
   });
-  const submitForm: SubmitHandler<ReportsFormValues> = async (
-    form: ReportsFormValues,
+  const submitForm: SubmitHandler<DownloadReportFormValues> = async (
+    form: DownloadReportFormValues,
   ) => {
     startTransition(async () => {
       let blobResponse;
       let fileName = '';
 
-      switch (form.reportType) {
+      switch (reportType) {
         case ReportType.SiteSummary:
           blobResponse = await fromServer(
             downloadSiteSummaryReport(form.startDate, form.endDate),
@@ -99,7 +83,7 @@ const ReportsTemplateWizard = ({ userPermissions }: Props) => {
       <form onSubmit={methods.handleSubmit(submitForm)}>
         <Wizard
           id="create-availability-wizard"
-          initialStep={1}
+          initialStep={reportType == ReportType.SiteSummary ? 1 : 2}
           returnRouteUponCancellation={`/sites`}
           onCompleteFinalStep={() => {
             methods.handleSubmit(submitForm);
@@ -107,18 +91,12 @@ const ReportsTemplateWizard = ({ userPermissions }: Props) => {
           pendingSubmit={pendingSubmit}
         >
           <WizardStep>
-            {stepProps => (
-              <SelectReportTypeStep
-                {...stepProps}
-                userPermissions={userPermissions}
-              />
-            )}
-          </WizardStep>
-          <WizardStep>
             {stepProps => <ReportDateRangeStep {...stepProps} />}
           </WizardStep>
           <WizardStep>
-            {stepProps => <ReportConfirmationStep {...stepProps} />}
+            {stepProps => (
+              <ReportConfirmationStep {...stepProps} reportType={reportType} />
+            )}
           </WizardStep>
         </Wizard>
       </form>

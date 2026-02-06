@@ -2,8 +2,9 @@ import render from '@testing/render';
 import { screen } from '@testing-library/react';
 import ReportConfirmationStep from './report-confirmation-step';
 import { DayJsType, parseToUkDatetime, ukNow } from '@services/timeService';
-import { ReportsFormValues, ReportType } from './reports-template-wizard';
+import { ReportType } from './reports-template-wizard';
 import MockForm from '@testing/mockForm';
+import { DownloadReportFormValues } from '../download-report-form-schema';
 
 jest.mock('@services/timeService', () => {
   const originalModule = jest.requireActual('@services/timeService');
@@ -31,10 +32,7 @@ describe('SelectReportTypeStep', () => {
     { type: ReportType.SitesUsers },
   ])('renders confirmation step correctly', async ({ type }) => {
     render(
-      <MockForm<ReportsFormValues>
-        submitHandler={jest.fn()}
-        defaultValues={{ reportType: type }}
-      >
+      <MockForm<DownloadReportFormValues> submitHandler={jest.fn()}>
         <ReportConfirmationStep
           stepNumber={1}
           currentStep={1}
@@ -44,6 +42,7 @@ describe('SelectReportTypeStep', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           returnRouteUponCancellation="/"
+          reportType={type}
         />
       </MockForm>,
     );
@@ -66,10 +65,7 @@ describe('SelectReportTypeStep', () => {
 
   it('renders confirmation step correctly for site summary report', async () => {
     render(
-      <MockForm<ReportsFormValues>
-        submitHandler={jest.fn()}
-        defaultValues={{ reportType: ReportType.SiteSummary }}
-      >
+      <MockForm<DownloadReportFormValues> submitHandler={jest.fn()}>
         <ReportConfirmationStep
           stepNumber={1}
           currentStep={1}
@@ -79,6 +75,7 @@ describe('SelectReportTypeStep', () => {
           goToLastStep={mockGoToLastStep}
           goToPreviousStep={mockGoToPreviousStep}
           returnRouteUponCancellation="/"
+          reportType={ReportType.SiteSummary}
         />
       </MockForm>,
     );

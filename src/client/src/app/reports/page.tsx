@@ -15,7 +15,7 @@ const Page = async () => {
   const reportsUplift = await fromServer(fetchFeatureFlag('ReportsUplift'));
 
   if (reportsUplift.enabled) {
-    redirect('/reports/wizard');
+    redirect('/reports/select');
   }
 
   return (

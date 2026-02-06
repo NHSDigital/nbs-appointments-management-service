@@ -4,18 +4,16 @@ import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
 import { Controller, useFormContext } from 'react-hook-form';
-import { ReportsFormValues } from './reports-template-wizard';
 import { REPORT_DATE_EARLIEST_ALLOWED } from '../download-report-form-schema';
 import { RFC3339Format, ukNow } from '@services/timeService';
+import { redirect } from 'next/navigation';
+import { DownloadReportFormValues } from '../download-report-form-schema';
 
-const ReportDateRangeStep = ({
-  goToPreviousStep,
-  goToNextStep,
-}: InjectedWizardProps) => {
+const ReportDateRangeStep = ({ goToNextStep }: InjectedWizardProps) => {
   const {
     control,
     formState: { errors },
-  } = useFormContext<ReportsFormValues>();
+  } = useFormContext<DownloadReportFormValues>();
   const today = ukNow();
   const onContinue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +22,7 @@ const ReportDateRangeStep = ({
   return (
     <>
       <BackLink
-        onClick={goToPreviousStep}
+        onClick={() => redirect('/reports/select')}
         renderingStrategy="client"
         text="Back"
       />

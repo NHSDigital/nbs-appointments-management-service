@@ -8,6 +8,11 @@ import SitePage from './site/site-page';
 import NotAuthorised from './not-authorized-page';
 import SiteDetailsPage from './site/details/site-details-page';
 import EditReferenceDetailsPage from './site/details/edit-reference-details/edit-reference-details-page';
+import AddServicesPage from './view-availability-appointment-pages/add-services-page';
+import AddSessionPage from './view-availability-appointment-pages/add-session-page';
+import CheckSessionDetailsPage from './view-availability-appointment-pages/check-session-details-page';
+import MonthViewAvailabilityPage from './view-availability-appointment-pages/month-view-availability-page';
+import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
 
 export {
   CookiePoliciesPage,
@@ -20,4 +25,9 @@ export {
   SiteSelectionPage,
   SiteDetailsPage,
   EditReferenceDetailsPage,
+  AddServicesPage,
+  AddSessionPage,
+  CheckSessionDetailsPage,
+  MonthViewAvailabilityPage,
+  WeekViewAvailabilityPage
 };

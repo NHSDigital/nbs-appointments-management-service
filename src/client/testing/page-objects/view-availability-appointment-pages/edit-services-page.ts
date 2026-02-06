@@ -20,7 +20,7 @@ export default class EditServicesPage extends RootPage {
     expectedServices: string[],
   ) {
     await expect(this.page.getByRole('main')).toContainText(
-      `Remove services for ${date}`,
+      `Select services to remove on ${date}`,
     );
 
     for (let index = 0; index < expectedServices.length; index++) {

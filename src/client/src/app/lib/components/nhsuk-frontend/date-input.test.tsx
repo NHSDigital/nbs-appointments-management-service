@@ -6,35 +6,7 @@ describe('Date Input', () => {
   it('renders', () => {
     render(
       <DateInput
-        heading="What is your date of birth?"
-        hint="For example, 15 3 2024"
-        id="date-of-birth-input"
-      >
-        <TextInput
-          label="Day"
-          id="date-of-birth-input-day"
-          inputMode="numeric"
-        />
-        <TextInput
-          label="Month"
-          id="date-of-birth-input-month"
-          inputMode="numeric"
-        />
-        <TextInput
-          label="Year"
-          id="date-of-birth-input-year"
-          inputMode="numeric"
-        />
-      </DateInput>,
-    );
-
-    expect(screen.getByText('What is your date of birth?')).toBeInTheDocument();
-  });
-
-  it('renders a heading and hint', () => {
-    render(
-      <DateInput
-        heading="What is your date of birth?"
+        legend="What is your date of birth?"
         hint="For example, 15 3 2024"
         id="date-of-birth-input"
       >
@@ -57,7 +29,37 @@ describe('Date Input', () => {
     );
 
     expect(
-      screen.getByRole('heading', { name: 'What is your date of birth?' }),
+      screen.getByRole('group', { name: 'What is your date of birth?' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a heading and hint', () => {
+    render(
+      <DateInput
+        legend="What is your date of birth?"
+        hint="For example, 15 3 2024"
+        id="date-of-birth-input"
+      >
+        <TextInput
+          label="Day"
+          id="date-of-birth-input-day"
+          inputMode="numeric"
+        />
+        <TextInput
+          label="Month"
+          id="date-of-birth-input-month"
+          inputMode="numeric"
+        />
+        <TextInput
+          label="Year"
+          id="date-of-birth-input-year"
+          inputMode="numeric"
+        />
+      </DateInput>,
+    );
+
+    expect(
+      screen.getByRole('group', { name: 'What is your date of birth?' }),
     ).toBeInTheDocument();
     expect(screen.getByText('For example, 15 3 2024')).toBeInTheDocument();
   });
@@ -65,7 +67,7 @@ describe('Date Input', () => {
   it('permits data entry to each input', async () => {
     const { user } = render(
       <DateInput
-        heading="What is your date of birth?"
+        legend="What is your date of birth?"
         hint="For example, 15 3 2024"
         id="date-of-birth-input"
       >

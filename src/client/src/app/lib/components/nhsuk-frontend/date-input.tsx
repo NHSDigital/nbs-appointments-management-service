@@ -3,12 +3,12 @@ import { ReactNode, Children } from 'react';
 
 type Props = {
   children: ReactNode;
-  heading: string;
+  legend: string;
   hint: string;
   id: string;
 };
 
-const DateInput = ({ heading, hint, id, children }: Props) => {
+const DateInput = ({ legend, hint, id, children }: Props) => {
   const childrenArray = Children.toArray(children);
   if (childrenArray.length !== 3) {
     throw new Error(
@@ -23,7 +23,7 @@ const DateInput = ({ heading, hint, id, children }: Props) => {
       role="group"
     >
       <legend className="nhsuk-fieldset__legend nhsuk-label--m">
-        <h1 className="nhsuk-fieldset__heading">{heading}</h1>
+        {legend}
       </legend>
       <div className="nhsuk-hint" id={`${id}-hint`}>
         {hint}

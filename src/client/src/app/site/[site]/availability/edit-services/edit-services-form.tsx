@@ -178,7 +178,7 @@ const EditServicesForm = ({
               className="nhsuk-fieldset app-checkbox-group"
               style={{ marginBottom: '32px' }}
             >
-              <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
+              <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--s">
                 {groupTitle}
               </legend>
               <CheckBoxes>

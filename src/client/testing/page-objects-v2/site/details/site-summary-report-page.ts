@@ -19,7 +19,39 @@ export default class SiteSummaryReportPage extends MYALayout {
   readonly confirmDownloadStep = {
     stepTitle: this.page.getByRole('heading', { name: 'Download the report' }),
     goBackButton: this.page.getByRole('link', { name: 'Go back' }),
-    continueButton: this.page.getByRole('button', { name: 'Export data' }),
+    continueButton: this.page.getByRole('button', { name: 'Download report' }),
+  };
+
+  readonly selectReportTypeStep = {
+    stepTitle: this.page.getByRole('heading', {
+      name: 'Select a report',
+    }),
+    goBackButton: this.page.getByRole('link', { name: 'Back' }),
+    siteSummaryReportCard: this.page.getByRole('link', {
+      name: 'Site booking and capacity report',
+    }),
+    allSitesReportCard: this.page.getByRole('link', {
+      name: 'All sites report',
+    }),
+    usersReportCard: this.page.getByRole('link', {
+      name: 'Users report',
+    }),
+  };
+
+  readonly selectReportDatesStep = {
+    stepTitle: this.page.getByRole('heading', {
+      name: 'Select the dates and run a report',
+    }),
+    goBackButton: this.page.getByRole('link', { name: 'Back' }),
+    startDateInput: this.page.getByLabel('Start date'),
+    endDateInput: this.page.getByLabel('End date'),
+    continueButton: this.page.getByRole('button', { name: 'Create report' }),
+  };
+
+  readonly confirmReportDownloadStep = {
+    stepTitle: this.page.getByRole('heading', { name: 'Download the report' }),
+    goBackButton: this.page.getByRole('link', { name: 'Back' }),
+    continueButton: this.page.getByRole('button', { name: 'Download report' }),
   };
 
   async downloadReport() {

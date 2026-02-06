@@ -1,0 +1,8 @@
+Feature: Download Master Site List Report
+
+  Scenario: Cannot download master site list report when toggle is disabled
+    Given the following sites exist in the system
+      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Type         | IsDeleted |
+      | d8ce8d0a-6c95-421b-9136-9865fba555a1 | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | GP Practice  | false     |
+    When I request master site list report
+    Then the call should fail with 501

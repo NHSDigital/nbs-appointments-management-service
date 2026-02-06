@@ -34,7 +34,7 @@ public class GetReportMasterSiteListFunctionTests
             _siteService.Object,
             new MasterSiteListReportCsvWriter(_timeProvider.Object),
             _featureToggleHelper.Object,
-            new MasterSiteListReportRequestValidator(),
+            new EmptyValidator(),
             _userContextProvider.Object,
             _mockLogger.Object,
             _metricsRecorder.Object

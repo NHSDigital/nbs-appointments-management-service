@@ -1,10 +1,18 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { parseToUkDatetime } from '@services/timeService';
+import { daysFromToday } from '../../utils/date-utility';
 
 export default class ConfirmedCancellationPage extends MYALayout {
+  private get headingText(): string {
+    const dayIncrement = 29;
+    const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
+
+    return `${requiredDate} cancelled`;
+  }
+  
   readonly title = this.page.getByRole('heading', {
-    name: this.site?.name,
+    name: this.headingText,
   });
 
   readonly viewBookingsLink = this.page.getByText(

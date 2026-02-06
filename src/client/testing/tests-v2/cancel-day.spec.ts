@@ -1,4 +1,4 @@
-import { test } from '../fixtures-v2';
+import { test, expect } from '../fixtures-v2';
 import { daysFromToday, weekHeaderText } from '../utils/date-utility';
 
 test.describe.configure({ mode: 'serial' });
@@ -42,8 +42,11 @@ test.beforeEach(async ({
   
   // 5. Create the session that we will eventually cancel
   await weekViewAvailabilityPage.addAvailability(requiredDate);
+  await expect(addSessionPage.title).toBeVisible();
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
+  await expect(addServicesPage.title).toBeVisible();
   await addServicesPage.addService('RSV Adult');
+  await expect(checkSessionDetailsPage.title).toBeVisible();
   await checkSessionDetailsPage.saveSession();
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
@@ -55,17 +58,20 @@ test('Cancel a day', async ({
   cancelDayForm, 
   confirmedCancellationPage 
 }) => {
+  await expect(weekViewAvailabilityPage.title).toBeVisible();
   await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
   await weekViewAvailabilityPage.cancelDayLink.click();
   
   await page.waitForURL(`**/site/${siteId}/cancel-day?date=${date}`);
   await cancelDayForm.verifyHeadingDisplayed(date);
+  await expect(cancelDayForm.title).toBeVisible();
 
   await cancelDayForm.cancelDayRadio.click();
   await cancelDayForm.continueButton.click();
   await cancelDayForm.cancelDayButton.click();
 
   await page.waitForURL(`**/site/${siteId}/cancel-day/confirmed?date=${date}*`);
+  await expect(confirmedCancellationPage.title).toBeVisible();
   await confirmedCancellationPage.verifyCorrectTitleDisplayed(date);
   await confirmedCancellationPage.verifyViewCancelledApptWithoutContactDetailsVisibility(false);
 });
@@ -75,13 +81,16 @@ test('Selecting no does not cancel a day', async ({
   cancelDayForm, 
   page 
 }) => {
+  await expect(weekViewAvailabilityPage.title).toBeVisible();
   await weekViewAvailabilityPage.cancelDayLink.click();
   await page.waitForURL(`**/site/${siteId}/cancel-day?date=${date}`);
   
+  await expect(cancelDayForm.title).toBeVisible();
   await cancelDayForm.dontCancelDayRadio.click();
   await cancelDayForm.continueButton.click();
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
+  await expect(weekViewAvailabilityPage.title).toBeVisible();
   await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
 });
 
@@ -90,13 +99,16 @@ test('Selecting go back does not cancel a day', async ({
   cancelDayForm, 
   page 
 }) => {
+  await expect(weekViewAvailabilityPage.title).toBeVisible();
   await weekViewAvailabilityPage.cancelDayLink.click();
   await page.waitForURL(`**/site/${siteId}/cancel-day?date=${date}`);
 
+  await expect(cancelDayForm.title).toBeVisible();
   await cancelDayForm.cancelDayRadio.click();
   await cancelDayForm.continueButton.click();
   await cancelDayForm.goBackLink.click();
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
+  await expect(weekViewAvailabilityPage.title).toBeVisible();
   await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
 });

@@ -1,9 +1,18 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
+import { daysFromToday, weekHeaderText } from '../../utils/date-utility';
 
 export default class AddSessionPage extends MYALayout {
+  private get headingText(): string {
+    const dayIncrement = 29;
+    const date = daysFromToday(dayIncrement);
+    const requiredWeekRange = weekHeaderText(date);
+
+    return `${requiredWeekRange}`;
+  }
+  
   readonly title = this.page.getByRole('heading', {
-    name: this.site?.name,
+    name: this.headingText,
   });
 
   readonly addSessionHeader = this.page.getByRole('heading', { level: 1 }).first();

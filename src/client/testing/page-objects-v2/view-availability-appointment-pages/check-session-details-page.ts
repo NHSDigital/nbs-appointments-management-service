@@ -3,7 +3,7 @@ import { expect } from '../../fixtures-v2';
 
 export default class CheckSessionDetailsPage extends MYALayout {
   readonly title = this.page.getByRole('heading', {
-    name: this.site?.name,
+    name: 'Check your answers',
   });
 
 	readonly goBackButton = this.page.getByRole('link', {

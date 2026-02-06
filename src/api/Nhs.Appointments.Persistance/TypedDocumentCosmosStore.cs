@@ -2,9 +2,9 @@ using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Options;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 
 namespace Nhs.Appointments.Persistance;
@@ -51,6 +51,61 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         _lastUpdatedByResolver = lastUpdatedByResolver;
     }
 
+    private async Task<ItemResponse<T>> Retry_ItemResponse_OnTooManyRequests<T>(Func<Task<ItemResponse<T>>> operation, CancellationToken cancellationToken = default)
+    {
+        //don't retry if the container isn't configured for it
+        if (_containerRetryOptions == null)
+        {
+            var result = await operation();
+            RecordQueryMetrics(result.RequestCharge);
+            return result;
+        }
+        
+        var maxRetries = 5;
+        var delay = 100;
+        var backoffFactor = 2;
+
+        var attempt = 1;
+
+        ItemResponse<T> retryResult = null;
+        
+        //log metrics for total request charge for the initial attempt, and any retries required
+        double totalRequestCharge = 0;
+        
+        while (attempt <= maxRetries)
+        {
+            try
+            {
+                if (attempt > 1)
+                {
+                    //TODO log a warning
+                }
+                
+                retryResult = await operation();
+            }
+            catch (CosmosException ex)
+            {
+                totalRequestCharge += ex.RequestCharge;
+                
+                if (ex.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    await Task.Delay(delay, cancellationToken);
+                    delay *= backoffFactor;
+                    attempt++;
+                }
+                else
+                {
+                    RecordQueryMetrics(totalRequestCharge);
+                    throw;
+                }
+            }
+        }
+
+        totalRequestCharge += retryResult!.RequestCharge;
+        RecordQueryMetrics(totalRequestCharge);
+        return retryResult;
+    }
+
     public TDocument NewDocument()
     {
         var document = new TDocument();
@@ -76,19 +131,16 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         {
             auditable.LastUpdatedBy = _lastUpdatedByResolver.GetLastUpdatedBy();
         }
-
-        var container = GetContainer();
-        var result = await container.UpsertItemAsync(document);
-        RecordQueryMetrics(result.RequestCharge);
+        
+        var result = await Retry_ItemResponse_OnTooManyRequests(() => GetContainer().UpsertItemAsync(document), CancellationToken.None);
     }
 
     public async Task<TModel> GetByIdAsync<TModel>(string documentId)
     {
-        var container = GetContainer();
-        var readResponse = await container.ReadItemAsync<TDocument>(
+        var readResponse = await Retry_ItemResponse_OnTooManyRequests(() => GetContainer().ReadItemAsync<TDocument>(
             id: documentId,
-            partitionKey: new PartitionKey(_documentType.Value));
-        RecordQueryMetrics(readResponse.RequestCharge);
+            partitionKey: new PartitionKey(_documentType.Value)), CancellationToken.None);
+        
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
@@ -101,6 +153,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     {
         var container = GetContainer();
 
+        //TODO why is this done in this way, and not just GetByIdAsync??
         using (var response = await container.ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)))
         {
             if (!response.IsSuccessStatusCode)
@@ -120,11 +173,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey)
     {
-        var container = GetContainer();
-        var readResponse = await container.ReadItemAsync<TDocument>(
+        var readResponse = await Retry_ItemResponse_OnTooManyRequests(() => GetContainer().ReadItemAsync<TDocument>(
             id: documentId,
-            partitionKey: new PartitionKey(partitionKey));
-        RecordQueryMetrics(readResponse.RequestCharge);
+            partitionKey: new PartitionKey(partitionKey)), CancellationToken.None);
+        
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
@@ -136,11 +188,9 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task DeleteDocument(string documentId, string partitionKey)
     {
-        var container = GetContainer();
-        var result = await container.DeleteItemAsync<TDocument>(
+        await Retry_ItemResponse_OnTooManyRequests(() => GetContainer().DeleteItemAsync<TDocument>(
             id: documentId,
-            partitionKey: new PartitionKey(partitionKey));
-        RecordQueryMetrics(result.RequestCharge);
+            partitionKey: new PartitionKey(partitionKey)));
     }
 
     public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
@@ -160,21 +210,17 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             patchList.Add(PatchOperation.Set("/lastUpdatedBy", _lastUpdatedByResolver.GetLastUpdatedBy()));
         }
 
-        if (patchList.Count() > 10)
+        if (patchList.Count > 10)
         {
             throw new NotSupportedException("Only 10 patches can be applied");
         }
-
-        var container = GetContainer();
-
-        var result = await container.PatchItemAsync<TDocument>(
+        
+        var result = await Retry_ItemResponse_OnTooManyRequests(() => GetContainer().PatchItemAsync<TDocument>(
             id: documentId,
             partitionKey: new PartitionKey(partitionKey),
-            patchOperations: patchList.AsReadOnly());
+            patchOperations: patchList.AsReadOnly()));
 
-        RecordQueryMetrics(result.RequestCharge);
         return result.Resource;
-
     }
 
     public string GetDocumentType()

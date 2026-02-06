@@ -28,6 +28,124 @@ public class TypedDocumentCosmosStoreTests
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object);
     }
+    
+    [Fact]
+    public void NotSupported_ContainerRetryOptions_NoCutoffOrInitial()
+    {
+        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+            [
+                new() { ContainerName = "test-container" }
+            ]
+        });
+        
+        var ctor = () =>
+        {
+            _ = new TypedDocumentCosmosStore<TestDocument>(
+                _cosmosClient.Object,
+                unsupportedOptions,
+                _mapper.Object,
+                _metricsRecorder.Object,
+                _lastUpdatedByResolver.Object);
+        };
+        ctor.Should().Throw<NotSupportedException>();
+    }
+    
+    [Fact]
+    public void NotSupported_ContainerRetryOptions_NoInitialValue()
+    {
+        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+            [
+                new() { ContainerName = "test-container", CutoffRetryMs = 1000 }
+            ]
+        });
+        
+        var ctor = () =>
+        {
+            _ = new TypedDocumentCosmosStore<TestDocument>(
+                _cosmosClient.Object,
+                unsupportedOptions,
+                _mapper.Object,
+                _metricsRecorder.Object,
+                _lastUpdatedByResolver.Object);
+        };
+        ctor.Should().Throw<NotSupportedException>();
+    }
+    
+    [Fact]
+    public void NotSupported_ContainerRetryOptions_NoCutoff()
+    {
+        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+            [
+                new() { ContainerName = "test-container", InitialValueMs = 150 }
+            ]
+        });
+        
+        var ctor = () =>
+        {
+            _ = new TypedDocumentCosmosStore<TestDocument>(
+                _cosmosClient.Object,
+                unsupportedOptions,
+                _mapper.Object,
+                _metricsRecorder.Object,
+                _lastUpdatedByResolver.Object);
+        };
+        ctor.Should().Throw<NotSupportedException>();
+    }
+    
+    [Fact]
+    public void InvalidOperationException_ContainerRetryOptions_MultipleOptionsForSameContainer()
+    {
+        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+            [
+                new ContainerRetryOptions
+                {
+                    ContainerName = "test-container",
+                    BackoffRetryType = BackoffRetryType.Linear,
+                    CutoffRetryMs = 10000,
+                    InitialValueMs = 100,
+                },
+                new ContainerRetryOptions
+                {
+                    ContainerName = "test-container",
+                    BackoffRetryType = BackoffRetryType.Exponential,
+                    CutoffRetryMs = 10000,
+                    InitialValueMs = 5,
+                }
+            ]
+        });
+        
+        var ctor = () =>
+        {
+            _ = new TypedDocumentCosmosStore<TestDocument>(
+                _cosmosClient.Object,
+                unsupportedOptions,
+                _mapper.Object,
+                _metricsRecorder.Object,
+                _lastUpdatedByResolver.Object);
+        };
+        ctor.Should().Throw<InvalidOperationException>();
+    }
+    
+    [Fact]
+    public void ContainerRetryOptions_ForDifferentContainer()
+    {
+        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+            [
+                new() { ContainerName = "different-container" }
+            ]
+        });
+        
+        var ctor = () =>
+        {
+            _ = new TypedDocumentCosmosStore<TestDocument>(
+                _cosmosClient.Object,
+                unsupportedOptions,
+                _mapper.Object,
+                _metricsRecorder.Object,
+                _lastUpdatedByResolver.Object);
+        };
+        ctor.Should().NotThrow<NotSupportedException>();
+    }
 
     [Fact]
     public async Task WriteAsync_LastUpdatedByIsUpdated()

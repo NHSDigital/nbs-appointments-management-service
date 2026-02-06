@@ -13,6 +13,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     where TDocument : TypedCosmosDocument, new()
 {
     internal readonly string _containerName;
+    private readonly ContainerRetryOptions  _containerRetryOptions;
     private readonly CosmosClient _cosmosClient;
     internal readonly string _databaseName;
     private readonly Lazy<string> _documentType;
@@ -39,6 +40,13 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         }
 
         _containerName = cosmosDocumentAttribute.ContainerName;
+        _containerRetryOptions = options.Value.ContainerRetryOptions.SingleOrDefault(x => x.ContainerName == _containerName);
+
+        if (_containerRetryOptions != null && (_containerRetryOptions.InitialValueMs == 0 || _containerRetryOptions.CutoffRetryMs == 0))
+        {
+            throw new NotSupportedException("ContainerRetryOptions must have an InitialValueMs and CutoffRetryMs, if provided");
+        }
+        
         _metricsRecorder = metricsRecorder;
         _lastUpdatedByResolver = lastUpdatedByResolver;
     }

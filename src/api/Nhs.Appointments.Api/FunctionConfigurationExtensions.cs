@@ -80,7 +80,7 @@ public static class FunctionConfigurationExtensions
             });
 
         builder.Services
-            .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
+            .Configure<CosmosDataStoreOptions>(opts => configuration.GetSection("CosmosDataStore").Bind(opts))
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
             .Configure<SiteSummaryOptions>(opts =>
             {

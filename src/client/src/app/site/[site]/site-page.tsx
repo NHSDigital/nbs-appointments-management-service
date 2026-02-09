@@ -10,7 +10,6 @@ interface SitePageProps {
   permissions: string[];
   permissionsAtAnySite: string[];
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
-  siteSummaryEnabled: boolean;
   siteStatusEnabled: boolean;
 }
 
@@ -19,7 +18,6 @@ export const SitePage = ({
   permissions,
   permissionsAtAnySite,
   wellKnownOdsCodeEntries,
-  siteSummaryEnabled,
   siteStatusEnabled,
 }: SitePageProps) => {
   useEffect(() => {
@@ -82,12 +80,11 @@ export const SitePage = ({
               <Card href={`/site/${site.id}/users`} title="Manage users" />
             </li>
           )}
-          {permissionsAtAnySite.includes('reports:sitesummary') &&
-            siteSummaryEnabled && (
-              <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-                <Card href={`/reports`} title="Download reports" />
-              </li>
-            )}
+          {permissionsAtAnySite.includes('reports:sitesummary') && (
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
+              <Card href={`/reports`} title="Download reports" />
+            </li>
+          )}
         </ul>
       )}
     </>

@@ -2,7 +2,6 @@ namespace Nhs.Appointments.Core.Features;
 
 public static class Flags
 {
-    public const string SiteSummaryReport = "SiteSummaryReport";
     public const string SiteStatus = "SiteStatus";
     public const string CancelDay = "CancelDay";
     public const string ChangeSessionUpliftedJourney = "ChangeSessionUpliftedJourney";

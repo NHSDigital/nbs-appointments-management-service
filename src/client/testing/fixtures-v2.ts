@@ -13,6 +13,15 @@ export * from '@playwright/test';
 import { LoginPage, SitePage } from '@e2etests/page-objects';
 import env from './testEnvironment';
 import { Role, FeatureFlag, SiteDocument } from '@e2etests/types';
+import {
+  AddServicesPage,
+  AddSessionPage,
+  CheckSessionDetailsPage,
+  MonthViewAvailabilityPage,
+  WeekViewAvailabilityPage,
+} from '@e2etests/page-objects';
+import CancelDayForm from './page-objects-v2/cancel-day-pages/cancel-day-form';
+import ConfirmedCancellationPage from './page-objects-v2/cancel-day-pages/confirm-cancellation';
 
 type FixtureOptions = {
   roles?: Role[];
@@ -34,9 +43,39 @@ type MyaFixtures = {
     testId: number;
     additionalUserIds: Map<string, number>;
   }>;
+
+  monthViewAvailabilityPage: MonthViewAvailabilityPage;
+  weekViewAvailabilityPage: WeekViewAvailabilityPage;
+  addSessionPage: AddSessionPage;
+  addServicesPage: AddServicesPage;
+  checkSessionDetailsPage: CheckSessionDetailsPage;
+  cancelDayForm: CancelDayForm;
+  confirmedCancellationPage: ConfirmedCancellationPage;
 };
 
 export const test = base.extend<MyaFixtures>({
+  monthViewAvailabilityPage: async ({ page }, use) => {
+    await use(new MonthViewAvailabilityPage(page));
+  },
+  weekViewAvailabilityPage: async ({ page }, use) => {
+    await use(new WeekViewAvailabilityPage(page));
+  },
+  addSessionPage: async ({ page }, use) => {
+    await use(new AddSessionPage(page));
+  },
+  addServicesPage: async ({ page }, use) => {
+    await use(new AddServicesPage(page));
+  },
+  checkSessionDetailsPage: async ({ page }, use) => {
+    await use(new CheckSessionDetailsPage(page));
+  },
+  cancelDayForm: async ({ page }, use) => {
+    await use(new CancelDayForm(page));
+  },
+  confirmedCancellationPage: async ({ page }, use) => {
+    await use(new ConfirmedCancellationPage(page));
+  },
+
   // TODO: Extend this (or create new fixtures) to cover multiple sites and multiple users per site
   setUpSingleSite: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(

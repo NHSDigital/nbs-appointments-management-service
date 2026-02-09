@@ -40,6 +40,7 @@
     "manage-your-appointments": "file:",
     "next": "^15.5.10",
     "nhsuk-frontend": "^9.6.4",
+    "nhsuk-react-components": "^6.0.0-beta.5",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.63.0",
@@ -98,4 +99,3 @@
     "glob": "10.4.5"
   }
 }
-

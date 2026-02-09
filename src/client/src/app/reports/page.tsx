@@ -1,6 +1,6 @@
 import {
   assertFeatureEnabled,
-  assertPermission,
+  assertAnyPermission,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import NhsTransactionalPage from '@components/nhs-transactional-page';
@@ -10,7 +10,13 @@ import { redirect } from 'next/navigation';
 
 const Page = async () => {
   await fromServer(assertFeatureEnabled('SiteSummaryReport'));
-  await fromServer(assertPermission('*', 'reports:sitesummary'));
+  await fromServer(
+    assertAnyPermission('*', [
+      'reports:sitesummary',
+      'reports:siteusers',
+      'reports:master-site-list',
+    ]),
+  );
 
   const reportsUplift = await fromServer(fetchFeatureFlag('ReportsUplift'));
 

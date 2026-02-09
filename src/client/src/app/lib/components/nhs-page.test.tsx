@@ -213,6 +213,8 @@ describe('Nhs Page', () => {
     ['site:view', 'Change site details', 'details'],
     ['users:view', 'Manage users', 'users'],
     ['reports:sitesummary', 'Reports', 'reports'],
+    ['reports:siteusers', 'Reports', 'reports'],
+    ['reports:master-site-list', 'Reports', 'reports'],
   ])(
     'displays the correct cards when permissions are present',
     async (permission: string, cardTitle: string, path: string) => {

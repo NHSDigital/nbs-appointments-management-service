@@ -7,9 +7,10 @@ interface Props {
   userPermissions: string[];
 }
 
-enum Permissions {
+enum ReportsPermissions {
   UsersReport = 'reports:siteusers',
   AllSitesReport = 'reports:master-site-list',
+  SiteSummaryReport = 'reports:sitesummary',
 }
 
 export const ReportsSelect = ({ userPermissions }: Props) => {
@@ -24,14 +25,16 @@ export const ReportsSelect = ({ userPermissions }: Props) => {
       <NhsHeading title="Select a report" />
 
       <ul className="nhsuk-grid-row nhsuk-card-group">
-        <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
-          <Card
-            href={`/reports/${ReportType.SiteSummary}`}
-            title="Site booking and capacity report"
-            description="Total bookings and capacity for all of your sites"
-          />
-        </li>
-        {hasPermission(Permissions.AllSitesReport) && (
+        {hasPermission(ReportsPermissions.SiteSummaryReport) && (
+          <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
+            <Card
+              href={`/reports/${ReportType.SiteSummary}`}
+              title="Site booking and capacity report"
+              description="Total bookings and capacity for all of your sites"
+            />
+          </li>
+        )}
+        {hasPermission(ReportsPermissions.AllSitesReport) && (
           <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
             <Card
               href={`/reports/${ReportType.MasterSiteList}`}
@@ -40,7 +43,7 @@ export const ReportsSelect = ({ userPermissions }: Props) => {
             />
           </li>
         )}
-        {hasPermission(Permissions.UsersReport) && (
+        {hasPermission(ReportsPermissions.UsersReport) && (
           <li className="nhsuk-grid-column-one-half nhsuk-card-group__item">
             <Card
               href={`/reports/${ReportType.SitesUsers}`}

@@ -4,26 +4,6 @@ import { ReportsSelect } from './reports-select';
 import { ReportType } from '../[reportType]/reports-template-wizard';
 
 describe('ReportsSelect', () => {
-  it('renders only the site booking and capacity report card when no extra permissions are provided', () => {
-    render(<ReportsSelect userPermissions={[]} />);
-
-    expect(
-      screen.getByRole('heading', { name: 'Select a report' }),
-    ).toBeInTheDocument();
-
-    const siteSummaryCard = screen.getByRole('link', {
-      name: 'Site booking and capacity report',
-    });
-    expect(siteSummaryCard).toBeInTheDocument();
-    expect(siteSummaryCard).toHaveAttribute(
-      'href',
-      `/reports/${ReportType.SiteSummary}`,
-    );
-
-    expect(screen.queryByText('All sites report')).not.toBeInTheDocument();
-    expect(screen.queryByText('Users report')).not.toBeInTheDocument();
-  });
-
   it('renders all sites report card only with valid permissions', () => {
     render(<ReportsSelect userPermissions={['reports:master-site-list']} />);
 
@@ -64,6 +44,11 @@ describe('ReportsSelect', () => {
       permission: 'reports:siteusers',
       name: 'Users report',
       expectedHref: `/reports/${ReportType.SitesUsers}`,
+    },
+    {
+      permission: 'reports:sitesummary',
+      name: 'Site booking and capacity report',
+      expectedHref: `/reports/${ReportType.SiteSummary}`,
     },
   ])(
     'navigates to the correct URL for $name',

@@ -1,8 +1,9 @@
 import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
-import { Card, Table } from '@components/nhsuk-frontend';
 import { ClinicalService, WeekSummary } from '@types';
 import Link from 'next/link';
 import { RFC3339Format } from '@services/timeService';
+import { Card } from 'nhsuk-react-components';
+import { BookingsTable } from './bookings-table';
 
 type WeekSummaryCardProps = {
   ukWeekSummary: WeekSummary;
@@ -33,16 +34,14 @@ export const WeekSummaryCard = ({
   );
 
   return (
-    <Card
-      title={`${startDate.format('D MMMM')} to ${endDate.format('D MMMM')}`}
-    >
+    <Card>
+      <Card.Heading>
+        {startDate.format('D MMMM')} to {endDate.format('D MMMM')}
+      </Card.Heading>
       {Object.entries(allBookingsInWeek).length > 0 ? (
-        <Table
-          headers={['Services', 'Booked appointments']}
-          rows={Object.entries(allBookingsInWeek).map(([service, count]) => [
-            clinicalServices.find(cs => cs.value === service)?.label,
-            count,
-          ])}
+        <BookingsTable
+          bookings={allBookingsInWeek}
+          clinicalServices={clinicalServices}
         />
       ) : (
         <div>No availability</div>

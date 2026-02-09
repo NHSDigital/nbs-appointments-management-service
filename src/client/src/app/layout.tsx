@@ -16,7 +16,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} nhsuk-frontend-supported`}>
         <AppInsightsInitializer connectionString={connectionString as string} />
         <CookieBanner />
         {children}

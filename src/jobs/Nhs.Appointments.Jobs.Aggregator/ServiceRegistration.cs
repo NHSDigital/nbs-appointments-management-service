@@ -57,7 +57,7 @@ public static class ServiceRegistration
             .AddTransient<ITypedDocumentCosmosStore<BookingIndexDocument>, TypedDocumentCosmosStore<BookingIndexDocument>>()
             .AddTransient<ITypedDocumentCosmosStore<DailySiteSummaryDocument>, TypedDocumentCosmosStore<DailySiteSummaryDocument>>()
             .AddSingleton<ILastUpdatedByResolver>(new LastUpdatedByResolver(applicationName))
-            .AddTransient<IMetricsRecorder, InMemoryMetricsRecorder>()
+            .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddTransient<IBookingQueryService, BookingQueryService>()
             .AddAutoMapper(typeof(CosmosAutoMapperProfile));
     }

@@ -80,7 +80,8 @@ public static class FunctionConfigurationExtensions
             });
 
         builder.Services
-            .Configure<CosmosDataStoreOptions>(opts => configuration.GetSection("CosmosDataStore").Bind(opts))
+            .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
+            .Configure<ContainerRetryOptions>(opts => configuration.GetSection("ContainerRetry").Bind(opts))
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
             .Configure<SiteSummaryOptions>(opts =>
             {

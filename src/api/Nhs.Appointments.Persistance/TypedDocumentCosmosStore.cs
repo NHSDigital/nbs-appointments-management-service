@@ -13,9 +13,9 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     where TDocument : TypedCosmosDocument, new()
 {
     internal readonly string _containerName;
-    private readonly ContainerRetryOptions  _containerRetryOptions;
+    internal readonly ContainerRetryConfiguration  _containerRetryConfiguration;
     private readonly CosmosClient _cosmosClient;
-    internal readonly string _databaseName;
+    internal readonly string DatabaseName;
     private readonly Lazy<string> _documentType;
     private readonly IMapper _mapper;
     private readonly IMetricsRecorder _metricsRecorder;
@@ -24,6 +24,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     public TypedDocumentCosmosStore(
         CosmosClient cosmosClient, 
         IOptions<CosmosDataStoreOptions> options, 
+        IOptions<ContainerRetryOptions> retryOptions, 
         IMapper mapper,
         IMetricsRecorder metricsRecorder,
         ILastUpdatedByResolver lastUpdatedByResolver)
@@ -31,7 +32,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         _cosmosClient = cosmosClient;
         _mapper = mapper;
         _documentType = new Lazy<string>(GetDocumentType);
-        _databaseName = options.Value.DatabaseName;
+        DatabaseName = options.Value.DatabaseName;
 
         var cosmosDocumentAttribute = typeof(TDocument).GetCustomAttribute<CosmosDocumentAttribute>(true);
         if (cosmosDocumentAttribute == null)
@@ -40,9 +41,9 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         }
 
         _containerName = cosmosDocumentAttribute.ContainerName;
-        _containerRetryOptions = options.Value.ContainerRetryOptions.SingleOrDefault(x => x.ContainerName == _containerName);
+        _containerRetryConfiguration = retryOptions?.Value?.Configurations.SingleOrDefault(x => x.ContainerName == _containerName);
 
-        if (_containerRetryOptions != null && (_containerRetryOptions.InitialValueMs == 0 || _containerRetryOptions.CutoffRetryMs == 0))
+        if (_containerRetryConfiguration != null && (_containerRetryConfiguration.InitialValueMs == 0 || _containerRetryConfiguration.CutoffRetryMs == 0))
         {
             throw new NotSupportedException("ContainerRetryOptions must have an InitialValueMs and CutoffRetryMs, if provided");
         }
@@ -54,7 +55,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     private async Task<ItemResponse<T>> Retry_ItemResponse_OnTooManyRequests<T>(Func<Task<ItemResponse<T>>> operation, CancellationToken cancellationToken = default)
     {
         //don't retry if the container isn't configured for it
-        if (_containerRetryOptions == null)
+        if (_containerRetryConfiguration == null)
         {
             var result = await operation();
             RecordQueryMetrics(result.RequestCharge);
@@ -247,7 +248,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return results;
     }
 
-    protected Container GetContainer() => _cosmosClient.GetContainer(_databaseName, _containerName);
+    protected Container GetContainer() => _cosmosClient.GetContainer(DatabaseName, _containerName);
 
     private void RecordQueryMetrics(double requestCharge)
     {

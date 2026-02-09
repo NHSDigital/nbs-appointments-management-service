@@ -14,25 +14,52 @@ public class TypedDocumentCosmosStoreTests
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<ILastUpdatedByResolver> _lastUpdatedByResolver = new();
     private readonly IOptions<CosmosDataStoreOptions> _options = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db" });
+    private readonly IOptions<ContainerRetryOptions> _retryOptions = Options.Create(new ContainerRetryOptions { Configurations = [] });
 
     private readonly TypedDocumentCosmosStore<TestDocument> _sut;
 
     public TypedDocumentCosmosStoreTests()
     {
         _cosmosClient.Setup(x => x.GetContainer(It.IsAny<string>(), It.IsAny<string>())).Returns(_container.Object);
-
+        
         _sut = new TypedDocumentCosmosStore<TestDocument>(
             _cosmosClient.Object,
             _options,
+            _retryOptions,
             _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object);
     }
     
     [Fact]
+    public void Valid_ContainerRetryOptions_ForTestDocumentContainer()
+    {
+        var supportedRetryOptions = Options.Create(new ContainerRetryOptions() { Configurations = 
+            [
+                new() { 
+                    ContainerName = "test-container",
+                    BackoffRetryType = BackoffRetryType.Linear,
+                    CutoffRetryMs = 10000,
+                    InitialValueMs = 100, 
+                }
+            ]
+        });
+        
+        var ctor = new TypedDocumentCosmosStore<TestDocument>(
+                _cosmosClient.Object,
+                _options,
+                supportedRetryOptions,
+                _mapper.Object,
+                _metricsRecorder.Object,
+                _lastUpdatedByResolver.Object);
+        
+        ctor._containerRetryConfiguration.Should().BeEquivalentTo(supportedRetryOptions.Value.Configurations.Single());
+    }
+    
+    [Fact]
     public void NotSupported_ContainerRetryOptions_NoCutoffOrInitial()
     {
-        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions() { Configurations = 
             [
                 new() { ContainerName = "test-container" }
             ]
@@ -42,7 +69,8 @@ public class TypedDocumentCosmosStoreTests
         {
             _ = new TypedDocumentCosmosStore<TestDocument>(
                 _cosmosClient.Object,
-                unsupportedOptions,
+                _options,
+                unsupportedRetryOptions,
                 _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object);
@@ -53,9 +81,9 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void NotSupported_ContainerRetryOptions_NoInitialValue()
     {
-        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions() { Configurations = 
             [
-                new() { ContainerName = "test-container", CutoffRetryMs = 1000 }
+                new() { ContainerName = "test-container", CutoffRetryMs = 1000 },
             ]
         });
         
@@ -63,7 +91,8 @@ public class TypedDocumentCosmosStoreTests
         {
             _ = new TypedDocumentCosmosStore<TestDocument>(
                 _cosmosClient.Object,
-                unsupportedOptions,
+                _options,
+                unsupportedRetryOptions,
                 _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object);
@@ -74,9 +103,9 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void NotSupported_ContainerRetryOptions_NoCutoff()
     {
-        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions() { Configurations = 
             [
-                new() { ContainerName = "test-container", InitialValueMs = 150 }
+                new() { ContainerName = "test-container", InitialValueMs = 150 },
             ]
         });
         
@@ -84,7 +113,8 @@ public class TypedDocumentCosmosStoreTests
         {
             _ = new TypedDocumentCosmosStore<TestDocument>(
                 _cosmosClient.Object,
-                unsupportedOptions,
+                _options,
+                unsupportedRetryOptions,
                 _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object);
@@ -95,16 +125,15 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void InvalidOperationException_ContainerRetryOptions_MultipleOptionsForSameContainer()
     {
-        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions() { Configurations = 
             [
-                new ContainerRetryOptions
-                {
+                new() { 
                     ContainerName = "test-container",
                     BackoffRetryType = BackoffRetryType.Linear,
                     CutoffRetryMs = 10000,
-                    InitialValueMs = 100,
+                    InitialValueMs = 100, 
                 },
-                new ContainerRetryOptions
+                new ()
                 {
                     ContainerName = "test-container",
                     BackoffRetryType = BackoffRetryType.Exponential,
@@ -118,7 +147,8 @@ public class TypedDocumentCosmosStoreTests
         {
             _ = new TypedDocumentCosmosStore<TestDocument>(
                 _cosmosClient.Object,
-                unsupportedOptions,
+                _options,
+                unsupportedRetryOptions,
                 _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object);
@@ -129,22 +159,27 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void ContainerRetryOptions_ForDifferentContainer()
     {
-        var unsupportedOptions = Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db", ContainerRetryOptions =
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions() { Configurations = 
             [
-                new() { ContainerName = "different-container" }
+                new() { 
+                    ContainerName = "different-container",
+                    BackoffRetryType = BackoffRetryType.Linear,
+                    CutoffRetryMs = 10000,
+                    InitialValueMs = 100, 
+                }
             ]
         });
         
-        var ctor = () =>
-        {
-            _ = new TypedDocumentCosmosStore<TestDocument>(
+        var ctor = new TypedDocumentCosmosStore<TestDocument>(
                 _cosmosClient.Object,
-                unsupportedOptions,
+                _options,
+                unsupportedRetryOptions,
                 _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object);
-        };
-        ctor.Should().NotThrow<NotSupportedException>();
+        
+        //config for different container supplied (not test document container)
+        ctor._containerRetryConfiguration.Should().BeNull();
     }
 
     [Fact]

@@ -95,11 +95,10 @@ services:
       - SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS=1
       - SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER=2
       - APPLICATION_NAME=mya_local_docker
-      - CosmosDataStore__Database=appts
-      - CosmosDataStore__ContainerRetryOptions__0__ContainerName=booking_data
-      - CosmosDataStore__ContainerRetryOptions__0__BackoffRetryType=1
-      - CosmosDataStore__ContainerRetryOptions__0__InitialValueMs=150
-      - CosmosDataStore__ContainerRetryOptions__0__CutoffRetryMs=10000
+      - ContainerRetry__Configurations__0__ContainerName=booking_data
+      - ContainerRetry__Configurations__0__BackoffRetryType=1
+      - ContainerRetry__Configurations__0__InitialValueMs=150
+      - ContainerRetry__Configurations__0__CutoffRetryMs=10000
   splunk:
     image: splunk/splunk:9.3
     container_name: splunk

@@ -182,7 +182,7 @@ resource "azurerm_cosmosdb_sql_container" "nbs_mya_audit_lease_container" {
 
 resource "azurerm_cosmosdb_sql_container" "nbs_mya_booking_aggregation_lease_container" {
   count                  = var.create_cosmos_db ? 1 : 0
-  name                   = "booking_aggregation_data_lease"
+  name                   = "booking_aggregation_lease"
   resource_group_name    = local.resource_group_name
   account_name           = azurerm_cosmosdb_account.nbs_mya_cosmos_db[0].name
   database_name          = azurerm_cosmosdb_sql_database.nbs_appts_database[0].name

@@ -1,19 +1,8 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
-import { daysFromToday, weekHeaderText } from '../../utils/date-utility';
 
 export default class AddSessionPage extends MYALayout {
-  private get headingText(): string {
-    const dayIncrement = 29;
-    const date = daysFromToday(dayIncrement);
-    const requiredWeekRange = weekHeaderText(date);
-
-    return `${requiredWeekRange}`;
-  }
-  
-  readonly title = this.page.getByRole('heading', {
-    name: this.headingText,
-  });
+  title = this.page.getByRole('heading');
 
   readonly addSessionHeader = this.page.getByRole('heading', { level: 1 }).first();
 
@@ -38,6 +27,11 @@ export default class AddSessionPage extends MYALayout {
   );
 
   readonly duration = this.page.getByLabel('How long are your appointments?');
+
+  async verifyHeadingDisplayed(requiredWeekRange: string) {
+    const heading = this.title.filter({ hasText: requiredWeekRange });
+    await expect(heading).toBeVisible();
+  }
 
   async verifyAddSessionPageDisplayed() {
     await expect(this.goBackButton).toBeVisible();

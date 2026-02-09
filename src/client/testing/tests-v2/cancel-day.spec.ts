@@ -6,6 +6,7 @@ test.describe.configure({ mode: 'serial' });
 const dayIncrement = 29;
 const date = daysFromToday(dayIncrement);
 const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
+const requiredMonthYearDate = daysFromToday(dayIncrement, 'MMMM YYYY');
 const requiredWeekRange = weekHeaderText(date);
 
 // Use a shared variable for siteId since we are in serial mode
@@ -34,7 +35,7 @@ test.beforeEach(async ({
   await page.goto(`/manage-your-appointments/site/${siteId}/view-availability?date=${date}`);
   
   // 4. Navigate through Month View to Week View (matching your old working test)
-  await expect(monthViewAvailabilityPage.title).toBeVisible();
+  await monthViewAvailabilityPage.verifyHeadingDisplayed(requiredMonthYearDate);
   await monthViewAvailabilityPage.verifyViewMonthDisplayed(requiredWeekRange);
   await monthViewAvailabilityPage.openWeekViewHavingDate(requiredWeekRange);
 
@@ -43,7 +44,7 @@ test.beforeEach(async ({
   
   // 5. Create the session that we will eventually cancel
   await weekViewAvailabilityPage.addAvailability(requiredDate);
-  await expect(addSessionPage.title).toBeVisible();
+  await addSessionPage.verifyHeadingDisplayed(requiredWeekRange);
   await addSessionPage.addSession('9', '00', '10', '00', '1', '5');
   await expect(addServicesPage.title).toBeVisible();
   await addServicesPage.addService('RSV Adult');
@@ -59,21 +60,19 @@ test('Cancel a day', async ({
   cancelDayForm, 
   confirmedCancellationPage 
 }) => {
-  await expect(weekViewAvailabilityPage.title).toBeVisible();
+  await weekViewAvailabilityPage.verifyHeadingDisplayed(requiredWeekRange);
   await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
   await weekViewAvailabilityPage.cancelDayLink.click();
   
   await page.waitForURL(`**/site/${siteId}/cancel-day?date=${date}`);
-  await cancelDayForm.verifyHeadingDisplayed(date);
-  await expect(cancelDayForm.title).toBeVisible();
+  await cancelDayForm.verifyHeadingDisplayed(requiredDate);
 
   await cancelDayForm.cancelDayRadio.click();
   await cancelDayForm.continueButton.click();
   await cancelDayForm.cancelDayButton.click();
 
   await page.waitForURL(`**/site/${siteId}/cancel-day/confirmed?date=${date}*`);
-  await expect(confirmedCancellationPage.title).toBeVisible();
-  await confirmedCancellationPage.verifyCorrectTitleDisplayed(date);
+  await confirmedCancellationPage.verifyHeadingDisplayed(requiredDate);
   await confirmedCancellationPage.verifyViewCancelledApptWithoutContactDetailsVisibility(false);
 });
 
@@ -82,16 +81,16 @@ test('Selecting no does not cancel a day', async ({
   cancelDayForm, 
   page 
 }) => {
-  await expect(weekViewAvailabilityPage.title).toBeVisible();
+  await weekViewAvailabilityPage.verifyHeadingDisplayed(requiredWeekRange);
   await weekViewAvailabilityPage.cancelDayLink.click();
   await page.waitForURL(`**/site/${siteId}/cancel-day?date=${date}`);
   
-  await expect(cancelDayForm.title).toBeVisible();
+  await cancelDayForm.verifyHeadingDisplayed(requiredDate);
   await cancelDayForm.dontCancelDayRadio.click();
   await cancelDayForm.continueButton.click();
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
-  await expect(weekViewAvailabilityPage.title).toBeVisible();
+  await weekViewAvailabilityPage.verifyHeadingDisplayed(requiredWeekRange);
   await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
 });
 
@@ -100,16 +99,16 @@ test('Selecting go back does not cancel a day', async ({
   cancelDayForm, 
   page 
 }) => {
-  await expect(weekViewAvailabilityPage.title).toBeVisible();
+  await weekViewAvailabilityPage.verifyHeadingDisplayed(requiredWeekRange);
   await weekViewAvailabilityPage.cancelDayLink.click();
   await page.waitForURL(`**/site/${siteId}/cancel-day?date=${date}`);
 
-  await expect(cancelDayForm.title).toBeVisible();
+  await cancelDayForm.verifyHeadingDisplayed(requiredDate);
   await cancelDayForm.cancelDayRadio.click();
   await cancelDayForm.continueButton.click();
   await cancelDayForm.goBackLink.click();
 
   await page.waitForURL('**/site/**/view-availability/week?date=**');
-  await expect(weekViewAvailabilityPage.title).toBeVisible();
+  await weekViewAvailabilityPage.verifyHeadingDisplayed(requiredWeekRange);
   await weekViewAvailabilityPage.verifyCancelDayLinkDisplayed();
 });

@@ -1,19 +1,9 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
-import { parseToUkDatetime } from '@services/timeService';
-import { daysFromToday } from '../../utils/date-utility';
 
 export default class ConfirmedCancellationPage extends MYALayout {
-  private get headingText(): string {
-    const dayIncrement = 29;
-    const requiredDate = daysFromToday(dayIncrement, 'dddd D MMMM');
 
-    return `${requiredDate} cancelled`;
-  }
-  
-  readonly title = this.page.getByRole('heading', {
-    name: this.headingText,
-  });
+  title = this.page.getByRole('heading');
 
   readonly viewBookingsLink = this.page.getByText(
     /^View bookings without contact details/,
@@ -23,12 +13,8 @@ export default class ConfirmedCancellationPage extends MYALayout {
     name: 'View all bookings for this week',
   });
 
-  async verifyCorrectTitleDisplayed(date: string) {
-    const parsedDate = parseToUkDatetime(date).format('dddd D MMMM');
-    const heading = this.page.getByRole('heading', {
-      name: `${parsedDate} cancelled`,
-    });
-
+  async verifyHeadingDisplayed(requiredDate: string) {
+    const heading = this.title.filter({ hasText: `${requiredDate} cancelled` });
     await expect(heading).toBeVisible();
   }
 

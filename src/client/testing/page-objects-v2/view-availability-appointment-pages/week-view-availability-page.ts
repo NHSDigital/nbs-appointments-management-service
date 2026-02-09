@@ -1,20 +1,9 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { DayOverview } from '../../availability';
-import { daysFromToday, weekHeaderText } from '../../utils/date-utility';
 
 export default class WeekViewAvailabilityPage extends MYALayout {
-  private get headingText(): string {
-    const dayIncrement = 29;
-    const date = daysFromToday(dayIncrement);
-    const requiredWeekRange = weekHeaderText(date);
-
-    return `${requiredWeekRange}`;
-  }
-  
-  readonly title = this.page.getByRole('heading', {
-    name: this.headingText,
-  });
+  title = this.page.getByRole('heading');
 
   readonly nextButton = this.page.getByRole('link', {
     name: 'Next',
@@ -35,6 +24,11 @@ export default class WeekViewAvailabilityPage extends MYALayout {
   readonly cancelDayLink = this.page.getByRole('link', {
     name: 'Cancel day',
   });
+
+  async verifyHeadingDisplayed(requiredWeekRange: string) {
+    const heading = this.title.filter({ hasText: requiredWeekRange });
+    await expect(heading).toBeVisible();
+  }
 
   async verifyViewNextWeekButtonDisplayed() {
     await expect(this.nextButton).toBeEnabled();

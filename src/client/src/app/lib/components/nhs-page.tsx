@@ -107,6 +107,14 @@ const getLinksForSite = async (
       fromServer(fetchFeatureFlag('SiteSummaryReport')),
     ]);
 
+  const hasAnyReportPermissions = () => {
+    return (
+      permissionsAtAnySite.includes('reports:sitesummary') ||
+      permissionsAtAnySite.includes('reports:siteusers') ||
+      permissionsAtAnySite.includes('reports:master-site-list')
+    );
+  };
+
   const navigationLinks: NavigationLink[] = [];
 
   if (site !== undefined) {
@@ -142,10 +150,7 @@ const getLinksForSite = async (
     }
   }
 
-  if (
-    permissionsAtAnySite.includes('reports:sitesummary') &&
-    siteSummaryFlag.enabled
-  ) {
+  if (hasAnyReportPermissions() && siteSummaryFlag.enabled) {
     navigationLinks.push({
       label: 'Reports',
       href: `/reports`,

@@ -109,6 +109,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
+    "AzureWebJobs.GetReportMasterSiteListFunction.Disabled"                = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true
@@ -240,6 +241,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.GetClinicalServicesFunction.Disabled"                    = true
     "AzureWebJobs.ProposePotentialUserFunction.Disabled"                   = true
     "AzureWebJobs.GetReportSiteSummaryFunction.Disabled"                   = true
+    "AzureWebJobs.GetReportMasterSiteListFunction.Disabled"                = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"                       = true
     "AzureWebJobs.UpdateSiteStatusFunction.Disabled"                       = true

@@ -49,7 +49,7 @@ describe('Download Report Confirmation', () => {
 
     expect(
       screen.getByText(
-        'Download all data between Saturday, 1 March 2025 and Monday, 31 March 2025',
+        'Download all days between Saturday, 1 March 2025 and Monday, 31 March 2025.',
       ),
     ).toBeInTheDocument();
   });
@@ -62,7 +62,9 @@ describe('Download Report Confirmation', () => {
       />,
     );
 
-    const exportButton = screen.getByRole('button', { name: 'Export data' });
+    const exportButton = screen.getByRole('button', {
+      name: 'Download report',
+    });
     await user.click(exportButton);
 
     await waitFor(() => {

@@ -1,4 +1,4 @@
-﻿using Nhs.Appointments.Core.Sites;
+using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests;
 

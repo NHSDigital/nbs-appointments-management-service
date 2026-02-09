@@ -1409,6 +1409,25 @@
         }
       },
       "response": []
+    },
+        {
+      "name": "report/master-site-list",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "ClientId",
+            "value": "{{clientId}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/master-site-list",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "report", "master-site-list"]
+        }
+      },
+      "response": []
     }
   ],
   "event": [

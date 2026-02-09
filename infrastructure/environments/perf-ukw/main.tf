@@ -122,5 +122,11 @@ module "mya_application_perf" {
   }]
   cosmos_audit_autoscale_settings = [{
     max_throughput = 2000
+  }]  
+  cosmos_booking_aggregation_lease_autoscale_settings = [{
+    max_throughput = 1000
+  }]
+  cosmos_audit_lease_autoscale_settings = [{
+    max_throughput = 1000
   }]
 }

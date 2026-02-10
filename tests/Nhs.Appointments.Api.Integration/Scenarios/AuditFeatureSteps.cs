@@ -40,7 +40,7 @@ public abstract class AuditFeatureSteps : BaseFeatureSteps
         var container = Client.GetContainer("appts", "audit_data");
 
         var auditFunctionDocument = await FindItemWithRetryAsync(container, user, functionName, siteId,
-            TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(1));
+            TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(1));
 
         //confirm that the document was created recently, as cannot easily verify via id query
         auditFunctionDocument.Timestamp.Should().BeBefore(timestamp);

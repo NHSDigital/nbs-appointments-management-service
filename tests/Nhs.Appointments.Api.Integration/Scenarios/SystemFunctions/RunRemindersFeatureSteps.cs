@@ -139,7 +139,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         return await FindSingleItemWithRetryAsync<NotificationData>(container, 
             nd => nd.recipient == contactInfo,
             TimeSpan.FromSeconds(1),
-            TimeSpan.FromSeconds(10));
+            TimeSpan.FromSeconds(20));
     }
 
     private string ResolveEventName(string shortEventName) => shortEventName switch

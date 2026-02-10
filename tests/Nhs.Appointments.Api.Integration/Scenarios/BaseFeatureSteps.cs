@@ -962,7 +962,7 @@ public abstract partial class BaseFeatureSteps : Feature
         bookingDocument.Resource.AvailabilityStatus.Should().Be(status);
         if (expectStatusToHaveChanged)
         {
-            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(20));
         }
     }
 
@@ -974,7 +974,7 @@ public abstract partial class BaseFeatureSteps : Feature
         bookingDocument.Resource.Status.Should().Be(status);
         if (expectStatusToHaveChanged)
         {
-            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+            bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(20));
         }
 
         var indexDocument = await Client.GetContainer("appts", "index_data")

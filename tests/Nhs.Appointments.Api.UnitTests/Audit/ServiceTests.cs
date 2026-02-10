@@ -1,11 +1,11 @@
 using AutoMapper;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests.Audit;
@@ -22,6 +22,9 @@ public class ServiceTests
     private readonly Mock<IOptions<CosmosDataStoreOptions>> _mockOptions = new();
     private readonly Mock<IOptions<ContainerRetryOptions>> _mockRetryOptions = new();
     private readonly Mock<ILastUpdatedByResolver> _mockLastUpdatedByResolver = new();
+    private readonly Mock<ILogger<AuditFunctionDocument>> _funcLogger = new();
+    private readonly Mock<ILogger<AuditAuthDocument>> _authLogger = new();
+    private readonly Mock<ILogger<AuditNotificationDocument>> _notificationLogger = new();
 
     [Fact]
     public async Task RecordFunction_WriteAsync_IsCalled()
@@ -122,10 +125,11 @@ public class ServiceTests
             _mockRetryOptions.Object,
             _mockMapper.Object,
             _mockMetrics.Object,
-            _mockLastUpdatedByResolver.Object);
+            _mockLastUpdatedByResolver.Object,
+            _funcLogger.Object);
 
         auditDocStore.DatabaseName.Should().Be("appts");
-        auditDocStore._containerName.Should().Be("audit_data");
+        auditDocStore.ContainerName.Should().Be("audit_data");
         auditDocStore.GetDocumentType().Should().Be("function");
     }
 
@@ -140,10 +144,11 @@ public class ServiceTests
             _mockRetryOptions.Object,
             _mockMapper.Object,
             _mockMetrics.Object,
-            _mockLastUpdatedByResolver.Object);
+            _mockLastUpdatedByResolver.Object,
+            _notificationLogger.Object);
 
         auditDocStore.DatabaseName.Should().Be("appts");
-        auditDocStore._containerName.Should().Be("audit_data");
+        auditDocStore.ContainerName.Should().Be("audit_data");
         auditDocStore.GetDocumentType().Should().Be("notification");
     }
 
@@ -158,10 +163,11 @@ public class ServiceTests
             _mockRetryOptions.Object,
             _mockMapper.Object,
             _mockMetrics.Object,
-            _mockLastUpdatedByResolver.Object);
+            _mockLastUpdatedByResolver.Object,
+            _authLogger.Object);
 
         auditDocStore.DatabaseName.Should().Be("appts");
-        auditDocStore._containerName.Should().Be("audit_data");
+        auditDocStore.ContainerName.Should().Be("audit_data");
         auditDocStore.GetDocumentType().Should().Be("auth");
     }
 }

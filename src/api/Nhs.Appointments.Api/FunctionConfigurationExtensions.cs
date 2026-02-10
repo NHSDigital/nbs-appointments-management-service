@@ -208,7 +208,8 @@ public static class FunctionConfigurationExtensions
                 }),
                 Serializer = new CosmosJsonSerializer(),
                 ConnectionMode = ConnectionMode.Gateway,
-                LimitToEndpoint = true
+                LimitToEndpoint = true,
+                MaxRetryAttemptsOnRateLimitedRequests = 0
             };
         }
 

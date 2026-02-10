@@ -42,8 +42,7 @@ public enum BackoffRetryType
     GeometricDouble = 1,
     /// <summary>
     /// Each retry attempt awaits with e ^ (initial value ms), with an incremental exponential backoff factor. <br/>
-    /// i.e. +148ms, +403ms, +1096ms, ... <br/>
-    /// (when 'initial value ms' = 5 as e^5 = 148ms, e^6 = 403ms, ...)
+    /// i.e. +150ms, +403ms, +1096ms, ... <br/>
     /// </summary>
     Exponential = 2,
 }

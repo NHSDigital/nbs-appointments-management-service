@@ -96,8 +96,8 @@ services:
       - SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER=2
       - APPLICATION_NAME=mya_local_docker
       - ContainerRetry__Configurations__0__ContainerName=booking_data
-      - ContainerRetry__Configurations__0__BackoffRetryType=1
-      - ContainerRetry__Configurations__0__InitialValueMs=150
+      - ContainerRetry__Configurations__0__BackoffRetryType=2
+      - ContainerRetry__Configurations__0__InitialValueMs=200
       - ContainerRetry__Configurations__0__CutoffRetryMs=10000
   splunk:
     image: splunk/splunk:9.3

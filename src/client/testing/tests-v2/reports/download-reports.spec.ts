@@ -7,10 +7,7 @@ test('Navigates to the reports page via the header before selecting a site', asy
   setUpSingleSite,
 }) => {
   await setUpSingleSite({
-    features: [
-      { name: 'SiteSummaryReport', enabled: true },
-      { name: 'ReportsUplift', enabled: true },
-    ],
+    features: [{ name: 'ReportsUplift', enabled: true }],
   })
     .then(async sitePageFixture =>
       sitePageFixture.sitePage.topNav.clickReports(),
@@ -27,10 +24,7 @@ test('Navigates to the reports page via a site page', async ({
   setUpSingleSite,
 }) => {
   await setUpSingleSite({
-    features: [
-      { name: 'SiteSummaryReport', enabled: true },
-      { name: 'ReportsUplift', enabled: true },
-    ],
+    features: [{ name: 'ReportsUplift', enabled: true }],
   })
     .then(async sitePageFixture => sitePageFixture.sitePage.clickReportsCard())
     .then(async reportsPage => {
@@ -45,10 +39,7 @@ test('Downloads a site summary report', async ({ page, setUpSingleSite }) => {
   const fileName = 'downloaded-test-report.csv';
 
   await setUpSingleSite({
-    features: [
-      { name: 'SiteSummaryReport', enabled: true },
-      { name: 'ReportsUplift', enabled: true },
-    ],
+    features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
     .then(async sitePageFixture =>
@@ -99,10 +90,7 @@ test('Download all sites report', async ({ page, setUpSingleSite }) => {
   const fileName = 'downloaded-test-report.csv';
 
   await setUpSingleSite({
-    features: [
-      { name: 'SiteSummaryReport', enabled: true },
-      { name: 'ReportsUplift', enabled: true },
-    ],
+    features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
     .then(async sitePageFixture =>
@@ -144,10 +132,7 @@ test('Download users report', async ({ page, setUpSingleSite }) => {
   const fileName = 'downloaded-test-report.csv';
 
   await setUpSingleSite({
-    features: [
-      { name: 'SiteSummaryReport', enabled: true },
-      { name: 'ReportsUplift', enabled: true },
-    ],
+    features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
     .then(async sitePageFixture =>

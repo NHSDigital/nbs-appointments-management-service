@@ -1,5 +1,4 @@
 import {
-  assertFeatureEnabled,
   assertAnyPermission,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
@@ -9,7 +8,6 @@ import fromServer from '@server/fromServer';
 import { redirect } from 'next/navigation';
 
 const Page = async () => {
-  await fromServer(assertFeatureEnabled('SiteSummaryReport'));
   await fromServer(
     assertAnyPermission('*', [
       'reports:sitesummary',

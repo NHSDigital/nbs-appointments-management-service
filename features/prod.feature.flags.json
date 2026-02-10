@@ -1,6 +1,5 @@
 {
   "FeatureManagement": {
-    "SiteSummaryReport": true,
     "SiteStatus": true,
     "CancelDay": true,
     "ChangeSessionUpliftedJourney": true,

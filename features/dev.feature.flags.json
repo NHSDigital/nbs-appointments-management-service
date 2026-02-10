@@ -1,7 +1,6 @@
 {
   "FeatureManagement": {
     "TestFeatureEnabled": true,
-    "SiteSummaryReport": true,
     "SiteStatus": true,
     "CancelDay": true,
     "ChangeSessionUpliftedJourney": true,

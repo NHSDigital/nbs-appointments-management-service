@@ -24,17 +24,12 @@ public class GetReportSiteSummaryFunctionTests
     private readonly Mock<IPermissionChecker> _permissionChecker = new();
     private readonly Mock<ISiteReportService> _siteReportService = new();
     private readonly Mock<TimeProvider> _timeProvider = new();
-    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<ILogger<GetAccessibilityDefinitionsFunction>> _mockLogger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public GetReportSiteSummaryFunctionTests()
     {
-        _featureToggleHelper
-            .Setup(helper => helper.IsFeatureEnabled(Flags.SiteSummaryReport))
-            .ReturnsAsync(true);
-
         _timeProvider
             .Setup(x => x.GetUtcNow())
             .Returns(new DateTimeOffset(new DateTime(2020, 1, 1, 1, 1, 1)));
@@ -48,27 +43,11 @@ public class GetReportSiteSummaryFunctionTests
             _permissionChecker.Object,
             _siteReportService.Object,
             new SiteReportCsvWriter(_timeProvider.Object),
-            _featureToggleHelper.Object,
             new SiteReportRequestValidator(),
             _userContextProvider.Object,
             _mockLogger.Object,
             _metricsRecorder.Object
         );
-    }
-
-    [Fact(DisplayName = "Returns NotImplemented when toggled OFF")]
-    public async Task RunAsync_ReturnsNotImplemented_WhenToggledOff()
-    {
-        _featureToggleHelper
-            .Setup(helper => helper.IsFeatureEnabled(Flags.SiteSummaryReport))
-            .ReturnsAsync(false);
-
-        var request = CreateRequest("2004-02-10", "2004-02-12");
-        var result = await _fut.RunAsync(request);
-
-        var contentResult = Assert.IsType<ContentResult>(result);
-        contentResult.StatusCode.Should().Be(501);
-        contentResult.Content.Should().Contain("Site Summary Reports are not enabled.");
     }
 
     [Fact(DisplayName = "Generates site summary reports")]

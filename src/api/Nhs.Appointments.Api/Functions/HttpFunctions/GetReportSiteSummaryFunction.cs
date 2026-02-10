@@ -26,7 +26,6 @@ public class GetReportSiteSummaryFunction(
     IPermissionChecker permissionChecker,
     ISiteReportService siteReportService,
     ISiteReportCsvWriter siteReportCsvWriter,
-    IFeatureToggleHelper featureToggleHelper,
     IValidator<SiteReportRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<GetAccessibilityDefinitionsFunction> logger,
@@ -47,9 +46,7 @@ public class GetReportSiteSummaryFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "report/site-summary")]
         HttpRequest req)
     {
-        return !await featureToggleHelper.IsFeatureEnabled(Flags.SiteSummaryReport)
-            ? ProblemResponse(HttpStatusCode.NotImplemented, "Site Summary Reports are not enabled.")
-            : await base.RunAsync(req);
+        return await base.RunAsync(req);
     }
 
     protected override string ResponseType => ApiResponseType.File;

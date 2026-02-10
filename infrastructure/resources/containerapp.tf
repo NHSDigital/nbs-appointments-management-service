@@ -503,12 +503,12 @@ resource "azurerm_container_app" "nbs_mya_aggregator" {
 
       env {
         name  = "CosmosTransactionOptions__MaxRetry"
-        value = var.splunk_host_url
+        value = var.aggregator_max_retry
       }
 
       env {
         name  = "CosmosTransactionOptions__DefaultWaitSeconds"
-        value = var.aggregator_max_retry
+        value = var.aggregator_default_wait_seconds
       }
 
       env {

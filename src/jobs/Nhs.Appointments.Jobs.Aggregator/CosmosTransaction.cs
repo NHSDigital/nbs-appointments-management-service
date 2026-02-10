@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using Microsoft.Azure.Cosmos;
+﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -9,7 +8,7 @@ public class CosmosTransaction(ILogger<CosmosTransaction> logger, IOptions<Cosmo
 {
     private readonly CosmosTransactionOptions _options = options.Value;
 
-    public async Task RunJobWithRetry(Func<Task> action)
+    public async Task RunJobWithRetry(Func<Task> action, string jobName = "")
     {
         var retryCount = 0;
         while (retryCount <= _options.MaxRetry)
@@ -17,17 +16,17 @@ public class CosmosTransaction(ILogger<CosmosTransaction> logger, IOptions<Cosmo
             try
             {
                 await action();
-                logger.LogInformation("Transaction executed successfully after {RetryCount} trys", retryCount);
+                logger.LogInformation("{JobName} Transaction executed successfully after {RetryCount} trys", jobName, retryCount);
                 return;
             }
             catch (CosmosException ex)
             {
                 retryCount++;
-                logger.LogInformation("Failed to execute transaction {RetryCount} times, retrying in {RetryTime}", retryCount, ex.RetryAfter ?? TimeSpan.FromSeconds(_options.DefaultWaitSeconds));
+                logger.LogInformation("{JobName} Failed to execute transaction {RetryCount} times, retrying in {RetryTime}", jobName, retryCount, ex.RetryAfter ?? TimeSpan.FromSeconds(_options.DefaultWaitSeconds));
                 await Task.Delay(ex.RetryAfter ?? TimeSpan.FromSeconds(_options.DefaultWaitSeconds));
             }
         }
         
-        throw new Exception("Failed to execute transaction");
+        throw new Exception($"{jobName} Failed to execute transaction");
     }
 }

@@ -1,4 +1,4 @@
-import { Cell, Table } from '@components/nhsuk-frontend';
+// import { Cell, Table } from '@components/nhsuk-frontend';
 import { ClinicalService, SessionSummary } from '@types';
 import Link from 'next/link';
 import { UrlObject } from 'url';
@@ -8,6 +8,8 @@ import {
   parseToUkDatetime,
   ukNow,
 } from '@services/timeService';
+import { Cell } from './nhsuk-frontend';
+import { SessionSummaryTableData } from './session-summary-table-data';
 
 type SessionSummaryTableProps = {
   sessionSummaries: SessionSummary[];
@@ -29,23 +31,21 @@ export const SessionSummaryTable = ({
   showBooked = true,
   tableCaption,
 }: SessionSummaryTableProps) => {
+  const sessionSummaryRows = getSessionSummaryRows(
+    sessionSummaries,
+    clinicalServices,
+    showUnbooked,
+    showBooked,
+    showChangeSessionLink,
+  );
+
   return (
-    <Table
-      headers={[
-        'Time',
-        'Services',
-        ...(showBooked ? ['Booked'] : []),
-        ...(showUnbooked ? ['Unbooked'] : []),
-        ...(showChangeSessionLink ? ['Action'] : []),
-      ]}
-      rows={getSessionSummaryRows(
-        sessionSummaries,
-        clinicalServices,
-        showUnbooked,
-        showBooked,
-        showChangeSessionLink,
-      )}
-      caption={tableCaption}
+    <SessionSummaryTableData
+      showChangeSessionLink={showChangeSessionLink}
+      showUnbooked={showUnbooked}
+      showBooked={showBooked}
+      tableCaption={tableCaption}
+      sessionSummaryRows={sessionSummaryRows}
     />
   );
 };

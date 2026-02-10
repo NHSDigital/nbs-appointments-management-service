@@ -14,15 +14,15 @@ public static class ConfigurationExtensions
     {
         builder.UseMiddleware<Middleware>();
         builder.Services
-            .AddSingleton<ITypedDocumentCosmosStore<AuditFunctionDocument>,
+            .AddTransient<ITypedDocumentCosmosStore<AuditFunctionDocument>,
                 TypedDocumentCosmosStore<AuditFunctionDocument>>();
         builder.Services
-            .AddSingleton<ITypedDocumentCosmosStore<AuditAuthDocument>,
+            .AddTransient<ITypedDocumentCosmosStore<AuditAuthDocument>,
                 TypedDocumentCosmosStore<AuditAuthDocument>>();
         builder.Services
             .AddTransient<ITypedDocumentCosmosStore<AuditNotificationDocument>,
                 TypedDocumentCosmosStore<AuditNotificationDocument>>();
-        builder.Services.AddSingleton<IAuditWriteService, AuditWriteService>();
+        builder.Services.AddTransient<IAuditWriteService, AuditWriteService>();
 
         return builder;
     }

@@ -16,7 +16,7 @@ public static class ServiceRegistration
         {
             var serviceType = typeof(ITypedDocumentCosmosStore<>).MakeGenericType(documentType);
             var implementationType = typeof(TypedDocumentCosmosStore<>).MakeGenericType(documentType);
-            services.AddSingleton(serviceType, implementationType);
+            services.AddTransient(serviceType, implementationType);
         }
 
         return services;

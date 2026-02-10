@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import LeftChevron from './icons/left-chevron';
 
 export type BackLinkProps =
   | NavigationByHrefProps
@@ -32,7 +31,6 @@ const BackLink = (props: BackLinkProps) => {
           href={props.href}
           prefetch={false}
         >
-          <LeftChevron />
           {props.text}
         </Link>
       </div>
@@ -50,7 +48,6 @@ const BackLink = (props: BackLinkProps) => {
           props.onClick();
         }}
       >
-        <LeftChevron />
         {props.text}
       </Link>
     </div>

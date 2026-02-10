@@ -76,16 +76,6 @@ export const DaySummaryCard = ({
       },
   ].filter(p => p !== false);
 
-  const futureCancelDayLink =
-    cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
-      <Link
-        className="nhsuk-link"
-        href={`/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
-      >
-        Cancel day
-      </Link>
-    ) : null;
-
   return (
     <Card>
       <Card.Heading size="m">{ukDate.format('dddd D MMMM')}</Card.Heading>

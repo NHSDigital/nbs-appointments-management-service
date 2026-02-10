@@ -1,17 +1,10 @@
 'use client';
-import {
-  Button,
-  ButtonGroup,
-  FormGroup,
-  InsetText,
-  Radio,
-  RadioGroup,
-  SmallSpinnerWithText,
-} from '@components/nhsuk-frontend';
+import { FormGroup, SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
 import { ClinicalService, SessionSummary, Site } from '@types';
 import { useRouter } from 'next/navigation';
+import { Button, InsetText, Radios } from 'nhsuk-react-components';
 import { useEffect, useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -101,43 +94,45 @@ export const EditSessionDecision = ({
           legend="What do you want to do?"
           error={errors.action?.message}
         >
-          <RadioGroup>
-            <Radio
-              label="Change the length or capacity of this session"
+          <Radios>
+            <Radios.Item
               hint="Shorten session length or remove capacity"
-              id="edit-session"
               value="edit-session"
+              id="edit-session"
               {...register('action', {
                 required: { value: true, message: 'Select an option' },
               })}
-            />
-            <Radio
-              label="Cancel the session"
-              id="cancel-session"
+            >
+              Change the length or capacity of this session
+            </Radios.Item>
+            <Radios.Item
               value="cancel-session"
+              id="cancel-session"
               {...register('action', {
                 required: { value: true, message: 'Select an option' },
               })}
-            />
+            >
+              Cancel the session
+            </Radios.Item>
             {Object.keys(session.totalSupportedAppointmentsByService).length >
               1 && (
-              <Radio
-                label="Remove a service or multiple services"
-                id="edit-services"
+              <Radios.Item
+                hint="Remove one or more services from this session"
                 value="edit-services"
+                id="edit-services"
                 {...register('action', {
                   required: { value: true, message: 'Select an option' },
                 })}
-              />
+              >
+                Remove a service or multiple services
+              </Radios.Item>
             )}
-          </RadioGroup>
+          </Radios>
         </FormGroup>
         {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
-          <ButtonGroup>
-            <Button type="submit">Continue</Button>
-          </ButtonGroup>
+          <Button type="submit">Continue</Button>
         )}
       </form>
     </>

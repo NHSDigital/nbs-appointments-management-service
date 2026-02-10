@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Footer } from 'nhsuk-react-components';
 
 type NhsFooterProps = {
-  buildNumber: ReactNode;
+  buildNumber?: ReactNode;
 };
 
 const NhsFooter = ({ buildNumber }: NhsFooterProps) => {

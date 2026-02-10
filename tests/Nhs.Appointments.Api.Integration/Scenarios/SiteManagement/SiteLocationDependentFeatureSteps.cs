@@ -452,6 +452,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         var accessNeeds = row.Cells.ElementAt(4).Value;
         Response = await GetHttpClientForTest().GetAsync(
             $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&accessNeeds={accessNeeds}&ignoreCache=true");
+        var jsonString = await Response.Content.ReadAsStringAsync();
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());

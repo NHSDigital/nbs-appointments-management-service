@@ -33,14 +33,12 @@ const Page = async ({ params }: PageProps) => {
     wellKnownOdsCodeEntries,
     sitePermissions,
     permissionsAtAnySite,
-    siteSummaryEnabled,
     siteStatusFeature,
   ] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
     fromServer(fetchWellKnownOdsCodeEntries()),
     fromServer(fetchPermissions(siteFromPath)),
     fromServer(fetchPermissions('*')),
-    fromServer(fetchFeatureFlag('SiteSummaryReport')),
     fromServer(fetchFeatureFlag('SiteStatus')),
   ]);
 
@@ -51,7 +49,6 @@ const Page = async ({ params }: PageProps) => {
         permissions={sitePermissions}
         permissionsAtAnySite={permissionsAtAnySite}
         wellKnownOdsCodeEntries={wellKnownOdsCodeEntries}
-        siteSummaryEnabled={siteSummaryEnabled.enabled}
         siteStatusEnabled={siteStatusFeature.enabled}
       />
     </NhsPage>

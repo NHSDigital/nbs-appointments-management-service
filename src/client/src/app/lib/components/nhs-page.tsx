@@ -13,10 +13,7 @@ import NhsMainContainer from '@components/nhs-main-container';
 import NhsHeaderLogOut from '@components/nhs-header-log-out';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
-import {
-  fetchFeatureFlag,
-  fetchPermissions,
-} from '@services/appointmentsService';
+import { fetchPermissions } from '@services/appointmentsService';
 import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 import FeedbackBanner from '@components/feedback-banner';
 import BuildNumber from './build-number';
@@ -100,12 +97,18 @@ const NhsPage = async ({
 const getLinksForSite = async (
   site: Site | undefined,
 ): Promise<NavigationLink[]> => {
-  const [permissionsAtSite, permissionsAtAnySite, siteSummaryFlag] =
-    await Promise.all([
-      fromServer(fetchPermissions(site?.id)),
-      fromServer(fetchPermissions('*')),
-      fromServer(fetchFeatureFlag('SiteSummaryReport')),
-    ]);
+  const [permissionsAtSite, permissionsAtAnySite] = await Promise.all([
+    fromServer(fetchPermissions(site?.id)),
+    fromServer(fetchPermissions('*')),
+  ]);
+
+  const hasAnyReportPermissions = () => {
+    return (
+      permissionsAtAnySite.includes('reports:sitesummary') ||
+      permissionsAtAnySite.includes('reports:siteusers') ||
+      permissionsAtAnySite.includes('reports:master-site-list')
+    );
+  };
 
   const navigationLinks: NavigationLink[] = [];
 
@@ -142,10 +145,7 @@ const getLinksForSite = async (
     }
   }
 
-  if (
-    permissionsAtAnySite.includes('reports:sitesummary') &&
-    siteSummaryFlag.enabled
-  ) {
+  if (hasAnyReportPermissions()) {
     navigationLinks.push({
       label: 'Reports',
       href: `/reports`,

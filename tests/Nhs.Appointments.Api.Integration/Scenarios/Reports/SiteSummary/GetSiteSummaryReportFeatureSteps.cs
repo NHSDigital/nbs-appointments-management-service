@@ -11,26 +11,13 @@ using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
 using FluentAssertions;
 using Gherkin.Ast;
-using Nhs.Appointments.Api.Integration.Collections;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
-using Xunit;
 using Xunit.Gherkin.Quick;
-using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Reports.SiteSummary;
 
-[Collection(FeatureToggleCollectionNames.SiteSummaryReportCollection)]
-[FeatureFile("./Scenarios/Reports/SiteSummary/GetSiteSummaryReport_Enabled.feature")]
-public class GetSiteSummaryReportFeatureSteps_Enabled()
-    : GetSiteSummaryReportFeatureSteps(Flags.SiteSummaryReport, true);
-
-[Collection(FeatureToggleCollectionNames.SiteSummaryReportCollection)]
-[FeatureFile("./Scenarios/Reports/SiteSummary/GetSiteSummaryReport_Disabled.feature")]
-public class GetSiteSummaryReportFeatureSteps_Disabled()
-    : GetSiteSummaryReportFeatureSteps(Flags.SiteSummaryReport, false);
-
-public abstract class GetSiteSummaryReportFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+[FeatureFile("./Scenarios/Reports/SiteSummary/GetSiteSummaryReport.feature")]
+public class GetSiteSummaryReportSteps() : BaseFeatureSteps
 {
     private HttpResponseMessage Response { get; set; }
     private string ReportContent { get; set; }

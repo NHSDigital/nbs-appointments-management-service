@@ -248,6 +248,27 @@ export const assertPermission = async (
   return { success: true, data: undefined };
 };
 
+export const assertAnyPermission = async (
+  site: string,
+  permissions: string[],
+): Promise<ServerActionResult<void>> => {
+  const response = await fetchPermissions(site);
+
+  if (!response.success) {
+    return Promise.reject(
+      new ServerActionException('Failed to fetch permissions'),
+    );
+  }
+
+  const hasAtLeastOne = permissions.some(p => response.data.includes(p));
+
+  if (!hasAtLeastOne) {
+    return Promise.reject(new ServerActionForbidden());
+  }
+
+  return { success: true, data: undefined };
+};
+
 export const assertFeatureEnabled = async (
   flag: string,
 ): Promise<ServerActionResult<void>> => {
@@ -647,6 +668,15 @@ export const downloadSiteSummaryReport = async (
   appointmentsApi
     .get<Blob>(`report/site-summary?startDate=${startDate}&endDate=${endDate}`)
     .then(handleBodyResponse);
+
+export const downloadMasterSiteListReport = async (): Promise<
+  ServerActionResult<Blob>
+> =>
+  appointmentsApi.get<Blob>('report/master-site-list').then(handleBodyResponse);
+
+export const downloadSiteUsersReport = async (): Promise<
+  ServerActionResult<Blob>
+> => appointmentsApi.get<Blob>(`report/sites/users`).then(handleBodyResponse);
 
 export const availabilityChangeProposal = async (
   payload: AvailabilityChangeProposalRequest,

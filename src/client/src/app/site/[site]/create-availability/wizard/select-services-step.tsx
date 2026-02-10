@@ -91,7 +91,7 @@ const SelectServicesStep = ({
               className="nhsuk-fieldset app-checkbox-group"
               style={{ marginBottom: '32px' }}
             >
-              <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
+              <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--s">
                 <span className="nhsuk-u-visually-hidden">Add </span>
                 {groupTitle}
                 <span className="nhsuk-u-visually-hidden">

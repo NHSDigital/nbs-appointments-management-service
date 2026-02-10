@@ -16,7 +16,8 @@ using DataTable = Gherkin.Ast.DataTable;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Confirm;
 
-public abstract class ConfirmBookingFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+[FeatureFile("./Scenarios/Booking/Confirm/ConfirmBooking.feature")]
+public class ConfirmBookingFeatureSteps : BaseFeatureSteps
 {
     [When("I confirm the booking")]
     public async Task ConfirmBooking()

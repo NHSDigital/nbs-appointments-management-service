@@ -21,6 +21,7 @@ const ButtonGroup = ({ children, vertical = false }: Props) => {
         padding: 0,
         margin: 0,
         listStyle: 'none',
+        alignItems: 'center',
       }}
     >
       {childrenArray.map((child, index) => {

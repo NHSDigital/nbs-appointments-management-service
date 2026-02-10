@@ -1,27 +1,37 @@
 ﻿using System.Collections.Concurrent;
-using System.Security.Cryptography.X509Certificates;
+
+namespace Nhs.Appointments.Core.Metrics;
 
 public class InMemoryMetricsRecorder : IMetricsRecorder
 {
-    private ConcurrentStack<string> _scopeStack = new ConcurrentStack<string>();
-    private List<(string Path, double Value)> _metrics = new List<(string Path, double Value)>();
+    private readonly ConcurrentStack<string> _scopeStack = new();
+    private readonly List<(string Path, double Value)> _metrics = [];
 
     public void RecordMetric(string name, double value)
     {
         lock (_metrics)
         {
             _scopeStack.TryPeek(out var currentName);
-            var scopeName = String.IsNullOrEmpty(currentName) ? name : currentName + "/" + name;
+            var scopeName = string.IsNullOrEmpty(currentName) ? name : currentName + "/" + name;
             _metrics.Add((scopeName, value));
         }
     }
 
-    public IReadOnlyCollection<(string Path, double Value)> Metrics => _metrics.ToList().AsReadOnly();
+    public IReadOnlyCollection<(string Path, double Value)> Metrics
+    {
+        get
+        {
+            lock (_metrics)
+            {
+                return _metrics.ToList().AsReadOnly();
+            }
+        }
+    }
 
     public IDisposable BeginScope(string scopeName)
     {
         _scopeStack.TryPeek(out var currentName);
-        var newScope = String.IsNullOrEmpty(currentName) ? scopeName : currentName + "/" + scopeName;
+        var newScope = string.IsNullOrEmpty(currentName) ? scopeName : currentName + "/" + scopeName;
         _scopeStack.Push(newScope);
         return new InMemoryMetricsRecorderScope(this);
     }

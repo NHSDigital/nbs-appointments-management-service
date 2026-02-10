@@ -1,8 +1,6 @@
 {
   "FeatureManagement": {
     "TestFeatureEnabled": true,
-    "JointBookings": true,
-    "SiteSummaryReport": true,
     "SiteStatus": true,
     "CancelDay": true,
     "ChangeSessionUpliftedJourney": true,
@@ -49,7 +47,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": ["api@test"],
+              "Users": [ "api@test" ],
               "DefaultRolloutPercentage": 0
             }
           }
@@ -80,7 +78,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": ["api@test"],
+              "Users": [ "api@test" ],
               "DefaultRolloutPercentage": 0
             }
           }

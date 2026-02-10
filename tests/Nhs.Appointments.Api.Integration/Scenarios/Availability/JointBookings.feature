@@ -1,4 +1,4 @@
-Feature: Joint Bookings (Disabled)
+Feature: Joint Bookings
 
   Scenario: APPT-767 scenario one
     Given the following sessions exist for a created default site
@@ -19,7 +19,7 @@ Feature: Joint Bookings (Disabled)
       | 09:40 | 09:45 | 2     |
       | 09:45 | 09:50 | 2     |
       | 09:50 | 09:55 | 2     |
-      | 09:55 | 10:00 | 2     |
+      | 09:55 | 10:00 | 0     |
 
   Scenario: APPT-767 scenario two
     Given the following sessions exist for a created default site
@@ -40,4 +40,4 @@ Feature: Joint Bookings (Disabled)
       | 09:40 | 09:45 | 3     |
       | 09:45 | 09:50 | 3     |
       | 09:50 | 09:55 | 3     |
-      | 09:55 | 10:00 | 3     |
+      | 09:55 | 10:00 | 0     |

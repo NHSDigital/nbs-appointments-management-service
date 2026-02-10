@@ -77,7 +77,8 @@
         "users:manage",
         "system:data-importer",
         "reports:sitesummary",
-        "reports:siteusers"
+        "reports:siteusers",
+        "reports:master-site-list"
       ]
     },
     {
@@ -119,7 +120,8 @@
         "system:run-provisional-sweep",
         "reports:sitesummary",
         "system:run-auto-cancellations",
-        "reports:siteusers"
+        "reports:siteusers",
+        "reports:master-site-list"
       ]
     },
     {

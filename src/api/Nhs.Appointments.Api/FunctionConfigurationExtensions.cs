@@ -29,6 +29,7 @@ using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.OdsCodes;
 using Nhs.Appointments.Core.Okta;
 using Nhs.Appointments.Core.Reports;
+using Nhs.Appointments.Core.Reports.MasterSiteList;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Core.Reports.Users;
 using Nhs.Appointments.Core.Sites;
@@ -40,6 +41,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Nhs.Appointments.Core.Metrics;
 
 namespace Nhs.Appointments.Api;
 
@@ -129,6 +131,7 @@ public static class FunctionConfigurationExtensions
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
             .AddTransient<ISiteReportService, SiteReportService>()
             .AddTransient<ISiteReportCsvWriter, SiteReportCsvWriter>()
+            .AddTransient<IMasterSiteListReportCsvWriter, MasterSiteListReportCsvWriter>()
             .AddTransient<IBookingEventFactory, EventFactory>()
             .AddTransient<IUserDataImportHandler, UserDataImportHandler>()
             .AddTransient<ISiteDataImportHandler, SiteDataImporterHandler>()

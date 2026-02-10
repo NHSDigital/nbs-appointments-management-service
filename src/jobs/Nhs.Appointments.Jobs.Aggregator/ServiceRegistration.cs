@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Json;
+using Nhs.Appointments.Core.Metrics;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;

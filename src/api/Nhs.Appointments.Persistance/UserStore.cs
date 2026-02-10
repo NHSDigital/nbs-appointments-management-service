@@ -124,15 +124,15 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
         return new OperationResult(true);
     }
 
-    public Task<IEnumerable<User>> GetUsersAsync(string site)
+    public async Task<IEnumerable<User>> GetUsersAsync(string site)
     {
-        return cosmosStore.RunQueryAsync<User>(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{site}"));
+        return await cosmosStore.RunQueryAsync<User>(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{site}"));
     }
     
-    private Task InsertAsync(User user)
+    private async Task InsertAsync(User user)
     {
         var document = cosmosStore.ConvertToDocument(user);
-        return cosmosStore.WriteAsync(document);
+        await cosmosStore.WriteAsync(document);
     }
 
     public async Task<User> GetOrDefaultAsync(string userId)

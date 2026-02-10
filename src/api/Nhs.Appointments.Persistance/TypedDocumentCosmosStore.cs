@@ -98,9 +98,9 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
-    public Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId)
+    public async Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId)
     {
-        return GetByIdOrDefaultAsync<TModel>(documentId, _documentType.Value);
+        return await GetByIdOrDefaultAsync<TModel>(documentId, _documentType.Value);
     }
 
     public async Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId, string partitionKey)
@@ -115,9 +115,9 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return _mapper.Map<TModel>(document);
     }
 
-    public Task<TModel> GetDocument<TModel>(string documentId)
+    public async Task<TModel> GetDocument<TModel>(string documentId)
     {
-        return GetDocument<TModel>(documentId, _documentType.Value);
+        return await GetDocument<TModel>(documentId, _documentType.Value);
     }
 
     public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey)
@@ -129,10 +129,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return _mapper.Map<TModel>(readResponse.Resource);
     }
 
-    public Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate)
+    public async Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate)
     {
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
-        return IterateResults(queryFeed, rs => _mapper.Map<TModel>(rs));
+        return await IterateResults(queryFeed, rs => _mapper.Map<TModel>(rs));
     }
 
     public async Task DeleteDocument(string documentId, string partitionKey)
@@ -142,12 +142,12 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             partitionKey: new PartitionKey(partitionKey)));
     }
 
-    public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
+    public async Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
     {
         var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
             queryDefinition: query);
 
-        return IterateResults(queryFeed, item => item);
+        return await IterateResults(queryFeed, item => item);
     }
 
     public async Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches)

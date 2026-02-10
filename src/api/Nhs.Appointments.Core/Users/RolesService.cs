@@ -4,9 +4,9 @@ namespace Nhs.Appointments.Core.Users;
 
 public class RolesService(IRolesStore store) : IRolesService
 {
-    public Task<IEnumerable<Role>> GetRoles()
+    public async Task<IEnumerable<Role>> GetRoles()
     {
-        return store.GetRoles();
+        return await store.GetRoles();
     }
 }
 

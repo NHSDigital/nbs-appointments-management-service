@@ -185,8 +185,7 @@ public class BookingWriteService(
     {
         using var leaseContent = siteLeaseManager.Acquire(site);
 
-        var dayTasks =
-            days.Select(day => RecalculateAppointmentStatusesForDay(site, day, newlyUnsupportedBookingAction));
+        var dayTasks = days.Select(async day => await RecalculateAppointmentStatusesForDay(site, day, newlyUnsupportedBookingAction));
 
         var results = await Task.WhenAll(dayTasks);
 

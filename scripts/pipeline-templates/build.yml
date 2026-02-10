@@ -16,6 +16,8 @@ stages:
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
           capacityExtractsTestProjectPath: "tests/CapacityDataExtracts.UnitTests/CapacityDataExtracts.UnitTests.csproj"
+          auditorTestProjectPath: "tests/Nhs.Appointments.Jobs.BlobAuditor.Integration/Nhs.Appointments.Jobs.BlobAuditor.Integration.csproj"
+          aggregatorTestProjectPath: "tests/Nhs.Appointments.Jobs.Aggregator.UnitTests/Nhs.Appointments.Jobs.Aggregator.UnitTests.csproj"
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
           bookingExtractDockerFilePath: "BookingDataExtractDockerfile"
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
@@ -108,6 +110,18 @@ stages:
             inputs:
               command: "test"
               projects: $(cosmosDbSeederTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run Auditor tests"
+            inputs:
+              command: "test"
+              projects: $(auditorTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run Aggregator tests"
+            inputs:
+              command: "test"
+              projects: $(aggregatorTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"

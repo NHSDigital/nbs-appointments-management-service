@@ -467,12 +467,13 @@ public class TypedDocumentCosmosStoreTests
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 10), Times.Once);
     }
     
-    [Fact]
-    public async Task Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__ExponentialBackoff()
+    [Theory]
+    [InlineData(13, 35, 96, 261, 600)]
+    [InlineData(10, 27, 73, 200, 500)]
+    [InlineData(7, 19, 51, 140, 350)]
+    [InlineData(5, 13, 36, 100, 250)]
+    public async Task Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__ExponentialBackoff(int initialValue, int expectedSecondValue, int expectedThirdValue, int expectedFourthValue, int cutoff)
     {
-        //these retry options equate to exponential backoff of:
-        //10ms, 27ms, 73ms, 200ms, ...
-        
         var retryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
@@ -481,8 +482,8 @@ public class TypedDocumentCosmosStoreTests
                 {
                     ContainerName = "test-container",
                     BackoffRetryType = BackoffRetryType.Exponential,
-                    CutoffRetryMs = 300,
-                    InitialValueMs = 10,
+                    CutoffRetryMs = cutoff,
+                    InitialValueMs = initialValue,
                 }
             ]
         });
@@ -511,14 +512,13 @@ public class TypedDocumentCosmosStoreTests
         
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
         
-        //initial attempt, plus 3 retries
-        mockCosmosOperation.Verify(f => f(), Times.Exactly(4));
+        mockCosmosOperation.Verify(f => f(), Times.Exactly(5));
 
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 10")
+                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: {initialValue}")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -529,7 +529,7 @@ public class TypedDocumentCosmosStoreTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: 37")
+                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: {initialValue + expectedSecondValue}")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -540,15 +540,25 @@ public class TypedDocumentCosmosStoreTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: 110")
+                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: {initialValue + expectedSecondValue + expectedThirdValue}")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 4, for container: test-container, total delay time: {initialValue + expectedSecondValue + expectedThirdValue + expectedFourthValue}")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
 
-        //4x2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 8), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 10), Times.Once);
     }
 
     [Fact]

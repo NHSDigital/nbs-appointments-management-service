@@ -7,7 +7,7 @@ type Props = HTMLProps<HTMLButtonElement> & {
 const SearchButton = ({ onClick, children, ...rest }: Props) => {
   return (
     <button
-      className="nhsuk-button nhsuk-button--secondary-solid app-button--small"
+      className="nhsuk-button nhsuk-button--secondary-solid nhsuk-button--small"
       data-module="nhsuk-button"
       onClick={onClick}
       type="button"

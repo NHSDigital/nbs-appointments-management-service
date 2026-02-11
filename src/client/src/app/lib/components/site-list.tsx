@@ -44,18 +44,23 @@ const SiteList = ({ sites }: Props) => {
 
   return (
     <>
-      <div className="search-bar">
-        <div>
-          <TextInput
-            id="site-search"
-            label="Search active sites by name or ODS code"
-            aria-label="Search active sites by name or ODS code"
-            value={searchValue}
-            onChange={handleSearchValueChange}
-          ></TextInput>
-        </div>
-        <SearchButton onClick={handleSearchClick}>Search</SearchButton>
-        <SearchButton onClick={handleClearClick}>Clear</SearchButton>
+      <div>
+        <TextInput
+          id="site-search"
+          width={'30'}
+          label="Search active sites by name or ODS code"
+          aria-label="Search active sites by name or ODS code"
+          value={searchValue}
+          onChange={handleSearchValueChange}
+          formGroupProps={{
+            afterInput: (
+              <>
+                <SearchButton onClick={handleSearchClick}>Search</SearchButton>
+                <SearchButton onClick={handleClearClick}>Clear</SearchButton>
+              </>
+            ),
+          }}
+        ></TextInput>
       </div>
       {showSearchMsg && searchValue.length > 0 && (
         <p>

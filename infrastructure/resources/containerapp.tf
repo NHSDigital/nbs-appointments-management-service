@@ -413,6 +413,21 @@ resource "azurerm_container_app" "nbs_mya_auditor" {
         name  = "SinkExclusions__0__ExcludedPaths__0"
         value = var.auditor_sink_exclusions[0].excluded_paths[0]
       }
+
+      env {
+        name  = "SinkExclusions__0__ExcludedPaths__1"
+        value = var.auditor_sink_exclusions[0].excluded_paths[1]
+      }
+
+      env {
+        name  = "SinkExclusions__0__ExcludedPaths__2"
+        value = var.auditor_sink_exclusions[0].excluded_paths[2]
+      }
+
+      env {
+        name  = "SinkExclusions__0__ExcludedPaths__3"
+        value = var.auditor_sink_exclusions[0].excluded_paths[3]
+      }
     }
   }
 

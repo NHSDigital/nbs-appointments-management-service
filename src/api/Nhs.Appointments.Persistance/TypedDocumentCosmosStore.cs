@@ -46,7 +46,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
         ContainerName = cosmosDocumentAttribute.ContainerName;
         ContainerRetryConfiguration =
-            retryOptions?.Value?.Configurations.SingleOrDefault(x => x.ContainerName == ContainerName);
+            retryOptions?.Value?.Configurations?.SingleOrDefault(x => x.ContainerName == ContainerName);
 
         if (ContainerRetryConfiguration != null && (ContainerRetryConfiguration.InitialValueMs == 0 ||
                                                     ContainerRetryConfiguration.CutoffRetryMs == 0))

@@ -81,7 +81,7 @@ export const DaySummaryCard = ({
       <Card.Heading size="m">{ukDate.format('dddd D MMMM')}</Card.Heading>
       {cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
         <Card.Action
-          href={`/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
+          href={`${process.env.CLIENT_BASE_PATH}/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
         >
           Cancel day
         </Card.Action>

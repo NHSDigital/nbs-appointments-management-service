@@ -27,7 +27,11 @@ const NhsFooter = ({ buildNumber }: NhsFooterProps) => {
         >
           Privacy policy
         </Footer.ListItem>
-        <Footer.ListItem href="/cookies-policy">Cookies policy</Footer.ListItem>
+        <Footer.ListItem
+          href={`${process.env.CLIENT_BASE_PATH}/cookies-policy`}
+        >
+          Cookies policy
+        </Footer.ListItem>
         <Footer.ListItem
           href="https://www.nhs.uk/our-policies/manage-your-appointment-accessibility-statement"
           target="_blank"

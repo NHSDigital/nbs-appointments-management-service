@@ -1,10 +1,10 @@
 'use client';
 import { Site } from '@types';
-import { Table, TextInput } from '@nhsuk-frontend-components';
 import { sortSitesByName } from '@sorting';
 import { ChangeEvent, useState } from 'react';
 import Link from 'next/link';
 import SearchButton from './nhsuk-frontend/search-button';
+import { Table, TextInput } from 'nhsuk-react-components';
 
 type Props = {
   sites: Site[];
@@ -64,23 +64,34 @@ const SiteList = ({ sites }: Props) => {
             : `No sites found matching "${searchValue}"`}
         </p>
       )}
-      <Table
-        headers={['Name', 'ICB', 'ODS', 'Action']}
-        rows={filteredSites.map(site => {
-          return [
-            site.name,
-            site.integratedCareBoard,
-            site.odsCode,
-            <Link
-              key={site.id}
-              aria-label={`View ${site.name}`}
-              href={`/site/${site.id}`}
-            >
-              View
-            </Link>,
-          ];
-        })}
-      />
+      <Table>
+        <Table.Head>
+          <Table.Row>
+            <Table.Cell>Name</Table.Cell>
+            <Table.Cell>ICB</Table.Cell>
+            <Table.Cell>ODS</Table.Cell>
+            <Table.Cell>Action</Table.Cell>
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {filteredSites.map(site => (
+            <Table.Row key={site.id}>
+              <Table.Cell>{site.name}</Table.Cell>
+              <Table.Cell>{site.integratedCareBoard}</Table.Cell>
+              <Table.Cell>{site.odsCode}</Table.Cell>
+              <Table.Cell>
+                <Link
+                  key={site.id}
+                  aria-label={`View ${site.name}`}
+                  href={`/site/${site.id}`}
+                >
+                  View
+                </Link>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
     </>
   );
 };

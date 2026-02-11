@@ -292,7 +292,7 @@ public class TypedDocumentCosmosStoreTests
     [InlineData(8)]
     [InlineData(9)]
     public async Task
-        Retry_FeedResponse_OnTooManyRequests__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
+        Retry_FeedResponse_TDocument_OnTooManyRequests__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
             int retriesNeeded)
     {
         var retryOptions = Options.Create(new ContainerRetryOptions
@@ -359,6 +359,133 @@ public class TypedDocumentCosmosStoreTests
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", (2 * retriesNeeded) + 3.5), Times.Once);
     }
     
+    [Fact]
+    public async Task Retry_FeedResponse_TModel_OnTooManyRequests__ThrowsInvalidOperation_IfCanExtractTrue()
+    {
+        var retryOptions = Options.Create(new ContainerRetryOptions
+        {
+            Configurations =
+            [
+                new ContainerRetryConfiguration
+                {
+                    ContainerName = "test-container",
+                    BackoffRetryType = BackoffRetryType.Linear,
+                    CutoffRetryMs = 10,
+                    InitialValueMs = 1,
+                }
+            ]
+        });
+
+        var response = Mock.Of<FeedResponse<TestModel>>(r =>
+            r.Resource == new List<TestModel>
+            {
+                new() { Id = "123" }, new() { Id = "456" }, new() { Id = "789" },
+            } &&
+            r.StatusCode == HttpStatusCode.OK &&
+            r.RequestCharge == 3.5
+        );
+
+        var mockCosmosOperation = new Mock<Func<Task<FeedResponse<TestModel>>>>();
+
+        mockCosmosOperation
+            .SetupSequence(f => f())
+            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
+            .ReturnsAsync(response);
+
+        var sut = new TypedDocumentCosmosStore<TestDocument>(
+            _cosmosClient.Object,
+            _options,
+            retryOptions,
+            _mapper.Object,
+            _metricsRecorder.Object,
+            _lastUpdatedByResolver.Object,
+            _logger.Object);
+        
+        //invalid usage
+        var action = async () =>
+        {
+            _ = await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None, true);
+        };
+        await action.Should().ThrowAsync<InvalidOperationException>();
+    }
+    
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    [InlineData(7)]
+    [InlineData(8)]
+    [InlineData(9)]
+    public async Task
+        Retry_FeedResponse_TModel_OnTooManyRequests__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
+            int retriesNeeded)
+    {
+        var retryOptions = Options.Create(new ContainerRetryOptions
+        {
+            Configurations =
+            [
+                new ContainerRetryConfiguration
+                {
+                    ContainerName = "test-container",
+                    BackoffRetryType = BackoffRetryType.Linear,
+                    CutoffRetryMs = 10,
+                    InitialValueMs = 1,
+                }
+            ]
+        });
+
+        var response = Mock.Of<FeedResponse<TestModel>>(r =>
+            r.Resource == new List<TestModel>
+            {
+                new() { Id = "123" }, new() { Id = "456" }, new() { Id = "789" },
+            } &&
+            r.StatusCode == HttpStatusCode.OK &&
+            r.RequestCharge == 3.5
+        );
+
+        var mockCosmosOperation = new Mock<Func<Task<FeedResponse<TestModel>>>>();
+
+        var chain = mockCosmosOperation
+            .SetupSequence(f => f());
+
+        for (var i = 0; i < retriesNeeded; i++)
+        {
+            chain.ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2));
+        }
+
+        //finally a success
+        chain.ReturnsAsync(response);
+
+        var sut = new TypedDocumentCosmosStore<TestDocument>(
+            _cosmosClient.Object,
+            _options,
+            retryOptions,
+            _mapper.Object,
+            _metricsRecorder.Object,
+            _lastUpdatedByResolver.Object,
+            _logger.Object);
+
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None, false);
+        
+        mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("Cosmos TooManyRequests retryCount")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Exactly(retriesNeeded)
+        );
+
+        //cannot extract request charge from TModel usage of FeedResponse
+        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", It.IsAny<double>()), Times.Never);
+    }
+    
     [Theory]
     [InlineData(2)]
     [InlineData(3)]
@@ -412,7 +539,7 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None, isResponseType: false);
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None, canExtractRequestCharge: false);
         
         mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
 

@@ -8,3 +8,10 @@ public class TestDocument : LastUpdatedByCosmosDocument
 {
     public string Name { get; set; }
 }
+
+public class TestModel
+{
+    public string Id { get; set; }
+    
+    public string Name { get; set; }
+}

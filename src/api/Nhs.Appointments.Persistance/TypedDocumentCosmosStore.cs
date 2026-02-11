@@ -105,7 +105,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId, string partitionKey)
     {
-        using var response = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)), CancellationToken.None, isResponseType: false);
+        using var response = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)), CancellationToken.None, canExtractRequestCharge: false);
         if (!response.IsSuccessStatusCode)
         {
             return default;
@@ -147,7 +147,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
             queryDefinition: query);
 
-        return await IterateResults(queryFeed, item => item);
+        return await IterateResults(queryFeed, item => item, canExtractRequestCharge: false);
     }
 
     public async Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches)
@@ -184,20 +184,20 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
      /// </summary>
      /// <param name="cosmosOperation">The action to perform on the Cosmos DB</param>
      /// <param name="cancellationToken">Cancellation token for the Task.Delay</param>
-     /// <param name="isResponseType">Whether the generic 'T' inherits Microsoft.Azure.Cosmos.Response type. This allows the recording of a request charge, if so.</param>
+     /// <param name="canExtractRequestCharge">Whether the generic 'T' inherits Microsoft.Azure.Cosmos.Response type using TDocument. This allows the recording of a request charge, if so.</param>
      /// <typeparam name="T">Generic Cosmos return type for the generic document</typeparam>
      /// <returns></returns>
      /// <exception cref="ArgumentOutOfRangeException">When BackoffRetryType configuration is not supported</exception>
      /// <exception cref="InvalidOperationException">When the totaled retry delay times exceed the allowed cutoff time window</exception>
      internal async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
-        Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default, bool isResponseType = true)
+        Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default, bool canExtractRequestCharge = true)
     {
         //don't retry if the container isn't configured for it
         if (ContainerRetryConfiguration == null)
         {
             var result = await cosmosOperation();
 
-            if (isResponseType)
+            if (canExtractRequestCharge)
             {
                 RecordQueryMetrics(ExtractRequestCharge(result));
             }
@@ -301,7 +301,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 $"Container '{ContainerName}' too many requests were exceeded for linkId: {linkId}");
         }
 
-        if (isResponseType)
+        if (canExtractRequestCharge)
         {
             totalRequestCharge += ExtractRequestCharge(retryResult);
             RecordQueryMetrics(totalRequestCharge);
@@ -321,7 +321,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     }
 
     private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed,
-        Func<TSource, TOutput> map)
+        Func<TSource, TOutput> map, bool canExtractRequestCharge = true)
     {
         var requestCharge = 0.0;
         var results = new List<TOutput>();
@@ -329,7 +329,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         {
             while (queryFeed.HasMoreResults)
             {
-                var resultSet = await Retry_CosmosOperation_OnTooManyRequests(async () => await queryFeed.ReadNextAsync(), CancellationToken.None);
+                var resultSet = await Retry_CosmosOperation_OnTooManyRequests(async () => await queryFeed.ReadNextAsync(), CancellationToken.None, canExtractRequestCharge);
                 results.AddRange(resultSet.Select(map));
                 requestCharge += resultSet.RequestCharge;
             }

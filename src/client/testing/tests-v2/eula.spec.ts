@@ -31,7 +31,7 @@ test('A user with an out of date EULA consent version is prompted with the EULA 
   await expect(page).toHaveURL(/.*\/eula/);
 });
 
-test('A user with an out of date EULA version...', async ({
+test('A user with an out of date EULA version is prompted with the EULA consent page on login, but not again after they have consented', async ({
   page,
   setUpSingleSite,
 }) => {

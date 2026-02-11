@@ -9,19 +9,19 @@ namespace Nhs.Appointments.Persistance.UnitTests;
 
 public class TypedDocumentCosmosStoreTests
 {
-    private readonly Mock<CosmosClient> _cosmosClient = new();
     private readonly Mock<Container> _container = new();
+    private readonly Mock<CosmosClient> _cosmosClient = new();
+    private readonly Mock<ILastUpdatedByResolver> _lastUpdatedByResolver = new();
+
+    private readonly Mock<ILogger<TestDocument>> _logger = new();
     private readonly Mock<IMapper> _mapper = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
-    private readonly Mock<ILastUpdatedByResolver> _lastUpdatedByResolver = new();
 
     private readonly IOptions<CosmosDataStoreOptions> _options =
         Options.Create(new CosmosDataStoreOptions { DatabaseName = "test-db" });
 
     private readonly IOptions<ContainerRetryOptions> _retryOptions =
         Options.Create(new ContainerRetryOptions { Configurations = [] });
-
-    private readonly Mock<ILogger<TestDocument>> _logger = new();
 
     private readonly TypedDocumentCosmosStore<TestDocument> _sut;
 
@@ -62,7 +62,8 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        var result = await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+        var result =
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Once);
@@ -80,9 +81,10 @@ public class TypedDocumentCosmosStoreTests
 
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 2.5), Times.Once);
     }
-    
+
     [Fact]
-    public async Task Retry_ItemResponse_OnTooManyRequests__OperationInvokedOnlyOnceIfNoRetryRequiredForOperationInContainer()
+    public async Task
+        Retry_ItemResponse_OnTooManyRequests__OperationInvokedOnlyOnceIfNoRetryRequiredForOperationInContainer()
     {
         var retryOptions = Options.Create(new ContainerRetryOptions
         {
@@ -119,7 +121,8 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        var result = await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+        var result =
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Once);
@@ -128,7 +131,9 @@ public class TypedDocumentCosmosStoreTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 1000")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 1000")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -177,7 +182,8 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        var result = await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+        var result =
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Exactly(2));
@@ -186,7 +192,9 @@ public class TypedDocumentCosmosStoreTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 100")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 100")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -196,7 +204,7 @@ public class TypedDocumentCosmosStoreTests
         //total of initial 2 exception, and 3.5 successful retry
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 5.5), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(2)]
     [InlineData(3)]
@@ -206,7 +214,9 @@ public class TypedDocumentCosmosStoreTests
     [InlineData(7)]
     [InlineData(8)]
     [InlineData(9)]
-    public async Task Retry_ItemResponse_OnTooManyRequests__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(int retriesNeeded)
+    public async Task
+        Retry_ItemResponse_OnTooManyRequests__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
+            int retriesNeeded)
     {
         var retryOptions = Options.Create(new ContainerRetryOptions
         {
@@ -237,7 +247,7 @@ public class TypedDocumentCosmosStoreTests
         {
             chain.ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2));
         }
-        
+
         //finally a success
         chain.ReturnsAsync(response);
 
@@ -250,7 +260,8 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        var result = await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+        var result =
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
@@ -269,9 +280,160 @@ public class TypedDocumentCosmosStoreTests
         //each exception = 2 x retires plus 3.5 successful
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", (2 * retriesNeeded) + 3.5), Times.Once);
     }
+
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    [InlineData(7)]
+    [InlineData(8)]
+    [InlineData(9)]
+    public async Task
+        Retry_FeedResponse_OnTooManyRequests__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
+            int retriesNeeded)
+    {
+        var retryOptions = Options.Create(new ContainerRetryOptions
+        {
+            Configurations =
+            [
+                new ContainerRetryConfiguration
+                {
+                    ContainerName = "test-container",
+                    BackoffRetryType = BackoffRetryType.Linear,
+                    CutoffRetryMs = 10,
+                    InitialValueMs = 1,
+                }
+            ]
+        });
+
+        var response = Mock.Of<FeedResponse<TestDocument>>(r =>
+            r.Resource == new List<TestDocument>
+            {
+                new() { Id = "123" }, new() { Id = "456" }, new() { Id = "789" },
+            } &&
+            r.StatusCode == HttpStatusCode.OK &&
+            r.RequestCharge == 3.5
+        );
+
+        var mockCosmosOperation = new Mock<Func<Task<FeedResponse<TestDocument>>>>();
+
+        var chain = mockCosmosOperation
+            .SetupSequence(f => f());
+
+        for (var i = 0; i < retriesNeeded; i++)
+        {
+            chain.ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2));
+        }
+
+        //finally a success
+        chain.ReturnsAsync(response);
+
+        var sut = new TypedDocumentCosmosStore<TestDocument>(
+            _cosmosClient.Object,
+            _options,
+            retryOptions,
+            _mapper.Object,
+            _metricsRecorder.Object,
+            _lastUpdatedByResolver.Object,
+            _logger.Object);
+
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+        
+        mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("Cosmos TooManyRequests retryCount")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Exactly(retriesNeeded)
+        );
+
+        //each exception = 2 x retires plus 3.5 successful
+        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", (2 * retriesNeeded) + 3.5), Times.Once);
+    }
+    
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    [InlineData(7)]
+    [InlineData(8)]
+    [InlineData(9)]
+    public async Task
+        Retry_ResponseMessage_OnTooManyRequests__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
+            int retriesNeeded)
+    {
+        var retryOptions = Options.Create(new ContainerRetryOptions
+        {
+            Configurations =
+            [
+                new ContainerRetryConfiguration
+                {
+                    ContainerName = "test-container",
+                    BackoffRetryType = BackoffRetryType.Linear,
+                    CutoffRetryMs = 10,
+                    InitialValueMs = 1,
+                }
+            ]
+        });
+
+        var response = Mock.Of<ResponseMessage>(r =>
+            r.StatusCode == HttpStatusCode.OK 
+        );
+        
+        var mockCosmosOperation = new Mock<Func<Task<ResponseMessage>>>();
+
+        var chain = mockCosmosOperation
+            .SetupSequence(f => f());
+
+        for (var i = 0; i < retriesNeeded; i++)
+        {
+            chain.ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2));
+        }
+
+        //finally a success
+        chain.ReturnsAsync(response);
+
+        var sut = new TypedDocumentCosmosStore<TestDocument>(
+            _cosmosClient.Object,
+            _options,
+            retryOptions,
+            _mapper.Object,
+            _metricsRecorder.Object,
+            _lastUpdatedByResolver.Object,
+            _logger.Object);
+
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None, isResponseType: false);
+        
+        mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
+
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("Cosmos TooManyRequests retryCount")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Exactly(retriesNeeded)
+        );
+
+        //Response Message does not record metrics
+        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", It.IsAny<double>()), Times.Never);
+    }
     
     [Fact]
-    public async Task Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__LinearBackoff()
+    public async Task
+        Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__LinearBackoff()
     {
         var retryOptions = Options.Create(new ContainerRetryOptions
         {
@@ -310,9 +472,9 @@ public class TypedDocumentCosmosStoreTests
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
-        
+
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
-        
+
         //initial attempt, plus 5 retries
         mockCosmosOperation.Verify(f => f(), Times.Exactly(6));
 
@@ -320,51 +482,61 @@ public class TypedDocumentCosmosStoreTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 100")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 100")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: 200")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: 200")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: 300")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: 300")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 4, for container: test-container, total delay time: 400")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 4, for container: test-container, total delay time: 400")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 5, for container: test-container, total delay time: 500")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 5, for container: test-container, total delay time: 500")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -374,9 +546,10 @@ public class TypedDocumentCosmosStoreTests
         //6x2
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 12), Times.Once);
     }
-    
+
     [Fact]
-    public async Task Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__GeometricBackoff()
+    public async Task
+        Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__GeometricBackoff()
     {
         var retryOptions = Options.Create(new ContainerRetryOptions
         {
@@ -413,9 +586,9 @@ public class TypedDocumentCosmosStoreTests
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
-        
+
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
-        
+
         //initial attempt, plus 4 retries
         mockCosmosOperation.Verify(f => f(), Times.Exactly(5));
 
@@ -423,40 +596,48 @@ public class TypedDocumentCosmosStoreTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 10")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: 10")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: 30")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: 30")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: 70")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: 70")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains("Cosmos TooManyRequests retryCount: 4, for container: test-container, total delay time: 150")
+                    state.ToString()
+                        .Contains(
+                            "Cosmos TooManyRequests retryCount: 4, for container: test-container, total delay time: 150")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -466,13 +647,15 @@ public class TypedDocumentCosmosStoreTests
         //5x2
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 10), Times.Once);
     }
-    
+
     [Theory]
     [InlineData(13, 35, 96, 261, 600)]
     [InlineData(10, 27, 73, 200, 500)]
     [InlineData(7, 19, 51, 140, 350)]
     [InlineData(5, 13, 36, 100, 250)]
-    public async Task Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__ExponentialBackoff(int initialValue, int expectedSecondValue, int expectedThirdValue, int expectedFourthValue, int cutoff)
+    public async Task
+        Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__ExponentialBackoff(
+            int initialValue, int expectedSecondValue, int expectedThirdValue, int expectedFourthValue, int cutoff)
     {
         var retryOptions = Options.Create(new ContainerRetryOptions
         {
@@ -509,49 +692,57 @@ public class TypedDocumentCosmosStoreTests
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
-        
+
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
-        
+
         mockCosmosOperation.Verify(f => f(), Times.Exactly(5));
 
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: {initialValue}")
+                    state.ToString()
+                        .Contains(
+                            $"Cosmos TooManyRequests retryCount: 1, for container: test-container, total delay time: {initialValue}")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: {initialValue + expectedSecondValue}")
+                    state.ToString()
+                        .Contains(
+                            $"Cosmos TooManyRequests retryCount: 2, for container: test-container, total delay time: {initialValue + expectedSecondValue}")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: {initialValue + expectedSecondValue + expectedThirdValue}")
+                    state.ToString()
+                        .Contains(
+                            $"Cosmos TooManyRequests retryCount: 3, for container: test-container, total delay time: {initialValue + expectedSecondValue + expectedThirdValue}")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
-        
+
         _logger.Verify(x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString().Contains($"Cosmos TooManyRequests retryCount: 4, for container: test-container, total delay time: {initialValue + expectedSecondValue + expectedThirdValue + expectedFourthValue}")
+                    state.ToString()
+                        .Contains(
+                            $"Cosmos TooManyRequests retryCount: 4, for container: test-container, total delay time: {initialValue + expectedSecondValue + expectedThirdValue + expectedFourthValue}")
                 ),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
@@ -564,7 +755,7 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void Valid_ContainerRetryOptions_ForTestDocumentContainer()
     {
-        var supportedRetryOptions = Options.Create(new ContainerRetryOptions()
+        var supportedRetryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
             [
@@ -593,7 +784,7 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void NotSupported_ContainerRetryOptions_NoCutoffOrInitial()
     {
-        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions()
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
             [
@@ -618,7 +809,7 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void NotSupported_ContainerRetryOptions_NoInitialValue()
     {
-        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions()
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
             [
@@ -643,7 +834,7 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void NotSupported_ContainerRetryOptions_NoCutoff()
     {
-        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions()
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
             [
@@ -668,7 +859,7 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void InvalidOperationException_ContainerRetryOptions_MultipleOptionsForSameContainer()
     {
-        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions()
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
             [
@@ -706,7 +897,7 @@ public class TypedDocumentCosmosStoreTests
     [Fact]
     public void ContainerRetryOptions_ForDifferentContainer()
     {
-        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions()
+        var unsupportedRetryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
             [

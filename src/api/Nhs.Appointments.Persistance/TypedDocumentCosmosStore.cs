@@ -199,7 +199,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
             if (isResponseType)
             {
-                RecordQueryMetrics((result as Response<TDocument>)!.RequestCharge);
+                RecordQueryMetrics(ExtractRequestCharge(result));
             }
             
             return result;
@@ -212,7 +212,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
         var delayMs = ContainerRetryConfiguration.InitialValueMs;
         var totalDelayMs = 0;
-        T retryResult = default(T);
+        var retryResult = default(T);
         //log metrics for total request charge for the initial attempt, and any retries required
         double totalRequestCharge = 0;
 
@@ -303,13 +303,23 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
         if (isResponseType)
         {
-            totalRequestCharge += (retryResult as Response<TDocument>)!.RequestCharge;
+            totalRequestCharge += ExtractRequestCharge(retryResult);
             RecordQueryMetrics(totalRequestCharge);
         }
 
         return retryResult;
     }
-    
+
+    private double ExtractRequestCharge<T>(T result)
+    {
+        return result switch
+        {
+            Response<TDocument> itemResponse => itemResponse.RequestCharge,
+            Response<IEnumerable<TDocument>> listResponse => listResponse.RequestCharge,
+            _ => throw new InvalidOperationException()
+        };
+    }
+
     private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed,
         Func<TSource, TOutput> map)
     {

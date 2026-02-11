@@ -13,7 +13,12 @@ test('A user loads home page, only sites with same scope are loaded', async ({
   });
 
   const site1 = buildE2ETestSite(testId);
-  const site2Id = additionalUserIds.get('0')!; 
+  const site2Id = additionalUserIds.get('0');
+
+  if (site2Id === undefined) {
+      throw new Error('Expected site2Id to be defined in additionalUserIds');
+  }
+
   const site2 = buildE2ETestSite(site2Id);
 
   await page.goto('/');
@@ -38,7 +43,12 @@ test('An admin user loads home page, all sites are loaded', async ({
   });
 
   const site1 = buildE2ETestSite(testId);
-  const site2Id = additionalUserIds.get('0')!; 
+  const site2Id = additionalUserIds.get('0');
+
+  if (site2Id === undefined) {
+      throw new Error('Expected site2Id to be defined in additionalUserIds');
+  }
+
   const site2 = buildE2ETestSite(site2Id);
 
   await expect(page.getByRole('cell', { name: site1.name, exact: true })).toBeVisible();

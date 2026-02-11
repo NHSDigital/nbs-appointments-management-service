@@ -166,7 +166,6 @@ export const test = base.extend<MyaFixtures>({
       // It allows the app to go to either the EULA or the Sites page.
       await page.waitForURL(/\/sites|\/eula/);
 
-      let siteSelectionPage: SiteSelectionPage | undefined;
       let sitePage: SitePage | undefined;
 
       // 3. Logic: Only try to select a site if we aren't on the EULA page

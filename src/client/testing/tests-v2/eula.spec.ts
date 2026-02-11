@@ -4,7 +4,7 @@ import { buildE2ETestUser } from '@e2etests/data';
 
 test.describe.configure({ mode: 'serial' });
 
-const STALE_EULA_DATE: string = '2000-01-01';
+const STALE_EULA_DATE = '2000-01-01';
 
 test('A user with an out of date EULA consent version is prompted with the EULA consent page', async ({
   page,

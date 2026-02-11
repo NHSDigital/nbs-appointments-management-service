@@ -3,64 +3,64 @@ import { buildE2ETestSite } from '@e2etests/data';
 
 test.describe.configure({ mode: 'serial' });
 
-//test.describe('Home Page Access Control', () => {
-
-  test('A user loads home page, only sites with same scope are loaded', async ({ 
-    page, 
-    setUpSingleSite 
-  }) => {
-    // We create a primary site and a secondary "restricted" site
-    const { testId, additionalUserIds } = await setUpSingleSite({
-      roles: ['canned:availability-manager'],
-      additionalUsers: [{ roles: ['canned:availability-manager'] }] 
-    });
-
-    const site1 = buildE2ETestSite(testId);
-    const site2Id = additionalUserIds.get('0')!; 
-    const site2 = buildE2ETestSite(site2Id);
-
-    // Assertions: site1 visible, site2 hidden (different scope)
-    await expect(page.getByRole('cell').filter({ hasText: site1.name })).toBeVisible();
-    await expect(page.getByRole('cell').filter({ hasText: site2.name })).not.toBeVisible();
+test('A user loads home page, only sites with same scope are loaded', async ({ 
+  page, 
+  setUpSingleSite 
+}) => {
+  const { testId, additionalUserIds } = await setUpSingleSite({
+    roles: ['canned:availability-manager'],
+    additionalUsers: [{ roles: ['canned:availability-manager'] }] 
   });
 
-  test('An admin user loads home pasge, all sites are loaded', async ({ 
-    setUpSingleSite,
-    page 
-  }) => {
-    // Using multiple manager roles to simulate high-level access
-    const { testId } = await setUpSingleSite({
-      roles: [
-        'canned:availability-manager', 
-        'canned:user-manager', 
-        'canned:site-details-manager'
-      ]
-    });
+  const site1 = buildE2ETestSite(testId);
+  const site2Id = additionalUserIds.get('0')!; 
+  const site2 = buildE2ETestSite(site2Id);
 
-    const site1 = buildE2ETestSite(testId);
-    await expect(page.getByRole('cell').filter({ hasText: site1.name })).toBeVisible();
+  await page.goto('/');
+
+  await expect(page.getByRole('cell').filter({ hasText: site2.name })).not.toBeVisible();
+  await expect(page.getByRole('cell').filter({ hasText: site1.name })).toBeVisible();
+});
+
+test('An admin user loads home page, all sites are loaded', async ({ 
+  setUpSingleSite,
+  page 
+}) => {
+  // Create sites and skip selection so we land on the list
+  const { testId, additionalUserIds } = await setUpSingleSite({
+    roles: [
+      'system:admin-user', // Use the correctly typed system role
+      'canned:availability-manager', 
+      'canned:user-manager', 
+    ],
+    additionalUsers: [{ roles: ['canned:availability-manager'] }],
+    skipSiteSelection: true
   });
 
-  test('A user searches for a site, site list is filtered', async ({ 
-    page, 
-    setUpSingleSite 
-  }) => {
-    const targetName = 'Robin Lane Medical Centre';
-    const { testId } = await setUpSingleSite({
-      siteConfig: { name: targetName }
-    });
-    
-    // The fixture logs us in and selects the site. 
-    // To test the home page search, we may need to navigate back to the list.
-    await page.goto('/'); 
+  const site1 = buildE2ETestSite(testId);
+  const site2Id = additionalUserIds.get('0')!; 
+  const site2 = buildE2ETestSite(site2Id);
 
-    const searchInput = page.getByRole('textbox', {
-      name: 'Search active sites by name or ODS code',
-    });
-    
-    await searchInput.fill('Church'); // Searching for something else
-    await page.getByRole('button', { name: 'Search' }).click();
+  await expect(page.getByRole('cell', { name: site1.name, exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: site2.name, exact: true })).toBeVisible();
+});
 
-    await expect(page.getByRole('cell', { name: targetName })).not.toBeVisible();
+test('A user searches for a site, site list is filtered', async ({ 
+  page, 
+  setUpSingleSite 
+}) => {
+  const targetName = 'Robin Lane Medical Centre';
+  await setUpSingleSite({
+    siteConfig: { name: targetName },
+    skipSiteSelection: true // Stay on the list to use the search bar
   });
-//});
+  
+  const searchInput = page.getByRole('textbox', {
+    name: 'Search active sites by name or ODS code',
+  });
+  
+  await searchInput.fill('Church'); 
+  await page.getByRole('button', { name: 'Search' }).click();
+
+  await expect(page.getByRole('cell', { name: targetName })).not.toBeVisible();
+});

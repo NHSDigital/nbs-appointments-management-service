@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { CosmosClient } from '@azure/cosmos';
-import { Role, SiteDocument } from '@e2etests/types';
+import { Role, SiteDocument, UserDocument } from '@e2etests/types';
 import { buildSiteDocument, buildUserDocument } from '@e2etests/data';
 
 class CosmosDbClient {
@@ -53,8 +53,9 @@ class CosmosDbClient {
     }
   }
 
-  public async createUser(testId: number, roles: Role[]) {
-    const userDocument = buildUserDocument(testId, roles);
+  public async createUser(testId: number, roles: Role[], userConfig?: Partial<UserDocument>) {
+    // Merge the default buildUserDocument with our custom userConfig
+    const userDocument = { ...buildUserDocument(testId, roles), ...userConfig };
 
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
@@ -62,7 +63,7 @@ class CosmosDbClient {
       partitionKey: { paths: ['/docType'] },
     });
     await container.items.upsert(userDocument);
-    console.log(`Written user: ${userDocument.id} to Cosmos DB.`);
+    console.log(`Written user: ${userDocument.id} with EULA v${userDocument.latestAcceptedEulaVersion} to Cosmos DB.`);
   }
 
   public async deleteUser(testId: number) {

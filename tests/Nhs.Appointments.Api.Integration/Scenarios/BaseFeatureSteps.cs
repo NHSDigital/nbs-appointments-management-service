@@ -1,3 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoMapper;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -13,15 +22,6 @@ using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
 using Feature = Xunit.Gherkin.Quick.Feature;
@@ -34,33 +34,36 @@ public abstract partial class BaseFeatureSteps : Feature
     public enum BookingType { Recent, Confirmed, Provisional, ExpiredProvisional, Orphaned, Cancelled }
 
     protected const string DefaultSiteId = "beeae4e0-dd4a-4e3a-8f4d-738f9418fb51";
-    
+
     protected const string ApiSigningKey =
         "2EitbEouxHQ0WerOy3TwcYxh3/wZA0LaGrU1xpKg0KJ352H/mK0fbPtXod0T0UCrgRHyVjF6JfQm/LillEZyEA==";
 
     private const string AppointmentsApiUrl = "http://localhost:7071/api";
-
-    /// <summary>
-    /// A long lat that does not interfere with site location tests
-    /// </summary>
-    protected Location OutOfTheWayLocation => new("Point", [-60d, -60d]);
-
-    protected readonly Guid _testId = Guid.NewGuid();
-    protected readonly CosmosClient Client;
-    private readonly HttpClient _defaultHttpClient;
-    protected readonly Mapper Mapper;
-    protected List<BookingDocument> MadeBookings = new();
     protected readonly Dictionary<int, string> _bookingReferences = new();
-    protected readonly string _userId = "api@test";
-    protected HttpResponseMessage _response { get; set; }
-    protected HttpStatusCode _statusCode;
 
-    
     /// <summary>
-    /// Http client desired for a specific test case
+    ///     Http client desired for a specific test case
     /// </summary>
     protected readonly Dictionary<Guid, HttpClient> _customTestHttpClients = new();
-    
+
+    private readonly HttpClient _defaultHttpClient;
+
+    protected readonly Guid _testId = Guid.NewGuid();
+    protected readonly string _userId = "api@test";
+
+    //THIS STAYS PRIVATE. Use or add to the CosmosRead,CosmosPatch,CosmosUpsert,..., methods if more functionality needed...
+    private readonly CosmosClient Client;
+
+    protected readonly Mapper Mapper;
+    protected HttpStatusCode _statusCode;
+
+    protected ContainerRetryConfiguration BaseRetryOptions = new()
+    {
+        BackoffRetryType = BackoffRetryType.Exponential, CutoffRetryMs = 10000, InitialValueMs = 200,
+    };
+
+    protected List<BookingDocument> MadeBookings = new();
+
     public BaseFeatureSteps()
     {
         CosmosClientOptions options = new()
@@ -72,7 +75,8 @@ public abstract partial class BaseFeatureSteps : Feature
             }),
             Serializer = new CosmosJsonSerializer(),
             ConnectionMode = ConnectionMode.Gateway,
-            LimitToEndpoint = true
+            LimitToEndpoint = true,
+            MaxRetryAttemptsOnRateLimitedRequests = 0
         };
 
         var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
@@ -92,48 +96,125 @@ public abstract partial class BaseFeatureSteps : Feature
         });
         Mapper = new Mapper(mapperConfiguration);
     }
-    
-    /// <summary>
-    /// Setting up test data for scenarios can sometimes overload CosmosDB
-    /// Add a backoff retry if the data isn't written
-    /// </summary>
-    protected async Task CosmosAction_RetryOnTooManyRequests<T>(
-        CosmosAction cosmosAction,
-        Container container, 
-        T item,
-        PartitionKey? partitionKey = null,
-        ItemRequestOptions requestOptions = null,
-        CancellationToken cancellationToken = default)
-    {
-        var maxRetries = 5;
-        var delay = 100;
-        var backoffFactor = 2;
 
-        var attempt = 1; 
-        
-        while (attempt <= maxRetries)
+    /// <summary>
+    ///     A long lat that does not interfere with site location tests
+    /// </summary>
+    protected Location OutOfTheWayLocation => new("Point", [-60d, -60d]);
+
+    protected HttpResponseMessage _response { get; set; }
+
+    protected string NhsNumber { get; private set; } = CreateRandomTenCharacterString();
+
+    protected string GetTestId => $"{_testId}";
+
+    public BookingReferenceManager BookingReferences { get; } = new();
+
+    internal async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
+        Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default)
+    {
+        var retryRequired = true;
+        var cutoffExceeded = false;
+
+        var retryCount = 0;
+
+        var customDelayMs = TimeSpan.FromMilliseconds(BaseRetryOptions.InitialValueMs);
+        var customCutoffMs = TimeSpan.FromMilliseconds(BaseRetryOptions.CutoffRetryMs);
+
+        var totalDelayMs = TimeSpan.FromMilliseconds(0);
+        var retryResult = default(T);
+        //log metrics for total request charge for the initial attempt, and any retries required
+        double totalRequestCharge = 0;
+
+        //used for exponential only
+        double exponent = 0;
+
+        //default cosmos can error out before the cutoff reached
+        var defaultCosmosTooManyAttempts = false;
+
+        switch (BaseRetryOptions.BackoffRetryType)
+        {
+            case BackoffRetryType.CosmosDefault:
+            case BackoffRetryType.Linear:
+            case BackoffRetryType.GeometricDouble:
+                //no work to do
+                break;
+            case BackoffRetryType.Exponential:
+                //derive initial exponent needed to increment next delays, using the provided initial value
+                exponent = Math.Log(BaseRetryOptions.InitialValueMs);
+
+                //increment for next usage
+                exponent++;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        while (retryRequired && !cutoffExceeded)
         {
             try
             {
-                switch (cosmosAction)
-                {
-                    case CosmosAction.Create:
-                        await container.CreateItemAsync(item, partitionKey, requestOptions, cancellationToken);
-                        return;
-                    case CosmosAction.Upsert:
-                        await container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken);
-                        return;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(cosmosAction), cosmosAction, null);
-                }
+                retryResult = await cosmosOperation();
+
+                //if we get to here, there wasn't a cosmos exception, so no need to retry
+                retryRequired = false;
             }
             catch (CosmosException ex)
             {
+                totalRequestCharge += ex.RequestCharge;
+
                 if (ex.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    await Task.Delay(delay, cancellationToken);
-                    delay *= backoffFactor;
-                    attempt++;
+                    if (BaseRetryOptions.BackoffRetryType == BackoffRetryType.CosmosDefault &&
+                        !ex.RetryAfter.HasValue)
+                    {
+                        throw new InvalidOperationException(
+                            "TooManyRequests exception does not have a RetryAfter value");
+                    }
+
+                    var nextRetryDelayMs = BaseRetryOptions.BackoffRetryType == BackoffRetryType.CosmosDefault
+                        ? ex.RetryAfter!.Value
+                        : customDelayMs;
+
+                    //if cosmos and current retry was the last allowed, break out
+                    if (BaseRetryOptions.BackoffRetryType == BackoffRetryType.CosmosDefault && retryCount == 9)
+                    {
+                        defaultCosmosTooManyAttempts = true;
+                        break;
+                    }
+
+                    //only perform a delay if a retry is required for the next attempt
+                    if (totalDelayMs + nextRetryDelayMs <= customCutoffMs)
+                    {
+                        retryCount++;
+
+                        await Task.Delay(nextRetryDelayMs, cancellationToken);
+
+                        //keep a running total delay time for this cosmosOperation
+                        totalDelayMs += nextRetryDelayMs;
+
+                        switch (BaseRetryOptions.BackoffRetryType)
+                        {
+                            case BackoffRetryType.CosmosDefault:
+                            case BackoffRetryType.Linear:
+                                //do nothing
+                                break;
+                            case BackoffRetryType.Exponential:
+                                //increment the exponent to derive next delay value needed for exponential backoff
+                                customDelayMs = TimeSpan.FromMilliseconds((int)Math.Floor(Math.Exp(exponent++)));
+                                break;
+                            case BackoffRetryType.GeometricDouble:
+                                //double delay time between retries
+                                customDelayMs *= 2;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                    else
+                    {
+                        cutoffExceeded = true;
+                    }
                 }
                 else
                 {
@@ -141,13 +222,76 @@ public abstract partial class BaseFeatureSteps : Feature
                 }
             }
         }
+
+        return retryResult;
     }
 
-    protected string NhsNumber { get; private set; } = CreateRandomTenCharacterString();
+    /// <summary>
+    ///     Setting up test data for scenarios can sometimes overload CosmosDB
+    ///     Add a backoff retry if the data isn't written
+    /// </summary>
+    protected async Task CosmosUpsert<T>(
+        CosmosUpsertAction cosmosUpsertAction,
+        string containerName,
+        T item,
+        PartitionKey? partitionKey = null,
+        ItemRequestOptions requestOptions = null,
+        CancellationToken cancellationToken = default)
+    {
+        var container = Client.GetContainer("appts", containerName);
+        switch (cosmosUpsertAction)
+        {
+            case CosmosUpsertAction.Create:
+                await Retry_CosmosOperation_OnTooManyRequests(
+                    async () => await container.CreateItemAsync(item, partitionKey, requestOptions, cancellationToken),
+                    cancellationToken);
+                break;
+            case CosmosUpsertAction.Upsert:
+                await Retry_CosmosOperation_OnTooManyRequests(
+                    async () => await container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken),
+                    cancellationToken);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(cosmosUpsertAction), cosmosUpsertAction, null);
+        }
+    }
 
-    protected string GetTestId => $"{_testId}";
+    protected async Task<ItemResponse<T>> CosmosReadItem<T>(
+        string containerName,
+        string id,
+        PartitionKey partitionKey,
+        CancellationToken cancellationToken = default)
+    {
+        var container = Client.GetContainer("appts", containerName);
+        return await Retry_CosmosOperation_OnTooManyRequests(
+            async () => await container.ReadItemAsync<T>(id, partitionKey, null, cancellationToken),
+            cancellationToken);
+    }
 
-    public BookingReferenceManager BookingReferences { get; } = new();
+    protected async Task CosmosPatchItem<T>(
+        string containerName,
+        string id,
+        PartitionKey partitionKey,
+        IReadOnlyList<PatchOperation> patches,
+        CancellationToken cancellationToken = default)
+    {
+        var container = Client.GetContainer("appts", containerName);
+        await Retry_CosmosOperation_OnTooManyRequests(
+            async () => await container.PatchItemAsync<T>(id, partitionKey, patches, null, cancellationToken),
+            cancellationToken);
+    }
+
+    protected async Task CosmosDeleteItem<T>(
+        string containerName,
+        string id,
+        PartitionKey partitionKey,
+        CancellationToken cancellationToken = default)
+    {
+        var container = Client.GetContainer("appts", containerName);
+        await Retry_CosmosOperation_OnTooManyRequests(
+            async () => await container.DeleteItemAsync<T>(id, partitionKey, null, cancellationToken),
+            cancellationToken);
+    }
 
     protected string GetContactInfo(ContactItemType type) => type switch
     {
@@ -156,7 +300,7 @@ public abstract partial class BaseFeatureSteps : Feature
         ContactItemType.Phone => $"07777{NhsNumber.Substring(0, 6)}",
         _ => throw new ArgumentOutOfRangeException()
     };
-    
+
     [When("I register and use a http client with details")]
     [And("I register and use a http client with details")]
     public async Task RegisterTestUserAndClient(DataTable httpClientDetails)
@@ -165,13 +309,13 @@ public abstract partial class BaseFeatureSteps : Feature
         var httpUserAssignment = httpClientDetails.Rows.Skip(1).Take(1).Single();
 
         var userId = CreateUniqueTestValue(httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "User Id"));
-        
+
         if (string.IsNullOrEmpty(userId) || userId != userId.ToLower())
         {
             //our user bulk import lowers everything, and permissions check depends on casing
             throw new ArgumentException("'User Id' has to be provided and be lower case");
         }
-        
+
         var eulaAcceptedDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var eulaAcceptedDateString = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Eula Accepted Date");
 
@@ -179,24 +323,26 @@ public abstract partial class BaseFeatureSteps : Feature
         {
             eulaAcceptedDate = NaturalLanguageDate.Parse(eulaAcceptedDateString);
         }
-        
+
         var userDocument = new UserDocument
         {
             Id = $"api@{userId}",
             ApiSigningKey = ApiSigningKey,
             DocumentType = "user",
-            RoleAssignments = [
+            RoleAssignments =
+            [
                 new RoleAssignment
-                    { 
-                        Role = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Role", "system:integration-test-user"), 
-                        Scope = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Scope", "global") 
-                    }
+                {
+                    Role = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Role",
+                        "system:integration-test-user"),
+                    Scope = httpClientDetails.GetRowValueOrDefault(httpUserAssignment, "Scope", "global")
+                }
             ],
             LatestAcceptedEulaVersion = eulaAcceptedDate
         };
-       
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), userDocument);
-        
+
+        await CosmosUpsert(CosmosUpsertAction.Upsert, "core_data", userDocument);
+
         var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
         requestSigner.InnerHandler = new HttpClientHandler();
         var newTestClient = new HttpClient(requestSigner);
@@ -205,8 +351,8 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     /// <summary>
-    /// If a custom http client has been registered for a specific test, return it
-    /// Else, use the default client
+    ///     If a custom http client has been registered for a specific test, return it
+    ///     Else, use the default client
     /// </summary>
     /// <returns></returns>
     protected HttpClient GetHttpClientForTest()
@@ -217,13 +363,8 @@ public abstract partial class BaseFeatureSteps : Feature
     [Given("the site is configured for MYA")]
     public async Task SetupSite()
     {
-        var site = new SiteDocument
-        {
-            Id = GetSiteId(),
-            DocumentType = "site",
-            Location = OutOfTheWayLocation
-        };
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
+        var site = new SiteDocument { Id = GetSiteId(), DocumentType = "site", Location = OutOfTheWayLocation };
+        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
     }
 
     // TODO: Added for BulkImport tests as it requires a valid Guid
@@ -241,17 +382,18 @@ public abstract partial class BaseFeatureSteps : Feature
             Region = "R1",
             Location = OutOfTheWayLocation
         };
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
+        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
     }
 
     protected async Task SetLocalFeatureToggleOverride(string name, string state)
     {
-        var response = await _defaultHttpClient.PatchAsync($"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
+        var response = await _defaultHttpClient.PatchAsync(
+            $"{AppointmentsApiUrl}/feature-flag-override/{name}?enabled={state}",
             null);
 
         response.EnsureSuccessStatusCode();
     }
-    
+
     [Given("the following sessions exist for existing site '(.+)'")]
     [And("the following sessions exist for existing site '(.+)'")]
     public async Task SetupSessionsForSite(string site, DataTable dataTable)
@@ -269,13 +411,8 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected async Task SetupSite(string siteId)
     {
-        var site = new SiteDocument
-        {
-            Id = siteId,
-            DocumentType = "site",
-            Location = OutOfTheWayLocation
-        };
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
+        var site = new SiteDocument { Id = siteId, DocumentType = "site", Location = OutOfTheWayLocation };
+        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
     }
 
     public async Task SetupSessions(string siteDesignation, DataTable dataTable)
@@ -284,7 +421,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable).ToList();
         foreach (var document in availabilityDocuments)
         {
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), document);
+            await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", document);
         }
     }
 
@@ -300,7 +437,7 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     protected IEnumerable<DailyAvailabilityDocument> DailyAvailabilityDocumentsFromTable(string site,
-    DataTable dataTable)
+        DataTable dataTable)
     {
         var sessions = dataTable.Rows.Skip(1).Select((row, index) => new DailyAvailabilityDocument
         {
@@ -360,7 +497,7 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         await SetupBookings(DefaultSiteId, dataTable, BookingType.Confirmed);
     }
-    
+
     [Given("the following bookings have been made for site '(.+)'")]
     [And("the following bookings have been made for site '(.+)'")]
     public async Task SetupBookingsForSite(string site, DataTable dataTable)
@@ -397,7 +534,7 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following orphaned bookings exist")]
     public async Task SetupOrphanedBookings(DataTable dataTable) =>
         await SetupBookings(DefaultSiteId, dataTable, BookingType.Orphaned);
-    
+
     [And("the following orphaned bookings exist for site '(.+)'")]
     public async Task SetupOrphanedBookingsForSite(string site, DataTable dataTable) =>
         await SetupBookings(site, dataTable, BookingType.Orphaned);
@@ -494,14 +631,14 @@ public abstract partial class BaseFeatureSteps : Feature
             return (booking, bookingIndex);
         });
     }
-    
+
     [And("the following bookings exist")]
     public async Task CreateBookings(DataTable dataTable)
     {
         foreach (var bookingAndIndex in BuildBookingAndIndexDocumentsFromDataTable(dataTable))
         {
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), bookingAndIndex.booking);
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "index_data"), bookingAndIndex.bookingIndex);
+            await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", bookingAndIndex.booking);
+            await CosmosUpsert(CosmosUpsertAction.Create, "index_data", bookingAndIndex.bookingIndex);
             MadeBookings.Add(bookingAndIndex.booking);
         }
     }
@@ -520,9 +657,8 @@ public abstract partial class BaseFeatureSteps : Feature
             var siteId = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
             defaultReferenceOffset += 1;
 
-
-            var booking = await Client.GetContainer("appts", "booking_data")
-                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+            var booking = await CosmosReadItem<BookingDocument>("booking_data",
+                bookingReference, new PartitionKey(siteId), CancellationToken.None);
 
             booking.Should().NotBeNull();
 
@@ -543,10 +679,11 @@ public abstract partial class BaseFeatureSteps : Feature
             {
                 booking.Resource.AdditionalData.Should().BeEquivalentTo(JObject.FromObject(additionalData));
             }
-            
+
             await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
         }
     }
+
     protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
@@ -617,19 +754,19 @@ public abstract partial class BaseFeatureSteps : Feature
 
         foreach (var booking in bookings)
         {
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), booking);
+            await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", booking);
         }
 
         foreach (var bookingIndex in bookingIndexDocuments)
         {
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "index_data"), bookingIndex);
+            await CosmosUpsert(CosmosUpsertAction.Create, "index_data", bookingIndex);
         }
 
         MadeBookings.AddRange(bookings);
     }
 
     /// <summary>
-    /// Create a test value that has the testId run suffixed, so that it is unique to that test run
+    ///     Create a test value that has the testId run suffixed, so that it is unique to that test run
     /// </summary>
     protected string CreateUniqueTestValue(string value)
     {
@@ -692,16 +829,18 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
 
         var exception = await Assert.ThrowsAsync<CosmosException>(async () =>
-            await Client.GetContainer("appts", "booking_data")
-                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId)));
+            await CosmosReadItem<BookingDocument>("booking_data",
+                bookingReference, new PartitionKey(siteId), CancellationToken.None));
+
         exception.Message.Should().Contain("404");
 
         exception = await Assert.ThrowsAsync<CosmosException>(async () =>
-            await Client.GetContainer("appts", "index_data")
-                .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index")));
+            await CosmosReadItem<BookingIndexDocument>("index_data", bookingReference,
+                new PartitionKey("booking_index")));
+
         exception.Message.Should().Contain("404");
     }
-    
+
     [And("the booking with reference '(.+)' should be deleted")]
     [Then("the booking with reference '(.+)' should be deleted")]
     public async Task AssertBookingDeleted(string bookingReference)
@@ -710,13 +849,12 @@ public abstract partial class BaseFeatureSteps : Feature
         var customId = CreateUniqueTestValue(bookingReference);
 
         var exception = await Assert.ThrowsAsync<CosmosException>(async () =>
-            await Client.GetContainer("appts", "booking_data")
-                .ReadItemAsync<BookingDocument>(customId, new PartitionKey(siteId)));
+            await CosmosReadItem<BookingDocument>("booking_data", customId, new PartitionKey(siteId),
+                CancellationToken.None));
         exception.Message.Should().Contain("404");
 
         exception = await Assert.ThrowsAsync<CosmosException>(async () =>
-            await Client.GetContainer("appts", "index_data")
-                .ReadItemAsync<BookingIndexDocument>(customId, new PartitionKey("booking_index")));
+            await CosmosReadItem<BookingIndexDocument>("index_data", customId, new PartitionKey("booking_index")));
         exception.Message.Should().Contain("404");
     }
 
@@ -728,34 +866,35 @@ public abstract partial class BaseFeatureSteps : Feature
         var expectedStatus = Enum.Parse<AvailabilityStatus>(status);
         await AssertAvailabilityStatusByReference(customId, expectedStatus, false);
     }
-    
+
     [Then("the '(.+)' document with id '(.+)' and partition '(.+)' has lastUpdatedBy '(.+)'")]
     [And("the '(.+)' document with id '(.+)' and partition '(.+)' has lastUpdatedBy '(.+)'")]
     public async Task AssertLastUpdatedBy(string container, string id, string partition, string lastUpdatedBy)
     {
-        var lastUpdatedByDocument = await Client.GetContainer("appts", container)
-            .ReadItemAsync<LastUpdatedByCosmosDocument>(id, new PartitionKey(partition));
+        var lastUpdatedByDocument =
+            await CosmosReadItem<LastUpdatedByCosmosDocument>(container, id, new PartitionKey(partition),
+                CancellationToken.None);
 
         //if lastUpdatedBy is the default api@test value, do not create unique test value
         var expectedLastUpdatedBy = lastUpdatedBy == _userId ? _userId : CreateUniqueTestValue(lastUpdatedBy);
-        
+
         lastUpdatedByDocument.Resource.LastUpdatedBy.Should().Be(expectedLastUpdatedBy);
     }
-    
+
     [Then("the user document with id '(.+)' has lastUpdatedBy '(.+)'")]
     [And("the user document with id '(.+)' has lastUpdatedBy '(.+)'")]
     public async Task AssertUserLastUpdatedBy(string userId, string lastUpdatedBy)
     {
         await AssertLastUpdatedBy("core_data", CreateUniqueTestValue(userId), "user", lastUpdatedBy);
     }
-    
+
     [Then("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
     [And("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
     public async Task AssertSiteLastUpdatedBy(string siteId, string lastUpdatedBy)
     {
         await AssertLastUpdatedBy("core_data", GetSiteId(siteId), "site", lastUpdatedBy);
     }
-    
+
     [Then("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
     [And("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
     public async Task AssertBookingLastUpdatedBy(string reference, string lastUpdatedBy)
@@ -823,10 +962,7 @@ public abstract partial class BaseFeatureSteps : Feature
                 kind = "booked",
                 attendeeDetails = new
                 {
-                    nhsNumber = NhsNumber,
-                    firstName = "John",
-                    lastName = "Doe",
-                    dateOfBirth = "1987-03-13"
+                    nhsNumber = NhsNumber, firstName = "John", lastName = "Doe", dateOfBirth = "1987-03-13"
                 }
             };
             _response = await _defaultHttpClient.PostAsJsonAsync("http://localhost:7071/api/booking", payload);
@@ -847,8 +983,9 @@ public abstract partial class BaseFeatureSteps : Feature
         var date = NaturalLanguageDate.Parse(dateString);
         var documentId = date.ToString("yyyyMMdd");
 
-        var dayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<DailyAvailabilityDocument>(documentId, new PartitionKey(GetSiteId()));
+        var dayAvailabilityDocument =
+            await CosmosReadItem<DailyAvailabilityDocument>("booking_data", documentId, new PartitionKey(GetSiteId()),
+                CancellationToken.None);
 
         dayAvailabilityDocument.Resource.Sessions.Length.Should().Be(0);
     }
@@ -856,30 +993,33 @@ public abstract partial class BaseFeatureSteps : Feature
     [Given("the following sites exist in the system")]
     public async Task SetUpSites(DataTable dataTable)
     {
-        var sites = dataTable.Rows.Skip(1).Select(
-            row => new SiteDocument
-            {
-                Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site")),
-                Name = dataTable.GetRowValueOrDefault(row, "Name"),
-                Address = dataTable.GetRowValueOrDefault(row, "Address"),
-                PhoneNumber = dataTable.GetRowValueOrDefault(row, "PhoneNumber"),
-                OdsCode = dataTable.GetRowValueOrDefault(row, "OdsCode"),
-                Region = dataTable.GetRowValueOrDefault(row, "Region"),
-                IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB"),
-                InformationForCitizens = dataTable.GetRowValueOrDefault(row, "InformationForCitizens"),
-                DocumentType = "site",
-                Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Accessibilities")),
-                Location = new Location("Point",
-                    new[] { dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d), dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d) }),
-                Type = dataTable.GetRowValueOrDefault(row, "Type"),
-                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
-                Status = dataTable.GetEnumRowValueOrDefault<SiteStatus>(row, "Status"),
-                LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
-            });
+        var sites = dataTable.Rows.Skip(1).Select(row => new SiteDocument
+        {
+            Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site")),
+            Name = dataTable.GetRowValueOrDefault(row, "Name"),
+            Address = dataTable.GetRowValueOrDefault(row, "Address"),
+            PhoneNumber = dataTable.GetRowValueOrDefault(row, "PhoneNumber"),
+            OdsCode = dataTable.GetRowValueOrDefault(row, "OdsCode"),
+            Region = dataTable.GetRowValueOrDefault(row, "Region"),
+            IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB"),
+            InformationForCitizens = dataTable.GetRowValueOrDefault(row, "InformationForCitizens"),
+            DocumentType = "site",
+            Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Accessibilities")),
+            Location = new Location("Point",
+                new[]
+                {
+                    dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d),
+                    dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d)
+                }),
+            Type = dataTable.GetRowValueOrDefault(row, "Type"),
+            IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Status = dataTable.GetEnumRowValueOrDefault<SiteStatus>(row, "Status"),
+            LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
+        });
 
         foreach (var site in sites)
         {
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
+            await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
         }
     }
 
@@ -887,43 +1027,46 @@ public abstract partial class BaseFeatureSteps : Feature
     [Given("the following sites with valid Guid IDs exist in the system")]
     public async Task SetupSitesWithValidGuidIds(DataTable dataTable)
     {
-        var sites = dataTable.Rows.Skip(1).Select(
-            row => new SiteDocument
-            {
-                Id = dataTable.GetRowValueOrDefault(row, "Site"),
-                Name = dataTable.GetRowValueOrDefault(row, "Name"),
-                Address = dataTable.GetRowValueOrDefault(row, "Address"),
-                PhoneNumber = dataTable.GetRowValueOrDefault(row, "PhoneNumber"),
-                OdsCode = dataTable.GetRowValueOrDefault(row, "OdsCode"),
-                Region = dataTable.GetRowValueOrDefault(row, "Region"),
-                IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB"),
-                InformationForCitizens = dataTable.GetRowValueOrDefault(row, "InformationForCitizens"),
-                DocumentType = "site",
-                Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Accessibilities")),
-                Location = new Location("Point",
-                    new[] { dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d), dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d) }),
-                Type = dataTable.GetRowValueOrDefault(row, "Type"),
-                IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
-            });
+        var sites = dataTable.Rows.Skip(1).Select(row => new SiteDocument
+        {
+            Id = dataTable.GetRowValueOrDefault(row, "Site"),
+            Name = dataTable.GetRowValueOrDefault(row, "Name"),
+            Address = dataTable.GetRowValueOrDefault(row, "Address"),
+            PhoneNumber = dataTable.GetRowValueOrDefault(row, "PhoneNumber"),
+            OdsCode = dataTable.GetRowValueOrDefault(row, "OdsCode"),
+            Region = dataTable.GetRowValueOrDefault(row, "Region"),
+            IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB"),
+            InformationForCitizens = dataTable.GetRowValueOrDefault(row, "InformationForCitizens"),
+            DocumentType = "site",
+            Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Accessibilities")),
+            Location = new Location("Point",
+                new[]
+                {
+                    dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d),
+                    dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d)
+                }),
+            Type = dataTable.GetRowValueOrDefault(row, "Type"),
+            IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
+        });
         foreach (var site in sites)
         {
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), site);
+            await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
         }
     }
-    
+
     /// <summary>
-    /// This is only needed for tests that need to check for DB items that are written/updated by a non-async process.
-    /// These processes are not awaitable, so need to retry for existence of the document, with a timeout for failures.
-    /// i.e. Usages: Notifications, Audit, Aggregation
+    ///     This is only needed for tests that need to check for DB items that are written/updated by a non-async process.
+    ///     These processes are not awaitable, so need to retry for existence of the document, with a timeout for failures.
+    ///     i.e. Usages: Notifications, Audit, Aggregation
     /// </summary>
-    public static async Task<TDocument> FindSingleItemWithRetryAsync<TDocument>(Container container,
+    public async Task<TDocument> FindSingleItemWithRetryAsync<TDocument>(string containerName,
         Expression<Func<TDocument, bool>> predicate, TimeSpan delay, TimeSpan timeout)
     {
         var startTime = DateTime.UtcNow;
 
         while (DateTime.UtcNow - startTime < timeout)
         {
-            var documentsFound = (await RunQueryAsync(container, predicate)).ToList();
+            var documentsFound = (await CosmosQueryFeed(containerName, predicate)).ToList();
 
             if (documentsFound.Count > 0)
             {
@@ -957,8 +1100,10 @@ public abstract partial class BaseFeatureSteps : Feature
         bool expectStatusToHaveChanged = true)
     {
         var siteId = GetSiteId();
-        var bookingDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+
+        var bookingDocument = await CosmosReadItem<BookingDocument>("booking_data", bookingReference,
+            new PartitionKey(siteId), CancellationToken.None);
+
         bookingDocument.Resource.AvailabilityStatus.Should().Be(status);
         if (expectStatusToHaveChanged)
         {
@@ -969,24 +1114,27 @@ public abstract partial class BaseFeatureSteps : Feature
     private async Task AssertBookingStatusByReference(string bookingReference, string siteId, AppointmentStatus status,
         bool expectStatusToHaveChanged = true)
     {
-        var bookingDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        var bookingDocument = await CosmosReadItem<BookingDocument>("booking_data",
+            bookingReference, new PartitionKey(siteId), CancellationToken.None);
+
         bookingDocument.Resource.Status.Should().Be(status);
         if (expectStatusToHaveChanged)
         {
             bookingDocument.Resource.StatusUpdated.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(20));
         }
 
-        var indexDocument = await Client.GetContainer("appts", "index_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey("booking_index"));
+        var indexDocument = await CosmosReadItem<BookingDocument>("index_data",
+            bookingReference, new PartitionKey("booking_index"), CancellationToken.None);
+
         indexDocument.Resource.Status.Should().Be(status);
     }
 
-    public async Task AssertCancellationReasonByReference(string bookingReference, CancellationReason cancellationReason)
+    public async Task AssertCancellationReasonByReference(string bookingReference,
+        CancellationReason cancellationReason)
     {
         var siteId = GetSiteId();
-        var bookingDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        var bookingDocument = await CosmosReadItem<BookingDocument>("booking_data", bookingReference,
+            new PartitionKey(siteId), CancellationToken.None);
         bookingDocument.Resource.CancellationReason.Should().Be(cancellationReason);
     }
 
@@ -1048,7 +1196,7 @@ public abstract partial class BaseFeatureSteps : Feature
         BookingType.Cancelled => AvailabilityStatus.Unknown,
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType))
     };
-    
+
     protected string GetSiteId(string siteDesignation = DefaultSiteId) => CreateUniqueTestValue(siteDesignation);
 
     // TODO: Update to handle Okta on / off state
@@ -1077,21 +1225,46 @@ public abstract partial class BaseFeatureSteps : Feature
         return keyValuePairs;
     }
 
-    protected static async Task<IEnumerable<TDocument>> RunQueryAsync<TDocument>(Container container,
-        Expression<Func<TDocument, bool>> predicate)
+    protected async Task<IEnumerable<TDocument>> CosmosQueryFeed<TDocument>(string containerName,
+        Expression<Func<TDocument, bool>> predicate, CancellationToken ct = default)
     {
+        var container = Client.GetContainer("appts", containerName);
         var queryFeed = container.GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
+
         var results = new List<TDocument>();
         using (queryFeed)
         {
             while (queryFeed.HasMoreResults)
             {
-                var resultSet = await queryFeed.ReadNextAsync();
+                var resultSet =
+                    await Retry_CosmosOperation_OnTooManyRequests(async () => await queryFeed.ReadNextAsync(ct), ct);
                 results.AddRange(resultSet);
             }
         }
 
         return results;
+    }
+
+    protected async Task CosmosDeleteFeed<T>(string containerName, Expression<Func<T, bool>> predicate,
+        PartitionKey partitionKey, CancellationToken ct = default) where T : TypedCosmosDocument
+    {
+        var container = Client.GetContainer("appts", containerName);
+        var queryFeed = container.GetItemLinqQueryable<T>().Where(predicate).ToFeedIterator();
+
+        using (queryFeed)
+        {
+            while (queryFeed.HasMoreResults)
+            {
+                var documents =
+                    await Retry_CosmosOperation_OnTooManyRequests(async () => await queryFeed.ReadNextAsync(ct), ct);
+
+                foreach (var document in documents)
+                {
+                    await Retry_CosmosOperation_OnTooManyRequests(async () =>
+                        await container.DeleteItemStreamAsync(document.Id, partitionKey, null, ct), ct);
+                }
+            }
+        }
     }
 
     [GeneratedRegex(
@@ -1111,7 +1284,7 @@ public class BookingReferenceManager
             index += 50;
         }
 
-        if (_bookingReferences.ContainsKey(index) == false)
+        if (!_bookingReferences.ContainsKey(index))
         {
             _bookingReferences.Add(index, Guid.NewGuid().ToString());
         }
@@ -1120,8 +1293,8 @@ public class BookingReferenceManager
     }
 }
 
-public enum CosmosAction
+public enum CosmosUpsertAction
 {
     Create = 0,
-    Upsert = 1,
+    Upsert = 1
 }

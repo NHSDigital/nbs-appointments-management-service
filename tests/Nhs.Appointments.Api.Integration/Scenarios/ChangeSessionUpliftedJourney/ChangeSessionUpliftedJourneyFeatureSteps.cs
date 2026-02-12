@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -334,8 +335,10 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     private async Task<Session> GetDayAvailability(DateTime date)
     {
         var documentId = date.ToString("yyyyMMdd");
-        var dayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<DailyAvailabilityDocument>(documentId, new PartitionKey(GetSiteId()));
+        
+        var dayAvailabilityDocument =
+            await CosmosReadItem<DailyAvailabilityDocument>("booking_data", documentId, new PartitionKey(GetSiteId()), CancellationToken.None);
+        
         return dayAvailabilityDocument.Resource.Sessions.First();
     }
 
@@ -362,8 +365,8 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     private async Task AssertSessionsForDay(DateTime date, bool shouldExist)
     {
         var documentId = date.ToString("yyyyMMdd");
-        var dayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<DailyAvailabilityDocument>(documentId, new PartitionKey(GetSiteId()));
+        
+        var dayAvailabilityDocument = await CosmosReadItem<DailyAvailabilityDocument>("booking_data", documentId, new PartitionKey(GetSiteId()), CancellationToken.None);
 
         var matchingSessions = dayAvailabilityDocument.Resource.Sessions.Where(s =>
             s.From == SessionToCheck.From &&

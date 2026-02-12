@@ -33,14 +33,10 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
     [And("those appointments have already had notifications sent")]
     public async Task SetReminderSentFlag()
     {
-        var container = Client.GetContainer("appts", "booking_data");
         foreach (var item in MadeBookings)
         {
             var patch = PatchOperation.Set("/reminderSent", true);
-            var result = await container.PatchItemAsync<BookingDocument>(
-                id: item.Reference,
-                partitionKey: new PartitionKey(item.Site),
-                patchOperations: [patch]);
+            await CosmosPatchItem<BookingDocument>("booking_data", item.Reference, new PartitionKey(item.Site), [patch]);
         }
     }
 
@@ -57,7 +53,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             Created = DateTime.UtcNow
         };
            
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "booking_data"), auditEntry);
+        await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", auditEntry);
     }
 
     [Then("the following notifications are sent out")]
@@ -124,19 +120,17 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             Services = clinicalServices.ToArray()
         };
 
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "core_data"), clinicalServicesDocument);
+        await CosmosUpsert(CosmosUpsertAction.Upsert, "core_data", clinicalServicesDocument);
     }
 
     private async Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)
     {
-        var container = Client.GetContainer("appts", "local_notifications");
-        return await RunQueryAsync<NotificationData>(container, nd => nd.recipient == contactInfo);
+        return await CosmosQueryFeed<NotificationData>("local_notifications", nd => nd.recipient == contactInfo);
     }
     
     private async Task<NotificationData> GetSingleNotificationForRecipientWithRetry(string contactInfo)
     {
-        var container = Client.GetContainer("appts", "local_notifications");
-        return await FindSingleItemWithRetryAsync<NotificationData>(container, 
+        return await FindSingleItemWithRetryAsync<NotificationData>("local_notifications", 
             nd => nd.recipient == contactInfo,
             TimeSpan.FromSeconds(1),
             TimeSpan.FromSeconds(20));

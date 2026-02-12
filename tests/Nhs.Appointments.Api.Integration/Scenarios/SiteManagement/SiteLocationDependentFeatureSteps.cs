@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -46,8 +47,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
     public new async Task DisposeAsync()
     {
         await base.DisposeAsync();
-        var testId = GetTestId;
-        await DeleteSiteData(Client, testId);
+        await CosmosDeleteFeed<SiteDocument>("core_data", sd => sd.Id.Contains(GetTestId), new PartitionKey("site"));
     }
     
     [Given("The site '(.+)' does not exist in the system")]
@@ -105,9 +105,10 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             Type: dataTable.GetRowValueOrDefault(row, "Type")
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var actualResult = await Client.GetContainer("appts", "core_data")
-            .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site")); 
+        
+        var actualResult =
+            await CosmosReadItem<Site>("core_data", GetSiteId(siteId), new PartitionKey("site"), CancellationToken.None);
+        
         actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
     }
     
@@ -795,22 +796,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
-    }
-    
-    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
-            .ToFeedIterator();
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
-        }
     }
 
     [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]

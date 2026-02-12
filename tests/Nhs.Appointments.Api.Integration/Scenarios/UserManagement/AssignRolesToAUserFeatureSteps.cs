@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -47,7 +48,8 @@ public sealed class AssignRolesToAUserFeatureSteps : UserManagementBaseFeatureSt
                 Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
                 Role = row.Cells.ElementAt(1).Value
             });
-        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
+        var actualResult =
+            await CosmosReadItem<UserDocument>("core_data", userId, new PartitionKey("user"), CancellationToken.None);
         actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 }

@@ -1,24 +1,23 @@
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
-using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Gherkin.Quick;
 using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.BulkImport;
 
 [FeatureFile("./Scenarios/BulkImport/SiteBulkImport.feature")]
-public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IDisposable
+public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IAsyncLifetime
 {
     private Site ActualResponse { get; set; }
     private static string[] TestSiteIds { get; set; }
@@ -72,13 +71,16 @@ public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IDisposabl
         ActualResponse.Should().BeEquivalentTo(expectedSite, opts => opts.Excluding(x => x.isDeleted));
     }
 
-    public Task InitializeAsync() => throw new System.NotImplementedException();
+    public Task InitializeAsync()
+    {
+        return Task.CompletedTask;
+    }
 
-    public void Dispose()
+    public async Task DisposeAsync()
     {
         foreach (var siteId in TestSiteIds)
         {
-            DeleteSiteData(Client, siteId).GetAwaiter().GetResult();
+            await CosmosDeleteFeed<SiteDocument>("core_data", sd => sd.Id.Contains(siteId), new PartitionKey("site"));
         }
     }
 
@@ -96,21 +98,5 @@ public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IDisposabl
         }
 
         return Encoding.UTF8.GetBytes(sb.ToString());
-    }
-
-    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
-            .ToFeedIterator();
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
-        }
     }
 }

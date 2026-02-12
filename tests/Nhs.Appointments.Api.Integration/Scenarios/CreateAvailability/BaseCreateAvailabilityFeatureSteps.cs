@@ -94,11 +94,9 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
     private async Task<List<AvailabilityCreatedEventDocument>> GetActualAvailabilityCreatedEvents()
     {
         var siteId = GetSiteId();
-
-        var container = Client.GetContainer("appts", "booking_data");
         var actualDocuments =
-            await RunQueryAsync<AvailabilityCreatedEventDocument>(
-                container,
+            await CosmosQueryFeed<AvailabilityCreatedEventDocument>(
+                "booking_data",
                 d => d.DocumentType == "availability_created_event"
                      && d.Site == siteId);
         return actualDocuments.ToList();
@@ -229,9 +227,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         _statusCode.Should().Be(HttpStatusCode.OK);
         var site = GetSiteId();
         var expectedDocuments = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable);
-        var container = Client.GetContainer("appts", "booking_data");
-        var actualDocuments = await RunQueryAsync<DailyAvailabilityDocument>(container,
-            d => d.DocumentType == "daily_availability" && d.Site == site);
+        var actualDocuments = await CosmosQueryFeed<DailyAvailabilityDocument>("booking_data", d => d.DocumentType == "daily_availability" && d.Site == site);
         actualDocuments.Count().Should().Be(expectedDocuments.Count());
         actualDocuments.Should().BeEquivalentTo(expectedDocuments);
     }

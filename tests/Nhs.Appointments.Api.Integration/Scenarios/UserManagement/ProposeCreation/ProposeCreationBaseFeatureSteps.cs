@@ -72,7 +72,7 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
             Id = userEmail, DocumentType = "user", RoleAssignments = [SomeRoleAssignment()]
         };
 
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
+        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", userDocument);
     }
 
     [Given(@"user '(.+)' does not exist in MYA")]
@@ -81,8 +81,7 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
     {
         try
         {
-            await Client.GetContainer("appts", "core_data")
-                .DeleteItemAsync<UserDocument>(userEmail, new PartitionKey("user"));
+            await CosmosDeleteItem<UserDocument>("core_data", userEmail, new PartitionKey("user"));
         }
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {

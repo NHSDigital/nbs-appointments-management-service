@@ -3,10 +3,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
+using FluentAssertions;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Json;
@@ -24,14 +26,16 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
     [When(@"I remove user '(.+)' from site '(.+)'")]
     public async Task AssignRole(string user, string site)
     {
-        // Check user exists before removing them for assurance this method
-        // actually works when it asserts that the removal has succeeded
-        var document = await GetUserDocument(Client, user);
-        document.Should().NotBeNull();
-
         var userId = GetUserId(user);
         var siteId = GetSiteId(site);
-
+        
+        // Check user exists before removing them for assurance this method
+        // actually works when it asserts that the removal has succeeded
+        var document =
+            await CosmosReadItem<UserDocument>("core_data", userId, new PartitionKey("user"), CancellationToken.None);
+        
+        document.Resource.Should().NotBeNull();
+        
         var requestBody = new RemoveUserRequest()
         {
             User = userId,
@@ -49,11 +53,14 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
     }
 
     [Then(@"'(.+)' is no longer in the system")]
-    public async Task Assert(string user)
+    public async Task AssertUserDeleted(string user)
     {
-        var document = await GetUserDocument(Client, user);
+        var userId = GetUserId(user);
 
-        document.Should().BeNull();
+        var exception = await Assert.ThrowsAsync<CosmosException>(async () =>
+            await CosmosReadItem<UserDocument>("core_data", userId, new PartitionKey("user"), CancellationToken.None));
+        
+        exception.Message.Should().Contain("404");
     }
 
     [Then(@"user '(.+)' would have the following role assignments")]
@@ -67,48 +74,10 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
             Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
             Role = row.Cells.ElementAt(1).Value
         }).ToList();
+        
+        var document =
+            await CosmosReadItem<UserDocument>("core_data", userId, new PartitionKey("user"), CancellationToken.None);
 
-        var actualResult = await Client
-            .GetContainer("appts", "core_data")
-            .ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
-
-        actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
-    }
-
-    [Then(@"user '(.+)' would have the following role assignments")]
-    public async Task Assert(string user, DataTable dataTable)
-    {
-        _response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var userId = GetUserId(user);
-        var expectedRoleAssignments = dataTable.Rows.Skip(1).Select(
-            (row) => new RoleAssignment
-            {
-                Scope = $"site:{GetSiteId(row.Cells.ElementAt(0).Value)}",
-                Role = row.Cells.ElementAt(1).Value
-            });
-        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<UserDocument>(userId, new PartitionKey("user"));
-        actualResult.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
-    }
-
-
-    private async Task<UserDocument> GetUserDocument(CosmosClient cosmosClient, string user)
-    {
-        var container = cosmosClient.GetContainer("appts", "core_data");
-
-        using(ResponseMessage response = await container.ReadItemStreamAsync(GetUserId(user), new PartitionKey("user")))
-        {
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-
-            using (StreamReader streamReader = new StreamReader(response.Content))
-            {
-                string content = await streamReader.ReadToEndAsync();
-                var userDocument = JsonConvert.DeserializeObject<UserDocument>(content);
-                return userDocument;
-            }
-        }
+        document.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -141,8 +142,9 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         };
 
         result.BookingReference.Should().MatchRegex("([0-9]){2}-([0-9]{2})-([0-9]{6})");
-        var actualBooking = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        
+        var actualBooking = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);
+        
         BookingAssertions.BookingsAreEquivalent(actualBooking, expectedBooking);
         
         await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);

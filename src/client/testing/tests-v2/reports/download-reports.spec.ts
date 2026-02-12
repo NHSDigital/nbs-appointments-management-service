@@ -3,7 +3,81 @@ import { test, expect } from '../../fixtures-v2';
 
 test.describe.configure({ mode: 'serial' });
 
-test('Navigates to the reports page via the header before selecting a site', async ({
+test('Navigates to the reports page via the header before selecting a site - ReportsUplift false', async ({
+  setUpSingleSite,
+}) => {
+  await setUpSingleSite({
+    features: [{ name: 'ReportsUplift', enabled: false }],
+  })
+    .then(async sitePageFixture =>
+      sitePageFixture.sitePage.topNav.clickReports(),
+    )
+    .then(async reportsPage => {
+      await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
+    });
+});
+
+test('Navigates to the reports page via a site page - ReportsUplift false', async ({
+  setUpSingleSite,
+}) => {
+  await setUpSingleSite({
+    features: [{ name: 'ReportsUplift', enabled: false }],
+  })
+    .then(async sitePageFixture => sitePageFixture.sitePage.clickReportsCard())
+    .then(async reportsPage => {
+      await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
+    });
+});
+
+test('Downloads a site summary report - ReportsUplift false', async ({
+  page,
+  setUpSingleSite,
+}) => {
+  const fileName = 'downloaded-test-report.csv';
+
+  await setUpSingleSite({
+    features: [{ name: 'ReportsUplift', enabled: false }],
+  })
+    .then(async sitePageFixture =>
+      sitePageFixture.sitePage.topNav.clickReports(),
+    )
+    .then(async reportsPage => {
+      const today: string = new Date().toISOString().split('T')[0];
+      await reportsPage.selectDatesStep.startDateInput.fill(today);
+      await reportsPage.selectDatesStep.endDateInput.fill(today);
+      await reportsPage.selectDatesStep.continueButton.click();
+
+      await expect(reportsPage.confirmDownloadStep.stepTitle).toBeVisible();
+
+      const downloadPromise = page.waitForEvent('download');
+      await reportsPage.confirmDownloadStep.continueButton.click();
+      return downloadPromise;
+    })
+    .then(async download => {
+      expect(download.suggestedFilename()).toContain(
+        'GeneralSiteSummaryReport',
+      );
+      await download.saveAs(fileName);
+
+      const csvContent = fs.readFileSync(fileName, 'utf-8');
+      const lines = csvContent
+        .split('\n')
+        .filter(line => line.trim().length > 0);
+
+      // Normalize headers by splitting and trimming whitespace/line endings
+      const headers = lines[0].split(',').map(h => h.trim());
+
+      expect(lines.length).toBeGreaterThan(1);
+      expect(headers).toEqual(expectedSiteSummaryReportHeaders);
+    })
+    .finally(() => {
+      if (fs.existsSync(fileName)) {
+        fs.unlinkSync(fileName);
+      }
+    });
+});
+
+test('Navigates to the reports page via the header before selecting a site - ReportsUplift true', async ({
   setUpSingleSite,
 }) => {
   await setUpSingleSite({
@@ -19,7 +93,7 @@ test('Navigates to the reports page via the header before selecting a site', asy
     });
 });
 
-test('Navigates to the reports page via a site page', async ({
+test('Navigates to the reports page via a site page - ReportsUplift true', async ({
   setUpSingleSite,
 }) => {
   await setUpSingleSite({
@@ -34,8 +108,11 @@ test('Navigates to the reports page via a site page', async ({
     });
 });
 
-test('Downloads a site summary report', async ({ page, setUpSingleSite }) => {
-  // Added Date.now() to ensure unique filenames. 
+test('Downloads a site summary report - ReportsUplift true', async ({
+  page,
+  setUpSingleSite,
+}) => {
+  // Added Date.now() to ensure unique filenames.
   // This prevents OS-level file-lock errors when running tests in rapid succession.
   const fileName = `site-summary-${Date.now()}.csv`;
 
@@ -53,10 +130,12 @@ test('Downloads a site summary report', async ({ page, setUpSingleSite }) => {
       await reportsPage.selectReportDatesStep.endDateInput.fill(today);
       await reportsPage.selectReportDatesStep.continueButton.click();
 
-      await expect(reportsPage.confirmReportDownloadStep.stepTitle).toBeVisible();
+      await expect(
+        reportsPage.confirmReportDownloadStep.stepTitle,
+      ).toBeVisible();
 
-      // The "Download Sandwich" (Promise.all). 
-      // If you await the click first, the event is missed. 
+      // The "Download Sandwich" (Promise.all).
+      // If you await the click first, the event is missed.
       // This ensures the listener is active BEFORE the trigger occurs.
       const [download] = await Promise.all([
         page.waitForEvent('download'),
@@ -65,11 +144,15 @@ test('Downloads a site summary report', async ({ page, setUpSingleSite }) => {
       return download;
     })
     .then(async download => {
-      expect(download.suggestedFilename()).toContain('GeneralSiteSummaryReport');
+      expect(download.suggestedFilename()).toContain(
+        'GeneralSiteSummaryReport',
+      );
       await download.saveAs(fileName);
 
       const csvContent = fs.readFileSync(fileName, 'utf-8');
-      const lines = csvContent.split('\n').filter(line => line.trim().length > 0);
+      const lines = csvContent
+        .split('\n')
+        .filter(line => line.trim().length > 0);
       const headers = lines[0].split(',').map(h => h.trim());
 
       expect(lines.length).toBeGreaterThan(1);
@@ -93,7 +176,9 @@ test('Download all sites report', async ({ page, setUpSingleSite }) => {
     .then(async ({ sitePage }) => sitePage.topNav.clickReports())
     .then(async reportsPage => {
       await reportsPage.selectReportTypeStep.allSitesReportCard.click();
-      await expect(reportsPage.confirmReportDownloadStep.stepTitle).toBeVisible();
+      await expect(
+        reportsPage.confirmReportDownloadStep.stepTitle,
+      ).toBeVisible();
 
       const [download] = await Promise.all([
         page.waitForEvent('download'),
@@ -106,7 +191,9 @@ test('Download all sites report', async ({ page, setUpSingleSite }) => {
       await download.saveAs(fileName);
 
       const csvContent = fs.readFileSync(fileName, 'utf-8');
-      const lines = csvContent.split('\n').filter(line => line.trim().length > 0);
+      const lines = csvContent
+        .split('\n')
+        .filter(line => line.trim().length > 0);
       const headers = lines[0].split(',').map(h => h.trim());
 
       expect(lines.length).toBeGreaterThan(1);
@@ -129,7 +216,9 @@ test('Download users report', async ({ page, setUpSingleSite }) => {
     .then(async ({ sitePage }) => sitePage.topNav.clickReports())
     .then(async reportsPage => {
       await reportsPage.selectReportTypeStep.usersReportCard.click();
-      await expect(reportsPage.confirmReportDownloadStep.stepTitle).toBeVisible();
+      await expect(
+        reportsPage.confirmReportDownloadStep.stepTitle,
+      ).toBeVisible();
 
       const [download] = await Promise.all([
         page.waitForEvent('download'),
@@ -142,7 +231,9 @@ test('Download users report', async ({ page, setUpSingleSite }) => {
       await download.saveAs(fileName);
 
       const csvContent = fs.readFileSync(fileName, 'utf-8');
-      const lines = csvContent.split('\n').filter(line => line.trim().length > 0);
+      const lines = csvContent
+        .split('\n')
+        .filter(line => line.trim().length > 0);
 
       // Normalize headers by splitting and trimming whitespace/line endings
       const headers = lines[0].split(',').map(h => h.trim());

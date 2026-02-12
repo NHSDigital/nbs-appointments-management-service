@@ -55,6 +55,25 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 "ContainerRetryOptions must have an InitialValueMs and CutoffRetryMs, if provided");
         }
 
+        //apply default to simulate default cosmos retry options
+        if (ContainerRetryConfiguration == null)
+        {
+            //this is equivalent to a simple doubling backoff in our custom implementation
+            //where the 9th retry is allowed, but the cumulative cutoff is hit preventing a 10th retry attempt
+            ContainerRetryConfiguration = new ContainerRetryConfiguration
+            {
+                
+                ContainerName = ContainerName, 
+                //default cosmos max cumulative wait is 30 seconds.
+                CutoffRetryMs = 30000,
+                
+                //default cosmos max retries = 9,
+                //these two values are both reverse engineered so that this behaviour occurs
+                InitialValueMs = 50, 
+                BackoffRetryType = BackoffRetryType.GeometricDouble
+            };
+        }
+
         _metricsRecorder = metricsRecorder;
         _lastUpdatedByResolver = lastUpdatedByResolver;
     }

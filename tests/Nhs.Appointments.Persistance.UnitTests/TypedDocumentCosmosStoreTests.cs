@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Time.Testing;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
 

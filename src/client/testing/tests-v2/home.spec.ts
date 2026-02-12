@@ -55,22 +55,32 @@ test('An admin user loads home page, all sites are loaded', async ({
   await expect(page.getByRole('cell', { name: site2.name, exact: true })).toBeVisible();
 });
 
-test('A user searches for a site, site list is filtered', async ({ 
+test('A user loads home page and searches for a site, site list is filtered', async ({ 
   page, 
   setUpSingleSite 
 }) => {
   const targetName = 'Robin Lane Medical Centre';
+  const otherSiteName = 'Church Lane Pharmacy';
+
   await setUpSingleSite({
     siteConfig: { name: targetName },
-    skipSiteSelection: true // Stay on the list to use the search bar
-  });
-  
-  const searchInput = page.getByRole('textbox', {
-    name: 'Search active sites by name or ODS code',
-  });
-  
-  await searchInput.fill('Church'); 
-  await page.getByRole('button', { name: 'Search' }).click();
+    skipSiteSelection: true // Stay on Site Selection page to use the search bar
+  }).then(async () => {
+    // Verify the list is populated before we filter it
+    await expect(page.getByRole('cell', { name: otherSiteName })).not.toBeVisible();
+    await expect(page.getByText(targetName)).toBeVisible();
 
-  await expect(page.getByRole('cell', { name: targetName })).not.toBeVisible();
+    const searchInput = page.getByRole('textbox', {
+      name: 'Search active sites by name or ODS code',
+    });
+    
+    // Perform Search
+    await searchInput.fill('Church'); 
+    const searchButton = page.getByRole('button', { name: 'Search' });
+    await searchButton.click();
+
+    // Final State Check
+    // After searching for "Church", Robin Lane should be filtered out
+    await expect(page.getByRole('cell', { name: targetName })).not.toBeVisible();
+  });
 });

@@ -24,7 +24,6 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     internal readonly string DatabaseName;
 
     private int DefaultCosmosMaxRetries => 9;
-    private int DefaultCosmosFallbackDelayMs => 50;
     private int DefaultCosmosCutoffRetryMs => 30000;
 
     public TypedDocumentCosmosStore(
@@ -73,9 +72,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         {
             ContainerName = ContainerName,
             BackoffRetryType = BackoffRetryType.CosmosDefault,
-            CutoffRetryMs = DefaultCosmosCutoffRetryMs,
-            //fallback retry delay when RetryAfter is null
-            InitialValueMs = DefaultCosmosFallbackDelayMs,
+            CutoffRetryMs = DefaultCosmosCutoffRetryMs
         };
 
         _metricsRecorder = metricsRecorder;
@@ -282,9 +279,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
                 if (ex.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    var nextRetryDelayMs = (ContainerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault &&
-                                   ex.RetryAfter.HasValue)
-                        ? ex.RetryAfter.Value
+                    if (ContainerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault &&
+                        !ex.RetryAfter.HasValue)
+                    {
+                        throw new InvalidOperationException("TooManyRequests exception does not have a RetryAfter value");
+                    }
+                    
+                    var nextRetryDelayMs = ContainerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault
+                        ? ex.RetryAfter!.Value
                         : customDelayMs;
                     
                     //if cosmos and current retry was the last allowed, break out

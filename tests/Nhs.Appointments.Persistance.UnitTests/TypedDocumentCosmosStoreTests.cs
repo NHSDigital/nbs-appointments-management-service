@@ -153,17 +153,20 @@ public class TypedDocumentCosmosStoreTests
 
         mockCosmosOperation
             .SetupSequence(f => f())
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
+            //initial attempt
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            //retries
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
             //final attempt fails
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2));
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)));
 
         var sut = new TypedDocumentCosmosStore<TestDocument>(
             _cosmosClient.Object,
@@ -297,15 +300,15 @@ public class TypedDocumentCosmosStoreTests
 
         mockCosmosOperation
             .SetupSequence(f => f())
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
-            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
+            .ThrowsAsync(new RetryAfterCosmosException(TimeSpan.FromMilliseconds(50)))
             //final attempt succeeds
             .ReturnsAsync(response);
 
@@ -342,6 +345,34 @@ public class TypedDocumentCosmosStoreTests
         _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 20), Times.Once);
     }
 
+    [Fact]
+    public async Task
+        Retry_ItemResponse_OnTooManyRequests__DefaultConfiguration_ThrowsException_IfNoRetryAfter()
+    {
+        var retryOptions = Options.Create(new ContainerRetryOptions());
+
+        var mockCosmosOperation = new Mock<Func<Task<ItemResponse<TestDocument>>>>();
+
+        mockCosmosOperation
+            .SetupSequence(f => f())
+            //RetryAfter prop not set
+            .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2));
+
+        var sut = new TypedDocumentCosmosStore<TestDocument>(
+            _cosmosClient.Object,
+            _options,
+            retryOptions,
+            _mapper.Object,
+            _metricsRecorder.Object,
+            _lastUpdatedByResolver.Object,
+            _logger.Object);
+        
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
+
+        exception.Message.Should().Contain("TooManyRequests exception does not have a RetryAfter value");
+    }
+    
     [Fact]
     public async Task Retry_ItemResponse_OnTooManyRequests__OperationInvokedTwiceIfASingleRetryRequiredForContainer()
     {
@@ -1293,8 +1324,7 @@ public class TypedDocumentCosmosStoreTests
         {
             BackoffRetryType = BackoffRetryType.CosmosDefault,
             ContainerName = "test-container",
-            CutoffRetryMs = 30000,
-            InitialValueMs = 50,
+            CutoffRetryMs = 30000
         });
     }
 

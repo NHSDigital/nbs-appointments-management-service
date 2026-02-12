@@ -119,7 +119,6 @@ export const test = base.extend<MyaFixtures>({
       };
 
       await cosmosDbClient.createSite(testId, siteConfig);
-      //await cosmosDbClient.createUser(testId, roles);
       // Pass userConfig here!
       await cosmosDbClient.createUser(testId, roles, userConfig);
       await mockOidcClient.registerTestUser(testId);
@@ -142,15 +141,6 @@ export const test = base.extend<MyaFixtures>({
           featureFlagClient.overrideFeatureFlag(feature);
         }),
       ]);
-
-      // const sitePage = await new LoginPage(page)
-      //   .logInWithNhsMail()
-      //   .then(mockOidcLoginPage =>
-      //     mockOidcLoginPage.signIn(buildE2ETestUser(testId)),
-      //   )
-      //   .then(siteSelectionPage =>
-      //     siteSelectionPage.selectSite(buildE2ETestSite(testId)),
-      //   );
 
       const loginPage = new LoginPage(page);
       const mockOidcLoginPage = await loginPage.logInWithNhsMail();

@@ -25,11 +25,9 @@ const NhsPageHeader = ({
       }}
     >
       <Header.Account>
-        {userEmail && (
-          <HeaderAccountItem href="#" icon>
-            {userEmail}
-          </HeaderAccountItem>
-        )}
+        <HeaderAccountItem href="#" icon>
+          {userEmail}
+        </HeaderAccountItem>
         <Header.AccountItem
           formProps={{
             action: '/manage-your-appointments/log-out',

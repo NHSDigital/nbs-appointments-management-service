@@ -41,7 +41,7 @@ describe('EULA page', () => {
     expect(fetchEulaMock).toHaveBeenCalled();
   });
 
-  // TODO: This test needs to be un-skipped as part of the investigation work APPT-1971
+  // TODO: This test needs to be un-skipped as part of the investigation work in APPT-1971
   it.skip('lets the user accept the EULA', async () => {
     const jsx = await EulaPage();
     const { user } = render(jsx);

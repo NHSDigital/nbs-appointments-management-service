@@ -23,6 +23,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     internal readonly ContainerRetryConfiguration ContainerRetryConfiguration;
     internal readonly string DatabaseName;
 
+    private int DefaultCosmosMaxRetries => 9;
+    private int DefaultCosmosFallbackDelayMs => 50;
+    private int DefaultCosmosCutoffRetryMs => 30000;
+
     public TypedDocumentCosmosStore(
         CosmosClient cosmosClient,
         IOptions<CosmosDataStoreOptions> options,
@@ -48,31 +52,31 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         ContainerRetryConfiguration =
             retryOptions?.Value?.Configurations?.SingleOrDefault(x => x.ContainerName == ContainerName);
 
-        if (ContainerRetryConfiguration != null && (ContainerRetryConfiguration.InitialValueMs == 0 ||
-                                                    ContainerRetryConfiguration.CutoffRetryMs == 0))
+        if (ContainerRetryConfiguration != null)
         {
-            throw new NotSupportedException(
-                "ContainerRetryOptions must have an InitialValueMs and CutoffRetryMs, if provided");
+            if (ContainerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault)
+            {
+                throw new NotSupportedException(
+                    "ContainerRetryOptions must have a non-default backoff retry type, if provided. If the default cosmos behaviour is desired, remove the ContainerRetryOptions for this container");
+            }
+
+            if (ContainerRetryConfiguration.InitialValueMs == 0 ||
+                ContainerRetryConfiguration.CutoffRetryMs == 0)
+            {
+                throw new NotSupportedException(
+                    "ContainerRetryOptions must have an InitialValueMs and CutoffRetryMs, if provided");
+            }
         }
 
-        //apply default to simulate default cosmos retry options
-        if (ContainerRetryConfiguration == null)
+        //default cosmos behaviour
+        ContainerRetryConfiguration ??= new ContainerRetryConfiguration
         {
-            //this is equivalent to a simple doubling backoff in our custom implementation
-            //where the 9th retry is allowed, but the cumulative cutoff is hit preventing a 10th retry attempt
-            ContainerRetryConfiguration = new ContainerRetryConfiguration
-            {
-                
-                ContainerName = ContainerName, 
-                //default cosmos max cumulative wait is 30 seconds.
-                CutoffRetryMs = 30000,
-                
-                //default cosmos max retries = 9,
-                //these two values are both reverse engineered so that this behaviour occurs
-                InitialValueMs = 50, 
-                BackoffRetryType = BackoffRetryType.GeometricDouble
-            };
-        }
+            ContainerName = ContainerName,
+            BackoffRetryType = BackoffRetryType.CosmosDefault,
+            CutoffRetryMs = DefaultCosmosCutoffRetryMs,
+            //fallback retry delay when RetryAfter is null
+            InitialValueMs = DefaultCosmosFallbackDelayMs,
+        };
 
         _metricsRecorder = metricsRecorder;
         _lastUpdatedByResolver = lastUpdatedByResolver;
@@ -110,9 +114,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetByIdAsync<TModel>(string documentId)
     {
-        var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().ReadItemAsync<TDocument>(
-            id: documentId,
-            partitionKey: new PartitionKey(_documentType.Value)), CancellationToken.None);
+        var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
+            .ReadItemAsync<TDocument>(
+                id: documentId,
+                partitionKey: new PartitionKey(_documentType.Value)), CancellationToken.None);
 
         return _mapper.Map<TModel>(readResponse.Resource);
     }
@@ -124,7 +129,9 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId, string partitionKey)
     {
-        using var response = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)), CancellationToken.None, canExtractRequestCharge: false);
+        using var response = await Retry_CosmosOperation_OnTooManyRequests(
+            async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)),
+            CancellationToken.None, canExtractRequestCharge: false);
         if (!response.IsSuccessStatusCode)
         {
             return default;
@@ -141,9 +148,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey)
     {
-        var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().ReadItemAsync<TDocument>(
-            id: documentId,
-            partitionKey: new PartitionKey(partitionKey)), CancellationToken.None);
+        var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
+            .ReadItemAsync<TDocument>(
+                id: documentId,
+                partitionKey: new PartitionKey(partitionKey)), CancellationToken.None);
 
         return _mapper.Map<TModel>(readResponse.Resource);
     }
@@ -183,10 +191,11 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             throw new NotSupportedException("Only 10 patches can be applied");
         }
 
-        var result = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().PatchItemAsync<TDocument>(
-            id: documentId,
-            partitionKey: new PartitionKey(partitionKey),
-            patchOperations: patchList.AsReadOnly()));
+        var result = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
+            .PatchItemAsync<TDocument>(
+                id: documentId,
+                partitionKey: new PartitionKey(partitionKey),
+                patchOperations: patchList.AsReadOnly()));
 
         return result.Resource;
     }
@@ -195,42 +204,34 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     {
         return typeof(TDocument).GetCustomAttribute<CosmosDocumentTypeAttribute>()!.Value;
     }
-     
-     /// <summary>
-     /// Provides custom retry and backoff logic for the Cosmos TooManyRequests exception support. <br />
-     /// This is configured per container, provided by the ContainerRetryConfiguration options. <br />
-     /// If the container this operation targets has no provided ContainerRetryConfiguration, it will attempt the operation once with no retries, as the default behaviour.<br />
-     /// </summary>
-     /// <param name="cosmosOperation">The action to perform on the Cosmos DB</param>
-     /// <param name="cancellationToken">Cancellation token for the Task.Delay</param>
-     /// <param name="canExtractRequestCharge">Whether the generic 'T' inherits Microsoft.Azure.Cosmos.Response type using TDocument. This allows the recording of a request charge, if so.</param>
-     /// <typeparam name="T">Generic Cosmos return type for the generic document</typeparam>
-     /// <returns></returns>
-     /// <exception cref="ArgumentOutOfRangeException">When BackoffRetryType configuration is not supported</exception>
-     /// <exception cref="InvalidOperationException">When the totaled retry delay times exceed the allowed cutoff time window</exception>
-     internal async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
-        Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default, bool canExtractRequestCharge = true)
+
+    /// <summary>
+    /// Provides custom retry and backoff logic for the Cosmos TooManyRequests exception support. <br />
+    /// This is configured per container, provided by the ContainerRetryConfiguration options. <br />
+    /// If the container this operation targets has no provided ContainerRetryConfiguration, it will attempt the operation once with no retries, as the default behaviour.<br />
+    /// </summary>
+    /// <param name="cosmosOperation">The action to perform on the Cosmos DB</param>
+    /// <param name="cancellationToken">Cancellation token for the Task.Delay</param>
+    /// <param name="canExtractRequestCharge">Whether the generic 'T' inherits Microsoft.Azure.Cosmos.Response type using TDocument. This allows the recording of a request charge, if so.</param>
+    /// <typeparam name="T">Generic Cosmos return type for the generic document</typeparam>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException">When BackoffRetryType configuration is not supported</exception>
+    /// <exception cref="InvalidOperationException">When the totaled retry delay times exceed the allowed cutoff time window</exception>
+    internal async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
+        Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default,
+        bool canExtractRequestCharge = true)
     {
-        //don't retry if the container isn't configured for it
-        if (ContainerRetryConfiguration == null)
-        {
-            var result = await cosmosOperation();
-
-            if (canExtractRequestCharge)
-            {
-                RecordQueryMetrics(ExtractRequestCharge(result));
-            }
-            
-            return result;
-        }
-
-        var attemptRequired = true;
-        var attemptCount = 1;
-
         var linkId = Guid.NewGuid();
 
-        var delayMs = ContainerRetryConfiguration.InitialValueMs;
-        var totalDelayMs = 0;
+        var retryRequired = true;
+        var cutoffExceeded = false;
+        
+        var retryCount = 0;
+
+        var customDelayMs = TimeSpan.FromMilliseconds(ContainerRetryConfiguration.InitialValueMs);
+        var customCutoffMs = TimeSpan.FromMilliseconds(ContainerRetryConfiguration.CutoffRetryMs);
+
+        var totalDelayMs = TimeSpan.FromMilliseconds(0);
         var retryResult = default(T);
         //log metrics for total request charge for the initial attempt, and any retries required
         double totalRequestCharge = 0;
@@ -238,8 +239,12 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         //used for exponential only
         double exponent = 0;
 
+        //default cosmos can error out before the cutoff reached
+        var defaultCosmosTooManyAttempts = false;
+
         switch (ContainerRetryConfiguration.BackoffRetryType)
         {
+            case BackoffRetryType.CosmosDefault:
             case BackoffRetryType.Linear:
             case BackoffRetryType.GeometricDouble:
                 //no work to do
@@ -247,7 +252,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             case BackoffRetryType.Exponential:
                 //derive initial exponent needed to increment next delays, using the provided initial value
                 exponent = Math.Log(ContainerRetryConfiguration.InitialValueMs);
-                
+
                 //increment for next usage
                 exponent++;
                 break;
@@ -255,21 +260,21 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 throw new ArgumentOutOfRangeException();
         }
 
-        while (attemptRequired && totalDelayMs <= ContainerRetryConfiguration.CutoffRetryMs)
+        while (retryRequired && !cutoffExceeded)
         {
             try
             {
-                if (attemptCount > 1)
+                if (retryCount > 0)
                 {
                     _logger.LogInformation(
-                        "{linkId} - Cosmos TooManyRequests retryCount: {retryCount}, for container: {container}, total delay time: {totalDelayMs}",
-                        linkId, attemptCount - 1, ContainerName, totalDelayMs);
+                        "{linkId} - Cosmos TooManyRequests retryCount: {retryCount}, for container: {container}, total delay time ms: {totalDelayMs}",
+                        linkId, retryCount, ContainerName, totalDelayMs.TotalMilliseconds);
                 }
 
                 retryResult = await cosmosOperation();
 
                 //if we get to here, there wasn't a cosmos exception, so no need to retry
-                attemptRequired = false;
+                retryRequired = false;
             }
             catch (CosmosException ex)
             {
@@ -277,28 +282,49 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
                 if (ex.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    attemptCount++;
-
-                    await Task.Delay(delayMs, cancellationToken);
-
-                    //keep track of total delay time for this cosmosOperation
-                    totalDelayMs += delayMs;
-
-                    switch (ContainerRetryConfiguration.BackoffRetryType)
+                    var nextRetryDelayMs = (ContainerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault &&
+                                   ex.RetryAfter.HasValue)
+                        ? ex.RetryAfter.Value
+                        : customDelayMs;
+                    
+                    //if cosmos and current retry was the last allowed, break out
+                    if (ContainerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault && (retryCount) == DefaultCosmosMaxRetries)
                     {
-                        case BackoffRetryType.Linear:
-                            //do nothing, next delay stays as same for each iteration
-                            break;
-                        case BackoffRetryType.Exponential:
-                            //increment the exponent to derive next delay value needed for exponential backoff
-                            delayMs = (int)Math.Floor(Math.Exp(exponent++));
-                            break;
-                        case BackoffRetryType.GeometricDouble:
-                            //double delay time between retries
-                            delayMs *= 2;
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        defaultCosmosTooManyAttempts = true;
+                        break;
+                    }
+                    
+                    //only perform a delay if a retry is required for the next attempt
+                    if ((totalDelayMs + nextRetryDelayMs) <= customCutoffMs)
+                    {
+                        retryCount++;
+                        
+                        await Task.Delay(nextRetryDelayMs, cancellationToken);
+                        
+                        //keep a running total delay time for this cosmosOperation
+                        totalDelayMs += nextRetryDelayMs;
+                        
+                        switch (ContainerRetryConfiguration.BackoffRetryType)
+                        {
+                            case BackoffRetryType.CosmosDefault:
+                            case BackoffRetryType.Linear:
+                                //do nothing
+                                break;
+                            case BackoffRetryType.Exponential:
+                                //increment the exponent to derive next delay value needed for exponential backoff
+                                customDelayMs = TimeSpan.FromMilliseconds((int)Math.Floor(Math.Exp(exponent++)));
+                                break;
+                            case BackoffRetryType.GeometricDouble:
+                                //double delay time between retries
+                                customDelayMs *= 2;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                    else
+                    {
+                        cutoffExceeded = true;
                     }
                 }
                 else
@@ -309,15 +335,18 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             }
         }
 
-        if (totalDelayMs > ContainerRetryConfiguration.CutoffRetryMs)
+        if (defaultCosmosTooManyAttempts)
         {
-            RecordQueryMetrics(totalRequestCharge);
-            
-            _logger.LogError(
-                "{linkId} - Cosmos TooManyRequests failed after CutoffRetryMs surpassed: {CutoffRetryMs}, with retryCount: {retryCount} for container: {container}, total delay time: {totalDelayMs}",
-                linkId, ContainerRetryConfiguration.CutoffRetryMs, attemptCount, ContainerName, totalDelayMs);
-            throw new InvalidOperationException(
-                $"Container '{ContainerName}' too many requests were exceeded for linkId: {linkId}");
+            var error =
+                $"{linkId} - Cosmos TooManyRequests failed after max retries ({DefaultCosmosMaxRetries}) exceeded for container: {ContainerName}, total delay time ms: {totalDelayMs.TotalMilliseconds}";
+            LogTooManyRequestsError(linkId, error, totalRequestCharge);
+        }
+        
+        if (cutoffExceeded)
+        {
+            var error =
+                $"{linkId} - Cosmos TooManyRequests failed because the CutoffRetryMs ({ContainerRetryConfiguration.CutoffRetryMs}) would be exceeded on the next retry attempt : total retries: {retryCount} for container: {ContainerName}, total delay time ms: {totalDelayMs.TotalMilliseconds}";
+            LogTooManyRequestsError(linkId, error, totalRequestCharge);
         }
 
         if (canExtractRequestCharge)
@@ -327,6 +356,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         }
 
         return retryResult;
+    }
+
+    private void LogTooManyRequestsError(Guid linkId, string loggedError, double totalRequestCharge)
+    {
+        RecordQueryMetrics(totalRequestCharge);
+        _logger.LogError(loggedError);
+        throw new InvalidOperationException(
+            $"Container '{ContainerName}' too many requests were exceeded for linkId: {linkId}");
     }
 
     private double ExtractRequestCharge<T>(T result)
@@ -348,7 +385,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         {
             while (queryFeed.HasMoreResults)
             {
-                var resultSet = await Retry_CosmosOperation_OnTooManyRequests(async () => await queryFeed.ReadNextAsync(), CancellationToken.None, canExtractRequestCharge);
+                var resultSet = await Retry_CosmosOperation_OnTooManyRequests(
+                    async () => await queryFeed.ReadNextAsync(), CancellationToken.None, canExtractRequestCharge);
                 results.AddRange(resultSet.Select(map));
                 requestCharge += resultSet.RequestCharge;
             }

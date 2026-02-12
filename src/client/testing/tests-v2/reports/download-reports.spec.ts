@@ -10,7 +10,11 @@ test('Navigates to the reports page via the header before selecting a site - Rep
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
+<<<<<<< HEAD
       sitePageFixture.sitePage.topNav.clickReports(false),
+=======
+      sitePageFixture.sitePage.topNav.clickReports(),
+>>>>>>> 22c553ca (merge reporting tests)
     )
     .then(async reportsPage => {
       await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
@@ -39,7 +43,11 @@ test('Downloads a site summary report - ReportsUplift false', async ({
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
+<<<<<<< HEAD
       sitePageFixture.sitePage.topNav.clickReports(false),
+=======
+      sitePageFixture.sitePage.topNav.clickReports(),
+>>>>>>> 22c553ca (merge reporting tests)
     )
     .then(async reportsPage => {
       const today: string = new Date().toISOString().split('T')[0];

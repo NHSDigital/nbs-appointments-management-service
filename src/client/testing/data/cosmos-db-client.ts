@@ -14,6 +14,13 @@ class CosmosDbClient {
     this.client = new CosmosClient({
       endpoint: cosmosEndpoint,
       key: cosmosToken,
+      connectionPolicy: {
+        retryOptions: {
+          maxRetryAttemptCount: 100,
+          fixedRetryIntervalInMilliseconds: 100,
+          maxWaitTimeInSeconds: 60,
+        },
+      },
     });
   }
 
@@ -53,7 +60,11 @@ class CosmosDbClient {
     }
   }
 
-  public async createUser(testId: number, roles: Role[], userConfig?: Partial<UserDocument>) {
+  public async createUser(
+    testId: number,
+    roles: Role[],
+    userConfig?: Partial<UserDocument>,
+  ) {
     // Merge the default buildUserDocument with our custom userConfig
     const userDocument = { ...buildUserDocument(testId, roles), ...userConfig };
 
@@ -63,7 +74,9 @@ class CosmosDbClient {
       partitionKey: { paths: ['/docType'] },
     });
     await container.items.upsert(userDocument);
-    console.log(`Written user: ${userDocument.id} with EULA v${userDocument.latestAcceptedEulaVersion} to Cosmos DB.`);
+    console.log(
+      `Written user: ${userDocument.id} with EULA v${userDocument.latestAcceptedEulaVersion} to Cosmos DB.`,
+    );
   }
 
   public async deleteUser(testId: number) {

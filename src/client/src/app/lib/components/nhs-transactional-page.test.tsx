@@ -10,13 +10,6 @@ const fetchPermissionsMock = fetchPermissions as jest.Mock<
   Promise<ServerActionResult<string[]>>
 >;
 
-jest.mock('@components/nhs-header-log-out', () => {
-  const MockNhsHeaderLogOut = () => {
-    return <button type="submit">log out</button>;
-  };
-  return MockNhsHeaderLogOut;
-});
-
 let mockGetCookies = jest.fn().mockImplementation((cookieName: string) => {
   return cookieName === 'ams-notification'
     ? { value: 'This is a notification' }

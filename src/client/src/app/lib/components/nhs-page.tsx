@@ -2,7 +2,6 @@
 import {
   Breadcrumbs,
   Breadcrumb,
-  Header,
   NavigationLink,
 } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
@@ -10,15 +9,19 @@ import NotificationBanner from '@components/notification-banner';
 import { cookies } from 'next/headers';
 import NhsFooter from '@components/nhs-footer';
 import NhsMainContainer from '@components/nhs-main-container';
-import NhsHeaderLogOut from '@components/nhs-header-log-out';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
-import { fetchPermissions } from '@services/appointmentsService';
+import {
+  fetchFeatureFlag,
+  fetchPermissions,
+  fetchUserProfile,
+} from '@services/appointmentsService';
 import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 import FeedbackBanner from '@components/feedback-banner';
 import BuildNumber from './build-number';
 import PrintPageButton from './print-page-button';
 import fromServer from '@server/fromServer';
+import NhsPageHeader from './nhsuk-frontend/nhs-page-header';
 
 type Props = {
   children: ReactNode;
@@ -46,15 +49,15 @@ const NhsPage = async ({
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
   const navigationLinks = await getLinksForSite(site);
+  const userProfile = await fromServer(fetchUserProfile());
 
   return (
     <>
-      <Header
+      <NhsPageHeader
         navigationLinks={navigationLinks}
         showChangeSiteButton={site !== undefined}
-      >
-        {headerAuthComponent ?? NhsHeaderLogOut()}
-      </Header>
+        userEmail={userProfile.emailAddress}
+      ></NhsPageHeader>
       <FeedbackBanner originPage={originPage} />
       <Breadcrumbs
         trail={[
@@ -97,10 +100,12 @@ const NhsPage = async ({
 const getLinksForSite = async (
   site: Site | undefined,
 ): Promise<NavigationLink[]> => {
-  const [permissionsAtSite, permissionsAtAnySite] = await Promise.all([
-    fromServer(fetchPermissions(site?.id)),
-    fromServer(fetchPermissions('*')),
-  ]);
+  const [permissionsAtSite, permissionsAtAnySite, siteSummaryFlag] =
+    await Promise.all([
+      fromServer(fetchPermissions(site?.id)),
+      fromServer(fetchPermissions('*')),
+      fromServer(fetchFeatureFlag('SiteSummaryReport')),
+    ]);
 
   const hasAnyReportPermissions = () => {
     return (
@@ -145,7 +150,7 @@ const getLinksForSite = async (
     }
   }
 
-  if (hasAnyReportPermissions()) {
+  if (hasAnyReportPermissions() && siteSummaryFlag.enabled) {
     navigationLinks.push({
       label: 'Reports',
       href: `/reports`,

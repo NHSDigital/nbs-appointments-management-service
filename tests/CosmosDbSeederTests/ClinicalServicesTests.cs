@@ -38,6 +38,6 @@ public class ClinicalServicesTests : BaseCosmosDbSeederTest
             .Contain(service => service.Id == "COVID_FLU:65+" && service.Label == "Flu and COVID 65+");
         clinicalServices.Should().Contain(service => service.Id == "FLU:2_3" && service.Label == "Flu 2-3");
 
-        clinicalServices.Should().HaveCount(10);
+        clinicalServices.Should().HaveCount(9);
     }
 }

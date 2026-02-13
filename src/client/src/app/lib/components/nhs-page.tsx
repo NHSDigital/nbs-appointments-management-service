@@ -39,7 +39,6 @@ const NhsPage = async ({
   caption,
   site,
   children = null,
-  headerAuthComponent = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
   backLink,
@@ -100,12 +99,10 @@ const NhsPage = async ({
 const getLinksForSite = async (
   site: Site | undefined,
 ): Promise<NavigationLink[]> => {
-  const [permissionsAtSite, permissionsAtAnySite, siteSummaryFlag] =
-    await Promise.all([
-      fromServer(fetchPermissions(site?.id)),
-      fromServer(fetchPermissions('*')),
-      fromServer(fetchFeatureFlag('SiteSummaryReport')),
-    ]);
+  const [permissionsAtSite, permissionsAtAnySite] = await Promise.all([
+    fromServer(fetchPermissions(site?.id)),
+    fromServer(fetchPermissions('*')),
+  ]);
 
   const hasAnyReportPermissions = () => {
     return (
@@ -152,7 +149,7 @@ const getLinksForSite = async (
     }
   }
 
-  if (hasAnyReportPermissions() && siteSummaryFlag.enabled) {
+  if (hasAnyReportPermissions()) {
     navigationLinks.push({
       label: 'Reports',
       href: `${basePath}/reports`,

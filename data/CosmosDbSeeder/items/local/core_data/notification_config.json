@@ -112,8 +112,7 @@
         "FLU:65+",
         "COVID_FLU:18_64",
         "COVID_FLU:65+",
-        "RSV:Adult",
-        "COVID_RSV:18+"
+        "RSV:Adult"
       ],
       "emailTemplate": "3bc8b5a8-969e-44b0-a274-a269b32c7b8c",
       "smsTemplate": "e6b9521e-9a0a-46d8-a732-c1ceefc3f7fc",

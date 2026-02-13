@@ -178,6 +178,9 @@ services:
       - AuditWorkerConfigurations__3__LeaseContainerName=audit_data_lease
       - SinkExclusions__0__Source=booking_data
       - SinkExclusions__0__ExcludedPaths__0=contactDetails
+      - SinkExclusions__0__ExcludedPaths__1=attendeeDetails.firstName
+      - SinkExclusions__0__ExcludedPaths__2=attendeeDetails.lastName
+      - SinkExclusions__0__ExcludedPaths__3=attendeeDetails.dateOfBirth
       - SPLUNK_HOST_URL=http://splunk:8088/services/collector/raw
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
 

@@ -45,7 +45,7 @@ public sealed class WellKnownOdsCodeEntriesFeatureSteps : BaseFeatureSteps
                 ]
             };
         
-        await CosmosUpsert(CosmosUpsertAction.Upsert, "core_data", wellKnownOdsCodesDocument);
+        await CosmosWrite(CosmosWriteAction.Upsert, "core_data", wellKnownOdsCodesDocument);
     }
     
     [When(@"I query for well known ods code entries")]

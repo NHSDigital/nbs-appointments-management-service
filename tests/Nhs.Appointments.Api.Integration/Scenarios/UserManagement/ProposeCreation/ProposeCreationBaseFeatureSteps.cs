@@ -72,7 +72,7 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
             Id = userEmail, DocumentType = "user", RoleAssignments = [SomeRoleAssignment()]
         };
 
-        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", userDocument);
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", userDocument);
     }
 
     [Given(@"user '(.+)' does not exist in MYA")]

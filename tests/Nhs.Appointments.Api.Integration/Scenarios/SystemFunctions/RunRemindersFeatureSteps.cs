@@ -53,7 +53,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             Created = DateTime.UtcNow
         };
            
-        await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", auditEntry);
+        await CosmosWrite(CosmosWriteAction.Create, "booking_data", auditEntry);
     }
 
     [Then("the following notifications are sent out")]
@@ -120,7 +120,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
             Services = clinicalServices.ToArray()
         };
 
-        await CosmosUpsert(CosmosUpsertAction.Upsert, "core_data", clinicalServicesDocument);
+        await CosmosWrite(CosmosWriteAction.Upsert, "core_data", clinicalServicesDocument);
     }
 
     private async Task<IEnumerable<NotificationData>> GetNotificationsForRecipient(string contactInfo)

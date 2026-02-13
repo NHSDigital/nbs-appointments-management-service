@@ -22,6 +22,6 @@ public abstract class BaseEulaFeatureSteps : BaseFeatureSteps
             VersionDate = versionDate
         };
 
-        await CosmosUpsert(CosmosUpsertAction.Upsert, "core_data", eulaVersion);
+        await CosmosWrite(CosmosWriteAction.Upsert, "core_data", eulaVersion);
     }
 }

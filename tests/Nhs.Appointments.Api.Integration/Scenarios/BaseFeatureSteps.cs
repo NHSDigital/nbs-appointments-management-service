@@ -12,6 +12,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Api.Integration.Data;
@@ -19,6 +20,7 @@ using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Json;
+using Nhs.Appointments.Core.Metrics;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance;
 using Nhs.Appointments.Persistance.Models;
@@ -51,7 +53,7 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly Guid _testId = Guid.NewGuid();
     protected readonly string _userId = "api@test";
 
-    //THIS STAYS PRIVATE. Use or add to the CosmosRead,CosmosPatch,CosmosUpsert,..., methods if more functionality needed...
+    //THIS STAYS PRIVATE. Use or add to the CosmosRead,CosmosPatch,CosmosWrite,..., methods if more functionality needed...
     private readonly CosmosClient Client;
 
     protected readonly Mapper Mapper;
@@ -59,7 +61,10 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected ContainerRetryConfiguration BaseRetryOptions = new()
     {
-        BackoffRetryType = BackoffRetryType.Exponential, CutoffRetryMs = 10000, InitialValueMs = 200,
+        ContainerName = "Any",
+        BackoffRetryType = BackoffRetryType.Exponential, 
+        CutoffRetryMs = 10000, 
+        InitialValueMs = 200,
     };
 
     protected List<BookingDocument> MadeBookings = new();
@@ -113,125 +118,19 @@ public abstract partial class BaseFeatureSteps : Feature
     internal async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
         Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default)
     {
-        var retryRequired = true;
-        var cutoffExceeded = false;
-
-        var retryCount = 0;
-
-        var customDelayMs = TimeSpan.FromMilliseconds(BaseRetryOptions.InitialValueMs);
-        var customCutoffMs = TimeSpan.FromMilliseconds(BaseRetryOptions.CutoffRetryMs);
-
-        var totalDelayMs = TimeSpan.FromMilliseconds(0);
-        var retryResult = default(T);
-        //log metrics for total request charge for the initial attempt, and any retries required
-        double totalRequestCharge = 0;
-
-        //used for exponential only
-        double exponent = 0;
-
-        //default cosmos can error out before the cutoff reached
-        var defaultCosmosTooManyAttempts = false;
-
-        switch (BaseRetryOptions.BackoffRetryType)
-        {
-            case BackoffRetryType.CosmosDefault:
-            case BackoffRetryType.Linear:
-            case BackoffRetryType.GeometricDouble:
-                //no work to do
-                break;
-            case BackoffRetryType.Exponential:
-                //derive initial exponent needed to increment next delays, using the provided initial value
-                exponent = Math.Log(BaseRetryOptions.InitialValueMs);
-
-                //increment for next usage
-                exponent++;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-        while (retryRequired && !cutoffExceeded)
-        {
-            try
-            {
-                retryResult = await cosmosOperation();
-
-                //if we get to here, there wasn't a cosmos exception, so no need to retry
-                retryRequired = false;
-            }
-            catch (CosmosException ex)
-            {
-                totalRequestCharge += ex.RequestCharge;
-
-                if (ex.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    if (BaseRetryOptions.BackoffRetryType == BackoffRetryType.CosmosDefault &&
-                        !ex.RetryAfter.HasValue)
-                    {
-                        throw new InvalidOperationException(
-                            "TooManyRequests exception does not have a RetryAfter value");
-                    }
-
-                    var nextRetryDelayMs = BaseRetryOptions.BackoffRetryType == BackoffRetryType.CosmosDefault
-                        ? ex.RetryAfter!.Value
-                        : customDelayMs;
-
-                    //if cosmos and current retry was the last allowed, break out
-                    if (BaseRetryOptions.BackoffRetryType == BackoffRetryType.CosmosDefault && retryCount == 9)
-                    {
-                        defaultCosmosTooManyAttempts = true;
-                        break;
-                    }
-
-                    //only perform a delay if a retry is required for the next attempt
-                    if (totalDelayMs + nextRetryDelayMs <= customCutoffMs)
-                    {
-                        retryCount++;
-
-                        await Task.Delay(nextRetryDelayMs, cancellationToken);
-
-                        //keep a running total delay time for this cosmosOperation
-                        totalDelayMs += nextRetryDelayMs;
-
-                        switch (BaseRetryOptions.BackoffRetryType)
-                        {
-                            case BackoffRetryType.CosmosDefault:
-                            case BackoffRetryType.Linear:
-                                //do nothing
-                                break;
-                            case BackoffRetryType.Exponential:
-                                //increment the exponent to derive next delay value needed for exponential backoff
-                                customDelayMs = TimeSpan.FromMilliseconds((int)Math.Floor(Math.Exp(exponent++)));
-                                break;
-                            case BackoffRetryType.GeometricDouble:
-                                //double delay time between retries
-                                customDelayMs *= 2;
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                    }
-                    else
-                    {
-                        cutoffExceeded = true;
-                    }
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
-        return retryResult;
+        return (await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(BaseRetryOptions, 
+            cosmosOperation, 
+            new Logger<T>(new LoggerFactory()),
+            new InMemoryMetricsRecorder(), 
+            cancellationToken)).result;
     }
 
     /// <summary>
     ///     Setting up test data for scenarios can sometimes overload CosmosDB
     ///     Add a backoff retry if the data isn't written
     /// </summary>
-    protected async Task CosmosUpsert<T>(
-        CosmosUpsertAction cosmosUpsertAction,
+    protected async Task CosmosWrite<T>(
+        CosmosWriteAction cosmosWriteAction,
         string containerName,
         T item,
         PartitionKey? partitionKey = null,
@@ -239,20 +138,20 @@ public abstract partial class BaseFeatureSteps : Feature
         CancellationToken cancellationToken = default)
     {
         var container = Client.GetContainer("appts", containerName);
-        switch (cosmosUpsertAction)
+        switch (cosmosWriteAction)
         {
-            case CosmosUpsertAction.Create:
+            case CosmosWriteAction.Create:
                 await Retry_CosmosOperation_OnTooManyRequests(
                     async () => await container.CreateItemAsync(item, partitionKey, requestOptions, cancellationToken),
                     cancellationToken);
                 break;
-            case CosmosUpsertAction.Upsert:
+            case CosmosWriteAction.Upsert:
                 await Retry_CosmosOperation_OnTooManyRequests(
                     async () => await container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken),
                     cancellationToken);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(cosmosUpsertAction), cosmosUpsertAction, null);
+                throw new ArgumentOutOfRangeException(nameof(cosmosWriteAction), cosmosWriteAction, null);
         }
     }
 
@@ -341,7 +240,7 @@ public abstract partial class BaseFeatureSteps : Feature
             LatestAcceptedEulaVersion = eulaAcceptedDate
         };
 
-        await CosmosUpsert(CosmosUpsertAction.Upsert, "core_data", userDocument);
+        await CosmosWrite(CosmosWriteAction.Upsert, "core_data", userDocument);
 
         var requestSigner = new RequestSigningHandler(new RequestSigner(TimeProvider.System, ApiSigningKey));
         requestSigner.InnerHandler = new HttpClientHandler();
@@ -364,7 +263,7 @@ public abstract partial class BaseFeatureSteps : Feature
     public async Task SetupSite()
     {
         var site = new SiteDocument { Id = GetSiteId(), DocumentType = "site", Location = OutOfTheWayLocation };
-        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
     }
 
     // TODO: Added for BulkImport tests as it requires a valid Guid
@@ -382,7 +281,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Region = "R1",
             Location = OutOfTheWayLocation
         };
-        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
     }
 
     protected async Task SetLocalFeatureToggleOverride(string name, string state)
@@ -412,7 +311,7 @@ public abstract partial class BaseFeatureSteps : Feature
     protected async Task SetupSite(string siteId)
     {
         var site = new SiteDocument { Id = siteId, DocumentType = "site", Location = OutOfTheWayLocation };
-        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
     }
 
     public async Task SetupSessions(string siteDesignation, DataTable dataTable)
@@ -421,7 +320,7 @@ public abstract partial class BaseFeatureSteps : Feature
         var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable).ToList();
         foreach (var document in availabilityDocuments)
         {
-            await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", document);
+            await CosmosWrite(CosmosWriteAction.Create, "booking_data", document);
         }
     }
 
@@ -637,8 +536,8 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         foreach (var bookingAndIndex in BuildBookingAndIndexDocumentsFromDataTable(dataTable))
         {
-            await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", bookingAndIndex.booking);
-            await CosmosUpsert(CosmosUpsertAction.Create, "index_data", bookingAndIndex.bookingIndex);
+            await CosmosWrite(CosmosWriteAction.Create, "booking_data", bookingAndIndex.booking);
+            await CosmosWrite(CosmosWriteAction.Create, "index_data", bookingAndIndex.bookingIndex);
             MadeBookings.Add(bookingAndIndex.booking);
         }
     }
@@ -754,12 +653,12 @@ public abstract partial class BaseFeatureSteps : Feature
 
         foreach (var booking in bookings)
         {
-            await CosmosUpsert(CosmosUpsertAction.Create, "booking_data", booking);
+            await CosmosWrite(CosmosWriteAction.Create, "booking_data", booking);
         }
 
         foreach (var bookingIndex in bookingIndexDocuments)
         {
-            await CosmosUpsert(CosmosUpsertAction.Create, "index_data", bookingIndex);
+            await CosmosWrite(CosmosWriteAction.Create, "index_data", bookingIndex);
         }
 
         MadeBookings.AddRange(bookings);
@@ -1019,7 +918,7 @@ public abstract partial class BaseFeatureSteps : Feature
 
         foreach (var site in sites)
         {
-            await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
+            await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
         }
     }
 
@@ -1050,7 +949,7 @@ public abstract partial class BaseFeatureSteps : Feature
         });
         foreach (var site in sites)
         {
-            await CosmosUpsert(CosmosUpsertAction.Create, "core_data", site);
+            await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
         }
     }
 
@@ -1293,7 +1192,7 @@ public class BookingReferenceManager
     }
 }
 
-public enum CosmosUpsertAction
+public enum CosmosWriteAction
 {
     Create = 0,
     Upsert = 1

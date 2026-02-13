@@ -80,7 +80,7 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
             DocumentType = "user",
             RoleAssignments = roleAssignments
         };
-        await CosmosUpsert(CosmosUpsertAction.Create, "core_data", userDocument);
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", userDocument);
     }
 
     [And("the report contains the following data")]

@@ -80,7 +80,7 @@ public class GetSiteSummaryReportSteps() : BaseFeatureSteps
 
         foreach (var site in sites)
         {
-            await CosmosUpsert(CosmosUpsertAction.Upsert, "aggregated_data", site);
+            await CosmosWrite(CosmosWriteAction.Upsert, "aggregated_data", site);
         }
     }
 

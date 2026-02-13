@@ -1,4 +1,4 @@
-import { Pagination, Spinner } from '@components/nhsuk-frontend';
+import { Spinner } from '@components/nhsuk-frontend';
 import { Site } from '@types';
 import { Suspense } from 'react';
 import { DayCardList } from './day-card-list';
@@ -8,6 +8,7 @@ import {
   RFC3339Format,
   dateTimeFormat,
 } from '@services/timeService';
+import { Pagination } from 'nhsuk-react-components';
 
 type Props = {
   ukWeekStart: DayJsType;
@@ -60,7 +61,18 @@ export const ViewWeekAvailabilityPage = async ({
 
   return (
     <>
-      <Pagination previous={previous} next={next} />
+      <Pagination>
+        <Pagination.Item
+          previous
+          labelText={previous.title}
+          href={previous.href}
+        >
+          Previous
+        </Pagination.Item>
+        <Pagination.Item next labelText={next.title} href={next.href}>
+          Next
+        </Pagination.Item>
+      </Pagination>
       <Suspense key={ukWeekStart.format(dateTimeFormat)} fallback={<Spinner />}>
         <DayCardList
           site={site}

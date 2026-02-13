@@ -26,10 +26,10 @@ const Header = ({
 }: Props) => {
   return (
     <header className="nhsuk-header" role="banner">
-      <div className="nhsuk-header__container">
-        <div className="nhsuk-header__logo">
+      <div className="nhsuk-header__container nhsuk-width-container">
+        <div className="nhsuk-header__service">
           <Link
-            className="nhsuk-header__link nhsuk-header__link--service"
+            className="nhsuk-header__service-logo"
             href="/sites"
             aria-label="Manage Your Appointments"
           >

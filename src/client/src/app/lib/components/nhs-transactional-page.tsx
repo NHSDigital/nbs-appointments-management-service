@@ -1,12 +1,13 @@
 import { ReactNode } from 'react';
 import NhsMainContainer from './nhs-main-container';
-import { Footer, Header } from '@nhsuk-frontend-components';
+import { Header } from '@nhsuk-frontend-components';
 import NhsHeaderLogOut from './nhs-header-log-out';
 import FeedbackBanner from '@components/feedback-banner';
 import BackLink, { BackLinkProps } from '@components/nhsuk-frontend/back-link';
 import NhsHeading from './nhs-heading';
 import { cookies } from 'next/headers';
 import NotificationBanner from './notification-banner';
+import NhsFooter from './nhs-footer';
 
 type Props = {
   children: ReactNode;
@@ -38,7 +39,7 @@ const NhsTransactionalPage = async ({
         <NotificationBanner notification={notification} />
         {children}
       </NhsMainContainer>
-      <Footer />
+      <NhsFooter />
     </>
   );
 };

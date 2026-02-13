@@ -1,4 +1,4 @@
-import { Pagination, Spinner } from '@components/nhsuk-frontend';
+import { Spinner } from '@components/nhsuk-frontend';
 import { Site } from '@types';
 import { Suspense } from 'react';
 import {
@@ -8,6 +8,7 @@ import {
   getUkWeeksOfTheMonth,
 } from '@services/timeService';
 import { WeekCardList } from './week-card-list';
+import { Pagination } from 'nhsuk-react-components';
 
 type Props = {
   site: Site;
@@ -31,7 +32,18 @@ export const ViewAvailabilityPage = async ({ site, searchMonth }: Props) => {
 
   return (
     <>
-      <Pagination previous={previous} next={next} />
+      <Pagination>
+        <Pagination.Item
+          previous
+          labelText={previous.title}
+          href={previous.href}
+        >
+          Previous
+        </Pagination.Item>
+        <Pagination.Item next labelText={next.title} href={next.href}>
+          Next
+        </Pagination.Item>
+      </Pagination>
       <Suspense key={searchMonth.format(dateTimeFormat)} fallback={<Spinner />}>
         <WeekCardList site={site} ukWeeks={ukWeeks} />
       </Suspense>

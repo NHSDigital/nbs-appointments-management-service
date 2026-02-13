@@ -1,9 +1,7 @@
 'use client';
 import {
   Button,
-  ButtonGroup,
   FormGroup,
-  InsetText,
   Radio,
   RadioGroup,
   SmallSpinnerWithText,
@@ -12,6 +10,7 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
 import { ClinicalService, SessionSummary, Site } from '@types';
 import { useRouter } from 'next/navigation';
+import { InsetText } from 'nhsuk-react-components';
 import { useEffect, useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -101,6 +100,9 @@ export const EditSessionDecision = ({
           legend="What do you want to do?"
           error={errors.action?.message}
         >
+          {/* TODO: There is an issue with updating Radios & Buttons to use nhsuk-react-components as it breaks jest tests
+          with the error: TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+          This will need further investigation in another ticket before we convert to using the nhsuk-react-components of these elements */}
           <RadioGroup>
             <Radio
               label="Change the length or capacity of this session"
@@ -135,9 +137,7 @@ export const EditSessionDecision = ({
         {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
-          <ButtonGroup>
-            <Button type="submit">Continue</Button>
-          </ButtonGroup>
+          <Button type="submit">Continue</Button>
         )}
       </form>
     </>

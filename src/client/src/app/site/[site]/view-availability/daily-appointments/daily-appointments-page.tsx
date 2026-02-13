@@ -1,10 +1,9 @@
 'use client';
-import { Table, Pagination } from '@nhsuk-frontend-components';
-import { AttendeeDetails, ContactItem, Booking, ClinicalService } from '@types';
+import { Booking, ClinicalService } from '@types';
 import { toTimeFormat, jsDateFormat } from '@services/timeService';
-import { ReactNode } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Pagination, Table } from 'nhsuk-react-components';
 
 const ROWS_PER_PAGE = 50;
 
@@ -38,111 +37,97 @@ export const DailyAppointmentsPage = ({
     return b.slice(startIndex, endIndex);
   };
 
-  const mapContactDetails = (contactDetails: ContactItem[]): ReactNode => {
-    return contactDetails.map((details, key) => {
-      return (
-        <span key={key} className={details.type === 'Email' ? 'no-print' : ''}>
-          {details.value}
-          <br />
-        </span>
-      );
-    });
-  };
-
-  const mapNameAndNHSNumber = (attendeeDetails: AttendeeDetails): ReactNode => {
-    return (
-      <span>
-        {attendeeDetails.firstName} {attendeeDetails.lastName}
-        <br />
-        {attendeeDetails.nhsNumber}
-      </span>
-    );
-  };
-
-  const mapTableData = () => {
-    if (!bookings.length) {
-      return undefined;
-    }
-
-    const headers = [
-      'Time',
-      'Name and NHS number',
-      'Date of birth',
-      'Contact details',
-      'Services',
-    ];
-
-    if (displayAction) {
-      headers.push('Action');
-    }
-
-    const rows = getPagedBookings(bookings).map(booking => {
-      const row = [
-        toTimeFormat(booking.from),
-        mapNameAndNHSNumber(booking.attendeeDetails),
-        jsDateFormat(booking.attendeeDetails.dateOfBirth),
-        booking.contactDetails && booking.contactDetails.length > 0
-          ? mapContactDetails(booking.contactDetails)
-          : 'Not provided',
-        clinicalServices.find(c => c.value === booking.service)?.label ??
-          booking.service,
-      ];
-
-      if (displayAction) {
-        row.push(
-          <Link
-            key={`cancel-${booking.reference}`}
-            href={`/site/${site}/appointment/${booking.reference}/cancel`}
-          >
-            Cancel
-          </Link>,
-        );
-      }
-
-      return row;
-    });
-
-    return { headers, rows };
-  };
-
-  const appointmentsTableData = mapTableData();
-
   const hasPreviousPage = page > 1;
 
   return (
     <>
       {message && <p className="no-print">{message}</p>}
 
-      {appointmentsTableData && (
-        <Table {...appointmentsTableData} nonPrintableColumnIndices={[5]} />
-      )}
+      <Table>
+        <Table.Head>
+          <Table.Row>
+            <Table.Cell>Time</Table.Cell>
+            <Table.Cell>Name and NHS number</Table.Cell>
+            <Table.Cell>Date of birth</Table.Cell>
+            <Table.Cell>Contact details</Table.Cell>
+            <Table.Cell>Services</Table.Cell>
+            {displayAction && (
+              <Table.Cell className="no-print">Action</Table.Cell>
+            )}
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {getPagedBookings(bookings).map(booking => (
+            <Table.Row key={booking.reference}>
+              <Table.Cell>{toTimeFormat(booking.from)}</Table.Cell>
+              <Table.Cell>
+                {booking.attendeeDetails.firstName}{' '}
+                {booking.attendeeDetails.lastName}
+                <br />
+                {booking.attendeeDetails.nhsNumber}
+              </Table.Cell>
+              <Table.Cell>
+                {jsDateFormat(booking.attendeeDetails.dateOfBirth)}
+              </Table.Cell>
+              <Table.Cell>
+                {booking.contactDetails && booking.contactDetails.length > 0
+                  ? booking.contactDetails.map((details, key) => (
+                      <span
+                        key={key}
+                        className={details.type === 'Email' ? 'no-print' : ''}
+                      >
+                        {details.value}
+                        <br />
+                      </span>
+                    ))
+                  : 'Not provided'}
+              </Table.Cell>
+              <Table.Cell>
+                {clinicalServices.find(c => c.value === booking.service)
+                  ?.label ?? booking.service}
+              </Table.Cell>
+              {displayAction && (
+                <Table.Cell className="no-print">
+                  <Link
+                    href={`/site/${site}/appointment/${booking.reference}/cancel`}
+                  >
+                    Cancel
+                  </Link>
+                </Table.Cell>
+              )}
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
 
-      <Pagination
-        previous={
-          hasPreviousPage
-            ? {
-                title: `Page ${page - 1}`,
-                href: '',
-                onClick: () => {
-                  params.set('page', String(page - 1));
-                  window.history.pushState(null, '', `?${params.toString()}`);
-                },
-              }
-            : null
-        }
-        next={
-          hasNextPage()
-            ? {
-                title: `Page ${page + 1}`,
-                href: '',
-                onClick: () => {
-                  params.set('page', String(page + 1));
-                  window.history.pushState(null, '', `?${params.toString()}`);
-                },
-              }
-            : null
-        }
-      />
+      <Pagination>
+        {hasPreviousPage ? (
+          <Pagination.Item
+            previous
+            onClick={() => {
+              params.set('page', String(page - 1));
+              window.history.pushState(null, '', `?${params.toString()}`);
+            }}
+            style={{ cursor: 'pointer' }}
+            labelText={`Page ${page - 1}`}
+          >
+            Previous
+          </Pagination.Item>
+        ) : null}
+        {hasNextPage() ? (
+          <Pagination.Item
+            next
+            onClick={() => {
+              params.set('page', String(page + 1));
+              window.history.pushState(null, '', `?${params.toString()}`);
+            }}
+            style={{ cursor: 'pointer' }}
+            labelText={`Page ${page + 1}`}
+          >
+            Next
+          </Pagination.Item>
+        ) : null}
+      </Pagination>
     </>
   );
 };

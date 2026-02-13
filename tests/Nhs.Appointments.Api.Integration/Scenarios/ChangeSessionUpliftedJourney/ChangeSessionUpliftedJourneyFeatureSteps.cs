@@ -65,6 +65,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     }
     
     [When(@"I replace a session with a replacement and set newlyUnsupportedBookingAction to '(.+)'")]
+    [And(@"I replace a session with a replacement and set newlyUnsupportedBookingAction to '(.+)'")]
     public async Task EditSessionReplacement(string newlyUnsupportedBookingAction, DataTable editSessions)
     {
         Session matcher = null;
@@ -122,6 +123,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     // }
 
     [When("I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
+    [And("I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
     public async Task CancelSingleSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);

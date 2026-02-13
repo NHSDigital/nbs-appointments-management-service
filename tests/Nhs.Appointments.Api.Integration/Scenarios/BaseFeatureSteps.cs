@@ -853,9 +853,8 @@ public abstract partial class BaseFeatureSteps : Feature
         dayAvailabilityDocument.Resource.Sessions.Length.Should().Be(0);
     }
     
-    [Then("the following sessions exist for a created default site")]
-    [And("the following sessions exist for a created default site")]
-    private async Task AssertSessionsOnDate(DataTable dataTable)
+    [Then("the following updated sessions exist for a created default site")]
+    public async Task AssertSessionsOnDate(DataTable dataTable)
     {
         var expectedAvailabilityDocuments = DailyAvailabilityDocumentsFromTable(GetSiteId(), dataTable).ToList();
 

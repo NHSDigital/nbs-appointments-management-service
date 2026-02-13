@@ -37,10 +37,6 @@
     {
       "id": "RSV:Adult",
       "label": "RSV Adult"
-    },
-    {
-      "id": "COVID_RSV:18+",
-      "label": "RSV and COVID 18+"
     }
   ]
 }

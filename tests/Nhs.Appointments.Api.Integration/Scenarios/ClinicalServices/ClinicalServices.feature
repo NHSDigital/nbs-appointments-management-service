@@ -12,7 +12,6 @@ Feature: Get Clinical Services
       | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
       | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
       | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-      | COVID_RSV:18+   | RSV and COVID 18+   | RSV and COVID-19 | https://www.nhs.uk/book-rsv        |
     When I request Clinical Services
     Then the request should return Clinical Services
       | Id              | Label               | ServiceType      | Url                                |
@@ -25,7 +24,6 @@ Feature: Get Clinical Services
       | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
       | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
       | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-      | COVID_RSV:18+   | RSV and COVID 18+   | RSV and COVID-19 | https://www.nhs.uk/book-rsv        |
     Then the request should be successful
 
   Scenario: Clinical Services are returned in the prioritized sequence
@@ -40,7 +38,6 @@ Feature: Get Clinical Services
       | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
       | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
       | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
-      | COVID_RSV:18+   | RSV and COVID 18+   | RSV and COVID-19 | https://www.nhs.uk/book-rsv        |
       
     When I request Clinical Services
     Then the request should return Clinical Services in exact order
@@ -54,6 +51,5 @@ Feature: Get Clinical Services
       | COVID_FLU:18_64 |
       | COVID_FLU:65+   |
       | RSV:Adult       |
-      | COVID_RSV:18+   |
       
     Then the request should be successful

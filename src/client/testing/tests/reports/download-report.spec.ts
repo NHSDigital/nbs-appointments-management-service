@@ -115,5 +115,4 @@ const expectedFileDownloadHeaders = [
   'COVID_FLU:18_64 Capacity',
   'COVID_FLU:65+ Capacity',
   'RSV:Adult Capacity',
-  'COVID_RSV:18+ Capacity',
 ];

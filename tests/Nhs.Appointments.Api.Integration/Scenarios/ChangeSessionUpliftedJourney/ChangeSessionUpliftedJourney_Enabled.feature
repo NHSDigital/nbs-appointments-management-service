@@ -255,3 +255,34 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '324524-00008' has status 'Cancelled'
     Then the booking with reference '324524-00009' has status 'Cancelled'
     Then the booking with reference '324524-00010' has status 'Cancelled'
+
+
+  Scenario: Multiple consecutive patches on a single document should return a consistent outcome
+    Given the following sessions exist for a created default site
+      | Date                | From  | Until | Services   | Slot Length  | Capacity |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,D    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,E    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,F    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B        | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C      | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | B          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | C          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | D          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | E          | 10           | 5        |
+    When I replace a session with a replacement and set newlyUnsupportedBookingAction to 'Orphan'
+      | Type        | RequestFrom           | RequestTo           | From  | Until | Services   | SlotLength | Capacity |
+      | Matcher     | 10 days from today    | 10 days from today  | 09:00 | 09:10 | A,B,C,D    | 10         | 5        |
+      | Replacement |                       |                     | 09:00 | 09:10 | B,C,D      | 10         | 5        |
+    Then the following sessions exist for a created default site
+      | Date                | From  | Until | Services   | Slot Length  | Capacity |
+      | 10 days from today  | 09:00 | 09:10 | B,C,D      | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,E    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,F    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B        | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C      | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | B          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | C          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | D          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | E          | 10           | 5        |

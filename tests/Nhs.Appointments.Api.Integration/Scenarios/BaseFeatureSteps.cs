@@ -852,6 +852,23 @@ public abstract partial class BaseFeatureSteps : Feature
 
         dayAvailabilityDocument.Resource.Sessions.Length.Should().Be(0);
     }
+    
+    [Then("the following sessions exist for a created default site")]
+    [And("the following sessions exist for a created default site")]
+    private async Task AssertSessionsOnDate(DataTable dataTable)
+    {
+        var expectedAvailabilityDocuments = DailyAvailabilityDocumentsFromTable(GetSiteId(), dataTable).ToList();
+
+        foreach (var expectedAvailabilityDocument in expectedAvailabilityDocuments)
+        {
+            var documentId = expectedAvailabilityDocument.Date.ToString("yyyyMMdd");
+            
+            var actualDayAvailabilityDocument = await Client.GetContainer("appts", "booking_data")
+                .ReadItemAsync<DailyAvailabilityDocument>(documentId, new PartitionKey(GetSiteId()));
+            
+            actualDayAvailabilityDocument.Resource.Sessions.Should().BeEquivalentTo(expectedAvailabilityDocument.Sessions);
+        }
+    }
 
     [Given("the following sites exist in the system")]
     public async Task SetUpSites(DataTable dataTable)

@@ -39,12 +39,6 @@
       "eventType": "BookingMade"
     },
     {
-      "services": [ "COVID_RSV:18+" ],
-      "emailTemplate": "2e967f06-ba70-4715-92e4-0eab52c1489a",
-      "smsTemplate": "",
-      "eventType": "BookingMade"
-    },
-    {
       "services": [
         "COVID:5_11",
         "COVID:12_17",
@@ -54,8 +48,7 @@
         "FLU:65+",
         "COVID_FLU:18_64",
         "COVID_FLU:65+",
-        "RSV:Adult",
-        "COVID_RSV:18+"
+        "RSV:Adult"
       ],
       "emailTemplate": "",
       "smsTemplate": "d3ada59d-6ea1-4647-aa62-ab06755a83fe",
@@ -71,8 +64,7 @@
         "FLU:65+",
         "COVID_FLU:18_64",
         "COVID_FLU:65+",
-        "RSV:Adult",
-        "COVID_RSV:18+"
+        "RSV:Adult"
       ],
       "emailTemplate": "b09aef8b-8f26-4382-815b-3c5cffd6b48b",
       "smsTemplate": "d3a2245a-cd8a-4ffa-8389-bb8b32d25037",
@@ -88,8 +80,7 @@
         "FLU:65+",
         "COVID_FLU:18_64",
         "COVID_FLU:65+",
-        "RSV:Adult",
-        "COVID_RSV:18+"
+        "RSV:Adult"
       ],
       "emailTemplate": "4d8ba173-0f58-420e-ba56-f21d4382aa8c",
       "smsTemplate": "1d5690c2-6da7-4fd8-be68-42929ca1033c",
@@ -105,8 +96,7 @@
         "FLU:65+",
         "COVID_FLU:18_64",
         "COVID_FLU:65+",
-        "RSV:Adult",
-        "COVID_RSV:18+"
+        "RSV:Adult"
       ],
       "emailTemplate": "9d17e6d8-3267-4875-8869-47385b67685e",
       "smsTemplate": "6f2051d2-18c0-411e-9bd7-085503ffe268",

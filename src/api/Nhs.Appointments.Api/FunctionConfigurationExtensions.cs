@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
@@ -20,28 +26,17 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.BulkImport;
-using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.ClinicalServices;
-using Nhs.Appointments.Core.Eula;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Messaging;
-using Nhs.Appointments.Core.OdsCodes;
+using Nhs.Appointments.Core.Metrics;
 using Nhs.Appointments.Core.Okta;
-using Nhs.Appointments.Core.Reports;
 using Nhs.Appointments.Core.Reports.MasterSiteList;
 using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Core.Reports.Users;
 using Nhs.Appointments.Core.Sites;
-using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Threading.Tasks;
-using Nhs.Appointments.Core.Metrics;
 
 namespace Nhs.Appointments.Api;
 
@@ -81,6 +76,7 @@ public static class FunctionConfigurationExtensions
 
         builder.Services
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
+            .Configure<ContainerRetryOptions>(opts => configuration.GetSection("ContainerRetry").Bind(opts))
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
             .Configure<SiteSummaryOptions>(opts =>
             {
@@ -97,39 +93,13 @@ public static class FunctionConfigurationExtensions
                 opts.MinimumParallelization = configuration.GetValue<int>("SITE_SUMMARY_MINIMUM_PARALLELIZATION");
             })
             .ConfigureSiteService(configuration)
-            .AddTransient<IAvailabilityStore, AvailabilityDocumentStore>()
-            .AddTransient<IAvailabilityCreatedEventStore, AvailabilityCreatedEventDocumentStore>()
-            .AddTransient<IBookingsDocumentStore, BookingCosmosDocumentStore>()
-            .AddTransient<IReferenceNumberDocumentStore, ReferenceGroupCosmosDocumentStore>()
-            .AddTransient<IEulaStore, EulaStore>()
-            .AddTransient<IUserStore, UserStore>()
-            .AddTransient<IRolesStore, RolesStore>()
-            .AddTransient<IRolesService, RolesService>()
-            .AddTransient<ISiteStore, SiteStore>()
-            .AddTransient<IEmailWhitelistStore, EmailWhitelistStore>()
-            .AddTransient<INotificationConfigurationStore, NotificationConfigurationStore>()
-            .AddTransient<IAccessibilityDefinitionsStore, AccessibilityDefinitionsStore>()
-            .AddTransient<IWellKnownOdsCodesStore, WellKnownOdsCodesStore>()
-            .AddTransient<IClinicalServiceStore, ClinicalServiceStore>()
-            .AddTransient<IWellKnowOdsCodesService, WellKnownOdsCodesService>()
-            .AddTransient<IAggregationStore, AggregationStore>()
-            .AddCosmosDataStores()
-            .AddTransient<IBookingWriteService, BookingWriteService>()
-            .AddTransient<IBookingQueryService, BookingQueryService>()
+            .AddTypedCosmosDataStores()
+            .AddDocumentStores()
+            .AddServices()
             .AddSingleton<SiteCacheLock>()
-            .AddScoped<ISiteService, SiteService>()
-            .AddSingleton<ICacheService, CacheService>()
-            .AddTransient<IAccessibilityDefinitionsService, AccessibilityDefinitionsService>()
-            .AddTransient<IAvailabilityWriteService, AvailabilityWriteService>()
-            .AddTransient<IAvailabilityQueryService, AvailabilityQueryService>()
-            .AddTransient<IBookingAvailabilityStateService, BookingAvailabilityStateService>()
-            .AddTransient<IEulaService, EulaService>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
-            .AddTransient<IUserService, UserService>()
             .AddTransient<IPermissionChecker, PermissionChecker>()
-            .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
-            .AddTransient<ISiteReportService, SiteReportService>()
             .AddTransient<ISiteReportCsvWriter, SiteReportCsvWriter>()
             .AddTransient<IMasterSiteListReportCsvWriter, MasterSiteListReportCsvWriter>()
             .AddTransient<IBookingEventFactory, EventFactory>()
@@ -138,7 +108,6 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IApiUserDataImportHandler, ApiUserDataImportHandler>()
             .AddTransient<IDataImportHandlerFactory, DataImportHandlerFactory>()
             .AddSingleton<IHasConsecutiveCapacityFilter, HasConsecutiveCapacityFilter>()
-            .AddTransient<IDailySiteSummaryStore, DailySiteSummaryStore>()
             .AddTransient<ISitesSummaryTrigger, SiteSummaryTrigger>()
             .AddTransient<ISiteSummaryAggregator, SiteSummaryAggregator>()
             .AddSingleton(TimeProvider.System)
@@ -207,7 +176,8 @@ public static class FunctionConfigurationExtensions
                 }),
                 Serializer = new CosmosJsonSerializer(),
                 ConnectionMode = ConnectionMode.Gateway,
-                LimitToEndpoint = true
+                LimitToEndpoint = true,
+                MaxRetryAttemptsOnRateLimitedRequests = 0
             };
         }
 
@@ -224,7 +194,7 @@ public static class FunctionConfigurationExtensions
 
         var payloadTypes = openApiPayloadMarkers
             .Select(t => t.BodyType)
-            .Where(t => t.FullName.StartsWith("System") == false)
+            .Where(t => !t.FullName.StartsWith("System"))
             .Distinct()
             .ToList();
 

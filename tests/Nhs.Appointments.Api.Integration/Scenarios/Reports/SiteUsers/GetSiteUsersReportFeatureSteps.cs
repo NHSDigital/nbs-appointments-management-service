@@ -40,8 +40,7 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
     public new async Task DisposeAsync()
     {
         await base.DisposeAsync();
-        var testId = GetTestId;
-        await DeleteSiteData(Client, testId);
+        await CosmosDeleteFeed<SiteDocument>("core_data", sd => sd.Id.Contains(GetTestId), new PartitionKey("site"));
     }
 
     [When("I request a site users report")]
@@ -81,7 +80,7 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
             DocumentType = "user",
             RoleAssignments = roleAssignments
         };
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", userDocument);
     }
 
     [And("the report contains the following data")]
@@ -103,22 +102,6 @@ public abstract class GetSiteUsersReportFeatureSteps(string flag, bool enabled) 
         foreach (var expectedRow in expectedRows)
         {
             actualReport.Any(r => r.Name == expectedRow.Name).Should().BeTrue();
-        }
-    }
-
-    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
-            .ToFeedIterator();
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
         }
     }
 

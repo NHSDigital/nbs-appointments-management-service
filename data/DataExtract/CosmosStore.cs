@@ -10,18 +10,10 @@ namespace DataExtract;
 
 public class CosmosStore<TDocument>(CosmosClient cosmosClient, IOptions<CosmosStoreOptions> options)
 {
-    public Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate, Expression<Func<TDocument, TModel>> projection)
+    public async Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate, Expression<Func<TDocument, TModel>> projection)
     {
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
-        return IterateResults(queryFeed, projection.Compile());
-    }
-
-    public Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
-    {
-        var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
-            queryDefinition: query);
-
-        return IterateResults(queryFeed, item => item);
+        return await IterateResults(queryFeed, projection.Compile());
     }
 
     private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed, Func<TSource, TOutput> map)

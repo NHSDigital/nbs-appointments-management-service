@@ -14,19 +14,19 @@ public class UserService(
     IEmailWhitelistStore whiteListStore)
     : IUserService
 {
-    public Task<User> GetUserAsync(string userId)
+    public async Task<User> GetUserAsync(string userId)
     {
-        return userStore.GetUserAsync(userId);
+        return await userStore.GetUserAsync(userId);
     }
 
-    public Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
+    public async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
     {
-        return userStore.GetUserRoleAssignments(userId);
+        return await userStore.GetUserRoleAssignments(userId);
     }
 
-    public Task<string> GetApiUserSigningKey(string clientId)
+    public async Task<string> GetApiUserSigningKey(string clientId)
     {
-        return userStore.GetApiUserSigningKey(clientId);
+        return await userStore.GetApiUserSigningKey(clientId);
     }
 
     public async Task<UpdateUserRoleAssignmentsResult> UpdateUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments, bool sendNotifications = true)
@@ -91,18 +91,18 @@ public class UserService(
         }
     }
 
-    public Task<IEnumerable<User>> GetUsersAsync(string site) 
+    public async Task<IEnumerable<User>> GetUsersAsync(string site) 
     { 
-        return userStore.GetUsersAsync(site);
+        return await userStore.GetUsersAsync(site);
     }
 
-    public Task<OperationResult> RemoveUserAsync(string userId, string site)
+    public async Task<OperationResult> RemoveUserAsync(string userId, string site)
     {
-        return userStore.RemoveUserAsync(userId, site);
+        return await userStore.RemoveUserAsync(userId, site);
     }
 
-    public Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
-        => userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
+    public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
+        => await userStore.UpdateUserRoleAssignments(userId, scope, roleAssignments);
 
     public async Task<UserIdentityStatus> GetUserIdentityStatusAsync(string siteId, string userId)
     {

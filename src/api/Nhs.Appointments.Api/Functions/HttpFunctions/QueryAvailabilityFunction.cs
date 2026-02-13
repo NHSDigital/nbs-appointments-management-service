@@ -70,7 +70,7 @@ public class QueryAvailabilityFunction(
         }
 
         var concurrentResults = await Task.WhenAll(activeSites.Select(
-            site => GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1)));
+            async site => await GetAvailability(site, request.Service, request.QueryType, requestFrom, requestUntil, requestConsecutive ?? 1)));
 
         response.AddRange(concurrentResults.Where(r => r is not null).OrderBy(r => r.site));
         return Success(response);

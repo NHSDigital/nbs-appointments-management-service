@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
@@ -42,13 +43,12 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         {
             var siteId = GetSiteId();
             var bookingReference = _reschduledBookingReference;
-            var actualBooking = await Client.GetContainer("appts", "booking_data")
-                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
-            actualBooking.Resource.Status.Should().Be(AppointmentStatus.Booked);
 
-            var actualBookingIndex = await Client.GetContainer("appts", "index_data")
-                .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index"));
-            actualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
+            var actualBooking = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);
+            actualBooking.Resource.Status.Should().Be(AppointmentStatus.Booked);
+            
+            var bookingIndex = await CosmosReadItem<BookingIndexDocument>("index_data", bookingReference, new PartitionKey("booking_index"));
+            bookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
         }
     }
 }

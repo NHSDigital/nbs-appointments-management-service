@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -37,27 +38,26 @@ public abstract class AuditFeatureSteps : BaseFeatureSteps
     private async Task AssertAuditFunctionDocumentExists(string user, string functionName, string siteId)
     {
         var timestamp = DateTime.UtcNow;
-        var container = Client.GetContainer("appts", "audit_data");
 
-        var auditFunctionDocument = await FindItemWithRetryAsync(container, user, functionName, siteId,
-            TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(1));
+        var auditFunctionDocument = await FindItemWithRetryAsync(user, functionName, siteId,
+            TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(1));
 
         //confirm that the document was created recently, as cannot easily verify via id query
         auditFunctionDocument.Timestamp.Should().BeBefore(timestamp);
         auditFunctionDocument.Timestamp.Should().BeOnOrAfter(timestamp.AddSeconds(-10));
     }
 
-    private static async Task<AuditFunctionDocument> FindItemWithRetryAsync(Container container, string user,
+    private async Task<AuditFunctionDocument> FindItemWithRetryAsync(string user,
         string functionName, string siteId, TimeSpan timeout, TimeSpan delay)
     {
         var startTime = DateTime.UtcNow;
 
         while (DateTime.UtcNow - startTime < timeout)
         {
-            var documentsFound = (await RunQueryAsync<AuditFunctionDocument>(container,
-                d => d.User == user && d.FunctionName == functionName && d.Site == siteId)).ToList();
+            var documentsFound = await CosmosQueryFeed<AuditFunctionDocument>("audit_data",
+                d => d.User == user && d.FunctionName == functionName && d.Site == siteId);
 
-            if (documentsFound.Count > 0)
+            if (documentsFound.Count() > 0)
             {
                 // Audit logs with no site will not be unique on test reruns, so there may be duplicate on the 2nd run
                 if (siteId is not null)

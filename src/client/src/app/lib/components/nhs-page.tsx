@@ -12,7 +12,6 @@ import NhsMainContainer from '@components/nhs-main-container';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
 import {
-  fetchFeatureFlag,
   fetchPermissions,
   fetchUserProfile,
 } from '@services/appointmentsService';

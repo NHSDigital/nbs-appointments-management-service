@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
@@ -80,9 +81,10 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
             Type: dataTable.GetRowValueOrDefault(row, "Type")
         );
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var actualResult = await Client.GetContainer("appts", "core_data")
-            .ReadItemAsync<Site>(GetSiteId(siteId), new PartitionKey("site")); 
+        
+        var actualResult =
+            await CosmosReadItem<Site>("core_data", GetSiteId(siteId), new PartitionKey("site"), CancellationToken.None);
+        
         actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
         
         //TODO assert in .feature

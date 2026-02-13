@@ -3,4 +3,4 @@
 public class CosmosDataStoreOptions
 {
     public string DatabaseName { get; set; }
-}    
+}

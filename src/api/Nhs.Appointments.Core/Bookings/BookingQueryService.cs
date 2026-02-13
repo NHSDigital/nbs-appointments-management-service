@@ -16,9 +16,9 @@ public class BookingQueryService(
     IBookingsDocumentStore bookingDocumentStore,
     TimeProvider time) : IBookingQueryService
 {
-    public Task<IEnumerable<Booking>> GetBookedBookingsAcrossAllSites(DateTime from, DateTime to)
+    public async Task<IEnumerable<Booking>> GetBookedBookingsAcrossAllSites(DateTime from, DateTime to)
     {
-        return bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
+        return await bookingDocumentStore.GetCrossSiteAsync(from, to, AppointmentStatus.Booked);
     }
 
     public async Task<IEnumerable<Booking>> GetBookings(DateTime from, DateTime to, string site)
@@ -37,14 +37,14 @@ public class BookingQueryService(
             .ThenBy(b => b.AttendeeDetails.LastName);
     }
 
-    public Task<Booking> GetBookingByReference(string bookingReference)
+    public async Task<Booking> GetBookingByReference(string bookingReference)
     {
-        return bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
+        return await bookingDocumentStore.GetByReferenceOrDefaultAsync(bookingReference);
     }
 
-    public Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber)
+    public async Task<IEnumerable<Booking>> GetBookingByNhsNumber(string nhsNumber)
     {
-        return bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
+        return await bookingDocumentStore.GetByNhsNumberAsync(nhsNumber);
     }
 
     public async Task<IEnumerable<Booking>> GetOrderedBookings(string site, DateTime from, DateTime to, IEnumerable<AppointmentStatus> statuses)
@@ -58,8 +58,8 @@ public class BookingQueryService(
         return bookings;
     }
 
-    public Task<IEnumerable<Booking>> GetRecentlyUpdatedBookingsCrossSiteAsync(DateTime from, DateTime to)
-        => bookingDocumentStore.GetRecentlyUpdatedBookingsCrossSiteAsync(from, to, AppointmentStatus.Cancelled);
+    public async Task<IEnumerable<Booking>> GetRecentlyUpdatedBookingsCrossSiteAsync(DateTime from, DateTime to)
+        => await bookingDocumentStore.GetRecentlyUpdatedBookingsCrossSiteAsync(from, to, AppointmentStatus.Cancelled);
 
     private bool IsExpiredProvisional(Booking b) =>
         b.Status == AppointmentStatus.Provisional && b.Created < time.GetUtcNow().AddMinutes(-5);

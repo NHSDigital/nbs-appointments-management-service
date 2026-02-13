@@ -24,8 +24,8 @@ public partial class MeshMailbox(string mailboxId, ILogger<MeshMailbox> logger, 
     }
 
     /// <inheritdoc />
-    public Task<CheckInboxResponse> CheckInboxAsync()
-        => CheckInboxAsync(null);
+    public async Task<CheckInboxResponse> CheckInboxAsync()
+        => await CheckInboxAsync(null);
 
     /// <inheritdoc />
     public async IAsyncEnumerable<string> GetAllInboxMessageIds()

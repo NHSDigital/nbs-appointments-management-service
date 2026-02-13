@@ -80,7 +80,7 @@ public class GetSiteSummaryReportSteps() : BaseFeatureSteps
 
         foreach (var site in sites)
         {
-            await CosmosAction_RetryOnTooManyRequests(CosmosAction.Upsert, Client.GetContainer("appts", "aggregated_data"), site);
+            await CosmosWrite(CosmosWriteAction.Upsert, "aggregated_data", site);
         }
     }
 

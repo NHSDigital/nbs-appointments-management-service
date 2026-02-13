@@ -95,6 +95,30 @@ services:
       - SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS=1
       - SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER=2
       - APPLICATION_NAME=mya_local_docker
+      - ContainerRetry__Configurations__0__ContainerName=booking_data
+      - ContainerRetry__Configurations__0__BackoffRetryType=2
+      - ContainerRetry__Configurations__0__InitialValueMs=200
+      - ContainerRetry__Configurations__0__CutoffRetryMs=10000
+      - ContainerRetry__Configurations__1__ContainerName=core_data
+      - ContainerRetry__Configurations__1__BackoffRetryType=2
+      - ContainerRetry__Configurations__1__InitialValueMs=200
+      - ContainerRetry__Configurations__1__CutoffRetryMs=10000
+      - ContainerRetry__Configurations__2__ContainerName=client_data
+      - ContainerRetry__Configurations__2__BackoffRetryType=2
+      - ContainerRetry__Configurations__2__InitialValueMs=200
+      - ContainerRetry__Configurations__2__CutoffRetryMs=10000
+      - ContainerRetry__Configurations__3__ContainerName=audit_data
+      - ContainerRetry__Configurations__3__BackoffRetryType=2
+      - ContainerRetry__Configurations__3__InitialValueMs=200
+      - ContainerRetry__Configurations__3__CutoffRetryMs=10000
+      - ContainerRetry__Configurations__4__ContainerName=index_data
+      - ContainerRetry__Configurations__4__BackoffRetryType=2
+      - ContainerRetry__Configurations__4__InitialValueMs=200
+      - ContainerRetry__Configurations__4__CutoffRetryMs=10000
+      - ContainerRetry__Configurations__5__ContainerName=aggregated_data
+      - ContainerRetry__Configurations__5__BackoffRetryType=2
+      - ContainerRetry__Configurations__5__InitialValueMs=200
+      - ContainerRetry__Configurations__5__CutoffRetryMs=10000
   splunk:
     image: splunk/splunk:9.3
     container_name: splunk

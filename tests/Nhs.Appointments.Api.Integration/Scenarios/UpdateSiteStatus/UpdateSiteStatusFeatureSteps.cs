@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
@@ -50,7 +51,9 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
     {
         Response.EnsureSuccessStatusCode();
 
-        var actualResult = await Client.GetContainer("appts", "core_data").ReadItemAsync<SiteDocument>(_testId.ToString(), new PartitionKey("site"));
+        var actualResult =
+            await CosmosReadItem<SiteDocument>("core_data", _testId.ToString(), new PartitionKey("site"), CancellationToken.None);
+        
         actualResult.Resource.Status.Should().Be(UpdatedSiteStatus);
     }
 

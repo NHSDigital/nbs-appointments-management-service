@@ -148,9 +148,9 @@ public class BookingWriteService(
         return result;
     }
 
-    public Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
+    public async Task<bool> SetBookingStatus(string bookingReference, AppointmentStatus status,
         AvailabilityStatus availabilityStatus) =>
-        bookingDocumentStore.UpdateStatus(bookingReference, status, availabilityStatus);
+        await bookingDocumentStore.UpdateStatus(bookingReference, status, availabilityStatus);
 
     public async Task SendBookingReminders()
     {
@@ -167,9 +167,9 @@ public class BookingWriteService(
         }
     }
 
-    public Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
+    public async Task<IEnumerable<string>> RemoveUnconfirmedProvisionalBookings()
     {
-        return bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
+        return await bookingDocumentStore.RemoveUnconfirmedProvisionalBookings();
     }
 
     public async Task RecalculateAppointmentStatuses(string site, DateOnly day,
@@ -185,8 +185,7 @@ public class BookingWriteService(
     {
         using var leaseContent = siteLeaseManager.Acquire(site);
 
-        var dayTasks =
-            days.Select(day => RecalculateAppointmentStatusesForDay(site, day, newlyUnsupportedBookingAction));
+        var dayTasks = days.Select(async day => await RecalculateAppointmentStatusesForDay(site, day, newlyUnsupportedBookingAction));
 
         var results = await Task.WhenAll(dayTasks);
 
@@ -383,10 +382,10 @@ public class BookingWriteService(
         }
     }
 
-    private Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
-        bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);
+    private async Task UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status) =>
+        await bookingDocumentStore.UpdateAvailabilityStatus(bookingReference, status);
 
-    private Task DeleteBooking(string reference, string site) => bookingDocumentStore.DeleteBooking(reference, site);
+    private async Task DeleteBooking(string reference, string site) => await bookingDocumentStore.DeleteBooking(reference, site);
 
     private async Task SendConfirmNotification(string bookingReference, BookingConfirmationResult result,
         bool isRescheduleOperation)

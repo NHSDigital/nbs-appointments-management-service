@@ -8,9 +8,9 @@ namespace Nhs.Appointments.Persistance;
 
 public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : ISiteStore
 {
-    public Task<Site> GetSiteById(string siteId)
+    public async Task<Site> GetSiteById(string siteId)
     {
-        return GetOrDefault(siteId);
+        return await GetOrDefault(siteId);
     }
 
     public async Task<IEnumerable<Site>> GetAllSites()
@@ -48,11 +48,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         return !originalDocument.isDeleted.HasValue || !originalDocument.isDeleted.Value;
     }
 
-    public Task AssignPrefix(string site, int prefix)
+    public async Task AssignPrefix(string site, int prefix)
     {
         var updatePrefix = PatchOperation.Set("/referenceNumberGroup", prefix);
         var partitionKey = cosmosStore.GetDocumentType();
-        return cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
+        await cosmosStore.PatchDocument(partitionKey, site, updatePrefix);
     }
 
     public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities)
@@ -168,9 +168,9 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
         }
     }
 
-    public Task<IEnumerable<Site>> GetSitesInRegionAsync(string region)
+    public async Task<IEnumerable<Site>> GetSitesInRegionAsync(string region)
     {
-        return cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
+        return await cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
     }
 
     public async Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status)

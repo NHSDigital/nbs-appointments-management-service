@@ -39,8 +39,7 @@ public abstract class GetMasterSiteListReportFeatureSteps(string flag, bool enab
     public new async Task DisposeAsync()
     {
         await base.DisposeAsync();
-        var testId = GetTestId;
-        await DeleteSiteData(Client, testId);
+        await CosmosDeleteFeed<SiteDocument>("core_data", sd => sd.Id.Contains(GetTestId), new PartitionKey("site"));
     }
 
     [When("I request master site list report")]
@@ -105,22 +104,6 @@ public abstract class GetMasterSiteListReportFeatureSteps(string flag, bool enab
             realReport.Lat.Should().Be(expectedRow.Lat);
             realReport.Long.Should().Be(expectedRow.Long);
             realReport.Address.Should().Be(expectedRow.Address);
-        }
-    }
-
-    private static async Task DeleteSiteData(CosmosClient cosmosClient, string testId)
-    {
-        const string partitionKey = "site";
-        var container = cosmosClient.GetContainer("appts", "core_data");
-        using var feed = container.GetItemLinqQueryable<SiteDocument>().Where(sd => sd.Id.Contains(testId))
-            .ToFeedIterator();
-        while (feed.HasMoreResults)
-        {
-            var documentsResponse = await feed.ReadNextAsync();
-            foreach (var document in documentsResponse)
-            {
-                await container.DeleteItemStreamAsync(document.Id, new PartitionKey(partitionKey));
-            }
         }
     }
 

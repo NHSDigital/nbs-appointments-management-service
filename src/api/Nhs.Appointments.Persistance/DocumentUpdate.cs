@@ -38,11 +38,11 @@ public class DocumentUpdate<TModel, TDocument> : IDocumentUpdate<TModel>
         return this;
     }
 
-    public Task ApplyAsync()
+    public async Task ApplyAsync()
     {
         if (_patches.Count > 10)
             throw new NotSupportedException("Only 10 patches can be applied");
 
-        return _store.PatchDocument(_partitionKey, _documentId, _patches.ToArray());
+        await _store.PatchDocument(_partitionKey, _documentId, _patches.ToArray());
     }
 }

@@ -58,7 +58,7 @@ public class NotificationsServiceProviderExtensionsTests
         var serviceProvider = _serviceCollection
             .AddDependenciesNotUnderTest()
             .AddUserNotifications(configuration)
-            .AddCosmosDataStores()
+            .AddTypedCosmosDataStores()
             .AddTransient<ITypedDocumentCosmosStore<AuditFunctionDocument>, TypedDocumentCosmosStore<AuditFunctionDocument>>()
             .AddTransient<ITypedDocumentCosmosStore<AuditAuthDocument>, TypedDocumentCosmosStore<AuditAuthDocument>>()
             .AddTransient<ITypedDocumentCosmosStore<AuditNotificationDocument>, TypedDocumentCosmosStore<AuditNotificationDocument>>()

@@ -27,6 +27,6 @@ public abstract class UserManagementBaseFeatureSteps : BaseFeatureSteps
             DocumentType = "user",
             RoleAssignments = roleAssignments
         };
-        await CosmosAction_RetryOnTooManyRequests(CosmosAction.Create, Client.GetContainer("appts", "core_data"), userDocument);
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", userDocument);
     }
 }

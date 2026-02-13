@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -59,12 +60,12 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
         var siteId = GetSiteId();
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Provisional);
 
-        var actualBooking = await Client.GetContainer("appts", "booking_data")
-            .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+        var actualBooking = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);
+        
         actualBooking.Resource.Status.Should().Be(AppointmentStatus.Booked);
 
-        var actualBookingIndex = await Client.GetContainer("appts", "index_data")
-            .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index"));
+        var actualBookingIndex =
+            await CosmosReadItem<BookingIndexDocument>("index_data", bookingReference, new PartitionKey("booking_index"));
         actualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
     }
 
@@ -81,12 +82,10 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
                                        BookingType.Provisional);
             defaultReferenceOffset += 1;
             
-            var booking = await Client.GetContainer("appts", "booking_data")
-                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
-            booking.Resource.Status.Should().Be(AppointmentStatus.Booked);
+            var bookingDocument = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);
+            bookingDocument.Resource.Status.Should().Be(AppointmentStatus.Booked);
 
-            var bookingIndex = await Client.GetContainer("appts", "index_data")
-                .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index"));
+            var bookingIndex = await CosmosReadItem<BookingIndexDocument>("index_data", bookingReference, new PartitionKey("booking_index"));
             bookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
         }
     }
@@ -105,9 +104,9 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
             defaultReferenceOffset += 1;
 
             var expectedContactDetails = BuildExpectedContactItems(dataTable, row);
-
-            var booking = await Client.GetContainer("appts", "booking_data")
-                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+            
+            var booking = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);
+            
             booking.Resource.ContactDetails.Should().BeEquivalentTo(expectedContactDetails);
         }
     }
@@ -127,8 +126,7 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
 
             var expectedBatchSize = dataTable.GetIntRowValueOrDefault(row, "Booking batch size", int.MinValue);
 
-            var booking = await Client.GetContainer("appts", "booking_data")
-                .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
+            var booking = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);
             booking.Resource.BookingBatchSize.Should().Be(expectedBatchSize);
         }
     }

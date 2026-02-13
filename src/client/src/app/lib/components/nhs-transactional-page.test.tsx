@@ -1,13 +1,20 @@
 import { render, screen } from '@testing-library/react';
-import { fetchPermissions } from '@services/appointmentsService';
+import {
+  fetchPermissions,
+  fetchUserProfile,
+} from '@services/appointmentsService';
 import { mockAllPermissions } from '@testing/data';
 import NhsTransactionalPage from './nhs-transactional-page';
-import { ServerActionResult } from '@types';
+import { ServerActionResult, UserProfile } from '@types';
 import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
 const fetchPermissionsMock = fetchPermissions as jest.Mock<
   Promise<ServerActionResult<string[]>>
+>;
+jest.mock('@services/appointmentsService');
+const fetchUserProfileMock = fetchUserProfile as jest.Mock<
+  Promise<ServerActionResult<UserProfile>>
 >;
 
 let mockGetCookies = jest.fn().mockImplementation((cookieName: string) => {
@@ -49,6 +56,12 @@ describe('Nhs Page', () => {
         'site:manage',
         'users:view',
       ]),
+    );
+    fetchUserProfileMock.mockResolvedValue(
+      asServerActionResult({
+        emailAddress: 'test@nhs.net',
+        hasSites: true,
+      }),
     );
   });
 

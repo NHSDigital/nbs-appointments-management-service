@@ -7,6 +7,8 @@ import { cookies } from 'next/headers';
 import NotificationBanner from './notification-banner';
 import NhsFooter from './nhs-footer';
 import NhsPageHeader from './nhsuk-frontend/nhs-page-header';
+import { fetchUserProfile } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
 
 type Props = {
   children: ReactNode;
@@ -26,9 +28,14 @@ const NhsTransactionalPage = async ({
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
 
+  const userProfile = await fromServer(fetchUserProfile());
+
   return (
     <>
-      <NhsPageHeader showChangeSiteButton={false} />
+      <NhsPageHeader
+        showChangeSiteButton={false}
+        userEmail={userProfile.emailAddress}
+      />
       <FeedbackBanner originPage={originPage} />
       <NhsMainContainer>
         {backLink && <BackLink {...backLink} />}

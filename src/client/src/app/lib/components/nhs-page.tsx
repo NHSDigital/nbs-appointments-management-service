@@ -115,20 +115,22 @@ const getLinksForSite = async (
     );
   };
 
+  const basePath = process.env.CLIENT_BASE_PATH;
+
   const navigationLinks: NavigationLink[] = [];
 
   if (site !== undefined) {
     if (permissionsAtSite.includes('availability:query')) {
       navigationLinks.push({
         label: 'View availability',
-        href: `/site/${site.id}/view-availability`,
+        href: `${basePath}/site/${site.id}/view-availability`,
       });
     }
 
     if (permissionsAtSite.includes('availability:setup')) {
       navigationLinks.push({
         label: 'Create availability',
-        href: `/site/${site.id}/create-availability`,
+        href: `${basePath}/site/${site.id}/create-availability`,
       });
     }
 
@@ -138,14 +140,14 @@ const getLinksForSite = async (
     ) {
       navigationLinks.push({
         label: 'Change site details',
-        href: `/site/${site.id}/details`,
+        href: `${basePath}/site/${site.id}/details`,
       });
     }
 
     if (permissionsAtSite.includes('users:view')) {
       navigationLinks.push({
         label: 'Manage users',
-        href: `/site/${site.id}/users`,
+        href: `${basePath}/site/${site.id}/users`,
       });
     }
   }
@@ -153,7 +155,7 @@ const getLinksForSite = async (
   if (hasAnyReportPermissions() && siteSummaryFlag.enabled) {
     navigationLinks.push({
       label: 'Reports',
-      href: `/reports`,
+      href: `${basePath}/reports`,
     });
   }
 

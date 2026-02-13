@@ -221,12 +221,12 @@ describe('Nhs Page', () => {
       if (path === 'reports') {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
           'href',
-          `/${path}`,
+          `/manage-your-appointments/${path}`,
         );
       } else {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
           'href',
-          `/site/${mockSite.id}/${path}`,
+          `/manage-your-appointments/site/${mockSite.id}/${path}`,
         );
       }
     },

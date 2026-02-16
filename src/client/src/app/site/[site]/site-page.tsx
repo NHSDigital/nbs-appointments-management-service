@@ -64,11 +64,11 @@ export const SitePage = ({
                   item.value
                 )
               ) : (
-                <ul className="nhsuk-list nhsuk-list--bullet">
+                <div>
                   {item.value?.map((line, lineIndex) => (
-                    <li key={lineIndex}>{line}</li>
+                    <div key={lineIndex}>{line}</div>
                   ))}
-                </ul>
+                </div>
               )}
             </SummaryList.Value>
           </SummaryList.Row>
@@ -95,7 +95,9 @@ export const SitePage = ({
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">
-                  <Card.Link href={`/site/${site.id}/create-availability`}>
+                  <Card.Link
+                    href={`/manage-your-appointments/site/${site.id}/create-availability`}
+                  >
                     Create availability
                   </Card.Link>
                 </Card.Heading>
@@ -103,24 +105,28 @@ export const SitePage = ({
               </Card>
             </li>
           )}
-          {permissionsRelevantToCards.includes('site:manage') ||
-            (permissionsRelevantToCards.includes('site:view') && (
-              <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-                <Card clickable>
-                  <Card.Heading headingLevel="h3">
-                    <Card.Link href={`/site/${site.id}/details`}>
-                      Change site details and accessibility information
-                    </Card.Link>
-                  </Card.Heading>
-                  <ArrowRightCircleIcon />
-                </Card>
-              </li>
-            ))}
+          {(permissionsRelevantToCards.includes('site:manage') ||
+            -permissionsRelevantToCards.includes('site:view')) && (
+            <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
+              <Card primary clickable>
+                <Card.Heading headingLevel="h3">
+                  <Card.Link
+                    href={`/manage-your-appointments/site/${site.id}/details`}
+                  >
+                    Change site details and accessibility information
+                  </Card.Link>
+                </Card.Heading>
+                <ArrowRightCircleIcon />
+              </Card>
+            </li>
+          )}
           {permissionsRelevantToCards.includes('users:view') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">
-                  <Card.Link href={`/site/${site.id}/users`}>
+                  <Card.Link
+                    href={`/manage-your-appointments/site/${site.id}/users`}
+                  >
                     Manage users
                   </Card.Link>
                 </Card.Heading>
@@ -132,7 +138,9 @@ export const SitePage = ({
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">
-                  <Card.Link href={`/reports`}>Download reports</Card.Link>
+                  <Card.Link href={`/manage-your-appointments/reports`}>
+                    Download reports
+                  </Card.Link>
                 </Card.Heading>
                 <ArrowRightCircleIcon />
               </Card>

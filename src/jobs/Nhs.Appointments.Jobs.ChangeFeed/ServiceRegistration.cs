@@ -26,6 +26,12 @@ public static class ServiceRegistration
         return services.AddTransient<IFeedEventMapper<TFeed, TModel>, TMapper>();
     }
     
+    public static IServiceCollection AddDataFilter<TFeed, TFilter>(this IServiceCollection services)
+        where TFilter : class, IDataFilter<TFeed>
+    {
+        return services.AddTransient<IDataFilter<TFeed>, TFilter>();
+    }
+    
     public static IServiceCollection AddChangeFeedSink<TModel, TSink>(this IServiceCollection services)
         where TSink : class, ISink<TModel>
     {

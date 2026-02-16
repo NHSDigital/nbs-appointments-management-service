@@ -18,7 +18,12 @@ builder.UseAppointmentsSerilog();
 var applicationName = builder.Configuration.GetValue<string>("Application_Name") ?? throw new NullReferenceException("Application_Name is required");
 
 var containerConfiguration =
-    new ContainerConfiguration { ContainerName = "booking_data", LeaseContainerName = "booking_aggregation_lease", PollingIntervalSeconds = builder.Configuration.GetValue<int>("ChangeFeedPollingIntervalSeconds") };
+    new ContainerConfiguration
+    {
+        ContainerName = "booking_data", 
+        LeaseContainerName = "booking_aggregation_lease", 
+        PollingIntervalSeconds = builder.Configuration.GetValue<int>("ChangeFeedPollingIntervalSeconds")
+    };
 
 builder.Services
     .AddSingleton(TimeProvider.System)
@@ -27,11 +32,13 @@ builder.Services
     .AddSingleton<ICosmosTransaction, CosmosTransaction>()
     .Configure<CosmosTransactionOptions>(builder.Configuration.GetSection("CosmosTransactionOptions"))
     .AddChangeFeedSink<AggregateSiteSummaryEvent, AggregatorSink>()
+    .AddDataFilter<JObject, AggregateSiteSummaryEventDataFilter>()
     .AddFeedEventMapper<JObject, AggregateSiteSummaryEvent, AggregateSiteSummaryEventFeedEventMapper>()
     .AddDefaultChangeFeed<JObject, AggregateSiteSummaryEvent>([
         containerConfiguration
     ], applicationName)
-    .AddChangeFeedWorker<JObject>(containerConfiguration);
+    .AddChangeFeedWorker<JObject>(containerConfiguration)
+    .Configure<DataFilterOptions>(builder.Configuration.GetSection("DataFilterOptions"));
 
 var host = builder.Build();
 host.Run();

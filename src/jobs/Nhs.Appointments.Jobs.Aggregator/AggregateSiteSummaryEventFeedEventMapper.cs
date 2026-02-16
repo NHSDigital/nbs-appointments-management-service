@@ -7,7 +7,7 @@ public class AggregateSiteSummaryEventFeedEventMapper : IFeedEventMapper<JObject
 {
     public IEnumerable<AggregateSiteSummaryEvent> MapToEvents(IEnumerable<JObject> feedItems)
     {
-        return feedItems.Where(IsValidDocument)
+        return feedItems
             .Select(item => new AggregateSiteSummaryEvent(ResolveSite(item), ResolveDate(item)))
             .Distinct();
     }
@@ -26,13 +26,5 @@ public class AggregateSiteSummaryEventFeedEventMapper : IFeedEventMapper<JObject
             default:
                 throw new InvalidOperationException($"Unknown document type: {item.Value<string>("docType")}");
         }
-    }
-
-    private static bool IsValidDocument(JObject item)
-    {
-        var docType = item.Value<string>("docType");
-
-        return (docType == "daily_availability" && item.ContainsKey("date") && item.ContainsKey("site")) || 
-               (docType == "booking" && item.Value<string>("status") != "Provisional" && item.ContainsKey("from") && item.ContainsKey("site"));
     }
 }

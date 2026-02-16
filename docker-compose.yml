@@ -222,5 +222,8 @@ services:
       - CosmosTransactionOptions__MaxRetry=50
       - CosmosTransactionOptions__DefaultWaitSeconds=30
       - ChangeFeedPollingIntervalSeconds=1
+      - DataFilterOptions__DocumentTypes__0=daily_availability
+      - DataFilterOptions__DocumentTypes__1=booking
+      - DataFilterOptions__Sites__0=6e3348bf-3509-45f2-887c-4f9651501f06
 volumes:
   splunk-data:

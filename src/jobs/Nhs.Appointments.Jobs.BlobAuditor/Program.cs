@@ -30,6 +30,7 @@ builder.Services
     .AddCosmos(builder.Configuration)
     .AddAzureBlobStorage(builder.Configuration)
     .AddChangeFeedSink<JObject, BlobSink>()
+    .AddDataFilter<JObject, AuditDataFilter>()
     .AddFeedEventMapper<JObject, JObject, AuditFeedEventMapper>()
     .AddDefaultChangeFeed<JObject, JObject>(containerConfigs, applicationName);
 

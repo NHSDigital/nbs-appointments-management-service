@@ -10,6 +10,7 @@ public class ChangeFeedHandler<TFeed, TEvent>(
     ILogger<ChangeFeedHandler<TFeed, TEvent>> logger,
     IEnumerable<ISink<TEvent>> auditSinks,
     IFeedEventMapper<TFeed, TEvent> feedEventMapper,
+    IDataFilter<TFeed> dataFilter,
     IContainerConfigFactory containerConfigFactory,
     CosmosClient cosmosClient
 ) : IChangeFeedHandler
@@ -43,7 +44,9 @@ public class ChangeFeedHandler<TFeed, TEvent>(
         {
             logger.LogInformation($"Changes detected.");
 
-            foreach (var item in feedEventMapper.MapToEvents(changes))
+            var filteredChanges = changes.Where(dataFilter.IsValidItem);
+
+            foreach (var item in feedEventMapper.MapToEvents(filteredChanges))
             {
                 var tasks = auditSinks.Select(sink => sink.Consume(containerName, item));
 

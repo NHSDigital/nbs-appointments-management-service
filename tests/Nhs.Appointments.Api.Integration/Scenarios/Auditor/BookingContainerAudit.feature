@@ -42,7 +42,3 @@ Feature: Blob Audit Booking Data
     And a sanitized version of the booking should be audited in StorageAccount
     And the booking index should be audited in StorageAccount
 
-
-
-#firstName, lastName, dob = attendeDetails
-

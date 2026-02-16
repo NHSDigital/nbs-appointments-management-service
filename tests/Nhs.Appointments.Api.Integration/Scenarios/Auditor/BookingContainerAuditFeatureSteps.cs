@@ -204,9 +204,15 @@ public sealed class BookingContainerAuditFeatureSteps : BaseFeatureSteps
         auditDoc.Should().BeEquivalentTo(cosmosDoc, options => options
             .Excluding(ctx => ctx.Path.Contains("_"))
             .Excluding(x => x.ContactDetails)
+            .Excluding(ctx => ctx.Path == "AttendeeDetails.FirstName")
+            .Excluding(ctx => ctx.Path == "AttendeeDetails.LastName")
+            .Excluding(ctx => ctx.Path == "AttendeeDetails.DateOfBirth")
         );
         cosmosDoc.ContactDetails.Should().NotBeNull("because Cosmos should store the contact info");
         auditDoc.ContactDetails.Should().BeNull("because the Audit record should mask or omit contact info");
+        auditDoc.AttendeeDetails.FirstName.Should().BeNull();
+        auditDoc.AttendeeDetails.LastName.Should().BeNull();
+        auditDoc.AttendeeDetails.DateOfBirth.Should().Be(DateOnly.MinValue);
     }
 
     [And("I confirm the rescheduled booking")]

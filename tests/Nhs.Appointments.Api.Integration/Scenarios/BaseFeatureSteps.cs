@@ -58,6 +58,8 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected readonly Mapper Mapper;
     protected HttpStatusCode _statusCode;
+    
+    protected DateTimeOffset _actionTimestamp;
 
     protected ContainerRetryConfiguration BaseRetryOptions = new()
     {

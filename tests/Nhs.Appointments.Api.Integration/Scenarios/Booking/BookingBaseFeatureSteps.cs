@@ -36,6 +36,9 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
         var site = GetSiteId(siteId);
+        
+        _actionTimestamp = DateTimeOffset.UtcNow;
+        
         Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }

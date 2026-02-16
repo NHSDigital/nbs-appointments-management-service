@@ -10,7 +10,9 @@ public class AggregateSiteSummaryEventDataFilter(IOptions<DataFilterOptions> opt
 {
     public bool IsValidItem(JObject item)
     {
-        if (!CanProcessDocumentType(item.Value<string>("docType")))
+        var docType = item.Value<string>("docType");
+        
+        if (!CanProcessDocumentType(docType))
         {
             return false;
         }
@@ -19,8 +21,27 @@ public class AggregateSiteSummaryEventDataFilter(IOptions<DataFilterOptions> opt
         {
             return false;
         }
-    
-        return (item.ContainsKey("date") && item.ContainsKey("site")) || 
-               (item.Value<string>("status") != "Provisional" && item.ContainsKey("from") && item.ContainsKey("site"));
+
+        //extra valid data checks
+        switch (docType)
+        {
+            case "daily_availability":
+                var validAvailabilityData = item.ContainsKey("date") && item.ContainsKey("site");
+                if (!validAvailabilityData)
+                {
+                    logger.LogError("Invalid daily_availability document data");
+                }
+                return validAvailabilityData;
+            case "booking":
+                var validBookingData = item.ContainsKey("from") && item.ContainsKey("site");
+                if (!validBookingData)
+                {
+                    logger.LogError("Invalid booking document data");
+                }
+                
+                return validBookingData && item.Value<string>("status") != "Provisional";
+            default:
+                return true;
+        }
     }
 }

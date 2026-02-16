@@ -18,7 +18,7 @@ public class AggregateSiteSummaryEventFeedEventMapperTests
     {
         { "docType", "daily_availability" },
         { "site", site },
-        { "from", date.ToString("yyyy-MM-dd") }
+        { "date", date.ToString("yyyy-MM-dd") }
     };
     
     [Fact]

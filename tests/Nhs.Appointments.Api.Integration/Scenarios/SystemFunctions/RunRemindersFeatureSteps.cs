@@ -46,7 +46,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         var auditEntry = new AvailabilityCreatedEventDocument
         {
             Id = Guid.NewGuid().ToString(),
-            DocumentType = "availiblity_created",
+            DocumentType = "availability_created_event",
             From = NaturalLanguageDate.Parse("2 days from today"),
             By = "someone",
             Site = GetSiteId(),

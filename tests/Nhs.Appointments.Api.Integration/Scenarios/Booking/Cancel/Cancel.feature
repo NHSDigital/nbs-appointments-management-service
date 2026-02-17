@@ -30,25 +30,25 @@ Feature: Appointment cancellation
   Scenario: Cancel a booking appointment and provide the site parameter
     Given the following sites exist in the system
       | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
-      | 6e3348bf-3509-45f2-887c-4f9651501f06 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for existing site '6e3348bf-3509-45f2-887c-4f9651501f06'
+      | 6e3348bf-3509-45f2-887c-4f9651501f05 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
+    And the following sessions exist for existing site '6e3348bf-3509-45f2-887c-4f9651501f05'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made for site '6e3348bf-3509-45f2-887c-4f9651501f06'
+    And the following bookings have been made for site '6e3348bf-3509-45f2-887c-4f9651501f05'
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
     # Wait for setup aggregation to be processed
-    And an aggregation is created for site '6e3348bf-3509-45f2-887c-4f9651501f06', date 'Tomorrow', '0' cancelled bookings, and maximumCapacity '12', and with service details
+    And an aggregation is created for site '6e3348bf-3509-45f2-887c-4f9651501f05', date 'Tomorrow', '0' cancelled bookings, and maximumCapacity '12', and with service details
       | Service  | Bookings    | Orphaned  | RemainingCapacity |
       | COVID    | 1           | 0         | 11                |
-    When I cancel the appointment with site parameter '6e3348bf-3509-45f2-887c-4f9651501f06'
-    Then the booking at site '6e3348bf-3509-45f2-887c-4f9651501f06' has been 'Cancelled'
-    And an aggregation updated recently for site '6e3348bf-3509-45f2-887c-4f9651501f06', date 'Tomorrow', '1' cancelled bookings, and maximumCapacity '12', and with service details
+    When I cancel the appointment with site parameter '6e3348bf-3509-45f2-887c-4f9651501f05'
+    Then the booking at site '6e3348bf-3509-45f2-887c-4f9651501f05' has been 'Cancelled'
+    And an aggregation updated recently for site '6e3348bf-3509-45f2-887c-4f9651501f05', date 'Tomorrow', '1' cancelled bookings, and maximumCapacity '12', and with service details
       | Service  | Bookings    | Orphaned  | RemainingCapacity |
       | COVID    | 0           | 0         | 12                |
     And an audit function document was created for
       | User     | Function Name         | Site                                 |
-      | api@test | CancelBookingFunction | 6e3348bf-3509-45f2-887c-4f9651501f06 |
+      | api@test | CancelBookingFunction | 6e3348bf-3509-45f2-887c-4f9651501f05 |
     
   Scenario: Cancel a booking appointment and provide the wrong site parameter
     Given the following sites exist in the system

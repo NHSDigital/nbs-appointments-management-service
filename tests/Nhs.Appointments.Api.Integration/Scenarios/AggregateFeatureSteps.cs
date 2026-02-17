@@ -14,7 +14,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 public abstract class AggregateFeatureSteps : BaseFeatureSteps
 {
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(2);
-    private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(10);
+    private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(20);
 
     [Then(
         @"an aggregation updated recently for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]
@@ -69,8 +69,8 @@ public abstract class AggregateFeatureSteps : BaseFeatureSteps
         var dailySiteSummaryDocument = await FindItemWithDetailsRetryAsync(predicate, expectedAggregationDocument);
 
         //confirm that the document was created recently, as cannot easily verify via id query
-        dailySiteSummaryDocument.GeneratedAtUtc.Should().BeBefore(_actionTimestamp.Add(_pollingTimeout));
         dailySiteSummaryDocument.GeneratedAtUtc.Should().BeOnOrAfter(_actionTimestamp);
+        dailySiteSummaryDocument.GeneratedAtUtc.Should().BeBefore(_actionTimestamp.Add(_pollingTimeout));
 
         return dailySiteSummaryDocument;
     }

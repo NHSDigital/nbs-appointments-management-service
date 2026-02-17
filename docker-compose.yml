@@ -221,9 +221,15 @@ services:
       - SPLUNK_HEC_TOKEN=e2c421cf-9228-4ab2-a6e8-877741df569a
       - CosmosTransactionOptions__MaxRetry=50
       - CosmosTransactionOptions__DefaultWaitSeconds=30
-      - ChangeFeedPollingIntervalSeconds=1
+      - ChangeFeedPollingIntervalSeconds=2
       - DataFilterOptions__DocumentTypes__0=daily_availability
       - DataFilterOptions__DocumentTypes__1=booking
       - DataFilterOptions__Sites__0=6e3348bf-3509-45f2-887c-4f9651501f06
+      - DataFilterOptions__Sites__1=6e3348bf-3509-45f2-887c-4f9651501f05
+      - DataFilterOptions__Sites__2=6e3348bf-3509-45f2-887c-4f9651501f04
+      - DataFilterOptions__Sites__3=6e3348bf-3509-45f2-887c-4f9651501f03
+      - DataFilterOptions__Sites__4=6e3348bf-3509-45f2-887c-4f9651501f02
+      - DataFilterOptions__Sites__5=6e3348bf-3509-45f2-887c-4f9651501f01
+      - DataFilterOptions__Sites__6=6e3348bf-3509-45f2-887c-4f9651501f00
 volumes:
   splunk-data:

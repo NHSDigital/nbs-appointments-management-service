@@ -26,7 +26,7 @@ public class ChangeFeedHandler<TFeed, TEvent>(
         var leaseContainer = cosmosClient.GetContainer(DatabaseName, leaseContainerName);
         var changeFeedProcessor = CreateChangeFeedProcessorBuilder(config.ContainerName)
             .WithInstanceName(applicationNameConfiguration.Value.ApplicationName)
-            .WithPollInterval(TimeSpan.FromSeconds(config.PollingIntervalSeconds))
+            .WithPollInterval(TimeSpan.FromMilliseconds(config.PollingIntervalSeconds))
             .WithStartTime(DateTime.MinValue.ToUniversalTime())
             .WithLeaseContainer(leaseContainer)
             .Build();

@@ -1,5 +1,4 @@
 import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
-import { Card } from '@components/nhsuk-frontend';
 import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
@@ -7,6 +6,7 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import { RFC3339Format, isFutureCalendarDateUk } from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
+import { Card } from 'nhsuk-react-components';
 
 type DaySummaryCardProps = {
   daySummary: DaySummary;
@@ -50,7 +50,8 @@ export const DaySummaryCard = ({
     ].filter(p => p !== false);
 
     return (
-      <Card title={ukDate.format('dddd D MMMM')}>
+      <Card>
+        <Card.Heading>{ukDate.format('dddd D MMMM')}</Card.Heading>
         <div>No availability</div>
         <AppointmentCountsSummary period={daySummary} />
         <PipeDelimitedLinks actionLinks={actionLinks} />
@@ -75,21 +76,16 @@ export const DaySummaryCard = ({
       },
   ].filter(p => p !== false);
 
-  const futureCancelDayLink =
-    cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
-      <Link
-        className="nhsuk-link"
-        href={`/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
-      >
-        Cancel day
-      </Link>
-    ) : null;
-
   return (
-    <Card
-      title={ukDate.format('dddd D MMMM')}
-      actionLinks={futureCancelDayLink}
-    >
+    <Card>
+      <Card.Heading size="m">{ukDate.format('dddd D MMMM')}</Card.Heading>
+      {cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
+        <Card.Action
+          href={`${process.env.CLIENT_BASE_PATH}/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
+        >
+          Cancel day
+        </Card.Action>
+      ) : null}
       <SessionSummaryTable
         sessionSummaries={sessions}
         clinicalServices={clinicalServices}

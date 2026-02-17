@@ -6,7 +6,7 @@ import {
   mockSites,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
-import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import { verifyV10SummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 import { getAppInsightsClient } from '../../appInsights';
 
 jest.mock('../../appInsights', () => {
@@ -53,8 +53,8 @@ describe('Site Page', () => {
       />,
     );
 
-    verifySummaryListItem('Region', 'Region One');
-    verifySummaryListItem('ICB', 'Integrated Care Board One');
+    verifyV10SummaryListItem('Region', 'Region One');
+    verifyV10SummaryListItem('ICB', 'Integrated Care Board One');
 
     expect(screen.queryByText(mockSite.region)).not.toBeInTheDocument();
     expect(
@@ -74,8 +74,8 @@ describe('Site Page', () => {
         siteStatusEnabled
       />,
     );
-    verifySummaryListItem('Region', mockSite.region);
-    verifySummaryListItem('ICB', mockSite.integratedCareBoard);
+    verifyV10SummaryListItem('Region', mockSite.region);
+    verifyV10SummaryListItem('ICB', mockSite.integratedCareBoard);
 
     expect(screen.queryByText('Region One')).not.toBeInTheDocument();
     expect(
@@ -96,7 +96,7 @@ describe('Site Page', () => {
       />,
     );
 
-    verifySummaryListItem('Address', 'Alpha Street');
+    verifyV10SummaryListItem('Address', 'Alpha Street');
   });
 
   it('renders address and phone number', () => {
@@ -112,8 +112,8 @@ describe('Site Page', () => {
       />,
     );
 
-    verifySummaryListItem('Phone Number', '0118 999 88199 9119 725 3');
-    verifySummaryListItem('Address', ['Delta Street,', 'London']);
+    verifyV10SummaryListItem('Phone Number', '0118 999 88199 9119 725 3');
+    verifyV10SummaryListItem('Address', ['Delta Street,', 'London']);
   });
 
   it.each([
@@ -157,12 +157,12 @@ describe('Site Page', () => {
       if (path === 'reports') {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
           'href',
-          `/${path}`,
+          `/manage-your-appointments/${path}`,
         );
       } else {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
           'href',
-          `/site/${mockSite.id}/${path}`,
+          `/manage-your-appointments/site/${mockSite.id}/${path}`,
         );
       }
     },

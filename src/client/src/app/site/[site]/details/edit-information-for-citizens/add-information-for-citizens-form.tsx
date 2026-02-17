@@ -4,7 +4,6 @@ import {
   ButtonGroup,
   FormGroup,
   SmallSpinnerWithText,
-  TextArea,
 } from '@components/nhsuk-frontend';
 import { setSiteInformationForCitizen } from '@services/appointmentsService';
 import { SetInformationForCitizensRequest } from '@types';
@@ -13,6 +12,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { SPECIAL_CHARACTER_REGEX, URL_REGEX } from '../../../../../constants';
 import { useTransition } from 'react';
 import fromServer from '@server/fromServer';
+import { Textarea } from 'nhsuk-react-components';
 
 type FormFields = {
   informationForCitizen: string;
@@ -68,7 +68,7 @@ const AddInformationForCitizensForm = ({
         }
       >
         <div className="nhsuk-form-group">
-          <TextArea
+          <Textarea
             label="What information would you like to include?"
             maxLength={maxLength}
             {...register('informationForCitizen', {
@@ -80,6 +80,7 @@ const AddInformationForCitizensForm = ({
               },
               maxLength: 150,
             })}
+            rows={5}
           />
         </div>
         <div

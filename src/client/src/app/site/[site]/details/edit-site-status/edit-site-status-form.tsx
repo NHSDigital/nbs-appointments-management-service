@@ -2,7 +2,6 @@
 import {
   Button,
   FormGroup,
-  InsetText,
   Radio,
   RadioGroup,
   SmallSpinnerWithText,
@@ -11,6 +10,7 @@ import fromServer from '@server/fromServer';
 import { updateSiteStatus } from '@services/appointmentsService';
 import { Site, SiteStatus } from '@types';
 import { useRouter } from 'next/navigation';
+import { InsetText } from 'nhsuk-react-components';
 import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 

@@ -6,9 +6,6 @@ import {
   FormGroup,
   ButtonGroup,
   SmallSpinnerWithText,
-  TextInput,
-  Select,
-  SelectOption,
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -22,6 +19,7 @@ import {
   saveSiteReferenceDetails,
 } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
+import { Select, TextInput } from 'nhsuk-react-components';
 
 type FormFields = {
   odsCode: string;
@@ -48,16 +46,6 @@ const EditReferenceDetailsForm = ({
       region: site.region,
     },
   });
-
-  const mapWellKnownCodes = (type: string): SelectOption[] =>
-    wellKnownOdsCodeEntries
-      .filter(e => e.type === type)
-      .map(x => {
-        return {
-          value: x.odsCode,
-          label: x.displayName,
-        };
-      });
 
   const validateWellKnownCode = (value: string, type: string): boolean => {
     const wellKnownICB = wellKnownOdsCodeEntries.find(
@@ -115,7 +103,6 @@ const EditReferenceDetailsForm = ({
         <Select
           id="icb"
           label="ICB"
-          options={mapWellKnownCodes('icb')}
           {...register('icb', {
             required: {
               value: true,
@@ -123,13 +110,20 @@ const EditReferenceDetailsForm = ({
             },
             validate: e => validateWellKnownCode(e, 'icb'),
           })}
-        ></Select>
+        >
+          {wellKnownOdsCodeEntries
+            .filter(e => e.type === 'icb')
+            .map(x => (
+              <Select.Option key={x.odsCode} value={x.odsCode}>
+                {x.displayName}
+              </Select.Option>
+            ))}
+        </Select>
       </FormGroup>
       <FormGroup error={errors.region?.message}>
         <Select
           id="region"
           label="Region"
-          options={mapWellKnownCodes('region')}
           {...register('region', {
             required: {
               value: true,
@@ -137,7 +131,15 @@ const EditReferenceDetailsForm = ({
             },
             validate: e => validateWellKnownCode(e, 'region'),
           })}
-        ></Select>
+        >
+          {wellKnownOdsCodeEntries
+            .filter(e => e.type === 'region')
+            .map(x => (
+              <Select.Option key={x.odsCode} value={x.odsCode}>
+                {x.displayName}
+              </Select.Option>
+            ))}
+        </Select>
       </FormGroup>
 
       {pendingSubmit ? (

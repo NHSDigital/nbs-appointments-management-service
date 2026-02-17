@@ -1,21 +1,28 @@
 ﻿Feature: Book an appointment
 
     Scenario: Make a booking appointment
-      Given the following sessions exist for a created default site
-          | Date     | From  | Until | Services | Slot Length | Capacity |
-          | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-        When I make the appointment with the following details
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | AdditionalData | Landline    |
-          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | true           | 00001234567 |
-        Then a reference number is returned and the following booking is created
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData | Landline    |
-          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           | 00001234567 |
+        Given the following sessions exist for a created site '6e3348bf-3509-45f2-887c-4f9651501f06'
+          | Date     | From  | Until | Services     | Slot Length | Capacity |
+          | Tomorrow | 09:00 | 10:00 | RSV:Adult    | 5           | 1        |
+        #Wait for setup aggregation to be processed
+        And an aggregation is created for site '6e3348bf-3509-45f2-887c-4f9651501f06', date 'Tomorrow', '0' cancelled bookings, and maximumCapacity '12', and with service details
+          | Service      | Bookings    | Orphaned  | RemainingCapacity |
+          | RSV:Adult    | 0           | 0         | 12                |
+        When I make the appointment with the following details at site '6e3348bf-3509-45f2-887c-4f9651501f06'
+          | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | AdditionalData | Landline    |
+          | Tomorrow | 09:20 | 5        | RSV:Adult   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | true           | 00001234567 |
+        Then a reference number is returned and the following booking is created at site '6e3348bf-3509-45f2-887c-4f9651501f06'
+          | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData | Landline    |
+          | Tomorrow | 09:20 | 5        | RSV:Adult   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           | 00001234567 |
+        And an aggregation updated recently for site '6e3348bf-3509-45f2-887c-4f9651501f06', date 'Tomorrow', '0' cancelled bookings, and maximumCapacity '12', and with service details
+          | Service      | Bookings    | Orphaned  | RemainingCapacity |
+          | RSV:Adult    | 1           | 0         | 11                |
 
     Scenario: Make a provisional booking
         Given the following sessions exist for a created site '6e3348bf-3509-45f2-887c-4f9651501f06'
           | Date     | From  | Until | Services    | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID       | 5           | 1        |
-#       Wait for setup aggregation to be processed
+        #Wait for setup aggregation to be processed
         And an aggregation is created for site '6e3348bf-3509-45f2-887c-4f9651501f06', date 'Tomorrow', '0' cancelled bookings, and maximumCapacity '12', and with service details
           | Service  | Bookings    | Orphaned  | RemainingCapacity |
           | COVID    | 0           | 0         | 12                |

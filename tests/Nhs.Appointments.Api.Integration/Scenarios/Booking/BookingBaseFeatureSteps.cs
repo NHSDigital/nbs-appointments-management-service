@@ -67,9 +67,21 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var site = GetSiteId();
         Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
     }
+    
+    [When("I make the appointment with the following details at site '(.+)'")]
+    public async Task MakeBookingAtSite(string site, DataTable dataTable)
+    {
+        _actionTimestamp = DateTimeOffset.UtcNow;
+        await MakeBooking(site, dataTable);
+    }
 
     [When("I make the appointment with the following details")]
     public async Task MakeBooking(DataTable dataTable)
+    {
+        await MakeBooking(null, dataTable);
+    }
+
+    private async Task MakeBooking(string site, DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
@@ -80,7 +92,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                 "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
-            site = GetSiteId(),
+            site = GetSiteId(site ?? DefaultSiteId),
             kind = "booked",
             attendeeDetails = new
             {
@@ -228,16 +240,27 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var expectedCancellationReason = CancellationReason.CancelledByCitizen;
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
-        await AssertCancellationReasonByReference(bookingReference, expectedCancellationReason);
+        await AssertCancellationReasonByReference(null, bookingReference, expectedCancellationReason);
     }
 
+    [And(@"'(.+)' cancellation reason has been used at site '(.+)'")]
+    public async Task AssertCancellationReasonForSite(string cancellationReason, string site)
+    {
+        await AssertCancellationReason(site, cancellationReason);
+    }
+    
     [And(@"'(.+)' cancellation reason has been used")]
     public async Task AssertCancellationReason(string cancellationReason)
+    {
+        await AssertCancellationReason(null, cancellationReason);
+    }
+    
+    private async Task AssertCancellationReason(string site, string cancellationReason)
     {
         var expectedCancellationReason = Enum.Parse<CancellationReason>(cancellationReason);
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
-        await AssertCancellationReasonByReference(bookingReference, expectedCancellationReason);
+        await AssertCancellationReasonByReference(site, bookingReference, expectedCancellationReason);
     }
 
     protected string ToRequestFormat(string naturalLanguageDateOnly, string naturalLanguageTime)

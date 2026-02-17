@@ -8,7 +8,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
     When I cancel the appointment without a site parameter
-    Then the booking has been 'Cancelled'
+    Then the first booking has been 'Cancelled'
     And an audit function document was created for user 'api@test' and function 'CancelBookingFunction' and no site
 
   Scenario: Cancel a booking appointment updates LastUpdatedBy property
@@ -42,7 +42,7 @@ Feature: Appointment cancellation
       | Service  | Bookings    | Orphaned  | RemainingCapacity |
       | COVID    | 1           | 0         | 11                |
     When I cancel the appointment with site parameter '6e3348bf-3509-45f2-887c-4f9651501f05'
-    Then the booking at site '6e3348bf-3509-45f2-887c-4f9651501f05' has been 'Cancelled'
+    Then the first booking at site '6e3348bf-3509-45f2-887c-4f9651501f05' has been 'Cancelled'
     And an aggregation updated recently for site '6e3348bf-3509-45f2-887c-4f9651501f05', date 'Tomorrow', '1' cancelled bookings, and maximumCapacity '12', and with service details
       | Service  | Bookings    | Orphaned  | RemainingCapacity |
       | COVID    | 0           | 0         | 12                |
@@ -88,7 +88,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
     When I cancel the appointment without a site parameter
-    Then the booking has been 'Cancelled'
+    Then the first booking has been 'Cancelled'
     And default cancellation reason has been used
 
   Scenario: Cancel a booking appointment with invalid cancellation reason
@@ -109,7 +109,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
     When I cancel the appointment with cancellation reason 'CancelledBySite'
-    Then the booking has been 'Cancelled'
+    Then the first booking has been 'Cancelled'
     And 'CancelledBySite' cancellation reason has been used
 
   Scenario: Cancel a booking appointment with AutoCancelled cancellation reason
@@ -120,7 +120,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
     When I cancel the appointment with cancellation reason 'CancelledByService'
-    Then the booking has been 'Cancelled'
+    Then the first booking has been 'Cancelled'
     And 'CancelledByService' cancellation reason has been used
 
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment of a different service

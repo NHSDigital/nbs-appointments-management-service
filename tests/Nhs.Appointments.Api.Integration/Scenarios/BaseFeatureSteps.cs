@@ -689,10 +689,8 @@ public abstract partial class BaseFeatureSteps : Feature
         return uniqueTestValue;
     }
 
-    [And(@"the original booking has been '(\w+)'")]
-    public async Task AssertRescheduledBookingStatus(string outcome) => await AssertBookingStatus(outcome);
-
-    [Then(@"the booking has been '(\w+)'")]
+    [Then(@"the first booking has been '(\w+)'")]
+    [And(@"the first booking has been '(\w+)'")]
     public async Task AssertBookingStatus(string status)
     {
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
@@ -702,7 +700,8 @@ public abstract partial class BaseFeatureSteps : Feature
         await AssertLastUpdatedBy("booking_data", bookingReference, GetSiteId(), _userId);
     }
 
-    [Then(@"the booking at site '(.+)' has been '(\w+)'")]
+    [Then(@"the first booking at site '(.+)' has been '(\w+)'")]
+    [And(@"the first booking at site '(.+)' has been '(\w+)'")]
     public async Task AssertBookingStatusAtSite(string siteId, string status)
     {
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
@@ -1038,10 +1037,10 @@ public abstract partial class BaseFeatureSteps : Feature
         indexDocument.Resource.Status.Should().Be(status);
     }
 
-    public async Task AssertCancellationReasonByReference(string bookingReference,
+    public async Task AssertCancellationReasonByReference(string site, string bookingReference,
         CancellationReason cancellationReason)
     {
-        var siteId = GetSiteId();
+        var siteId = GetSiteId(site ?? DefaultSiteId);
         var bookingDocument = await CosmosReadItem<BookingDocument>("booking_data", bookingReference,
             new PartitionKey(siteId), CancellationToken.None);
         bookingDocument.Resource.CancellationReason.Should().Be(cancellationReason);

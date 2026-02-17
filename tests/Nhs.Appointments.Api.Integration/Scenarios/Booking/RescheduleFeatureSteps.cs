@@ -38,10 +38,21 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 $"http://localhost:7071/api/booking/{_reschduledBookingReference}/confirm", payload);
         }
 
+        [Then("the rescheduled booking is no longer marked as provisional at site '(.+)'")]
+        public async Task AssertRescheduledBookingIsNotProvisionalAtSite(string site)
+        {
+            await AssertRescheduledBookingIsNotProvisional(site);
+        }
+        
         [Then("the rescheduled booking is no longer marked as provisional")]
         public async Task AssertRescheduledBookingIsNotProvisional()
         {
-            var siteId = GetSiteId();
+            await AssertRescheduledBookingIsNotProvisional(null);
+        }
+        
+        private async Task AssertRescheduledBookingIsNotProvisional(string site)
+        {
+            var siteId = GetSiteId(site ?? DefaultSiteId);
             var bookingReference = _reschduledBookingReference;
 
             var actualBooking = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);

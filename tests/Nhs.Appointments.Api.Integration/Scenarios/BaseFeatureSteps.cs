@@ -301,6 +301,14 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         await SetupSessions(site, dataTable);
     }
+    
+    [Given("the following sessions exist for a created site '(.+)'")]
+    [And("the following sessions exist for a created site '(.+)'")]
+    public async Task SetupSessionsForCreatedSite(string site, DataTable dataTable)
+    {
+        await SetupSite(GetSiteId(site));
+        await SetupSessions(site, dataTable);
+    }
 
     [Given("the following sessions exist for a created default site")]
     [And("the following sessions exist for a created default site")]

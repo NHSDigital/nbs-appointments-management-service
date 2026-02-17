@@ -38,7 +38,6 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var site = GetSiteId(siteId);
         
         _actionTimestamp = DateTimeOffset.UtcNow;
-        
         Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
@@ -103,11 +102,22 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     }
 
     [Then(@"a reference number is returned and the following booking is created")]
-    public async Task AssertSingleBooking(DataTable dataTable)
+    public async Task AssertSingleBookingAtSite(DataTable dataTable)
+    {
+        await AssertSingleBooking(null, dataTable);
+    }
+    
+    [Then(@"a reference number is returned and the following booking is created at site '(.+)'")]
+    public async Task AssertSingleBookingAtSite(string site, DataTable dataTable)
+    {
+        await AssertSingleBooking(site, dataTable);
+    }
+
+    private async Task AssertSingleBooking(string site, DataTable dataTable)
     {
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         var cells = dataTable.Rows.ElementAt(1).Cells;
-        var siteId = GetSiteId();
+        var siteId = GetSiteId(site ?? DefaultSiteId);
         var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await Response.Content.ReadAsStringAsync());
         var bookingReference = result.BookingReference;
         var isProvisional = cells.ElementAt(10).Value == "Yes";
@@ -153,6 +163,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
     }
 
+    
     [Then(@"I receive a message informing me that the appointment is no longer available")]
     public async Task AssertBookingAppointmentGone()
     {
@@ -164,6 +175,18 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     [When("I make a provisional appointment with the following details")]
     public async Task MakeProvisionalBooking(DataTable dataTable)
     {
+        await MakeProvisionalBooking(null, dataTable);
+    }
+    
+    [When("I make a provisional appointment with the following details at site '(.+)'")]
+    public async Task MakeProvisionalBookingAtSite(string site, DataTable dataTable)
+    {
+        _actionTimestamp = DateTimeOffset.UtcNow;
+        await MakeProvisionalBooking(site, dataTable);
+    }
+    
+    private async Task MakeProvisionalBooking(string site, DataTable dataTable)
+    {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
         object payload = new
@@ -174,8 +197,8 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                     "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
-            site = GetSiteId(),
-            kind = "provisional",
+            site = GetSiteId(site ?? DefaultSiteId),
+            kind = "Provisional",
             attendeeDetails = new
             {
                 nhsNumber = EvaluateNhsNumber(cells.ElementAt(4).Value),
@@ -186,6 +209,14 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         };
 
         Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+    }
+    
+    //Not to be used unless explicitly need to wait
+    [When("I wait for '(.+)' milliseconds")]
+    public async Task WaitForSeconds(string milliseconds)
+    {
+        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
+        await Task.Delay(timespan);
     }
 
     [Then(@"the call should fail with (\d*)")]

@@ -12,16 +12,20 @@
           | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           | 00001234567 |
 
     Scenario: Make a provisional booking
-        Given the following sessions exist for a created default site
-          | Date     | From  | Until | Services | Slot Length | Capacity |
-          | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-        When I make a provisional appointment with the following details
+        Given the following sessions exist for a created site '6e3348bf-3509-45f2-887c-4f9651501f06'
+          | Date     | From  | Until | Services    | Slot Length | Capacity |
+          | Tomorrow | 09:00 | 10:00 | COVID       | 5           | 1        |
+#       Need to wait to allow setup aggregation document to have been processed
+#       Not ideal...
+        When I wait for '2000' milliseconds
+        When I make a provisional appointment with the following details at site '6e3348bf-3509-45f2-887c-4f9651501f06'
           | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | AdditionalData ||
           | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 | true           ||
-        Then a reference number is returned and the following booking is created
-          | Date     | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        | Email | Phone | Provisional | AdditionalData | Landline    |
-          | Tomorrow | 09:20 | 5        | COVID   | 1234678891 | Test      | One      | 2000-02-01 |       |       | Yes         | true           |             |
-
+        Then a reference number is returned and the following booking is created at site '6e3348bf-3509-45f2-887c-4f9651501f06'
+          | Date     | Time  | Duration | Service    | NhsNumber  | FirstName | LastName | DOB        | Email | Phone | Provisional | AdditionalData | Landline    |
+          | Tomorrow | 09:20 | 5        | COVID      | 1234678891 | Test      | One      | 2000-02-01 |       |       | Yes         | true           |             |
+        And an aggregation did not update recently for site '6e3348bf-3509-45f2-887c-4f9651501f06' on date 'Tomorrow'
+      
     Scenario: Cannot book an appointment that is no longer available
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |

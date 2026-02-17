@@ -38,7 +38,7 @@ const SiteDetailsPage = async ({
     <ol className="card-list">
       <li>
         <Card>
-          <Card.Heading>{site.name}</Card.Heading>
+          <Card.Heading>Site details</Card.Heading>
           {permissions.includes('site:manage') ? (
             <Card.Action
               href={`/manage-your-appointments/site/${site.id}/details/edit-details`}
@@ -109,12 +109,12 @@ const SiteDetailsPage = async ({
           </SummaryList>
         </Card>
         <Card>
-          <Card.Heading>Site accessibility information</Card.Heading>
+          <Card.Heading>Access needs</Card.Heading>
           {permissions.includes('site:manage') && (
             <Card.Action
               href={`/manage-your-appointments/site/${site.id}/details/edit-accessibilities`}
             >
-              Edit site accessibility information
+              Edit access needs
             </Card.Action>
           )}
           <SummaryList>

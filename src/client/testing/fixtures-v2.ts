@@ -10,9 +10,9 @@ import {
   MockOidcClient,
 } from '@e2etests/data';
 export * from '@playwright/test';
-import { LoginPage, SitePage } from '@e2etests/page-objects';
+import { LoginPage, SitePage, SiteSelectionPage } from '@e2etests/page-objects';
 import env from './testEnvironment';
-import { Role, FeatureFlag, SiteDocument } from '@e2etests/types';
+import { Role, FeatureFlag, SiteDocument, UserDocument } from '@e2etests/types';
 import {
   AddServicesPage,
   AddSessionPage,
@@ -27,6 +27,7 @@ type FixtureOptions = {
   roles?: Role[];
   features?: FeatureFlag[];
   additionalUsers?: AdditionalUserOptions[];
+  userConfig?: Partial<UserDocument>;
 };
 
 type AdditionalUserOptions = {
@@ -35,6 +36,7 @@ type AdditionalUserOptions = {
 
 type SetUpSingleSiteFixtureOptions = {
   siteConfig?: Partial<SiteDocument>;
+  skipSiteSelection?: boolean;
 } & FixtureOptions;
 
 type MyaFixtures = {
@@ -108,14 +110,17 @@ export const test = base.extend<MyaFixtures>({
         roles = [],
         features,
         siteConfig,
+        userConfig, // Extract userConfig
         additionalUsers = [],
+        skipSiteSelection = false, // Default to false so existing tests don't break
       } = {
         ...defaultFixtureOptions,
         ...options,
       };
 
       await cosmosDbClient.createSite(testId, siteConfig);
-      await cosmosDbClient.createUser(testId, roles);
+      // Pass userConfig here!
+      await cosmosDbClient.createUser(testId, roles, userConfig);
       await mockOidcClient.registerTestUser(testId);
 
       if (additionalUsers.length > 0) {
@@ -137,18 +142,37 @@ export const test = base.extend<MyaFixtures>({
         }),
       ]);
 
-      const sitePage = await new LoginPage(page)
-        .logInWithNhsMail()
-        .then(mockOidcLoginPage =>
-          mockOidcLoginPage.signIn(buildE2ETestUser(testId)),
-        )
-        .then(siteSelectionPage =>
-          siteSelectionPage.selectSite(buildE2ETestSite(testId)),
-        );
+      const loginPage = new LoginPage(page);
+      const mockOidcLoginPage = await loginPage.logInWithNhsMail();
+
+      const user = buildE2ETestUser(testId);
+
+      // 1. Manually fill fields since we can't use .signIn()
+      await mockOidcLoginPage.usernameField.fill(user.username);
+      await mockOidcLoginPage.passwordField.fill(user.password);
+      await mockOidcLoginPage.passwordField.press('Enter');
+
+      // 2. The Flexible Wait: This is the secret sauce. 
+      // It allows the app to go to either the EULA or the Sites page.
+      await page.waitForURL(/\/sites|\/eula/);
+
+      let sitePage: SitePage | undefined;
+
+      // 3. Logic: Only try to select a site if we aren't on the EULA page
+      if (page.url().includes('/eula')) {
+        sitePage = undefined; 
+      } else if (skipSiteSelection) {
+        sitePage = undefined;
+      } else {
+        // We use the existing SiteSelectionPage logic if we landed on /sites
+        const selectionPage = new SiteSelectionPage(page);
+        sitePage = await selectionPage.selectSite(buildE2ETestSite(testId));
+      }
 
       featuresUsed = features ?? [];
 
-      return { sitePage, testId, additionalUserIds };
+      // Type cast sitePage to satisfy tests that expect sitePage to be non-optional
+      return { sitePage: sitePage as SitePage, testId, additionalUserIds };
     });
 
     // Clean up the fixture.

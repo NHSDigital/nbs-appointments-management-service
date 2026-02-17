@@ -37,6 +37,10 @@ Feature: Appointment cancellation
     And the following bookings have been made for site '6e3348bf-3509-45f2-887c-4f9651501f06'
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
+    # Wait for setup aggregation to be processed
+    And an aggregation is created for site '6e3348bf-3509-45f2-887c-4f9651501f06', date 'Tomorrow', '0' cancelled bookings, and maximumCapacity '12', and with service details
+      | Service  | Bookings    | Orphaned  | RemainingCapacity |
+      | COVID    | 1           | 0         | 11                |
     When I cancel the appointment with site parameter '6e3348bf-3509-45f2-887c-4f9651501f06'
     Then the booking at site '6e3348bf-3509-45f2-887c-4f9651501f06' has been 'Cancelled'
     And an aggregation updated recently for site '6e3348bf-3509-45f2-887c-4f9651501f06', date 'Tomorrow', '1' cancelled bookings, and maximumCapacity '12', and with service details

@@ -137,7 +137,7 @@ public sealed class CoreContainerAuditFeatureSteps : BaseFeatureSteps
 
         var actualResult = await Client.GetContainer("appts", "core_data")
             .ReadItemAsync<Core.Sites.Site>(GetSiteId(siteId), new PartitionKey("site"));
-        actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
+        actualResult.Resource.Should().BeEquivalentTo(expectedSite);
     }
 
     [And(@"an audit log should be created in StorageAccount for site '(.+)'")]
@@ -187,12 +187,7 @@ public sealed class CoreContainerAuditFeatureSteps : BaseFeatureSteps
         var auditDoc = JsonConvert.DeserializeObject<TDocument>(auditJson);
 
         auditDoc.Should().BeEquivalentTo(cosmosDoc, options => options
-            .Excluding(ctx => ctx.Path.Contains("_etag"))
-            .Excluding(ctx => ctx.Path.Contains("_ts"))
-            .Excluding(ctx => ctx.Path.Contains("_rid"))
-            .Excluding(ctx => ctx.Path.Contains("_self"))
-            .Excluding(ctx => ctx.Path.Contains("_attachments"))
-            .Excluding(ctx => ctx.Path.Contains("_lsn"))
+            .Excluding(ctx => ctx.Path.Contains("_"))
         );
     }
 

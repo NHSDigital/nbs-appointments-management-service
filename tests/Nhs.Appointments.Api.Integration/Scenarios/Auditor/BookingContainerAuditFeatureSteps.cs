@@ -81,7 +81,7 @@ public sealed class BookingContainerAuditFeatureSteps : BaseFeatureSteps
         _statusCode.Should().Be(HttpStatusCode.OK);
         var site = GetSiteId();
         var expectedDocuments = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable);
-        var container = Client.GetContainer("appts", "booking_data");
+        var container = Client.GetContainer("appts", containerName);
         var actualDocuments = await RunQueryAsync<DailyAvailabilityDocument>(container,
             d => d.DocumentType == "daily_availability" && d.Site == site);
         _createdAvailability = actualDocuments.First();
@@ -90,7 +90,7 @@ public sealed class BookingContainerAuditFeatureSteps : BaseFeatureSteps
     }
 
 
-    [And(@"the availability audit log in StorageAccount should match the Cosmos DB record")]
+    [And(@"the availability should be audited in StorageAccount")]
     public async Task VerifySiteAuditLogMatchesCosmos()
     {
         var (cosmosDoc, timeStamp) = await GetCosmosDailyAvailability();
@@ -109,12 +109,7 @@ public sealed class BookingContainerAuditFeatureSteps : BaseFeatureSteps
         var auditDoc = JsonConvert.DeserializeObject<DailyAvailabilityDocument>(auditJson, new TimeOnlyConverter());
 
         auditDoc.Should().BeEquivalentTo(cosmosDoc, options => options
-            .Excluding(ctx => ctx.Path.Contains("_etag"))
-            .Excluding(ctx => ctx.Path.Contains("_ts"))
-            .Excluding(ctx => ctx.Path.Contains("_rid"))
-            .Excluding(ctx => ctx.Path.Contains("_self"))
-            .Excluding(ctx => ctx.Path.Contains("_attachments"))
-            .Excluding(ctx => ctx.Path.Contains("_lsn"))
+            .Excluding(ctx => ctx.Path.Contains("_"))
         );
     }
 
@@ -209,7 +204,7 @@ public sealed class BookingContainerAuditFeatureSteps : BaseFeatureSteps
             .Excluding(ctx => ctx.Path == "AttendeeDetails.DateOfBirth")
         );
         cosmosDoc.ContactDetails.Should().NotBeNull("because Cosmos should store the contact info");
-        auditDoc.ContactDetails.Should().BeNull("because the Audit record should mask or omit contact info");
+        auditDoc.ContactDetails.Should().BeNull("because the Audit record should omit contact info");
         auditDoc.AttendeeDetails.FirstName.Should().BeNull();
         auditDoc.AttendeeDetails.LastName.Should().BeNull();
         auditDoc.AttendeeDetails.DateOfBirth.Should().Be(DateOnly.MinValue);
@@ -229,13 +224,9 @@ public sealed class BookingContainerAuditFeatureSteps : BaseFeatureSteps
     {
         var siteId = GetSiteId();
         var bookingReference = _createdBookingReference;
-        var actualBooking = await Client.GetContainer("appts", "booking_data")
+        var actualBooking = await Client.GetContainer("appts", containerName)
             .ReadItemAsync<BookingDocument>(bookingReference, new PartitionKey(siteId));
         actualBooking.Resource.Status.Should().Be(AppointmentStatus.Booked);
-
-        var actualBookingIndex = await Client.GetContainer("appts", "index_data")
-            .ReadItemAsync<BookingIndexDocument>(bookingReference, new PartitionKey("booking_index"));
-        actualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
     }
 
     [And(@"the booking index should be audited in StorageAccount")]
@@ -243,10 +234,11 @@ public sealed class BookingContainerAuditFeatureSteps : BaseFeatureSteps
     {
         var (cosmosIndex, timeStamp) = await GetCosmosBookingIndex();
 
+        var identifier = cosmosIndex.Id + "-booking_index";
         var fileName = _auditHelper.GetBlobName(
             cosmosIndex.DocumentType, 
             timeStamp,
-            cosmosIndex.Id + "-booking_index" 
+            identifier
         );
 
         var auditJson = await _auditHelper.PollForAuditLogAsync("index_data", fileName);

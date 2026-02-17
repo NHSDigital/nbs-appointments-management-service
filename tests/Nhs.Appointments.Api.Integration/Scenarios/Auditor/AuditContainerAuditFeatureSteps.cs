@@ -2,10 +2,7 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Audit.Persistance;
-using Nhs.Appointments.Persistance.Models;
-using Notify.Models;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -20,6 +17,7 @@ public sealed class AuditContainerAuditFeatureSteps : BaseFeatureSteps
     private readonly AuditHelper _auditHelper;
     private const string containerName = "audit_data";
     private HttpResponseMessage Response;
+    private string _user;
 
     public AuditContainerAuditFeatureSteps()
     {
@@ -27,7 +25,11 @@ public sealed class AuditContainerAuditFeatureSteps : BaseFeatureSteps
     }
 
     [Given(@"user '(.+)' does not exist in the system")]
-    public Task NoUser() => Task.CompletedTask;
+    public Task NoUser(string user)
+    {
+        _user = user;
+        return Task.CompletedTask;
+    }
 
     [When(@"I assign the following roles to user '(.+)'")]
     public async Task AssignRole(string user, DataTable dataTable)
@@ -50,7 +52,7 @@ public sealed class AuditContainerAuditFeatureSteps : BaseFeatureSteps
         _response.EnsureSuccessStatusCode();
     }
 
-    [Then(@"UserRolesChanged audit notification should match the notification in Cosmos DB")]
+    [Then(@"UserRolesChanged notification should be audited in StorageAccount")]
     public async Task VerifyNotificationAuditLog()
     {
         var (cosmosDoc, timeStamp) = await GetCosmosNotification();
@@ -76,18 +78,17 @@ public sealed class AuditContainerAuditFeatureSteps : BaseFeatureSteps
     private async Task<(AuditNotificationDocument Document, DateTimeOffset Timestamp)> GetCosmosNotification()
     {
         var container = Client.GetContainer("appts", containerName);
-
+        var destinationId = $"{_user}_{_testId}@nhs.net";
         var queryDefinition = new QueryDefinition(
         @"SELECT * FROM c 
-          WHERE c.destinationId = @email 
+          WHERE c.destinationId = @destinationId 
           AND c.notificationName = 'UserRolesChanged' 
           ORDER BY c.timestamp DESC")
-        .WithParameter("@email", $"test-new-audit-user@nhs.net_{_testId}@nhs.net");
+        .WithParameter("@destinationId", destinationId);
 
         using var iterator = container.GetItemQueryIterator<CosmosDocumentTestWrapper<AuditNotificationDocument>>(queryDefinition);
 
         var response = await iterator.ReadNextAsync();
-
 
         var wrapper = response.Resource.FirstOrDefault();
 

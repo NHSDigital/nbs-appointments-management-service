@@ -1,4 +1,4 @@
-Feature: Blob Audit Core Data
+Feature: Audit Trail Synchronization - User, Site
 
   Scenario: Add user, file appears in Blob
     Given user 'test-new-audit-user@nhs.net' does not exist in the system

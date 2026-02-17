@@ -1,4 +1,4 @@
-Feature: Blob Audit Booking Data
+Feature: Audit Trail Synchronization - Availability, Booking
 
   Scenario: Create Availability, file appears in Blob
     Given there is no existing availability for a created default site
@@ -8,7 +8,7 @@ Feature: Blob Audit Booking Data
     Then the request is successful and the following daily availability sessions are created
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the availability audit log in StorageAccount should match the Cosmos DB record
+    And the availability should be audited in StorageAccount
 
   Scenario: Cancel Availability, file appears in Blob
     Given there is no existing availability for a created default site
@@ -21,7 +21,7 @@ Feature: Blob Audit Booking Data
     When I cancel the following session
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the availability audit log in StorageAccount should match the Cosmos DB record
+    And the availability should be audited in StorageAccount
 
   Scenario: Create, reschedule and confirm Booking, files appears in Blob
     Given the following sessions exist for a created default site

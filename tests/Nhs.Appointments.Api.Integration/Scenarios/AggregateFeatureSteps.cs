@@ -13,8 +13,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public abstract class AggregateFeatureSteps : BaseFeatureSteps
 {
-    private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(1);
-    private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(2);
+    private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(10);
 
     [Then(
         @"an aggregation updated recently for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]

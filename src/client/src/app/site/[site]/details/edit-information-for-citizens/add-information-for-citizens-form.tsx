@@ -69,6 +69,7 @@ const AddInformationForCitizensForm = ({
       >
         <div className="nhsuk-form-group">
           <Textarea
+            id="informationForCitizen"
             label="What information would you like to include?"
             maxLength={maxLength}
             {...register('informationForCitizen', {

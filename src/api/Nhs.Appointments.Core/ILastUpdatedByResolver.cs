@@ -1,4 +1,4 @@
-namespace Nhs.Appointments.Persistance;
+namespace Nhs.Appointments.Core;
 
 public interface ILastUpdatedByResolver
 {

@@ -1,11 +1,12 @@
-using System.Linq.Expressions;
-using System.Reflection;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Nhs.Appointments.Persistance;
 

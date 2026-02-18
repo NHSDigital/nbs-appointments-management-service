@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Extensions;
 using Nhs.Appointments.Core.Users;
-using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Providers;
 

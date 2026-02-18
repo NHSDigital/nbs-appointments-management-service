@@ -1,5 +1,4 @@
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 using Nhs.Appointments.Core.Okta;
@@ -11,8 +10,10 @@ public class UserService(
     IRolesStore rolesStore,
     IMessageBus bus,
     IOktaUserDirectory oktaStore,
-    IEmailWhitelistStore whiteListStore)
-    : IUserService
+    IEmailWhitelistStore whiteListStore,
+    IUserDeletedAuditService userDeletedAuditService,
+    ILastUpdatedByResolver lastUpdatedByResolver
+) : IUserService
 {
     public async Task<User> GetUserAsync(string userId)
     {
@@ -98,7 +99,24 @@ public class UserService(
 
     public async Task<OperationResult> RemoveUserAsync(string userId, string site)
     {
-        return await userStore.RemoveUserAsync(userId, site);
+        var operationResult = await userStore.RemoveUserAsync(userId, site);
+
+        if (operationResult.Success)
+        {
+            await RecordUserDeleted(userId, site);
+        }
+
+        return operationResult;
+    }
+
+    private async Task RecordUserDeleted(string userId, string site = null)
+    {
+        var lastUpdatedBy = lastUpdatedByResolver.GetLastUpdatedBy();
+        await userDeletedAuditService.RecordUserDeleted(
+            userId,
+            site == null ? "global" : $"siteID: {site}",
+            lastUpdatedBy
+        );
     }
 
     public async Task SaveUserAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
@@ -161,7 +179,10 @@ public class UserService(
     }
 
     public async Task RemoveAdminUserAsync(string userId)
-        => await userStore.RemoveAdminUserAsync(userId);
+    {
+        await userStore.RemoveAdminUserAsync(userId);
+        await RecordUserDeleted(userId);
+    }
 
     public async Task UpdateIcbUserRoleAssignmentsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
         => await userStore.UpdateUserIcbPermissionsAsync(userId, scope, roleAssignments);

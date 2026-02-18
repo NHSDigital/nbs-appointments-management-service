@@ -14,6 +14,7 @@ using Nhs.Appointments.Core.Reports.SiteSummary;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
+using ILastUpdatedByResolver = Nhs.Appointments.Core.ILastUpdatedByResolver;
 
 namespace Nhs.Appointments.Api.Tests;
 

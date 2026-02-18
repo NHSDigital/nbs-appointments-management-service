@@ -82,8 +82,8 @@ public class AuditWriteService(
         {
             Id = Guid.NewGuid().ToString(),
             Scope = scope,
-            User = userId,
-            RemovedBy = removedBy,
+            User = removedBy,
+            RemovedUser = userId,
             DocumentType = docType,
             Timestamp = DateTime.Now
         };

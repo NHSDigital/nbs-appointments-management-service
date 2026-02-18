@@ -7,5 +7,5 @@ namespace Nhs.Appointments.Audit.Persistance;
 public class AuditUserRemovedDocument : AuditDataCosmosDocument
 {
     [JsonProperty("scope")] public string Scope { get; set; }
-    [JsonProperty("removedBy")] public string RemovedBy { get; set; }
+    [JsonProperty("removedUser")] public string RemovedUser { get; set; }
 }

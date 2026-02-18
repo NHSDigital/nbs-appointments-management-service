@@ -41,8 +41,8 @@ public class AuditWriteServiceTests
         _auditUserRemovedStore.Verify(x => x.GetDocumentType(), Times.Once);
         _auditUserRemovedStore.Verify(x => x.WriteAsync(It.Is<AuditUserRemovedDocument>(
             x => x.Scope == scope &&
-            x.User == userId &&
-            x.RemovedBy == removedBy &&
+            x.User == removedBy &&
+            x.RemovedUser == userId &&
             x.DocumentType == docType
         )), Times.Once);
     }

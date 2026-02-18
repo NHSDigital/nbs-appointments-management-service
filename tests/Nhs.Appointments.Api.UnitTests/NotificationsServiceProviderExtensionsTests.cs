@@ -63,6 +63,7 @@ public class NotificationsServiceProviderExtensionsTests
             .AddTransient<ITypedDocumentCosmosStore<AuditFunctionDocument>, TypedDocumentCosmosStore<AuditFunctionDocument>>()
             .AddTransient<ITypedDocumentCosmosStore<AuditAuthDocument>, TypedDocumentCosmosStore<AuditAuthDocument>>()
             .AddTransient<ITypedDocumentCosmosStore<AuditNotificationDocument>, TypedDocumentCosmosStore<AuditNotificationDocument>>()
+            .AddTransient<ITypedDocumentCosmosStore<AuditUserRemovedDocument>, TypedDocumentCosmosStore<AuditUserRemovedDocument>>()
             .AddTransient<IAuditWriteService, AuditWriteService>()
             .AddSingleton<ISiteSummaryAggregator, FakeSiteSummaryAggregator>()
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()

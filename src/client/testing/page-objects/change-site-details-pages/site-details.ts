@@ -218,6 +218,16 @@ export default class SiteDetailsPage extends RootPage {
     await expect(listitem.getByRole('definition')).toHaveText(value);
   }
 
+  async verifySummaryListItemContentValueV10(title: string, value: string) {
+    const listitem = this.page.getByText(title);
+    await expect(listitem).toBeVisible();
+
+    await expect(listitem.getByRole('term')).toBeVisible();
+    await expect(listitem.getByRole('term')).toHaveText(title);
+    await expect(listitem.getByRole('definition')).toBeVisible();
+    await expect(listitem.getByRole('definition')).toHaveText(value);
+  }
+
   async verifyInformationNotSaved(
     oldInformation: string,
     newInformation: string,

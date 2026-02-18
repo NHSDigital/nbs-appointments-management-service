@@ -24,12 +24,14 @@ test('A user updates the access needs for a site', async ({
       ).toBeVisible();
 
       await expect(
-        siteDetailsPage.accessNeedsCard.summaryList.getItem(
+        siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
           'Accessible toilet',
         ),
       ).toHaveText('Yes');
       await expect(
-        siteDetailsPage.accessNeedsCard.summaryList.getItem('Step free access'),
+        siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
+          'Step free access',
+        ),
       ).toHaveText('Yes');
     });
 });
@@ -52,7 +54,7 @@ test('A user starts to update the citizen information then changes their mind us
       await expect(siteDetailsPage.title).toBeVisible();
 
       await expect(
-        siteDetailsPage.accessNeedsCard.summaryList.getItem(
+        siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
           'Accessible toilet',
         ),
       ).toHaveText('No');

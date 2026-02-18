@@ -417,4 +417,74 @@ public class UserServiceTests
                  u.RoleAssignments.First().Scope == expectedUser.RoleAssignments.First().Scope &&
                  u.LatestAcceptedEulaVersion == expectedUser.LatestAcceptedEulaVersion)), Times.Once);
     }
+
+    [Fact]
+    public async Task RemoveUserAsync_RemovalSuccessfull_RaiseUserDeletedAudit()
+    {
+        //Arrange
+        var userId = "test@okta.com";
+        var site = Guid.NewGuid().ToString();
+        var lastUpdatedBy = "dev@mail.com";
+
+        _lastUpdatedByResolver.Setup(x => x.GetLastUpdatedBy()).Returns(lastUpdatedBy);
+        _userStore.Setup(x => x.RemoveUserAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new OperationResult(true, "")
+        );
+
+        //Act
+        await _sut.RemoveUserAsync(userId, site);
+
+        //Assert
+        _lastUpdatedByResolver.Verify(x => x.GetLastUpdatedBy(), Times.Once);
+        _notificationAuditService.Verify(x => x.RecordUserDeleted(
+            It.Is<string>(x => x == userId), 
+            It.Is<string>(x => x == $"siteID: {site}"), 
+            It.Is<string>(x => x == lastUpdatedBy)
+        ), Times.Once);
+    }
+
+    [Fact]
+    public async Task RemoveUserAsync_RemovalFailed_RaiseUserDeletedAudit()
+    {
+        //Arrange
+        var userId = "test@okta.com";
+        var site = Guid.NewGuid().ToString();
+        var lastUpdatedBy = "dev@mail.com";
+
+        _lastUpdatedByResolver.Setup(x => x.GetLastUpdatedBy()).Returns(lastUpdatedBy);
+        _userStore.Setup(x => x.RemoveUserAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new OperationResult(false, "")
+        );
+
+        //Act
+        await _sut.RemoveUserAsync(userId, site);
+
+        //Assert
+        _lastUpdatedByResolver.Verify(x => x.GetLastUpdatedBy(), Times.Never);
+        _notificationAuditService.Verify(x => x.RecordUserDeleted(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()
+        ), Times.Never);
+    }
+
+    [Fact]
+    public async Task RemoveAdminUserAsync_RemovesAdminUser_RaisesUserRemovedAudit()
+    {
+        //Arrange
+        var userId = "test@okta.com";
+        var lastUpdatedBy = "dev@mail.com";
+
+        _lastUpdatedByResolver.Setup(x => x.GetLastUpdatedBy()).Returns(lastUpdatedBy);
+
+        //Act
+        await _sut.RemoveAdminUserAsync(userId);
+
+        //Assert
+        _userStore.Verify(x => x.RemoveAdminUserAsync(It.IsAny<string>()), Times.Once);
+        _lastUpdatedByResolver.Verify(x => x.GetLastUpdatedBy(), Times.Once);
+        _notificationAuditService.Verify(x => x.RecordUserDeleted(
+            It.Is<string>(x => x == userId),
+            It.Is<string>(x => x == "global"),
+            It.Is<string>(x => x == lastUpdatedBy)
+        ), Times.Once);
+    }
 }

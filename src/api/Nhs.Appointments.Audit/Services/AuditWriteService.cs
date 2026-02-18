@@ -75,13 +75,13 @@ public class AuditWriteService(
         await auditNotificationStore.WriteAsync(doc);
     }
 
-    public async Task RecordUserDeleted(string userId, string siteId, string removedBy)
+    public async Task RecordUserDeleted(string userId, string scope, string removedBy)
     {
         var docType = auditUserRemovedStore.GetDocumentType();
         var doc = new AuditUserRemovedDocument()
         {
             Id = Guid.NewGuid().ToString(),
-            Scope = siteId,
+            Scope = scope,
             User = userId,
             RemovedBy = removedBy,
             DocumentType = docType,

@@ -10,7 +10,7 @@ test('Navigates to the reports page via the header before selecting a site - Rep
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
-      sitePageFixture.sitePage.topNav.clickReports(true),
+      sitePageFixture.sitePage.topNav.clickReports(false),
     )
     .then(async reportsPage => {
       await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();

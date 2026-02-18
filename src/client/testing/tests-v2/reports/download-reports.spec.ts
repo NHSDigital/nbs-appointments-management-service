@@ -23,7 +23,9 @@ test('Navigates to the reports page via a site page - ReportsUplift false', asyn
   await setUpSingleSite({
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
-    .then(async sitePageFixture => sitePageFixture.sitePage.clickReportsCard())
+    .then(async sitePageFixture =>
+      sitePageFixture.sitePage.clickReportsCard(false),
+    )
     .then(async reportsPage => {
       await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
     });
@@ -99,7 +101,7 @@ test('Navigates to the reports page via a site page - ReportsUplift true', async
   await setUpSingleSite({
     features: [{ name: 'ReportsUplift', enabled: true }],
   })
-    .then(async ({ sitePage }) => sitePage.clickReportsCard())
+    .then(async ({ sitePage }) => sitePage.clickReportsCard(true))
     .then(async reportsPage => {
       await expect(reportsPage.selectReportTypeStep.stepTitle).toBeVisible();
       await expect(

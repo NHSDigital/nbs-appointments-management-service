@@ -71,9 +71,13 @@ export default class SitePage extends MYALayout {
     return new Users(this.page, this.site);
   }
 
-  async clickReportsCard(): Promise<SiteSummaryReportPage> {
+  async clickReportsCard(
+    reportsUpliftEnabled: boolean,
+  ): Promise<SiteSummaryReportPage> {
     await this.reportsCard.click();
-    await this.page.waitForURL(`**/manage-your-appointments/reports`);
+    reportsUpliftEnabled
+      ? await this.page.waitForURL(`**/manage-your-appointments/reports/select`)
+      : await this.page.waitForURL(`**/manage-your-appointments/reports`);
     return new SiteSummaryReportPage(this.page, this.site);
   }
 

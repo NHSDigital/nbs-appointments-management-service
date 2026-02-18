@@ -10,7 +10,7 @@ test('Navigates to the reports page via the header before selecting a site - Rep
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
-      sitePageFixture.sitePage.topNav.clickReports(),
+      sitePageFixture.sitePage.topNav.clickReports(false),
     )
     .then(async reportsPage => {
       await expect(reportsPage.selectDatesStep.stepTitle).toBeVisible();
@@ -39,7 +39,7 @@ test('Downloads a site summary report - ReportsUplift false', async ({
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
-      sitePageFixture.sitePage.topNav.clickReports(),
+      sitePageFixture.sitePage.topNav.clickReports(false),
     )
     .then(async reportsPage => {
       const today: string = new Date().toISOString().split('T')[0];
@@ -84,7 +84,7 @@ test('Navigates to the reports page via the header before selecting a site - Rep
     features: [{ name: 'ReportsUplift', enabled: true }],
   })
     // Destructured { sitePage } directly for cleaner access to the fixture result
-    .then(async ({ sitePage }) => sitePage.topNav.clickReports())
+    .then(async ({ sitePage }) => sitePage.topNav.clickReports(true))
     .then(async reportsPage => {
       await expect(reportsPage.selectReportTypeStep.stepTitle).toBeVisible();
       await expect(
@@ -120,7 +120,7 @@ test('Downloads a site summary report - ReportsUplift true', async ({
     features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
-    .then(async ({ sitePage }) => sitePage.topNav.clickReports())
+    .then(async ({ sitePage }) => sitePage.topNav.clickReports(true))
     .then(async reportsPage => {
       await reportsPage.selectReportTypeStep.siteSummaryReportCard.click();
       await expect(reportsPage.selectReportDatesStep.stepTitle).toBeVisible();
@@ -173,7 +173,7 @@ test('Download all sites report', async ({ page, setUpSingleSite }) => {
     features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
-    .then(async ({ sitePage }) => sitePage.topNav.clickReports())
+    .then(async ({ sitePage }) => sitePage.topNav.clickReports(true))
     .then(async reportsPage => {
       await reportsPage.selectReportTypeStep.allSitesReportCard.click();
       await expect(
@@ -213,7 +213,7 @@ test('Download users report', async ({ page, setUpSingleSite }) => {
     features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
-    .then(async ({ sitePage }) => sitePage.topNav.clickReports())
+    .then(async ({ sitePage }) => sitePage.topNav.clickReports(true))
     .then(async reportsPage => {
       await reportsPage.selectReportTypeStep.usersReportCard.click();
       await expect(

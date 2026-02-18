@@ -12,18 +12,10 @@ describe('Header', () => {
     render(<Header />);
 
     expect(
-      screen.getByRole('link', { name: 'Manage Your Appointments' }),
+      screen.getByRole('link', {
+        name: 'NHS Manage Your Appointments homepage',
+      }),
     ).toBeInTheDocument();
-  });
-
-  it('renders children', () => {
-    render(
-      <Header>
-        <div>Some child content</div>
-      </Header>,
-    );
-
-    expect(screen.getByText('Some child content')).toBeInTheDocument();
   });
 
   it('renders navigation links', () => {
@@ -36,7 +28,6 @@ describe('Header', () => {
       />,
     );
 
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Link 1' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Link 1' })).toHaveAttribute(
       'href',

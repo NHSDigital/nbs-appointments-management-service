@@ -43,9 +43,13 @@ export default class SitePage extends MYALayout {
   readonly topNav = {
     reportsLink: this.page.getByRole('link', { name: 'Reports', exact: true }),
 
-    clickReports: async (): Promise<SiteSummaryReportPage> => {
+    clickReports: async (
+      reportsUpliftEnabled: boolean,
+    ): Promise<SiteSummaryReportPage> => {
       await this.topNav.reportsLink.click();
-      await this.page.waitForURL(`**/reports`);
+      reportsUpliftEnabled
+        ? await this.page.waitForURL(`**/reports/select`)
+        : await this.page.waitForURL(`**/reports`);
       return new SiteSummaryReportPage(this.page, this.site);
     },
   };

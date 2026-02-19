@@ -35,12 +35,6 @@ public class AvailabilityWriteService(
             throw new ArgumentException("Template must specify one or more weekdays.");
         }
 
-        var dates = GetDatesBetween(from, until, template.Days);
-        foreach (var date in dates)
-        {
-            await SetAvailabilityAsync(date, site, template.Sessions, mode);
-        }
-
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);
     }
 
@@ -100,16 +94,7 @@ public class AvailabilityWriteService(
         return (cancelledBookingCount, bookingsWithoutContactDetailsCount);
     }
 
-    private static IEnumerable<DateOnly> GetDatesBetween(DateOnly start, DateOnly end, params DayOfWeek[] weekdays)
-    {
-        var cursor = start;
-        while (cursor <= end)
-        {
-            if (weekdays.Contains(cursor.DayOfWeek))
-                yield return cursor;
-            cursor = cursor.AddDays(1);
-        }
-    }
+
 
     public async Task<SessionModificationResult> EditOrCancelSessionAsync(
         string site, 

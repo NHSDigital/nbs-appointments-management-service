@@ -78,6 +78,8 @@ public static class FunctionConfigurationExtensions
             .Configure<CosmosDataStoreOptions>(opts => opts.DatabaseName = "appts")
             .Configure<ContainerRetryOptions>(opts => configuration.GetSection("ContainerRetry").Bind(opts))
             .Configure<ReferenceGroupOptions>(opts => opts.InitialGroupCount = 100)
+            .Configure<string>("changefeed__accountEndpoint", opts => configuration.GetValue<string>("COSMOS_ENDPOINT"))
+            .Configure<string>("changefeed__accountKey", opts => configuration.GetValue<string>("COSMOS_TOKEN"))
             .Configure<SiteSummaryOptions>(opts =>
             {
                 opts.DaysForward = configuration.GetValue<int>("SITE_SUMMARY_DAYS_FORWARD");

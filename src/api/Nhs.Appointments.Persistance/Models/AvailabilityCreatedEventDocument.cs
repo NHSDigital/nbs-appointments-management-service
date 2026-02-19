@@ -4,7 +4,7 @@ using Nhs.Appointments.Core.Availability;
 namespace Nhs.Appointments.Persistance.Models;
 
 [CosmosDocumentType("availability_created_event")]
-public class AvailabilityCreatedEventDocument : BookingDataCosmosDocument
+public class AvailabilityCreatedEventDocument : AvailabilityRecurrenceDataCosmosDocument
 {
     [JsonProperty("created")]
     public required DateTime Created { get; set; }

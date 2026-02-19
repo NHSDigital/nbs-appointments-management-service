@@ -24,6 +24,14 @@ public class BookingDataCosmosDocument : LastUpdatedByCosmosDocument
     public string Site { get; set; }
 }
 
+[CosmosDocument("availability_recurrence_data", "site")]
+public class AvailabilityRecurrenceDataCosmosDocument : LastUpdatedByCosmosDocument
+{
+    [JsonProperty("site")]
+    public string Site { get; set; }
+}
+
+
 [CosmosDocument("core_data", "docType")]
 public class CoreDataCosmosDocument : LastUpdatedByCosmosDocument
 {

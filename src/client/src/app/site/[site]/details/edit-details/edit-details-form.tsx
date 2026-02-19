@@ -6,9 +6,7 @@ import {
   FormGroup,
   ButtonGroup,
   SmallSpinnerWithText,
-  TextInput,
   TextArea,
-  Expander,
 } from '@nhsuk-frontend-components';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -22,6 +20,7 @@ import {
   EditSiteDetailsFormValues,
 } from './edit-site-details-form-schema';
 import fromServer from '@server/fromServer';
+import { Details, TextInput } from 'nhsuk-react-components';
 
 const EditDetailsForm = ({ site }: { site: Site }) => {
   const [pendingSubmit, startTransition] = useTransition();
@@ -65,29 +64,29 @@ const EditDetailsForm = ({ site }: { site: Site }) => {
   return (
     <form onSubmit={handleSubmit(submitForm)}>
       <FormGroup error={errors.name?.message}>
-        <TextInput
-          id="name"
-          label="Site name"
-          {...register('name')}
-        ></TextInput>
+        <TextInput id="name" label="Site name" {...register('name')} />
       </FormGroup>
 
       <FormGroup error={errors.address?.message}>
-        <TextArea
-          id="address"
-          label="Site address"
-          {...register('address')}
-        ></TextArea>
+        <TextArea id="address" label="Site address" {...register('address')} />
       </FormGroup>
 
-      <Expander summary={'View the latitude and longitude ranges'}>
-        <ul>
-          <li>the minimum latitude is 49.8 and the maximum latitude is 60.9</li>
-          <li>
-            the minimum longitude is -8.1 and the maximum longitude is 1.8
-          </li>
-        </ul>
-      </Expander>
+      <Details expander>
+        <Details.Summary>
+          View the latitude and longitude ranges
+        </Details.Summary>
+        <Details.Text>
+          <ul>
+            <li>
+              the minimum latitude is 49.8 and the maximum latitude is 60.9
+            </li>
+            <li>
+              the minimum longitude is -8.1 and the maximum longitude is 1.8
+            </li>
+          </ul>
+        </Details.Text>
+      </Details>
+
       <DecimalFormControl
         formField="latitude"
         label="Latitude"

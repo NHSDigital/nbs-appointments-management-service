@@ -30,13 +30,13 @@ test('A regional user updates the reference details for a site but still has acc
       ).toBeVisible();
 
       await expect(
-        siteDetailsPage.referenceDetailsCard.summaryList.getItem('ODS code'),
+        siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ODS code'),
       ).toHaveText('ABC123');
       await expect(
-        siteDetailsPage.referenceDetailsCard.summaryList.getItem('ICB'),
+        siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ICB'),
       ).toHaveText('Integrated Care Board 2');
       await expect(
-        siteDetailsPage.referenceDetailsCard.summaryList.getItem('Region'),
+        siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('Region'),
       ).toHaveText('Region 2');
     });
 });
@@ -90,11 +90,11 @@ test('A user starts to update the reference details for a site then changes thei
       await expect(siteDetailsPage.title).toBeVisible();
 
       await expect(
-        siteDetailsPage.referenceDetailsCard.summaryList.getItem('ODS code'),
+        siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ODS code'),
       ).not.toHaveText(/Some other name/);
 
       await expect(
-        siteDetailsPage.referenceDetailsCard.summaryList.getItem('ODS code'),
+        siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ODS code'),
       ).toHaveText(buildOdsCode(testId));
     });
 });

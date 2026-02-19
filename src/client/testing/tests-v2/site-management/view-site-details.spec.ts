@@ -17,67 +17,73 @@ test('A user views the details of a site', async ({ setUpSingleSite }) => {
     // Check all site details are present
     await expect(siteDetailsPage.detailsCard.title).toBeVisible();
     await expect(
-      siteDetailsPage.detailsCard.summaryList.getItem('Name'),
+      siteDetailsPage.detailsCard.summaryList.getV10Item('Name'),
     ).toHaveText(buildSiteName(testId));
     await expect(
-      siteDetailsPage.detailsCard.summaryList.getItem('Address'),
+      siteDetailsPage.detailsCard.summaryList.getV10Item('Address'),
     ).toHaveText(buildAddress(testId));
     await expect(
-      siteDetailsPage.detailsCard.summaryList.getItem('Latitude'),
+      siteDetailsPage.detailsCard.summaryList.getV10Item('Latitude'),
     ).toHaveText('53.795467');
     await expect(
-      siteDetailsPage.detailsCard.summaryList.getItem('Longitude'),
+      siteDetailsPage.detailsCard.summaryList.getV10Item('Longitude'),
     ).toHaveText('-1.6610648');
     await expect(
-      siteDetailsPage.detailsCard.summaryList.getItem('Phone Number'),
+      siteDetailsPage.detailsCard.summaryList.getV10Item('Phone Number'),
     ).toHaveText(buildPhoneNumber(testId));
 
     // Check all site reference details are present
     await expect(siteDetailsPage.referenceDetailsCard.title).toBeVisible();
     await expect(
-      siteDetailsPage.referenceDetailsCard.summaryList.getItem('ODS code'),
+      siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ODS code'),
     ).toHaveText(buildOdsCode(testId));
     await expect(
-      siteDetailsPage.referenceDetailsCard.summaryList.getItem('ICB'),
+      siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ICB'),
     ).toHaveText(buildIcbName(testId));
     await expect(
-      siteDetailsPage.referenceDetailsCard.summaryList.getItem('Region'),
+      siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('Region'),
     ).toHaveText(buildRegionName(testId));
 
     // Check all access needs are present
     await expect(siteDetailsPage.accessNeedsCard.title).toBeVisible();
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem('Accessible toilet'),
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
+        'Accessible toilet',
+      ),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem(
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
         'Braille translation service',
       ),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem(
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
         'Disabled car parking',
       ),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem('Car parking'),
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item('Car parking'),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem('Induction loop'),
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item('Induction loop'),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem(
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
         'Sign language service',
       ),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem('Step free access'),
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
+        'Step free access',
+      ),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem('Text relay'),
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item('Text relay'),
     ).toHaveText(/No/);
     await expect(
-      siteDetailsPage.accessNeedsCard.summaryList.getItem('Wheelchair access'),
+      siteDetailsPage.accessNeedsCard.summaryList.getV10Item(
+        'Wheelchair access',
+      ),
     ).toHaveText(/No/);
 
     // Check information for citizens is present

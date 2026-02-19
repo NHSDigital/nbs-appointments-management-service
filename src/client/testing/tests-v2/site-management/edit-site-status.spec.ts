@@ -13,7 +13,7 @@ test('A site manager cannot edit site status when the feature toggle is disabled
     })
     .then(async siteDetailsPage => {
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Site status'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Site status'),
       ).not.toBeVisible();
 
       await expect(siteDetailsPage.detailsCard.editLinks[1]).not.toBeVisible();
@@ -36,7 +36,7 @@ test('A site manager takes an online site offline', async ({
       await expect(editSiteStatusPage.title).toBeVisible();
 
       await expect(
-        editSiteStatusPage.siteStatusSummary.getItem('Current site status'),
+        editSiteStatusPage.siteStatusSummary.getV10Item('Current site status'),
       ).toHaveText('Online');
 
       await expect(editSiteStatusPage.keepSiteOnlineRadio).toBeChecked();
@@ -52,7 +52,7 @@ test('A site manager takes an online site offline', async ({
       ).toBeVisible();
 
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Status'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Status'),
       ).toHaveText('Offline');
     });
 });
@@ -74,7 +74,7 @@ test('A site manager takes an offline site online', async ({
       await expect(editSiteStatusPage.title).toBeVisible();
 
       await expect(
-        editSiteStatusPage.siteStatusSummary.getItem('Current site status'),
+        editSiteStatusPage.siteStatusSummary.getV10Item('Current site status'),
       ).toHaveText('Offline');
 
       await expect(editSiteStatusPage.keepSiteOfflineRadio).toBeChecked();
@@ -90,7 +90,7 @@ test('A site manager takes an offline site online', async ({
       ).toBeVisible();
 
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Status'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Status'),
       ).toHaveText('Online');
     });
 });
@@ -109,7 +109,7 @@ test('A user starts to update site status then changes their mind using the back
       await expect(editSiteStatusPage.title).toBeVisible();
 
       await expect(
-        editSiteStatusPage.siteStatusSummary.getItem('Current site status'),
+        editSiteStatusPage.siteStatusSummary.getV10Item('Current site status'),
       ).toHaveText('Online');
 
       await expect(editSiteStatusPage.keepSiteOnlineRadio).toBeChecked();
@@ -119,7 +119,7 @@ test('A user starts to update site status then changes their mind using the back
     })
     .then(async siteDetailsPage => {
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Status'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Status'),
       ).toHaveText('Online');
     });
 });

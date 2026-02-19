@@ -42,7 +42,26 @@ test('Navigating straight to the user management page without permission shows 4
 });
 
 // TODO: This test needs migrating over when we have a way to assign multiple sites to a user
-// test('Permissions are applied per site', )
+// Copied from v1 as that file is being removed now the rest have been converted over to v2
+
+// test('permissions are applied per site', async ({ getTestUser }) => {
+//   await rootPage.goto();
+//   await rootPage.pageContentLogInButton.click();
+//   await oAuthPage.signIn(getTestUser(2));
+
+//   // First check Edit column exists at Church Lane
+//   await siteSelectionPage.selectSite(site2);
+//   await sitePage.userManagementCard.click();
+//   await expect(usersPage.manageColumn).toBeVisible();
+
+//   // Then check it does NOT exist at Robin Lane
+//   await rootPage.goto();
+
+//   await siteSelectionPage.selectSite(site1);
+
+//   await sitePage.siteManagementCard.click();
+//   await expect(siteDetailsPage1.editSiteDetailsButton).not.toBeVisible();
+// });
 
 test('Verify user manager cannot edit or remove themself', async ({
   setUpSingleSite,

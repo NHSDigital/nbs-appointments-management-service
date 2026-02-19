@@ -9,7 +9,8 @@
     "CancelSessionUpliftedJourney": false,
     "QuerySites": false,
     "MultiServiceJointBookings": false,
-    "ReportsUplift":  false,
+    "ReportsUplift": false,
+    "CancelADateRange":  false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

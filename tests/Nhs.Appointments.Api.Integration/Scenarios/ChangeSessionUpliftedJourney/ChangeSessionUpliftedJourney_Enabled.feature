@@ -255,3 +255,58 @@ Feature: Change Session Uplifted Journey
     Then the booking with reference '324524-00008' has status 'Cancelled'
     Then the booking with reference '324524-00009' has status 'Cancelled'
     Then the booking with reference '324524-00010' has status 'Cancelled'
+
+
+  Scenario: Multiple consecutive patches on a single document should return a consistent outcome
+    Given the following sessions exist for a created default site
+      | Date                | From  | Until | Services   | Slot Length  | Capacity |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,D    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,E    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,F    | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B        | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C      | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | B          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | C          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | D          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | E          | 10           | 5        |
+    And the following bookings have been made
+      | Date                | Time  | Duration | Service | Reference    |
+      | 10 days from today  | 09:00 | 10       | A       | 324524-00001 |
+      | 10 days from today  | 09:00 | 10       | B       | 324524-00002 |
+      | 10 days from today  | 09:00 | 10       | C       | 324524-00003 |
+      | 10 days from today  | 09:00 | 10       | D       | 324524-00004 |
+      | 10 days from today  | 09:00 | 10       | E       | 324524-00005 |
+      | 10 days from today  | 09:00 | 10       | F       | 324524-00006 |
+    When I replace a session with a replacement and set newlyUnsupportedBookingAction to 'Cancel'
+      | Type        | RequestFrom           | RequestTo           | From  | Until | Services   | SlotLength | Capacity |
+      | Matcher     | 10 days from today    | 10 days from today  | 09:00 | 09:10 | A,B,C,D    | 10         | 5        |
+      | Replacement |                       |                     | 09:00 | 09:10 | B,C,D      | 10         | 5        |
+    And I replace a session with a replacement and set newlyUnsupportedBookingAction to 'Cancel'
+      | Type        | RequestFrom           | RequestTo           | From  | Until | Services   | SlotLength | Capacity |
+      | Matcher     | 10 days from today    | 10 days from today  | 09:00 | 09:10 | A,B,C,E    | 10         | 5        |
+      | Replacement |                       |                     | 09:00 | 09:10 | B,C,E      | 10         | 5        |
+    And I replace a session with a replacement and set newlyUnsupportedBookingAction to 'Cancel'
+      | Type        | RequestFrom           | RequestTo           | From  | Until | Services   | SlotLength | Capacity |
+      | Matcher     | 10 days from today    | 10 days from today  | 09:00 | 09:10 | A,B,C,F    | 10         | 5        |
+      | Replacement |                       |                     | 09:00 | 09:10 | B,C,F      | 10         | 5        |
+    And I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
+      | Date               | From  | Until | Services | Slot Length  | Capacity |
+      | 10 days from today | 09:00 | 09:10 | C        | 10           | 5        |
+    And I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
+      | Date               | From  | Until | Services | Slot Length  | Capacity |
+      | 10 days from today | 09:00 | 09:10 | D        | 10           | 5        |
+    And I replace a session with a replacement and set newlyUnsupportedBookingAction to 'Cancel'
+      | Type        | RequestFrom           | RequestTo           | From  | Until | Services   | SlotLength | Capacity |
+      | Matcher     | 10 days from today    | 10 days from today  | 09:00 | 09:10 | A,B,C      | 10         | 5        |
+      | Replacement |                       |                     | 09:00 | 09:10 | A,B,C,D,E  | 10         | 5        |
+    Then the following updated sessions exist for a created default site
+      | Date                | From  | Until | Services   | Slot Length  | Capacity |
+      | 10 days from today  | 09:00 | 09:10 | B,C,D      | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | B,C,E      | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | B,C,F      | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B        | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A,B,C,D,E  | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | A          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | B          | 10           | 5        |
+      | 10 days from today  | 09:00 | 09:10 | E          | 10           | 5        |

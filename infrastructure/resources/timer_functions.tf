@@ -125,6 +125,7 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = var.aggregator_changefeed_enable
+    "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
     APPLICATION_NAME                                                       = "Timer Function App"
   }
 
@@ -257,7 +258,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"               = true
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
-    "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = var.aggregator_changefeed_enable
     APPLICATION_NAME                                                       = "Timer Function App"
   }
 

@@ -111,6 +111,12 @@ public class BookingAvailabilityStateService(
         return (await BuildFullState(site, from, to, BookingAvailabilityStateReturnType.AvailableSlots)).AvailableSlots;
     }
 
+    public async Task<(int SessionCount, int BookingCount)> GenerateCancelDateRangeProposalActionMetricsAsync(string site, DateOnly from, DateOnly to)
+    {
+        var (sessions, bookings) = await FetchData(site, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(new TimeOnly(23, 59, 59)), BookingAvailabilityStateReturnType.Summary);
+        throw new NotImplementedException();
+    }
+
     private async Task<(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,
         DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
     {

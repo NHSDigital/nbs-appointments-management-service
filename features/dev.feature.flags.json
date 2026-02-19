@@ -9,7 +9,8 @@
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,
     "ReportsUplift": false,
-    "CancelADateRange":  false,
+    "CancelADateRange": false,
+    "CancelADateRangeWithBookings": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

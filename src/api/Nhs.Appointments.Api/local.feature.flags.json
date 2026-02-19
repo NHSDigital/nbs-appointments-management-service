@@ -11,6 +11,7 @@
     "MultiServiceJointBookings": false,
     "ReportsUplift": false,
     "CancelADateRange":  false,
+    "CancelADateRangeWithBookings":  false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

@@ -74,7 +74,7 @@ module "mya_application_stag" {
   site_supports_service_sliding_cache_absolute_expiration_seconds = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS
   site_supports_service_sliding_cache_slide_threshold_seconds     = var.SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS
   site_supports_service_batch_multiplier          = var.SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER
-  create_data_extracts                            = false
+  create_data_extracts                            = true
   data_extract_file_sender_options_type           = "blob"
   disable_query_availability_function             = true
   create_high_load_function_app                   = true

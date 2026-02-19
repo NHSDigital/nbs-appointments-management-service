@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -68,7 +67,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Jobs.BlobA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Jobs.BlobAuditor.UnitTests", "tests\Nhs.Appointments.Jobs.BlobAuditor.UnitTests\Nhs.Appointments.Jobs.BlobAuditor.UnitTests.csproj", "{664A5262-92DA-7554-2178-1E8BFE7F2C89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Audit.UnitTests", "Nhs.Appointments.Audit.UnitTests\Nhs.Appointments.Audit.UnitTests.csproj", "{23481968-D673-4946-BC8D-3502755013AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nhs.Appointments.Audit.UnitTests", "tests\Nhs.Appointments.Audit.UnitTests\Nhs.Appointments.Audit.UnitTests.csproj", "{77BC044C-9695-30FE-3A1F-C2C1E9BE05E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -164,10 +163,10 @@ Global
 		{664A5262-92DA-7554-2178-1E8BFE7F2C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{664A5262-92DA-7554-2178-1E8BFE7F2C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{664A5262-92DA-7554-2178-1E8BFE7F2C89}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23481968-D673-4946-BC8D-3502755013AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23481968-D673-4946-BC8D-3502755013AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23481968-D673-4946-BC8D-3502755013AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23481968-D673-4946-BC8D-3502755013AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77BC044C-9695-30FE-3A1F-C2C1E9BE05E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77BC044C-9695-30FE-3A1F-C2C1E9BE05E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77BC044C-9695-30FE-3A1F-C2C1E9BE05E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77BC044C-9695-30FE-3A1F-C2C1E9BE05E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -198,7 +197,7 @@ Global
 		{53083731-B940-4CDF-8159-38F7F6596845} = {894B36CF-9551-4913-9460-995F2A5F1859}
 		{753D0A58-816E-4879-BE03-B82D23EBD96D} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 		{664A5262-92DA-7554-2178-1E8BFE7F2C89} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
-		{23481968-D673-4946-BC8D-3502755013AA} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
+		{77BC044C-9695-30FE-3A1F-C2C1E9BE05E6} = {C4AAF10B-178C-42F1-B081-22E8D5324355}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F16CD335-B2DF-4C77-9801-5DB5B9AAFADA}

@@ -5,14 +5,17 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Models;
+using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Users;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;
 
 public class ProposeCancelDateRangeFunction(
+    IBookingAvailabilityStateService bookingAvailabilityStateService,
     IValidator<ProposeCancelDateRangeRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<ProposeAvailabilityChangeFunction> logger,
@@ -45,5 +48,9 @@ public class ProposeCancelDateRangeFunction(
             : ProblemResponse(HttpStatusCode.NotImplemented, null);
     }
 
-    protected override Task<ApiResult<ProposeCancelDateRangeResponse>> HandleRequest(ProposeCancelDateRangeRequest request, ILogger logger) => throw new System.NotImplementedException();
+    protected override async Task<ApiResult<ProposeCancelDateRangeResponse>> HandleRequest(ProposeCancelDateRangeRequest request, ILogger logger)
+    {
+        var (sessionCount, bookingsCount) = await bookingAvailabilityStateService.GenerateCancelDateRangeProposalActionMetricsAsync(request.Site, request.From, request.To);
+        return ApiResult<ProposeCancelDateRangeResponse>.Success(new ProposeCancelDateRangeResponse(sessionCount, bookingsCount));
+    }
 }

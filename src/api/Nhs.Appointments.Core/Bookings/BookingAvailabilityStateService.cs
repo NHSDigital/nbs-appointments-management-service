@@ -113,8 +113,8 @@ public class BookingAvailabilityStateService(
 
     public async Task<(int SessionCount, int BookingCount)> GenerateCancelDateRangeProposalActionMetricsAsync(string site, DateOnly from, DateOnly to)
     {
-        var (sessions, bookings) = await FetchData(site, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(new TimeOnly(23, 59, 59)), BookingAvailabilityStateReturnType.Summary);
-        throw new NotImplementedException();
+        var (bookings, sessions) = await FetchData(site, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(new TimeOnly(23, 59, 59)), BookingAvailabilityStateReturnType.Summary);
+        return (sessions.Count, bookings.Count(b => b.AvailabilityStatus == AvailabilityStatus.Supported));
     }
 
     private async Task<(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,

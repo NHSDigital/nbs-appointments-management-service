@@ -18,7 +18,7 @@ public class ProposeCancelDateRangeFunction(
     IBookingAvailabilityStateService bookingAvailabilityStateService,
     IValidator<ProposeCancelDateRangeRequest> validator,
     IUserContextProvider userContextProvider,
-    ILogger<ProposeAvailabilityChangeFunction> logger,
+    ILogger<ProposeCancelDateRangeFunction> logger,
     IMetricsRecorder metricsRecorder,
     IFeatureToggleHelper featureToggleHelper)
     : BaseApiFunction<ProposeCancelDateRangeRequest, ProposeCancelDateRangeResponse>(

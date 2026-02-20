@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures-v2';
-import { EulaConsentPage, SiteSelectionPage, LoginPage } from '@e2etests/page-objects';
+import {
+  EulaConsentPage,
+  SiteSelectionPage,
+  LoginPage,
+} from '@e2etests/page-objects';
 import { buildE2ETestUser } from '@e2etests/data';
 
 test.describe.configure({ mode: 'serial' });
@@ -10,15 +14,15 @@ test('A user with an out of date EULA consent version is prompted with the EULA 
   page,
   setUpSingleSite,
 }) => {
-  // 1. Set up the site/user. 
+  // 1. Set up the site/user.
   // If your app triggers EULA for ALL new users, this is enough.
   // If it requires a specific configuration, pass it in siteConfig.
-  await setUpSingleSite({ 
+  await setUpSingleSite({
     skipSiteSelection: true,
-    userConfig: { 
+    userConfig: {
       // Use a valid date format that the C# converter can parse
-      latestAcceptedEulaVersion: STALE_EULA_DATE
-    }
+      latestAcceptedEulaVersion: STALE_EULA_DATE,
+    },
   });
 
   const eulaPage = new EulaConsentPage(page);
@@ -36,9 +40,9 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
   setUpSingleSite,
 }) => {
   // 1. Use the modified fixture (Safe because skipSiteSelection defaults to false elsewhere)
-  const { testId } = await setUpSingleSite({ 
+  const { testId } = await setUpSingleSite({
     skipSiteSelection: true,
-    userConfig: { latestAcceptedEulaVersion: STALE_EULA_DATE } 
+    userConfig: { latestAcceptedEulaVersion: STALE_EULA_DATE },
   });
 
   const eulaPage = new EulaConsentPage(page);
@@ -52,17 +56,14 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
   await selectionPage.header.logOutButton.click();
   await page.waitForURL(/.*login|.*\//);
 
-  // 4. Logout
-  await selectionPage.header.logOutButton.click();
-  
   // Clear cookies to kill the "sticky" session that is auto-logging you back in
   await page.context().clearCookies();
 
-  // 5. Re-login
+  // 4. Re-login
   const loginPage = new LoginPage(page);
-  
+
   // Force navigate to the login page to ensure we aren't stuck on /sites
-  await page.goto('/'); 
+  await page.goto('/');
 
   // Use the login helper that worked in the fixture
   const mockOidcLoginPage = await loginPage.logInWithNhsMail();

@@ -2,7 +2,6 @@
 import {
   Breadcrumbs,
   Breadcrumb,
-  Header,
   NavigationLink,
 } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
@@ -10,15 +9,18 @@ import NotificationBanner from '@components/notification-banner';
 import { cookies } from 'next/headers';
 import NhsFooter from '@components/nhs-footer';
 import NhsMainContainer from '@components/nhs-main-container';
-import NhsHeaderLogOut from '@components/nhs-header-log-out';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import { Site } from '@types';
-import { fetchPermissions } from '@services/appointmentsService';
+import {
+  fetchPermissions,
+  fetchUserProfile,
+} from '@services/appointmentsService';
 import BackLink, { NavigationByHrefProps } from './nhsuk-frontend/back-link';
 import FeedbackBanner from '@components/feedback-banner';
 import BuildNumber from './build-number';
 import PrintPageButton from './print-page-button';
 import fromServer from '@server/fromServer';
+import NhsPageHeader from './nhsuk-frontend/nhs-page-header';
 
 type Props = {
   children: ReactNode;
@@ -36,7 +38,6 @@ const NhsPage = async ({
   caption,
   site,
   children = null,
-  headerAuthComponent = null,
   breadcrumbs = [],
   omitTitleFromBreadcrumbs,
   backLink,
@@ -46,15 +47,15 @@ const NhsPage = async ({
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
   const navigationLinks = await getLinksForSite(site);
+  const userProfile = await fromServer(fetchUserProfile());
 
   return (
     <>
-      <Header
+      <NhsPageHeader
         navigationLinks={navigationLinks}
         showChangeSiteButton={site !== undefined}
-      >
-        {headerAuthComponent ?? NhsHeaderLogOut()}
-      </Header>
+        userEmail={userProfile.emailAddress}
+      ></NhsPageHeader>
       <FeedbackBanner originPage={originPage} />
       <Breadcrumbs
         trail={[
@@ -110,20 +111,22 @@ const getLinksForSite = async (
     );
   };
 
+  const basePath = process.env.CLIENT_BASE_PATH;
+
   const navigationLinks: NavigationLink[] = [];
 
   if (site !== undefined) {
     if (permissionsAtSite.includes('availability:query')) {
       navigationLinks.push({
         label: 'View availability',
-        href: `/site/${site.id}/view-availability`,
+        href: `${basePath}/site/${site.id}/view-availability`,
       });
     }
 
     if (permissionsAtSite.includes('availability:setup')) {
       navigationLinks.push({
         label: 'Create availability',
-        href: `/site/${site.id}/create-availability`,
+        href: `${basePath}/site/${site.id}/create-availability`,
       });
     }
 
@@ -133,14 +136,14 @@ const getLinksForSite = async (
     ) {
       navigationLinks.push({
         label: 'Change site details',
-        href: `/site/${site.id}/details`,
+        href: `${basePath}/site/${site.id}/details`,
       });
     }
 
     if (permissionsAtSite.includes('users:view')) {
       navigationLinks.push({
         label: 'Manage users',
-        href: `/site/${site.id}/users`,
+        href: `${basePath}/site/${site.id}/users`,
       });
     }
   }
@@ -148,7 +151,7 @@ const getLinksForSite = async (
   if (hasAnyReportPermissions()) {
     navigationLinks.push({
       label: 'Reports',
-      href: `/reports`,
+      href: `${basePath}/reports`,
     });
   }
 

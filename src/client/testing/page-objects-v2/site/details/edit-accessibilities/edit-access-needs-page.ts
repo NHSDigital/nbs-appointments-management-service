@@ -63,14 +63,18 @@ export default class EditAccessNeedsPage extends MYALayout {
 
   async cancel(): Promise<SiteDetailsPage> {
     await this.cancelButton.click();
-    await this.page.waitForURL(`**/site/${this.site?.id}/details`);
+    await this.page.waitForURL(
+      `**/manage-your-appointments/site/${this.site?.id}/details`,
+    );
 
     return new SiteDetailsPage(this.page, this.site);
   }
 
   async saveSiteDetails(): Promise<SiteDetailsPage> {
     await this.saveAndContinueButton.click();
-    await this.page.waitForURL(`**/site/${this.site?.id}/details`);
+    await this.page.waitForURL(
+      `**/manage-your-appointments/site/${this.site?.id}/details`,
+    );
 
     return new SiteDetailsPage(this.page, this.site);
   }

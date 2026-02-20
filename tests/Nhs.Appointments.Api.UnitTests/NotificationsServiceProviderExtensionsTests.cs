@@ -7,6 +7,7 @@ using Nhs.Appointments.Api.Notifications.Options;
 using Nhs.Appointments.Api.Providers;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
@@ -62,6 +63,7 @@ public class NotificationsServiceProviderExtensionsTests
             .AddTransient<ITypedDocumentCosmosStore<AuditFunctionDocument>, TypedDocumentCosmosStore<AuditFunctionDocument>>()
             .AddTransient<ITypedDocumentCosmosStore<AuditAuthDocument>, TypedDocumentCosmosStore<AuditAuthDocument>>()
             .AddTransient<ITypedDocumentCosmosStore<AuditNotificationDocument>, TypedDocumentCosmosStore<AuditNotificationDocument>>()
+            .AddTransient<ITypedDocumentCosmosStore<AuditUserRemovedDocument>, TypedDocumentCosmosStore<AuditUserRemovedDocument>>()
             .AddTransient<IAuditWriteService, AuditWriteService>()
             .AddSingleton<ISiteSummaryAggregator, FakeSiteSummaryAggregator>()
             .AddSingleton<IClinicalServiceStore, ClinicalServiceStore>()

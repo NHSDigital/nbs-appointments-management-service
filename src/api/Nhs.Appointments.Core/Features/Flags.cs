@@ -10,6 +10,8 @@ public static class Flags
     public const string MultiServiceJointBookings = "MultiServiceJointBookings";
     public const string JointBookingsReporting = "JointBookingsReporting";
     public const string ReportsUplift = "ReportsUplift";
+    public const string CancelADateRange = "CancelADateRange";
+    public const string CancelADateRangeWithBookings = "CancelADateRangeWithBookings";
 
     #region TestFlags
     //a simple on/off global flag

@@ -1,13 +1,14 @@
 import { ReactNode } from 'react';
 import NhsMainContainer from './nhs-main-container';
-import { Header } from '@nhsuk-frontend-components';
-import NhsHeaderLogOut from './nhs-header-log-out';
 import FeedbackBanner from '@components/feedback-banner';
 import BackLink, { BackLinkProps } from '@components/nhsuk-frontend/back-link';
 import NhsHeading from './nhs-heading';
 import { cookies } from 'next/headers';
 import NotificationBanner from './notification-banner';
 import NhsFooter from './nhs-footer';
+import NhsPageHeader from './nhsuk-frontend/nhs-page-header';
+import { fetchUserProfile } from '@services/appointmentsService';
+import fromServer from '@server/fromServer';
 
 type Props = {
   children: ReactNode;
@@ -27,11 +28,14 @@ const NhsTransactionalPage = async ({
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
 
+  const userProfile = await fromServer(fetchUserProfile());
+
   return (
     <>
-      <Header showChangeSiteButton={false}>
-        <NhsHeaderLogOut />
-      </Header>
+      <NhsPageHeader
+        showChangeSiteButton={false}
+        userEmail={userProfile.emailAddress}
+      />
       <FeedbackBanner originPage={originPage} />
       <NhsMainContainer>
         {backLink && <BackLink {...backLink} />}

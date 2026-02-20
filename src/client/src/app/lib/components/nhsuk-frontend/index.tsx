@@ -6,14 +6,13 @@ import Card from './card';
 import CheckBox from './checkbox';
 import CheckBoxes, { CheckBoxOrAll } from './checkboxes';
 import DateInput from './date-input';
-import Header, { NavigationLink } from './header';
+import Header, { NavigationLink } from './nhs-page-header';
 import Expander from './expander';
 import Fieldset from './fieldset';
 import Footer from './footer';
 import FormGroup from './form-group';
 import InsetText from './inset-text';
 import { PaginationLink } from './pagination';
-import NhsLogo from './icons/nhs-logo';
 import Radio from './radio';
 import RadioGroup from './radio-group';
 import RightChevron from './icons/right-chevron';
@@ -65,7 +64,6 @@ export {
   FormGroup,
   Header,
   InsetText,
-  NhsLogo,
   Pagination,
   Radio,
   RadioGroup,

@@ -1,4 +1,3 @@
-import { Card, SummaryList } from '@components/nhsuk-frontend';
 import fromServer from '@server/fromServer';
 import {
   fetchAccessibilityDefinitions,
@@ -10,8 +9,7 @@ import {
   mapSiteReferenceSummaryData,
 } from '@services/siteService';
 import { WellKnownOdsEntry } from '@types';
-import Link from 'next/link';
-import { ReactNode } from 'react';
+import { Card, SummaryList } from 'nhsuk-react-components';
 
 type Props = {
   siteId: string;
@@ -36,95 +34,116 @@ const SiteDetailsPage = async ({
   );
   const siteCoreSummary = mapCoreSiteSummaryData(site, siteStatus.enabled);
 
-  const siteDetailsActionLinks: ReactNode = permissions.includes(
-    'site:manage',
-  ) ? (
-    <>
-      <Link
-        href={`/site/${site.id}/details/edit-details`}
-        className="nhsuk-link"
-      >
-        Edit site details
-      </Link>
-      {siteStatus.enabled ? (
-        <>
-          &nbsp;|&nbsp;
-          <Link
-            href={`/site/${site.id}/details/edit-site-status`}
-            className="nhsuk-link"
-          >
-            Change site status
-          </Link>
-        </>
-      ) : null}
-    </>
-  ) : null;
-
-  const siteReferenceDetailsLink: ReactNode = permissions.includes(
-    'site:manage:admin',
-  ) ? (
-    <Link
-      href={`/site/${site.id}/details/edit-reference-details`}
-      className="nhsuk-link"
-    >
-      Edit site reference details
-    </Link>
-  ) : null;
-
-  const accessNeedsLink: ReactNode = permissions.includes('site:manage') ? (
-    <Link
-      href={`/site/${site.id}/details/edit-accessibilities`}
-      className="nhsuk-link"
-    >
-      Edit access needs
-    </Link>
-  ) : null;
-
-  const informationForCitizenLink: ReactNode = permissions.includes(
-    'site:manage',
-  ) ? (
-    <Link
-      href={`/site/${site.id}/details/edit-information-for-citizens`}
-      className="nhsuk-link"
-    >
-      Edit information for citizens
-    </Link>
-  ) : null;
-
   return (
     <ol className="card-list">
       <li>
-        <Card title="Site details" actionLinks={siteDetailsActionLinks}>
-          {siteCoreSummary && <SummaryList {...siteCoreSummary} />}
+        <Card>
+          <Card.Heading>Site details</Card.Heading>
+          {permissions.includes('site:manage') ? (
+            <Card.Action
+              href={`/manage-your-appointments/site/${site.id}/details/edit-details`}
+            >
+              Edit site details
+            </Card.Action>
+          ) : null}
+          {siteStatus.enabled && permissions.includes('site:manage') ? (
+            <Card.Action
+              href={`/manage-your-appointments/site/${site.id}/details/edit-site-status`}
+            >
+              Change site status
+            </Card.Action>
+          ) : null}
+          <SummaryList>
+            {siteCoreSummary?.items.map((item, index) => (
+              <SummaryList.Row key={index}>
+                <SummaryList.Key>{item.title}</SummaryList.Key>
+                <SummaryList.Value>
+                  {typeof item.value === 'string' ? (
+                    item.tag !== undefined ? (
+                      <span
+                        className={`nhsuk-tag nhsuk-tag--${item.tag?.colour}`}
+                      >
+                        {item.value}
+                      </span>
+                    ) : (
+                      item.value
+                    )
+                  ) : (
+                    <div>
+                      {item.value?.map((line, lineIndex) => (
+                        <div key={lineIndex}>{line}</div>
+                      ))}
+                    </div>
+                  )}
+                </SummaryList.Value>
+              </SummaryList.Row>
+            ))}
+          </SummaryList>
         </Card>
-        <Card
-          title="Site reference details"
-          actionLinks={siteReferenceDetailsLink}
-        >
-          {siteReferenceSummaryData && (
-            <SummaryList {...siteReferenceSummaryData}></SummaryList>
+        <Card>
+          <Card.Heading>Site reference details</Card.Heading>
+          {permissions.includes('site:manage:admin') && (
+            <Card.Action
+              href={`/manage-your-appointments/site/${site.id}/details/edit-reference-details`}
+            >
+              Edit site reference details
+            </Card.Action>
           )}
+          <SummaryList>
+            {siteReferenceSummaryData?.items.map((item, index) => (
+              <SummaryList.Row key={index}>
+                <SummaryList.Key>{item.title}</SummaryList.Key>
+                <SummaryList.Value>
+                  {typeof item.value === 'string' ? (
+                    item.value
+                  ) : (
+                    <div>
+                      {item.value?.map((line, lineIndex) => (
+                        <div key={lineIndex}>{line}</div>
+                      ))}
+                    </div>
+                  )}
+                </SummaryList.Value>
+              </SummaryList.Row>
+            ))}
+          </SummaryList>
         </Card>
-        <Card title="Access needs" actionLinks={accessNeedsLink}>
-          <SummaryList
-            borders={true}
-            items={accessibilityDefinitions.map(definition => {
-              return {
-                title: definition.displayName,
-                value:
-                  site?.accessibilities
-                    .find(value => value.id === definition.id)
-                    ?.value.toLowerCase() === 'true'
-                    ? 'Yes'
-                    : 'No',
-              };
+        <Card>
+          <Card.Heading>Access needs</Card.Heading>
+          {permissions.includes('site:manage') && (
+            <Card.Action
+              href={`/manage-your-appointments/site/${site.id}/details/edit-accessibilities`}
+            >
+              Edit access needs
+            </Card.Action>
+          )}
+          <SummaryList>
+            {accessibilityDefinitions.map((definition, index) => {
+              const accessibilityForDefinition = site?.accessibilities.find(
+                value => value.id === definition.id,
+              );
+              return (
+                <SummaryList.Row key={index}>
+                  <SummaryList.Key>{definition.displayName}</SummaryList.Key>
+                  <SummaryList.Value>
+                    {accessibilityForDefinition?.value.toLowerCase() === 'true'
+                      ? 'Yes'
+                      : 'No'}
+                  </SummaryList.Value>
+                </SummaryList.Row>
+              );
             })}
-          />
+          </SummaryList>
         </Card>
-        <Card
-          title="Information for citizens"
-          actionLinks={informationForCitizenLink}
-        >
+        <Card>
+          <Card.Heading>Information for citizens</Card.Heading>
+          {permissions.includes('site:manage') && (
+            <Card.Action
+              href={`/manage-your-appointments/site/${site.id}/details/edit-information-for-citizens`}
+            >
+              Edit information for citizens
+            </Card.Action>
+          )}
           {site.informationForCitizens ? (
             <p>{site.informationForCitizens}</p>
           ) : (

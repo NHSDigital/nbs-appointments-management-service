@@ -1,9 +1,13 @@
 'use client';
-import { Card, SummaryList } from '@nhsuk-frontend-components';
-import { mapSiteOverviewSummaryData } from '@services/siteService';
 import { Site, WellKnownOdsEntry } from '@types';
 import { getAppInsightsClient } from '../../appInsights';
 import { useEffect } from 'react';
+import {
+  ArrowRightCircleIcon,
+  Card,
+  SummaryList,
+} from 'nhsuk-react-components';
+import { mapSiteOverviewSummaryData } from '@services/siteService';
 
 interface SitePageProps {
   site: Site;
@@ -46,43 +50,100 @@ export const SitePage = ({
 
   return (
     <>
-      {overviewData && <SummaryList {...overviewData}></SummaryList>}
+      <SummaryList>
+        {overviewData?.items.map((item, index) => (
+          <SummaryList.Row key={index}>
+            <SummaryList.Key>{item.title}</SummaryList.Key>
+            <SummaryList.Value>
+              {typeof item.value === 'string' ? (
+                item.tag !== undefined ? (
+                  <span className={`nhsuk-tag nhsuk-tag--${item.tag?.colour}`}>
+                    {item.value}
+                  </span>
+                ) : (
+                  item.value
+                )
+              ) : (
+                <div>
+                  {item.value?.map((line, lineIndex) => (
+                    <div key={lineIndex}>{line}</div>
+                  ))}
+                </div>
+              )}
+            </SummaryList.Value>
+          </SummaryList.Row>
+        ))}
+      </SummaryList>
 
       {permissionsRelevantToCards.length > 0 && (
         <ul className="nhsuk-grid-row nhsuk-card-group">
           {permissionsRelevantToCards.includes('availability:query') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-              <Card
-                href={`/site/${site.id}/view-availability`}
-                title="View availability and manage appointments for your site"
-              />
+              <Card primary clickable>
+                <Card.Heading headingLevel="h3">
+                  <Card.Link
+                    href={`/manage-your-appointments/site/${site.id}/view-availability`}
+                  >
+                    View availability and manage appointments for your site
+                  </Card.Link>
+                </Card.Heading>
+                <ArrowRightCircleIcon />
+              </Card>
             </li>
           )}
           {permissionsRelevantToCards.includes('availability:setup') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-              <Card
-                href={`/site/${site.id}/create-availability`}
-                title="Create availability"
-              />
+              <Card primary clickable>
+                <Card.Heading headingLevel="h3">
+                  <Card.Link
+                    href={`/manage-your-appointments/site/${site.id}/create-availability`}
+                  >
+                    Create availability
+                  </Card.Link>
+                </Card.Heading>
+                <ArrowRightCircleIcon />
+              </Card>
             </li>
           )}
           {(permissionsRelevantToCards.includes('site:manage') ||
-            permissionsRelevantToCards.includes('site:view')) && (
+            -permissionsRelevantToCards.includes('site:view')) && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-              <Card
-                href={`/site/${site.id}/details`}
-                title="Change site details and accessibility information"
-              />
+              <Card primary clickable>
+                <Card.Heading headingLevel="h3">
+                  <Card.Link
+                    href={`/manage-your-appointments/site/${site.id}/details`}
+                  >
+                    Change site details and accessibility information
+                  </Card.Link>
+                </Card.Heading>
+                <ArrowRightCircleIcon />
+              </Card>
             </li>
           )}
           {permissionsRelevantToCards.includes('users:view') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-              <Card href={`/site/${site.id}/users`} title="Manage users" />
+              <Card primary clickable>
+                <Card.Heading headingLevel="h3">
+                  <Card.Link
+                    href={`/manage-your-appointments/site/${site.id}/users`}
+                  >
+                    Manage users
+                  </Card.Link>
+                </Card.Heading>
+                <ArrowRightCircleIcon />
+              </Card>
             </li>
           )}
           {permissionsAtAnySite.includes('reports:sitesummary') && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
-              <Card href={`/reports`} title="Download reports" />
+              <Card primary clickable>
+                <Card.Heading headingLevel="h3">
+                  <Card.Link href={`/manage-your-appointments/reports`}>
+                    Download reports
+                  </Card.Link>
+                </Card.Heading>
+                <ArrowRightCircleIcon />
+              </Card>
             </li>
           )}
         </ul>

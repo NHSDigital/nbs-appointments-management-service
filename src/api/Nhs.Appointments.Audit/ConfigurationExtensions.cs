@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Nhs.Appointments.Audit.Functions;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Audit;
@@ -22,7 +23,11 @@ public static class ConfigurationExtensions
         builder.Services
             .AddScoped<ITypedDocumentCosmosStore<AuditNotificationDocument>,
                 TypedDocumentCosmosStore<AuditNotificationDocument>>();
+        builder.Services
+            .AddScoped<ITypedDocumentCosmosStore<AuditUserRemovedDocument>,
+                TypedDocumentCosmosStore<AuditUserRemovedDocument>>();
         builder.Services.AddTransient<IAuditWriteService, AuditWriteService>();
+        builder.Services.AddTransient<IUserDeletedAuditService, AuditWriteService>();
 
         return builder;
     }

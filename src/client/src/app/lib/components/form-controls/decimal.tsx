@@ -1,4 +1,5 @@
-import { FormGroup, TextInput } from '@components/nhsuk-frontend';
+import { FormGroup } from '@components/nhsuk-frontend';
+import { TextInput } from 'nhsuk-react-components';
 import { ChangeEvent } from 'react';
 import {
   Control,

@@ -43,9 +43,15 @@ export default class SitePage extends MYALayout {
   readonly topNav = {
     reportsLink: this.page.getByRole('link', { name: 'Reports', exact: true }),
 
-    clickReports: async (): Promise<SiteSummaryReportPage> => {
+    clickReports: async (
+      reportsUpliftEnabled: boolean,
+    ): Promise<SiteSummaryReportPage> => {
       await this.topNav.reportsLink.click();
-      await this.page.waitForURL(`**/reports`);
+      reportsUpliftEnabled
+        ? await this.page.waitForURL(
+            `**/manage-your-appointments/reports/select`,
+          )
+        : await this.page.waitForURL(`**/manage-your-appointments/reports`);
       return new SiteSummaryReportPage(this.page, this.site);
     },
   };
@@ -65,15 +71,21 @@ export default class SitePage extends MYALayout {
     return new Users(this.page, this.site);
   }
 
-  async clickReportsCard(): Promise<SiteSummaryReportPage> {
+  async clickReportsCard(
+    reportsUpliftEnabled: boolean,
+  ): Promise<SiteSummaryReportPage> {
     await this.reportsCard.click();
-    await this.page.waitForURL(`**/reports`);
+    reportsUpliftEnabled
+      ? await this.page.waitForURL(`**/manage-your-appointments/reports/select`)
+      : await this.page.waitForURL(`**/manage-your-appointments/reports`);
     return new SiteSummaryReportPage(this.page, this.site);
   }
 
   async clickSiteSummaryReportLink(): Promise<SiteSummaryReportPage> {
     await this.page.getByRole('link', { name: 'Report' }).click();
-    await this.page.waitForURL(`**/site/${this.site?.id}/report`);
+    await this.page.waitForURL(
+      `**/manage-your-appointments/site/${this.site?.id}/report`,
+    );
     return new SiteSummaryReportPage(this.page, this.site);
   }
 

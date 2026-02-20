@@ -54,6 +54,27 @@ export const verifySummaryListItem = (
   }
 };
 
+export const verifyV10SummaryListItem = (
+  key: string,
+  expectedValue: string | string[],
+) => {
+  const keyElement = screen.getByText(key);
+  expect(keyElement).toBeInTheDocument();
+  expect(keyElement).toHaveTextContent(key);
+
+  const row = keyElement.closest('.nhsuk-summary-list__row');
+  const valueElement = within(row as HTMLElement).getByRole('definition');
+  expect(valueElement).toBeInTheDocument();
+
+  if (typeof expectedValue === 'string') {
+    expect(valueElement).toHaveTextContent(expectedValue);
+  } else {
+    expectedValue.forEach(value => {
+      expect(valueElement).toHaveTextContent(value);
+    });
+  }
+};
+
 describe('SummaryList', () => {
   it('renders', () => {
     render(<SummaryList items={mockItems} />);

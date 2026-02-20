@@ -1,11 +1,15 @@
 using Nhs.Appointments.Audit.Persistance;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Audit.Services;
 
-public class AuditWriteService(ITypedDocumentCosmosStore<AuditFunctionDocument> auditFunctionStore, 
+public class AuditWriteService(
+    ITypedDocumentCosmosStore<AuditFunctionDocument> auditFunctionStore, 
     ITypedDocumentCosmosStore<AuditAuthDocument> auditAuthStore,
-    ITypedDocumentCosmosStore<AuditNotificationDocument> auditNotificationStore) : IAuditWriteService
+    ITypedDocumentCosmosStore<AuditNotificationDocument> auditNotificationStore,
+    ITypedDocumentCosmosStore<AuditUserRemovedDocument> auditUserRemovedStore
+) : IAuditWriteService, IUserDeletedAuditService
 {
     public async Task RecordFunction(string id, DateTime timestamp, string user, string functionName, string site)
     {
@@ -43,11 +47,17 @@ public class AuditWriteService(ITypedDocumentCosmosStore<AuditFunctionDocument> 
         await auditAuthStore.WriteAsync(doc);
     }
 
-    public async Task RecordNotification(string id, DateTime timestamp, string user, string destinationId,
+    public async Task RecordNotification(
+        string id, 
+        DateTime timestamp, 
+        string user, 
+        string destinationId,
         string notificationName,
-        string template, string notificationType, string reference)
+        string template, 
+        string notificationType, 
+        string reference
+    )
     {
-        
         var docType = auditNotificationStore.GetDocumentType();
         var doc = new AuditNotificationDocument()
         {
@@ -63,5 +73,21 @@ public class AuditWriteService(ITypedDocumentCosmosStore<AuditFunctionDocument> 
         };
 
         await auditNotificationStore.WriteAsync(doc);
+    }
+
+    public async Task RecordUserDeleted(string userId, string scope, string removedBy)
+    {
+        var docType = auditUserRemovedStore.GetDocumentType();
+        var doc = new AuditUserRemovedDocument()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Scope = scope,
+            User = removedBy,
+            RemovedUser = userId,
+            DocumentType = docType,
+            Timestamp = DateTime.Now
+        };
+
+        await auditUserRemovedStore.WriteAsync(doc);
     }
 }

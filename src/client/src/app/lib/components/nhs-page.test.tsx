@@ -23,13 +23,6 @@ jest.mock('@components/nhs-header-log-in', () => {
   return MockNhsHeaderLogIn;
 });
 
-jest.mock('@components/nhs-header-log-out', () => {
-  const MockNhsHeaderLogOut = () => {
-    return <button type="submit">log out</button>;
-  };
-  return MockNhsHeaderLogOut;
-});
-
 let mockGetCookies = jest.fn().mockImplementation((cookieName: string) => {
   return cookieName === 'ams-notification'
     ? { value: 'This is a notification' }
@@ -228,12 +221,12 @@ describe('Nhs Page', () => {
       if (path === 'reports') {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
           'href',
-          `/${path}`,
+          `/manage-your-appointments/${path}`,
         );
       } else {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
           'href',
-          `/site/${mockSite.id}/${path}`,
+          `/manage-your-appointments/site/${mockSite.id}/${path}`,
         );
       }
     },

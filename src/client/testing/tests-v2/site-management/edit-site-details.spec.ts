@@ -28,20 +28,20 @@ test('A user updates the details for a site', async ({ setUpSingleSite }) => {
       ).toBeVisible();
 
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Name'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Name'),
       ).toHaveText('Updated Site Name');
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Address'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Address'),
       ).toHaveText(/One House, One Road, One Town/);
 
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Longitude'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Longitude'),
       ).toHaveText(/0.32445345/);
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Latitude'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Latitude'),
       ).toHaveText(/53.742/);
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Phone Number'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Phone Number'),
       ).toHaveText(/0118 999 88199 9119 725 3/);
     });
 });
@@ -62,11 +62,11 @@ test('A user starts to update the details for a site then changes their mind usi
       await expect(siteDetailsPage.title).toBeVisible();
 
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Name'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Name'),
       ).not.toHaveText(/Some other name/);
 
       await expect(
-        siteDetailsPage.detailsCard.summaryList.getItem('Name'),
+        siteDetailsPage.detailsCard.summaryList.getV10Item('Name'),
       ).toHaveText(buildSiteName(testId));
     });
 });

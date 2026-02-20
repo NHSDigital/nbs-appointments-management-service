@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
 import NhsFooter from '@components/nhs-footer';
 import NhsMainContainer from '@components/nhs-main-container';
-import { BackLink, Breadcrumbs, Header } from '@components/nhsuk-frontend';
+import { BackLink, Breadcrumbs } from '@components/nhsuk-frontend';
 import NhsHeading, { NhsHeadingProps } from './nhs-heading';
 import FeedbackBanner from '@components/feedback-banner';
+import NhsAnonymousHeader from './nhsuk-frontend/nhs-anonymous-header';
 
 type Props = {
   children: ReactNode;
@@ -22,13 +23,12 @@ const NhsAnonymousPage = ({
   caption,
   originPage,
   children = null,
-  headerAuthComponent = null,
   showHomeBreadcrumb = false,
   showGoBack = false,
 }: Props) => {
   return (
     <>
-      <Header showChangeSiteButton={false}>{headerAuthComponent}</Header>
+      <NhsAnonymousHeader />
       <FeedbackBanner originPage={originPage} />
       {showHomeBreadcrumb && (
         <Breadcrumbs trail={[{ name: 'Home', href: '/sites' }]} />

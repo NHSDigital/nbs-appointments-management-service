@@ -17,7 +17,7 @@ import {
   mockSites,
   mockWellKnownOdsCodeEntries,
 } from '@testing/data';
-import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import { verifyV10SummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 import asServerActionResult from '@testing/asServerActionResult';
 
 jest.mock('@services/appointmentsService');
@@ -71,17 +71,17 @@ describe('Site Details Page', () => {
       screen.getByRole('heading', { level: 2, name: 'Site details' }),
     ).toBeVisible();
 
-    verifySummaryListItem('Name', mockSite.name);
-    verifySummaryListItem('Address', mockSite.address);
-    verifySummaryListItem(
+    verifyV10SummaryListItem('Name', mockSite.name);
+    verifyV10SummaryListItem('Address', mockSite.address);
+    verifyV10SummaryListItem(
       'Latitude',
       mockSite.location.coordinates[1].toString(),
     );
-    verifySummaryListItem(
+    verifyV10SummaryListItem(
       'Longitude',
       mockSite.location.coordinates[0].toString(),
     );
-    verifySummaryListItem('Phone Number', mockSite.phoneNumber);
+    verifyV10SummaryListItem('Phone Number', mockSite.phoneNumber);
   });
 
   it('shows the edit site details hyperlink if the user has permission', async () => {
@@ -93,12 +93,15 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('link', { name: 'Edit site details' }),
+      screen.getByRole('link', { name: 'Edit site details (Site details)' }),
     ).toBeVisible();
 
     expect(
-      screen.getByRole('link', { name: 'Edit site details' }),
-    ).toHaveAttribute('href', `/site/${mockSite.id}/details/edit-details`);
+      screen.getByRole('link', { name: 'Edit site details (Site details)' }),
+    ).toHaveAttribute(
+      'href',
+      `/manage-your-appointments/site/${mockSite.id}/details/edit-details`,
+    );
   });
 
   it('hides the edit site details hyperlink if the user does not have permission', async () => {
@@ -126,9 +129,9 @@ describe('Site Details Page', () => {
       screen.getByRole('heading', { level: 2, name: 'Site reference details' }),
     ).toBeVisible();
 
-    verifySummaryListItem('ODS code', mockSite.odsCode);
-    verifySummaryListItem('ICB', 'Integrated Care Board One');
-    verifySummaryListItem('Region', 'Region One');
+    verifyV10SummaryListItem('ODS code', mockSite.odsCode);
+    verifyV10SummaryListItem('ICB', 'Integrated Care Board One');
+    verifyV10SummaryListItem('Region', 'Region One');
 
     expect(
       screen.queryByText(mockSite.integratedCareBoard),
@@ -151,9 +154,9 @@ describe('Site Details Page', () => {
       }),
     ).toBeVisible();
 
-    verifySummaryListItem('ODS code', mockSite.odsCode);
-    verifySummaryListItem('ICB', mockSite.integratedCareBoard);
-    verifySummaryListItem('Region', mockSite.region);
+    verifyV10SummaryListItem('ODS code', mockSite.odsCode);
+    verifyV10SummaryListItem('ICB', mockSite.integratedCareBoard);
+    verifyV10SummaryListItem('Region', mockSite.region);
 
     expect(
       screen.queryByText('Integrated Care Board One'),
@@ -169,8 +172,8 @@ describe('Site Details Page', () => {
     });
     render(jsx);
 
-    verifySummaryListItem('Accessibility attribute 1', 'Yes');
-    verifySummaryListItem('Accessibility attribute 2', 'No');
+    verifyV10SummaryListItem('Accessibility attribute 1', 'Yes');
+    verifyV10SummaryListItem('Accessibility attribute 2', 'No');
   });
 
   it('shows the edit access needs hyperlink if the user has permission', async () => {
@@ -182,14 +185,14 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('link', { name: 'Edit access needs' }),
+      screen.getByRole('link', { name: 'Edit access needs (Access needs)' }),
     ).toBeVisible();
 
     expect(
-      screen.getByRole('link', { name: 'Edit access needs' }),
+      screen.getByRole('link', { name: 'Edit access needs (Access needs)' }),
     ).toHaveAttribute(
       'href',
-      `/site/${mockSite.id}/details/edit-accessibilities`,
+      `/manage-your-appointments/site/${mockSite.id}/details/edit-accessibilities`,
     );
   });
 
@@ -202,7 +205,7 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.queryByRole('link', { name: 'Edit access needs' }),
+      screen.queryByRole('link', { name: 'Edit access needs (Access needs)' }),
     ).toBeNull();
   });
 
@@ -215,14 +218,18 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.getByRole('link', { name: 'Edit information for citizens' }),
+      screen.getByRole('link', {
+        name: 'Edit information for citizens (Information for citizens)',
+      }),
     ).toBeVisible();
 
     expect(
-      screen.getByRole('link', { name: 'Edit information for citizens' }),
+      screen.getByRole('link', {
+        name: 'Edit information for citizens (Information for citizens)',
+      }),
     ).toHaveAttribute(
       'href',
-      `/site/${mockSite.id}/details/edit-information-for-citizens`,
+      `/manage-your-appointments/site/${mockSite.id}/details/edit-information-for-citizens`,
     );
   });
 
@@ -235,7 +242,9 @@ describe('Site Details Page', () => {
     render(jsx);
 
     expect(
-      screen.queryByRole('link', { name: 'Edit information for citizens' }),
+      screen.queryByRole('link', {
+        name: 'Edit information for citizens (Information for citizens)',
+      }),
     ).toBeNull();
   });
 
@@ -247,10 +256,10 @@ describe('Site Details Page', () => {
     });
     render(jsx);
 
-    verifySummaryListItem('Status', 'Online');
+    verifyV10SummaryListItem('Status', 'Online');
 
     expect(
-      screen.getByRole('link', { name: 'Change site status' }),
+      screen.getByRole('link', { name: 'Change site status (Site details)' }),
     ).toBeInTheDocument();
   });
 
@@ -281,6 +290,6 @@ describe('Site Details Page', () => {
     });
     render(jsx);
 
-    verifySummaryListItem('Accessibility attribute 1', 'Yes');
+    verifyV10SummaryListItem('Accessibility attribute 1', 'Yes');
   });
 });

@@ -8,4 +8,13 @@ export default class SummaryList extends PageObject {
       .filter({ has: this.page.getByText(label, { exact: true }) })
       .getByRole('definition');
   }
+
+  getV10Item(label: string | RegExp): Locator {
+    const matcher =
+      typeof label === 'string' ? new RegExp(`^${label}$`) : label;
+
+    return this.self()
+      .locator('dt', { hasText: matcher })
+      .locator('xpath=following-sibling::dd[1]');
+  }
 }

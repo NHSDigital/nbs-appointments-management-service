@@ -204,6 +204,16 @@ variable "cosmos_audit_autoscale_settings" {
   default = []
 }
 
+variable "cosmos_audit_lease_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
+variable "cosmos_booking_aggregation_lease_autoscale_settings" {
+  type    = list(any)
+  default = []
+}
+
 variable "web_app_service_sku" {
   type = string
 }
@@ -465,4 +475,29 @@ variable "auditor_archive_after_days" {
 variable "site_summary_minimum_parallelization" {
   type = number
   default = 500
+}
+
+variable "aggregator_changefeed_enable" {
+  type = bool
+}
+
+variable "aggregator_polling_interval_seconds" {
+  type = number
+  default = 60
+}
+
+variable "aggregator_default_wait_seconds" {
+  type = number
+  default = 30
+}
+
+variable "aggregator_max_retry" {
+  type = number
+  default = 50
+}
+
+
+variable "auditor_polling_interval_seconds" {
+  type = number
+  default = 60
 }

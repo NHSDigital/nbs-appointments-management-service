@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Nhs.Appointments.Jobs.BlobAuditor.Cosmos;
+using Nhs.Appointments.Jobs.ChangeFeed;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor.UnitTests.Cosmos;
 
@@ -11,8 +11,8 @@ public class ContainerConfigFactoryTests
         // Arrange
         var configs = new List<ContainerConfiguration>
         {
-            new ContainerConfiguration { ContainerName = "container1", LeaseContainerName = "lease1" },
-            new ContainerConfiguration { ContainerName = "container2", LeaseContainerName = "lease2" }
+            new ContainerConfiguration { ContainerName = "container1", LeaseContainerName = "lease1", PollingIntervalSeconds = 60},
+            new ContainerConfiguration { ContainerName = "container2", LeaseContainerName = "lease2", PollingIntervalSeconds = 60 }
         };
 
         var options = Options.Create(configs);
@@ -33,7 +33,7 @@ public class ContainerConfigFactoryTests
         // Arrange
         var configs = new List<ContainerConfiguration>
         {
-            new ContainerConfiguration { ContainerName = "MyContainer", LeaseContainerName = "lease1" }
+            new ContainerConfiguration { ContainerName = "MyContainer", LeaseContainerName = "lease1", PollingIntervalSeconds = 60 }
         };
         var options = Options.Create(configs);
         var factory = new ContainerConfigFactory(options);
@@ -52,7 +52,7 @@ public class ContainerConfigFactoryTests
         // Arrange
         var configs = new List<ContainerConfiguration>
         {
-            new ContainerConfiguration { ContainerName = "container1", LeaseContainerName = "lease1" }
+            new ContainerConfiguration { ContainerName = "container1", LeaseContainerName = "lease1", PollingIntervalSeconds = 60 }
         };
         var options = Options.Create(configs);
         var factory = new ContainerConfigFactory(options);

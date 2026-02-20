@@ -20,7 +20,7 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
 {
     private Core.Bookings.Booking _actualResponse;
 
-    [When("I cancel the following session")]
+    [When("I cancel the following session at the default site")]
     public async Task CancelSession(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
@@ -57,7 +57,7 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Fea
             await JsonRequestReader.ReadRequestAsync<Core.Bookings.Booking>(await _response.Content.ReadAsStreamAsync());
     }
 
-    [Then("the following booking is returned")]
+    [Then("the following booking is returned at the default site")]
     public void AssertBooking(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;

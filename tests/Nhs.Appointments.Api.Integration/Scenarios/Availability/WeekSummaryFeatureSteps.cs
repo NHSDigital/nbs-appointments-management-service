@@ -14,7 +14,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
         [Then(@"the call should fail with (\d*)")]
         public void AssertFailureCode(int statusCode) => _statusCode.Should().Be((HttpStatusCode)statusCode);
 
-        [When(@"I query week summary for the current site on '(.+)'")]
+        [When(@"I query week summary for the default site on '(.+)'")]
         public async Task QueryWeekSummary(string from)
         {
             var siteId = GetSiteId();

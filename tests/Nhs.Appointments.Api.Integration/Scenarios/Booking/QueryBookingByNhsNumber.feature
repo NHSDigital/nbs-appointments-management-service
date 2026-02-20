@@ -5,12 +5,12 @@
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date              | Time  | Duration | Service |
       | Tomorrow          | 09:00 | 5        | COVID   |
       | 2 days from today | 09:20 | 10       | FLU     |
     When I query for bookings for a person using their NHS number
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date              | Time  | Duration | Service |
       | Tomorrow          | 09:00 | 5        | COVID   |
       | 2 days from today | 09:20 | 10       | FLU     |
@@ -20,7 +20,7 @@
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |
-    Given the following provisional bookings have been made
+    Given the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:00 | 5        | COVID   |
     When I query for bookings for a person using their NHS number
@@ -31,14 +31,14 @@
       | Date              | From  | Until | Services   | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID, FLU | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID, FLU | 10          | 1        |
-    Given the following provisional bookings have been made
+    Given the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:00 | 5        | COVID   |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:10 | 5        | COVID   |
     When I query for bookings for a person using their NHS number
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:10 | 5        | COVID   |
 

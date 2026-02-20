@@ -4,7 +4,7 @@
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 11:00 | COVID    | 5           | 1        |
-        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 10:00 | 12    |
@@ -14,7 +14,7 @@
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 2        |
-        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 10:00 | 12    |
@@ -24,7 +24,7 @@
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 00:01 | 23:59 | COVID    | 10          | 2        |
-        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 00:00 | 01:00 | 12    |
@@ -57,7 +57,7 @@
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 2        |
           | Tomorrow | 09:00 | 11:00 | COVID    | 10          | 3        |
-        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 10:00 | 30    |
@@ -69,7 +69,7 @@
           | Tomorrow   | 09:00 | 13:00 | COVID    | 5           | 1        |
           | 2 days from today | 09:00 | 13:00 | COVID    | 5           | 1        |
           | 3 days from today | 09:00 | 13:00 | COVID    | 5           | 1        |
-        When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 10:00 | 12    |
@@ -94,7 +94,7 @@
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
           | Tomorrow | 07:00 | 08:00 | COVID    | 5           | 1        |
-        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 07:00 | 08:00 | 12    |
@@ -107,7 +107,7 @@
         | 2 days from today | 09:00 | 11:00 | RSV, COVID    | 5           | 1        |
         | 3 days from today | 09:00 | 11:00 | COVID         | 5           | 1        |
         | 4 days from today | 09:00 | 11:00 | COVID, FLU    | 5           | 1        |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and '4 days from today'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and '4 days from today' at the default site
       Then no availability is returned for 'Tomorrow'
       And the following availability is returned for '2 days from today'
         | From  | Until | Count |
@@ -128,7 +128,7 @@
         | Tomorrow | 09:00 | 10:00 | RSV, COVID  | 5            | 3        |
         | Tomorrow | 09:00 | 10:00 | COVID       | 5            | 2        |
         | Tomorrow | 09:00 | 10:00 | RSV         | 5            | 3        |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 60    |
@@ -139,10 +139,10 @@
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU     |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
@@ -159,10 +159,10 @@
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following provisional bookings have been made
+      And the following provisional bookings have been made at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU     |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
@@ -179,10 +179,10 @@
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following expired provisional bookings have been made
+      And the following expired provisional bookings exist at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU     |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
@@ -199,10 +199,10 @@
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following cancelled bookings have been made
+      And the following cancelled bookings exist at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU     |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
@@ -224,25 +224,25 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, RSV    | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | FLU   |
         | Tomorrow    | 09:20 | 5        | RSV   |
         | Tomorrow    | 09:20 | 5        | ABBA   |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 23    |
-      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 23    |
-      When I check hourly availability for 'ABBA' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'ABBA' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
@@ -255,25 +255,25 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, RSV    | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | FLU   |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | ABBA   |
         | Tomorrow    | 09:20 | 5        | RSV   |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'ABBA' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'ABBA' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
@@ -287,37 +287,37 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU-B                              | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU-B, RSV                                | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | FLU     |
         | Tomorrow    | 09:20 | 5        | RSV     |
         | Tomorrow    | 09:20 | 5        | FLU-B   |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 23    |
-      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 23    |
-      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 23    |
-      When I check hourly availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 33    |
-      When I check hourly availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 23    |
-      When I check hourly availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
-      When I check hourly availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 12    |
@@ -330,37 +330,37 @@
         | Tomorrow    | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU-B, RSV, FLU-C, FLU-D                  | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU-B                              | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | FLU-B   |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | FLU     |
         | Tomorrow    | 09:20 | 5        | RSV     |
-      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 33    |
-      When I check hourly availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 33    |
-      When I check hourly availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 22    |
-      When I check hourly availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow'
+      When I check hourly availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 10:00 | 11    |

@@ -17,10 +17,13 @@ stages:
           auditTestProjectPath: "tests/Nhs.Appointments.Audit.UnitTests/Nhs.Appointments.Audit.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
           capacityExtractsTestProjectPath: "tests/CapacityDataExtracts.UnitTests/CapacityDataExtracts.UnitTests.csproj"
+          auditorTestProjectPath: "tests/Nhs.Appointments.Jobs.BlobAuditor.Integration/Nhs.Appointments.Jobs.BlobAuditor.Integration.csproj"
+          aggregatorTestProjectPath: "tests/Nhs.Appointments.Jobs.Aggregator.UnitTests/Nhs.Appointments.Jobs.Aggregator.UnitTests.csproj"
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
           bookingExtractDockerFilePath: "BookingDataExtractDockerfile"
           capacityExtractDockerFilePath: "CapacityDataExtractDockerfile"
           cosmosAuditorDockerFilePath: "CosmosAuditorDockerfile"
+          cosmosAggregatorDockerFilePath: "CosmosAggregatorDockerfile"
         steps:
           - task: PowerShell@2
             displayName: "Run script tests"
@@ -114,6 +117,18 @@ stages:
             inputs:
               command: "test"
               projects: $(cosmosDbSeederTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run Auditor tests"
+            inputs:
+              command: "test"
+              projects: $(auditorTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run Aggregator tests"
+            inputs:
+              command: "test"
+              projects: $(aggregatorTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: SonarCloudAnalyze@3
             displayName: "Run Code Analysis"
@@ -212,6 +227,15 @@ stages:
               containerRegistry: ${{parameters.prDockerServiceConnectionName}}
               tags: |
                 $(ExtractVersionStep.extractedBuildNumber)
+          - task: Docker@2
+            displayName: Build and push cosmos aggregator image to container registry
+            inputs:
+              command: buildAndPush
+              repository: aggregator
+              dockerfile: $(cosmosAggregatorDockerFilePath)
+              containerRegistry: ${{parameters.prDockerServiceConnectionName}}
+              tags: |
+                $(ExtractVersionStep.extractedBuildNumber)
           - task: PublishBuildArtifacts@1
             displayName: "Publish Terraform"
             inputs:
@@ -265,7 +289,7 @@ stages:
               cd data && docker compose up --build --detach
             displayName: "Start MESH docker container"
           - script: |
-              docker compose up --build --detach next-app api oidc-server splunk-otel-collector
+              docker compose up --build --detach next-app api oidc-server splunk-otel-collector cosmos-aggregator
             displayName: "Start application docker containers"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
@@ -316,6 +340,9 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - script: |
+              docker compose restart api cosmos-aggregator
+            displayName: "Restart api and cosmos-aggregator containers to clear cache and restart change feed"
           - task: DotNetCoreCLI@2
             displayName: "Run Integration Tests"
             inputs:

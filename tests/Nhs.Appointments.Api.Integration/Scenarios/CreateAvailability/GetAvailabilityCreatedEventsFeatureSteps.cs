@@ -16,7 +16,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.CreateAvailability
     {
         private IEnumerable<AvailabilityCreatedEvent> _actualResponse;
 
-        [Then("I request Availability Created Events for the current site")]
+        [Then("I request availability created events for the default site")]
         public async Task ThenIRequestAvailabilityCreatedEventsForTheCurrentSite()
         {
             var siteId = GetSiteId();

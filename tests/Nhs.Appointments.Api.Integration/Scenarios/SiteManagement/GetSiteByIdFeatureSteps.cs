@@ -21,6 +21,12 @@ public abstract class GetSiteByIdFeatureSteps : SiteManagementBaseFeatureSteps
         var siteId = GetSiteId(siteDesignation);
         Response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/sites/{siteId}");
     }
+    
+    [When("I request site details for ODS Code '(.+)'")]
+    public async Task RequestSitesByODS_Code(string odsCode)
+    {
+        Response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/sites/{odsCode}");
+    }
 
     [Then("the correct site is returned")]
     public async Task AssertSite(DataTable dataTable)

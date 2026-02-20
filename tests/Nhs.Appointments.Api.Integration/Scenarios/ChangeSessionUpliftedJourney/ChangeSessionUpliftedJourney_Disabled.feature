@@ -4,10 +4,10 @@ Feature: Change Session Uplifted Journey
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Orphan'
+    When I cancel the following session at the default site using the edit endpoint and set newlyUnsupportedBookingAction to 'Orphan'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the call should fail with 501

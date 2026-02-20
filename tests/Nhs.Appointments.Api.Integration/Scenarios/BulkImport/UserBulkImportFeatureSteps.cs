@@ -9,7 +9,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.BulkImport;
 [FeatureFile("./Scenarios/BulkImport/UserBulkImport.feature")]
 public class UserBulkImportFeatureSteps : BaseBulkImportFeatureSteps
 {
-    [When("I import the following users")]
+    [When("I import the following users to the default site for bulk import")]
     public async Task ImportUsers(DataTable dataTable)
     {
         const string usersHeader = "User,FirstName,LastName,appointment-manager,availability-manager,site-details-manager,user-manager,Region,ICB,Site";

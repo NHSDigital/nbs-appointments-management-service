@@ -6,11 +6,11 @@ Feature: Change Session Uplifted Journey
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel all sessions in between 'Tomorrow' and 'Tomorrow'
-    Then the booking with reference '68537-44913' has been 'Cancelled'
+    When I cancel all sessions in between 'Tomorrow' and 'Tomorrow' at the default site
+    Then the booking at the default site with reference '68537-44913' has been 'Cancelled'
     And there are no sessions for 'Tomorrow'
 
 # Wildcard cancellation not yet implemented
@@ -20,13 +20,13 @@ Feature: Change Session Uplifted Journey
       | Date              | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date              | Time  | Duration | Service | Reference   |
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:20 | 5        | COVID   | 12345-09876 |
-    When I cancel all sessions in between 'Tomorrow' and '2 days from today'
-    Then the booking with reference '68537-44913' has been 'Cancelled'
-    And the booking with reference '12345-09876' has been 'Cancelled'
+    When I cancel all sessions in between 'Tomorrow' and '2 days from today' at the default site
+    Then the booking at the default site with reference '68537-44913' has been 'Cancelled'
+    And the booking at the default site with reference '12345-09876' has been 'Cancelled'
     And there are no sessions for 'Tomorrow'
     And there are no sessions for '2 days from today'
 
@@ -34,57 +34,57 @@ Feature: Change Session Uplifted Journey
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I replace the session with the following and set newlyUnsupportedBookingAction to 'Orphan'
+    When I replace the session at the default site with the following and set newlyUnsupportedBookingAction to 'Orphan'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 17:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' should have been updated
-    Then the booking with reference '68537-44913' has status 'Booked'
-    Then the booking with reference '68537-44913' has availability status 'Orphaned'
+    Then the booking at the default site with reference '68537-44913' has status 'Booked'
+    Then the booking at the default site with reference '68537-44913' has availability status 'Orphaned'
 
   Scenario: Edit a single session on a single day cancels newly orphaned booking
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When  I replace the session with the following and set newlyUnsupportedBookingAction to 'Cancel'
+    When  I replace the session at the default site with the following and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 17:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' should have been updated
-    Then the booking with reference '68537-44913' has status 'Cancelled'
+    Then the booking at the default site with reference '68537-44913' has status 'Cancelled'
 
   Scenario: Cancel a single session on a single day orphans newly orphaned booking
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
       | Tomorrow | 09:00 | 16:00 | RSV      | 10          | 2        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Orphan'
+    When I cancel the following session at the default site using the edit endpoint and set newlyUnsupportedBookingAction to 'Orphan'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' no longer exists
-    Then the booking with reference '68537-44913' has status 'Booked'
-    Then the booking with reference '68537-44913' has availability status 'Orphaned'
+    Then the booking at the default site with reference '68537-44913' has status 'Booked'
+    Then the booking at the default site with reference '68537-44913' has availability status 'Orphaned'
 
   Scenario: Cancel a single session on a single day cancels newly orphaned booking
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
       | Tomorrow | 09:00 | 16:00 | RSV      | 10          | 2        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
-    When I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
+    When I cancel the following session at the default site using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the session 'Tomorrow' no longer exists
-    Then the booking with reference '68537-44913' has status 'Cancelled'
+    Then the booking at the default site with reference '68537-44913' has status 'Cancelled'
 
   Scenario: Cancel multiple sessions over multiple days orphans newly orphaned bookings
     Given the following sessions exist for a created default site
@@ -92,7 +92,7 @@ Feature: Change Session Uplifted Journey
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date              | Time  | Duration | Service | Reference   |
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
@@ -101,12 +101,12 @@ Feature: Change Session Uplifted Journey
       | From  | Until | Services | Slot Length | Capacity |
       | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' no longer exist
-    And the booking with reference '68537-44913' has status 'Booked'
-    And the booking with reference '68537-44913' has availability status 'Orphaned'
-    Then the booking with reference '12345-12345' has status 'Booked'
-    And the booking with reference '12345-12345' has availability status 'Orphaned'
-    Then the booking with reference '54321-54321' has status 'Booked'
-    And the booking with reference '54321-54321' has availability status 'Orphaned'
+    And the booking at the default site with reference '68537-44913' has status 'Booked'
+    And the booking at the default site with reference '68537-44913' has availability status 'Orphaned'
+    Then the booking at the default site with reference '12345-12345' has status 'Booked'
+    And the booking at the default site with reference '12345-12345' has availability status 'Orphaned'
+    Then the booking at the default site with reference '54321-54321' has status 'Booked'
+    And the booking at the default site with reference '54321-54321' has availability status 'Orphaned'
 
   Scenario: Cancel multiple sessions over multiple days cancels newly orphaned bookings
     Given the following sessions exist for a created default site
@@ -114,7 +114,7 @@ Feature: Change Session Uplifted Journey
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date              | Time  | Duration | Service | Reference   |
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
@@ -123,9 +123,9 @@ Feature: Change Session Uplifted Journey
       | From  | Until | Services | Slot Length | Capacity |
       | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' no longer exist
-    And the booking with reference '68537-44913' has status 'Cancelled'
-    Then the booking with reference '12345-12345' has status 'Cancelled'
-    Then the booking with reference '54321-54321' has status 'Cancelled'
+    And the booking at the default site with reference '68537-44913' has status 'Cancelled'
+    Then the booking at the default site with reference '12345-12345' has status 'Cancelled'
+    Then the booking at the default site with reference '54321-54321' has status 'Cancelled'
 
   Scenario: Edit multiple sessions over multiple days orphans newly orphaned bookings
     Given the following sessions exist for a created default site
@@ -133,7 +133,7 @@ Feature: Change Session Uplifted Journey
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date              | Time  | Duration | Service | Reference   |
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
@@ -142,12 +142,12 @@ Feature: Change Session Uplifted Journey
       | From  | Until | Services | Slot Length | Capacity |
       | 11:00 | 16:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' should have been updated
-    And the booking with reference '68537-44913' has status 'Booked'
-    And the booking with reference '68537-44913' has availability status 'Orphaned'
-    Then the booking with reference '12345-12345' has status 'Booked'
-    And the booking with reference '12345-12345' has availability status 'Orphaned'
-    Then the booking with reference '54321-54321' has status 'Booked'
-    And the booking with reference '54321-54321' has availability status 'Orphaned'
+    And the booking at the default site with reference '68537-44913' has status 'Booked'
+    And the booking at the default site with reference '68537-44913' has availability status 'Orphaned'
+    Then the booking at the default site with reference '12345-12345' has status 'Booked'
+    And the booking at the default site with reference '12345-12345' has availability status 'Orphaned'
+    Then the booking at the default site with reference '54321-54321' has status 'Booked'
+    And the booking at the default site with reference '54321-54321' has availability status 'Orphaned'
 
   Scenario: Edit multiple sessions over multiple days cancels newly orphaned bookings
     Given the following sessions exist for a created default site
@@ -155,7 +155,7 @@ Feature: Change Session Uplifted Journey
       | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
       | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date              | Time  | Duration | Service | Reference   |
       | Tomorrow          | 09:45 | 5        | COVID   | 68537-44913 |
       | 2 days from today | 09:45 | 5        | COVID   | 12345-12345 |
@@ -164,9 +164,9 @@ Feature: Change Session Uplifted Journey
       | From  | Until | Services | Slot Length | Capacity |
       | 11:00 | 16:00 | COVID    | 5           | 1        |
     Then the sessions between 'Tomorrow' and '3 days from now' should have been updated
-    And the booking with reference '68537-44913' has status 'Cancelled'
-    Then the booking with reference '12345-12345' has status 'Cancelled'
-    Then the booking with reference '54321-54321' has status 'Cancelled'
+    And the booking at the default site with reference '68537-44913' has status 'Cancelled'
+    Then the booking at the default site with reference '12345-12345' has status 'Cancelled'
+    Then the booking at the default site with reference '54321-54321' has status 'Cancelled'
 
 #  Use the greedy model allocation inefficiency to prove users may cancel bookings unrelated to their session edit action 
 #  The propose metric does not inform them of the potential danger...
@@ -177,7 +177,7 @@ Feature: Change Session Uplifted Journey
       | Tomorrow          | 09:00 | 09:10 | A,B,C,E    | 10           | 5        |
       | Tomorrow          | 09:00 | 09:10 | A,B,D,F    | 10           | 5        |
       | Tomorrow          | 09:00 | 09:10 | D,F        | 10           | 4        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date              | Time  | Duration | Service | Reference    |
       | Tomorrow          | 09:00 | 10       | A       | 324524-00001 |
       | Tomorrow          | 09:00 | 10       | A       | 324524-00002 |
@@ -190,7 +190,7 @@ Feature: Change Session Uplifted Journey
       | Tomorrow          | 09:00 | 10       | F       | 324524-00009 |
       | Tomorrow          | 09:00 | 10       | F       | 324524-00010 |
 #   Step 1 Action: User 1 proposes an edit to one of the sessions (remove service 'F' from the services list)
-    When I request the availability proposal for potential availability change
+    When I request the availability proposal for potential availability change at the default site
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
       | Matcher     | Tomorrow    | Tomorrow  | 09:00 | 09:10 | A,B,D,F    | 10         | 5        |
       | Replacement |             |           | 09:00 | 09:10 | A,B,D      | 10         | 5        |
@@ -199,7 +199,7 @@ Feature: Change Session Uplifted Journey
       | newlySupportedBookingsCount   | 0 |
       | newlyUnsupportedBookingsCount    | 1 |
   # Step 2 Action: Meanwhile... User 2 proposes to delete one of the sessions (remove session 'D,F')
-    When I request the availability proposal for potential availability change
+    When I request the availability proposal for potential availability change at the default site
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
       | Matcher     | Tomorrow    | Tomorrow  | 09:00 | 09:10 | D,F        | 10         | 4        |
 #   Step 2 Result: User 2 is told that ZERO orphaned bookings will be cancelled should they choose to continue
@@ -207,51 +207,51 @@ Feature: Change Session Uplifted Journey
       | newlySupportedBookingsCount   | 0 |
       | newlyUnsupportedBookingsCount    | 0 |
 #   Step 3 Action: User 2 confirms the session cancellation as nothing is affected
-    When I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
+    When I cancel the following session at the default site using the edit endpoint and set newlyUnsupportedBookingAction to 'Cancel'
       | Date     | From  | Until | Services | Slot Length  | Capacity |
       | Tomorrow | 09:00 | 09:10 | D,F      | 10           | 4        |
 #   Step 3 Result: Confirm all TEN bookings are still supported after User 2's session deletion action
 #   This confirms the proposal metric offered to User 2 was accurate! that no bookings are orphaned or cancelled
-    Then the booking with reference '324524-00001' has status 'Booked'
-    And the booking with reference '324524-00001' has availability status 'Supported'
-    Then the booking with reference '324524-00002' has status 'Booked'
-    And the booking with reference '324524-00002' has availability status 'Supported'
-    Then the booking with reference '324524-00003' has status 'Booked'
-    And the booking with reference '324524-00003' has availability status 'Supported'
-    Then the booking with reference '324524-00004' has status 'Booked'
-    And the booking with reference '324524-00004' has availability status 'Supported'
-    Then the booking with reference '324524-00005' has status 'Booked'
-    And the booking with reference '324524-00005' has availability status 'Supported'
-    Then the booking with reference '324524-00006' has status 'Booked'
-    And the booking with reference '324524-00006' has availability status 'Supported'
-    Then the booking with reference '324524-00007' has status 'Booked'
-    And the booking with reference '324524-00007' has availability status 'Supported'
-    Then the booking with reference '324524-00008' has status 'Booked'
-    And the booking with reference '324524-00008' has availability status 'Supported'
-    Then the booking with reference '324524-00009' has status 'Booked'
-    And the booking with reference '324524-00009' has availability status 'Supported'
-    Then the booking with reference '324524-00010' has status 'Booked'
-    And the booking with reference '324524-00010' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00001' has status 'Booked'
+    And the booking at the default site with reference '324524-00001' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00002' has status 'Booked'
+    And the booking at the default site with reference '324524-00002' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00003' has status 'Booked'
+    And the booking at the default site with reference '324524-00003' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00004' has status 'Booked'
+    And the booking at the default site with reference '324524-00004' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00005' has status 'Booked'
+    And the booking at the default site with reference '324524-00005' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00006' has status 'Booked'
+    And the booking at the default site with reference '324524-00006' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00007' has status 'Booked'
+    And the booking at the default site with reference '324524-00007' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00008' has status 'Booked'
+    And the booking at the default site with reference '324524-00008' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00009' has status 'Booked'
+    And the booking at the default site with reference '324524-00009' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00010' has status 'Booked'
+    And the booking at the default site with reference '324524-00010' has availability status 'Supported'
 #   Step 4 Action: User 1 (unaware that another user action has occurred), continues with attempting to cancel the ONE booking that was proposed in 'Step 1'...
-    When I replace a session with a replacement and set newlyUnsupportedBookingAction to 'Cancel'
+    When I replace a session at the default site with a replacement and set newlyUnsupportedBookingAction to 'Cancel'
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
       | Matcher     | Tomorrow    | Tomorrow  | 09:00 | 09:10 | A,B,D,F    | 10         | 5        |
       | Replacement |             |           | 09:00 | 09:10 | A,B,D      | 10         | 5        |
 #   Step 4 Result: Confirm FIVE bookings have been CANCELLED when the user thought they were only cancelling ONE
 #   In a BEST FIT scenario, you would expect TWO bookings (both 'F') to be cancelled, the 3 'D' bookings SHOULD HAVE FOUND A HOME (but Greedy inefficiency has left them orphaned)
 #   They have now been cancelled due to Greedy allocation inefficiency!!
-    Then the booking with reference '324524-00001' has status 'Booked'
-    And the booking with reference '324524-00001' has availability status 'Supported'
-    Then the booking with reference '324524-00002' has status 'Booked'
-    And the booking with reference '324524-00002' has availability status 'Supported'
-    Then the booking with reference '324524-00003' has status 'Booked'
-    And the booking with reference '324524-00003' has availability status 'Supported'
-    Then the booking with reference '324524-00004' has status 'Booked'
-    And the booking with reference '324524-00004' has availability status 'Supported'
-    Then the booking with reference '324524-00005' has status 'Booked'
-    And the booking with reference '324524-00005' has availability status 'Supported'
-    Then the booking with reference '324524-00006' has status 'Cancelled'
-    Then the booking with reference '324524-00007' has status 'Cancelled'
-    Then the booking with reference '324524-00008' has status 'Cancelled'
-    Then the booking with reference '324524-00009' has status 'Cancelled'
-    Then the booking with reference '324524-00010' has status 'Cancelled'
+    Then the booking at the default site with reference '324524-00001' has status 'Booked'
+    And the booking at the default site with reference '324524-00001' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00002' has status 'Booked'
+    And the booking at the default site with reference '324524-00002' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00003' has status 'Booked'
+    And the booking at the default site with reference '324524-00003' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00004' has status 'Booked'
+    And the booking at the default site with reference '324524-00004' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00005' has status 'Booked'
+    And the booking at the default site with reference '324524-00005' has availability status 'Supported'
+    Then the booking at the default site with reference '324524-00006' has status 'Cancelled'
+    Then the booking at the default site with reference '324524-00007' has status 'Cancelled'
+    Then the booking at the default site with reference '324524-00008' has status 'Cancelled'
+    Then the booking at the default site with reference '324524-00009' has status 'Cancelled'
+    Then the booking at the default site with reference '324524-00010' has status 'Cancelled'

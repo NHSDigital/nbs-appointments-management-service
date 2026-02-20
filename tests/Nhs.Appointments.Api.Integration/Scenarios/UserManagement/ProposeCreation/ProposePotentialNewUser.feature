@@ -2,15 +2,15 @@ Feature: Proposing a potential new user - Okta Enabled
 
   Scenario: Propose a valid NHS user
     Given user 'test.user@nhs.net' does not exist in MYA
-    When I propose creating user 'test.user@nhs.net'
+    When I propose creating user 'test.user@nhs.net' at the default site
     Then the request should be successful
     Then the user's current status is returned as follows
       | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
       | False       | True                     | NhsMail          | True                       |
 
-  Scenario: Propose a valid NHS user who already exists in MYA
-    Given user 'test.user@nhs.net' exists in MYA
-    When I propose creating user 'test.user@nhs.net'
+  Scenario: Propose a valid NHS user who already exists in MYA at the default site
+    Given user 'test.user@nhs.net' exists in MYA at the default site
+    When I propose creating user 'test.user@nhs.net' at the default site
     Then the request should be successful
     Then the user's current status is returned as follows
       | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
@@ -18,7 +18,7 @@ Feature: Proposing a potential new user - Okta Enabled
   
   Scenario: Propose a valid Okta user
     Given user 'test.user@my-pharmacy.co.uk' does not exist in MYA
-    When I propose creating user 'test.user@boots.com'
+    When I propose creating user 'test.user@boots.com' at the default site
     Then the request should be successful
     Then the user's current status is returned as follows
       | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |
@@ -26,7 +26,7 @@ Feature: Proposing a potential new user - Okta Enabled
 
   Scenario: Propose an invalid Okta user
     Given user 'test.user@not-in-domains-whitelist.co.uk' does not exist in MYA
-    When I propose creating user 'test.user@not-in-domains-whitelist.co.uk'
+    When I propose creating user 'test.user@not-in-domains-whitelist.co.uk' at the default site
     Then the request should be successful
     Then the user's current status is returned as follows
       | ExtantInSite | ExtantInIdentityProvider | IdentityProvider | MeetsWhitelistRequirements |

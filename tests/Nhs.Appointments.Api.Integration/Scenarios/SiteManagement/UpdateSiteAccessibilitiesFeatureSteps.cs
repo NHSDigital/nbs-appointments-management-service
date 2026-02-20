@@ -12,10 +12,19 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 public abstract class UpdateSiteAccessibilitiesFeatureSteps : SiteManagementBaseFeatureSteps
 {
-    [When("I update the accessibilities for site '(.+)'")]
-    public async Task UpdateSiteAccessibilities(string siteDesignation, DataTable dataTable)
+    [When("I update the accessibilities for ODS code '(.+)'")]
+    public async Task UpdateSiteAccessibilities(string odsCode, DataTable dataTable)
     {
-        var siteId = GetSiteId(siteDesignation);
+        var row = dataTable.Rows.ElementAt(1);
+        var accessibilities = ParseAccessibilities(row.Cells.ElementAt(0).Value);
+        var payload = new SetSiteAccessibilitiesRequest(odsCode, accessibilities);
+        Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{odsCode}/accessibilities", payload);
+    }
+    
+    [When("I update the accessibilities at the default site")]
+    public async Task UpdateSiteAccessibilities(DataTable dataTable)
+    {
+        var siteId = GetSiteId();
         var row = dataTable.Rows.ElementAt(1);
         var accessibilities = ParseAccessibilities(row.Cells.ElementAt(0).Value);
         var payload = new SetSiteAccessibilitiesRequest(siteId, accessibilities);

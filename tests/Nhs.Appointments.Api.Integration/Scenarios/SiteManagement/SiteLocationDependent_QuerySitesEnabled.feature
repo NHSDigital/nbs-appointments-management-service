@@ -757,25 +757,25 @@ Feature: Site Location Dependent - Query Sites Enabled
     And the following sessions exist for existing site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
+    And the following bookings have been made at site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
       | Date        | Time  | Duration | Service | Reference   |
       | Tomorrow    | 09:00 | 10       | RSV:Adult   | 56345-11111 |
     And the following sessions exist for existing site '586bc02d-310a-4b02-a117-d0d104de16bb'
       | Date                 | From  | Until | Services  | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '586bc02d-310a-4b02-a117-d0d104de16bb'
+    And the following bookings have been made at site '586bc02d-310a-4b02-a117-d0d104de16bb'
       | Date                 | Time  | Duration | Service | Reference   |
       | 2 days from today    | 09:00 | 10       | RSV:Adult   | 56345-22222 |
     And the following sessions exist for existing site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
       | Date               | From  | Until | Services  | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
+    And the following bookings have been made at site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 3 days from today    | 09:00 | 10       | RSV:Adult   | 56345-33333 |
     And the following sessions exist for existing site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
       | Date                 | From  | Until | Services | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 09:10 | RSV:Adult    | 10           | 1       |
-    And the following bookings have been made for site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
+    And the following bookings have been made at site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 4 days from today    | 09:00 | 10       | RSV:Adult   | 56345-44444 |
     When I check daily availability for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b' for 'RSV:Adult' between 'Tomorrow' and '4 days from today'
@@ -818,25 +818,25 @@ Feature: Site Location Dependent - Query Sites Enabled
     And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following bookings have been made at site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date        | Time  | Duration | Service | Reference   |
       | Tomorrow    | 09:00 | 10       | RSV:Adult   | 56345-11111 |
     And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date                 | From  | Until | Services  | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following bookings have been made at site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 2 days from today    | 09:00 | 10       | RSV:Adult   | 56345-22222 |
     And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date               | From  | Until | Services  | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following bookings have been made at site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date                 | Time  | Duration | Service | Reference   |
       | 3 days from today    | 09:00 | 10       | RSV:Adult   | 56345-33333 |
     And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date                 | From  | Until | Services | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 09:20 | RSV:Adult    | 10           | 1       |
-    And the following bookings have been made for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following bookings have been made at site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date                 | Time  | Duration | Service | Reference   |
       | 4 days from today    | 09:00 | 10       | RSV:Adult   | 56345-44444 |
     When I check daily availability for site '20e7b709-83c6-416b-b5d8-27d03222e1bf' for 'RSV:Adult' between 'Tomorrow' and '4 days from today'

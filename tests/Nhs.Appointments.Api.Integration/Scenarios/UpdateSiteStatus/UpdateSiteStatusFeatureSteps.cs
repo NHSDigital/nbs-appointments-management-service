@@ -18,7 +18,7 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
     private HttpResponseMessage Response { get; set; }
     private SiteStatus UpdatedSiteStatus;
 
-    [When(@"I update the site status to '(.*)'")]
+    [When(@"I update the site status for the default site to '(.*)'")]
     public async Task UpdateSiteStatus(string status)
     {
         object payload;
@@ -27,7 +27,7 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
         {
             payload = new
             {
-                site = _testId,
+                site = GetSiteId(),
                 status = UpdatedSiteStatus
             };
         }
@@ -35,7 +35,7 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
         {
             payload = new
             {
-                site = _testId,
+                site = GetSiteId(),
                 status = (SiteStatus)20 // Invalid status
             };
         }
@@ -46,13 +46,13 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Then("the site should have an updated site status")]
+    [Then("the default site should have an updated site status")]
     public async Task AssertUpdatedSiteStatus()
     {
         Response.EnsureSuccessStatusCode();
 
         var actualResult =
-            await CosmosReadItem<SiteDocument>("core_data", _testId.ToString(), new PartitionKey("site"), CancellationToken.None);
+            await CosmosReadItem<SiteDocument>("core_data", GetSiteId(), new PartitionKey("site"), CancellationToken.None);
         
         actualResult.Resource.Status.Should().Be(UpdatedSiteStatus);
     }

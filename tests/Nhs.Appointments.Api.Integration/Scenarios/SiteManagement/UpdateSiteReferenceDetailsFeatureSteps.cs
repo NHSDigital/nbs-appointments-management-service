@@ -12,10 +12,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 public abstract class UpdateSiteReferenceDetailsFeatureSteps : SiteManagementBaseFeatureSteps
 {
-    [When("I update the reference details for site '(.+)'")]
-    public async Task UpdateSiteReferenceDetails(string siteDesignation, DataTable dataTable)
+    [When("I update the reference details at the default site")]
+    public async Task UpdateSiteReferenceDetails(DataTable dataTable)
     {
-        var siteId = GetSiteId(siteDesignation);
+        var siteId = GetSiteId();
         var row = dataTable.Rows.ElementAt(1);
         
         var odsCode = row.Cells.ElementAt(0).Value;

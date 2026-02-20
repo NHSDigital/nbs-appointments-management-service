@@ -55,7 +55,7 @@ public class GetSiteSummaryReportSteps() : BaseFeatureSteps
         }
     }
 
-    [And("the following site reports exist in the system")]
+    [And("the following default site reports exist in the system")]
     public async Task SetUpSiteSummaries(DataTable dataTable)
     {
         var sites = dataTable.Rows.Skip(1).Select(row =>
@@ -63,10 +63,10 @@ public class GetSiteSummaryReportSteps() : BaseFeatureSteps
             var rsvBookings = dataTable.GetIntRowValueOrDefault(row, "RSV:Adult Bookings", 40);
             var rsvOrphaned = dataTable.GetIntRowValueOrDefault(row, "RSV:Adult Orphaned", 20);
             var rsvRemaining = dataTable.GetIntRowValueOrDefault(row, "RSV:Adult Remaining", 40);
-
+    
             return new DailySiteSummaryDocument
             {
-                Id = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site")),
+                Id = GetSiteId(),
                 Date = dataTable.GetNaturalLanguageDateRowValueOrDefault(row, "Date"),
                 Bookings = new Dictionary<string, int> { { "RSV:Adult", rsvBookings } },
                 Orphaned = new Dictionary<string, int> { { "RSV:Adult", rsvOrphaned } },
@@ -77,7 +77,7 @@ public class GetSiteSummaryReportSteps() : BaseFeatureSteps
                 DocumentType = "daily-site-summary-report"
             };
         });
-
+    
         foreach (var site in sites)
         {
             await CosmosWrite(CosmosWriteAction.Upsert, "aggregated_data", site);
@@ -108,7 +108,7 @@ public class GetSiteSummaryReportSteps() : BaseFeatureSteps
             Cancelled = dataTable.GetRowValueOrDefault(row, "Cancelled"),
             MaxCapacity = dataTable.GetRowValueOrDefault(row, "Max Capacity")
         };
-
+        
         var actualReport = actualData.Single(d => d.SiteName == expectedRow.SiteName);
         actualReport.Should().BeEquivalentTo(expectedRow);
     }

@@ -6,7 +6,7 @@
           | Tomorrow    | 09:00 | 17:00 | COVID    | 5           | 1        |
           | 2 days from today | 09:00 | 17:00 | COVID    | 5           | 1        |
           | 3 days from today | 09:00 | 17:00 | COVID    | 5           | 1        |
-        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following daily availability is returned
           | Date        | Am | Pm |
           | Tomorrow    | 36 | 60 |
@@ -19,7 +19,7 @@
           | Tomorrow    | 00:01 | 23:59 | COVID    | 5           | 1        |
           | 2 days from today | 00:01 | 23:59 | COVID    | 5           | 1        |
           | 3 days from today | 00:01 | 23:59 | COVID    | 5           | 1        |
-        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following daily availability is returned
           | Date        | Am | Pm |
           | Tomorrow    | 144 | 143 |
@@ -32,7 +32,7 @@
           | Tomorrow    | 09:00 | 17:00 | COVID    | 5           | 2        |
           | 2 days from today | 09:00 | 17:00 | COVID    | 5           | 3        |
           | 3 days from today | 09:00 | 17:00 | COVID    | 5           | 4        |
-        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following daily availability is returned
           | Date        | Am  | Pm  |
           | Tomorrow    | 72  | 120 |
@@ -44,7 +44,7 @@
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 2        |
           | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 3        |
-        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following daily availability is returned
           | Date        | Am | Pm |
           | Tomorrow    | 60 | 0  |
@@ -57,10 +57,10 @@
           | Tomorrow    | 09:00 | 10:00 | COVID    | 5           | 1        |
           | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
           | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
           | Date        | Time  | Duration | Service |
           | 2 days from today | 09:20 | 5        | COVID   |
-        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following daily availability is returned
           | Date        | Am | Pm |
           | Tomorrow    | 12 | 0  |
@@ -73,10 +73,10 @@
           | Tomorrow    | 09:00 | 10:00 | COVID    | 5           | 1        |
           | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
           | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-        And the following provisional bookings have been made
+        And the following provisional bookings have been made at the default site
           | Date        | Time  | Duration | Service |
           | 2 days from today | 09:20 | 5        | COVID   |
-        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following daily availability is returned
           | Date        | Am | Pm |
           | Tomorrow    | 12 | 0  |
@@ -89,10 +89,10 @@
           | Tomorrow    | 09:00 | 10:00 | COVID    | 5           | 1        |
           | 2 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
           | 3 days from today | 09:00 | 10:00 | COVID    | 5           | 1        |
-        And the following expired provisional bookings have been made
+        And the following expired provisional bookings exist at the default site
           | Date        | Time  | Duration | Service |
           | 2 days from today | 09:20 | 5        | COVID   |
-        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following daily availability is returned
           | Date        | Am | Pm |
           | Tomorrow    | 12 | 0  |
@@ -106,7 +106,7 @@
         | 2 days from today | 09:00 | 17:00 | RSV, COVID    | 5           | 1        |
         | 3 days from today | 09:00 | 17:00 | COVID    | 5           | 1        |
         | 4 days from today | 09:00 | 17:00 | COVID, FLU    | 5           | 1        |
-      When I check daily availability for 'COVID' between 'Tomorrow' and '4 days from today'
+      When I check daily availability for 'COVID' between 'Tomorrow' and '4 days from today' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 0 | 0 |
@@ -120,7 +120,7 @@
         | Tomorrow | 09:00 | 10:00 | RSV, COVID  | 5            | 3        |
         | Tomorrow | 09:00 | 10:00 | COVID       | 5            | 2        |
         | Tomorrow | 09:00 | 10:00 | RSV         | 5            | 3        |
-      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 60 | 0  |
@@ -133,10 +133,10 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU   |
-      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 12 | 0  |
@@ -149,10 +149,10 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following provisional bookings have been made
+      And the following provisional bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU   |
-      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 12 | 0  |
@@ -165,10 +165,10 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following expired provisional bookings have been made
+      And the following expired provisional bookings exist at the default site
         | Date        | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU   |
-      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 12 | 0  |
@@ -181,10 +181,10 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
-      And the following cancelled bookings have been made
+      And the following cancelled bookings exist at the default site
         | Date        | Time  | Duration | Service |
         | 2 days from today | 09:20 | 5        | FLU   |
-      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check daily availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 12 | 0  |
@@ -201,25 +201,25 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, RSV    | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | FLU   |
         | Tomorrow    | 09:20 | 5        | RSV   |
         | Tomorrow    | 09:20 | 5        | ABBA   |
-      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 23 | 0  |
-      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 23 | 0  |
-      When I check daily availability for 'ABBA' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'ABBA' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
@@ -232,25 +232,25 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, FLU    | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, RSV    | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | FLU   |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | ABBA   |
         | Tomorrow    | 09:20 | 5        | RSV   |
-      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'ABBA' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'ABBA' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
@@ -264,37 +264,37 @@
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU-B                              | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU-B, RSV                                | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | FLU     |
         | Tomorrow    | 09:20 | 5        | RSV     |
         | Tomorrow    | 09:20 | 5        | FLU-B   |
-      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 23 | 0  |
-      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 23 | 0  |
-      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 23 | 0  |
-      When I check daily availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 33 | 0  |
-      When I check daily availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 23 | 0  |
-      When I check daily availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 12 | 0  |
-      When I check daily availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 12 | 0  |
@@ -307,37 +307,37 @@
         | Tomorrow    | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU-B, RSV, FLU-C, FLU-D                  | 5           | 1        |
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU-B                              | 5           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 5        | FLU-B   |
         | Tomorrow    | 09:20 | 5        | COVID   |
         | Tomorrow    | 09:20 | 5        | FLU     |
         | Tomorrow    | 09:20 | 5        | RSV     |
-      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 33 | 0  |
-      When I check daily availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 33 | 0  |
-      When I check daily availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 22 | 0  |
-      When I check daily availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow'
+      When I check daily availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following daily availability is returned
         | Date        | Am | Pm |
         | Tomorrow    | 11 | 0  |

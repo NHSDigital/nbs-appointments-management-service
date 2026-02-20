@@ -54,7 +54,7 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
     [Then("the call should be successful")]
     public void AssertHttpOk() => _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-    [And("the booking is no longer marked as provisional")]
+    [And("the first provisional booking at the default site is marked as booked")]
     public async Task AssertBookingNotProvisional()
     {
         var siteId = GetSiteId();
@@ -69,7 +69,7 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
         actualBookingIndex.Resource.Status.Should().Be(AppointmentStatus.Booked);
     }
 
-    [And("the following bookings are no longer marked as provisional")]
+    [And("the following provisional bookings at the default site are marked as booked")]
     public async Task AssertBookingsNotProvisional(DataTable dataTable)
     {
         var siteId = GetSiteId();
@@ -90,7 +90,7 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
         }
     }
 
-    [And("following bookings should have the following contact details")]
+    [And("following bookings at the default site should have the following contact details")]
     public async Task AssertBookingsContactDetails(DataTable dataTable)
     {
         var siteId = GetSiteId();
@@ -111,7 +111,7 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
         }
     }
 
-    [And("following bookings should have the following batch size")]
+    [And("following bookings at the default site should have the following batch size")]
     public async Task AssertBookingsBatchSize(DataTable dataTable)
     {
         var siteId = GetSiteId();

@@ -1,38 +1,38 @@
 Feature: Manage site reference details
 
   Scenario: Update reference details of a site
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
-    When I update the reference details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    And the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
+    When I update the reference details at the default site
       | OdsCode     | ICB  | Region |
       | 16B         | ICB2 | R34    |
-    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 16B     | R34    | ICB2 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
+    Then the correct information for the default site is returned
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 16B     | R34    | ICB2 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
 
   Scenario: Update reference details of a site - lastUpdatedBy property updates
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
     #Verify default setup
-    And the site document with siteId 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' has lastUpdatedBy 'api@test'
+    And the default site document has lastUpdatedBy 'api@test'
     And I register and use a http client with details
       | User Id    | Role                         | Scope  |
       | mya_admin  | system:integration-test-user | global |
-    When I update the reference details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    When I update the reference details at the default site
       | OdsCode     | ICB  | Region |
       | 16B         | ICB2 | R34    |
-    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 16B     | R34    | ICB2 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
-    And the site document with siteId 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' has lastUpdatedBy 'api@mya_admin'
+    Then the correct information for the default site is returned
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 16B     | R34    | ICB2 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
+    And the default site document has lastUpdatedBy 'api@mya_admin'
 
   Scenario: Update with empty reference details of a site
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
-    When I update the reference details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
+    When I update the reference details at the default site
       | OdsCode     | ICB  | Region |
       |             |      |        |
     Then a bad request response is returned with the following error messages

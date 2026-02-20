@@ -31,7 +31,7 @@
         | Next Sunday     | 09:00 | 10:00 | COVID, FLU-B                              | 10           | 1        |
         | Next Sunday     | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 10           | 1        |
         | Next Sunday     | 09:00 | 10:00 | FLU-B, RSV                                | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date           | Time  | Duration  | Service |
         | Next Monday    | 09:20 | 10        | COVID   |
         | Next Monday    | 09:20 | 10        | FLU     |
@@ -61,7 +61,7 @@
         | Next Sunday    | 09:20 | 10        | FLU     |
         | Next Sunday    | 09:20 | 10        | RSV     |
         | Next Sunday    | 09:20 | 10        | FLU-B   |
-      When I query week summary for the current site on 'Next Monday'
+      When I query week summary for the default site on 'Next Monday'
       Then the following week summary metrics are returned
         | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments |
         | 168              | 147                | 21                  | 7                     |
@@ -124,13 +124,13 @@
         | Next Tuesday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
         | Next Tuesday | 09:00 | 10:00 | FLU, FLU-B, FLU-C                    | 10           | 1        |
         | Next Tuesday | 09:00 | 10:00 | FLU-B, RSV                           | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date         | Time  | Duration  | Service |
         | Next Tuesday | 09:20 | 10        | COVID   |
         | Next Tuesday | 09:20 | 10        | FLU     |
         | Next Tuesday | 09:20 | 10        | RSV     |
         | Next Tuesday | 09:20 | 10        | FLU-B   |
-      When I query week summary for the current site on 'Next Tuesday'
+      When I query week summary for the default site on 'Next Tuesday'
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Wednesday
@@ -140,13 +140,13 @@
         | Next Wednesday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
         | Next Wednesday | 09:00 | 10:00 | FLU, FLU-B, FLU-C                    | 10           | 1        |
         | Next Wednesday | 09:00 | 10:00 | FLU-B, RSV                           | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date           | Time  | Duration  | Service |
         | Next Wednesday | 09:20 | 10        | COVID   |
         | Next Wednesday | 09:20 | 10        | FLU     |
         | Next Wednesday | 09:20 | 10        | RSV     |
         | Next Wednesday | 09:20 | 10        | FLU-B   |
-      When I query week summary for the current site on 'Next Wednesday'
+      When I query week summary for the default site on 'Next Wednesday'
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Thursday
@@ -156,13 +156,13 @@
         | Next Thursday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
         | Next Thursday | 09:00 | 10:00 | FLU, FLU-B, FLU-C                    | 10           | 1        |
         | Next Thursday | 09:00 | 10:00 | FLU-B, RSV                           | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date          | Time  | Duration  | Service |
         | Next Thursday | 09:20 | 10        | COVID   |
         | Next Thursday | 09:20 | 10        | FLU     |
         | Next Thursday | 09:20 | 10        | RSV     |
         | Next Thursday | 09:20 | 10        | FLU-B   |
-      When I query week summary for the current site on 'Next Thursday'
+      When I query week summary for the default site on 'Next Thursday'
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Friday
@@ -172,13 +172,13 @@
         | Next Friday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
         | Next Friday | 09:00 | 10:00 | FLU, FLU-B, FLU-C                    | 10           | 1        |
         | Next Friday | 09:00 | 10:00 | FLU-B, RSV                           | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date          | Time  | Duration  | Service |
         | Next Friday | 09:20 | 10        | COVID   |
         | Next Friday | 09:20 | 10        | FLU     |
         | Next Friday | 09:20 | 10        | RSV     |
         | Next Friday | 09:20 | 10        | FLU-B   |
-      When I query week summary for the current site on 'Next Friday'
+      When I query week summary for the default site on 'Next Friday'
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Saturday
@@ -188,13 +188,13 @@
         | Next Saturday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
         | Next Saturday | 09:00 | 10:00 | FLU, FLU-B, FLU-C                    | 10           | 1        |
         | Next Saturday | 09:00 | 10:00 | FLU-B, RSV                           | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date          | Time  | Duration  | Service |
         | Next Saturday | 09:20 | 10        | COVID   |
         | Next Saturday | 09:20 | 10        | FLU     |
         | Next Saturday | 09:20 | 10        | RSV     |
         | Next Saturday | 09:20 | 10        | FLU-B   |
-      When I query week summary for the current site on 'Next Saturday'
+      When I query week summary for the default site on 'Next Saturday'
       Then a bad request error is returned
   
     Scenario: Returns Bad Request when fetched for a Sunday
@@ -204,11 +204,11 @@
         | Next Sunday | 09:00 | 10:00 | COVID, FLU-B                         | 10           | 1        |
         | Next Sunday | 09:00 | 10:00 | FLU, FLU-B, FLU-C                    | 10           | 1        |
         | Next Sunday | 09:00 | 10:00 | FLU-B, RSV                           | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date          | Time  | Duration  | Service |
         | Next Sunday | 09:20 | 10        | COVID   |
         | Next Sunday | 09:20 | 10        | FLU     |
         | Next Sunday | 09:20 | 10        | RSV     |
         | Next Sunday | 09:20 | 10        | FLU-B   |
-      When I query week summary for the current site on 'Next Sunday'
+      When I query week summary for the default site on 'Next Sunday'
       Then a bad request error is returned

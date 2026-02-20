@@ -18,7 +18,7 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
     private List<Core.Bookings.Booking> _actualResponse;
     private HttpStatusCode _statusCode;
 
-    [When("I query for bookings using the following parameters")]
+    [When("I query for bookings using the following parameters at the default site")]
     public async Task QueryBookings(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
@@ -59,14 +59,14 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
             "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm");
     }
 
-    private IEnumerable<Core.Bookings.Booking> BuildBookingsFromDataTable(DataTable dataTable)
+    private IEnumerable<Core.Bookings.Booking> BuildBookingsForDefaultSiteFromDataTable(DataTable dataTable)
     {
         return dataTable.Rows.Skip(1).Select((row, index) =>
         {
             var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
             var reference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                             BookingReferences.GetBookingReference(index, bookingType);
-            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
+            var site = GetSiteId();
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
             var status = dataTable.GetEnumRowValue(row, "Status", AppointmentStatus.Booked);
 
@@ -124,10 +124,10 @@ public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : Fea
         });
     }
 
-    [Then(@"the following bookings are returned")]
+    [Then(@"the following bookings are returned at the default site")]
     public void Assert(DataTable expectedBookingDetailsTable)
     {
-        var expectedBookings = BuildBookingsFromDataTable(expectedBookingDetailsTable);
+        var expectedBookings = BuildBookingsForDefaultSiteFromDataTable(expectedBookingDetailsTable);
 
         _statusCode.Should().Be(HttpStatusCode.OK);
         BookingAssertions.BookingsAreEquivalent(_actualResponse, expectedBookings);

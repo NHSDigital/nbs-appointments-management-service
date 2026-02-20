@@ -10,25 +10,15 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
-public abstract class AuditFeatureSteps : BaseFeatureSteps
+public abstract class AuditFeatureSteps : AggregateFeatureSteps
 {
-    [Then(@"an audit function document was created for user '(.+)' and function '(.+)'")]
-    [And(@"an audit function document was created for user '(.+)' and function '(.+)'")]
+    private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(2);
+    private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(20);
+    
+    [Then(@"an audit function document for the default site was created for user '(.+)' and function '(.+)'")]
+    [And(@"an audit function document for the default site was created for user '(.+)' and function '(.+)'")]
     public async Task AssertAuditFunctionDocumentCreated(string user, string function) =>
         await AssertAuditFunctionDocumentExists(user, function, GetSiteId());
-
-    [Then(@"an audit function document was created for")]
-    [And(@"an audit function document was created for")]
-    public async Task AssertAuditFunctionDocumentFor(DataTable table)
-    {
-        var row = table.Rows.ElementAt(1);
-
-        var user = table.GetRowValueOrDefault(row, "User");
-        var functionName = table.GetRowValueOrDefault(row, "Function Name");
-        var site = GetSiteId(table.GetRowValueOrDefault(row, "Site"));
-
-        await AssertAuditFunctionDocumentExists(user, functionName, site);
-    }
 
     [Then(@"an audit function document was created for user '(.+)' and function '(.+)' and no site")]
     [And(@"an audit function document was created for user '(.+)' and function '(.+)' and no site")]
@@ -39,20 +29,18 @@ public abstract class AuditFeatureSteps : BaseFeatureSteps
     {
         var timestamp = DateTime.UtcNow;
 
-        var auditFunctionDocument = await FindItemWithRetryAsync(user, functionName, siteId,
-            TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(1));
+        var auditFunctionDocument = await FindItemWithRetryAsync(user, functionName, siteId);
 
         //confirm that the document was created recently, as cannot easily verify via id query
         auditFunctionDocument.Timestamp.Should().BeBefore(timestamp);
-        auditFunctionDocument.Timestamp.Should().BeOnOrAfter(timestamp.AddSeconds(-10));
+        auditFunctionDocument.Timestamp.Should().BeOnOrAfter(timestamp.Add(-1 * _pollingTimeout));
     }
 
-    private async Task<AuditFunctionDocument> FindItemWithRetryAsync(string user,
-        string functionName, string siteId, TimeSpan timeout, TimeSpan delay)
+    private async Task<AuditFunctionDocument> FindItemWithRetryAsync(string user, string functionName, string siteId)
     {
         var startTime = DateTime.UtcNow;
 
-        while (DateTime.UtcNow - startTime < timeout)
+        while (DateTime.UtcNow - startTime < _pollingTimeout)
         {
             var documentsFound = await CosmosQueryFeed<AuditFunctionDocument>("audit_data",
                 d => d.User == user && d.FunctionName == functionName && d.Site == siteId);
@@ -68,7 +56,7 @@ public abstract class AuditFeatureSteps : BaseFeatureSteps
                 return documentsFound.OrderByDescending(doc => doc.Timestamp).First();
             }
 
-            await Task.Delay(delay); // Wait before retrying
+            await Task.Delay(_pollingInterval); // Wait before retrying
         }
 
         throw new TimeoutException("AuditFunctionDocument not found within the timeout period.");

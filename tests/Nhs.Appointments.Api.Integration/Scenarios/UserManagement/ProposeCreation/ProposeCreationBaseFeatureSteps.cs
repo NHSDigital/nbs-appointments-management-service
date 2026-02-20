@@ -21,10 +21,10 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
     private HttpStatusCode _statusCode;
     private ProposePotentialUserResponse _actualResponse;
     
-    protected RoleAssignment SomeRoleAssignment() =>
+    protected RoleAssignment SomeDefaultSiteRoleAssignment() =>
         new() { Scope = $"site:{GetSiteId()}", Role = "canned:site-details-manager" };
 
-    [When(@"I propose creating user '(.+)'")]
+    [When(@"I propose creating user '(.+)' at the default site")]
     public async Task ProposeNewUser(string userEmail)
     {
         var requestBody = new ProposePotentialUserRequest(GetSiteId(), userEmail);
@@ -63,13 +63,13 @@ public abstract class ProposeCreationBaseFeatureSteps : UserManagementBaseFeatur
         _actualResponse.Should().BeEquivalentTo(expectedResponse);
     }
 
-    [Given(@"user '(.+)' exists in MYA")]
-    [And(@"user '(.+)' exists in MYA")]
+    [Given(@"user '(.+)' exists in MYA at the default site")]
+    [And(@"user '(.+)' exists in MYA at the default site")]
     public async Task EnsureUserExists(string userEmail)
     {
         var userDocument = new UserDocument
         {
-            Id = userEmail, DocumentType = "user", RoleAssignments = [SomeRoleAssignment()]
+            Id = userEmail, DocumentType = "user", RoleAssignments = [SomeDefaultSiteRoleAssignment()]
         };
 
         await CosmosWrite(CosmosWriteAction.Create, "core_data", userDocument);

@@ -28,22 +28,37 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
     private HttpStatusCode StatusCode { get; set; }
     private List<AvailabilityByDays> AvailabilityResponse;
     
-    private string _siteId;
-    
-    [When("I query availability by days")]
+    [When("I query availability by days at the default site")]
     public async Task Query(DataTable dataTable)
+    {
+        var row = dataTable.Rows.Skip(1).First();
+        var cells = row.Cells;
+        
+        var services = cells.ElementAt(0).Value.Split(',');
+        
+        var attendeesCollection = services.Select(service => new Attendee
+        {
+            Services = [service.Trim()]
+        }).ToList();
+        
+        var payload = new AvailabilityQueryRequest(
+            [GetSiteId()],
+            attendeesCollection,
+            NaturalLanguageDate.Parse(cells.ElementAt(1).Value),
+            NaturalLanguageDate.Parse(cells.ElementAt(2).Value));
+    
+        await SendRequestAsync(payload);
+    }
+
+    [When("I query availability by days for multiple sites")]
+    public async Task QueryMultipleSites(DataTable dataTable)
     {
         var row = dataTable.Rows.Skip(1).First();
         var cells = row.Cells;
         
         var sites = cells.ElementAt(0).Value.Split(',');
         var services = cells.ElementAt(1).Value.Split(',');
-
-        if (sites.Length == 1)
-        {
-            _siteId = sites[0];
-        }
-
+    
         var siteCollection = sites.Select(GetSiteId).ToArray();
         var attendeesCollection = services.Select(service => new Attendee
         {
@@ -55,10 +70,10 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
             attendeesCollection,
             NaturalLanguageDate.Parse(cells.ElementAt(2).Value),
             NaturalLanguageDate.Parse(cells.ElementAt(3).Value));
-
+    
         await SendRequestAsync(payload);
     }
-
+    
     [When("I pass an invalid payload")]
     public async Task PassInvalidPayload()
     {
@@ -67,12 +82,12 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
         await SendRequestAsync(payload);
     }
 
-    [Then("the following single site availability by days is returned")]
+    [Then("the following availability by days is returned at the default site")]
     public void AssertAvailabilityByDays(DataTable dataTable)
     {
         var availability = new AvailabilityByDays
         {
-            Site = GetSiteId(_siteId),
+            Site = GetSiteId(),
             Days = [.. dataTable.Rows.Skip(1).Select(r =>
             {
                 var cells = r.Cells;
@@ -80,11 +95,11 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
                 var spec = cells.ElementAt(1).Value;
                 var from = cells.ElementAt(2).Value;
                 var until = cells.ElementAt(3).Value;
-
+    
                 return ParseDayEntry(dateString, spec, from, until);
             })]
         };
-
+    
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         AvailabilityResponse.Should().BeEquivalentTo([availability]);
     }
@@ -93,7 +108,7 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
     public void AssertAvailabilityMultiSite(DataTable dataTable)
     {
         var rows = dataTable.Rows.Skip(1);
-
+    
         var availability = rows.Select(r =>
         {
             var cells = r.Cells;
@@ -103,14 +118,14 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
             var from = cells.ElementAt(3).Value;
             var until = cells.ElementAt(4).Value;
             var expectedDayEntries = ExpectDayEntries(spec, from, until);
-
+    
             return new AvailabilityByDays
             {
                 Site = GetSiteId(site),
                 Days = expectedDayEntries ? [ParseDayEntry(dateString, spec, from, until)] : []
             };
         });
-
+    
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         AvailabilityResponse.Should().BeEquivalentTo(availability);
     }

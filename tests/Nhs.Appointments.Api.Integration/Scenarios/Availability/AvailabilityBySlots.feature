@@ -4,7 +4,7 @@ Feature: Get available appointment slots
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 09:30 | COVID    | 5           | 1        |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:05 | 1     |
@@ -18,7 +18,7 @@ Feature: Get available appointment slots
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 00:01 | 23:59 | COVID    | 30          | 1        |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 00:01 | 00:31 | 1     |
@@ -73,7 +73,7 @@ Feature: Get available appointment slots
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 09:30 | COVID    | 10          | 2        |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 2     |
@@ -85,7 +85,7 @@ Feature: Get available appointment slots
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 09:30 | COVID    | 10          | 2        |
           | Tomorrow | 09:00 | 09:30 | COVID    | 15          | 3        |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 2     |
@@ -100,7 +100,7 @@ Feature: Get available appointment slots
           | Tomorrow   | 09:00 | 09:30 | COVID    | 10          | 1        |
           | 2 days from today | 10:30 | 11:00 | COVID    | 10          | 1        |
           | 3 days from today | 09:00 | 09:30 | COVID    | 15          | 1        |
-        When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today'
+        When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 1     |
@@ -121,10 +121,10 @@ Feature: Get available appointment slots
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 09:30 | COVID    | 10          | 2        |
           | Tomorrow | 09:00 | 09:30 | COVID    | 15          | 3        |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
           | Date     | Time  | Duration | Service |
           | Tomorrow | 09:00 | 15       | COVID   |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 2     |
@@ -138,10 +138,10 @@ Feature: Get available appointment slots
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 09:30 | COVID    | 10          | 1        |
           | Tomorrow | 09:00 | 09:30 | COVID    | 10          | 1        |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
           | Date     | Time  | Duration | Service |
           | Tomorrow | 09:00 | 10       | COVID   |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 1     |
@@ -152,10 +152,10 @@ Feature: Get available appointment slots
         Given the following sessions exist for a created default site
           | Date     | From  | Until | Services   | Slot Length | Capacity |
           | Tomorrow | 09:00 | 09:30 | COVID, FLU | 10          | 2        |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
           | Date     | Time  | Duration | Service |
           | Tomorrow | 09:00 | 10       | FLU     |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 1     |
@@ -167,10 +167,10 @@ Feature: Get available appointment slots
           | Date     | From  | Until | Services | Slot Length | Capacity |
           | Tomorrow | 09:00 | 09:30 | COVID    | 10          | 2        |
           | Tomorrow | 09:00 | 09:30 | FLU      | 10          | 2        |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
           | Date     | Time  | Duration | Service |
           | Tomorrow | 09:00 | 10       | FLU     |
-        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+        When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
         Then the following availability is returned for 'Tomorrow'
           | From  | Until | Count |
           | 09:00 | 09:10 | 2     |
@@ -184,7 +184,7 @@ Feature: Get available appointment slots
         | 2 days from today | 09:00 | 10:00 | RSV, COVID    | 10           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID         | 10           | 1        |
         | 4 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
-      When I check slot availability for 'COVID' between 'Tomorrow' and '4 days from today'
+      When I check slot availability for 'COVID' between 'Tomorrow' and '4 days from today' at the default site
       Then no availability is returned for 'Tomorrow'
       And the following availability is returned for '2 days from today'
         | From  | Until | Count |
@@ -217,7 +217,7 @@ Feature: Get available appointment slots
         | Tomorrow | 09:00 | 10:00 | RSV, COVID  | 10            | 3        |
         | Tomorrow | 09:00 | 10:00 | COVID       | 10            | 2        |
         | Tomorrow | 09:00 | 10:00 | RSV         | 10            | 3        |
-      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 5     |
@@ -233,10 +233,10 @@ Feature: Get available appointment slots
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 10        | FLU     |
-      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 1     |
@@ -267,10 +267,10 @@ Feature: Get available appointment slots
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
-      And the following provisional bookings have been made
+      And the following provisional bookings have been made at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 10        | FLU     |
-      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 1     |
@@ -301,10 +301,10 @@ Feature: Get available appointment slots
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
-      And the following expired provisional bookings have been made
+      And the following expired provisional bookings exist at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 10        | FLU     |
-      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 1     |
@@ -336,10 +336,10 @@ Feature: Get available appointment slots
         | Tomorrow          | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 2 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | 3 days from today | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
-      And the following cancelled bookings have been made
+      And the following cancelled bookings exist at the default site
         | Date              | Time  | Duration | Service |
         | 2 days from today | 09:20 | 10        | FLU     |
-      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today'
+      When I check slot availability for 'COVID' between 'Tomorrow' and '3 days from today' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 1     |
@@ -374,13 +374,13 @@ Feature: Get available appointment slots
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, FLU    | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, RSV    | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 10        | COVID   |
         | Tomorrow    | 09:20 | 10        | FLU   |
         | Tomorrow    | 09:20 | 10        | RSV   |
         | Tomorrow    | 09:20 | 10        | ABBA   |
-      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -389,7 +389,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -397,7 +397,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -406,7 +406,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'ABBA' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'ABBA' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -423,13 +423,13 @@ Feature: Get available appointment slots
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU    | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, FLU    | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | ABBA, RSV    | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 10        | FLU   |
         | Tomorrow    | 09:20 | 10        | COVID   |
         | Tomorrow    | 09:20 | 10        | ABBA   |
         | Tomorrow    | 09:20 | 10        | RSV   |
-      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -437,7 +437,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -445,7 +445,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -453,7 +453,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'ABBA' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'ABBA' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -471,13 +471,13 @@ Feature: Get available appointment slots
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU-B                              | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU-B, RSV                                | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 10        | COVID   |
         | Tomorrow    | 09:20 | 10        | FLU     |
         | Tomorrow    | 09:20 | 10        | RSV     |
         | Tomorrow    | 09:20 | 10        | FLU-B   |
-      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -486,7 +486,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -495,7 +495,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -504,7 +504,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 3     |
@@ -512,7 +512,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 3     |
         | 09:40 | 09:50 | 3     |
         | 09:50 | 10:00 | 3     |
-      When I check slot availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -521,7 +521,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 1     |
@@ -530,7 +530,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 1     |
         | 09:40 | 09:50 | 1     |
         | 09:50 | 10:00 | 1     |
-      When I check slot availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 1     |
@@ -548,13 +548,13 @@ Feature: Get available appointment slots
         | Tomorrow    | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | FLU-B, RSV, FLU-C, FLU-D                  | 10           | 1        |
         | Tomorrow    | 09:00 | 10:00 | COVID, FLU-B                              | 10           | 1        |
-      And the following bookings have been made
+      And the following bookings have been made at the default site
         | Date        | Time  | Duration | Service |
         | Tomorrow    | 09:20 | 10        | FLU-B   |
         | Tomorrow    | 09:20 | 10        | COVID   |
         | Tomorrow    | 09:20 | 10        | FLU     |
         | Tomorrow    | 09:20 | 10        | RSV     |
-      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'COVID' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -562,7 +562,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -570,7 +570,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -578,7 +578,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-B' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 3     |
@@ -586,7 +586,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 3     |
         | 09:40 | 09:50 | 3     |
         | 09:50 | 10:00 | 3     |
-      When I check slot availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-C' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 3     |
@@ -594,7 +594,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 3     |
         | 09:40 | 09:50 | 3     |
         | 09:50 | 10:00 | 3     |
-      When I check slot availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-D' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 2     |
@@ -602,7 +602,7 @@ Feature: Get available appointment slots
         | 09:30 | 09:40 | 2     |
         | 09:40 | 09:50 | 2     |
         | 09:50 | 10:00 | 2     |
-      When I check slot availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow'
+      When I check slot availability for 'FLU-E' between 'Tomorrow' and 'Tomorrow' at the default site
       Then the following availability is returned for 'Tomorrow'
         | From  | Until | Count |
         | 09:00 | 09:10 | 1     |

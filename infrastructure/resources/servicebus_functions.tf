@@ -115,6 +115,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"               = true
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
+    "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = var.aggregator_changefeed_enable
     APPLICATION_NAME                                                       = "Service Bus Function App"
   }
 

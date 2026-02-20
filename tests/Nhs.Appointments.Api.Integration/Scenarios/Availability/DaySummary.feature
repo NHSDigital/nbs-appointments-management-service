@@ -7,13 +7,13 @@ Feature: Get day summary
       | Next Monday     | 09:00 | 10:00 | COVID, FLU-B                              | 10           | 1        |
       | Next Monday     | 09:00 | 10:00 | FLU, FLU-B, FLU-C                         | 10           | 1        |
       | Next Monday     | 09:00 | 10:00 | FLU-B, RSV                                | 10           | 1        |
-    And the following bookings have been made
+    And the following bookings have been made at the default site
       | Date           | Time  | Duration  | Service |
       | Next Monday    | 09:20 | 10        | COVID   |
       | Next Monday    | 09:20 | 10        | FLU     |
       | Next Monday    | 09:20 | 10        | RSV     |
       | Next Monday    | 09:20 | 10        | FLU-B   |
-    When I query day summary for the current site on 'Next Monday'
+    When I query day summary for the default site on 'Next Monday'
     Then the following day summary metrics are returned
       | Date             | Maximum Capacity | Remaining Capacity | Booked Appointments | Orphaned Appointments | Cancelled Appointments |
       | Next Monday      | 24               | 21                 | 3                   | 1                     | 0                      |

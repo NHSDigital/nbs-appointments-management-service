@@ -104,6 +104,7 @@ module "mya_application_stag" {
   auditor_lease_container_name                    = var.AUDITOR_LEASE_CONTAINER_NAME
   auditor_worker_containers                       = var.AUDITOR_WORKER_CONTAINERS
   auditor_sink_exclusions                         = var.AUDITOR_SINK_EXCLUSIONS
+  aggregator_changefeed_enable                    = true
   cosmos_geo_locations = [{
     location          = "uksouth"
     failover_priority = 0
@@ -128,5 +129,11 @@ module "mya_application_stag" {
   }]
   cosmos_audit_autoscale_settings = [{
     max_throughput = 2000
+  }]
+  cosmos_booking_aggregation_lease_autoscale_settings = [{
+    max_throughput = 1000
+  }]
+  cosmos_audit_lease_autoscale_settings = [{
+    max_throughput = 1000
   }]
 }

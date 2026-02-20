@@ -1,4 +1,4 @@
-namespace Nhs.Appointments.Jobs.BlobAuditor.ChangeFeed;
+namespace Nhs.Appointments.Jobs.ChangeFeed;
 
 public class ApplicationNameConfiguration
 {

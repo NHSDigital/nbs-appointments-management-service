@@ -18,9 +18,9 @@ public class DailyAvailabilityFeatureSteps : BaseFeatureSteps
 {
     private HttpStatusCode _statusCode;
     private List<DailyAvailability> _actualResponse;
-
-    [When(@"I check daily availability for the current site between '(.+)' and '(.+)'")]
-    public async Task CheckDailyAvailability(string from, string until)
+    
+    [When(@"I check daily availability for the default site between '(.+)' and '(.+)'")]
+    public async Task CheckDailyAvailabilityDefaultSite(string from, string until)
     {
         var siteId = GetSiteId();
         var fromDate = NaturalLanguageDate.Parse(from).ToString("yyyy-MM-dd");

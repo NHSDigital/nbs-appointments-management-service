@@ -28,17 +28,15 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
     private HttpStatusCode StatusCode { get; set; }
     private AvailabilityByHours AvailabilityResponse { get; set; }
 
-    private string _siteId;
     private List<Attendee> _attendeesCollection;
 
-    [When("I query availability by hours")]
+    [When("I query availability by hours at the default site")]
     public async Task Query(DataTable dataTable)
     {
         var row = dataTable.Rows.Skip(1).First();
         var cells = row.Cells;
 
-        _siteId = cells.ElementAt(0).Value;
-        var services = cells.ElementAt(1).Value.Split(',');
+        var services = cells.ElementAt(0).Value.Split(',');
         _attendeesCollection = services.Select(service => new Attendee
         {
             Services = [service]
@@ -46,9 +44,9 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
 
         var payload = new AvailabilityQueryByHoursRequest
         (
-            GetSiteId(_siteId),
+            GetSiteId(),
             _attendeesCollection,
-            NaturalLanguageDate.Parse(cells.ElementAt(2).Value)
+            NaturalLanguageDate.Parse(cells.ElementAt(1).Value)
         );
 
         await SendRequestAsync(payload);
@@ -65,7 +63,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
         await SendRequestAsync(payload);
     }
 
-    [Then("the following '(.+)' availabilty is returned for '(.+)'")]
+    [Then("the following '(.+)' availability is returned for '(.+)' at the default site")]
     public void AssertAvailability(string services, string date, DataTable dataTable)
     {
         var expectedServices = services.Split(',');
@@ -82,7 +80,7 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
             Attendees = _attendeesCollection,
             Date = expectedDate,
             Hours = [.. expectedHours],
-            Site = GetSiteId(_siteId)
+            Site = GetSiteId()
         };
 
         StatusCode.Should().Be(HttpStatusCode.OK);

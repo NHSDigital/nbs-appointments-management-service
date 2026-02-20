@@ -56,13 +56,11 @@ stages:
             inputs:
               SonarCloud: "nhsdigital-sonarcloud"
               organization: "nhsdigital"
-              scannerMode: "dotnet"
               projectKey: "NHSDigital_nbs-appointments-management-service"
               projectName: "nbs-appointments-management-service"
               extraProperties: |
                 sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
                 sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)/**/coverage.opencover.xml
-                sonar.scanner.scanAll=false
                 sonar.coverage.exclusions=**/FunctionConfigurationExtensions.cs,**/ServiceRegistration.cs,**/ConsoleLogNotifications.cs,**/Program.cs,**/Nhs.Appointments.Persistance/**
           - task: DotNetCoreCLI@2
             displayName: "dotnet Publish"

@@ -1,7 +1,7 @@
 Feature: The Best Fit Problem
 
   Scenario: Control test - no best fit problem
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue     |
@@ -23,7 +23,7 @@ Feature: The Best Fit Problem
   # Booking 2 should instead go in session 2, leaving space for booking 3 to go in session 3
   @ignore
   Scenario: The best fit problem
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services     |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue   |
@@ -42,7 +42,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Blue    | Supported |
 
   Scenario: Cancelling a session orphans the last created booking
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
@@ -64,7 +64,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Blue    | Orphaned  |
 
   Scenario: Re-supporting orphans prioritises first in
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green       |
@@ -94,7 +94,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Blue    | Orphaned  |
 
   Scenario: Appointments "shuffle" along as sessions are created
-    Given the site is configured for MYA
+    Given the default site exists
 
     ## Step 1: Create 3 bookings
     When I create the following availability

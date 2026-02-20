@@ -1,7 +1,7 @@
 Feature: Site Status Bulk Import
 
   Scenario: Toggle site soft deletion status
-    Given a new site is configured for MYA
+    Given the default site for bulk import exists
     When I bulk update the soft deletion status of the following sites
       | Name      |
       | Test Site |

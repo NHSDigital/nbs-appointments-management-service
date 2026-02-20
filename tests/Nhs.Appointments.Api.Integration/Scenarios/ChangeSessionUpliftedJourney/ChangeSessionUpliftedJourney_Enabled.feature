@@ -190,7 +190,7 @@ Feature: Change Session Uplifted Journey
       | Tomorrow          | 09:00 | 10       | F       | 324524-00009 |
       | Tomorrow          | 09:00 | 10       | F       | 324524-00010 |
 #   Step 1 Action: User 1 proposes an edit to one of the sessions (remove service 'F' from the services list)
-    When I request the availability proposal for potential availability change
+    When I request the availability proposal for potential availability change at the default site
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
       | Matcher     | Tomorrow    | Tomorrow  | 09:00 | 09:10 | A,B,D,F    | 10         | 5        |
       | Replacement |             |           | 09:00 | 09:10 | A,B,D      | 10         | 5        |
@@ -199,7 +199,7 @@ Feature: Change Session Uplifted Journey
       | newlySupportedBookingsCount   | 0 |
       | newlyUnsupportedBookingsCount    | 1 |
   # Step 2 Action: Meanwhile... User 2 proposes to delete one of the sessions (remove session 'D,F')
-    When I request the availability proposal for potential availability change
+    When I request the availability proposal for potential availability change at the default site
       | Type        | RequestFrom | RequestTo | From  | Until | Services   | SlotLength | Capacity |
       | Matcher     | Tomorrow    | Tomorrow  | 09:00 | 09:10 | D,F        | 10         | 4        |
 #   Step 2 Result: User 2 is told that ZERO orphaned bookings will be cancelled should they choose to continue

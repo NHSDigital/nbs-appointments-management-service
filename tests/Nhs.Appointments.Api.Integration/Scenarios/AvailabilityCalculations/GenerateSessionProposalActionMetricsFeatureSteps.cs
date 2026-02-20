@@ -82,41 +82,6 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
         _availabilityChangeProposalResponse.NewlyUnsupportedBookingsCount.Should().Be(counts[1]);
     }
 
-    [When(@"I propose an availability edit")]
-    public async Task CallProposeEditEndpoint()
-    {
-        var request = new
-        {
-            site = GetSiteId(),
-            from = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
-            to = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd"),
-            sessionMatcher = new
-            {
-                from = "09:00",
-                until = "17:00",
-                services = new string[] { "RSV:Adult" },
-                slotLength = 5,
-                capacity = 2
-            },
-            sessionReplacement = new
-            {
-                from = "10:00",
-                until = "14:00",
-                services = new string[] { "RSV:Adult", "COVID_FLU:65+" },
-                slotLength = 5,
-                capacity = 2
-            }
-        };
-
-        var serializerSettings = new JsonSerializerSettings
-        {
-            Converters = { new ShortTimeOnlyJsonConverter() },
-        };
-        var content = new StringContent(JsonConvert.SerializeObject(request, serializerSettings), Encoding.UTF8, "application/json");
-
-        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/availability/propose-edit", content);
-    }
-
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 

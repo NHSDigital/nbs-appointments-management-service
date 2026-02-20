@@ -1,7 +1,7 @@
 Feature: The Best Fit Problem
 
   Scenario: Cancelling a session orphans the last created booking
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |

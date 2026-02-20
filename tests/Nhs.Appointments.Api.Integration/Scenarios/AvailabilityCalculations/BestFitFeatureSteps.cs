@@ -92,7 +92,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
         }
     }
 
-    [When(@"I request the availability proposal for potential availability change")]
+    [When(@"I request the availability proposal for potential availability change at the default site")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
         var sessions = new List<Session>{ };

@@ -273,32 +273,6 @@ public abstract partial class BaseFeatureSteps : Feature
         _overrideDefaultSiteId = siteId;
     }
 
-    //TODO replace with CreateDefaultSite??
-    [Given("the site is configured for MYA")]
-    public async Task SetupSite()
-    {
-        var site = new SiteDocument { Id = GetSiteId(), DocumentType = "site", Location = OutOfTheWayLocation };
-        await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
-    }
-
-    // TODO: Added for BulkImport tests as it requires a valid Guid
-    // To clean up this method & the one above so all siteId's use only a Guid
-    [Given("a new site is configured for MYA")]
-    public async Task SetupNewSite()
-    {
-        var site = new SiteDocument
-        {
-            Id = _testId.ToString(),
-            Name = "Test Site",
-            DocumentType = "site",
-            OdsCode = "ODS1",
-            IntegratedCareBoard = "ICB1",
-            Region = "R1",
-            Location = OutOfTheWayLocation
-        };
-        await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
-    }
-
     protected async Task SetLocalFeatureToggleOverride(string name, string state)
     {
         var response = await _defaultHttpClient.PatchAsync(
@@ -321,10 +295,25 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         await SetupSessions(dataTable);
     }
+    
+    [Given("the default site exists")]
+    [And("the default site exists")]
+    public async Task CreateDefaultSite(DataTable dataTable)
+    {
+        await SetupSite(GetSiteId());
+    }
+    
+    [Given("the default site for bulk import exists")]
+    [And("the default site for bulk import exists")]
+    public async Task CreateDefaultSiteForBulkImport(DataTable dataTable)
+    {
+        //bulk import requires the siteId be a guid
+        await SetupSite(_testId.ToString());
+    }
 
     [Given("the following sessions exist for a created default site")]
     [And("the following sessions exist for a created default site")]
-    public async Task CreateSiteAndSetupSessions(DataTable dataTable)
+    public async Task CreateDefaultSiteAndSetupSessions(DataTable dataTable)
     {
         await SetupSite(GetSiteId());
         await SetupSessions(dataTable);
@@ -332,7 +321,15 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected async Task SetupSite(string siteId)
     {
-        var site = new SiteDocument { Id = siteId, DocumentType = "site", Location = OutOfTheWayLocation };
+        var site = new SiteDocument { 
+            Id = siteId, 
+            Name = "Test Site",
+            DocumentType = "site",
+            OdsCode = "ODS1",
+            IntegratedCareBoard = "ICB1",
+            Region = "R1", 
+            Location = OutOfTheWayLocation 
+        };
         await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
     }
 

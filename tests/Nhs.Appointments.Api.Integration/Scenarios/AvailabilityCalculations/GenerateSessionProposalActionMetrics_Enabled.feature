@@ -1,7 +1,7 @@
 Feature: Availability Edit Proposal Enabled
 
   Scenario: Update a single session on a single day
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
@@ -21,7 +21,7 @@ Feature: Availability Edit Proposal Enabled
       | newlyUnsupportedBookingsCount    | 1 |
 
   Scenario: Update a single session on a single day - metrics dont include currently orphaned bookings
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
@@ -40,7 +40,7 @@ Feature: Availability Edit Proposal Enabled
       | newlyUnsupportedBookingsCount    | 1 |
 
   Scenario: Update a single session on a single day - metrics include swapped over support
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 3        | Green,Blue  |
@@ -63,7 +63,7 @@ Feature: Availability Edit Proposal Enabled
       | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Update a single session on a single day - metrics show greedy inefficiency
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 3        | A,B,C,E,F   |
@@ -85,7 +85,7 @@ Feature: Availability Edit Proposal Enabled
       | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Update a session across multiple days
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
@@ -117,7 +117,7 @@ Feature: Availability Edit Proposal Enabled
       | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Cancel a session across multiple days
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
@@ -148,7 +148,7 @@ Feature: Availability Edit Proposal Enabled
       | newlyUnsupportedBookingsCount    | 3 |
 
   Scenario: Cancel a session on a single day
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
@@ -169,7 +169,7 @@ Feature: Availability Edit Proposal Enabled
 # Wildcard cancellation not yet implemented.
   @ignore
   Scenario: Cancel all sessions on a single day
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
@@ -189,7 +189,7 @@ Feature: Availability Edit Proposal Enabled
 # Wildcard cancellation not yet implemented
   @ignore
   Scenario: Cancel all sessions across multiple days
-    Given the site is configured for MYA
+    Given the default site exists
     When I create the following availability
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |

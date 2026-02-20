@@ -245,7 +245,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         await AssertSessionsForDay(date, shouldExist: true);
     }
     
-    [When(@"I request the availability proposal for potential availability change")]
+    [When(@"I request the availability proposal for potential availability change at the default site")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
         Session matcher = null;

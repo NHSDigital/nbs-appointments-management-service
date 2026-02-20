@@ -1,7 +1,7 @@
 ﻿Feature: RunReminders
   
     Scenario: Running reminders sends reminders for upcoming appointments - Covid 19
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |
@@ -28,7 +28,7 @@
         And the booking document with reference '56345-09354' has lastUpdatedBy 'api@reminderjob'
       
     Scenario: Running reminders sends reminders for upcoming appointments - Flu
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |
@@ -57,7 +57,7 @@
         And the booking document with reference '98067-23487' has lastUpdatedBy 'api@reminderjob'
 
     Scenario: Running reminders does not send a reminder if the service is not supported
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |
@@ -84,7 +84,7 @@
         And the booking document with reference '68754-23487' has lastUpdatedBy 'api@reminderjob'
 
     Scenario: Running reminders does not send reminders for recently made appointments	
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |
@@ -106,7 +106,7 @@
         Then no notifications are sent out            
 
     Scenario: Running reminders targets correct document types
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |
@@ -130,7 +130,7 @@
         Then there are no errors
     
     Scenario: Running reminders does not send reminders for past appointments	
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |
@@ -152,7 +152,7 @@
         Then no notifications are sent out
 
     Scenario: Running reminders does not send reminders for future appointments outside the reminder window
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |
@@ -174,7 +174,7 @@
         Then no notifications are sent out
     
     Scenario: Running reminders does not send reminders when a reminder has already been sent
-        Given the site is configured for MYA
+        Given the default site exists
         And I register and use a http client with details
           | User Id     | Role                         | Scope  |
           | reminderjob | system:integration-test-user | global |

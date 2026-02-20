@@ -55,6 +55,12 @@
       "label": "RSV Adult",
       "serviceType": "RSV",
       "url": "https://www.nhs.uk/book-rsv"
+    },
+    {
+      "id": "COVID_RSV:18+",
+      "label": "RSV and COVID 18+",
+      "serviceType": "RSV and COVID-19",
+      "url": "https://www.nhs.uk/book-rsv"
     }
   ]
 }

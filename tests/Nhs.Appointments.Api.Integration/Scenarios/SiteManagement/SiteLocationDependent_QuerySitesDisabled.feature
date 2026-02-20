@@ -44,11 +44,8 @@ Feature: Site Location Dependent - Query Sites Disabled
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9 | 9 Roadside | 0113 9999999 | J12     | R9     | ICB9 | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true | -0.0827   | -51.5    | 48       |
 
   Scenario: Site By Area Search - Retrieve sites by service filter - single result
-    Given I set the default siteId to be 'a03982ab-f9a8-4d4b-97ca-419d1154896f'
-    And the following default site exists in the system
-      | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
-      | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for the default site
+    Given I set a single siteId for the test to be 'a03982ab-f9a8-4d4b-97ca-419d1154896f'
+    And the following sessions exist for a created default site
       | Date        | From  | Until | Services       | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     When I make the 'get sites by area' request with service filtering

@@ -28,7 +28,7 @@ Feature: Appointment cancellation
     And the booking at the default site with reference '43567-29374' has lastUpdatedBy 'api@mya_user'
 
   Scenario: Cancel a booking appointment and provide the site parameter
-    Given I set the default siteId to be '6e3348bf-3509-45f2-887c-4f9651501f05'
+    Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f05'
     And the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
@@ -47,16 +47,13 @@ Feature: Appointment cancellation
     And an audit function document for the default site was created for user 'api@test' and function 'CancelBookingFunction'
     
   Scenario: Cancel a booking appointment and provide the wrong site parameter
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
-      | 1bb81f6c-0e7d-4032-baea-bc32ea80d176 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-    And the following sessions exist for existing site '1bb81f6c-0e7d-4032-baea-bc32ea80d176'
+    Given the following sessions exist for a created site '26c7d74c-06b6-4375-8008-f2ea312b1a69'
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    And the following bookings have been made at site '1bb81f6c-0e7d-4032-baea-bc32ea80d176'
+    And the following bookings have been made at site '26c7d74c-06b6-4375-8008-f2ea312b1a69'
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
-    When I cancel the first booking at site '51c7d74c-06b6-4375-8008-f2ea312b1a69'
+    When I cancel the first confirmed booking at site '51c7d74c-06b6-4375-8008-f2ea312b1a69'
     Then the call should fail with 400
 
   Scenario: Cancel a booking appointment which can be replaced by an orphaned appointment

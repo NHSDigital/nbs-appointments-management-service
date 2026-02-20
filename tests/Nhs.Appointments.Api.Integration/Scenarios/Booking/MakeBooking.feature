@@ -1,7 +1,7 @@
 ﻿Feature: Book an appointment
 
     Scenario: Make a booking appointment
-        Given I set the default siteId to be '6e3348bf-3509-45f2-887c-4f9651501f05'
+        Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f05'
         And the following sessions exist for a created default site
           | Date     | From  | Until | Services     | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | RSV:Adult    | 5           | 1        |
@@ -20,7 +20,7 @@
           | RSV:Adult    | 1           | 0         | 11                |
 
     Scenario: Make a provisional booking
-        Given I set the default siteId to be '6e3348bf-3509-45f2-887c-4f9651501f06'
+        Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f06'
         And the following sessions exist for a created default site
           | Date     | From  | Until | Services    | Slot Length | Capacity |
           | Tomorrow | 09:00 | 10:00 | COVID       | 5           | 1        |

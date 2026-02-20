@@ -29,7 +29,7 @@ Feature: Appointment cancellation
       | 1         | Cancelled | CancelledByService  | selfReferral,false |
 
   Scenario: Can set additional data when cancelling a booking and providing a site parameter
-    Given I set the default siteId to be 'c305e084-ad5a-4bc3-a567-bd0ffbb23e57'
+    Given I set a single siteId for the test to be 'c305e084-ad5a-4bc3-a567-bd0ffbb23e57'
     And the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
@@ -44,13 +44,10 @@ Feature: Appointment cancellation
       | 1         | Cancelled | CancelledByService  | selfReferral,false |
 
     Scenario: Booking not found when cancelling a booking and providing the wrong site parameter
-      Given the following sites exist in the system
-        | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
-        | c305e084-ad5a-4bc3-a567-bd0ffbb23e56 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
-      And the following sessions exist for existing site 'c305e084-ad5a-4bc3-a567-bd0ffbb23e56'
+      Given the following sessions exist for a created site '26c7d74c-06b6-4375-8008-f2ea312b1a69'
         | Date     | From  | Until | Services  | Slot Length | Capacity |
         | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-      And the following bookings exist at site 'c305e084-ad5a-4bc3-a567-bd0ffbb23e56'
+      And the following bookings exist at site '26c7d74c-06b6-4375-8008-f2ea312b1a69'
         | Reference | Booking Type |
         | 1         | Confirmed    |
       When I cancel the following bookings

@@ -1,7 +1,7 @@
 Feature: Query Availability By Hours
 
   Scenario: Returns 404 when site can't be found
-    Given the following sessions exist for a created default site
+    Given the following sessions exist for a created site 'blahblahblah'
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
       | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |

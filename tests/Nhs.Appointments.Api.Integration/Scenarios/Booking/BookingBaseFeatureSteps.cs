@@ -31,7 +31,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             null);
     }
 
-    [When(@"I cancel the first booking at site '(.+)'")]
+    [When(@"I cancel the first confirmed booking at site '(.+)'")]
     public async Task CancelAppointmentAndProvideSite(string siteId)
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);

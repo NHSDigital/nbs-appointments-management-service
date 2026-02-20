@@ -17,7 +17,7 @@ Feature: Appointment reschedule
         And 'RescheduledByCitizen' cancellation reason has been used for the first booking at the default site
 
     Scenario: Reschedule an appointment on a different day
-      Given I set the default siteId to be '6e3348bf-3509-45f2-887c-4f9651501f04'
+      Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f04'
       And the following sessions exist for a created default site
         | Date              | From  | Until | Services | Slot Length | Capacity |
         | Tomorrow          | 09:00 | 10:00 | COVID    | 5           | 1        |

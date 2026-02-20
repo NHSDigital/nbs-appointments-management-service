@@ -266,8 +266,8 @@ public abstract partial class BaseFeatureSteps : Feature
         return !_customTestHttpClients.TryGetValue(_testId, out var client) ? _defaultHttpClient : client;
     }
     
-    [Given("I set the default siteId to be '(.+)'")]
-    [And("I set the default siteId to be '(.+)'")]
+    [Given("I set a single siteId for the test to be '(.+)'")]
+    [And("I set a single siteId for the test to be '(.+)'")]
     public void SetTestSiteScope(string siteId)
     {
         _overrideDefaultSiteId = siteId;
@@ -282,33 +282,11 @@ public abstract partial class BaseFeatureSteps : Feature
         response.EnsureSuccessStatusCode();
     }
     
-    [Given("the following sessions exist for existing site '(.+)'")]
-    [And("the following sessions exist for existing site '(.+)'")]
-    public async Task SetupSessionsForSite(string site, DataTable dataTable)
-    {
-        await SetupSessions(dataTable, site);
-    }
-
-    [Given("the following sessions exist for the default site")]
-    [And("the following sessions exist for the default site")]
-    public async Task SetupSessionsDefault(DataTable dataTable)
-    {
-        await SetupSessions(dataTable);
-    }
-    
     [Given("the default site exists")]
     [And("the default site exists")]
-    public async Task CreateDefaultSite()
+    public async Task CreateDefaultSiteWithNoSessions()
     {
         await SetupSite(GetSiteId());
-    }
-    
-    [Given("the default site for bulk import exists")]
-    [And("the default site for bulk import exists")]
-    public async Task CreateDefaultSiteForBulkImport()
-    {
-        //bulk import requires the siteId be a guid
-        await SetupSite(_testId.ToString());
     }
 
     [Given("the following sessions exist for a created default site")]
@@ -317,6 +295,29 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         await SetupSite(GetSiteId());
         await SetupSessions(dataTable);
+    }
+    
+    [Given("the following sessions exist for a created site '(.+)'")]
+    [And("the following sessions exist for a created site '(.+)'")]
+    public async Task CreateCustomSiteAndSetupSessions(string site, DataTable dataTable)
+    {
+        await SetupSite(GetSiteId(site));
+        await SetupSessions(dataTable, site);
+    }
+    
+    [Given("the following sessions exist for existing site '(.+)'")]
+    [And("the following sessions exist for existing site '(.+)'")]
+    public async Task SetupSessionsForExistingCustomSite(string site, DataTable dataTable)
+    {
+        await SetupSessions(dataTable, site);
+    }
+    
+    [Given("the default site for bulk import exists")]
+    [And("the default site for bulk import exists")]
+    public async Task CreateDefaultSiteForBulkImport()
+    {
+        //bulk import requires the siteId be a guid
+        await SetupSite(_testId.ToString());
     }
 
     protected async Task SetupSite(string siteId)

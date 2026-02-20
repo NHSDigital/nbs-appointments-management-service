@@ -298,14 +298,14 @@ public abstract partial class BaseFeatureSteps : Feature
     
     [Given("the default site exists")]
     [And("the default site exists")]
-    public async Task CreateDefaultSite(DataTable dataTable)
+    public async Task CreateDefaultSite()
     {
         await SetupSite(GetSiteId());
     }
     
     [Given("the default site for bulk import exists")]
     [And("the default site for bulk import exists")]
-    public async Task CreateDefaultSiteForBulkImport(DataTable dataTable)
+    public async Task CreateDefaultSiteForBulkImport()
     {
         //bulk import requires the siteId be a guid
         await SetupSite(_testId.ToString());

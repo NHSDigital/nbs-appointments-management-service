@@ -27,7 +27,7 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
         {
             payload = new
             {
-                site = _testId,
+                site = GetSiteId(),
                 status = UpdatedSiteStatus
             };
         }

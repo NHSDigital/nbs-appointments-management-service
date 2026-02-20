@@ -18,7 +18,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
         private List<Core.Bookings.Booking> _actualResponse;
         private HttpStatusCode _statusCode;
 
-        [Then(@"the following bookings are returned")]
+        [Then(@"the following bookings are returned at the default site")]
         public void AssertMultipleBookings(DataTable expectedBookingDetailsTable)
         {
             var expectedBookings = expectedBookingDetailsTable.Rows.Skip(1).Select((row, index) =>

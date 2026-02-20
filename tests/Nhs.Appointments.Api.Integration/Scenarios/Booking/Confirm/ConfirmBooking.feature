@@ -4,18 +4,18 @@ Feature: Book an appointment
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Booking Type |
       | Provisional  |
     When I confirm the booking
     Then the call should be successful
-    And the booking is no longer marked as provisional
+    And the booking at the default site is no longer marked as provisional
 
   Scenario: Confirmation can record contact details
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Reference | Booking Type |
       | 1         | Provisional  |
     When I confirm the following bookings
@@ -33,7 +33,7 @@ Feature: Book an appointment
     And I register and use a http client with details
       | User Id  | Role                         | Scope  |
       | nbs      | system:integration-test-user | global |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Reference | Booking Type |
       | 1         | Provisional  |
     # default state is api@test in setup
@@ -58,7 +58,7 @@ Feature: Book an appointment
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Booking Type       |
       | ExpiredProvisional |
     When I confirm the booking
@@ -68,18 +68,18 @@ Feature: Book an appointment
     Given the following sessions exist for a created default site
       | Date      | From  | Until | Services  | Slot Length | Capacity |
       | Yesterday | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Date      | Booking Type       |
       | Yesterday | ExpiredProvisional |
     When the provisional bookings are cleaned up
     Then the call should be successful
-    And the booking should be deleted
+    And the booking at the default site should be deleted
 
   Scenario: Cannot confirm a non-provisional appointment
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Reference | Booking Type |
       | 1         | Confirmed    |
     When I confirm the following bookings
@@ -91,7 +91,7 @@ Feature: Book an appointment
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Reference | Booking Type |
       | 1         | Provisional  |
       | 2         | Provisional  |
@@ -112,7 +112,7 @@ Feature: Book an appointment
      Given the following sessions exist for a created default site
        | Date     | From  | Until | Services  | Slot Length | Capacity |
        | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-     And the following bookings exist
+     And the following bookings exist at the default site
        | Reference | Booking Type |
        | 1         | Provisional  |
        | 2         | Provisional  |
@@ -140,7 +140,7 @@ Feature: Book an appointment
      Given the following sessions exist for a created default site
        | Date     | From  | Until | Services  | Slot Length | Capacity |
        | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-     And the following bookings exist
+     And the following bookings exist at the default site
        | Booking Type       |
        | ExpiredProvisional |
        | ExpiredProvisional |
@@ -153,19 +153,19 @@ Feature: Book an appointment
      Given the following sessions exist for a created default site
        | Date      | From  | Until | Services  | Slot Length | Capacity |
        | Yesterday | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-     And the following bookings exist
+     And the following bookings exist at the default site
        | Date      | Booking Type       |
        | Yesterday | ExpiredProvisional |
        | Yesterday | ExpiredProvisional |
      When the provisional bookings are cleaned up
      Then the call should be successful
-     And the booking should be deleted
+     And the booking at the default site should be deleted
 
    Scenario: JB:Cannot confirm a non-provisional appointment
      Given the following sessions exist for a created default site
        | Date     | From  | Until | Services  | Slot Length | Capacity |
        | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-     And the following bookings exist
+     And the following bookings exist at the default site
        | Reference | Date     | Booking Type |
        | 1         | Tomorrow | Confirmed    |
        | 2         | Tomorrow | Confirmed    |
@@ -178,7 +178,7 @@ Feature: Book an appointment
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:00 | RSV:Adult | 10          | 1        |
-    And the following bookings exist
+    And the following bookings exist at the default site
       | Reference | Booking Type |
       | 1         | Provisional  |
       | 2         | Provisional  |

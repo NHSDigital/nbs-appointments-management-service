@@ -26,8 +26,8 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
     private List<Core.Bookings.Booking> _getBookingsResponse;
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
-    [When("I cancel the following sessions")]
-    [Then("I cancel the following sessions")]
+    [When("I cancel the following sessions at the default site")]
+    [Then("I cancel the following sessions at the default site")]
     public async Task CancelSession(DataTable dataTable)
     {
         foreach (var row in dataTable.Rows.Skip(1))
@@ -67,7 +67,7 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : FeatureTo
             await JsonRequestReader.ReadRequestAsync<List<Core.Bookings.Booking>>(await _response.Content.ReadAsStreamAsync());
     }
 
-    [Then(@"the following bookings are returned")]
+    [Then(@"the following bookings are returned at the default site")]
     public void Assert(DataTable expectedBookingDetailsTable)
     {
         var bookingIndex = 0;

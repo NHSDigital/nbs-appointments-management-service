@@ -15,23 +15,10 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(2);
     private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(20);
     
-    [Then(@"an audit function document was created for user '(.+)' and function '(.+)'")]
-    [And(@"an audit function document was created for user '(.+)' and function '(.+)'")]
+    [Then(@"an audit function document for the default site was created for user '(.+)' and function '(.+)'")]
+    [And(@"an audit function document for the default site was created for user '(.+)' and function '(.+)'")]
     public async Task AssertAuditFunctionDocumentCreated(string user, string function) =>
         await AssertAuditFunctionDocumentExists(user, function, GetSiteId());
-
-    [Then(@"an audit function document was created for")]
-    [And(@"an audit function document was created for")]
-    public async Task AssertAuditFunctionDocumentFor(DataTable table)
-    {
-        var row = table.Rows.ElementAt(1);
-
-        var user = table.GetRowValueOrDefault(row, "User");
-        var functionName = table.GetRowValueOrDefault(row, "Function Name");
-        var site = GetSiteId(table.GetRowValueOrDefault(row, "Site"));
-
-        await AssertAuditFunctionDocumentExists(user, functionName, site);
-    }
 
     [Then(@"an audit function document was created for user '(.+)' and function '(.+)' and no site")]
     [And(@"an audit function document was created for user '(.+)' and function '(.+)' and no site")]

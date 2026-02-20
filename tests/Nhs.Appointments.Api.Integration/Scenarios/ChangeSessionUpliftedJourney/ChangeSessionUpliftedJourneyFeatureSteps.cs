@@ -32,7 +32,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
 
-    [When("I replace the session with the following and set newlyUnsupportedBookingAction to '(.+)'")]
+    [When("I replace the session at the default site with the following and set newlyUnsupportedBookingAction to '(.+)'")]
     public async Task UpdateSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
@@ -42,7 +42,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var existingSession = await GetDayAvailability(date);
         SessionToCheck = BuildSession(row, 1);
 
-        var payload = BuildPayload(
+        var payload = BuildPayloadForDefaultSite(
             date, date,
             matcher: new
             {
@@ -65,7 +65,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         await SendSessionEditRequest(payload);
     }
     
-    [When(@"I replace a session with a replacement and set newlyUnsupportedBookingAction to '(.+)'")]
+    [When(@"I replace a session at the default site with a replacement and set newlyUnsupportedBookingAction to '(.+)'")]
     public async Task EditSessionReplacement(string newlyUnsupportedBookingAction, DataTable editSessions)
     {
         Session matcher = null;
@@ -100,7 +100,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var from = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(1).Value ?? "Tomorrow").ToDateTime(new TimeOnly(), DateTimeKind.Unspecified);
         var until = NaturalLanguageDate.Parse(firstRow?.Cells.ElementAt(2).Value ?? "Tomorrow").ToDateTime(new TimeOnly(), DateTimeKind.Unspecified);
         
-        var payload = BuildPayload(
+        var payload = BuildPayloadForDefaultSite(
             from, 
             until,
             matcher: sessionMatcherObj,
@@ -118,11 +118,11 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
     //     var fromDate = ParseDate(from);
     //     var untilDate = ParseDate(until);
     //
-    //     var payload = BuildPayload(fromDate, untilDate, matcher: "*", replacement: null as Session);
+    //     var payload = BuildPayloadForDefaultSite(fromDate, untilDate, matcher: "*", replacement: null as Session);
     //     await SendSessionEditRequest(payload);
     // }
 
-    [When("I cancel the following session using the edit endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
+    [When("I cancel the following session at the default site using the edit endpoint and set newlyUnsupportedBookingAction to '(.+)'")]
     public async Task CancelSingleSession(string newlyUnsupportedBookingAction, DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
@@ -130,7 +130,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         TryParse(newlyUnsupportedBookingAction, out NewlyUnsupportedBookingAction newlyUnsupportedAction);
         
         SessionToCheck = BuildSession(row, 1);
-        var payload = BuildPayload(
+        var payload = BuildPayloadForDefaultSite(
             date, date,
             matcher: new
             {
@@ -156,7 +156,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
 
         SessionToCheck = BuildSession(row);
 
-        var payload = BuildPayload(
+        var payload = BuildPayloadForDefaultSite(
             from, until,
             matcher: new
             {
@@ -183,7 +183,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         var existingSession = await GetDayAvailability(from);
         SessionToCheck = BuildSession(row);
 
-        var payload = BuildPayload(
+        var payload = BuildPayloadForDefaultSite(
             from, until,
             matcher: new
             {
@@ -351,7 +351,7 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         Response = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/session/edit", content);
     }
 
-    private object BuildPayload(DateTime from, DateTime until, object matcher, object replacement, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan) =>
+    private object BuildPayloadForDefaultSite(DateTime from, DateTime until, object matcher, object replacement, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan) =>
         new
         {
             site = GetSiteId(),

@@ -140,8 +140,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         _statusCode = _response.StatusCode;
     }
     
-    [Then("I confirm the booking with reference '(.+)'")]
-    [When("I confirm the booking with reference '(.+)'")]
+    [Then("I confirm the booking at the default site with reference '(.+)'")]
+    [When("I confirm the booking at the default site with reference '(.+)'")]
     public async Task ConfirmBookingWithReference(string bookingReference)
     {
         var customId = CreateUniqueTestValue(bookingReference);

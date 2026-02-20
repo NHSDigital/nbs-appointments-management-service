@@ -30,28 +30,51 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
     private HttpStatusCode StatusCode { get; set; }
     private AvailabilityBySlots AvailabilityResponse { get; set; }
 
-    private string _siteId;
     private List<Attendee> _attendeesCollection;
 
-    [When("I query availability by slots")]
+    [When("I query availability by slots at the default site")]
     public async Task Query(DataTable dataTable)
     {
         var row = dataTable.Rows.Skip(1).First();
         var cells = row.Cells;
 
-        _siteId = cells.ElementAt(0).Value;
-        var services = cells.ElementAt(1).Value.Split(',');
+        var services = cells.ElementAt(0).Value.Split(',');
         _attendeesCollection = [.. services.Select(service => new Attendee
         {
             Services = [service]
         })];
 
-        var date = NaturalLanguageDate.Parse(cells.ElementAt(2).Value);
-        var from = TimeOnly.Parse(cells.ElementAt(3).Value);
-        var until = TimeOnly.Parse(cells.ElementAt(4).Value);
+        var date = NaturalLanguageDate.Parse(cells.ElementAt(1).Value);
+        var from = TimeOnly.Parse(cells.ElementAt(2).Value);
+        var until = TimeOnly.Parse(cells.ElementAt(3).Value);
 
         var payload = new AvailabilityQueryBySlotsRequest(
-            GetSiteId(_siteId),
+            GetSiteId(),
+            _attendeesCollection,
+            date.ToDateTime(from),
+            date.ToDateTime(until));
+
+        await SendRequestAsync(payload);
+    }
+    
+    [When("I query availability by slots at site '(.+)'")]
+    public async Task QuerySite(string site, DataTable dataTable)
+    {
+        var row = dataTable.Rows.Skip(1).First();
+        var cells = row.Cells;
+
+        var services = cells.ElementAt(0).Value.Split(',');
+        _attendeesCollection = [.. services.Select(service => new Attendee
+        {
+            Services = [service]
+        })];
+
+        var date = NaturalLanguageDate.Parse(cells.ElementAt(1).Value);
+        var from = TimeOnly.Parse(cells.ElementAt(2).Value);
+        var until = TimeOnly.Parse(cells.ElementAt(3).Value);
+
+        var payload = new AvailabilityQueryBySlotsRequest(
+            GetSiteId(site),
             _attendeesCollection,
             date.ToDateTime(from),
             date.ToDateTime(until));
@@ -71,7 +94,7 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
         await SendRequestAsync(payload);
     }
 
-    [Then("the following availability is returned for '(.+)' between '(.+)' and '(.+)'")]
+    [Then("the following availability is returned for '(.+)' between '(.+)' and '(.+)' at the default site")]
     public void AssertAvailability(string date, string from, string until, DataTable dataTable)
     {
         var expectedDate = NaturalLanguageDate.Parse(date);
@@ -92,7 +115,7 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
             From = expectedDate.ToDateTime(fromTime),
             Until = expectedDate.ToDateTime(untilTime),
             Slots = [.. expectedSlots],
-            Site = GetSiteId(_siteId)
+            Site = GetSiteId()
         };
 
         StatusCode.Should().Be(HttpStatusCode.OK);

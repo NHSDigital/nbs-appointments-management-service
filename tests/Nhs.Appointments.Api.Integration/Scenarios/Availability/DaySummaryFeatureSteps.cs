@@ -9,7 +9,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Availability
     [FeatureFile("./Scenarios/Availability/DaySummary.feature")]
     public class DaySummaryFeatureSteps : AvailabilitySummaryFeatureSteps
     {
-        [When(@"I query day summary for the current site on '(.+)'")]
+        [When(@"I query day summary for the default site on '(.+)'")]
         public async Task QueryDaySummary(string from)
         {
             var siteId = GetSiteId();

@@ -19,8 +19,23 @@ public class DailyAvailabilityFeatureSteps : BaseFeatureSteps
     private HttpStatusCode _statusCode;
     private List<DailyAvailability> _actualResponse;
 
-    [When(@"I check daily availability for the current site between '(.+)' and '(.+)'")]
-    public async Task CheckDailyAvailability(string from, string until)
+    // [When(@"I check daily availability for site '(.+)' between '(.+)' and '(.+)'")]
+    // public async Task CheckDailyAvailabilityAtSite(string site, string from, string until)
+    // {
+    //     var siteId = GetSiteId(site);
+    //     var fromDate = NaturalLanguageDate.Parse(from).ToString("yyyy-MM-dd");
+    //     var untilDate = NaturalLanguageDate.Parse(until).ToString("yyyy-MM-dd");
+    //     var requestUrl = $"http://localhost:7071/api/daily-availability?site={siteId}&from={fromDate}&until={untilDate}";
+    //
+    //     _response = await GetHttpClientForTest().GetAsync(requestUrl);
+    //     _statusCode = _response.StatusCode;
+    //
+    //     (_, var result) = await JsonRequestReader.ReadRequestAsync<IEnumerable<DailyAvailability>>(await _response.Content.ReadAsStreamAsync());
+    //     _actualResponse = result.ToList();
+    // }
+    
+    [When(@"I check daily availability for the default site between '(.+)' and '(.+)'")]
+    public async Task CheckDailyAvailabilityDefaultSite(string from, string until)
     {
         var siteId = GetSiteId();
         var fromDate = NaturalLanguageDate.Parse(from).ToString("yyyy-MM-dd");

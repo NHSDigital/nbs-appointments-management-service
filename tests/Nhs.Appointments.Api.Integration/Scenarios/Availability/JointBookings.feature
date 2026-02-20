@@ -5,7 +5,7 @@ Feature: Joint Bookings
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 1        |
-    When I check consecutive slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' with consecutive '2'
+    When I check consecutive slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' with consecutive '2' at the default site
     Then the following availability is returned for 'Tomorrow'
       | From  | Until | Count |
       | 09:00 | 09:05 | 2     |
@@ -26,7 +26,7 @@ Feature: Joint Bookings
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 1        |
       | Tomorrow | 09:00 | 10:00 | RSV      | 5           | 2        |
-    When I check consecutive slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' with consecutive '2'
+    When I check consecutive slot availability for 'RSV' between 'Tomorrow' and 'Tomorrow' with consecutive '2' at the default site
     Then the following availability is returned for 'Tomorrow'
       | From  | Until | Count |
       | 09:00 | 09:05 | 3     |

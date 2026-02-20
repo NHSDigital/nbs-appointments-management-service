@@ -12,7 +12,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Blue    |
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
-    When I cancel the following sessions
+    When I cancel the following sessions at the default site 
       | Date     | From  | Until | Blue        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | Blue,Orange | 10          | 1        |
     Then the call should fail with 501

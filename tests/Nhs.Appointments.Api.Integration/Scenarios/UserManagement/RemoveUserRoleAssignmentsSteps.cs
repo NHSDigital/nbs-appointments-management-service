@@ -23,6 +23,35 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 [FeatureFile("./Scenarios/UserManagement/RemoveUserRoleAssignments.feature")]
 public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSteps
 {
+    [When(@"I remove user '(.+)' from the default site")]
+    public async Task AssignRole(string user)
+    {
+        var userId = GetUserId(user);
+        var siteId = GetSiteId();
+        
+        // Check user exists before removing them for assurance this method
+        // actually works when it asserts that the removal has succeeded
+        var document =
+            await CosmosReadItem<UserDocument>("core_data", userId, new PartitionKey("user"), CancellationToken.None);
+        
+        document.Resource.Should().NotBeNull();
+        
+        var requestBody = new RemoveUserRequest()
+        {
+            User = userId,
+            Site = siteId
+        };
+    
+        _response = await GetHttpClientForTest().PostAsync(
+            $"http://localhost:7071/api/user/remove", 
+            new StringContent(
+                JsonResponseWriter.Serialize(requestBody), 
+                Encoding.UTF8, 
+                "application/json"
+            )
+        );
+    }
+    
     [When(@"I remove user '(.+)' from site '(.+)'")]
     public async Task AssignRole(string user, string site)
     {
@@ -41,7 +70,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
             User = userId,
             Site = siteId
         };
-
+    
         _response = await GetHttpClientForTest().PostAsync(
             $"http://localhost:7071/api/user/remove", 
             new StringContent(
@@ -67,7 +96,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
     public async Task AssertRoleAssignments(string user, DataTable dataTable)
     {
         _response.StatusCode.Should().Be(HttpStatusCode.OK);
-
+    
         var userId = GetUserId(user);
         var expectedRoleAssignments = dataTable.Rows.Skip(1).Select(row => new RoleAssignment
         {
@@ -77,7 +106,7 @@ public sealed class RemoveUserRoleAssignmentsSteps : UserManagementBaseFeatureSt
         
         var document =
             await CosmosReadItem<UserDocument>("core_data", userId, new PartitionKey("user"), CancellationToken.None);
-
+    
         document.Resource.RoleAssignments.Should().BeEquivalentTo(expectedRoleAssignments);
     }
 }

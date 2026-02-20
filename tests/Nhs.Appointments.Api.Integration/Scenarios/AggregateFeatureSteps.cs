@@ -17,54 +17,53 @@ public abstract class AggregateFeatureSteps : BaseFeatureSteps
     private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(20);
 
     [Then(
-        @"an aggregation updated recently for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]
+        @"an aggregation for the default site updated recently for '(.*)' with '(.*)' cancelled bookings, maximumCapacity '(.*)', and with service details")]
     [And(
-        @"an aggregation updated recently for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]
-    public async Task AssertAggregationDocumentUpdatedRecentlyFor(string site, string day, int expectedCancelled,
+        @"an aggregation for the default site updated recently for '(.*)' with '(.*)' cancelled bookings, maximumCapacity '(.*)', and with service details")]
+    public async Task AssertAggregationDocumentUpdatedRecentlyFor(string day, int expectedCancelled,
         int expectedMaximumCapacity, DataTable servicesTable)
     {
         var expectedAggregationDocument =
             BuildExpectedDocument(day, expectedCancelled, expectedMaximumCapacity, servicesTable);
-        var actualAggregationDocument = await FetchRecentAggregationDocumentWithDetails(GetSiteId(site),
-            NaturalLanguageDate.Parse(day), expectedAggregationDocument);
+        var actualAggregationDocument = await FetchRecentAggregationDocumentForDefaultSiteWithDetails(NaturalLanguageDate.Parse(day), expectedAggregationDocument);
         actualAggregationDocument.Should().NotBeNull();
     }
 
     [Then(
-        @"an aggregation is created for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]
+        @"an aggregation is created for the default site for '(.*)' with '(.*)' cancelled bookings, maximumCapacity '(.*)', and with service details")]
     [And(
-        @"an aggregation is created for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]
-    public async Task AssertAggregationDocumentCreatedFor(string site, string day, int expectedCancelled,
+        @"an aggregation is created for the default site for '(.*)' with '(.*)' cancelled bookings, maximumCapacity '(.*)', and with service details")]
+    public async Task AssertAggregationDocumentCreatedFor(string day, int expectedCancelled,
         int expectedMaximumCapacity, DataTable servicesTable)
     {
         var expectedAggregationDocument =
             BuildExpectedDocument(day, expectedCancelled, expectedMaximumCapacity, servicesTable);
 
-        var actualAggregationDocument = await FetchAggregationDocumentWithDetails(GetSiteId(site),
-            NaturalLanguageDate.Parse(day), expectedAggregationDocument);
+        var actualAggregationDocument = await FetchAnyAggregationDocumentForDefaultSiteWithDetails(NaturalLanguageDate.Parse(day), expectedAggregationDocument);
 
         actualAggregationDocument.Should().NotBeNull();
     }
 
     [Then(
-        @"an aggregation did not update recently for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]
+        @"an aggregation did not update recently for the default site for '(.*)' with '(.*)' cancelled bookings, maximumCapacity '(.*)', and with service details")]
     [And(
-        @"an aggregation did not update recently for site '(.*)', date '(.*)', '(.*)' cancelled bookings, and maximumCapacity '(.*)', and with service details")]
-    public async Task AssertNoRecentAggregationDocumentWith(string site, string day, int expectedCancelled,
+        @"an aggregation did not update recently for the default site for '(.*)' with '(.*)' cancelled bookings, maximumCapacity '(.*)', and with service details")]
+    public async Task AssertNoRecentAggregationDocumentWith(string day, int expectedCancelled,
         int expectedMaximumCapacity, DataTable servicesTable)
     {
         var expectedAggregationDocument =
             BuildExpectedDocument(day, expectedCancelled, expectedMaximumCapacity, servicesTable);
         await Assert.ThrowsAsync<TimeoutException>(async () =>
-            await FetchRecentAggregationDocumentWithDetails(GetSiteId(site), NaturalLanguageDate.Parse(day),
+            await FetchRecentAggregationDocumentForDefaultSiteWithDetails(NaturalLanguageDate.Parse(day),
                 expectedAggregationDocument));
     }
 
-    private async Task<DailySiteSummaryDocument> FetchRecentAggregationDocumentWithDetails(string id, DateOnly date,
+    private async Task<DailySiteSummaryDocument> FetchRecentAggregationDocumentForDefaultSiteWithDetails(DateOnly date,
         DailySiteSummaryDocument expectedAggregationDocument)
     {
+        var siteId = GetSiteId();
         Expression<Func<DailySiteSummaryDocument, bool>> predicate = d =>
-            d.Id == id && d.Date == date && d.GeneratedAtUtc >= _actionTimestamp;
+            d.Id == siteId && d.Date == date && d.GeneratedAtUtc >= _actionTimestamp;
 
         var dailySiteSummaryDocument = await FindItemWithDetailsRetryAsync(predicate, expectedAggregationDocument);
 
@@ -75,10 +74,10 @@ public abstract class AggregateFeatureSteps : BaseFeatureSteps
         return dailySiteSummaryDocument;
     }
 
-    private async Task<DailySiteSummaryDocument> FetchAggregationDocumentWithDetails(string id, DateOnly date,
-        DailySiteSummaryDocument expectedAggregationDocument)
+    private async Task<DailySiteSummaryDocument> FetchAnyAggregationDocumentForDefaultSiteWithDetails(DateOnly date, DailySiteSummaryDocument expectedAggregationDocument)
     {
-        Expression<Func<DailySiteSummaryDocument, bool>> predicate = d => d.Id == id && d.Date == date;
+        var siteId = GetSiteId();
+        Expression<Func<DailySiteSummaryDocument, bool>> predicate = d => d.Id == siteId && d.Date == date;
         var dailySiteSummaryDocument = await FindItemWithDetailsRetryAsync(predicate, expectedAggregationDocument);
         return dailySiteSummaryDocument;
     }

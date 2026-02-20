@@ -54,7 +54,7 @@ public class ConfirmBookingFeatureSteps : BaseFeatureSteps
     [Then("the call should be successful")]
     public void AssertHttpOk() => _response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-    [And("the booking is no longer marked as provisional")]
+    [And("the booking at the default site is no longer marked as provisional")]
     public async Task AssertBookingNotProvisional()
     {
         var siteId = GetSiteId();

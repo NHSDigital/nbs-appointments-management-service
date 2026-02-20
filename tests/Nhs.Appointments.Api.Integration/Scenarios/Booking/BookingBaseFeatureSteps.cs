@@ -23,7 +23,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
 {
     protected HttpResponseMessage Response { get; set; }
 
-    [When(@"I cancel the appointment without a site parameter")]
+    [When(@"I cancel the first booking without a site parameter")]
     public async Task CancelAppointment()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
@@ -31,7 +31,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             null);
     }
 
-    [When(@"I cancel the appointment with site parameter '(.+)'")]
+    [When(@"I cancel the first booking at site '(.+)'")]
     public async Task CancelAppointmentAndProvideSite(string siteId)
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
@@ -41,8 +41,19 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
+    
+    [When(@"I cancel the first booking at the default site")]
+    public async Task CancelAppointmentDefault()
+    {
+        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
+        var site = GetSiteId();
+        
+        _actionTimestamp = DateTimeOffset.UtcNow;
+        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+            null);
+    }
 
-    [When(@"I cancel the appointment with cancellation reason '(.+)'")]
+    [When(@"I cancel the first booking at the default site with cancellation reason '(.+)'")]
     public async Task CancelAppointment(string cancellationReason)
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
@@ -60,7 +71,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             jsonContent);
     }
 
-    [When(@"I cancel the appointment with reference '(.+)'")]
+    [When(@"I cancel the booking with reference '(.+)'")]
     public async Task CancelAppointmentWithReference(string reference)
     {
         var customId = CreateUniqueTestValue(reference);
@@ -68,20 +79,8 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
     }
     
-    [When("I make the appointment with the following details at site '(.+)'")]
-    public async Task MakeBookingAtSite(string site, DataTable dataTable)
-    {
-        _actionTimestamp = DateTimeOffset.UtcNow;
-        await MakeBooking(site, dataTable);
-    }
-
-    [When("I make the appointment with the following details")]
+    [When("I make the booking with the following details for the default site")]
     public async Task MakeBooking(DataTable dataTable)
-    {
-        await MakeBooking(null, dataTable);
-    }
-
-    private async Task MakeBooking(string site, DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
@@ -92,7 +91,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                 "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
-            site = GetSiteId(site ?? DefaultSiteId),
+            site = GetSiteId(),
             kind = "booked",
             attendeeDetails = new
             {
@@ -110,26 +109,17 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                 },
             additionalData = new { isAppBooking = cells.ElementAt(10).Value }
         };
+        
+        _actionTimestamp = DateTimeOffset.UtcNow;
         Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
 
-    [Then(@"a reference number is returned and the following booking is created")]
+    [Then(@"a reference number is returned and the following booking is created at the default site")]
     public async Task AssertSingleBookingAtSite(DataTable dataTable)
-    {
-        await AssertSingleBooking(null, dataTable);
-    }
-    
-    [Then(@"a reference number is returned and the following booking is created at site '(.+)'")]
-    public async Task AssertSingleBookingAtSite(string site, DataTable dataTable)
-    {
-        await AssertSingleBooking(site, dataTable);
-    }
-
-    private async Task AssertSingleBooking(string site, DataTable dataTable)
     {
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         var cells = dataTable.Rows.ElementAt(1).Cells;
-        var siteId = GetSiteId(site ?? DefaultSiteId);
+        var siteId = GetSiteId();
         var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await Response.Content.ReadAsStringAsync());
         var bookingReference = result.BookingReference;
         var isProvisional = cells.ElementAt(10).Value == "Yes";
@@ -174,30 +164,17 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         
         await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
     }
-
     
-    [Then(@"I receive a message informing me that the appointment is no longer available")]
+    [Then(@"I receive a message informing me that the booking is no longer available")]
     public async Task AssertBookingAppointmentGone()
     {
         Response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         var result = JsonConvert.DeserializeObject<ErrorResponseBody>(await Response.Content.ReadAsStringAsync());
         result.message.Should().Be("The time slot for this booking is not available");
     }
-
-    [When("I make a provisional appointment with the following details")]
+    
+    [When("I make a provisional appointment with the following details at the default site")]
     public async Task MakeProvisionalBooking(DataTable dataTable)
-    {
-        await MakeProvisionalBooking(null, dataTable);
-    }
-    
-    [When("I make a provisional appointment with the following details at site '(.+)'")]
-    public async Task MakeProvisionalBookingAtSite(string site, DataTable dataTable)
-    {
-        _actionTimestamp = DateTimeOffset.UtcNow;
-        await MakeProvisionalBooking(site, dataTable);
-    }
-    
-    private async Task MakeProvisionalBooking(string site, DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
 
@@ -209,7 +186,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
                     "yyyy-MM-dd HH:mm", null).ToString("yyyy-MM-dd HH:mm"),
             duration = cells.ElementAt(2).Value,
             service = cells.ElementAt(3).Value,
-            site = GetSiteId(site ?? DefaultSiteId),
+            site = GetSiteId(),
             kind = "Provisional",
             attendeeDetails = new
             {
@@ -220,6 +197,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             }
         };
 
+        _actionTimestamp = DateTimeOffset.UtcNow;
         Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
     
@@ -234,33 +212,22 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [And(@"default cancellation reason has been used")]
+    [And(@"the default cancellation reason has been used for the first booking at the default site")]
     public async Task AssertCancellationReason()
     {
         var expectedCancellationReason = CancellationReason.CancelledByCitizen;
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
-        await AssertCancellationReasonByReference(null, bookingReference, expectedCancellationReason);
-    }
-
-    [And(@"'(.+)' cancellation reason has been used at site '(.+)'")]
-    public async Task AssertCancellationReasonForSite(string cancellationReason, string site)
-    {
-        await AssertCancellationReason(site, cancellationReason);
+        await AssertCancellationReasonByReferenceAtDefaultSite(bookingReference, expectedCancellationReason);
     }
     
-    [And(@"'(.+)' cancellation reason has been used")]
+    [And(@"'(.+)' cancellation reason has been used for the first booking at the default site")]
     public async Task AssertCancellationReason(string cancellationReason)
-    {
-        await AssertCancellationReason(null, cancellationReason);
-    }
-    
-    private async Task AssertCancellationReason(string site, string cancellationReason)
     {
         var expectedCancellationReason = Enum.Parse<CancellationReason>(cancellationReason);
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
-        await AssertCancellationReasonByReference(site, bookingReference, expectedCancellationReason);
+        await AssertCancellationReasonByReferenceAtDefaultSite(bookingReference, expectedCancellationReason);
     }
 
     protected string ToRequestFormat(string naturalLanguageDateOnly, string naturalLanguageTime)

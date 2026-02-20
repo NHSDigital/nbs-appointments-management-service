@@ -44,11 +44,12 @@ Feature: Site Location Dependent - Query Sites Disabled
       | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-9 | 9 Roadside | 0113 9999999 | J12     | R9     | ICB9 | Info 9                 | accessibility/attr_one=true,accessibility/attr_two=true | -0.0827   | -51.5    | 48       |
 
   Scenario: Site By Area Search - Retrieve sites by service filter - single result
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
-      | a03982ab-f9a8-4d4b-97ca-419d1154896f | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
-    And the following sessions exist for existing site 'a03982ab-f9a8-4d4b-97ca-419d1154896f'
-      | Date        | From  | Until | Services   | Slot Length | Capacity |
+    Given I set the default siteId to be 'a03982ab-f9a8-4d4b-97ca-419d1154896f'
+    And the following default site exists in the system
+      | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  |
+      | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 |
+    And the following sessions exist for the default site
+      | Date        | From  | Until | Services       | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 17:00 | RSV:Adult      | 5           | 1        |
     When I make the 'get sites by area' request with service filtering
       | Max Records | Search Radius | Longitude | Latitude | Service | From     | Until    |
@@ -306,25 +307,25 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
+    And the following bookings have been made at site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b'
       | Date        | Time  | Duration | Service | Reference   |
       | Tomorrow    | 09:00 | 10       | RSV:Adult   | 56345-11111 |
     And the following sessions exist for existing site '586bc02d-310a-4b02-a117-d0d104de16bb'
       | Date                 | From  | Until | Services  | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '586bc02d-310a-4b02-a117-d0d104de16bb'
+    And the following bookings have been made at site '586bc02d-310a-4b02-a117-d0d104de16bb'
       | Date                 | Time  | Duration | Service | Reference   |
       | 2 days from today    | 09:00 | 10       | RSV:Adult   | 56345-22222 |
     And the following sessions exist for existing site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
       | Date               | From  | Until | Services  | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 09:10 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
+    And the following bookings have been made at site 'a01e7aec-4721-410b-853d-1bed6ade4c3c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 3 days from today    | 09:00 | 10       | RSV:Adult   | 56345-33333 |
     And the following sessions exist for existing site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
       | Date                 | From  | Until | Services | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 09:10 | RSV:Adult    | 10           | 1       |
-    And the following bookings have been made for site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
+    And the following bookings have been made at site 'a5f2f93e-26e8-45ac-a09b-2485517f1d9c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 4 days from today    | 09:00 | 10       | RSV:Adult   | 56345-44444 |
     When I check daily availability for site '2d1780ea-73cf-43c1-ad19-1f0cb288e35b' for 'RSV:Adult' between 'Tomorrow' and '4 days from today'
@@ -367,25 +368,25 @@ Feature: Site Location Dependent - Query Sites Disabled
     And the following sessions exist for existing site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date        | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow    | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
+    And the following bookings have been made at site '20e7b709-83c6-416b-b5d8-27d03222e1bf'
       | Date        | Time  | Duration | Service | Reference   |
       | Tomorrow    | 09:00 | 10       | RSV:Adult   | 56345-11111 |
     And the following sessions exist for existing site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date                 | From  | Until | Services  | Slot Length | Capacity |
       | 2 days from today    | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
+    And the following bookings have been made at site '9bf7f58b-ca1a-425a-869e-7a574e183a2c'
       | Date                 | Time  | Duration | Service | Reference   |
       | 2 days from today    | 09:00 | 10       | RSV:Adult   | 56345-22222 |
     And the following sessions exist for existing site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date               | From  | Until | Services  | Slot Length | Capacity |
       | 3 days from today  | 09:00 | 09:20 | RSV:Adult     | 10           | 1       |
-    And the following bookings have been made for site '6beadf23-2c8c-4080-8be6-896c73634efb'
+    And the following bookings have been made at site '6beadf23-2c8c-4080-8be6-896c73634efb'
       | Date                 | Time  | Duration | Service | Reference   |
       | 3 days from today    | 09:00 | 10       | RSV:Adult   | 56345-33333 |
     And the following sessions exist for existing site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date                 | From  | Until | Services | Slot Length | Capacity |
       | 4 days from today    | 09:00 | 09:20 | RSV:Adult    | 10           | 1       |
-    And the following bookings have been made for site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
+    And the following bookings have been made at site 'aa8ceff5-d152-4687-b8ea-030df7d5efb1'
       | Date                 | Time  | Duration | Service | Reference   |
       | 4 days from today    | 09:00 | 10       | RSV:Adult   | 56345-44444 |
     When I check daily availability for site '20e7b709-83c6-416b-b5d8-27d03222e1bf' for 'RSV:Adult' between 'Tomorrow' and '4 days from today'
@@ -776,63 +777,63 @@ Feature: Site Location Dependent - Query Sites Disabled
       | fa8ceff5-d152-4687-b8ea-030df7d5efb1 | Site-4 | 4 Roadside | 0113 4444444 | M12     | R4     | ICB4 | Info 4                 | accessibility/attr_one=true  | 0.040992272 | 51.455788 | 5677     |
     
   Scenario: Manage site details - Update details of a site
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details
       | Name   | Address     | PhoneNumber  | Longitude | Latitude |
       | Site-B | 2B New Lane | 011322222222 | -4.1      | 58.5     |
-    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-B | 2B New Lane | 011322222222 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
+    Then the correct information for the default site is returned
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-B | 2B New Lane | 011322222222 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
 
   Scenario: Manage site details - Update details of a site with an valid phone number with spaces
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details
       | Name   | Address     | PhoneNumber  | Longitude | Latitude |
       | Site-B | 2B New Lane | 0113 2222222 | -4.1      | 58.5     |
-    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-B | 2B New Lane | 0113 2222222 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
+    Then the correct information for the default site is returned
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-B | 2B New Lane | 0113 2222222 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
 
   Scenario: Manage site details - Update details of a site with an empty phone number
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details
       | Name   | Address     | PhoneNumber | Longitude | Latitude |
       | Site-B | 2B New Lane |             | -4.1      | 58.5     |
-    Then the correct information for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51' is returned
-      | Site                                 | Name   | Address     | PhoneNumber | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-B | 2B New Lane |             | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
+    Then the correct information for the default site is returned
+      | Name   | Address     | PhoneNumber | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-B | 2B New Lane |             | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -4.1      | 58.5     |
 
   Scenario: Manage site details - Update details of a site with an invalid phone number
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details
       | Name   | Address     | PhoneNumber   | Longitude | Latitude |
       | Site-B | 2B New Lane | 0113 1111111f | -2.3      | 50.1     |
     Then a bad request response is returned with the following error messages
       | Phone number must contain numbers and spaces only |
 
   Scenario: Manage site details - Update details of a site with an invalid phone number
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details
       | Name   | Address     | PhoneNumber  | Longitude | Latitude |
       | Site-B | 2B New Lane | abcdefg12345 | -2.3      | 50.1     |
     Then a bad request response is returned with the following error messages
       | Phone number must contain numbers and spaces only |
 
   Scenario: Manage site details - Update details of a site with an empty name and an invalid phone number
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+    Given the following default site exists in the system
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details
       | Name | Address     | PhoneNumber  | Longitude | Latitude |
       |      | 2B New Lane | abcdefg12345 | -2.3      | 50.1     |
     Then a bad request response is returned with the following error messages
@@ -840,9 +841,9 @@ Feature: Site Location Dependent - Query Sites Disabled
 
   Scenario: Manage site details - Update details of a site with all info invalid
     Given the following sites exist in the system
-      | Site                                 | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site 'beeae4e0-dd4a-4e3a-8f4d-738f9418fb51'
+      | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
+      | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
+    When I update the details
       | Name | Address | PhoneNumber | Longitude | Latitude  |
       |      |         |             | -50.45.34 | dsfsdfdsf |
     Then a bad request response is returned with the following error messages
@@ -856,10 +857,10 @@ Feature: Site Location Dependent - Query Sites Disabled
     Then a message is returned saying the site is not found
 
   Scenario: Manage site details - Returns site not found message when site update attempted with ODS code
-    Given the following sites exist in the system
-      | Site                                 | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities       | Longitude | Latitude |
-      | beeae4e0-dd4a-4e3a-8f4d-738f9418fb51 | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true | -2.3      | 50.1     |
-    When I update the details for site '15N'
+    Given the following default site exists in the system
+      | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities       | Longitude | Latitude |
+      | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true | -2.3      | 50.1     |
+    When I update the details for ODS code '15N'
       | Name   | Address     | PhoneNumber  | Longitude | Latitude |
       | Site-B | 2B New Lane | 011322222222 | -2.3      | 50.1     |
     Then a message is returned saying the site is not found

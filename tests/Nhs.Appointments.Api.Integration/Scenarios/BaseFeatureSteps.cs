@@ -52,6 +52,8 @@ public abstract partial class BaseFeatureSteps : Feature
 
     protected readonly Guid _testId = Guid.NewGuid();
     protected readonly string _userId = "api@test";
+    
+    protected string _overrideDefaultSiteId;
 
     //THIS STAYS PRIVATE. Use or add to the CosmosRead,CosmosPatch,CosmosWrite,..., methods if more functionality needed...
     private readonly CosmosClient Client;
@@ -59,6 +61,9 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly Mapper Mapper;
     protected HttpStatusCode _statusCode;
     
+    /// <summary>
+    /// The timestamp of the tests 'When' (action) step, if needed for assertion logic
+    /// </summary>
     protected DateTimeOffset _actionTimestamp;
 
     protected ContainerRetryConfiguration BaseRetryOptions = new()
@@ -260,7 +265,15 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         return !_customTestHttpClients.TryGetValue(_testId, out var client) ? _defaultHttpClient : client;
     }
+    
+    [Given("I set the default siteId to be '(.+)'")]
+    [And("I set the default siteId to be '(.+)'")]
+    public void SetTestSiteScope(string siteId)
+    {
+        _overrideDefaultSiteId = siteId;
+    }
 
+    //TODO replace with CreateDefaultSite??
     [Given("the site is configured for MYA")]
     public async Task SetupSite()
     {
@@ -294,28 +307,27 @@ public abstract partial class BaseFeatureSteps : Feature
 
         response.EnsureSuccessStatusCode();
     }
-
+    
     [Given("the following sessions exist for existing site '(.+)'")]
     [And("the following sessions exist for existing site '(.+)'")]
     public async Task SetupSessionsForSite(string site, DataTable dataTable)
     {
-        await SetupSessions(site, dataTable);
+        await SetupSessions(dataTable, site);
     }
-    
-    [Given("the following sessions exist for a created site '(.+)'")]
-    [And("the following sessions exist for a created site '(.+)'")]
-    public async Task SetupSessionsForCreatedSite(string site, DataTable dataTable)
+
+    [Given("the following sessions exist for the default site")]
+    [And("the following sessions exist for the default site")]
+    public async Task SetupSessionsDefault(DataTable dataTable)
     {
-        await SetupSite(GetSiteId(site));
-        await SetupSessions(site, dataTable);
+        await SetupSessions(dataTable);
     }
 
     [Given("the following sessions exist for a created default site")]
     [And("the following sessions exist for a created default site")]
-    public async Task SetupSessions(DataTable dataTable)
+    public async Task CreateSiteAndSetupSessions(DataTable dataTable)
     {
         await SetupSite(GetSiteId());
-        await SetupSessions(DefaultSiteId, dataTable);
+        await SetupSessions(dataTable);
     }
 
     protected async Task SetupSite(string siteId)
@@ -324,9 +336,9 @@ public abstract partial class BaseFeatureSteps : Feature
         await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
     }
 
-    public async Task SetupSessions(string siteDesignation, DataTable dataTable)
+    public async Task SetupSessions(DataTable dataTable, string siteId = DefaultSiteId)
     {
-        var site = GetSiteId(siteDesignation);
+        var site = GetSiteId(siteId);
         var availabilityDocuments = DailyAvailabilityDocumentsFromTable(site, dataTable).ToList();
         foreach (var document in availabilityDocuments)
         {
@@ -400,68 +412,68 @@ public abstract partial class BaseFeatureSteps : Feature
         return string.Join(",", days);
     }
 
-    [Given("the following bookings have been made")]
-    [And("the following bookings have been made")]
+    [Given("the following bookings have been made at site '(.+)'")]
+    [And("the following bookings have been made at site '(.+)'")]
+    public async Task SetupBookings(string site, DataTable dataTable)
+    {
+        await SetupBookings(dataTable, BookingType.Confirmed, site);
+    }
+    
+    [Given("the following bookings have been made at the default site")]
+    [And("the following bookings have been made at the default site")]
     public async Task SetupBookings(DataTable dataTable)
     {
-        await SetupBookings(DefaultSiteId, dataTable, BookingType.Confirmed);
+        await SetupBookings(dataTable, BookingType.Confirmed);
     }
-
-    [Given("the following bookings have been made for site '(.+)'")]
-    [And("the following bookings have been made for site '(.+)'")]
-    public async Task SetupBookingsForSite(string site, DataTable dataTable)
-    {
-        await SetupBookings(site, dataTable, BookingType.Confirmed);
-    }
-
+    
     [Given("the following recent bookings have been made")]
     [And("the following recent bookings have been made")]
     public async Task SetupRecentBookings(DataTable dataTable)
     {
-        await SetupBookings(DefaultSiteId, dataTable, BookingType.Recent);
+        await SetupBookings(dataTable, BookingType.Recent);
     }
 
-    [Given("the following provisional bookings have been made")]
-    [And("the following provisional bookings have been made")]
+    [Given("the following provisional bookings have been made at the default site")]
+    [And("the following provisional bookings have been made at the default site")]
     public async Task SetupProvisionalBookings(DataTable dataTable)
     {
-        await SetupBookings(DefaultSiteId, dataTable, BookingType.Provisional);
+        await SetupBookings(dataTable, BookingType.Provisional);
     }
 
-    [Given("the following expired provisional bookings have been made")]
-    [And("the following expired provisional bookings have been made")]
+    [Given("the following expired provisional bookings exist at the default site")]
+    [And("the following expired provisional bookings exist at the default site")]
     public async Task SetupExpiredProvisionalBookings(DataTable dataTable)
     {
-        await SetupBookings(DefaultSiteId, dataTable, BookingType.ExpiredProvisional);
+        await SetupBookings(dataTable, BookingType.ExpiredProvisional);
     }
-
-    [Given("the following cancelled bookings have been made")]
-    [And("the following cancelled bookings have been made")]
+    
+    [Given("the following cancelled bookings exist at the default site")]
+    [And("the following cancelled bookings exist at the default site")]
     public async Task SetupCancelledBookings(DataTable dataTable) =>
-        await SetupBookings(DefaultSiteId, dataTable, BookingType.Cancelled);
-
-    [And("the following orphaned bookings exist")]
-    public async Task SetupOrphanedBookings(DataTable dataTable) =>
-        await SetupBookings(DefaultSiteId, dataTable, BookingType.Orphaned);
-
+        await SetupBookings(dataTable, BookingType.Cancelled);
+    
     [And("the following orphaned bookings exist for site '(.+)'")]
-    public async Task SetupOrphanedBookingsForSite(string site, DataTable dataTable) =>
-        await SetupBookings(site, dataTable, BookingType.Orphaned);
-
+    public async Task SetupOrphanedBookings(string site, DataTable dataTable) =>
+        await SetupBookings(dataTable, BookingType.Orphaned, site);
+    
+    [And("the following orphaned bookings exist at the default site")]
+    public async Task SetupOrphanedBookings(DataTable dataTable) =>
+        await SetupBookings(dataTable, BookingType.Orphaned);
+    
     protected DateTime ParseDayAndTime(string day, string time) => DateTime.ParseExact(
         $"{NaturalLanguageDate.Parse(day).ToString("yyyy-MM-dd")} {time}",
         "yyyy-MM-dd HH:mm", null);
 
     protected IEnumerable<(BookingDocument booking, BookingIndexDocument bookingIndex)>
         BuildBookingAndIndexDocumentsFromDataTable(
-            DataTable dataTable)
+            DataTable dataTable, string siteId = DefaultSiteId)
     {
         return dataTable.Rows.Skip(1).Select((row, index) =>
         {
+            var site = GetSiteId(siteId);
             var bookingType = dataTable.GetEnumRowValue(row, "Booking Type", BookingType.Confirmed);
             var reference = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Reference")) ??
                             BookingReferences.GetBookingReference(index, bookingType);
-            var site = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
             var service = dataTable.GetRowValueOrDefault(row, "Service", "RSV:Adult");
             var status = dataTable.GetEnumRowValueOrDefault<AppointmentStatus>(row, "Status") ?? MapStatus(bookingType);
 
@@ -541,7 +553,7 @@ public abstract partial class BaseFeatureSteps : Feature
         });
     }
 
-    [And("the following bookings exist")]
+    [And("the following bookings exist at the default site")]
     public async Task CreateBookings(DataTable dataTable)
     {
         foreach (var bookingAndIndex in BuildBookingAndIndexDocumentsFromDataTable(dataTable))
@@ -551,8 +563,19 @@ public abstract partial class BaseFeatureSteps : Feature
             MadeBookings.Add(bookingAndIndex.booking);
         }
     }
+    
+    [And("the following bookings exist at site '(.+)'")]
+    public async Task CreateBookingsAtSite(string site, DataTable dataTable)
+    {
+        foreach (var bookingAndIndex in BuildBookingAndIndexDocumentsFromDataTable(dataTable, site))
+        {
+            await CosmosWrite(CosmosWriteAction.Create, "booking_data", bookingAndIndex.booking);
+            await CosmosWrite(CosmosWriteAction.Create, "index_data", bookingAndIndex.bookingIndex);
+            MadeBookings.Add(bookingAndIndex.booking);
+        }
+    }
 
-    [Then("the following bookings are now in the following state")]
+    [Then("the following bookings at the default site are now in the following state")]
     public async Task AssertBookings(DataTable dataTable)
     {
         var defaultReferenceOffset = 0;
@@ -563,7 +586,7 @@ public abstract partial class BaseFeatureSteps : Feature
                                    BookingReferences.GetBookingReference(defaultReferenceOffset,
                                        BookingType.Confirmed);
 
-            var siteId = GetSiteId(dataTable.GetRowValueOrDefault(row, "Site", DefaultSiteId));
+            var siteId = GetSiteId();
             defaultReferenceOffset += 1;
 
             var booking = await CosmosReadItem<BookingDocument>("booking_data",
@@ -593,7 +616,7 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
-    protected async Task SetupBookings(string siteDesignation, DataTable dataTable, BookingType bookingType)
+    protected async Task SetupBookings(DataTable dataTable, BookingType bookingType, string siteId = DefaultSiteId)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
         {
@@ -612,7 +635,7 @@ public abstract partial class BaseFeatureSteps : Feature
                         "yyyy-MM-dd HH:mm", null),
                 Duration = int.Parse(row.Cells.ElementAt(2).Value),
                 Service = row.Cells.ElementAt(3).Value,
-                Site = GetSiteId(siteDesignation),
+                Site = GetSiteId(siteId),
                 Status = MapStatus(bookingType),
                 AvailabilityStatus = MapAvailabilityStatus(bookingType),
                 Created = row.Cells.ElementAtOrDefault(5)?.Value is not null
@@ -648,7 +671,7 @@ public abstract partial class BaseFeatureSteps : Feature
             {
                 Reference = customId ??
                             BookingReferences.GetBookingReference(index, bookingType),
-                Site = GetSiteId(siteDesignation),
+                Site = GetSiteId(siteId),
                 DocumentType = "booking_index",
                 Id = customId ??
                      BookingReferences.GetBookingReference(index, bookingType),
@@ -689,48 +712,38 @@ public abstract partial class BaseFeatureSteps : Feature
         return uniqueTestValue;
     }
 
-    [Then(@"the first booking has been '(\w+)'")]
-    [And(@"the first booking has been '(\w+)'")]
+    [Then(@"the first booking at the default site has been '(\w+)'")]
+    [And(@"the first booking at the default site has been '(\w+)'")]
     public async Task AssertBookingStatus(string status)
     {
+        var siteId = GetSiteId();
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
 
-        await AssertBookingStatusByReference(bookingReference, GetSiteId(), expectedStatus);
-        await AssertLastUpdatedBy("booking_data", bookingReference, GetSiteId(), _userId);
+        await AssertBookingStatusByReferenceAtDefaultSite(bookingReference, expectedStatus);
+        await AssertLastUpdatedBy("booking_data", bookingReference, siteId, _userId);
     }
 
-    [Then(@"the first booking at site '(.+)' has been '(\w+)'")]
-    [And(@"the first booking at site '(.+)' has been '(\w+)'")]
-    public async Task AssertBookingStatusAtSite(string siteId, string status)
-    {
-        var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-        var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-
-        await AssertBookingStatusByReference(bookingReference, GetSiteId(siteId), expectedStatus);
-        await AssertLastUpdatedBy("booking_data", bookingReference, GetSiteId(siteId), _userId);
-    }
-
-    [Then(@"the booking with reference '(.+)' has been '(.+)'")]
-    [And(@"the booking with reference '(.+)' has been '(.+)'")]
+    [Then(@"the booking at the default site with reference '(.+)' has been '(.+)'")]
+    [And(@"the booking at the default site with reference '(.+)' has been '(.+)'")]
     public async Task AssertSpecificBookingStatusChange(string bookingReference, string status)
     {
         var customId = CreateUniqueTestValue(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-        await AssertBookingStatusByReference(customId, GetSiteId(), expectedStatus);
+        await AssertBookingStatusByReferenceAtDefaultSite(customId, expectedStatus);
     }
 
-    [Then(@"the booking with reference '(.+)' has status '(.+)'")]
-    [And(@"the booking with reference '(.+)' has status '(.+)'")]
+    [Then(@"the booking at the default site with reference '(.+)' has status '(.+)'")]
+    [And(@"the booking at the default site with reference '(.+)' has status '(.+)'")]
     public async Task AssertSpecificBookingStatus(string bookingReference, string status)
     {
         var customId = CreateUniqueTestValue(bookingReference);
         var expectedStatus = Enum.Parse<AppointmentStatus>(status);
-        await AssertBookingStatusByReference(customId, GetSiteId(), expectedStatus, false);
+        await AssertBookingStatusByReferenceAtDefaultSite(customId, expectedStatus, false);
     }
 
-    [And("the booking should be deleted")]
-    [Then("the booking should be deleted")]
+    [And("the booking at the default site should be deleted")]
+    [Then("the booking at the default site should be deleted")]
     public async Task AssertBookingDeleted()
     {
         var siteId = GetSiteId();
@@ -749,8 +762,8 @@ public abstract partial class BaseFeatureSteps : Feature
         exception.Message.Should().Contain("404");
     }
 
-    [And("the booking with reference '(.+)' should be deleted")]
-    [Then("the booking with reference '(.+)' should be deleted")]
+    [And("the booking at the default site with reference '(.+)' should be deleted")]
+    [Then("the booking at the default site with reference '(.+)' should be deleted")]
     public async Task AssertBookingDeleted(string bookingReference)
     {
         var siteId = GetSiteId();
@@ -766,8 +779,8 @@ public abstract partial class BaseFeatureSteps : Feature
         exception.Message.Should().Contain("404");
     }
 
-    [Then(@"the booking with reference '(.+)' has availability status '(.+)'")]
-    [And(@"the booking with reference '(.+)' has availability status '(.+)'")]
+    [Then(@"the booking at the default site with reference '(.+)' has availability status '(.+)'")]
+    [And(@"the booking at the default site with reference '(.+)' has availability status '(.+)'")]
     public async Task AssertSpecificAvailabilityStatus(string bookingReference, string status)
     {
         var customId = CreateUniqueTestValue(bookingReference);
@@ -796,11 +809,11 @@ public abstract partial class BaseFeatureSteps : Feature
         await AssertLastUpdatedBy("core_data", CreateUniqueTestValue(userId), "user", lastUpdatedBy);
     }
 
-    [Then("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
-    [And("the site document with siteId '(.+)' has lastUpdatedBy '(.+)'")]
-    public async Task AssertSiteLastUpdatedBy(string siteId, string lastUpdatedBy)
+    [Then("the default site document has lastUpdatedBy '(.+)'")]
+    [And("the default site document has lastUpdatedBy '(.+)'")]
+    public async Task AssertSiteLastUpdatedBy(string lastUpdatedBy)
     {
-        await AssertLastUpdatedBy("core_data", GetSiteId(siteId), "site", lastUpdatedBy);
+        await AssertLastUpdatedBy("core_data", GetSiteId(), "site", lastUpdatedBy);
     }
 
     [Then("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
@@ -885,7 +898,7 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
-    [And("there are no sessions for '(.+)'")]
+    [And("there are no sessions for '(.+)' at the default site")]
     public async Task AssertSessionNoLongerExists(string dateString)
     {
         var date = NaturalLanguageDate.Parse(dateString);
@@ -899,6 +912,7 @@ public abstract partial class BaseFeatureSteps : Feature
     }
 
     [Given("the following sites exist in the system")]
+    [And("the following sites exist in the system")]
     public async Task SetUpSites(DataTable dataTable)
     {
         var sites = dataTable.Rows.Skip(1).Select(row => new SiteDocument
@@ -924,11 +938,42 @@ public abstract partial class BaseFeatureSteps : Feature
             Status = dataTable.GetEnumRowValueOrDefault<SiteStatus>(row, "Status"),
             LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
         });
-
+    
         foreach (var site in sites)
         {
             await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
         }
+    }
+    
+    [Given("the following default site exists in the system")]
+    [And("the following default site exists in the system")]
+    public async Task SetUpSingleDefaultSite(DataTable dataTable)
+    {
+        var site = dataTable.Rows.Skip(1).Take(1).Select(row => new SiteDocument
+        {
+            Id = GetSiteId(),
+            Name = dataTable.GetRowValueOrDefault(row, "Name"),
+            Address = dataTable.GetRowValueOrDefault(row, "Address"),
+            PhoneNumber = dataTable.GetRowValueOrDefault(row, "PhoneNumber"),
+            OdsCode = dataTable.GetRowValueOrDefault(row, "OdsCode"),
+            Region = dataTable.GetRowValueOrDefault(row, "Region"),
+            IntegratedCareBoard = dataTable.GetRowValueOrDefault(row, "ICB"),
+            InformationForCitizens = dataTable.GetRowValueOrDefault(row, "InformationForCitizens"),
+            DocumentType = "site",
+            Accessibilities = ParseAccessibilities(dataTable.GetRowValueOrDefault(row, "Accessibilities")),
+            Location = new Location("Point",
+                new[]
+                {
+                    dataTable.GetDoubleRowValueOrDefault(row, "Longitude", -60d),
+                    dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d)
+                }),
+            Type = dataTable.GetRowValueOrDefault(row, "Type"),
+            IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Status = dataTable.GetEnumRowValueOrDefault<SiteStatus>(row, "Status"),
+            LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
+        }).Single();
+        
+        await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
     }
 
     // Added for the bulk import as it requires valid Guid IDs for sites
@@ -1019,9 +1064,10 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
-    private async Task AssertBookingStatusByReference(string bookingReference, string siteId, AppointmentStatus status,
+    private async Task AssertBookingStatusByReferenceAtDefaultSite(string bookingReference, AppointmentStatus status,
         bool expectStatusToHaveChanged = true)
     {
+        var siteId = GetSiteId();
         var bookingDocument = await CosmosReadItem<BookingDocument>("booking_data",
             bookingReference, new PartitionKey(siteId), CancellationToken.None);
 
@@ -1037,10 +1083,10 @@ public abstract partial class BaseFeatureSteps : Feature
         indexDocument.Resource.Status.Should().Be(status);
     }
 
-    public async Task AssertCancellationReasonByReference(string site, string bookingReference,
+    public async Task AssertCancellationReasonByReferenceAtDefaultSite(string bookingReference,
         CancellationReason cancellationReason)
     {
-        var siteId = GetSiteId(site ?? DefaultSiteId);
+        var siteId = GetSiteId();
         var bookingDocument = await CosmosReadItem<BookingDocument>("booking_data", bookingReference,
             new PartitionKey(siteId), CancellationToken.None);
         bookingDocument.Resource.CancellationReason.Should().Be(cancellationReason);
@@ -1105,7 +1151,10 @@ public abstract partial class BaseFeatureSteps : Feature
         _ => throw new ArgumentOutOfRangeException(nameof(bookingType))
     };
 
-    protected string GetSiteId(string siteDesignation = DefaultSiteId) => CreateUniqueTestValue(siteDesignation);
+    protected string GetSiteId(string siteDesignation = DefaultSiteId)
+    {
+        return _overrideDefaultSiteId != null ? CreateUniqueTestValue(_overrideDefaultSiteId) : CreateUniqueTestValue(siteDesignation ?? DefaultSiteId);
+    }
 
     // TODO: Update to handle Okta on / off state
     protected string GetUserId(string userId) => $"{CreateUniqueTestValue(userId)}@nhs.net";

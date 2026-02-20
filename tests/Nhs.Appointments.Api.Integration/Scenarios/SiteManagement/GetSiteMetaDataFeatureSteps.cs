@@ -12,10 +12,10 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
     [FeatureFile("./Scenarios/SiteManagement/GetSiteMetaData.feature")]
     public abstract class GetSiteMetaDataFeatureSteps : SiteManagementBaseFeatureSteps
     {
-        [When("I request site meta data for site '(.+)'")]
-        public async Task RequestSiteMetaData(string site)
+        [When("I request site meta data")]
+        public async Task RequestSiteMetaData()
         {
-            var siteId = GetSiteId(site);
+            var siteId = GetSiteId();
             Response = await GetHttpClientForTest().GetAsync($"http://localhost:7071/api/sites/{siteId}/meta");
         }
 

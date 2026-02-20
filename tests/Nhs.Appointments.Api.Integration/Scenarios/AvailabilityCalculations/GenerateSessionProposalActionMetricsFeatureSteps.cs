@@ -23,7 +23,7 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
     
-    [When(@"I propose an availability edit with the change")]
+    [When(@"I propose an availability edit at the default site with the change")]
     public async Task RequestAvailabilityRecalculation(DataTable proposalSessions)
     {
         Session matcher = null;

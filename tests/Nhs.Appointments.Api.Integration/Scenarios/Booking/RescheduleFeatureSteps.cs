@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,9 +7,7 @@ using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
@@ -34,25 +33,15 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                     },
                 bookingToReschedule
             };
+            _actionTimestamp = DateTimeOffset.UtcNow;
             Response = await GetHttpClientForTest().PostAsJsonAsync(
                 $"http://localhost:7071/api/booking/{_reschduledBookingReference}/confirm", payload);
         }
-
-        [Then("the rescheduled booking is no longer marked as provisional at site '(.+)'")]
-        public async Task AssertRescheduledBookingIsNotProvisionalAtSite(string site)
-        {
-            await AssertRescheduledBookingIsNotProvisional(site);
-        }
         
-        [Then("the rescheduled booking is no longer marked as provisional")]
+        [Then("the rescheduled booking is no longer marked as provisional at the default site")]
         public async Task AssertRescheduledBookingIsNotProvisional()
         {
-            await AssertRescheduledBookingIsNotProvisional(null);
-        }
-        
-        private async Task AssertRescheduledBookingIsNotProvisional(string site)
-        {
-            var siteId = GetSiteId(site ?? DefaultSiteId);
+            var siteId = GetSiteId();
             var bookingReference = _reschduledBookingReference;
 
             var actualBooking = await CosmosReadItem<BookingDocument>("booking_data", bookingReference, new PartitionKey(siteId), CancellationToken.None);

@@ -13,7 +13,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Blue    | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |
@@ -35,7 +35,7 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Blue    | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |
@@ -53,11 +53,11 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Blue    |
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
-    Then I cancel the following sessions
+    Then I cancel the following sessions at the default site 
       | Date     | From  | Until | Blue        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | Blue,Orange | 10          | 1        |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Blue    | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |
@@ -74,11 +74,11 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Green   |
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
-    Then I cancel the following sessions
+    Then I cancel the following sessions at the default site 
       | Date     | From  | Until | Blue        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | Blue,Orange | 10          | 2        |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Green   | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Orphaned  |
@@ -87,7 +87,7 @@ Feature: The Best Fit Problem
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Green   | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |
@@ -106,18 +106,18 @@ Feature: The Best Fit Problem
       | Tomorrow | 09:00 | 10       | Orange  |
       | Tomorrow | 09:00 | 10       | Blue    |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Green   | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |
       | Tomorrow | 09:00 | 10       | Blue    | Supported |
 
     ## Step 2: Remove support for all 3
-    Then I cancel the following sessions
+    Then I cancel the following sessions at the default site 
       | Date     | From  | Until | Blue                     | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | Green, Orange, Blue, Red | 10          | 3        |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status   |
       | Tomorrow | 09:00 | 10       | Green   | Orphaned |
       | Tomorrow | 09:00 | 10       | Orange  | Orphaned |
@@ -128,7 +128,7 @@ Feature: The Best Fit Problem
       | Date     | From  | Until | SlotLength | Capacity | Services |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue     |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Green   | Orphaned  |
       | Tomorrow | 09:00 | 10       | Orange  | Orphaned  |
@@ -139,7 +139,7 @@ Feature: The Best Fit Problem
       | Date     | From  | Until | SlotLength | Capacity | Services     |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue, Orange |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Green   | Orphaned  |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |
@@ -150,7 +150,7 @@ Feature: The Best Fit Problem
       | Date     | From  | Until | SlotLength | Capacity | Services      |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Orange, Green |
     When I query the current bookings
-    Then the following bookings are returned
+    Then the following bookings are returned at the default site
       | Date     | Time  | Duration | Service | Status    |
       | Tomorrow | 09:00 | 10       | Green   | Supported |
       | Tomorrow | 09:00 | 10       | Orange  | Supported |

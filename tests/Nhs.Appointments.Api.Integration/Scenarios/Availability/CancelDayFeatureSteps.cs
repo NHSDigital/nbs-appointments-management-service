@@ -12,7 +12,7 @@ public class CancelDayFeatureSteps : BaseFeatureSteps
 {
     private HttpResponseMessage Response { get; set; }
 
-    [When("I cancel the day '(.+)'")]
+    [When("I cancel the day '(.+)' at the default site")]
     public async Task CancelDay(string dateString)
     {
         var date = NaturalLanguageDate.Parse(dateString);

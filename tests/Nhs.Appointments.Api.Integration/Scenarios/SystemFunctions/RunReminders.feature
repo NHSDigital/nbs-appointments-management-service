@@ -16,7 +16,7 @@
           | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
             | Date              | Time  | Duration | Service     | Reference   |
             | 2 days from today | 09:20 | 5        | COVID:12_17 | 56345-09354 |
         When the reminders job runs
@@ -43,7 +43,7 @@
           | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
           | Date               | Time  | Duration | Service | Reference   |
           | 1 days from today  | 17:30 | 5        | FLU:2_3 | 98067-23487 |
         # default state is api@test
@@ -72,7 +72,7 @@
           | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
           | Date               | Time  | Duration  | Service   | Reference   |
           | 1 days from today  | 17:30 | 5         | FLU:94-95 | 68754-23487 |
         # default state is api@test
@@ -121,7 +121,7 @@
           | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
             | Date              | Time  | Duration | Service |
             | Tomorrow          | 12:00 | 5        | COVID:12_17   |
             | 2 days from today | 17:20 | 5        | COVID:12_17   |
@@ -145,7 +145,7 @@
           | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
             | Date              | Time  | Duration | Service |
             | 2 days before today | 09:20 | 5        | COVID:12_17   |
         When the reminders job runs
@@ -167,7 +167,7 @@
           | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
             | Date              | Time  | Duration | Service |
             | 4 days from today | 09:20 | 5        | COVID:12_17   |
         When the reminders job runs
@@ -189,7 +189,7 @@
           | COVID_FLU:18_64 | Flu and COVID 18-64 | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | COVID_FLU:65+   | Flu and COVID 65+   | COVID-19 and flu | https://www.nhs.uk/get-vaccination |
           | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
-        And the following bookings have been made
+        And the following bookings have been made at the default site
             | Date              | Time  | Duration | Service |
             | 2 days from today | 09:20 | 5        | COVID:12_17   |
         And those appointments have already had notifications sent

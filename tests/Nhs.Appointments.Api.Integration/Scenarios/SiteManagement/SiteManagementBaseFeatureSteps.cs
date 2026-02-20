@@ -58,24 +58,23 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         actualErrorMessages.Should().BeEquivalentTo(expectedErrorMessages);
     }
 
-    [Then("the correct information for site '(.+)' is returned")]
+    [Then("the correct information for the default site is returned")]
     public async Task AssertSiteInformation(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
-        var siteId = row.Cells.ElementAt(0).Value;
         var expectedSite = new Site(
-            Id: GetSiteId(siteId),
-            Name: row.Cells.ElementAt(1).Value,
-            Address: row.Cells.ElementAt(2).Value,
-            PhoneNumber: row.Cells.ElementAt(3).Value,
-            OdsCode: row.Cells.ElementAt(4).Value,
-            Region: row.Cells.ElementAt(5).Value,
-            IntegratedCareBoard: row.Cells.ElementAt(6).Value,
-            InformationForCitizens: row.Cells.ElementAt(7).Value,
-            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
+            Id: GetSiteId(),
+            Name: row.Cells.ElementAt(0).Value,
+            Address: row.Cells.ElementAt(1).Value,
+            PhoneNumber: row.Cells.ElementAt(2).Value,
+            OdsCode: row.Cells.ElementAt(3).Value,
+            Region: row.Cells.ElementAt(4).Value,
+            IntegratedCareBoard: row.Cells.ElementAt(5).Value,
+            InformationForCitizens: row.Cells.ElementAt(6).Value,
+            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(7).Value),
             new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
+                Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)]),
             status: null,
             isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Type: dataTable.GetRowValueOrDefault(row, "Type")
@@ -83,11 +82,8 @@ public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         
         var actualResult =
-            await CosmosReadItem<Site>("core_data", GetSiteId(siteId), new PartitionKey("site"), CancellationToken.None);
+            await CosmosReadItem<Site>("core_data", GetSiteId(), new PartitionKey("site"), CancellationToken.None);
         
         actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
-        
-        //TODO assert in .feature
-        // AssertSiteLastUpdatedBy()
     }
 }

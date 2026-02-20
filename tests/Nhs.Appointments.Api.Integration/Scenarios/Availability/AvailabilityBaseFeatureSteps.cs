@@ -47,7 +47,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         ActualResponse.Should().BeEmpty();
     }
 
-    [When(@"I check ([\w:]+) availability for '(.+)' between '(.+)' and '(.+)'")]
+    [When(@"I check ([\w:]+) availability for '(.+)' between '(.+)' and '(.+)' at the default site")]
     public async Task CheckAvailability(string queryType, string service, string from, string until)
     {
         var convertedQueryType = queryType switch
@@ -72,7 +72,7 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         (_, _actualResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await _response.Content.ReadAsStreamAsync());
     }
 
-    [When(@"I check consecutive ([\w:]+) availability for '(.+)' between '(.+)' and '(.+)' with consecutive '(.+)'")]
+    [When(@"I check consecutive ([\w:]+) availability for '(.+)' between '(.+)' and '(.+)' with consecutive '(.+)' at the default site")]
     public async Task CheckAvailability(string queryType, string service, string from, string until, string consecutive)
     {
         var convertedQueryType = queryType switch
@@ -132,19 +132,6 @@ public abstract class AvailabilityBaseFeatureSteps : BaseFeatureSteps
         _actualResponse
             .Single().availability
             .Single(x => x.date == expectedDate).blocks.Should().BeEmpty();
-    }
-
-    [When(@"I send an invalid availability query request")]
-    public async Task SendInvalidAvailabilityQueryRequest()
-    {
-        var payload = new
-        {
-            sites = new[] { GetSiteId() },
-            service = "",
-            from = NaturalLanguageDate.Parse("Tomorrow"),
-            until = NaturalLanguageDate.Parse("Tomorrow")
-        };
-        _response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
     }
 
     [Then(@"a bad request error is returned")]

@@ -82,24 +82,23 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         actualErrorMessages.Should().BeEquivalentTo(expectedErrorMessages);
     }
 
-    [Then("the correct information for site '(.+)' is returned")]
+    [Then("the correct information for the default site is returned")]
     public async Task AssertSiteInformation(DataTable dataTable)
     {
         var row = dataTable.Rows.ElementAt(1);
-        var siteId = row.Cells.ElementAt(0).Value;
         var expectedSite = new Site(
-            Id: GetSiteId(siteId),
-            Name: row.Cells.ElementAt(1).Value,
-            Address: row.Cells.ElementAt(2).Value,
-            PhoneNumber: row.Cells.ElementAt(3).Value,
-            OdsCode: row.Cells.ElementAt(4).Value,
-            Region: row.Cells.ElementAt(5).Value,
-            IntegratedCareBoard: row.Cells.ElementAt(6).Value,
-            InformationForCitizens: row.Cells.ElementAt(7).Value,
-            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
+            Id: GetSiteId(),
+            Name: row.Cells.ElementAt(0).Value,
+            Address: row.Cells.ElementAt(1).Value,
+            PhoneNumber: row.Cells.ElementAt(2).Value,
+            OdsCode: row.Cells.ElementAt(3).Value,
+            Region: row.Cells.ElementAt(4).Value,
+            IntegratedCareBoard: row.Cells.ElementAt(5).Value,
+            InformationForCitizens: row.Cells.ElementAt(6).Value,
+            Accessibilities: ParseAccessibilities(row.Cells.ElementAt(7).Value),
             new Location(
                 Type: "Point",
-                Coordinates: [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
+                Coordinates: [double.Parse(row.Cells.ElementAt(8).Value), double.Parse(row.Cells.ElementAt(9).Value)]),
             status: null,
             isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Type: dataTable.GetRowValueOrDefault(row, "Type")
@@ -107,7 +106,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         
         var actualResult =
-            await CosmosReadItem<Site>("core_data", GetSiteId(siteId), new PartitionKey("site"), CancellationToken.None);
+            await CosmosReadItem<Site>("core_data", GetSiteId(), new PartitionKey("site"), CancellationToken.None);
         
         actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
     }
@@ -424,9 +423,9 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
                 Type: dataTable.GetRowValueOrDefault(row, "Type")
             ), Distance: int.Parse(row.Cells.ElementAt(11).Value)
         )).ToList();
-
+    
         _sitesWithDistanceResponse.Should().HaveCount(dataTable.Rows.Count() - 1);
-
+    
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         _sitesWithDistanceResponse.Should().BeEquivalentTo(expectedSites);
         _sitesWithDistanceResponse.Select(s => s.Distance).Should().BeInAscendingOrder();
@@ -497,7 +496,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             "slot" => QueryType.Slots,
             _ => throw new Exception($"{queryType} is not a valid queryType")
         };
-
+    
         var payload = new
         {
             sites = new[] { GetSiteId(site) },
@@ -506,7 +505,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             until = NaturalLanguageDate.Parse(until),
             queryType = convertedQueryType.ToString()
         };
-
+    
         Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/availability/query", payload);
         (_, _queryResponse) = await JsonRequestReader.ReadRequestAsync<QueryAvailabilityResponse>(await Response.Content.ReadAsStreamAsync());
     }
@@ -772,7 +771,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
     }
     
     [When("I update the details for site '(.+)'")]
-    public async Task UpdateSiteDetails(string siteDesignation, DataTable dataTable)
+    public async Task UpdateSiteDetailsForSite(string siteDesignation, DataTable dataTable)
     {
         var siteId = GetSiteId(siteDesignation);
         var row = dataTable.Rows.ElementAt(1);
@@ -782,9 +781,40 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         var phoneNumber = row.Cells.ElementAt(2).Value;
         var longitude = row.Cells.ElementAt(3).Value;
         var latitude = row.Cells.ElementAt(4).Value;
-
+    
         var payload = new SetSiteDetailsRequest(siteId, name, address, phoneNumber, longitude, latitude);
         Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
+    }
+    
+    [When("I update the details")]
+    public async Task UpdateSiteDetails(DataTable dataTable)
+    {
+        var siteId = GetSiteId();
+        var row = dataTable.Rows.ElementAt(1);
+        
+        var name = row.Cells.ElementAt(0).Value;
+        var address = row.Cells.ElementAt(1).Value;
+        var phoneNumber = row.Cells.ElementAt(2).Value;
+        var longitude = row.Cells.ElementAt(3).Value;
+        var latitude = row.Cells.ElementAt(4).Value;
+    
+        var payload = new SetSiteDetailsRequest(siteId, name, address, phoneNumber, longitude, latitude);
+        Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
+    }
+    
+    [When("I update the details for ODS code '(.+)'")]
+    public async Task UpdateSiteDetailsByODS_Code(string odsCode, DataTable dataTable)
+    {
+        var row = dataTable.Rows.ElementAt(1);
+        
+        var name = row.Cells.ElementAt(0).Value;
+        var address = row.Cells.ElementAt(1).Value;
+        var phoneNumber = row.Cells.ElementAt(2).Value;
+        var longitude = row.Cells.ElementAt(3).Value;
+        var latitude = row.Cells.ElementAt(4).Value;
+    
+        var payload = new SetSiteDetailsRequest(odsCode, name, address, phoneNumber, longitude, latitude);
+        Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{odsCode}/details", payload);
     }
 
     private async Task PostQuerySitesRequestAsync(object payload)

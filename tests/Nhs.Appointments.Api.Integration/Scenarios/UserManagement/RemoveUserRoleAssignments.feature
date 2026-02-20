@@ -1,14 +1,14 @@
 Feature: Remove User roles from a Site
 
   Scenario: Remove a user from a site
-    Given The following role assignments for 'test-one' exist
-      | Site | Roles                             |
-      | A    | canned:availability-manager       |
-    When I remove user 'test-one' from site 'A'
+    Given the following role assignments at the default site for 'test-one' exist
+      | Roles                             |
+      | canned:availability-manager       |
+    When I remove user 'test-one' from the default site
     Then 'test-one' is no longer in the system
 
   Scenario: Remove a user from a site, leaving them with admin role
-    Given The following role assignments for 'test-two' exist
+    Given the following role assignments for 'test-two' exist
       | Site   | Roles                       |
       | A      | canned:availability-manager |
       | global | admin                       |
@@ -18,7 +18,7 @@ Feature: Remove User roles from a Site
       | global | admin |
 
   Scenario: Remove a user from one site, leaving them at others
-    Given The following role assignments for 'test-three' exist
+    Given the following role assignments for 'test-three' exist
       | Site | Roles                       |
       | A    | canned:availability-manager |
       | B    | canned:availability-manager |

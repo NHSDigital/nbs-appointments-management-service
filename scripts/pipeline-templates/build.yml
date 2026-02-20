@@ -340,6 +340,9 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+          - script: |
+              docker compose restart api cosmos-aggregator
+            displayName: "Restart api and cosmos-aggregator containers to clear cache and restart change feed"
           - task: DotNetCoreCLI@2
             displayName: "Run Integration Tests"
             inputs:

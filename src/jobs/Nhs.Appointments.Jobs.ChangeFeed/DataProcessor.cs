@@ -55,14 +55,14 @@ public abstract class DataProcessor
 
     protected virtual bool CanProcessSite(string? site)
     {
+        if (_filteredSitePrefixes is null)
+        {
+            return true;
+        }
+        
         if (site is null)
         {
             _logger.LogInformation("Site is null.");
-            return true;
-        }
-
-        if (_filteredSitePrefixes is null || _filteredSitePrefixes.Count == 0)
-        {
             return true;
         }
         

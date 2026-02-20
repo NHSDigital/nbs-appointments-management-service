@@ -530,6 +530,16 @@ resource "azurerm_container_app" "nbs_mya_aggregator" {
         name  = "ChangeFeedPollingIntervalSeconds"
         value = var.aggregator_polling_interval_seconds
       }
+
+      env {
+        name  = "DataFilterOptions__DocumentTypes__0"
+        value = "daily_availability"
+      }
+
+      env {
+        name  = "DataFilterOptions__DocumentTypes__1"
+        value = "booking"
+      }
     }
   }
 

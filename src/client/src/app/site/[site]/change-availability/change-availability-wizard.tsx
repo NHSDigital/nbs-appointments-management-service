@@ -8,8 +8,11 @@ import BeforeYouContinueStep from './before-you-continue-step';
 interface ChangeAvailabilityFormValues {
   dateFrom: string;
 }
+interface Props {
+  cancelADateRangeWithBookings: boolean;
+}
 
-const ChangeAvailabilityWizard = () => {
+const ChangeAvailabilityWizard = ({ cancelADateRangeWithBookings }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const methods = useForm<ChangeAvailabilityFormValues>({});
   const submitForm: SubmitHandler<ChangeAvailabilityFormValues> = async () => {
@@ -27,7 +30,14 @@ const ChangeAvailabilityWizard = () => {
           pendingSubmit={pendingSubmit}
         >
           <WizardStep>
-            {stepProps => <BeforeYouContinueStep {...stepProps} />}
+            {stepProps => (
+              <BeforeYouContinueStep
+                {...stepProps}
+                cancelADateRangeWithBookingsEnabled={
+                  cancelADateRangeWithBookings
+                }
+              />
+            )}
           </WizardStep>
         </Wizard>
       </form>

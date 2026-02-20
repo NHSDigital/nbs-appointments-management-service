@@ -14,6 +14,7 @@ stages:
           apiUnitTestProjectPath: "tests/Nhs.Appointments.Api.UnitTests/Nhs.Appointments.Api.UnitTests.csproj"
           coreUnitTestProjectPath: "tests/Nhs.Appointments.Core.UnitTests/Nhs.Appointments.Core.UnitTests.csproj"
           persistanceUnitTestProjectPath: "tests/Nhs.Appointments.Persistance.UnitTests/Nhs.Appointments.Persistance.UnitTests.csproj"
+          auditTestProjectPath: "tests/Nhs.Appointments.Audit.UnitTests/Nhs.Appointments.Audit.UnitTests.csproj"
           bookingExtractsTestProjectPath: "tests/BookingDataExtracts.UnitTests/BookingDataExtracts.UnitTests.csproj"
           capacityExtractsTestProjectPath: "tests/CapacityDataExtracts.UnitTests/CapacityDataExtracts.UnitTests.csproj"
           cosmosDbSeederTestProjectPath: "tests/CosmosDbSeederTests/CosmosDbSeederTests.csproj"
@@ -89,6 +90,12 @@ stages:
             inputs:
               command: "test"
               projects: $(persistanceUnitTestProjectPath)
+              arguments: '--collect "XPlat Code Coverage;Format=opencover"'
+          - task: DotNetCoreCLI@2
+            displayName: "Run Audit Unit Tests"
+            inputs:
+              command: "test"
+              projects: $(auditTestProjectPath)
               arguments: '--collect "XPlat Code Coverage;Format=opencover"'
           - task: DotNetCoreCLI@2
             displayName: "Run Booking Extracts unit tests"

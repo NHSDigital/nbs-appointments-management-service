@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Audit.Services;
+using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance;
 
 namespace Nhs.Appointments.Api.Tests.Audit;
@@ -15,6 +16,7 @@ public class ServiceTests
     private readonly Mock<ITypedDocumentCosmosStore<AuditFunctionDocument>> _auditFunctionDocumentStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<AuditAuthDocument>> _auditAuthDocumentStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<AuditNotificationDocument>> _auditNotificationDocumentStore = new();
+    private readonly Mock<ITypedDocumentCosmosStore<AuditUserRemovedDocument>> _auditUserRemovedDocumentStore = new();
 
     private readonly Mock<CosmosClient> _mockCosmosClient = new();
     private readonly Mock<IMapper> _mockMapper = new();
@@ -29,8 +31,12 @@ public class ServiceTests
     [Fact]
     public async Task RecordFunction_WriteAsync_IsCalled()
     {
-        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object,
-            _auditNotificationDocumentStore.Object);
+        var sut = new AuditWriteService(
+            _auditFunctionDocumentStore.Object, 
+            _auditAuthDocumentStore.Object,
+            _auditNotificationDocumentStore.Object,
+            _auditUserRemovedDocumentStore.Object
+        );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
         var user = "abd-123@test.com";
@@ -52,8 +58,12 @@ public class ServiceTests
     [Fact]
     public async Task RecordAuth_LoginAction_WriteAsync_IsCalled()
     {
-        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object,
-            _auditNotificationDocumentStore.Object);
+        var sut = new AuditWriteService(
+            _auditFunctionDocumentStore.Object, 
+            _auditAuthDocumentStore.Object,
+            _auditNotificationDocumentStore.Object,
+            _auditUserRemovedDocumentStore.Object
+        );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
         var user = "abd-123@test.com";
@@ -74,8 +84,12 @@ public class ServiceTests
     [InlineData("someReference")]
     public async Task RecordNotification_WriteAsync_IsCalled(string reference)
     {
-        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object,
-            _auditNotificationDocumentStore.Object);
+        var sut = new AuditWriteService(
+            _auditFunctionDocumentStore.Object, 
+            _auditAuthDocumentStore.Object,
+            _auditNotificationDocumentStore.Object, 
+            _auditUserRemovedDocumentStore.Object
+        );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
         var user = "abd-123@test.com";
@@ -103,8 +117,12 @@ public class ServiceTests
     [Fact]
     public async Task RecordAuth_UndefinedAction_ThrowsArgumentException()
     {
-        var sut = new AuditWriteService(_auditFunctionDocumentStore.Object, _auditAuthDocumentStore.Object,
-            _auditNotificationDocumentStore.Object);
+        var sut = new AuditWriteService(
+            _auditFunctionDocumentStore.Object, 
+            _auditAuthDocumentStore.Object,
+            _auditNotificationDocumentStore.Object,
+            _auditUserRemovedDocumentStore.Object
+        );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
         var user = "abd-123@test.com";

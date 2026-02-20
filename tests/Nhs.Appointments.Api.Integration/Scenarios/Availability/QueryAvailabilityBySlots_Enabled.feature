@@ -4,7 +4,7 @@ Feature: Query Availability By Slots
     Given the following sessions exist for a created default site
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
-    When I query availability by slots at site '4353234234234'
+    When I query availability by slots at the default site
       | Attendee Services   | Date     | From  | Until |
       | RSV:Adult           | Tomorrow | 09:00 | 17:00 |
     Then the call should fail with 404

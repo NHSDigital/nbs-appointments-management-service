@@ -5,7 +5,7 @@ Feature: Query Availability By Hours
       | Date              | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
       | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
-    When I query availability by hours for site 'e8f0c55a-571b-4538-a073-a626cca53547'
+    When I query availability by hours at the default site
       | Attendee Services   | Date     |
       | RSV:Adult           | Tomorrow |
     Then the call should fail with 404

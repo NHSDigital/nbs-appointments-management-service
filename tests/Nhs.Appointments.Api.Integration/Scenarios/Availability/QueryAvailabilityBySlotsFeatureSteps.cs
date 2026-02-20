@@ -56,31 +56,6 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
 
         await SendRequestAsync(payload);
     }
-    
-    [When("I query availability by slots at site '(.+)'")]
-    public async Task QuerySite(string site, DataTable dataTable)
-    {
-        var row = dataTable.Rows.Skip(1).First();
-        var cells = row.Cells;
-
-        var services = cells.ElementAt(0).Value.Split(',');
-        _attendeesCollection = [.. services.Select(service => new Attendee
-        {
-            Services = [service]
-        })];
-
-        var date = NaturalLanguageDate.Parse(cells.ElementAt(1).Value);
-        var from = TimeOnly.Parse(cells.ElementAt(2).Value);
-        var until = TimeOnly.Parse(cells.ElementAt(3).Value);
-
-        var payload = new AvailabilityQueryBySlotsRequest(
-            GetSiteId(site),
-            _attendeesCollection,
-            date.ToDateTime(from),
-            date.ToDateTime(until));
-
-        await SendRequestAsync(payload);
-    }
 
     [When("I pass an invalid payload")]
     public async Task PassInvalidPayload()

@@ -51,28 +51,6 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
 
         await SendRequestAsync(payload);
     }
-    
-    [When("I query availability by hours for site '(.+)'")]
-    public async Task QuerySite(string site, DataTable dataTable)
-    {
-        var row = dataTable.Rows.Skip(1).First();
-        var cells = row.Cells;
-
-        var services = cells.ElementAt(0).Value.Split(',');
-        _attendeesCollection = services.Select(service => new Attendee
-        {
-            Services = [service]
-        }).ToList();
-
-        var payload = new AvailabilityQueryByHoursRequest
-        (
-            GetSiteId(site),
-            _attendeesCollection,
-            NaturalLanguageDate.Parse(cells.ElementAt(1).Value)
-        );
-
-        await SendRequestAsync(payload);
-    }
 
     [When("I pass an invalid payload")]
     public async Task PassInvalidPayload()

@@ -1,14 +1,14 @@
 ﻿Feature: Set availability
 
   Scenario: Create availability for a single day
-    Given there is no existing availability for a created default site
-    When I apply the following availability
+    Given the default site exists
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 1        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 09:00    | 17:00     | 5          | 1        | COVID    |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -17,13 +17,13 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 12:00 | 15:00 | 10         | 2        | FLU      | Overwrite |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | FLU      |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -32,27 +32,27 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode     |
       | Tomorrow | 12:00 | 15:00 | 10         | 2        | FLU      | Additive |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | FLU      |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status is recalculated after availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
     And the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:30 | 5        | COVID   | 79237-10283 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -65,10 +65,10 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I edit the following availability
+    When I edit the following availability at the default site
       | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
       | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -79,10 +79,10 @@
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
       | Tomorrow | 14:00 | 16:00 | FLU      | 10          | 1        |
-    When I edit the following availability
+    When I edit the following availability at the default site
       | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
       | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
       | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
@@ -94,24 +94,24 @@
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I edit the following availability
+    When I edit the following availability at the default site
       | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
       | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status recalculation does not affect cancelled or provisional bookings
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following cancelled bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 10293-45957 |
     And the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:30 | 5        | COVID   | 48232-10293 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '10293-45957' has status 'Cancelled'
@@ -130,7 +130,7 @@
     And the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 92225-30492 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '84583-19232' has status 'Booked'
@@ -154,7 +154,7 @@
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 61865-10293 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '65734-19232' has status 'Booked'
@@ -166,14 +166,14 @@
     And the booking at the default site with reference '61865-10293' has availability status 'Supported'
 
   Scenario: Bookings are prioritised by created date
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 34482-10293 | 2024-12-01T09:00:00.000Z |
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 45853-10293 | 2024-11-03T09:00:00.000Z |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '34482-10293' has status 'Booked'
@@ -182,14 +182,14 @@
     And the booking at the default site with reference '45853-10293' has availability status 'Supported'
 
   Scenario: Create availability for a single day
-    Given there is no existing availability for a created default site
-    When I apply the following availability
+    Given the default site exists
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 1        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 09:00    | 17:00     | 5          | 1        | COVID    |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -198,13 +198,13 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 12:00 | 15:00 | 10         | 2        | FLU      | Overwrite |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | FLU      |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -213,27 +213,27 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode     |
       | Tomorrow | 12:00 | 15:00 | 10         | 2        | FLU      | Additive |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | FLU      |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status is recalculated after availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
     And the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:30 | 5        | COVID   | 79237-10283 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -246,10 +246,10 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I edit the following availability
+    When I edit the following availability at the default site
       | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
       | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -260,10 +260,10 @@
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
       | Tomorrow | 14:00 | 16:00 | FLU      | 10          | 1        |
-    When I edit the following availability
+    When I edit the following availability at the default site
       | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
       | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
       | Tomorrow | 10:00 | 12:00 | FLU      | 10          | 1        |
@@ -275,24 +275,24 @@
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
-    When I edit the following availability
+    When I edit the following availability at the default site
       | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
       | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID        | 12:00    | 15:00     | 10             | 2            | FLU          | Edit |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | FLU      | 10          | 2        |
       | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 2        |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Appointment status recalculation does not affect cancelled or provisional bookings
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following cancelled bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 10293-45957 |
     And the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:30 | 5        | COVID   | 48232-10293 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '10293-45957' has status 'Cancelled'
@@ -314,7 +314,7 @@
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 45721-10293 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '56923-19232' has status 'Booked'
@@ -337,7 +337,7 @@
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 45721-10293 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 3        | COVID    | Overwrite |
     Then the booking at the default site with reference '56923-19232' has status 'Booked'
@@ -346,7 +346,7 @@
     And the booking at the default site with reference '19283-30492' has availability status 'Supported'
     And the booking at the default site with reference '45721-10293' has status 'Booked'
     And the booking at the default site with reference '45721-10293' has availability status 'Supported'
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '56923-19232' has status 'Booked'
@@ -364,7 +364,7 @@
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 19283-30483 |
       | Tomorrow | 09:20 | 5        | COVID   | 03283-30492 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '19283-30483' has status 'Provisional'
@@ -372,7 +372,7 @@
     Then the booking at the default site with reference '03283-30492' has status 'Provisional'
     And the booking at the default site with reference '03283-30492' has availability status 'Supported'
     When I confirm the booking at the default site with reference '19283-30483'
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '19283-30483' has status 'Booked'
@@ -388,7 +388,7 @@
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 19283-30483 |
       | Tomorrow | 09:20 | 5        | COVID   | 03283-30492 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '19283-30483' has status 'Provisional'
@@ -396,7 +396,7 @@
     Then the booking at the default site with reference '03283-30492' has status 'Provisional'
     And the booking at the default site with reference '03283-30492' has availability status 'Supported'
     When I confirm the booking at the default site with reference '03283-30492'
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '03283-30492' has status 'Booked'
@@ -412,7 +412,7 @@
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 19283-30483 |
       | Tomorrow | 09:20 | 5        | COVID   | 03283-30492 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '19283-30483' has status 'Provisional'
@@ -421,7 +421,7 @@
     And the booking at the default site with reference '03283-30492' has availability status 'Supported'
     When I confirm the booking at the default site with reference '19283-30483'
     When I confirm the booking at the default site with reference '03283-30492'
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '19283-30483' has status 'Booked'
@@ -440,7 +440,7 @@
     And the following provisional bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 92225-30492 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '84583-19232' has status 'Booked'
@@ -462,7 +462,7 @@
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 61865-10293 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | COVID    | Overwrite |
     Then the booking at the default site with reference '65734-19232' has status 'Booked'
@@ -474,14 +474,14 @@
     And the booking at the default site with reference '61865-10293' has availability status 'Supported'
 
   Scenario: Bookings are prioritised by created date
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 34482-10293 | 2024-12-01T09:00:00.000Z |
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   | Created                  |
       | Tomorrow | 09:20 | 5        | COVID   | 45853-10293 | 2024-11-03T09:00:00.000Z |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
     Then the booking at the default site with reference '34482-10293' has status 'Booked'
@@ -490,14 +490,14 @@
     And the booking at the default site with reference '45853-10293' has availability status 'Supported'
 
   Scenario: Create availability for a single day
-    Given there is no existing availability for a created default site
-    When I apply the following availability
+    Given the default site exists
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services        | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, FLU, RSV | Overwrite |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 1        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services        |
       | SingleDateSession | api@test | Tomorrow |        |               | 09:00    | 17:00     | 5          | 1        | COVID, FLU, RSV |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -506,13 +506,13 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 2        |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services   | Mode      |
       | Tomorrow | 12:00 | 15:00 | 10         | 2        | COVID, RSV | Overwrite |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | COVID, RSV      | 10          | 2        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services        |
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | COVID, RSV      |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -521,13 +521,13 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 2        |
-    When I edit the following availability
+    When I edit the following availability at the default site
       | Date     | Old From | Old Until | Old SlotLength | Old Capacity | Old Services     | New From | New Until | New SlotLength | New Capacity | New Services | Mode |
       | Tomorrow | 09:00    | 17:00     | 5              | 2            | COVID, FLU, RSV  | 09:00    | 17:00     | 5              | 2            | COVID, RSV   | Edit |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, RSV      | 5           | 2        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services        |
       | SingleDateSession | api@test | Tomorrow |        |               | 09:00    | 17:00     | 5          | 2        | COVID, RSV      |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
@@ -536,28 +536,28 @@
     Given the following sessions exist for a created default site
       | Date     | From  | Until | Services        | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | COVID, FLU, RSV | 5           | 2        |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services                            | Mode      |
       | Tomorrow | 12:00 | 15:00 | 10         | 2        | COVID, FLU, COVID-16, COVID-75, RSV | Overwrite |
-    Then the request is successful and the following daily availability sessions are created
+    Then the request is successful and the following daily availability sessions are created at the default site
       | Date     | From  | Until | Services                                 | Slot Length | Capacity |
       | Tomorrow | 12:00 | 15:00 | COVID, FLU, COVID-16, COVID-75, RSV      | 10          | 2        |
-    And the following availability created events are created
+    And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services                               |
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | COVID, FLU, COVID-16, COVID-75, RSV    |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Greedy allocation alphabetical - suboptimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
       | Tomorrow | 09:20 | 5        | FLU     | 89999-44622 |
       | Tomorrow | 09:20 | 5        | RSV     | 67834-56421 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, RSV    | Overwrite |
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, FLU    | Additive |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -568,16 +568,16 @@
     And the booking at the default site with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation alphabetical - optimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
       | Tomorrow | 09:20 | 5        | RSV     | 67834-56421 |
       | Tomorrow | 09:20 | 5        | FLU     | 89999-44622 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, RSV    | Overwrite |
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, FLU    | Additive  |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -589,16 +589,16 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through alphabetical shuffling
   Scenario: Greedy allocation alphabetical - shuffling - Appointment is supported after unrelated availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | B       | 37492-16293 |
       | Tomorrow | 09:20 | 5        | C       | 67834-56421 |
       | Tomorrow | 09:20 | 5        | E       | 89999-44622 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | C, B, D, F    | Overwrite |
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | A, B, C, E    | Additive  |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -607,7 +607,7 @@
     And the booking at the default site with reference '67834-56421' has availability status 'Supported'
     Then the booking at the default site with reference '89999-44622' has status 'Booked'
     And the booking at the default site with reference '89999-44622' has availability status 'Orphaned'
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | A, B, C, D  | Additive  |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -618,16 +618,16 @@
     And the booking at the default site with reference '89999-44622' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - suboptimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
       | Tomorrow | 09:20 | 5        | FLU     | 89999-44622 |
       | Tomorrow | 09:20 | 5        | RSV     | 67834-56421 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services          | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | ABBA, COVID, RSV  | Overwrite |
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode     |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, FLU    | Additive |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -638,16 +638,16 @@
     And the booking at the default site with reference '67834-56421' has availability status 'Supported'
 
   Scenario: Greedy allocation service lengths - optimal - Appointment status is recalculated after availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
       | Tomorrow | 09:20 | 5        | RSV     | 67834-56421 |
       | Tomorrow | 09:20 | 5        | FLU     | 89999-44622 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services          | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | ABBA, COVID, RSV  | Overwrite |
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID, FLU    | Additive  |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -659,16 +659,16 @@
 
   # Prove that creating more availability for B and C results in booking E being supported, through service length shuffling
   Scenario: Greedy allocation service lengths - shuffling - Appointment is supported after unrelated availability is created
-    Given there is no existing availability for a created default site
+    Given the default site exists
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | B       | 37492-16293 |
       | Tomorrow | 09:20 | 5        | C       | 67834-56421 |
       | Tomorrow | 09:20 | 5        | E       | 89999-44622 |
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services              | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | A, B, C, D, F, G, H   | Overwrite |
-    And I apply the following availability
+    And I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services      | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | A, B, C, E    | Additive  |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'
@@ -677,7 +677,7 @@
     And the booking at the default site with reference '67834-56421' has availability status 'Supported'
     Then the booking at the default site with reference '89999-44622' has status 'Booked'
     And the booking at the default site with reference '89999-44622' has availability status 'Orphaned'
-    When I apply the following availability
+    When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services  | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 2        | B, C      | Additive  |
     Then the booking at the default site with reference '37492-16293' has status 'Booked'

@@ -42,7 +42,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             null);
     }
     
-    [When(@"I cancel the first booking at the default site")]
+    [When(@"I cancel the first confirmed booking at the default site")]
     public async Task CancelAppointmentDefault()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
@@ -53,7 +53,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             null);
     }
 
-    [When(@"I cancel the first booking at the default site with cancellation reason '(.+)'")]
+    [When(@"I cancel the first confirmed booking at the default site with cancellation reason '(.+)'")]
     public async Task CancelAppointment(string cancellationReason)
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
@@ -71,7 +71,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             jsonContent);
     }
 
-    [When(@"I cancel the booking with reference '(.+)'")]
+    [When(@"I cancel the booking at the default site with reference '(.+)'")]
     public async Task CancelAppointmentWithReference(string reference)
     {
         var customId = CreateUniqueTestValue(reference);

@@ -22,25 +22,19 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
     protected readonly List<AvailabilityCreatedEvent> _expectedAvailabilityCreatedEvents = [];
     protected HttpStatusCode _statusCode;
 
-    [Given("there is no existing availability for a created default site")]
-    public async Task NoAvailability()
-    {
-        await SetupSite(GetSiteId());
-    }
-
-    [And(@"the following availability created events are created")]
-    [Then(@"the following availability created events are created")]
+    [And(@"the following availability created events are created at the default site")]
+    [Then(@"the following availability created events are created at the default site")]
     public async Task AssertAvailabilityCreatedEventsAsync(DataTable dataTable)
     {
-        PopulateExpectedAvailabilityCreatedEventsFromTable(dataTable);
+        PopulateExpectedAvailabilityCreatedEventsForDefaultSiteFromTable(dataTable);
 
-        var actualAvailabilityCreatedEvents = await GetActualAvailabilityCreatedEvents();
+        var actualAvailabilityCreatedEvents = await GetActualAvailabilityCreatedEventsAtDefaultSite();
 
         actualAvailabilityCreatedEvents.Should().BeEquivalentTo(_expectedAvailabilityCreatedEvents,
             options => options.Excluding(x => x.Created));
     }
 
-    private void PopulateExpectedAvailabilityCreatedEventsFromTable(DataTable dataTable)
+    private void PopulateExpectedAvailabilityCreatedEventsForDefaultSiteFromTable(DataTable dataTable)
     {
         foreach (var row in dataTable.Rows.Skip(1))
         {
@@ -91,7 +85,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         }
     }
 
-    private async Task<List<AvailabilityCreatedEventDocument>> GetActualAvailabilityCreatedEvents()
+    private async Task<List<AvailabilityCreatedEventDocument>> GetActualAvailabilityCreatedEventsAtDefaultSite()
     {
         var siteId = GetSiteId();
         var actualDocuments =
@@ -102,8 +96,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         return actualDocuments.ToList();
     }
 
-    [When("I apply the following availability template")]
-    [And("I apply the following availability template")]
+    [When("I apply the following availability template to the default site")]
+    [And("I apply the following availability template to the default site")]
     public async Task ApplyTemplate(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
@@ -155,8 +149,8 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         _response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/booking/{customId}/confirm", payload);
     }
 
-    [When(@"I apply the following availability")]
-    [And(@"I apply the following availability")]
+    [When(@"I apply the following availability to the default site")]
+    [And(@"I apply the following availability to the default site")]
     public async Task SetAvailability(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
@@ -184,7 +178,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         _statusCode = _response.StatusCode;
     }
 
-    [When(@"I edit the following availability")]
+    [When(@"I edit the following availability at the default site")]
     public async Task EditAvailability(DataTable dataTable)
     {
         var cells = dataTable.Rows.ElementAt(1).Cells;
@@ -221,7 +215,7 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         _statusCode = _response.StatusCode;
     }
 
-    [Then("the request is successful and the following daily availability sessions are created")]
+    [Then("the request is successful and the following daily availability sessions are created at the default site")]
     public async Task AssertDailyAvailability(DataTable expectedDailyAvailabilityTable)
     {
         _statusCode.Should().Be(HttpStatusCode.OK);

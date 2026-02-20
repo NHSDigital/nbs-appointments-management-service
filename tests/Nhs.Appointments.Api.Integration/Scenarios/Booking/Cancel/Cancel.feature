@@ -22,10 +22,10 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 43567-29374 |
     #Verify default setup
-    And the booking document with reference '43567-29374' has lastUpdatedBy 'api@test'
-    When I cancel the booking with reference '43567-29374'
+    And the booking at the default site with reference '43567-29374' has lastUpdatedBy 'api@test'
+    When I cancel the booking at the default site with reference '43567-29374'
     Then the booking at the default site with reference '43567-29374' has been 'Cancelled'
-    And the booking document with reference '43567-29374' has lastUpdatedBy 'api@mya_user'
+    And the booking at the default site with reference '43567-29374' has lastUpdatedBy 'api@mya_user'
 
   Scenario: Cancel a booking appointment and provide the site parameter
     Given I set the default siteId to be '6e3348bf-3509-45f2-887c-4f9651501f05'
@@ -39,7 +39,7 @@ Feature: Appointment cancellation
     And an aggregation is created for the default site for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '12', and with service details
       | Service  | Bookings    | Orphaned  | RemainingCapacity |
       | COVID    | 1           | 0         | 11                |
-    When I cancel the first booking at the default site
+    When I cancel the first confirmed booking at the default site
     Then the first booking at the default site has been 'Cancelled'
     And an aggregation for the default site updated recently for 'Tomorrow' with '1' cancelled bookings, maximumCapacity '12', and with service details
       | Service  | Bookings    | Orphaned  | RemainingCapacity |
@@ -69,7 +69,7 @@ Feature: Appointment cancellation
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | COVID   | 85032-19283 |
-    When I cancel the booking with reference '68374-29374'
+    When I cancel the booking at the default site with reference '68374-29374'
     Then the booking at the default site with reference '68374-29374' has been 'Cancelled'
     And the booking at the default site with reference '68374-29374' has availability status 'Unknown'
     And the booking at the default site with reference '85032-19283' has status 'Booked'
@@ -94,7 +94,7 @@ Feature: Appointment cancellation
     And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
-    When I cancel the first booking at the default site with cancellation reason 'InvalidStatus'
+    When I cancel the first confirmed booking at the default site with cancellation reason 'InvalidStatus'
     Then the call should fail with 400
 
   Scenario: Cancel a booking appointment with valid cancellation reason
@@ -104,7 +104,7 @@ Feature: Appointment cancellation
     And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
-    When I cancel the first booking at the default site with cancellation reason 'CancelledBySite'
+    When I cancel the first confirmed booking at the default site with cancellation reason 'CancelledBySite'
     Then the first booking at the default site has been 'Cancelled'
     And 'CancelledBySite' cancellation reason has been used for the first booking at the default site
 
@@ -115,7 +115,7 @@ Feature: Appointment cancellation
     And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:20 | 5        | COVID   |
-    When I cancel the first booking at the default site with cancellation reason 'CancelledByService'
+    When I cancel the first confirmed booking at the default site with cancellation reason 'CancelledByService'
     Then the first booking at the default site has been 'Cancelled'
     And 'CancelledByService' cancellation reason has been used for the first booking at the default site
 
@@ -129,7 +129,7 @@ Feature: Appointment cancellation
     And the following orphaned bookings exist at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | FLU     | 85032-19283 |
-    When I cancel the booking with reference '68374-29374'
+    When I cancel the booking at the default site with reference '68374-29374'
     Then the booking at the default site with reference '68374-29374' has been 'Cancelled'
     And the booking at the default site with reference '68374-29374' has availability status 'Unknown'
     And the booking at the default site with reference '85032-19283' has status 'Booked'
@@ -149,7 +149,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | FLU     | 84023-77342 |
       | Tomorrow | 09:20 | 5        | RSV     | 75392-09012 |
-    When I cancel the booking with reference '56345-09354'
+    When I cancel the booking at the default site with reference '56345-09354'
     Then the booking at the default site with reference '56345-09354' has been 'Cancelled'
     And the booking at the default site with reference '56345-09354' has availability status 'Unknown'
     And the booking at the default site with reference '68374-29374' has status 'Booked'
@@ -173,7 +173,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | RSV     | 75392-09012 |
       | Tomorrow | 09:20 | 5        | FLU     | 84023-77342 |
-    When I cancel the booking with reference '56345-09354'
+    When I cancel the booking at the default site with reference '56345-09354'
     Then the booking at the default site with reference '56345-09354' has been 'Cancelled'
     And the booking at the default site with reference '56345-09354' has availability status 'Unknown'
     And the booking at the default site with reference '68374-29374' has status 'Booked'
@@ -197,7 +197,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | FLU     | 84023-77342 |
       | Tomorrow | 09:20 | 5        | RSV     | 75392-09012 |
-    When I cancel the booking with reference '56345-09354'
+    When I cancel the booking at the default site with reference '56345-09354'
     Then the booking at the default site with reference '56345-09354' has been 'Cancelled'
     And the booking at the default site with reference '56345-09354' has availability status 'Unknown'
     And the booking at the default site with reference '68374-29374' has status 'Booked'
@@ -221,7 +221,7 @@ Feature: Appointment cancellation
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:20 | 5        | RSV     | 75392-09012 |
       | Tomorrow | 09:20 | 5        | FLU     | 84023-77342 |
-    When I cancel the booking with reference '56345-09354'
+    When I cancel the booking at the default site with reference '56345-09354'
     Then the booking at the default site with reference '56345-09354' has been 'Cancelled'
     And the booking at the default site with reference '56345-09354' has availability status 'Unknown'
     And the booking at the default site with reference '68374-29374' has status 'Booked'

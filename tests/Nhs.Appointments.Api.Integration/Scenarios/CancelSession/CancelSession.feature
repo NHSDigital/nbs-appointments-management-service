@@ -39,7 +39,7 @@ Feature: Cancel a session
     When I cancel the following session at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
-    Then the booking at the default site should be deleted
+    Then the first provisional booking at the default site should be deleted
 
   Scenario: Cancel one of two identical sessions that have same services in different order
     Given the following sessions exist for a created default site

@@ -739,8 +739,8 @@ public abstract partial class BaseFeatureSteps : Feature
         await AssertBookingStatusByReferenceAtDefaultSite(customId, expectedStatus, false);
     }
 
-    [And("the booking at the default site should be deleted")]
-    [Then("the booking at the default site should be deleted")]
+    [And("the first provisional booking at the default site should be deleted")]
+    [Then("the first provisional booking at the default site should be deleted")]
     public async Task AssertBookingDeleted()
     {
         var siteId = GetSiteId();
@@ -813,8 +813,8 @@ public abstract partial class BaseFeatureSteps : Feature
         await AssertLastUpdatedBy("core_data", GetSiteId(), "site", lastUpdatedBy);
     }
 
-    [Then("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
-    [And("the booking document with reference '(.+)' has lastUpdatedBy '(.+)'")]
+    [Then("the booking at the default site with reference '(.+)' has lastUpdatedBy '(.+)'")]
+    [And("the booking at the default site with reference '(.+)' has lastUpdatedBy '(.+)'")]
     public async Task AssertBookingLastUpdatedBy(string reference, string lastUpdatedBy)
     {
         await AssertLastUpdatedBy("booking_data", CreateUniqueTestValue(reference), GetSiteId(), lastUpdatedBy);

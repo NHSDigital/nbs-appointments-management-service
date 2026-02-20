@@ -85,9 +85,10 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
     [Then("the correct information for the default site is returned")]
     public async Task AssertSiteInformation(DataTable dataTable)
     {
+        var siteId = GetSiteId();
         var row = dataTable.Rows.ElementAt(1);
         var expectedSite = new Site(
-            Id: GetSiteId(),
+            Id: siteId,
             Name: row.Cells.ElementAt(0).Value,
             Address: row.Cells.ElementAt(1).Value,
             PhoneNumber: row.Cells.ElementAt(2).Value,
@@ -106,7 +107,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         Response.StatusCode.Should().Be(HttpStatusCode.OK);
         
         var actualResult =
-            await CosmosReadItem<Site>("core_data", GetSiteId(), new PartitionKey("site"), CancellationToken.None);
+            await CosmosReadItem<Site>("core_data", siteId, new PartitionKey("site"), CancellationToken.None);
         
         actualResult.Resource.Should().BeEquivalentTo(expectedSite, opts => opts.WithStrictOrdering());
     }
@@ -786,7 +787,7 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         Response = await GetHttpClientForTest().PostAsJsonAsync($"http://localhost:7071/api/sites/{siteId}/details", payload);
     }
     
-    [When("I update the details")]
+    [When("I update the details at the default site")]
     public async Task UpdateSiteDetails(DataTable dataTable)
     {
         var siteId = GetSiteId();

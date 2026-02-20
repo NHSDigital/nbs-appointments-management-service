@@ -9,7 +9,7 @@ Feature: Book an appointment
       | Provisional  |
     When I confirm the booking
     Then the call should be successful
-    And the booking at the default site is no longer marked as provisional
+    And the first provisional booking at the default site is marked as booked
 
   Scenario: Confirmation can record contact details
     Given the following sessions exist for a created default site
@@ -22,7 +22,7 @@ Feature: Book an appointment
       | Reference | Email         | Phone         | Landline    |
       | 1         | test@test.com | 07654 3210987 | 00001234567 |
     Then the call should be successful
-    And following bookings should have the following contact details
+    And following bookings at the default site should have the following contact details
       | Reference | Email         | Phone         | Landline    |
       | 1         | test@test.com | 07654 3210987 | 00001234567 |
 
@@ -37,15 +37,15 @@ Feature: Book an appointment
       | Reference | Booking Type |
       | 1         | Provisional  |
     # default state is api@test in setup
-    And the booking document with reference '1' has lastUpdatedBy 'api@test'
+    And the booking at the default site with reference '1' has lastUpdatedBy 'api@test'
     When I confirm the following bookings
       | Reference | Email         | Phone         | Landline    |
       | 1         | test@test.com | 07654 3210987 | 00001234567 |
     Then the call should be successful
-    And following bookings should have the following contact details
+    And following bookings at the default site should have the following contact details
       | Reference | Email         | Phone         | Landline    |
       | 1         | test@test.com | 07654 3210987 | 00001234567 |
-    And the booking document with reference '1' has lastUpdatedBy 'api@nbs'
+    And the booking at the default site with reference '1' has lastUpdatedBy 'api@nbs'
 
   Scenario: Cannot confirm an appointment that does not exist
     Given the following sessions exist for a created default site
@@ -73,7 +73,7 @@ Feature: Book an appointment
       | Yesterday | ExpiredProvisional |
     When the provisional bookings are cleaned up
     Then the call should be successful
-    And the booking at the default site should be deleted
+    And the first provisional booking at the default site should be deleted
 
   Scenario: Cannot confirm a non-provisional appointment
     Given the following sessions exist for a created default site
@@ -101,7 +101,7 @@ Feature: Book an appointment
       | Reference | Related bookings |
       | 1         | 2, 3, 4          |
     Then the call should be successful
-    And the following bookings are no longer marked as provisional
+    And the following provisional bookings at the default site are marked as booked
       | Reference |
       | 1         |
       | 2         |
@@ -121,7 +121,7 @@ Feature: Book an appointment
        | Reference | Related bookings | Email         | Phone         | Landline    |
        | 1         | 2, 3             | test@test.com | 07654 3210987 | 00001234567 |
      Then the call should be successful
-     And following bookings should have the following contact details
+     And following bookings at the default site should have the following contact details
        | Reference | Email         | Phone         | Landline    |
        | 1         | test@test.com | 07654 3210987 | 00001234567 |
        | 2         | test@test.com | 07654 3210987 | 00001234567 |
@@ -159,7 +159,7 @@ Feature: Book an appointment
        | Yesterday | ExpiredProvisional |
      When the provisional bookings are cleaned up
      Then the call should be successful
-     And the booking at the default site should be deleted
+     And the first provisional booking at the default site should be deleted
 
    Scenario: JB:Cannot confirm a non-provisional appointment
      Given the following sessions exist for a created default site
@@ -187,7 +187,7 @@ Feature: Book an appointment
       | Reference | Related bookings | Email         | Phone         | Landline    |
       | 1         | 2, 3             | test@test.com | 07654 3210987 | 00001234567 |
     Then the call should be successful
-    And following bookings should have the following batch size
+    And following bookings at the default site should have the following batch size
       | Reference | Booking batch size |
       | 1         | 3                  |
       | 2         | 3                  |

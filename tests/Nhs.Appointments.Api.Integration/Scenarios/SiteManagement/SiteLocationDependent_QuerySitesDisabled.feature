@@ -780,7 +780,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     Given the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details
+    When I update the details at the default site
       | Name   | Address     | PhoneNumber  | Longitude | Latitude |
       | Site-B | 2B New Lane | 011322222222 | -4.1      | 58.5     |
     Then the correct information for the default site is returned
@@ -791,7 +791,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     Given the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details
+    When I update the details at the default site
       | Name   | Address     | PhoneNumber  | Longitude | Latitude |
       | Site-B | 2B New Lane | 0113 2222222 | -4.1      | 58.5     |
     Then the correct information for the default site is returned
@@ -802,7 +802,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     Given the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details
+    When I update the details at the default site
       | Name   | Address     | PhoneNumber | Longitude | Latitude |
       | Site-B | 2B New Lane |             | -4.1      | 58.5     |
     Then the correct information for the default site is returned
@@ -813,7 +813,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     Given the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details
+    When I update the details at the default site
       | Name   | Address     | PhoneNumber   | Longitude | Latitude |
       | Site-B | 2B New Lane | 0113 1111111f | -2.3      | 50.1     |
     Then a bad request response is returned with the following error messages
@@ -823,7 +823,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     Given the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details
+    When I update the details at the default site
       | Name   | Address     | PhoneNumber  | Longitude | Latitude |
       | Site-B | 2B New Lane | abcdefg12345 | -2.3      | 50.1     |
     Then a bad request response is returned with the following error messages
@@ -833,7 +833,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     Given the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details
+    When I update the details at the default site
       | Name | Address     | PhoneNumber  | Longitude | Latitude |
       |      | 2B New Lane | abcdefg12345 | -2.3      | 50.1     |
     Then a bad request response is returned with the following error messages
@@ -843,7 +843,7 @@ Feature: Site Location Dependent - Query Sites Disabled
     Given the following sites exist in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                      | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true | -2.3      | 50.1     |
-    When I update the details
+    When I update the details at the default site
       | Name | Address | PhoneNumber | Longitude | Latitude  |
       |      |         |             | -50.45.34 | dsfsdfdsf |
     Then a bad request response is returned with the following error messages

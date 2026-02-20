@@ -1,7 +1,7 @@
 Feature: Get Clinical Services
 
   Scenario: Get Clinical Services
-    And I have Clinical Services
+    And the following clinical services exist
       | Id              | Label               | ServiceType      | Url                                |
       | RSV:Adult       | RSV Adult           | RSV              | https://www.nhs.uk/book-rsv        |
       | COVID:5_11      | COVID 5-11          | COVID-19         | https://www.nhs.uk/bookcovid       |
@@ -27,7 +27,7 @@ Feature: Get Clinical Services
     Then the request should be successful
 
   Scenario: Clinical Services are returned in the prioritized sequence
-    And I have Clinical Services
+    And the following clinical services exist
       | Id              | Label               | ServiceType      | Url                                |
       | FLU:2_3         | Flu 2-3             | flu              | https://www.nhs.uk/bookflu         |
       | FLU:18_64       | Flu 18-64           | flu              | https://www.nhs.uk/bookflu         |

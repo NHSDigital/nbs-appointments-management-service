@@ -40,7 +40,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         }
     }
 
-    [And("there are audit entries in the database")]
+    [And("there are audit entries in the database for the default site")]
     public async Task AddAuditEntriesToTheDatabase()
     {
         var auditEntry = new AvailabilityCreatedEventDocument
@@ -102,7 +102,7 @@ public class RunRemindersFeatureSteps : BaseFeatureSteps
         allNotifications.Count().Should().Be(0);
     }
 
-    [And("I have Clinical Services")]
+    [And("the following clinical services exist")]
     public async Task SetUpClinicalServices(DataTable dataTable)
     {
         var clinicalServices = dataTable.Rows.Skip(1).Select(x => new ClinicalServiceTypeDocument()

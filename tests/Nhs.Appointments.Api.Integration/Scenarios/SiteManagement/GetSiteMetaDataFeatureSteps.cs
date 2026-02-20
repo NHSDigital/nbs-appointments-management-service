@@ -12,7 +12,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement
     [FeatureFile("./Scenarios/SiteManagement/GetSiteMetaData.feature")]
     public abstract class GetSiteMetaDataFeatureSteps : SiteManagementBaseFeatureSteps
     {
-        [When("I request site meta data")]
+        [When("I request site meta data for the default site")]
         public async Task RequestSiteMetaData()
         {
             var siteId = GetSiteId();

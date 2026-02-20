@@ -12,7 +12,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
 public abstract class UpdateSiteReferenceDetailsFeatureSteps : SiteManagementBaseFeatureSteps
 {
-    [When("I update the reference details")]
+    [When("I update the reference details at the default site")]
     public async Task UpdateSiteReferenceDetails(DataTable dataTable)
     {
         var siteId = GetSiteId();

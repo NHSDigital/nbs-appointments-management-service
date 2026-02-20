@@ -39,7 +39,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
       originPage="view-availability"
     >
-      {cancelADateRangeFeature.enabled == true && (
+      {cancelADateRangeFeature.enabled && (
         <Link href={`/site/${siteFromPath}/change-availability`}>
           <Button type="button" styleType="secondary">
             Change availability

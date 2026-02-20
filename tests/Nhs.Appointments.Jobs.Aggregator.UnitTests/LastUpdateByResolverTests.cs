@@ -1,4 +1,4 @@
-using Nhs.Appointments.Persistance;
+using Nhs.Appointments.Core;
 
 namespace Nhs.Appointments.Jobs.Aggregator.UnitTests;
 

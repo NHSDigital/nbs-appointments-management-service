@@ -1,10 +1,16 @@
 import NhsPage from '@components/nhs-page';
-import { assertPermission, fetchSite } from '@services/appointmentsService';
+import {
+  assertPermission,
+  fetchSite,
+  fetchFeatureFlag,
+} from '@services/appointmentsService';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfUkWeek, startOfUkWeek } from '@services/timeService';
 import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
+import { Button } from '@components/nhsuk-frontend';
+import Link from 'next/link';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -24,7 +30,11 @@ const Page = async ({ searchParams, params }: PageProps) => {
   }
 
   await fromServer(assertPermission(siteFromPath, 'availability:query'));
-  const site = await fromServer(fetchSite(siteFromPath));
+
+  const [cancelADateRangeFeature, site] = await Promise.all([
+    fromServer(fetchFeatureFlag('CancelADateRange')),
+    fromServer(fetchSite(siteFromPath)),
+  ]);
 
   const ukWeekStart = startOfUkWeek(date);
   const ukWeekEnd = endOfUkWeek(date);
@@ -42,6 +52,14 @@ const Page = async ({ searchParams, params }: PageProps) => {
       backLink={backLink}
       originPage="view-availability-week"
     >
+      {cancelADateRangeFeature.enabled == true && (
+        <Link href={`/site/${siteFromPath}/change-availability`}>
+          <Button type="button" styleType="secondary">
+            Change availability
+          </Button>
+        </Link>
+      )}
+
       <ViewWeekAvailabilityPage
         ukWeekStart={ukWeekStart}
         ukWeekEnd={ukWeekEnd}

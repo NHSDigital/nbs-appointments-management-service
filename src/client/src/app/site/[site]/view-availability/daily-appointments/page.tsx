@@ -4,6 +4,7 @@ import {
   fetchPermissions,
   fetchSite,
   fetchClinicalServices,
+  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
@@ -17,6 +18,8 @@ import {
 } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
+import { Button } from '@components/nhsuk-frontend';
+import Link from 'next/link';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -47,11 +50,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
     site: siteFromPath,
   };
 
-  const [site, bookings, clinicalServices] = await Promise.all([
-    fromServer(fetchSite(siteFromPath)),
-    fromServer(fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled'])),
-    fromServer(fetchClinicalServices()),
-  ]);
+  const [site, bookings, clinicalServices, cancelADateRangeFeature] =
+    await Promise.all([
+      fromServer(fetchSite(siteFromPath)),
+      fromServer(fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled'])),
+      fromServer(fetchClinicalServices()),
+      fromServer(fetchFeatureFlag('CancelADateRange')),
+    ]);
 
   const scheduledBookings = bookings.filter(
     b => b.status === 'Booked' && b.availabilityStatus !== 'Orphaned',
@@ -85,6 +90,14 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
       showPrintButton
     >
+      {cancelADateRangeFeature.enabled == true && (
+        <Link href={`/site/${siteFromPath}/change-availability`}>
+          <Button type="button" styleType="secondary">
+            Change availability
+          </Button>
+        </Link>
+      )}
+
       <p className="print-out-data" aria-hidden="true">
         Generated: {GetCurrentDateTime()}
       </p>

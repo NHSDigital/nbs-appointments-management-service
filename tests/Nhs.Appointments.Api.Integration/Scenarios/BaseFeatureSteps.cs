@@ -54,7 +54,9 @@ public abstract partial class BaseFeatureSteps : Feature
     protected readonly string _userId = "api@test";
     
     protected string _overrideDefaultSiteId;
-
+    
+    protected string _reschduledBookingReference;
+    
     //THIS STAYS PRIVATE. Use or add to the CosmosRead,CosmosPatch,CosmosWrite,..., methods if more functionality needed...
     private readonly CosmosClient Client;
 
@@ -619,14 +621,14 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
         {
             var customId = CreateUniqueTestValue(row.Cells.ElementAtOrDefault(4)?.Value);
-
+            var reference = customId ??
+                            BookingReferences.GetBookingReference(index, bookingType);
+            
             return new BookingDocument
             {
-                Id = customId ??
-                     BookingReferences.GetBookingReference(index, bookingType),
+                Id = reference,
                 DocumentType = "booking",
-                Reference = customId ??
-                            BookingReferences.GetBookingReference(index, bookingType),
+                Reference = reference,
                 From =
                     DateTime.ParseExact(
                         $"{NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value).ToString("yyyy-MM-dd")} {row.Cells.ElementAt(1).Value}",
@@ -664,15 +666,15 @@ public abstract partial class BaseFeatureSteps : Feature
         var bookingIndexDocuments = dataTable.Rows.Skip(1).Select((row, index) =>
         {
             var customId = CreateUniqueTestValue(row.Cells.ElementAtOrDefault(4)?.Value);
+            var reference = customId ??
+                            BookingReferences.GetBookingReference(index, bookingType);
 
             return new BookingIndexDocument
             {
-                Reference = customId ??
-                            BookingReferences.GetBookingReference(index, bookingType),
+                Reference = reference,
                 Site = GetSiteId(siteId),
                 DocumentType = "booking_index",
-                Id = customId ??
-                     BookingReferences.GetBookingReference(index, bookingType),
+                Id = reference,
                 NhsNumber = NhsNumber,
                 Status = MapStatus(bookingType),
                 Created = GetCreationDateTime(bookingType),
@@ -821,7 +823,7 @@ public abstract partial class BaseFeatureSteps : Feature
         await AssertLastUpdatedBy("booking_data", CreateUniqueTestValue(reference), GetSiteId(), lastUpdatedBy);
     }
 
-    [When(@"I create the following availability")]
+    [When(@"I create the following availability at the default site")]
     public async Task CreateAvailability(DataTable dataTable)
     {
         foreach (var row in dataTable.Rows.Skip(1))
@@ -858,7 +860,7 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
-    [Then("I make the following bookings")]
+    [Then("I make the following bookings at the default site")]
     public async Task MakeBookings(DataTable dataTable)
     {
         var bookingIndex = 0;
@@ -934,7 +936,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Type = dataTable.GetRowValueOrDefault(row, "Type"),
             IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Status = dataTable.GetEnumRowValueOrDefault<SiteStatus>(row, "Status"),
-            LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
+            LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Last Updated By")) ?? _userId
         });
     
         foreach (var site in sites)
@@ -968,7 +970,7 @@ public abstract partial class BaseFeatureSteps : Feature
             Type = dataTable.GetRowValueOrDefault(row, "Type"),
             IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Status = dataTable.GetEnumRowValueOrDefault<SiteStatus>(row, "Status"),
-            LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "LastUpdatedBy")) ?? _userId
+            LastUpdatedBy = CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Last Updated By")) ?? _userId
         }).Single();
         
         await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
@@ -1199,6 +1201,26 @@ public abstract partial class BaseFeatureSteps : Feature
 
         return results;
     }
+    
+    // protected async Task<IEnumerable<TimestampDocument>> CosmosQueryTimestampedFeed<TDocument>(string containerName,
+    //     Expression<Func<TDocument, bool>> predicate, CancellationToken ct = default)
+    // {
+    //     var container = Client.GetContainer("appts", containerName);
+    //     var queryFeed = container.GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
+    //
+    //     var results = new List<TimestampedDocument<TDocument>>();
+    //     using (queryFeed)
+    //     {
+    //         while (queryFeed.HasMoreResults)
+    //         {
+    //             var resultSet =
+    //                 await Retry_CosmosOperation_OnTooManyRequests<TimestampedDocument<TDocument>>(async () => await queryFeed.ReadNextAsync(ct), ct);
+    //             results.AddRange(resultSet);
+    //         }
+    //     }
+    //
+    //     return results;
+    // }
 
     protected async Task CosmosDeleteFeed<T>(string containerName, Expression<Func<T, bool>> predicate,
         PartitionKey partitionKey, CancellationToken ct = default) where T : TypedCosmosDocument
@@ -1231,8 +1253,7 @@ public class BookingReferenceManager
 {
     private readonly Dictionary<int, string> _bookingReferences = new();
 
-    public string GetBookingReference(int index, BaseFeatureSteps.BookingType bookingType,
-        string customBookingReference = null)
+    public string GetBookingReference(int index, BaseFeatureSteps.BookingType bookingType)
     {
         if (bookingType != BaseFeatureSteps.BookingType.Confirmed && bookingType != BaseFeatureSteps.BookingType.Recent)
         {

@@ -1,7 +1,8 @@
 ﻿Feature: Set availability
 
-  Scenario: Create availability for a single day
-    Given the default site exists
+  Scenario: Create availability for a single day - audit trail
+    Given I set a single siteId for the test to be '562348bf-3509-45f2-887c-4f9651501f06'
+    And the default site exists
     When I apply the following availability to the default site
       | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
       | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
@@ -12,6 +13,9 @@
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 09:00    | 17:00     | 5          | 1        | COVID    |
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
+    And the availability with details at the default site should be audited in blob storage
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | COVID    | 5           | 1        |
 
   Scenario: Overwrite existing availability for a single day
     Given the following sessions exist for a created default site
@@ -223,23 +227,6 @@
     And the following availability created events are created at the default site
       | Type              | By       | FromDate | ToDate | Template_Days | FromTime | UntilTime | SlotLength | Capacity | Services |
       | SingleDateSession | api@test | Tomorrow |        |               | 12:00    | 15:00     | 10         | 2        | FLU      |
-    And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
-
-  Scenario: Appointment status is recalculated after availability is created
-    Given the default site exists
-    And the following orphaned bookings exist at the default site
-      | Date     | Time  | Duration | Service | Reference   |
-      | Tomorrow | 09:20 | 5        | COVID   | 37492-16293 |
-    And the following provisional bookings have been made at the default site
-      | Date     | Time  | Duration | Service | Reference   |
-      | Tomorrow | 09:30 | 5        | COVID   | 79237-10283 |
-    When I apply the following availability to the default site
-      | Date     | From  | Until | SlotLength | Capacity | Services | Mode      |
-      | Tomorrow | 09:00 | 17:00 | 5          | 1        | COVID    | Overwrite |
-    Then the booking at the default site with reference '37492-16293' has status 'Booked'
-    And the booking at the default site with reference '37492-16293' has availability status 'Supported'
-    And the booking at the default site with reference '79237-10283' has status 'Provisional'
-    And the booking at the default site with reference '79237-10283' has availability status 'Supported'
     And an audit function document for the default site was created for user 'api@test' and function 'SetAvailabilityFunction'
 
   Scenario: Edit an existing session

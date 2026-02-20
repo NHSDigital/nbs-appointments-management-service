@@ -14,7 +14,7 @@ public static class DataTableExtensions
             ?.Location.Column;
         var cell = row.Cells.SingleOrDefault(cell => cell.Location.Column == columnLocation)?.Value;
 
-        return HasValue(cell) ? cell : defaultValue;
+        return HasValue(cell) ? cell!.Trim() : defaultValue;
     }
 
     public static T? GetEnumRowValueOrDefault<T>(this DataTable dataTable, TableRow row, string columnName)

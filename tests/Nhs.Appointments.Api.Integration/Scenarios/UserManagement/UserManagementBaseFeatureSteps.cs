@@ -6,7 +6,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.UserManagement;
 
-public abstract class UserManagementBaseFeatureSteps : BaseFeatureSteps
+public abstract class UserManagementBaseFeatureSteps : AuditFeatureSteps
 {
     [Given(@"there are no role assignments for user '.+'")]
     public Task NoRoleAssignments() => Task.CompletedTask;

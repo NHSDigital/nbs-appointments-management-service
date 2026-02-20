@@ -1,13 +1,15 @@
 ﻿Feature: User Roles Assignment
 
-  Scenario: Assign a role to a user
+  Scenario: Assign a role to a user - audit trail
     Given there are no role assignments for user 'test-one'
     When I assign the following roles to user 'test-one'
-      | Site | Roles                       |
-      | A    | canned:site-details-manager |
+      | Site                                   | Roles                       |
+      | 562348bf-3509-45f2-887c-4f9651501f06   | canned:site-details-manager |
     Then user 'test-one' would have the following role assignments
-      | Site | Roles                       |
-      | A    | canned:site-details-manager |
+      | Site                                   | Roles                       |
+      | 562348bf-3509-45f2-887c-4f9651501f06   | canned:site-details-manager |
+    And a 'test-one' user should be audited in blob storage
+    And a 'UserRolesChanged' notification should be audited for user 'test-one' in blob storage
 
   Scenario: Assign a role to a user for a different site
     Given the following role assignments at site 'A' for 'test-two' exist

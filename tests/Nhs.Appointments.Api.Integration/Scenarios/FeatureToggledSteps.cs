@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
-public abstract class FeatureToggledSteps(string flag, bool enabled) : BaseFeatureSteps, IAsyncLifetime
+public abstract class FeatureToggledSteps(string flag, bool enabled) : AuditFeatureSteps, IAsyncLifetime
 {
     private string Flag { get; } = flag;
     private bool Enabled { get; } = enabled;

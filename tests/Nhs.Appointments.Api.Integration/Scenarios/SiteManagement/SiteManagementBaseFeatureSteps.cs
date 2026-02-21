@@ -3,17 +3,13 @@ using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Sites;
-using Nhs.Appointments.Persistance.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 using Xunit.Gherkin.Quick;
 using Location = Nhs.Appointments.Core.Sites.Location;
 

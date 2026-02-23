@@ -18,8 +18,8 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
             .WithMessage("From date must be before To date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
             .WithMessage("Date must be in the future.")
-            .LessThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddMonths(3))
-            .WithMessage("Date cannot be more than 3 months in the future.");
+            .LessThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddDays(90))
+            .WithMessage("Date cannot be more than 3 days in the future.");
         RuleFor(x => x.To)
             .NotEmpty()
             .WithMessage("To date is required.")
@@ -27,14 +27,15 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
             .WithMessage("To date must be after From date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
             .WithMessage("Date must be in the future.")
-            .LessThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddMonths(3))
-            .WithMessage("Date cannot be more than 3 months in the future.")
-            .Must((req, until) => WithinThreeMonths(until, req.From));
+            .LessThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddDays(90))
+            .WithMessage("Date cannot be more than 90 days in the future.")
+            .Must((req, until) => Within90Days(until, req.From))
+            .WithMessage("To date cannot be more than 90 days after from date.");
     }
 
-    // TODO: Move this value (in days?) to config in APPT-1987)
-    private static bool WithinThreeMonths(DateOnly until, DateOnly from)
+    // TODO: Move this value to config in APPT-1987
+    private static bool Within90Days(DateOnly until, DateOnly from)
     {
-        return until <= from.AddMonths(3);
+        return until <= from.AddDays(90);
     }
 }

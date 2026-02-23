@@ -157,4 +157,19 @@ public class ProposeCancelDateRangeRequestValidatorTests
 
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public void FailsValidation_WhenFromGreaterThan3MonthsAfterTo()
+    {
+        var request = new ProposeCancelDateRangeRequest
+        (
+            "SiteA",
+            DateOnly.Parse("2077-01-01"),
+            DateOnly.Parse("2077-05-02")
+        );
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
 }

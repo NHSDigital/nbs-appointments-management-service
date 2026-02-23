@@ -28,6 +28,13 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
             .WithMessage("Date must be in the future.")
             .LessThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddMonths(3))
-            .WithMessage("Date cannot be more than 3 months in the future.");
+            .WithMessage("Date cannot be more than 3 months in the future.")
+            .Must((req, until) => WithinThreeMonths(until, req.From));
+    }
+
+    // TODO: Move this value (in days?) to config in APPT-1987)
+    private static bool WithinThreeMonths(DateOnly until, DateOnly from)
+    {
+        return until <= from.AddMonths(3);
     }
 }

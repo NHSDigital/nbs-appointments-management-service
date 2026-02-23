@@ -21,7 +21,7 @@ public static class MasterSiteListReportMap
     public static string ICB(Site site) => site.IntegratedCareBoard;
     public static string Guid(Site site) => site.Id;
     public static bool IsDeleted(Site site) => site.isDeleted ?? false;
-    public static string Status(Site site) => site.status.ToString();
+    public static string Status(Site site) => site.status is not null ? site.status.ToString() : SiteStatus.Online.ToString();
     public static double Longitude(Site site) => site.Coordinates?.Longitude ?? 0;
     public static double Latitude(Site site) => site.Coordinates?.Latitude ?? 0;
     public static string Address(Site site) => site.Address;

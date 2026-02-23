@@ -289,7 +289,7 @@ stages:
               cd data && docker compose up --build --detach
             displayName: "Start MESH docker container"
           - script: |
-              docker compose up --build --detach next-app api oidc-server splunk-otel-collector cosmos-aggregator
+              docker compose up --build --detach next-app api oidc-server splunk-otel-collector cosmos-aggregator cosmos-auditor
             displayName: "Start application docker containers"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
@@ -341,8 +341,8 @@ stages:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
           - script: |
-              docker compose restart api cosmos-aggregator
-            displayName: "Restart api and cosmos-aggregator containers to clear cache and restart change feed"
+              docker compose restart api cosmos-aggregator cosmos-auditor
+            displayName: "Restart api, cosmos-aggregator and cosmos-auditor containers to clear cache and restart change feeds"
           - task: DotNetCoreCLI@2
             displayName: "Run Integration Tests"
             inputs:

@@ -19,7 +19,7 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
             .WithMessage("Date must be in the future.")
             .LessThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddDays(90))
-            .WithMessage("Date cannot be more than 3 days in the future.");
+            .WithMessage("Date cannot be more than 90 days in the future.");
         RuleFor(x => x.To)
             .NotEmpty()
             .WithMessage("To date is required.")

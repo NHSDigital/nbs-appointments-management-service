@@ -263,7 +263,9 @@ stages:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"
+              $BlobAccountName = "nbs-myacicd-$ShortCommitHash-str-int-uks"
               Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
+              Write-Host "##vso[task.setVariable variable=blobAccountName]$BlobAccountName"
             displayName: Set short commit hash
           - task: AzureCLI@2
             displayName: "Create Cosmos DB account"
@@ -274,6 +276,14 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/create_cosmos_db.ps1"
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
           - task: AzureCLI@2
+            displayName: "Create Blob Storage account"
+            inputs:
+              azureSubscription: ${{parameters.prBuildServiceConnectionName}}
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/blob-build/create_blob_storage.ps1"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -blobAccountName $(blobAccountName) -subscriptionId $(subscriptionId)"
+          - task: AzureCLI@2
             displayName: "Get Cosmos DB account connection string"
             inputs:
               azureSubscription: ${{parameters.prBuildServiceConnectionName}}
@@ -281,6 +291,14 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/get_cosmos_connection_string.ps1"
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName)"
+          - task: AzureCLI@2
+            displayName: "Get Blob Storage account connection string"
+            inputs:
+              azureSubscription: ${{parameters.prBuildServiceConnectionName}}
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/blob-build/get_blob_connection_string.ps1"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -blobAccountName $(blobAccountName)"
           - script: |
               mkdir -p $(PFX_CERT_PATH)
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password -t -v
@@ -352,6 +370,7 @@ stages:
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)
               COSMOS_TOKEN: $(COSMOS_TOKEN)
+              BLOB_STORAGE_CONNECTION_STRING: $(BLOB_STORAGE_CONNECTION_STRING)
           - task: PublishTestResults@2
             displayName: "Publish integration test results"
             inputs:
@@ -414,3 +433,12 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db.ps1"
               arguments: "-resourceGroup $(prBuildResourceGroup) -cosmosAccountName $(cosmosAccountName) -subscriptionId $(subscriptionId)"
+          - task: AzureCLI@2
+            displayName: "Delete Blob Storage account"
+            condition: or(succeeded(), canceled())
+            inputs:
+              azureSubscription: ${{parameters.prBuildServiceConnectionName}}
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/blob-build/delete_blob_storage.ps1"
+              arguments: "-resourceGroup $(prBuildResourceGroup) -blobAccountName $(blobAccountName) -subscriptionId $(subscriptionId)"

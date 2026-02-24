@@ -11,7 +11,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 public static class AuditBlobHelper
 {
     private static readonly BlobServiceClient BlobServiceClient = new(ConnectionString);
-    private const string ConnectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;TableEndpoint=http://host.docker.internal:10002/devstoreaccount1;";
+    private static readonly string ConnectionString =  Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING") ?? "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;TableEndpoint=http://host.docker.internal:10002/devstoreaccount1;";
     private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan PollingTimeout = TimeSpan.FromSeconds(20);
 

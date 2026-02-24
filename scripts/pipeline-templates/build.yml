@@ -263,7 +263,7 @@ stages:
           - powershell: |
               $ShortCommitHash = "$(Build.SourceVersion)".Substring(0, 7)
               $CosmosAccountName = "nbs-myacicd-$ShortCommitHash-cdb-int-uks"
-              $BlobAccountName = "nbs-myacicd-$ShortCommitHash-str-int-uks"
+              $BlobAccountName = "nbs-$ShortCommitHash-str-uks"
               Write-Host "##vso[task.setVariable variable=cosmosAccountName]$CosmosAccountName"
               Write-Host "##vso[task.setVariable variable=blobAccountName]$BlobAccountName"
             displayName: Set short commit hash

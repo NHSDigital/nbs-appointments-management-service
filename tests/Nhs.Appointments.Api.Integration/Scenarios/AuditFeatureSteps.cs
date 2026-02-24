@@ -23,6 +23,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
     private const string AuditContainer = "audit_data";
     private const string CoreContainer = "core_data";
     private const string BookingContainer = "booking_data";
+    private const string IndexContainer = "index_data";
     
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(2);
     private readonly TimeSpan _pollingTimeout = TimeSpan.FromSeconds(20);
@@ -95,6 +96,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
             bookingTimestamped.Id + "-" + bookingTimestamped.Site
         );
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
+            BlobServiceClient,
             BookingContainer,
             fileName
         );
@@ -125,7 +127,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
             identifier
         );
 
-        var auditJson = await AuditBlobHelper.PollForAuditLogAsync("index_data", fileName);
+        var auditJson = await AuditBlobHelper.PollForAuditLogAsync(BlobServiceClient, IndexContainer, fileName);
         auditJson.Should().NotBeNullOrEmpty($"Index audit log {fileName} not found.");
 
         var auditDoc = JsonConvert.DeserializeObject<BookingIndexDocument>(auditJson!);
@@ -172,6 +174,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         );
 
         var siteJson = await AuditBlobHelper.PollForAuditLogAsync(
+            BlobServiceClient,
             CoreContainer,
             fileName
         );
@@ -200,6 +203,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         );
 
         var userJson = await AuditBlobHelper.PollForAuditLogAsync(
+            BlobServiceClient,
             CoreContainer,
             fileName
         );
@@ -230,6 +234,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         );
 
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
+            BlobServiceClient,
             BookingContainer,
             fileName
         );
@@ -268,6 +273,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         );
 
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
+            BlobServiceClient,
             BookingContainer,
             fileName
         );
@@ -294,6 +300,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
             auditNotificationTimestamped.Id
         );
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
+            BlobServiceClient,
             AuditContainer,
             fileName
         );
@@ -376,7 +383,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
             )).ToList();
             
             //make sure find the right version of the document
-            var indexDocumentsFound = (await CosmosQueryFeed<BookingIndexTimestamped>("index_data",
+            var indexDocumentsFound = (await CosmosQueryFeed<BookingIndexTimestamped>(IndexContainer,
                 d =>
                     d.Id == details.Reference &&
                     d.DocumentType == "booking_index" &&

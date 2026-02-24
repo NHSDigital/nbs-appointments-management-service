@@ -10,18 +10,16 @@ namespace Nhs.Appointments.Api.Integration.Scenarios;
 
 public static class AuditBlobHelper
 {
-    private static readonly BlobServiceClient BlobServiceClient = new(ConnectionString);
-    private static readonly string ConnectionString =  Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING") ?? "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;TableEndpoint=http://host.docker.internal:10002/devstoreaccount1;";
     private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan PollingTimeout = TimeSpan.FromSeconds(20);
 
-    public static async Task<string?> PollForAuditLogAsync(string containerSource, string fileName)
+    public static async Task<string> PollForAuditLogAsync(BlobServiceClient blobServiceClient, string containerSource, string fileName)
     {
         var startTime = DateTime.UtcNow;
 
         while (DateTime.UtcNow - startTime < PollingTimeout)
         {
-            var content = await ReadAuditJsonByNameAsync(containerSource, fileName);
+            var content = await ReadAuditJsonByNameAsync(blobServiceClient, containerSource, fileName);
 
             if (content != null)
             {
@@ -45,10 +43,10 @@ public static class AuditBlobHelper
         $"{timeStamp:yyyyMMddHHmmssfff}-{identifier}.json"
     );
 
-    private static async Task<string> ReadAuditJsonByNameAsync(string containerSource, string fileName)
+    private static async Task<string> ReadAuditJsonByNameAsync(BlobServiceClient blobServiceClient, string containerSource, string fileName)
     {
         var containerName = $"{DateTime.UtcNow:yyyyMMdd}-{containerSource.Replace("_", "")}";
-        var containerClient = BlobServiceClient.GetBlobContainerClient(containerName);
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
         if (!await containerClient.ExistsAsync())
         {

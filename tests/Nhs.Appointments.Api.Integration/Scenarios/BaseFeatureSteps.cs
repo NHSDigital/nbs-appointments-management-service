@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure.Storage.Blobs;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
@@ -59,6 +60,8 @@ public abstract partial class BaseFeatureSteps : Feature
     
     //THIS STAYS PRIVATE. Use or add to the CosmosRead,CosmosPatch,CosmosWrite,..., methods if more functionality needed...
     private readonly CosmosClient Client;
+    
+    protected readonly BlobServiceClient BlobServiceClient;
 
     protected readonly Mapper Mapper;
     protected HttpStatusCode _statusCode;
@@ -103,6 +106,8 @@ public abstract partial class BaseFeatureSteps : Feature
             authKeyOrResourceToken: Environment.GetEnvironmentVariable("COSMOS_TOKEN") ??
                                     "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
             clientOptions: options);
+        
+        BlobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING") ?? "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;TableEndpoint=http://host.docker.internal:10002/devstoreaccount1;");
 
         var mapperConfiguration = new MapperConfiguration(cfg =>
         {

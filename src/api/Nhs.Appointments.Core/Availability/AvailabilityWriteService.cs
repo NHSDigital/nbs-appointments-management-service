@@ -165,6 +165,23 @@ public class AvailabilityWriteService(
         return new SessionModificationResult(true, result.message, stats.BookingsCanceled, stats.BookingsCanceledWithoutDetails);
     }
 
+    public async Task<(int cancelledSessionsCount, int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelDateRangeAsync(
+        string site, DateOnly from, DateOnly until, bool cancelBookings, bool cancelDateRangeWithBookingsEnabled)
+    {
+        var cancelledBookingsCount = 0;
+        var bookingsWithoutContactDetailsCount = 0;
+        var cancelledSessionsCount = await availabilityStore.CancelAllSessionsInDateRange(site, from, until);
+
+        if (cancelBookings && cancelDateRangeWithBookingsEnabled)
+        {
+            var result = await bookingWriteService.CancelAllBookingsInDateRangeAsync(site, from, until);
+            cancelledBookingsCount = result.cancelledBookingsCount;
+            bookingsWithoutContactDetailsCount = result.bookingsWithoutContactDetailsCount;
+        }
+
+        return (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount);
+    }
+
     private static SessionUpdateAction DetermineSessionUpdateAction(bool isMultipleDays, bool hasReplacement)
     {
         if (!hasReplacement && isMultipleDays)

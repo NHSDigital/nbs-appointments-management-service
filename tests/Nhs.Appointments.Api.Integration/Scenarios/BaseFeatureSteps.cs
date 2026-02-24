@@ -1206,26 +1206,6 @@ public abstract partial class BaseFeatureSteps : Feature
 
         return results;
     }
-    
-    // protected async Task<IEnumerable<TimestampDocument>> CosmosQueryTimestampedFeed<TDocument>(string containerName,
-    //     Expression<Func<TDocument, bool>> predicate, CancellationToken ct = default)
-    // {
-    //     var container = Client.GetContainer("appts", containerName);
-    //     var queryFeed = container.GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
-    //
-    //     var results = new List<TimestampedDocument<TDocument>>();
-    //     using (queryFeed)
-    //     {
-    //         while (queryFeed.HasMoreResults)
-    //         {
-    //             var resultSet =
-    //                 await Retry_CosmosOperation_OnTooManyRequests<TimestampedDocument<TDocument>>(async () => await queryFeed.ReadNextAsync(ct), ct);
-    //             results.AddRange(resultSet);
-    //         }
-    //     }
-    //
-    //     return results;
-    // }
 
     protected async Task CosmosDeleteFeed<T>(string containerName, Expression<Func<T, bool>> predicate,
         PartitionKey partitionKey, CancellationToken ct = default) where T : TypedCosmosDocument

@@ -84,8 +84,8 @@ describe('changeAvailabilityFormSchema', () => {
   describe('Max Days Logic', () => {
     it('fails if range is exactly 91 days (1 day over limit)', async () => {
       const data = {
-        startDate: { day: '01', month: '03', year: '2026' },
-        endDate: { day: '30', month: '05', year: '2026' },
+        startDate: { day: '01', month: '07', year: '2026' },
+        endDate: { day: '29', month: '09', year: '2026' },
       };
 
       try {

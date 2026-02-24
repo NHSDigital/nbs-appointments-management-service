@@ -80,37 +80,33 @@ test('Cancel a date range weekly page', async ({ page }) => {
 });
 
 test('Cancel a date range daily page', async ({ page }) => {
+  // Move to Weekly View
   await page
     .getByRole('listitem')
     .filter({ hasText: '23 February to 1 March' })
     .getByRole('link')
     .click();
-
   await expect(page).toHaveURL(/.*\/view-availability\/week/);
+
+  // Data Guard: Wait for Wednesday appointments to appear (Resilient Regex)
   const wednesdaySection = page
     .locator('li')
     .filter({ hasText: 'Wednesday 25 February' });
   await expect(
     wednesdaySection.getByText(/Total appointments: [1-9]\d*/),
   ).toBeVisible({ timeout: 20000 });
-  await page.getByRole('link', { name: 'View daily appointments' }).click();
-  await expect(
-    page.getByRole('button', { name: 'Change availability' }),
-  ).toBeVisible();
+
+  // Precise Navigation: Click the link INSIDE the Wednesday section
+  await wednesdaySection
+    .getByRole('link', { name: 'View daily appointments' })
+    .click();
+  await expect(page).toHaveURL(/.*\/daily-appointments/);
+
   await page.getByRole('button', { name: 'Change availability' }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
-  );
-  await expect(page).toHaveURL(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
-  );
-  await expect(
-    page.getByRole('link', { name: 'Back', exact: true }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(/.*\/change-availability/);
+
   await page.getByRole('link', { name: 'Back', exact: true }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2026-02-25&page=1`,
-  );
+
   // Verify the daily page
-  await expect(page).toHaveURL(/.*\/view-availability(\/daily-appointments)?/);
+  await expect(page).toHaveURL(/.*\/view-availability\/daily-appointments.*/);
 });

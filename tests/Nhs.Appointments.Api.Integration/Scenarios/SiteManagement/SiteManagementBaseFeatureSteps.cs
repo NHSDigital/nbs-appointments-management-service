@@ -19,7 +19,7 @@ using Location = Nhs.Appointments.Core.Sites.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 
-public abstract class SiteManagementBaseFeatureSteps : BaseFeatureSteps
+public abstract class SiteManagementBaseFeatureSteps : AuditFeatureSteps
 {
     private ErrorMessageResponseItem ErrorResponse { get; set; }
     private IEnumerable<ErrorMessageResponseItem> ErrorResponses { get; set; }

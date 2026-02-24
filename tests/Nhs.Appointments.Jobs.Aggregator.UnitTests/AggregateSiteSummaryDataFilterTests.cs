@@ -107,6 +107,54 @@ public class AggregateSiteSummaryDataFilterTests
     }
     
     [Fact]
+    public void IsValidItem_RejectsOtherSites()
+    {
+        var validItems = new List<JObject>
+        {
+            new()
+            {
+                { "docType", "booking" },
+                { "site", "fde9c5cd-4f57-4b10-9b8f-26e9a6cfeeee" },
+                { "from", new DateTime(2025, 10, 1) },
+                { "status", "Booked" }
+            },
+            new()
+            {
+                { "docType", "daily_availability" },
+                { "site", "145b1032-9c40-4c51-bb57-971f277cd9da" },
+                { "date", new DateTime(2025, 10, 1) }
+            }
+        };
+
+        foreach (var item in validItems)
+        {
+            Assert.False(_sut.IsValidItem(item));
+        }
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString()!.Contains("Site 'fde9c5cd-4f57-4b10-9b8f-26e9a6cfeeee' is filtered out.")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()!
+            ), Times.Once
+        );
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString()!.Contains("Site '145b1032-9c40-4c51-bb57-971f277cd9da' is filtered out.")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()!
+            ), Times.Once
+        );
+    }
+    
+    [Fact]
     public void IsValidItem_RejectsInvalidBookingData_WithError()
     {
         var validItems = new List<JObject>

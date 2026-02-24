@@ -2,12 +2,12 @@ Feature: Availability Edit Proposal Disabled
 
   Scenario: Recalculate availability change proposal
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Orange,Blue |
-    Then I make the following bookings
+    Then I make the following bookings at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:00 | 10       | Blue    |
       | Tomorrow | 09:00 | 10       | Orange  |

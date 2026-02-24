@@ -2,12 +2,12 @@ Feature: Availability Edit Proposal Enabled
 
   Scenario: Update a single session on a single day
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Orange,Blue |
-    Then I make the following bookings
+    Then I make the following bookings at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:00 | 10       | Blue    |
       | Tomorrow | 09:00 | 10       | Orange  |
@@ -22,7 +22,7 @@ Feature: Availability Edit Proposal Enabled
 
   Scenario: Update a single session on a single day - metrics dont include currently orphaned bookings
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
     And the following bookings have been made at the default site
@@ -41,7 +41,7 @@ Feature: Availability Edit Proposal Enabled
 
   Scenario: Update a single session on a single day - metrics include swapped over support
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 3        | Green,Blue  |
     And the following bookings have been made at the default site
@@ -64,7 +64,7 @@ Feature: Availability Edit Proposal Enabled
 
   Scenario: Update a single session on a single day - metrics show greedy inefficiency
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 3        | A,B,C,E,F   |
       | Tomorrow | 09:00 | 10:00 | 10         | 3        | A,B,D,E,F  |
@@ -86,7 +86,7 @@ Feature: Availability Edit Proposal Enabled
 
   Scenario: Update a session across multiple days
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
@@ -97,7 +97,7 @@ Feature: Availability Edit Proposal Enabled
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Orange,Blue |
-    Then I make the following bookings
+    Then I make the following bookings at the default site
       | Date     | Time  | Duration | Service |
       | Today +1 | 09:00 | 10       | Blue    |
       | Today +1 | 09:00 | 10       | Orange  |
@@ -118,7 +118,7 @@ Feature: Availability Edit Proposal Enabled
 
   Scenario: Cancel a session across multiple days
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
@@ -129,7 +129,7 @@ Feature: Availability Edit Proposal Enabled
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Orange,Blue |
-    Then I make the following bookings
+    Then I make the following bookings at the default site
       | Date     | Time  | Duration | Service |
       | Today +1 | 09:00 | 10       | Blue    |
       | Today +1 | 09:00 | 10       | Orange  |
@@ -149,12 +149,12 @@ Feature: Availability Edit Proposal Enabled
 
   Scenario: Cancel a session on a single day
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Orange,Blue |
-    Then I make the following bookings
+    Then I make the following bookings at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:00 | 10       | Blue    |
       | Tomorrow | 09:00 | 10       | Orange  |
@@ -170,12 +170,12 @@ Feature: Availability Edit Proposal Enabled
   @ignore
   Scenario: Cancel all sessions on a single day
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
       | Tomorrow | 09:00 | 10:00 | 10         | 1        | Orange,Blue |
-    Then I make the following bookings
+    Then I make the following bookings at the default site
       | Date     | Time  | Duration | Service |
       | Tomorrow | 09:00 | 10       | Blue    |
       | Tomorrow | 09:00 | 10       | Orange  |
@@ -190,7 +190,7 @@ Feature: Availability Edit Proposal Enabled
   @ignore
   Scenario: Cancel all sessions across multiple days
     Given the default site exists
-    When I create the following availability
+    When I create the following availability at the default site
       | Date     | From  | Until | SlotLength | Capacity | Services    |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Today +1 | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
@@ -201,7 +201,7 @@ Feature: Availability Edit Proposal Enabled
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Green,Blue  |
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Blue,Orange |
       | Today +3 | 09:00 | 10:00 | 10         | 1        | Orange,Blue |
-    Then I make the following bookings
+    Then I make the following bookings at the default site
       | Date     | Time  | Duration | Service |
       | Today +1 | 09:00 | 10       | Blue    |
       | Today +1 | 09:00 | 10       | Orange  |

@@ -32,7 +32,8 @@ builder.Services
     .AddChangeFeedSink<JObject, BlobSink>()
     .AddDataFilter<JObject, AuditDataFilter>()
     .AddFeedEventMapper<JObject, JObject, AuditFeedEventMapper>()
-    .AddDefaultChangeFeed<JObject, JObject>(containerConfigs, applicationName);
+    .AddDefaultChangeFeed<JObject, JObject>(containerConfigs, applicationName)
+    .Configure<DataFilterOptions>(builder.Configuration.GetSection("DataFilterOptions"));
 
 foreach (var config in containerConfigs)
 {

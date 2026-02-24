@@ -12,11 +12,16 @@ Feature: Manage site reference details
       | Site-A | 1A New Lane | 0113 1111111 | 16B     | R34    | ICB2 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
 
   Scenario: Update reference details of a site - lastUpdatedBy property updates
-    Given the following default site exists in the system
+    Given I set a single siteId for the test to be '562348bf-3509-45f2-887c-4f9651501f06'
+    And the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
     #Verify default setup
     And the default site document has lastUpdatedBy 'api@test'
+#   audit initial assertion
+    And the site with details should be audited in blob storage
+      | Name   | Last Updated By | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
+      | Site-A | api@test        | 1A New Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
     And I register and use a http client with details
       | User Id    | Role                         | Scope  |
       | mya_admin  | system:integration-test-user | global |
@@ -27,7 +32,11 @@ Feature: Manage site reference details
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
       | Site-A | 1A New Lane | 0113 1111111 | 16B     | R34    | ICB2 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
     And the default site document has lastUpdatedBy 'api@mya_admin'
-
+#   audit assertion
+    And the site with details should be audited in blob storage
+      | Name   | Last Updated By | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |
+      | Site-A | api@mya_admin   | 1A New Lane | 0113 1111111 | 16B     | R34    | ICB2 | Info 1                 | def_one/attr_one=true, def_one/attr_two=false, def_two/attr_one=true  | -60       | -60      |
+    
   Scenario: Update with empty reference details of a site
     Given the following default site exists in the system
       | Name   | Address     | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities                                                             | Longitude | Latitude |

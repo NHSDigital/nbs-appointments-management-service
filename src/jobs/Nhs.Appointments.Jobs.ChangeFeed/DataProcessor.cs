@@ -53,7 +53,7 @@ public abstract class DataProcessor
         }
     }
 
-    protected virtual bool CanProcessSite(string? site)
+    protected bool CanProcessSite(string? site)
     {
         if (_filteredSitePrefixes is null)
         {
@@ -77,7 +77,7 @@ public abstract class DataProcessor
         return canProcess;
     }
 
-    protected virtual bool CanProcessDocumentType(string? docType)
+    protected bool CanProcessDocumentType(string? docType)
     {
         if (_filteredDocumentTypes is null)
         {

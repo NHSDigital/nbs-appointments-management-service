@@ -21,13 +21,11 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking;
 
 public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
 {
-    protected HttpResponseMessage Response { get; set; }
-
     [When(@"I cancel the first booking without a site parameter")]
     public async Task CancelAppointment()
     {
         var bookingReference = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
-        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel",
             null);
     }
 
@@ -38,7 +36,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var site = GetSiteId(siteId);
         
         _actionTimestamp = DateTimeOffset.UtcNow;
-        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
     
@@ -49,7 +47,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         var site = GetSiteId();
         
         _actionTimestamp = DateTimeOffset.UtcNow;
-        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             null);
     }
 
@@ -67,7 +65,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
             "application/json"
         );
 
-        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             jsonContent);
     }
 
@@ -76,7 +74,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     {
         var customId = CreateUniqueTestValue(reference);
         var site = GetSiteId();
-        Response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
     }
     
     [When("I make the booking with the following details for the default site")]
@@ -111,16 +109,16 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         };
         
         _actionTimestamp = DateTimeOffset.UtcNow;
-        Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
 
     [Then(@"a reference number is returned and the following booking is created at the default site")]
     public async Task AssertSingleBookingAtSite(DataTable dataTable)
     {
-        Response.StatusCode.Should().Be(HttpStatusCode.OK);
+        _response.StatusCode.Should().Be(HttpStatusCode.OK);
         var cells = dataTable.Rows.ElementAt(1).Cells;
         var siteId = GetSiteId();
-        var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await Response.Content.ReadAsStringAsync());
+        var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await _response.Content.ReadAsStringAsync());
         var bookingReference = result.BookingReference;
         var isProvisional = cells.ElementAt(10).Value == "Yes";
         var expectedBooking = new BookingDocument
@@ -168,8 +166,8 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     [Then(@"I receive a message informing me that the booking is no longer available")]
     public async Task AssertBookingAppointmentGone()
     {
-        Response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        var result = JsonConvert.DeserializeObject<ErrorResponseBody>(await Response.Content.ReadAsStringAsync());
+        _response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        var result = JsonConvert.DeserializeObject<ErrorResponseBody>(await _response.Content.ReadAsStringAsync());
         result.message.Should().Be("The time slot for this booking is not available");
     }
     
@@ -198,7 +196,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         };
 
         _actionTimestamp = DateTimeOffset.UtcNow;
-        Response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
+        _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
     
     //Not to be used unless explicitly need to wait
@@ -210,7 +208,7 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
     }
 
     [Then(@"the call should fail with (\d*)")]
-    public void AssertFailureCode(int statusCode) => Response.StatusCode.Should().Be((HttpStatusCode)statusCode);
+    public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
     [And(@"the default cancellation reason has been used for the first booking at the default site")]
     public async Task AssertCancellationReason()

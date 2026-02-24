@@ -15,13 +15,18 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
     [FeatureFile("./Scenarios/Booking/Reschedule.feature")]
     public class RescheduleFeatureSteps : BookingBaseFeatureSteps
     {
-        private string _reschduledBookingReference;
-
+        [When("I extract the rescheduled booking reference")]
+        [And("I extract the rescheduled booking reference")]
+        public async Task ExtractRescheduledBookingReference()
+        {
+            var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await _response.Content.ReadAsStringAsync());
+            _reschduledBookingReference = result.BookingReference;
+        }
+        
+        [When("I confirm the rescheduled booking")]
         [And("I confirm the rescheduled booking")]
         public async Task ConfirmBooking()
         {
-            var result = JsonConvert.DeserializeObject<MakeBookingResponse>(await Response.Content.ReadAsStringAsync());
-            _reschduledBookingReference = result.BookingReference;
             var bookingToReschedule = BookingReferences.GetBookingReference(0, BookingType.Confirmed);
             object payload = new
             {
@@ -34,7 +39,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.Booking
                 bookingToReschedule
             };
             _actionTimestamp = DateTimeOffset.UtcNow;
-            Response = await GetHttpClientForTest().PostAsJsonAsync(
+            _response = await GetHttpClientForTest().PostAsJsonAsync(
                 $"http://localhost:7071/api/booking/{_reschduledBookingReference}/confirm", payload);
         }
         

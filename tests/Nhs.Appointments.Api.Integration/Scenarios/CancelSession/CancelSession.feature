@@ -1,7 +1,12 @@
 Feature: Cancel a session
 
   Scenario: Cancel the only session on a day
-    Given the following sessions exist for a created default site
+    Given I set a single siteId for the test to be '562348bf-3509-45f2-887c-4f9651501f06'
+    And the following sessions exist for a created default site
+      | Date     | From  | Until | Services | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
+#   audit initial assertion
+    And the availability with details at the default site should be audited in blob storage
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     And the following bookings have been made at the default site
@@ -12,6 +17,8 @@ Feature: Cancel a session
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |
     Then the booking at the default site with reference '68537-44913' has status 'Booked'
     Then the booking at the default site with reference '68537-44913' has availability status 'Orphaned'
+    #audit assertion
+    And the availability on 'Tomorrow' with no sessions at the default site should be audited in blob storage
 
   Scenario: Cancel one of two identical sessions
     Given the following sessions exist for a created default site

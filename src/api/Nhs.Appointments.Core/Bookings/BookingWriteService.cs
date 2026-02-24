@@ -39,6 +39,9 @@ public interface IBookingWriteService
         DateOnly day);
 
     Task SendAutoCancelledBookingNotifications();
+
+    Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDateRangeAsync(
+        string site, DateOnly from, DateOnly to);
 }
 
 public class BookingWriteService(
@@ -333,6 +336,20 @@ public class BookingWriteService(
             });
 
         return current.HasValues ? ConvertJTokensBackToDictionaries(current) : null;
+    }
+
+    public async Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelAllBookingsInDateRangeAsync(string site, DateOnly from, DateOnly to)
+    {
+        var (cancelledBookingsCount, bookingsWithoutContactDetailsCount) = (0, 0);
+        for (var date = from; date <= to; date = date.AddDays(1))
+        {
+            var result = await CancelAllBookingsInDayAsync(site, date);
+
+            cancelledBookingsCount += result.cancelledBookingsCount;
+            bookingsWithoutContactDetailsCount += result.bookingsWithoutContactDetailsCount;
+        }
+
+        return (cancelledBookingsCount, bookingsWithoutContactDetailsCount);
     }
 
     private async Task<IEnumerable<BookingAvailabilityUpdate>> RecalculateAppointmentStatusesForDay(string site,

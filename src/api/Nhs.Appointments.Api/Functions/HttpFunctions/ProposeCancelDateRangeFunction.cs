@@ -32,11 +32,11 @@ public class ProposeCancelDateRangeFunction(
         Summary = "Get proposed changes for cancelling availability in a given date range.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, "application/json",
         typeof(EmptyResponse),
-        Description = "Proposal of how many bookings will be rehomed/unassigned")]
+        Description = "Proposal of how many sessions and bookings will be cancelled")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.Unauthorized, "application/json",
         typeof(ErrorMessageResponseItem), Description = "Unauthorized request to a protected API")]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound,
-        Description = "The availability change proposal function is disabled or not available.")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotImplemented,
+        Description = "The cancel date range proposal function is disabled or not available.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "The body of the request is invalid.")]
     [Function("ProposeCancelDateRangeFunction")]
     public override async Task<IActionResult> RunAsync(

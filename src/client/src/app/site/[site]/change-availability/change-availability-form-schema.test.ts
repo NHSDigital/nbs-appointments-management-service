@@ -1,5 +1,6 @@
 import { createChangeAvailabilityFormSchema } from './change-availability-form-schema';
 import { parseToUkDatetime, ukNow, DayJsType } from '@services/timeService';
+import { ValidationError } from 'yup';
 
 jest.mock('@services/timeService', () => {
   const original = jest.requireActual('@services/timeService');
@@ -29,9 +30,10 @@ describe('changeAvailabilityFormSchema', () => {
       try {
         await schema.validate(data, { abortEarly: false });
         throw new Error('Schema should have thrown');
-      } catch (err: any) {
-        expect(err.errors).toContain('Enter a start date');
-        expect(err.errors).toContain('Enter an end date');
+      } catch (err) {
+        const validationError = err as ValidationError;
+        expect(validationError.errors).toContain('Enter a start date');
+        expect(validationError.errors).toContain('Enter an end date');
       }
     });
 
@@ -91,11 +93,12 @@ describe('changeAvailabilityFormSchema', () => {
       try {
         await schema.validate(data, { abortEarly: false });
         throw new Error('Schema should have thrown');
-      } catch (err: any) {
-        expect(err.errors).toContain(
+      } catch (err) {
+        const validationError = err as ValidationError;
+        expect(validationError.errors).toContain(
           'Start date must be within 90 days of the end date',
         );
-        expect(err.errors).toContain(
+        expect(validationError.errors).toContain(
           'End date must be within 90 days of the start date',
         );
       }
@@ -121,11 +124,12 @@ describe('changeAvailabilityFormSchema', () => {
       try {
         await strictSchema.validate(data, { abortEarly: false });
         throw new Error('Schema should have thrown');
-      } catch (err: any) {
-        expect(err.errors).toContain(
+      } catch (err) {
+        const validationError = err as ValidationError;
+        expect(validationError).toContain(
           'End date must be within 10 days of the start date',
         );
-        expect(err.errors).toContain(
+        expect(validationError.errors).toContain(
           'Start date must be within 10 days of the end date',
         );
       }

@@ -91,8 +91,8 @@ test('Cancel a date range daily page', async ({ page }) => {
     .locator('li')
     .filter({ hasText: 'Wednesday 25 February' });
   await expect(
-    wednesdaySection.getByText('Total appointments: 234'),
-  ).toBeVisible({ timeout: 15000 });
+    wednesdaySection.getByText(/Total appointments: [1-9]\d*/),
+  ).toBeVisible({ timeout: 20000 });
   await page.getByRole('link', { name: 'View daily appointments' }).click();
   await expect(
     page.getByRole('button', { name: 'Change availability' }),

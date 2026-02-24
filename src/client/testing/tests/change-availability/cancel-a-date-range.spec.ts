@@ -85,6 +85,7 @@ test('Cancel a date range daily page', async ({ page }) => {
     .filter({ hasText: '23 February to 1 March' })
     .getByRole('link')
     .click();
+
   await page.getByRole('link', { name: 'View daily appointments' }).click();
   await expect(
     page.getByRole('button', { name: 'Change availability' }),

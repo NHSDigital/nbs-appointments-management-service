@@ -126,7 +126,7 @@ describe('changeAvailabilityFormSchema', () => {
         throw new Error('Schema should have thrown');
       } catch (err) {
         const validationError = err as ValidationError;
-        expect(validationError).toContain(
+        expect(validationError.errors).toContain(
           'End date must be within 10 days of the start date',
         );
         expect(validationError.errors).toContain(

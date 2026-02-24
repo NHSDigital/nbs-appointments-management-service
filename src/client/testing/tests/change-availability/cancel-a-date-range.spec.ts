@@ -87,6 +87,12 @@ test('Cancel a date range daily page', async ({ page }) => {
     .click();
 
   await expect(page).toHaveURL(/.*\/view-availability\/week/);
+  const wednesdaySection = page
+    .locator('li')
+    .filter({ hasText: 'Wednesday 25 February' });
+  await expect(
+    wednesdaySection.getByText('Total appointments: 234'),
+  ).toBeVisible({ timeout: 15000 });
   await page.getByRole('link', { name: 'View daily appointments' }).click();
   await expect(
     page.getByRole('button', { name: 'Change availability' }),

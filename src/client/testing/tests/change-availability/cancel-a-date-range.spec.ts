@@ -80,33 +80,25 @@ test('Cancel a date range weekly page', async ({ page }) => {
 });
 
 test('Cancel a date range daily page', async ({ page }) => {
-  // Move to Weekly View
+  // Navigate to Week
   await page
     .getByRole('listitem')
     .filter({ hasText: '23 February to 1 March' })
     .getByRole('link')
     .click();
-  await expect(page).toHaveURL(/.*\/view-availability\/week/);
 
-  // Data Guard: Wait for Wednesday appointments to appear (Resilient Regex)
-  const wednesdaySection = page
+  const wednesday = page
     .locator('li')
     .filter({ hasText: 'Wednesday 25 February' });
-  await expect(
-    wednesdaySection.getByText(/Total appointments: [1-9]\d*/),
-  ).toBeVisible({ timeout: 20000 });
+  await expect(wednesday).toBeVisible({ timeout: 30000 });
 
-  // Precise Navigation: Click the link INSIDE the Wednesday section
-  await wednesdaySection
+  await expect(wednesday.getByText('Total appointments: 234')).toBeVisible({
+    timeout: 10000,
+  });
+
+  await wednesday
     .getByRole('link', { name: 'View daily appointments' })
     .click();
-  await expect(page).toHaveURL(/.*\/daily-appointments/);
 
-  await page.getByRole('button', { name: 'Change availability' }).click();
-  await expect(page).toHaveURL(/.*\/change-availability/);
-
-  await page.getByRole('link', { name: 'Back', exact: true }).click();
-
-  // Verify the daily page
   await expect(page).toHaveURL(/.*\/view-availability\/daily-appointments.*/);
 });

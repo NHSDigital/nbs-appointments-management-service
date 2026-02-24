@@ -10,5 +10,5 @@ az storage account create `
     --name $blobAccountName `
     --resource-group $resourceGroup `
     --subscription $subscriptionId `
-    --locations regionName=uksouth failoverPriority=0 `
+    --location uksouth `
     --sku Standard_LRS

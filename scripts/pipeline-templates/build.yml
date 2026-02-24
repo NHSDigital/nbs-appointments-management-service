@@ -307,7 +307,7 @@ stages:
               cd data && docker compose up --build --detach
             displayName: "Start MESH docker container"
           - script: |
-              docker compose up --build --detach next-app api oidc-server splunk-otel-collector cosmos-aggregator cosmos-auditor azurite
+              docker compose up --build --detach next-app api oidc-server splunk-otel-collector cosmos-aggregator cosmos-auditor
             displayName: "Start application docker containers"
             env:
               COSMOS_ENDPOINT: $(COSMOS_ENDPOINT)

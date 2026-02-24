@@ -8,4 +8,4 @@ param (
 $ErrorActionPreference = "Stop"
 $DebugPreference = "Continue"
 
-az storage account delete -s $subscriptionId -g $resourceGroup -n $blobAccountName
+az storage account delete --subscription $subscriptionId -g $resourceGroup -n $blobAccountName

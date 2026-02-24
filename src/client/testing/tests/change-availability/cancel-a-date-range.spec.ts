@@ -86,6 +86,7 @@ test('Cancel a date range daily page', async ({ page }) => {
     .getByRole('link')
     .click();
 
+  await expect(page).toHaveURL(/.*\/view-availability\/week/);
   await page.getByRole('link', { name: 'View daily appointments' }).click();
   await expect(
     page.getByRole('button', { name: 'Change availability' }),

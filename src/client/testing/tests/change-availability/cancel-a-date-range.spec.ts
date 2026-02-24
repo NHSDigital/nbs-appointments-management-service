@@ -101,7 +101,7 @@ test('Cancel a date range daily page', async ({ page }) => {
   ).toBeVisible();
   await page.getByRole('link', { name: 'Back', exact: true }).click();
   await page.goto(
-    `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=.*&page=.*`,
+    `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2026-02-25&page=1`,
   );
   // Verify the daily page
   await expect(page).toHaveURL(/.*\/view-availability(\/daily-appointments)?/);

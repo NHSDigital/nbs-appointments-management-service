@@ -54,10 +54,6 @@ const DownloadReportConfirmation = ({
           parseToUkDatetime(reportRequest.endDate).format('dddd, D MMMM YYYY') +
           '.'}
       </p>
-      <p>
-        Bookings availability and cancellations made today will not be available
-        in this report.
-      </p>
       {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />
       ) : (

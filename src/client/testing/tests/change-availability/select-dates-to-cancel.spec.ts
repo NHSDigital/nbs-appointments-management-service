@@ -38,7 +38,7 @@ test('Select dates to cancel error, mandatory field validation', async ({
   await page.getByRole('button', { name: 'Continue to cancel' }).click();
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  // We use a locator that finds the error text specifically
+  // Use locator that finds the error text specifically
   const startDateError = page
     .locator('.nhsuk-form-group')
     .filter({ hasText: 'Start date' })
@@ -69,7 +69,7 @@ test('Select dates to cancel error, must be in the future', async ({
 
   await page.getByRole('button', { name: 'Continue to cancel' }).click();
 
-  // Calculate Yesterday
+  // Calculate yesterday
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
@@ -77,12 +77,12 @@ test('Select dates to cancel error, must be in the future', async ({
   const month = (yesterday.getMonth() + 1).toString();
   const year = yesterday.getFullYear().toString();
 
-  // Fill Start Date (Past)
+  // Fill start date (Past)
   await page.locator('#start-date-day').fill(day);
   await page.locator('#start-date-month').fill(month);
   await page.locator('#start-date-year').fill(year);
 
-  // Fill End Date (Past)
+  // Fill end date (Past)
   await page.locator('#end-date-day').fill(day);
   await page.locator('#end-date-month').fill(month);
   await page.locator('#end-date-year').fill(year);
@@ -90,7 +90,7 @@ test('Select dates to cancel error, must be in the future', async ({
   // Trigger Validation
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
-  // Assert both errors appear (Patiently for CI)
+  // Assert both errors appear
   // We check for the specific error text your app generates for past dates
   const errorMessages = page.locator('.nhsuk-error-message');
 

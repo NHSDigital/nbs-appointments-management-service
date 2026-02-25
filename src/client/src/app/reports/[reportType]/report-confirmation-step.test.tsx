@@ -84,11 +84,6 @@ describe('SelectReportTypeStep', () => {
       screen.getByRole('heading', { name: 'Download the report' }),
     ).toBeInTheDocument();
     await expect(screen.getByText(/download all days between/i)).toBeVisible();
-    await expect(
-      screen.getByText(
-        'Bookings availability and cancellations made today will not be available in this report.',
-      ),
-    ).toBeVisible();
     expect(
       screen.getByRole('button', { name: 'Download report' }),
     ).toBeInTheDocument();

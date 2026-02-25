@@ -58,6 +58,15 @@ test('Select dates to cancel error, mandatory field validation', async ({
   await expect(page.locator('.nhsuk-u-visually-hidden').first()).toHaveText(
     'Error: ',
   );
+
+  await expect(
+    page.getByRole('link', { name: 'Back', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+  await expect(page).toHaveURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
 });
 
 test('Select dates to cancel error, must be in the future', async ({
@@ -102,6 +111,15 @@ test('Select dates to cancel error, must be in the future', async ({
   await expect(errorMessages.filter({ hasText: /End date/ })).toContainText(
     /must be in the future/i,
     { timeout: 15000 },
+  );
+
+  await expect(
+    page.getByRole('link', { name: 'Back', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+  await expect(page).toHaveURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
   );
 });
 
@@ -149,6 +167,15 @@ test('Select dates to cancel error, end date must be after the start date', asyn
   await expect(errorContainer.locator('.nhsuk-error-message')).toContainText(
     /End date must be on or after the start date/i,
     { timeout: 15000 },
+  );
+
+  await expect(
+    page.getByRole('link', { name: 'Back', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+  await expect(page).toHaveURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
   );
 });
 
@@ -204,5 +231,14 @@ test('Select dates to cancel error within 3 months', async ({ page }) => {
   await expect(endDateGroup.locator('.nhsuk-error-message')).toContainText(
     'End date must be',
     { timeout: 15000 },
+  );
+
+  await expect(
+    page.getByRole('link', { name: 'Back', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+  await expect(page).toHaveURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
   );
 });

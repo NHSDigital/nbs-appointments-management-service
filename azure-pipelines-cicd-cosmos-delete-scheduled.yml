@@ -29,3 +29,13 @@ stages:
               scriptLocation: scriptPath
               scriptPath: "$(Build.SourcesDirectory)/scripts/cosmos-build/delete_cosmos_db_scheduled.ps1"
               arguments: "-resourceGroup $(resourceGroup) -subscriptionId $(subscriptionId)"
+      - job: "DeleteBlobStorageAccounts"
+        displayName: "Run script to remove blob storage accounts"
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(serviceConnectionName)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "$(Build.SourcesDirectory)/scripts/blob-build/delete_blob_storage_scheduled.ps1"
+              arguments: "-resourceGroup $(resourceGroup) -subscriptionId $(subscriptionId)"

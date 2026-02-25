@@ -210,7 +210,7 @@ test('Select dates to cancel error within 3 months', async ({ page }) => {
     .fill((endDate.getMonth() + 1).toString());
   await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
 
-  // Submit
+  // Trigger the validation
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
   // Target the Start Date group by its specific legend

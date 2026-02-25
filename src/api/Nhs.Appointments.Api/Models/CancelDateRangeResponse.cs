@@ -1,3 +1,3 @@
 namespace Nhs.Appointments.Api.Models;
 
-public record CancelDateRangeResponse(int CancelledSessionCount, int CancelledBookingsCount, int BookingsWithoutContactDetailsCount);
+public record CancelDateRangeResponse(int CancelledSessionsCount, int CancelledBookingsCount, int BookingsWithoutContactDetailsCount);

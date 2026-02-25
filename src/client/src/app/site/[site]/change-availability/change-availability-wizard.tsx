@@ -4,17 +4,31 @@ import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
 import { useTransition } from 'react';
 import BeforeYouContinueStep from './before-you-continue-step';
+import SelectDatesStep from './select-dates-step';
+import {
+  createChangeAvailabilityFormSchema,
+  ChangeAvailabilityFormValues,
+} from './change-availability-form-schema';
+import { yupResolver } from '@hookform/resolvers/yup';
 
-interface ChangeAvailabilityFormValues {
-  dateFrom: string;
-}
 interface Props {
   cancelADateRangeWithBookings: boolean;
 }
 
+const DEFAULT_MAX_CANCELLATION_DAYS = 90;
+
 const ChangeAvailabilityWizard = ({ cancelADateRangeWithBookings }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
-  const methods = useForm<ChangeAvailabilityFormValues>({});
+  const methods = useForm<ChangeAvailabilityFormValues>({
+    resolver: yupResolver(
+      createChangeAvailabilityFormSchema(DEFAULT_MAX_CANCELLATION_DAYS),
+    ),
+    defaultValues: {
+      startDate: { day: '', month: '', year: '' },
+      endDate: { day: '', month: '', year: '' },
+    },
+  });
+
   const submitForm: SubmitHandler<ChangeAvailabilityFormValues> = async () => {
     startTransition(async () => {});
   };
@@ -38,6 +52,9 @@ const ChangeAvailabilityWizard = ({ cancelADateRangeWithBookings }: Props) => {
                 }
               />
             )}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <SelectDatesStep {...stepProps} />}
           </WizardStep>
         </Wizard>
       </form>

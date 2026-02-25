@@ -27,3 +27,182 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
 });
+
+test('Select dates to cancel error, mandatory field validation', async ({
+  page,
+}) => {
+  await page.goto(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+
+  await page.getByRole('button', { name: 'Continue to cancel' }).click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+
+  // We use a locator that finds the error text specifically
+  const startDateError = page
+    .locator('.nhsuk-form-group')
+    .filter({ hasText: 'Start date' })
+    .locator('.nhsuk-error-message');
+  await expect(startDateError).toContainText('Enter a start date', {
+    timeout: 15000,
+  });
+
+  const endDateError = page
+    .locator('.nhsuk-form-group')
+    .filter({ hasText: 'End date' })
+    .locator('.nhsuk-error-message');
+  await expect(endDateError).toContainText('Enter an end date', {
+    timeout: 15000,
+  });
+
+  await expect(page.locator('.nhsuk-u-visually-hidden').first()).toHaveText(
+    'Error: ',
+  );
+});
+
+test('Select dates to cancel error, must be in the future', async ({
+  page,
+}) => {
+  await page.goto(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+
+  await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+  // Calculate Yesterday
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const day = yesterday.getDate().toString();
+  const month = (yesterday.getMonth() + 1).toString();
+  const year = yesterday.getFullYear().toString();
+
+  // Fill Start Date (Past)
+  await page.locator('#start-date-day').fill(day);
+  await page.locator('#start-date-month').fill(month);
+  await page.locator('#start-date-year').fill(year);
+
+  // Fill End Date (Past)
+  await page.locator('#end-date-day').fill(day);
+  await page.locator('#end-date-month').fill(month);
+  await page.locator('#end-date-year').fill(year);
+
+  // Trigger Validation
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+
+  // Assert both errors appear (Patiently for CI)
+  // We check for the specific error text your app generates for past dates
+  const errorMessages = page.locator('.nhsuk-error-message');
+
+  await expect(errorMessages.filter({ hasText: /Start date/ })).toContainText(
+    /must be in the future/i,
+    { timeout: 15000 },
+  );
+
+  await expect(errorMessages.filter({ hasText: /End date/ })).toContainText(
+    /must be in the future/i,
+    { timeout: 15000 },
+  );
+});
+
+test('Select dates to cancel error, end date must be after the start date', async ({
+  page,
+}) => {
+  await page.goto(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+
+  await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+  // Start is 5 days from now, End is 2 days from now
+  const now = new Date();
+
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() + 5);
+
+  const endDate = new Date(now);
+  endDate.setDate(now.getDate() + 2);
+
+  // Fill Start Date (The later date)
+  await page.locator('#start-date-day').fill(startDate.getDate().toString());
+  await page
+    .locator('#start-date-month')
+    .fill((startDate.getMonth() + 1).toString());
+  await page
+    .locator('#start-date-year')
+    .fill(startDate.getFullYear().toString());
+
+  // Fill End Date (The earlier date - INVALID)
+  await page.locator('#end-date-day').fill(endDate.getDate().toString());
+  await page
+    .locator('#end-date-month')
+    .fill((endDate.getMonth() + 1).toString());
+  await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
+
+  // Submit
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+
+  // Look for the specific sequence error
+  const errorContainer = page
+    .locator('.nhsuk-form-group--error')
+    .filter({ hasText: 'End date' });
+  await expect(errorContainer.locator('.nhsuk-error-message')).toContainText(
+    /End date must be on or after the start date/i,
+    { timeout: 15000 },
+  );
+});
+
+test('Select dates to cancel error within 3 months', async ({ page }) => {
+  await page.goto(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+
+  await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+  const now = new Date();
+
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() + 1);
+
+  const endDate = new Date(now);
+  endDate.setDate(now.getDate() + 92); // Triggers the 90-day limit
+
+  // Fill Start Date (Tomorrow)
+  await page.locator('#start-date-day').fill(startDate.getDate().toString());
+  await page
+    .locator('#start-date-month')
+    .fill((startDate.getMonth() + 1).toString());
+  await page
+    .locator('#start-date-year')
+    .fill(startDate.getFullYear().toString());
+
+  // Fill End Date (+92 days)
+  await page.locator('#end-date-day').fill(endDate.getDate().toString());
+  await page
+    .locator('#end-date-month')
+    .fill((endDate.getMonth() + 1).toString());
+  await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
+
+  // Submit
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+
+  // Target the Start Date group by its specific legend
+  const startDateGroup = page.locator('.nhsuk-form-group').filter({
+    has: page.locator('legend').getByText('Start date', { exact: true }),
+  });
+
+  await expect(startDateGroup.locator('.nhsuk-error-message')).toContainText(
+    'Start date must be',
+    { timeout: 15000 },
+  );
+
+  // Target the End Date group by its specific legend
+  const endDateGroup = page.locator('.nhsuk-form-group').filter({
+    has: page.locator('legend').getByText('End date', { exact: true }),
+  });
+
+  await expect(endDateGroup.locator('.nhsuk-error-message')).toContainText(
+    'End date must be',
+    { timeout: 15000 },
+  );
+});

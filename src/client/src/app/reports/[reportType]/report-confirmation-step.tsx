@@ -40,24 +40,16 @@ const ReportConfirmationStep = ({
       <NhsHeading title="Download the report" />
 
       {reportType === ReportType.SiteSummary ? (
-        <>
-          <p>
-            Download all days between
-            {' ' +
-              parseToUkDatetime(formData.startDate).format(
-                'dddd, D MMMM YYYY',
-              ) +
-              ' '}
-            and
-            {' ' +
-              parseToUkDatetime(formData.endDate).format('dddd, D MMMM YYYY') +
-              '.'}
-          </p>
-          <p>
-            Bookings availability and cancellations made today will not be
-            available in this report.
-          </p>
-        </>
+        <p>
+          Download all days between
+          {' ' +
+            parseToUkDatetime(formData.startDate).format('dddd, D MMMM YYYY') +
+            ' '}
+          and
+          {' ' +
+            parseToUkDatetime(formData.endDate).format('dddd, D MMMM YYYY') +
+            '.'}
+        </p>
       ) : (
         <p>The report will be downloaded to your device as a CSV file.</p>
       )}

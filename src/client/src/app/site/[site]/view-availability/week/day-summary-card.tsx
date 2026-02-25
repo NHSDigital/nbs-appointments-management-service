@@ -26,10 +26,17 @@ export const DaySummaryCard = ({
   canViewDailyAppointments,
   cancelDayFlag,
 }: DaySummaryCardProps) => {
-  const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
-    daySummary;
+  const {
+    ukDate,
+    sessions,
+    bookedAppointments,
+    orphanedAppointments,
+    cancelledAppointments,
+  } = daySummary;
 
   const isFutureCalendarDate = isFutureCalendarDateUk(ukDate);
+
+  const totalAppointments = bookedAppointments + orphanedAppointments;
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
@@ -38,15 +45,17 @@ export const DaySummaryCard = ({
           text: 'Add availability to this day',
           href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`,
         },
+      //logically if sessions is empty, then this could just be replace by orphanedAppointments > 0...
+      //as bookedAppointments (supported) SHOULD be zero?
+      canViewDailyAppointments &&
+        totalAppointments > 0 && {
+          text: 'View daily appointments',
+          href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
+        },
       canViewDailyAppointments &&
         cancelledAppointments > 0 && {
           text: 'View cancelled appointments',
           href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
-        },
-      canViewDailyAppointments &&
-        orphanedAppointments > 0 && {
-          text: 'View manual cancellations',
-          href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
         },
     ].filter(p => p !== false);
 
@@ -61,19 +70,17 @@ export const DaySummaryCard = ({
   }
 
   const actionLinks: ActionLink[] = [
-    canViewDailyAppointments && {
-      text: 'View daily appointments',
-      href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
-    },
+    canViewDailyAppointments &&
+      //TODO is the totalApps > 0 logic check needed?? wasn't there before...
+      //why was this link available if no scheduled appts existed??
+      totalAppointments > 0 && {
+        text: 'View daily appointments',
+        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
+      },
     canViewDailyAppointments &&
       cancelledAppointments > 0 && {
         text: 'View cancelled appointments',
         href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
-      },
-    canViewDailyAppointments &&
-      orphanedAppointments > 0 && {
-        text: 'View manual cancellations',
-        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
       },
   ].filter(p => p !== false);
 
@@ -99,6 +106,7 @@ export const DaySummaryCard = ({
             : undefined
         }
       />
+      {/* TODO remove due to 10.x css?? */}
       <br />
       {isFutureCalendarDate && canManageAvailability && (
         <Link

@@ -14,6 +14,7 @@ export const AppointmentCountsSummary = ({
   },
 }: AppointmentCountsSummaryProps) => {
   const periodLength = 'daySummaries' in period ? 'week' : 'day';
+  const totalAppointments = bookedAppointments + orphanedAppointments;
 
   return (
     <>
@@ -27,7 +28,7 @@ export const AppointmentCountsSummary = ({
         <span>
           <strong>Total appointments: {maximumCapacity}</strong>
         </span>
-        <span>Booked: {bookedAppointments + orphanedAppointments}</span>
+        <span>Booked: {totalAppointments}</span>
         <span>Unbooked: {remainingCapacity}</span>
       </div>
     </>

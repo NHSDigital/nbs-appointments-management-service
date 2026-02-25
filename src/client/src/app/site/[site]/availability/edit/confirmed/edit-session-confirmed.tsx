@@ -62,7 +62,7 @@ const EditSessionConfirmed = ({
           </InsetText>
 
           <Link
-            href={`/site/${site.id}/view-availability/daily-appointments?date=${date}&page=1&tab=2`}
+            href={`/site/${site.id}/view-availability/daily-appointments?date=${date}&page=1`}
           >
             Cancel appointments
           </Link>

@@ -218,7 +218,7 @@ test('Select dates to cancel error within 3 months', async ({ page }) => {
 
   // Assert both error messages appear
   const errorMessages = page.locator('.nhsuk-error-message');
-  await expect(errorMessages).toHaveCount(2, { timeout: 15000 });
+  await expect(errorMessages).toHaveCount(2);
   await expect(errorMessages.first()).toContainText(/must be within 90 days/i);
 
   // 90 Days (Passes)
@@ -234,7 +234,5 @@ test('Select dates to cancel error within 3 months', async ({ page }) => {
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
   // Error messages should disappear
-  await expect(page.locator('.nhsuk-error-message')).toHaveCount(0, {
-    timeout: 15000,
-  });
+  await expect(page.locator('.nhsuk-error-message')).toHaveCount(0);
 });

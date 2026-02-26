@@ -11,7 +11,7 @@ $storageAccountNames = @(az storage account list --resource-group $resourceGroup
 
 foreach ($storageAccountName in $storageAccountNames) {
   Write-Host("Deleting storage account " + $storageAccountName)
-  az cosmosdb delete `
+  az storage account delete `
       --name $storageAccountName `
       --resource-group $resourceGroup `
       --subscription $subscriptionId `

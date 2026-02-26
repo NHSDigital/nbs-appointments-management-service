@@ -21,7 +21,7 @@ export default class CreateAvailabilityPage extends RootPage {
     });
 
     this.createAvailabilityButton = page.getByRole('button', {
-      name: 'Create availability',
+      name: 'Create new availability',
     });
 
     this.sessionTitle = page.getByRole('heading', {

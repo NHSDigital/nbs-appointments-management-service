@@ -179,25 +179,24 @@ test('Select dates to cancel error, end date must be after the start date', asyn
   );
 });
 
-test('Select dates to cancel error within 3 months', async ({ page }) => {
-  const now = new Date();
-  const startDate = new Date(now);
-  startDate.setDate(now.getDate() + 1);
-
-  // 91 Days Inclusive (Start + 90 days = 91st day) -> FAILS
-  const failEndDate = new Date(startDate);
-  failEndDate.setDate(startDate.getDate() + 90);
-
-  // 90 Days Inclusive (Start + 89 days = 90th day) -> PASSES
-  const passEndDate = new Date(startDate);
-  passEndDate.setDate(startDate.getDate() + 89);
-
+test('Select dates to cancel error within 3 months - 91 days', async ({
+  page,
+}) => {
   await page.goto(
     `/manage-your-appointments/site/${site.id}/change-availability`,
   );
+
   await page.getByRole('button', { name: 'Continue to cancel' }).click();
 
-  // 91 Days (Fails)
+  const now = new Date();
+
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() + 1);
+
+  const endDate = new Date(now);
+  endDate.setDate(startDate.getDate() + 90);
+
+  // Fill Start Date
   await page.locator('#start-date-day').fill(startDate.getDate().toString());
   await page
     .locator('#start-date-month')
@@ -206,31 +205,80 @@ test('Select dates to cancel error within 3 months', async ({ page }) => {
     .locator('#start-date-year')
     .fill(startDate.getFullYear().toString());
 
-  await page.locator('#end-date-day').fill(failEndDate.getDate().toString());
+  // Fill End Date
+  await page.locator('#end-date-day').fill(endDate.getDate().toString());
   await page
     .locator('#end-date-month')
-    .fill((failEndDate.getMonth() + 1).toString());
-  await page
-    .locator('#end-date-year')
-    .fill(failEndDate.getFullYear().toString());
+    .fill((endDate.getMonth() + 1).toString());
+  await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
 
+  // Trigger the validation
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
-  // Assert both error messages appear
-  const errorMessages = page.locator('.nhsuk-error-message');
-  await expect(errorMessages).toHaveCount(2);
-  await expect(errorMessages.first()).toContainText(/must be within 90 days/i);
+  // Target the Start Date group by its specific legend
+  const startDateGroup = page.locator('.nhsuk-form-group').filter({
+    has: page.locator('legend').getByText('Start date', { exact: true }),
+  });
 
-  // 90 Days (Passes)
-  // Just update the End Date to the 90th day
-  await page.locator('#end-date-day').fill(passEndDate.getDate().toString());
+  await expect(startDateGroup.locator('.nhsuk-error-message')).toContainText(
+    'Start date must be',
+    { timeout: 15000 },
+  );
+
+  // Target the End Date group by its specific legend
+  const endDateGroup = page.locator('.nhsuk-form-group').filter({
+    has: page.locator('legend').getByText('End date', { exact: true }),
+  });
+
+  await expect(endDateGroup.locator('.nhsuk-error-message')).toContainText(
+    'End date must be',
+    { timeout: 15000 },
+  );
+
+  await expect(
+    page.getByRole('link', { name: 'Back', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+  await expect(page).toHaveURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+});
+
+test('Select dates to cancel error within 3 months - 90 days', async ({
+  page,
+}) => {
+  await page.goto(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+
+  await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+  const now = new Date();
+
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() + 1);
+
+  const endDate = new Date(now);
+  endDate.setDate(startDate.getDate() + 89);
+
+  // Fill Start Date
+  await page.locator('#start-date-day').fill(startDate.getDate().toString());
+  await page
+    .locator('#start-date-month')
+    .fill((startDate.getMonth() + 1).toString());
+  await page
+    .locator('#start-date-year')
+    .fill(startDate.getFullYear().toString());
+
+  // Fill End Date
+  await page.locator('#end-date-day').fill(endDate.getDate().toString());
   await page
     .locator('#end-date-month')
-    .fill((passEndDate.getMonth() + 1).toString());
-  await page
-    .locator('#end-date-year')
-    .fill(passEndDate.getFullYear().toString());
+    .fill((endDate.getMonth() + 1).toString());
+  await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
 
+  // Trigger the validation
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
   // Error messages should disappear

@@ -179,9 +179,7 @@ test('Select dates to cancel error, end date must be after the start date', asyn
   );
 });
 
-test('Select dates to cancel error within 3 months - 91 days', async ({
-  page,
-}) => {
+test('Select dates to cancel error within 3 months', async ({ page }) => {
   await page.goto(
     `/manage-your-appointments/site/${site.id}/change-availability`,
   );
@@ -194,9 +192,9 @@ test('Select dates to cancel error within 3 months - 91 days', async ({
   startDate.setDate(now.getDate() + 1);
 
   const endDate = new Date(now);
-  endDate.setDate(startDate.getDate() + 90);
+  endDate.setDate(now.getDate() + 92); // Triggers the 90-day limit
 
-  // Fill Start Date
+  // Fill Start Date (Tomorrow)
   await page.locator('#start-date-day').fill(startDate.getDate().toString());
   await page
     .locator('#start-date-month')
@@ -205,7 +203,7 @@ test('Select dates to cancel error within 3 months - 91 days', async ({
     .locator('#start-date-year')
     .fill(startDate.getFullYear().toString());
 
-  // Fill End Date
+  // Fill End Date (+92 days)
   await page.locator('#end-date-day').fill(endDate.getDate().toString());
   await page
     .locator('#end-date-month')

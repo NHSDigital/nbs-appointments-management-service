@@ -281,6 +281,8 @@ test('Select dates to cancel error within 3 months - 90 days', async ({
   // Trigger the validation
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
-  // Error messages should disappear
-  await expect(page.locator('.nhsuk-error-message')).toHaveCount(0);
+  // No validation errors, it redirects
+  await expect(page).toHaveURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
 });

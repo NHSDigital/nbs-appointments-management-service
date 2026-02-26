@@ -1,9 +1,8 @@
 import { AppointmentCountsSummary } from '@components/appointment-counts-summary';
 import { ClinicalService, WeekSummary } from '@types';
-import Link from 'next/link';
-import { RFC3339Format } from '@services/timeService';
 import { Card } from 'nhsuk-react-components';
 import { BookingsTable } from './bookings-table';
+import PipeDelimitedLinks from '@components/pipe-delimited-links';
 
 type WeekSummaryCardProps = {
   ukWeekSummary: WeekSummary;
@@ -35,7 +34,7 @@ export const WeekSummaryCard = ({
 
   return (
     <Card>
-      <Card.Heading>
+      <Card.Heading headingLevel="h3">
         {startDate.format('D MMMM')} to {endDate.format('D MMMM')}
       </Card.Heading>
       {Object.entries(allBookingsInWeek).length > 0 ? (
@@ -44,17 +43,18 @@ export const WeekSummaryCard = ({
           clinicalServices={clinicalServices}
         />
       ) : (
-        <div>No availability</div>
+        <div className="card-item-margin">No availability</div>
       )}
 
       <AppointmentCountsSummary period={ukWeekSummary} />
-      <br />
-      <Link
-        className="nhsuk-link"
-        href={`view-availability/week?date=${startDate.format(RFC3339Format)}`}
-      >
-        View week
-      </Link>
+      <PipeDelimitedLinks
+        actionLinks={[
+          {
+            text: 'View week',
+            href: '`view-availability/week?date=${startDate.format(RFC3339Format)}`',
+          },
+        ]}
+      />
     </Card>
   );
 };

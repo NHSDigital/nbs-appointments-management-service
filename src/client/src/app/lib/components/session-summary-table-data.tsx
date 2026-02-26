@@ -21,7 +21,7 @@ export const SessionSummaryTableData = ({
   sessionSummaryRows,
 }: DataProps) => {
   return (
-    <Table caption={tableCaption}>
+    <Table caption={tableCaption} className="card-item-margin">
       <Table.Head>
         <Table.Row>
           <Table.Cell>Time</Table.Cell>

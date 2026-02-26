@@ -62,7 +62,7 @@ export const DaySummaryCard = ({
     return (
       <Card>
         <Card.Heading>{ukDate.format('dddd D MMMM')}</Card.Heading>
-        <div>No availability</div>
+        <div style={{ marginBottom: 30 }}>No availability</div>
         <AppointmentCountsSummary period={daySummary} />
         <PipeDelimitedLinks actionLinks={actionLinks} />
       </Card>
@@ -70,13 +70,10 @@ export const DaySummaryCard = ({
   }
 
   const actionLinks: ActionLink[] = [
-    canViewDailyAppointments &&
-      //TODO is the totalApps > 0 logic check needed?? wasn't there before...
-      //why was this link available if no scheduled appts existed??
-      totalAppointments > 0 && {
-        text: 'View daily appointments',
-        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
-      },
+    canViewDailyAppointments && {
+      text: 'View daily appointments',
+      href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
+    },
     canViewDailyAppointments &&
       cancelledAppointments > 0 && {
         text: 'View cancelled appointments',
@@ -86,7 +83,9 @@ export const DaySummaryCard = ({
 
   return (
     <Card>
-      <Card.Heading size="m">{ukDate.format('dddd D MMMM')}</Card.Heading>
+      <Card.Heading size="m" headingLevel="h3">
+        {ukDate.format('dddd D MMMM')}
+      </Card.Heading>
       {cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
         <Card.Action
           href={`${process.env.CLIENT_BASE_PATH}/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
@@ -106,11 +105,9 @@ export const DaySummaryCard = ({
             : undefined
         }
       />
-      {/* TODO remove due to 10.x css?? */}
-      <br />
       {isFutureCalendarDate && canManageAvailability && (
         <Link
-          className="nhsuk-link"
+          className="nhsuk-link card-item-margin"
           href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`}
         >
           Add Session

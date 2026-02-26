@@ -5,7 +5,6 @@ type AppointmentCountsSummaryProps = {
 };
 
 export const AppointmentCountsSummary = ({
-  period,
   period: {
     maximumCapacity,
     bookedAppointments,
@@ -13,67 +12,49 @@ export const AppointmentCountsSummary = ({
     remainingCapacity,
   },
 }: AppointmentCountsSummaryProps) => {
-  const periodLength = 'daySummaries' in period ? 'week' : 'day';
   const totalAppointments = bookedAppointments + orphanedAppointments;
+
+  const className =
+    orphanedAppointments > 0
+      ? 'appointments-summary'
+      : 'appointments-summary card-item-margin';
 
   return (
     <>
-      <div style={{ marginTop: 10, marginBottom: 10 }}>
-        <OrphanedAppointmentsMessage
-          orphanedAppointments={orphanedAppointments}
-          periodLength={periodLength}
-        />
-      </div>
-      <div className="appointments-summary">
+      <div className={className}>
         <span>
           <strong>Total appointments: {maximumCapacity}</strong>
         </span>
         <span>Booked: {totalAppointments}</span>
         <span>Unbooked: {remainingCapacity}</span>
       </div>
+      {orphanedAppointments > 0 && (
+        <div className="card-item-margin" style={{ marginTop: 8 }}>
+          <OrphanedAppointmentsMessage
+            orphanedAppointments={orphanedAppointments}
+          />
+        </div>
+      )}
     </>
   );
 };
 
 const OrphanedAppointmentsMessage = ({
   orphanedAppointments,
-  periodLength,
 }: {
   orphanedAppointments: number;
-  periodLength: 'week' | 'day';
 }) => {
-  switch (true) {
-    case periodLength === 'week' && orphanedAppointments === 0:
-      return null;
-    case periodLength === 'week' && orphanedAppointments === 1:
-      return (
-        <div>
-          There is <strong>1</strong> manual cancellation in this week.
-        </div>
-      );
-    case periodLength === 'week' && orphanedAppointments > 1:
-      return (
-        <div>
-          There are <strong>{orphanedAppointments}</strong> manual cancellations
-          in this week.
-        </div>
-      );
-    case periodLength === 'day' && orphanedAppointments === 0:
-      return null;
-    case periodLength === 'day' && orphanedAppointments === 1:
-      return (
-        <div>
-          There is <strong>1</strong> manual cancellation on this day.
-        </div>
-      );
-    case periodLength === 'day' && orphanedAppointments > 1:
-      return (
-        <div>
-          There are <strong>{orphanedAppointments}</strong> manual cancellations
-          on this day.
-        </div>
-      );
-    default:
-      return null;
+  if (orphanedAppointments === 0) {
+    return null;
   }
+
+  return (
+    <div className="nhsuk-hint">
+      {orphanedAppointments === 1 &&
+        '1 booking was kept when availability was changed or cancelled.'}
+      {orphanedAppointments > 1 &&
+        orphanedAppointments +
+          ' bookings were kept when availability was changed or cancelled.'}
+    </div>
+  );
 };

@@ -6,7 +6,15 @@ import {
 } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
 
-const Page = async () => {
+export type PageProps = {
+  params: Promise<{
+    site: string;
+  }>;
+};
+
+const Page = async ({ params }: PageProps) => {
+  const { site: siteFromPath } = { ...(await params) };
+
   await fromServer(assertFeatureEnabled('CancelADateRange'));
   const cancelADateRangeWithBookings = await fromServer(
     fetchFeatureFlag('CancelADateRangeWithBookings'),
@@ -16,6 +24,7 @@ const Page = async () => {
     <NhsTransactionalPage originPage="change-availability-wizard">
       <ChangeAvailabilityWizard
         cancelADateRangeWithBookings={cancelADateRangeWithBookings.enabled}
+        site={siteFromPath}
       />
     </NhsTransactionalPage>
   );

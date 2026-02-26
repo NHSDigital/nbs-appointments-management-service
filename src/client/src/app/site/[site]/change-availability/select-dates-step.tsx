@@ -11,18 +11,38 @@ import NhsHeading from '@components/nhs-heading';
 import { Controller, useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
-import { ukNow, addToUkDatetime } from '@services/timeService';
+import {
+  ukNow,
+  addToUkDatetime,
+  parseDateComponentsToUkDatetime,
+  RFC3339Format,
+} from '@services/timeService';
 import { handlePositiveBoundedNumberInput } from '../create-availability/wizard/availability-template-wizard';
+import { proposeCancelDateRange } from '@services/appointmentsService';
+import { useState } from 'react';
+
+interface Props {
+  site: string;
+}
 
 const SelectDatesStep = ({
+  site,
   goToNextStep,
   goToPreviousStep,
-}: InjectedWizardProps) => {
+}: InjectedWizardProps & Props) => {
   const {
     control,
     trigger,
+    getValues,
+    setValue,
     formState: { errors },
   } = useFormContext<ChangeAvailabilityFormValues>();
+  const [error, setError] = useState<Error | null>(null);
+
+  if (error) {
+    throw error;
+  }
+
   const maxYear = addToUkDatetime(ukNow(), 1, 'year').year();
 
   const onContinue = async (e: React.FormEvent) => {
@@ -31,7 +51,31 @@ const SelectDatesStep = ({
     const isStepValid = await trigger(['startDate', 'endDate']);
 
     if (isStepValid) {
-      goToNextStep();
+      try {
+        const { startDate, endDate } = getValues();
+
+        const startDayjs = parseDateComponentsToUkDatetime(startDate);
+        const endDayjs = parseDateComponentsToUkDatetime(endDate);
+
+        if (!startDayjs || !endDayjs) throw new Error('Invalid dates');
+
+        const response = await proposeCancelDateRange({
+          site: site,
+          from: startDayjs.format(RFC3339Format),
+          to: endDayjs.format(RFC3339Format),
+        });
+
+        if (!response.success) return;
+
+        setValue('proposedCancellationSummary', {
+          sessionCount: response.data.sessionCount,
+          bookingCount: response.data.bookingCount,
+        });
+
+        goToNextStep();
+      } catch (err) {
+        setError(err as Error);
+      }
     }
   };
 

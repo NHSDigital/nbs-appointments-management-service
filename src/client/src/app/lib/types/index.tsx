@@ -440,6 +440,16 @@ type SessionModificationAction =
   | 'cancel-session'
   | 'remove-services';
 
+type ProposeCancelDateRangeRequest = {
+  site: string;
+  from: string;
+  to: string;
+};
+
+type ProposeCancelDateRangeResponse = {
+  sessionCount: number;
+  bookingCount: number;
+};
 export type {
   Accessibility,
   AccessibilityDefinition,
@@ -477,6 +487,8 @@ export type {
   IdentityProvider,
   NewlyUnsupportedBookingAction,
   NhsMyaCookieConsent,
+  ProposeCancelDateRangeResponse,
+  ProposeCancelDateRangeRequest,
   Role,
   RoleAssignment,
   ServerActionResult,

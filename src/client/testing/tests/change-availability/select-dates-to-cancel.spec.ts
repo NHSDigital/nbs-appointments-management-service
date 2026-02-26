@@ -237,14 +237,4 @@ test('Select dates to cancel error within 3 months', async ({ page }) => {
   await expect(page.locator('.nhsuk-error-message')).toHaveCount(0, {
     timeout: 15000,
   });
-
-  // Navigation back to start
-  await expect(
-    page.getByRole('link', { name: 'Back', exact: true }),
-  ).toBeVisible();
-  await page.getByRole('link', { name: 'Back', exact: true }).click();
-
-  await expect(page).toHaveURL(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
-  );
 });

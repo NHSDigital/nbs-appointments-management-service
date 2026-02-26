@@ -6,9 +6,15 @@ import {
 import * as yup from 'yup';
 import { DateComponents } from '@types';
 
+export interface ProposedCancellationSummary {
+  sessionCount: number;
+  bookingCount: number;
+}
+
 export interface ChangeAvailabilityFormValues {
   startDate: DateComponents;
   endDate: DateComponents;
+  proposedCancellationSummary?: ProposedCancellationSummary;
 }
 
 const isDateEmpty = (date?: Partial<DateComponents>) =>

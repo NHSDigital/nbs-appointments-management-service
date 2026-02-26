@@ -17,8 +17,10 @@ import {
   EulaVersion,
   FeatureFlag,
   FetchBookingsRequest,
+  ProposeCancelDateRangeRequest,
   Role,
   ServerActionResult,
+  ProposeCancelDateRangeResponse,
   SessionModificationResponse,
   SessionSummary,
   SetAccessibilitiesRequest,
@@ -694,3 +696,13 @@ export const modifySession = async (
   appointmentsApi
     .post<SessionModificationResponse>('session/edit', JSON.stringify(payload))
     .then(handleBodyResponse);
+
+export const proposeCancelDateRange = async (
+  payload: ProposeCancelDateRangeRequest,
+): Promise<ServerActionResult<ProposeCancelDateRangeResponse>> =>
+  appointmentsApi
+    .post<ProposeCancelDateRangeResponse>(
+      'availability/propose-cancel-date-range',
+      JSON.stringify(payload),
+    )
+    .then(response => handleBodyResponse(response, data => data));

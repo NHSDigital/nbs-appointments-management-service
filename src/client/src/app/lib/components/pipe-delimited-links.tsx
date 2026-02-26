@@ -12,7 +12,7 @@ type PipeDelimitedLinksProps = {
 
 const PipeDelimitedLinks = ({ actionLinks }: PipeDelimitedLinksProps) => {
   return (
-    <>
+    <div className="card-item-margin">
       {actionLinks.reduce<ReactNode[]>(
         (acc, { text, href }, index) => [
           ...acc,
@@ -23,7 +23,7 @@ const PipeDelimitedLinks = ({ actionLinks }: PipeDelimitedLinksProps) => {
         ],
         [],
       )}
-    </>
+    </div>
   );
 };
 

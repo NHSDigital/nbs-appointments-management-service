@@ -16,7 +16,7 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 
 [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
-public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
 {
     private Core.Bookings.Booking _actualResponse;
 

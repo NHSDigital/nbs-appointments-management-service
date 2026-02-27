@@ -11,4 +11,5 @@ public interface IAvailabilityStore
     Task CancelDayAsync(string site, DateOnly date);
     Task<OperationResult> EditSessionsAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement);
     Task<OperationResult> CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher = null);
+    Task<int> CancelAllSessionsInDateRange(string site, DateOnly from, DateOnly until);
 }

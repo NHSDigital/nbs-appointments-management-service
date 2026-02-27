@@ -172,4 +172,19 @@ public class ProposeCancelDateRangeRequestValidatorTests
 
         result.IsValid.Should().BeFalse();
     }
+
+    [Fact]
+    public void PassesValidation_WhenFromAndToAreTheSameDate()
+    {
+        var request = new ProposeCancelDateRangeRequest
+        (
+            "SiteA",
+            DateOnly.Parse("2077-01-01"),
+            DateOnly.Parse("2077-01-01")
+        );
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
 }

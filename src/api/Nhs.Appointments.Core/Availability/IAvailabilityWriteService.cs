@@ -11,4 +11,5 @@ public interface IAvailabilityWriteService
     Task CancelSession(string site, DateOnly date, string from, string until, string[] services, int slotLength, int capacity);
     Task<(int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelDayAsync(string site, DateOnly date);
     Task<SessionModificationResult> EditOrCancelSessionAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan);
+    Task<(int cancelledSessionsCount, int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelDateRangeAsync(string site, DateOnly from, DateOnly until, bool cancelBookings, bool cancelDateRangeWithBookingsEnabled);
 }

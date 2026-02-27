@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
+
 public class AvailabilityDocumentStoreTests
 {
     private readonly Mock<ITypedDocumentCosmosStore<DailyAvailabilityDocument>> _documentStore = new();
@@ -38,7 +39,7 @@ public class AvailabilityDocumentStoreTests
             {
                 Date = date,
                 DocumentType = "availability",
-                Id =  "20250101",
+                Id = "20250101",
                 Site = "TEST_SITE_123",
                 Sessions = [
                     new()
@@ -198,7 +199,7 @@ public class AvailabilityDocumentStoreTests
         _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync((IEnumerable<DailyAvailabilityDocument>)null);
 
-        var result = await _sut.EditSessionsAsync(site, from, until, sessionMatcher,sessionReplacement);
+        var result = await _sut.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
 
         result.Success.Should().BeFalse();
         result.Message.Should().Be($"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
@@ -340,6 +341,93 @@ public class AvailabilityDocumentStoreTests
         var result = await _sut.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
 
         result.Success.Should().BeTrue();
+
+        _documentStore.Verify(x => x.PatchDocument(site, It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(3));
+    }
+
+    [Fact]
+    public async Task CancelAllSessionsInDateRange_ReturnsZero_WhenNoDocumentsFound()
+    {
+        var from = new DateOnly(2026, 2, 1);
+        var until = new DateOnly(2026, 2, 3);
+        var site = "TEST123";
+
+        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+            .ReturnsAsync((IEnumerable<DailyAvailabilityDocument>)null);
+
+        var result = await _sut.CancelAllSessionsInDateRange(site, from, until);
+        
+        result.Should().Be(0);
+
+        _documentStore.Verify(x => x.PatchDocument(site, It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CancelAllSessionsInDateRange_ReturnsCancelledSessionCount()
+    {
+        var from = new DateOnly(2026, 2, 1);
+        var until = new DateOnly(2026, 2, 3);
+        var site = "TEST123";
+
+        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+            .ReturnsAsync(new List<DailyAvailabilityDocument>
+            {
+                new()
+                {
+                    Date = new DateOnly(2026, 2, 1),
+                    DocumentType = "availability",
+                    Id =  "20251010",
+                    Site = "TEST123",
+                    Sessions = [
+                        new()
+                        {
+                            Capacity = 2,
+                            From = new TimeOnly(12, 00),
+                            Services = ["RSV:Adult"],
+                            Until = new TimeOnly(18, 00),
+                            SlotLength = 5
+                        }
+                    ]
+                },
+                new()
+                {
+                    Date = new DateOnly(2026, 2, 2),
+                    DocumentType = "availability",
+                    Id =  "20251010",
+                    Site = "TEST123",
+                    Sessions = [
+                        new()
+                        {
+                            Capacity = 2,
+                            From = new TimeOnly(12, 00),
+                            Services = ["RSV:Adult"],
+                            Until = new TimeOnly(18, 00),
+                            SlotLength = 5
+                        }
+                    ]
+                },
+                new()
+                {
+                    Date = new DateOnly(2026, 2, 3),
+                    DocumentType = "availability",
+                    Id =  "20251010",
+                    Site = "TEST123",
+                    Sessions = [
+                        new()
+                        {
+                            Capacity = 2,
+                            From = new TimeOnly(12, 00),
+                            Services = ["RSV:Adult"],
+                            Until = new TimeOnly(18, 00),
+                            SlotLength = 5
+                        }
+                    ]
+                }
+            });
+
+        var result = await _sut.CancelAllSessionsInDateRange(site, from, until);
+
+        result.Should().Be(3);
 
         _documentStore.Verify(x => x.PatchDocument(site, It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Exactly(3));
     }

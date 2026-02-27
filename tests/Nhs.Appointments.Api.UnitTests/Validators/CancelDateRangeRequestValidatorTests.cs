@@ -168,4 +168,18 @@ public class CancelDateRangeRequestValidatorTests
 
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public void PassesValidation_WhenFromDateAndToDateAreTheSame()
+    {
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-02-01"),
+            DateOnly.Parse("2077-02-01"),
+            false);
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
 }

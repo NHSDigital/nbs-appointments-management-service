@@ -6,6 +6,7 @@ import { useTransition } from 'react';
 import BeforeYouContinueStep from './before-you-continue-step';
 import SelectDatesStep from './select-dates-step';
 import CancellationImpactStep from './cancellation-impact-step';
+import CheckYourAnswersStep from './check-your-answers-step';
 import {
   createChangeAvailabilityFormSchema,
   ChangeAvailabilityFormValues,
@@ -71,6 +72,9 @@ const ChangeAvailabilityWizard = ({
                 site={site}
               />
             )}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <CheckYourAnswersStep {...stepProps} />}
           </WizardStep>
         </Wizard>
       </form>

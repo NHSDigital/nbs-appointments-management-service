@@ -12,13 +12,10 @@ public abstract class SingleFeatureToggledSteps(string flag, bool enabled)
     : FeatureToggledSteps([new FlagState(flag, enabled)]);
 
 /// <summary>
-/// Use when only need a single feature flag
+/// Use directly when need multiple feature flag controls
 /// </summary>
 public abstract class MultipleFeatureToggledSteps(FlagState[] flagStates) : FeatureToggledSteps(flagStates);
 
-/// <summary>
-/// Use directly when need multiple feature flag controls
-/// </summary>
 public abstract class FeatureToggledSteps(FlagState[] flagStates) : AuditFeatureSteps, IAsyncLifetime
 {
     public async Task InitializeAsync()
@@ -50,18 +47,20 @@ public abstract class FeatureToggledSteps(FlagState[] flagStates) : AuditFeature
                 "Any test which inherits from FeatureToggledSteps must belong to a collection to ensure parallelism safety.");
         }
         
-        EnsureFlagsAreInTheCollection(collectionAttribute);
+        EnsureFlagsAreInTheCollection();
     }
 
     /// <summary>
     /// Make sure the collection used is permitted to control the defined flags for this test
     /// </summary>
-    private void EnsureFlagsAreInTheCollection(CollectionAttribute collectionAttribute)
+    private void EnsureFlagsAreInTheCollection()
     {
-        ArgumentNullException.ThrowIfNull(collectionAttribute);
+        var collectionName = GetType()
+            .GetCustomAttributesData()
+            .FirstOrDefault(a => a.AttributeType == typeof(CollectionAttribute))
+            ?.ConstructorArguments.FirstOrDefault().Value as string;
 
-        const string collectionName = nameof(collectionAttribute);
-        var collectionFlags = collectionName.Split('_')[0].Split('|');
+        var collectionFlags = collectionName!.Split('_')[0].Split('|');
 
         foreach (var flag in flagStates.Select(x => x.Flag))
         {

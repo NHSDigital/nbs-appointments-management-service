@@ -60,7 +60,7 @@ const EditServicesConfirmed = ({
             you'll need to cancel these appointments manually.
           </p>
           <Link
-            href={`/site/${site.id}/view-availability/daily-appointments?date=${date}&page=1&tab=2`}
+            href={`/site/${site.id}/view-availability/daily-appointments?date=${date}&page=1`}
           >
             Cancel appointments
           </Link>

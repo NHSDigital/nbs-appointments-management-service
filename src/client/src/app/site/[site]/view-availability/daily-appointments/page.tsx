@@ -58,14 +58,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
       fromServer(fetchFeatureFlag('CancelADateRange')),
     ]);
 
-  const scheduledBookings = bookings.filter(
-    b => b.status === 'Booked' && b.availabilityStatus !== 'Orphaned',
-  );
-  const cancelledBookings = bookings.filter(b => b.status === 'Cancelled');
-  const orphanedAppointments = bookings.filter(
+  const bookedAppointments = bookings.filter(b => b.status === 'Booked');
+  const cancelledAppointments = bookings.filter(b => b.status === 'Cancelled');
+  const orphanedAppointments = bookedAppointments.filter(
     b => b.availabilityStatus === 'Orphaned',
   );
 
+  //TODO update wording...?
   const orphanedMessage =
     orphanedAppointments.length > 0
       ? `${orphanedAppointments.length} booked appointments are affected due to an edit to your availability. These bookings are still scheduled until you click "Cancel".`
@@ -108,10 +107,11 @@ const Page = async ({ params, searchParams }: PageProps) => {
             <h3>Scheduled Appointments</h3>
           </div>
           <DailyAppointmentsPage
-            bookings={scheduledBookings}
+            bookings={bookedAppointments}
             site={site.id}
             displayAction={canCancelBookings}
             clinicalServices={clinicalServices}
+            message={orphanedMessage}
           />
         </Tab>
         <Tab title="Cancelled">
@@ -119,21 +119,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
             <h3>Cancelled Appointments</h3>
           </div>
           <DailyAppointmentsPage
-            bookings={cancelledBookings}
+            bookings={cancelledAppointments}
             site={site.id}
             displayAction={false}
-            clinicalServices={clinicalServices}
-          />
-        </Tab>
-        <Tab title="Manual Cancellations">
-          <div className="print-out-data" aria-hidden="true">
-            <h3>Manual Cancellations</h3>
-          </div>
-          <DailyAppointmentsPage
-            bookings={orphanedAppointments}
-            site={site.id}
-            displayAction={canCancelBookings}
-            message={orphanedMessage}
             clinicalServices={clinicalServices}
           />
         </Tab>

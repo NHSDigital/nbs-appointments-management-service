@@ -12,7 +12,7 @@ export const BookingsTable = ({
   clinicalServices,
 }: BookingsTableProps) => {
   return (
-    <Table>
+    <Table className="card-item-margin">
       <Table.Head>
         <Table.Row>
           <Table.Cell>Services</Table.Cell>

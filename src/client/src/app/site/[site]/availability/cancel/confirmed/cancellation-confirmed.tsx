@@ -42,7 +42,7 @@ const CancellationConfirmed = ({
       <InsetText>
         <p>You'll need to manually cancel any affected appointments.</p>
         <Link
-          href={`/site/${site}/view-availability/daily-appointments?date=${date}&page=1&tab=2`}
+          href={`/site/${site}/view-availability/daily-appointments?date=${date}&page=1`}
         >
           Cancel appointments
         </Link>

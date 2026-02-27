@@ -13,7 +13,7 @@ public static class FeatureToggleCollectionNames
     public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}_Toggle";
     public const string ReportsUpliftCollection = $"{Flags.ReportsUplift}_Toggle";
     
-    public const string CancelADateRangeMultipleCollection = $"{Flags.CancelADateRange}|{Flags.CancelADateRangeWithBookings}_Toggle";
+    public const string TestMultipleCollection = $"{Flags.TestFeaturePercentageEnabled}|{Flags.TestFeatureSitesEnabled}|{Flags.TestFeatureUsersEnabled}_Toggle";
 }
 
 [CollectionDefinition(FeatureToggleCollectionNames.SiteStatusCollection)]

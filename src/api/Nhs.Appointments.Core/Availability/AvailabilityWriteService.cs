@@ -1,12 +1,14 @@
 using System.Globalization;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Concurrency;
 
 namespace Nhs.Appointments.Core.Availability;
 
 public class AvailabilityWriteService(
     IAvailabilityStore availabilityStore,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
-    IBookingWriteService bookingWriteService) : IAvailabilityWriteService
+    IBookingWriteService bookingWriteService,
+    ISiteLeaseManager siteLeaseManager) : IAvailabilityWriteService
 {
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
@@ -168,6 +170,8 @@ public class AvailabilityWriteService(
     public async Task<(int cancelledSessionsCount, int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelDateRangeAsync(
         string site, DateOnly from, DateOnly until, bool cancelBookings, bool cancelDateRangeWithBookingsEnabled)
     {
+        using var leaseContent = siteLeaseManager.Acquire(site);
+
         var cancelledBookingsCount = 0;
         var bookingsWithoutContactDetailsCount = 0;
         var cancelledSessionsCount = await availabilityStore.CancelAllSessionsInDateRange(site, from, until);

@@ -12,6 +12,8 @@ public static class FeatureToggleCollectionNames
     public const string QuerySitesCollection = $"{Flags.QuerySites}Toggle";
     public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}Toggle";
     public const string ReportsUpliftCollection = $"{Flags.ReportsUplift}Toggle";
+    public const string CancelDateRangeCollection = $"{Flags.CancelADateRange}Toggle";
+    public const string CancelDateRangeWithBookingsCollection = $"{Flags.CancelADateRangeWithBookings}Toggle";
 }
 
 [CollectionDefinition(FeatureToggleCollectionNames.SiteStatusCollection)]
@@ -46,5 +48,15 @@ public class MultiServiceJointBookingsCollection : ICollectionFixture<object>
 
 [CollectionDefinition(FeatureToggleCollectionNames.ReportsUpliftCollection)]
 public class ReportsUpliftCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.CancelDateRangeCollection)]
+public class CancelDateRangeCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.CancelDateRangeWithBookingsCollection)]
+public class CancelDateRangeWithBookingsCollection : ICollectionFixture<object>
 {
 }

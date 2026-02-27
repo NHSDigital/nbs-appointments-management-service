@@ -3,6 +3,7 @@ import { ClinicalService, WeekSummary } from '@types';
 import { Card } from 'nhsuk-react-components';
 import { BookingsTable } from './bookings-table';
 import PipeDelimitedLinks from '@components/pipe-delimited-links';
+import { RFC3339Format } from '@services/timeService';
 
 type WeekSummaryCardProps = {
   ukWeekSummary: WeekSummary;
@@ -51,7 +52,7 @@ export const WeekSummaryCard = ({
         actionLinks={[
           {
             text: 'View week',
-            href: '`view-availability/week?date=${startDate.format(RFC3339Format)}`',
+            href: `view-availability/week?date=${startDate.format(RFC3339Format)}`,
           },
         ]}
       />

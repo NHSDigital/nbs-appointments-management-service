@@ -61,7 +61,9 @@ export const DaySummaryCard = ({
 
     return (
       <Card>
-        <Card.Heading>{ukDate.format('dddd D MMMM')}</Card.Heading>
+        <Card.Heading headingLevel="h3">
+          {ukDate.format('dddd D MMMM')}
+        </Card.Heading>
         <div style={{ marginBottom: 30 }}>No availability</div>
         <AppointmentCountsSummary period={daySummary} />
         <PipeDelimitedLinks actionLinks={actionLinks} />
@@ -83,7 +85,7 @@ export const DaySummaryCard = ({
 
   return (
     <Card>
-      <Card.Heading size="m" headingLevel="h3">
+      <Card.Heading headingLevel="h3">
         {ukDate.format('dddd D MMMM')}
       </Card.Heading>
       {cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
@@ -108,6 +110,8 @@ export const DaySummaryCard = ({
       {isFutureCalendarDate && canManageAvailability && (
         <Link
           className="nhsuk-link card-item-margin"
+          // TODO fix properly
+          style={{ display: 'inherit' }}
           href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`}
         >
           Add Session

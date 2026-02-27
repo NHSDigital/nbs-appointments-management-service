@@ -12,7 +12,11 @@ export const AppointmentCountsSummary = ({
     remainingCapacity,
   },
 }: AppointmentCountsSummaryProps) => {
-  const totalAppointments = bookedAppointments + orphanedAppointments;
+  //all bookings that are still scheduled in the system
+  const totalScheduledAppointments = bookedAppointments + orphanedAppointments;
+
+  //total slots is the total supported slots, plus any 'ghost slots' for any retained orphaned bookings
+  const totalAppointmentSlots = maximumCapacity + orphanedAppointments;
 
   const className =
     orphanedAppointments > 0
@@ -23,9 +27,9 @@ export const AppointmentCountsSummary = ({
     <>
       <div className={className}>
         <span>
-          <strong>Total appointments: {maximumCapacity}</strong>
+          <strong>Total appointments: {totalAppointmentSlots}</strong>
         </span>
-        <span>Booked: {totalAppointments}</span>
+        <span>Booked: {totalScheduledAppointments}</span>
         <span>Unbooked: {remainingCapacity}</span>
       </div>
       {orphanedAppointments > 0 && (

@@ -1,6 +1,6 @@
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
+using Nhs.Appointments.Core.Concurrency;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -9,12 +9,13 @@ public class AvailabilityWriteServiceTests
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IBookingWriteService> _bookingsWriteService = new();
+    private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
     private readonly AvailabilityWriteService _sut;
 
     public AvailabilityWriteServiceTests()
     {
         _sut = new AvailabilityWriteService(_availabilityStore.Object, _availabilityCreatedEventStore.Object,
-            _bookingsWriteService.Object);
+            _bookingsWriteService.Object, _siteLeaseManager.Object);
     }
 
     [Theory]
@@ -702,6 +703,7 @@ public class AvailabilityWriteServiceTests
     {
         _availabilityStore.Setup(x => x.CancelAllSessionsInDateRange(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync(5);
+        _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
         var (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount) = await _sut.CancelDateRangeAsync(
             "TEST_SITE_123",
@@ -722,6 +724,7 @@ public class AvailabilityWriteServiceTests
     {
         _availabilityStore.Setup(x => x.CancelAllSessionsInDateRange(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync(5);
+        _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
         var (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount) = await _sut.CancelDateRangeAsync(
             "TEST_SITE_123",
@@ -744,6 +747,7 @@ public class AvailabilityWriteServiceTests
             .ReturnsAsync(5);
         _bookingsWriteService.Setup(x => x.CancelAllBookingsInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync((30, 12));
+        _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
         var (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount) = await _sut.CancelDateRangeAsync(
             "TEST_SITE_123",

@@ -28,7 +28,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 /// <summary>
 /// Tests that depend on the setup and async disposal of sites due to location (long lat) search collisions
 /// </summary>
-public abstract class SiteLocationDependentFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IAsyncLifetime
+public abstract class SiteLocationDependentFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled), IAsyncLifetime
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }

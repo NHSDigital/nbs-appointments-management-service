@@ -22,7 +22,7 @@ using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
-public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }

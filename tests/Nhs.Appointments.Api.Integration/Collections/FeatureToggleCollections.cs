@@ -5,13 +5,15 @@ namespace Nhs.Appointments.Api.Integration.Collections;
 
 public static class FeatureToggleCollectionNames
 {
-    public const string SiteStatusCollection = $"{Flags.SiteStatus}Toggle";
-    public const string CancelDayCollection = $"{Flags.CancelDay}Toggle";
-    public const string ChangeSessionUpliftedJourneyCollection = $"{Flags.ChangeSessionUpliftedJourney}Toggle";
-    public const string CancelSessionUpliftedJourneyCollection = $"{Flags.CancelSessionUpliftedJourney}Toggle";
-    public const string QuerySitesCollection = $"{Flags.QuerySites}Toggle";
-    public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}Toggle";
-    public const string ReportsUpliftCollection = $"{Flags.ReportsUplift}Toggle";
+    public const string SiteStatusCollection = $"{Flags.SiteStatus}_Toggle";
+    public const string CancelDayCollection = $"{Flags.CancelDay}_Toggle";
+    public const string ChangeSessionUpliftedJourneyCollection = $"{Flags.ChangeSessionUpliftedJourney}_Toggle";
+    public const string CancelSessionUpliftedJourneyCollection = $"{Flags.CancelSessionUpliftedJourney}_Toggle";
+    public const string QuerySitesCollection = $"{Flags.QuerySites}_Toggle";
+    public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}_Toggle";
+    public const string ReportsUpliftCollection = $"{Flags.ReportsUplift}_Toggle";
+    
+    public const string CancelADateRangeMultipleCollection = $"{Flags.CancelADateRange}|{Flags.CancelADateRangeWithBookings}_Toggle";
 }
 
 [CollectionDefinition(FeatureToggleCollectionNames.SiteStatusCollection)]

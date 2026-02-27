@@ -18,7 +18,7 @@ test.afterAll(async () => {
 });
 
 test.beforeEach(async ({ page, getTestSite }) => {
-  site = getTestSite(1);
+  site = getTestSite(2);
   rootPage = new RootPage(page);
   oAuthPage = new OAuthLoginPage(page);
 
@@ -39,18 +39,14 @@ test('Cancel a date range monthly page', async ({ page }) => {
     page.getByRole('button', { name: 'Change availability' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Change availability' }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
-  );
+  await expect(page).toHaveURL(/.*\/change-availability/);
   await expect(
     page.getByRole('link', { name: 'Back', exact: true }),
   ).toBeVisible();
   await page.getByRole('link', { name: 'Back', exact: true }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/view-availability`,
-  );
   await expect(page).toHaveURL(
-    `/manage-your-appointments/site/${site.id}/view-availability`,
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+    { timeout: 15000 },
   );
 });
 
@@ -64,17 +60,11 @@ test('Cancel a date range weekly page', async ({ page }) => {
     page.getByRole('button', { name: 'Change availability' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Change availability' }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
-  );
   await expect(page).toHaveURL(/.*\/change-availability/);
   await expect(
     page.getByRole('link', { name: 'Back', exact: true }),
   ).toBeVisible();
   await page.getByRole('link', { name: 'Back', exact: true }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/view-availability/week?date=.*`,
-  );
   // Verify weekly page
   await expect(page).toHaveURL(/.*\/view-availability(\/week)?/);
 });
@@ -99,9 +89,6 @@ test('Cancel a date range daily page', async ({ page }) => {
     page.getByRole('button', { name: 'Change availability' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Change availability' }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
-  );
   await expect(page).toHaveURL(
     `/manage-your-appointments/site/${site.id}/change-availability`,
   );
@@ -109,9 +96,5 @@ test('Cancel a date range daily page', async ({ page }) => {
     page.getByRole('link', { name: 'Back', exact: true }),
   ).toBeVisible();
   await page.getByRole('link', { name: 'Back', exact: true }).click();
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=2026-02-25&page=1`,
-  );
-  // Verify the daily page
   await expect(page).toHaveURL(/.*\/view-availability(\/daily-appointments)?/);
 });

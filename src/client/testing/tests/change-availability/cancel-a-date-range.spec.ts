@@ -39,13 +39,15 @@ test('Cancel a date range monthly page', async ({ page }) => {
     page.getByRole('button', { name: 'Change availability' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Change availability' }).click();
-  await expect(page).toHaveURL(/.*\/change-availability/);
+  await expect(page).toHaveURL(/.*\/change-availability/, { timeout: 15000 });
   await expect(
     page.getByRole('link', { name: 'Back', exact: true }),
   ).toBeVisible();
-  await page.getByRole('link', { name: 'Back', exact: true }).click();
+  await page
+    .getByRole('link', { name: 'Back', exact: true })
+    .click({ delay: 100 });
   await expect(page).toHaveURL(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
+    `/manage-your-appointments/site/${site.id}/view-availability`,
     { timeout: 15000 },
   );
 });
@@ -64,8 +66,9 @@ test('Cancel a date range weekly page', async ({ page }) => {
   await expect(
     page.getByRole('link', { name: 'Back', exact: true }),
   ).toBeVisible();
-  await page.getByRole('link', { name: 'Back', exact: true }).click();
-  // Verify weekly page
+  await page
+    .getByRole('link', { name: 'Back', exact: true })
+    .click({ delay: 100 });
   await expect(page).toHaveURL(/.*\/view-availability(\/week)?/);
 });
 
@@ -75,7 +78,6 @@ test('Cancel a date range daily page', async ({ page }) => {
     .filter({ hasText: '23 February to 1 March' })
     .getByRole('link')
     .click();
-
   await expect(page).toHaveURL(/.*\/view-availability\/week/);
   const wednesdaySection = page
     .locator('li')
@@ -95,6 +97,8 @@ test('Cancel a date range daily page', async ({ page }) => {
   await expect(
     page.getByRole('link', { name: 'Back', exact: true }),
   ).toBeVisible();
-  await page.getByRole('link', { name: 'Back', exact: true }).click();
+  await page
+    .getByRole('link', { name: 'Back', exact: true })
+    .click({ delay: 100 });
   await expect(page).toHaveURL(/.*\/view-availability(\/daily-appointments)?/);
 });

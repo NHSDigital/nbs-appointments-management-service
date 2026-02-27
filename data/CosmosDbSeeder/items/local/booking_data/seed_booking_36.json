@@ -1,0 +1,54 @@
+{
+  "date": "2026-02-25",
+  "reference": "seed-booking-reference-36",
+  "from": "2026-08-20T11:25:00",
+  "duration": 5,
+  "created": "2025-07-21T06:23:46.654321+00:00",
+  "status": "Booked",
+  "availabilityStatus": "Orphaned",
+  "statusUpdated": "0001-01-01T00:00:00+00:00",
+  "attendeeDetails": {
+    "nhsNumber": "1975486535",
+    "firstName": "Jeremy",
+    "lastName": "Oswald",
+    "dateOfBirth": "1952-11-13"
+  },
+  "contactDetails": [],
+  "additionalData": {
+    "isCallCentreBooking": true,
+    "callCentreHandlerEmail": "test@example.com",
+    "isAppBooking": false,
+    "selfReferralOccupation": "test",
+    "decisionReason": "test"
+  },
+  "reminderSent": false,
+  "sessions": [
+    {
+      "from": "09:00",
+      "until": "17:00",
+      "services": [
+        "COVID:18_74"
+      ],
+      "slotLength": 5,
+      "capacity": 2
+    },
+    {
+      "from": "09:00",
+      "until": "16:00",
+      "services": [
+        "COVID:18_74"
+      ],
+      "slotLength": 10,
+      "capacity": 1
+    }
+  ],
+  "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "lastUpdatedBy": "api@local",
+  "id": "seed-booking-reference-36",
+  "docType": "daily_availability",
+  "_rid": "Jy1rAPM852QlAAAAAAAAAA==",
+  "_self": "dbs/Jy1rAA==/colls/Jy1rAPM852Q=/docs/Jy1rAPM852QlAAAAAAAAAA==/",
+  "_etag": "\"00000000-0000-0000-a275-fce5680501dc\"",
+  "_attachments": "attachments/",
+  "_ts": 1771598055
+}

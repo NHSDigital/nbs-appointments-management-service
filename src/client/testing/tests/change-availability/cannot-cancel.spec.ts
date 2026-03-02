@@ -30,10 +30,6 @@ test.beforeEach(async ({ page, getTestSite }) => {
     `/manage-your-appointments/site/${site.id}/change-availability`,
   );
 
-  // await expect(
-  //   page.getByRole('heading', { name: 'Before you continue' }),
-  // ).toBeVisible();
-
   await page
     .getByRole('button', { name: 'Continue to cancel' })
     .click({ delay: 100 });

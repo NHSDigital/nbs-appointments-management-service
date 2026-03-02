@@ -25,7 +25,7 @@ using static System.Enum;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ChangeSessionUpliftedJourney;
 
-public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
     private Session SessionToCheck { get; set; }

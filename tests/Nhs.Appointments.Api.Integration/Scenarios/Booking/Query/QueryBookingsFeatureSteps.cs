@@ -13,7 +13,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Query;
 
-public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class QueryBookingsFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
 {
     private List<Core.Bookings.Booking> _actualResponse;
     private HttpStatusCode _statusCode;

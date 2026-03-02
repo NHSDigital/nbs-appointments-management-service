@@ -19,7 +19,7 @@ using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
-public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
     

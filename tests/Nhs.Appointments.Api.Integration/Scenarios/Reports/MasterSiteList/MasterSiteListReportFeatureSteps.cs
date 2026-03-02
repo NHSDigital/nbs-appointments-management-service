@@ -27,7 +27,7 @@ public class GetSiteUsersReportFeatureSteps_Enabled()
 public class GetSiteUsersReportFeatureSteps_Disabled()
     : GetMasterSiteListReportFeatureSteps(Flags.ReportsUplift, false);
 
-public abstract class GetMasterSiteListReportFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IAsyncLifetime
+public abstract class GetMasterSiteListReportFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled), IAsyncLifetime
 {
     private string ReportContent { get; set; }
 

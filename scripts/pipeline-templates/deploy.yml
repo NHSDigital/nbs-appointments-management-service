@@ -112,7 +112,7 @@ stages:
               artifactName: "drop_scripts"
               downloadPath: $(Pipeline.Workspace)
           - task: AzureCLI@2
-            condition: parameters.isStrategicTenant
+            condition: ${{ eq(parameters.isStrategicTenant, true) }}
             displayName: "Create Terraform State Container"
             inputs:
               scriptType: pscore

@@ -17,6 +17,15 @@ $storageAccountName = "${workloadName}tfst${workloadType}${workloadRegion}"
 ## e.g. for the pen env: vaccs-mya-dev-uks
 $resourceGroupName = "vaccs-${workloadName}-${workloadType}-${workloadRegion}"
 
+Write-Host "Creating storage account $storageAccountName in resource group: $resourceGroupName"
+
+az storage account create `
+    --name $storageAccountName `
+    --resource-group $resourceGroupName `
+    --location uksouth `
+    --sku Standard_LRS `
+    --min-tls-version TLS1_2
+
 Write-Host "Creating container $tfstateContainerName in storage account $storageAccountName in resource group: $resourceGroupName"
 
 # Newly created Sandbox environments come with an automatically created storage account 

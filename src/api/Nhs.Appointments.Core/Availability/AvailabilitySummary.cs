@@ -107,15 +107,15 @@ namespace Nhs.Appointments.Core.Availability
 
         public int MaximumCapacity { get; init; }
 
-        public int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
+        private int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
 
         public int TotalRemainingCapacity => MaximumCapacity - TotalSupportedAppointments;
 
         /// <summary>
         ///     This metric doesn't make much sense as capacity can be counted twice if a session supports multiple services
-        ///     i.e Summing all of these does NOT equal TotalRemainingCapacity
+        ///     i.e. Adding all of these does together do NOT equal TotalRemainingCapacity necessarily
         /// </summary>
-        public Dictionary<string, int> TotalRemainingCapacityByService => TotalSupportedAppointmentsByService.ToDictionary(g => g.Key, g => MaximumCapacity - g.Value);
+        public Dictionary<string, int> TotalRemainingCapacityByService { get; init; }
     }
 
     public abstract class AvailabilityMetrics

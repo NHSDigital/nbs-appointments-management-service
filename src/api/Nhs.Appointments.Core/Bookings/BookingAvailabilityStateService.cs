@@ -141,7 +141,8 @@ public class BookingAvailabilityStateService(
             MaximumCapacity = x.Capacity * x.ToSlots().Count(),
             Capacity = x.Capacity,
             SlotLength = x.SlotLength,
-            TotalSupportedAppointmentsByService = x.Services.ToDictionary(key => key, _ => 0)
+            TotalSupportedAppointmentsByService = x.Services.ToDictionary(key => key, _ => 0),
+            TotalRemainingCapacityByService = x.Services.ToDictionary(key => key, _ => x.Capacity * x.ToSlots().Count()),
         }).ToList();
     }
 
@@ -196,6 +197,10 @@ public class BookingAvailabilityStateService(
                             .Single(x => x.Id == targetSlot.InternalSessionId);
 
                         sessionToUpdate.TotalSupportedAppointmentsByService[booking.Service]++;
+                        foreach (var service in sessionToUpdate.TotalRemainingCapacityByService.Keys)
+                        {
+                            sessionToUpdate.TotalRemainingCapacityByService[service]--;
+                        }
                         break;
                     case BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics:
                         if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
@@ -278,22 +283,15 @@ public class BookingAvailabilityStateService(
         foreach (var daySummary in daySummaries)
         {
             var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
-
+        
             foreach (var booking in bookingsOnDay)
             {
                 switch (booking.Status)
                 {
                     case AppointmentStatus.Booked:
-                        switch (booking.AvailabilityStatus)
-                        {
-                            case AvailabilityStatus.Supported:
-                                daySummary.TotalSupportedAppointmentsByService[booking.Service] = daySummary.TotalSupportedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                                break;
-                            case AvailabilityStatus.Orphaned:
-                                daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                                break;
+                        if (booking.AvailabilityStatus is AvailabilityStatus.Orphaned){
+                            daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
                         }
-            
                         break;
                     case AppointmentStatus.Cancelled:
                         daySummary.TotalCancelledAppointmentsByService[booking.Service] = daySummary.TotalCancelledAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;

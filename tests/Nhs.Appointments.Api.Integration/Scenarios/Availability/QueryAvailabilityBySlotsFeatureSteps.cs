@@ -111,11 +111,11 @@ public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool ena
                 await Response.Content.ReadAsStreamAsync());
     }
 
-    [Collection(FeatureToggleCollectionNames.MultiServiceJointBookingsCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/Availability/QueryAvailabilityBySlots_Enabled.feature")]
     public class QueryAvailabilityBySlots_Enabled() : QueryAvailabilityBySlotsFeatureSteps(Flags.MultiServiceJointBookings, true);
 
-    [Collection(FeatureToggleCollectionNames.MultiServiceJointBookingsCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/Availability/QueryAvailabilityBySlots_Disabled.feature")]
     public class QueryAvailabilityBySlots_Disabled() : QueryAvailabilityBySlotsFeatureSteps(Flags.MultiServiceJointBookings, false);
 }

@@ -192,11 +192,11 @@ public abstract class QueryAvailabilityByDaysFeatureSteps(string flag, bool enab
         PM
     }
 
-    [Collection(FeatureToggleCollectionNames.MultiServiceJointBookingsCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/Availability/QueryAvailabilityByDays_Enabled.feature")]
     public class QueryAvailabilityByDays_Enabled() : QueryAvailabilityByDaysFeatureSteps(Flags.MultiServiceJointBookings, true);
 
-    [Collection(FeatureToggleCollectionNames.MultiServiceJointBookingsCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/Availability/QueryAvailabilityByDays_Disabled.feature")]
     public class QueryAvailabilityByDays_Disabled() : QueryAvailabilityByDaysFeatureSteps(Flags.MultiServiceJointBookings, false);
 }

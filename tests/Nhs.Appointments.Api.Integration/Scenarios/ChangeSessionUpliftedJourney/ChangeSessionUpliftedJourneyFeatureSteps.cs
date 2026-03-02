@@ -384,11 +384,11 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
         }
     }
 
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Enabled.feature")]
     public class ChangeSessionUpliftedJourneyFeatureSteps_Enabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Disabled.feature")]
     public class ChangeSessionUpliftedJourneyFeatureSteps_Disabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

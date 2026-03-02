@@ -829,11 +829,11 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
                 await Response.Content.ReadAsStreamAsync());
     }
 
-    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent_QuerySitesEnabled.feature")]
     public class SiteLocationDependent_QuerySitesEnabled() : SiteLocationDependentFeatureSteps(Flags.QuerySites, true);
     
-    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent_QuerySitesDisabled.feature")]
     public class SiteLocationDependent_QuerySitesDisabled() : SiteLocationDependentFeatureSteps(Flags.QuerySites, false);
 }

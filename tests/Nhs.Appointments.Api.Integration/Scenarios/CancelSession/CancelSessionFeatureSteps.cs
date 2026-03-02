@@ -85,11 +85,11 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Sin
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
     public class CancelSessionFeatureSteps_Enabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
+    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
     [FeatureFile("./Scenarios/CancelSession/CancelSession_Disabled.feature")]
     public class CancelSessionFeatureSteps_Disabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

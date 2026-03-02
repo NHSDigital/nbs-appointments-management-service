@@ -17,12 +17,12 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Reports.MasterSiteList;
 
-[Collection(FeatureToggleCollectionNames.ReportsUpliftCollection)]
+[Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
 [FeatureFile("./Scenarios/Reports/MasterSiteList/GetMasterSiteListReport_Enabled.feature")]
 public class GetSiteUsersReportFeatureSteps_Enabled()
     : GetMasterSiteListReportFeatureSteps(Flags.ReportsUplift, true);
 
-[Collection(FeatureToggleCollectionNames.ReportsUpliftCollection)]
+[Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
 [FeatureFile("./Scenarios/Reports/MasterSiteList/GetMasterSiteListReport_Disabled.feature")]
 public class GetSiteUsersReportFeatureSteps_Disabled()
     : GetMasterSiteListReportFeatureSteps(Flags.ReportsUplift, false);

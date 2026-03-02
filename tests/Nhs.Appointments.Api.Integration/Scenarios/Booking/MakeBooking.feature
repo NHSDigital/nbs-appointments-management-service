@@ -19,6 +19,25 @@
           | Service      | Bookings    | Orphaned  | RemainingCapacity |
           | RSV:Adult    | 1           | 0         | 11                |
 
+    Scenario: Make a booking appointment
+      Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f05'
+      And the following sessions exist for a created default site
+        | Date     | From  | Until | Services     | Slot Length | Capacity |
+        | Tomorrow | 09:00 | 10:00 | RSV:Adult    | 5           | 1        |
+          #Wait for setup aggregation to be processed
+      And an aggregation is created for the default site for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '12', and with service details
+        | Service      | Bookings    | Orphaned  | RemainingCapacity |
+        | RSV:Adult    | 0           | 0         | 12                |
+      When I make the booking with the following details for the default site
+        | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | AdditionalData | Landline    |
+        | Tomorrow | 09:20 | 5        | RSV:Adult   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | true           | 00001234567 |
+      Then a reference number is returned and the following booking is created at the default site
+        | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData | Landline    |
+        | Tomorrow | 09:20 | 5        | RSV:Adult   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           | 00001234567 |
+      And an aggregation for the default site updated recently for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '12', and with service details
+        | Service      | Bookings    | Orphaned  | RemainingCapacity |
+        | RSV:Adult    | 1           | 0         | 11                |
+
     Scenario: Make a provisional booking
         Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f06'
         And the following sessions exist for a created default site
@@ -241,6 +260,66 @@
     Then a reference number is returned and the following booking is created at the default site
       | Date     | Time  | Duration | Service      | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional  | AdditionalData | Landline    |
       | Tomorrow | 11:20 | 5        | COVID-75     | 1234678892 | Test      | Two      | 2000-02-01 | test@two.org | 0123456789 | Yes          | true           | 00001234568 |
+
+    Scenario: Bookings allocated to a session with multiple services decrement the capacity for all services in that session
+      Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f05'
+      And the following sessions exist for a created default site
+        | Date     | From  | Until | Services                                       | Slot Length | Capacity |
+        | Tomorrow | 11:00 | 12:00 | FLU:35-55, COVID:17-35, RSV_Adult, COVID:75-90 | 5           | 2        |
+        | Tomorrow | 11:00 | 12:00 | FLU:17-35, COVID:75-90                         | 5           | 3        |
+        | Tomorrow | 10:00 | 17:00 | FLU:2-3, COVID:2-3, RSV_Adult                  | 5           | 1        |
+      And the following bookings have been made at the default site
+        | Date     | Time  | Duration | Service       |
+#        allocated to session 2
+        | Tomorrow | 11:45 | 5        | FLU:17-35     |
+#        allocated to session 1
+        | Tomorrow | 11:45 | 5        | FLU:35-55     |
+#        allocated to session 3
+        | Tomorrow | 11:45 | 5        | RSV_Adult     |
+#        allocated to session 2
+        | Tomorrow | 11:45 | 5        | COVID:75-90   |
+      #Wait for setup aggregation to be processed
+      And an aggregation is created for the default site for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '144', and with service details
+        | Service      | Bookings    | Orphaned  | RemainingCapacity |
+        | FLU:35-55    | 1           | 0         | 23                |
+        | COVID:17-35  | 0           | 0         | 23                |
+        | RSV_Adult    | 1           | 0         | 106               |
+        | COVID:75-90  | 1           | 0         | 57                |
+        | FLU:17-35    | 1           | 0         | 34                |
+        | FLU:2-3      | 0           | 0         | 83                |
+        | COVID:2-3    | 0           | 0         | 83                |
+      When I make the booking with the following details for the default site
+        | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | AdditionalData | Landline    |
+        | Tomorrow | 11:45 | 5        | COVID:17-35 | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | true           | 00001234567 |
+#      this will be allocated to session 1
+      Then a reference number is returned and the following booking is created at the default site
+        | Date     | Time  | Duration | Service       | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData | Landline    |
+        | Tomorrow | 11:45 | 5        | COVID:17-35   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           | 00001234567 |
+      And an aggregation is created for the default site for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '144', and with service details
+        | Service      | Bookings    | Orphaned  | RemainingCapacity |
+        | FLU:35-55    | 1           | 0         | 22                |
+        | COVID:17-35  | 1           | 0         | 22                |
+        | RSV_Adult    | 1           | 0         | 105               |
+        | COVID:75-90  | 1           | 0         | 56                |
+        | FLU:17-35    | 1           | 0         | 34                |
+        | FLU:2-3      | 0           | 0         | 83                |
+        | COVID:2-3    | 0           | 0         | 83                |
+      When I make the booking with the following details for the default site
+        | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | AdditionalData | Landline    |
+        | Tomorrow | 11:30 | 5        | COVID:2-3   | 1234678892 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | true           | 00001234567 |
+#      this will be allocated to session 3
+      Then a reference number is returned and the following booking is created at the default site
+        | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData | Landline    |
+        | Tomorrow | 11:30 | 5        | COVID:2-3   | 1234678892 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           | 00001234567 |
+      And an aggregation is created for the default site for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '144', and with service details
+        | Service      | Bookings    | Orphaned  | RemainingCapacity |
+        | FLU:35-55    | 1           | 0         | 22                |
+        | COVID:17-35  | 1           | 0         | 22                |
+        | RSV_Adult    | 1           | 0         | 104               |
+        | COVID:75-90  | 1           | 0         | 56                |
+        | FLU:17-35    | 1           | 0         | 34                |
+        | FLU:2-3      | 0           | 0         | 82                |
+        | COVID:2-3    | 1           | 0         | 82                |
 
   Scenario: Cannot book an appointment for a service that is not covered in the session
     Given the following sessions exist for a created default site

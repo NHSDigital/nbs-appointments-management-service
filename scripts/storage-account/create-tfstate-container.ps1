@@ -11,11 +11,11 @@ param (
   [string][Parameter(Mandatory)]$tfstateContainerName
 )
 
-## e.g. for the pen env: myatfstnonproduks
+## e.g. for the pen env: myatfstdevuks
 $storageAccountName = "${workloadName}tfst${workloadType}${workloadRegion}"
 
-## e.g. for the pen env: nhsuk-mya-platform-rg-nonprod-uks
-$resourceGroupName = "nhsuk-${workloadName}-platform-rg-${workloadType}-${workloadRegion}"
+## e.g. for the pen env: vaccs-mya-dev-uks
+$resourceGroupName = "vaccs-${workloadName}-${workloadType}-${workloadRegion}"
 
 Write-Host "Creating container $tfstateContainerName in storage account $storageAccountName in resource group: $resourceGroupName"
 

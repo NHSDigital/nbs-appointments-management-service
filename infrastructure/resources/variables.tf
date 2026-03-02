@@ -496,7 +496,6 @@ variable "aggregator_max_retry" {
   default = 50
 }
 
-
 variable "auditor_polling_interval_seconds" {
   type = number
   default = 60

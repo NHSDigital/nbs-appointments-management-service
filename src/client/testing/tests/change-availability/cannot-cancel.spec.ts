@@ -11,12 +11,10 @@ test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
   await overrideFeatureFlag('CancelADateRange', true);
-  await overrideFeatureFlag('CancelADateRangeWithBookings', false);
 });
 
 test.afterAll(async () => {
   await overrideFeatureFlag('CancelADateRange', false);
-  await overrideFeatureFlag('CancelADateRangeWithBookings', false);
 });
 
 test.beforeEach(async ({ page, getTestSite }) => {
@@ -31,6 +29,10 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await page.goto(
     `/manage-your-appointments/site/${site.id}/change-availability`,
   );
+
+  await expect(
+    page.getByRole('heading', { name: 'Before you continue' }),
+  ).toBeVisible();
 
   await page.getByRole('button', { name: 'Continue to cancel' }).click();
 });
@@ -64,7 +66,7 @@ test('Cannot cancel these sessions - Return to view availability', async ({
 
   await page
     .getByRole('button', { name: 'Return to view availability' })
-    .click({ delay: 100 });
+    .click();
 
   await expect(page).toHaveURL(
     `/manage-your-appointments/site/${site.id}/view-availability`,
@@ -99,9 +101,7 @@ test('Cannot cancel these sessions - Select different dates', async ({
 
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
-  await page
-    .getByRole('button', { name: 'Select different dates' })
-    .click({ delay: 100 });
+  await page.getByRole('button', { name: 'Select different dates' }).click();
 
   await expect(page).toHaveURL(
     `/manage-your-appointments/site/${site.id}/change-availability`,

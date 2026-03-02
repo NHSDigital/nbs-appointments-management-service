@@ -6,6 +6,7 @@ using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Features;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,6 +15,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Gherkin.Quick;
+using static System.Net.WebRequestMethods;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelDateRange;
 
@@ -35,6 +37,28 @@ public abstract class ProposeCancelDateRangeFeatureSteps(string flag, bool enabl
             NaturalLanguageDate.Parse(cells.ElementAt(1).Value));
 
         await SendRequestAsync(payload);
+    }
+
+    [When("I cancel the following session at the default site")]
+    public async Task CancelSession(DataTable dataTable)
+    {
+        var cells = dataTable.Rows.ElementAt(1).Cells;
+        var date = DateTime.ParseExact(NaturalLanguageDate.Parse(cells.ElementAt(0).Value).ToString("yyyy-MM-dd"), "yyyy-MM-dd", null);
+
+        object payload = new
+        {
+            site = GetSiteId(),
+            date = DateOnly.FromDateTime(date),
+            until = cells.ElementAt(2).Value,
+            from = cells.ElementAt(1).Value,
+            services = new string[] { cells.ElementAt(3).Value },
+            slotLength = int.Parse(cells.ElementAt(4).Value),
+            capacity = int.Parse(cells.ElementAt(5).Value)
+        };
+
+        var jsonPayload = JsonSerializer.Serialize(payload);
+        var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+        _ = await GetHttpClientForTest().PostAsync("http://localhost:7071/api/session/cancel", content);
     }
 
     [Then(@"the call should fail with (\d*)")]

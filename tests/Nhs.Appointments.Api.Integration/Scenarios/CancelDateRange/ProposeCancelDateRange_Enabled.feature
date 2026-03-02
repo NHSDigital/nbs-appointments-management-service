@@ -96,3 +96,19 @@ Feature: Propose cancel a date range
     Then the following proposed cancel a date range metrics should be returned
       | SessionCount | BookingCount |
       | 3            | 2            |
+
+  Scenario: Does not include cancelled sessions in the session count
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity | Reference   |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        | 43567-29374 |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        | 12345-67890 |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        | 54321-09876 |
+    When I cancel the following session at the default site
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | RSV:Adult | 10           | 1        |
+    When I propose cancelling sessions and bookings for the default site within a date range
+      | From     | To                |
+      | Tomorrow | 3 days from today |
+    Then the following proposed cancel a date range metrics should be returned
+      | SessionCount | BookingCount |
+      | 2            | 0            |

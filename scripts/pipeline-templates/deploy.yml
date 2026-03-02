@@ -25,7 +25,7 @@ parameters:
   - name: isHotfix
     type: boolean
   - name: isStrategicTenant
-    type: bool
+    type: boolean
     default: false 
 
 stages:

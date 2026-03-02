@@ -163,11 +163,11 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : SingleFea
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftEnabled.feature")]
     public class BestFitFeatureSteps_ChangeSessionUplift_Enabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftDisabled.feature")]
     public class BestFitFeatureSteps_ChangeSessionUplift_Disabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

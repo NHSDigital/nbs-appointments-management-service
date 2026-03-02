@@ -101,11 +101,11 @@ public abstract class QueryAvailabilityByHoursFeatureSteps(string flag, bool ena
                 await Response.Content.ReadAsStreamAsync());
     }
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.MultiServiceJointBookingsCollection)]
     [FeatureFile("./Scenarios/Availability/QueryAvailabilityByHours_Enabled.feature")]
     public class QueryAvailabilityByHours_Enabled() : QueryAvailabilityByHoursFeatureSteps(Flags.MultiServiceJointBookings, true);
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.MultiServiceJointBookingsCollection)]
     [FeatureFile("./Scenarios/Availability/QueryAvailabilityByHours_Disabled.feature")]
     public class QueryAvailabilityByHours_Disabled() : QueryAvailabilityByHoursFeatureSteps(Flags.MultiServiceJointBookings, false);
 }

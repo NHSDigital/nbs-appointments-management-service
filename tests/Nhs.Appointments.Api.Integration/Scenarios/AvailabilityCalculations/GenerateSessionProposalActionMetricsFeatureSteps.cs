@@ -84,11 +84,11 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Disabled.feature")]
     public class GenerateSessionProposalActionMetricsFeatureStepsFeatureDisabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
     [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Enabled.feature")]
     public class GenerateSessionProposalActionMetricsFeatureStepsFeatureEnabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 }

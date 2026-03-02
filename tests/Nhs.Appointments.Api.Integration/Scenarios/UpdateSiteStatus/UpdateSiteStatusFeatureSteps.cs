@@ -57,11 +57,11 @@ public abstract class UpdateSiteStatusFeatureSteps(string flag, bool enabled) : 
         actualResult.Resource.Status.Should().Be(UpdatedSiteStatus);
     }
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.SiteStatusCollection)]
     [FeatureFile("./Scenarios/UpdateSiteStatus/UpdateSiteStatus_Disabled.feature")]
     public class UpdateSiteStatusFeatureSteps_SiteStatusDisabled() : UpdateSiteStatusFeatureSteps(Flags.SiteStatus, false);
 
-    [Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+    [Collection(FeatureToggleCollectionNames.SiteStatusCollection)]
     [FeatureFile("./Scenarios/UpdateSiteStatus/UpdateSiteStatus_Enabled.feature")]
     public class UpdateSiteStatusFeatureSteps_SiteStatusEnabled() : UpdateSiteStatusFeatureSteps(Flags.SiteStatus, true);
 }

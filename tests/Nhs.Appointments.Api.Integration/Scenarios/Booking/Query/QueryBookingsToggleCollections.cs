@@ -5,12 +5,12 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Booking.Query;
 
-[Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+[Collection(FeatureToggleCollectionNames.CancelDayCollection)]
 [FeatureFile("./Scenarios/Booking/Query/QueryBookings_CancelDay_Enabled.feature")]
 public class QueryBookings_Enabled()
     : QueryBookingsFeatureSteps(Flags.CancelDay, true);
 
-[Collection(FeatureToggleCollectionNames.AllMultipleCollection)]
+[Collection(FeatureToggleCollectionNames.CancelDayCollection)]
 [FeatureFile("./Scenarios/Booking/Query/QueryBookings_CancelDay_Disabled.feature")]
 public class QueryBookings_Disabled()
     : QueryBookingsFeatureSteps(Flags.CancelDay, false);

@@ -141,8 +141,7 @@ public class BookingAvailabilityStateService(
             MaximumCapacity = x.Capacity * x.ToSlots().Count(),
             Capacity = x.Capacity,
             SlotLength = x.SlotLength,
-            TotalSupportedAppointmentsByService = x.Services.ToDictionary(key => key, _ => 0),
-            TotalRemainingCapacityByService = x.Services.ToDictionary(key => key, _ => x.Capacity * x.ToSlots().Count()),
+            TotalSupportedAppointmentsByService = x.Services.ToDictionary(key => key, _ => 0)
         }).ToList();
     }
 
@@ -197,10 +196,6 @@ public class BookingAvailabilityStateService(
                             .Single(x => x.Id == targetSlot.InternalSessionId);
 
                         sessionToUpdate.TotalSupportedAppointmentsByService[booking.Service]++;
-                        foreach (var service in sessionToUpdate.TotalRemainingCapacityByService.Keys)
-                        {
-                            sessionToUpdate.TotalRemainingCapacityByService[service]--;
-                        }
                         break;
                     case BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics:
                         if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)

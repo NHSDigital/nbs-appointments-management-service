@@ -115,7 +115,11 @@ namespace Nhs.Appointments.Core.Availability
         ///     This metric doesn't make much sense as capacity can be counted twice if a session supports multiple services
         ///     i.e. Adding all of these does together do NOT equal TotalRemainingCapacity necessarily
         /// </summary>
-        public Dictionary<string, int> TotalRemainingCapacityByService { get; init; }
+        internal Dictionary<string, int> TotalRemainingCapacityByService
+        {
+            get => TotalSupportedAppointmentsByService.ToDictionary(g => g.Key, _ => TotalRemainingCapacity);
+            init { }
+        }
     }
 
     public abstract class AvailabilityMetrics

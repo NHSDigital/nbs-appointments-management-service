@@ -107,7 +107,7 @@ namespace Nhs.Appointments.Core.Availability
 
         public int MaximumCapacity { get; init; }
 
-        private int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
+        public int TotalSupportedAppointments => TotalSupportedAppointmentsByService.Sum(x => x.Value);
 
         public int TotalRemainingCapacity => MaximumCapacity - TotalSupportedAppointments;
 

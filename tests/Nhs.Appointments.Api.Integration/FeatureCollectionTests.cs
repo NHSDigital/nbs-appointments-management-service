@@ -41,7 +41,6 @@ public class FeatureCollectionTests
         
         //every flag should exist in AT MOST ONE collection
         //you MAY need to combine any affected flags into to a new multiple flag collection if this fails...
-        
         flagsContainedInACollection.Count.Should().Be(flagsContainedInACollection.Distinct().Count());
     }
 }

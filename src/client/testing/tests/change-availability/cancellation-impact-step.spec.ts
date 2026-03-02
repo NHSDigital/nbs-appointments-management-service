@@ -11,10 +11,12 @@ test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async () => {
   await overrideFeatureFlag('CancelADateRange', true);
+  await overrideFeatureFlag('CancelADateRangeWithBookings', true);
 });
 
 test.afterAll(async () => {
   await overrideFeatureFlag('CancelADateRange', false);
+  await overrideFeatureFlag('CancelADateRangeWithBookings', false);
 });
 
 test.beforeEach(async ({ page, getTestSite }) => {

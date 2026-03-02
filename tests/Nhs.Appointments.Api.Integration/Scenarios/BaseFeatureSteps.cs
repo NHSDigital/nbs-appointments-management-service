@@ -1012,6 +1012,14 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
+    [When(@"I cancel the booking at the default site with reference '(.+)'")]
+    public async Task CancelAppointmentWithReference(string reference)
+    {
+        var customId = CreateUniqueTestValue(reference);
+        var site = GetSiteId();
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
+    }
+
     /// <summary>
     ///     This is only needed for tests that need to check for DB items that are written/updated by a non-async process.
     ///     These processes are not awaitable, so need to retry for existence of the document, with a timeout for failures.

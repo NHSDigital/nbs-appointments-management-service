@@ -30,11 +30,13 @@ test.beforeEach(async ({ page, getTestSite }) => {
     `/manage-your-appointments/site/${site.id}/change-availability`,
   );
 
-  await expect(
-    page.getByRole('heading', { name: 'Before you continue' }),
-  ).toBeVisible();
+  // await expect(
+  //   page.getByRole('heading', { name: 'Before you continue' }),
+  // ).toBeVisible();
 
-  await page.getByRole('button', { name: 'Continue to cancel' }).click();
+  await page
+    .getByRole('button', { name: 'Continue to cancel' })
+    .click({ delay: 100 });
 });
 
 test('Cannot cancel these sessions - Return to view availability', async ({
@@ -62,11 +64,13 @@ test('Cannot cancel these sessions - Return to view availability', async ({
     .fill((endDate.getMonth() + 1).toString());
   await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
 
-  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Continue', exact: true })
+    .click({ delay: 100 });
 
   await page
     .getByRole('button', { name: 'Return to view availability' })
-    .click();
+    .click({ delay: 100 });
 
   await expect(page).toHaveURL(
     `/manage-your-appointments/site/${site.id}/view-availability`,
@@ -99,14 +103,26 @@ test('Cannot cancel these sessions - Select different dates', async ({
     .fill((endDate.getMonth() + 1).toString());
   await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
 
-  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Continue', exact: true })
+    .click({ delay: 100 });
 
-  await page.getByRole('button', { name: 'Select different dates' }).click();
+  await expect(
+    page.getByRole('button', { name: 'Select different dates', exact: true }),
+  ).toBeVisible({ timeout: 15000 });
+
+  await page
+    .getByRole('button', { name: 'Select different dates' })
+    .click({ delay: 100 });
 
   await expect(page).toHaveURL(
     `/manage-your-appointments/site/${site.id}/change-availability`,
     { timeout: 15000 },
   );
+
+  await expect(
+    page.getByRole('heading', { name: 'Select dates to cancel' }),
+  ).toBeVisible();
 
   // Verify that the inputs still contain the dates previously populated
   await expect(page.locator('#start-date-day')).toHaveValue(

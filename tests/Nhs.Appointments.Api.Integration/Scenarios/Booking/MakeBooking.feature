@@ -261,7 +261,44 @@
       | Date     | Time  | Duration | Service      | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional  | AdditionalData | Landline    |
       | Tomorrow | 11:20 | 5        | COVID-75     | 1234678892 | Test      | Two      | 2000-02-01 | test@two.org | 0123456789 | Yes          | true           | 00001234568 |
 
-    Scenario: Bookings allocated to a session with multiple services decrement the capacity for all services in that session
+  Scenario: Bookings allocated to a session with multiple services decrement the capacity for all services in that session - single session
+    Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f04'
+    And the following sessions exist for a created default site
+      | Date     | From  | Until | Services                                                                                                                  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | FLU:2_3, FLU:18_64, FLU:65+, COVID:5_11, COVID:12_17, COVID:18+, COVID_FLU:18_64, COVID_FLU:65+, RSV:Adult, COVID_RSV:18+ | 5           | 1        |
+      #Wait for setup aggregation to be processed
+    And an aggregation is created for the default site for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '96', and with service details
+      | Service           | Bookings    | Orphaned  | RemainingCapacity |
+      | FLU:2_3           | 0           | 0         | 96                |
+      | FLU:18_64         | 0           | 0         | 96                |
+      | FLU:65+           | 0           | 0         | 96                |
+      | COVID:5_11        | 0           | 0         | 96                |
+      | COVID:12_17       | 0           | 0         | 96                |
+      | COVID:18+         | 0           | 0         | 96                |
+      | COVID_FLU:18_64   | 0           | 0         | 96                |
+      | COVID_FLU:65+     | 0           | 0         | 96                |
+      | RSV:Adult         | 0           | 0         | 96                |
+      | COVID_RSV:18+     | 0           | 0         | 96                |
+    When I make the booking with the following details for the default site
+      | Date     | Time  | Duration | Service     | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | AdditionalData | Landline    |
+      | Tomorrow | 11:45 | 5        | RSV:Adult   | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | true           | 00001234567 |
+    Then a reference number is returned and the following booking is created at the default site
+      | Date     | Time  | Duration | Service       | NhsNumber  | FirstName | LastName | DOB        | Email        | Phone      | Provisional | AdditionalData | Landline    |
+      | Tomorrow | 11:45 | 5        | RSV:Adult     | 1234678891 | Test      | One      | 2000-02-01 | test@one.org | 0123456789 | No          | true           | 00001234567 |
+    And an aggregation is created for the default site for 'Tomorrow' with '0' cancelled bookings, maximumCapacity '96', and with service details
+      | Service           | Bookings    | Orphaned  | RemainingCapacity |
+      | FLU:2_3           | 0           | 0         | 95                |
+      | FLU:18_64         | 0           | 0         | 95                |
+      | FLU:65+           | 0           | 0         | 95                |
+      | COVID:5_11        | 0           | 0         | 95                |
+      | COVID:12_17       | 0           | 0         | 95                |
+      | COVID:18+         | 0           | 0         | 95                |
+      | COVID_FLU:18_64   | 0           | 0         | 95                |
+      | COVID_FLU:65+     | 0           | 0         | 95                |
+      | RSV:Adult         | 1           | 0         | 95                |
+      | COVID_RSV:18+     | 0           | 0         | 95                |
+    
+    Scenario: Bookings allocated to a session with multiple services decrement the capacity for all services in that session - multiple sessions
       Given I set a single siteId for the test to be '6e3348bf-3509-45f2-887c-4f9651501f05'
       And the following sessions exist for a created default site
         | Date     | From  | Until | Services                                       | Slot Length | Capacity |

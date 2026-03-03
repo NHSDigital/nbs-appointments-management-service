@@ -86,10 +86,10 @@ Feature: Propose cancel a date range
       | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
     And the following bookings have been made at the default site
       | Date              | Time  | Duration  | Service   | Reference   |
-      | Tomorrow          | 09:00 | 10        | RSV:Adult | 43567-29374 |
+      | Tomorrow          | 09:00 | 10        | RSV:Adult | 24680-97531 |
       | 2 days from today | 09:10 | 10        | RSV:Adult | 12345-67890 |
       | 3 days from today | 09:10 | 10        | RSV:Adult | 54321-09876 |
-    When I cancel the booking at the default site with reference '43567-29374'
+    When I cancel the booking at the default site with reference '24680-97531'
     When I propose cancelling sessions and bookings for the default site within a date range
       | From     | To                |
       | Tomorrow | 3 days from today |

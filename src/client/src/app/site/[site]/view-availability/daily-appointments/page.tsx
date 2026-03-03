@@ -60,15 +60,6 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const bookedAppointments = bookings.filter(b => b.status === 'Booked');
   const cancelledAppointments = bookings.filter(b => b.status === 'Cancelled');
-  const orphanedAppointments = bookedAppointments.filter(
-    b => b.availabilityStatus === 'Orphaned',
-  );
-
-  //TODO update wording...?
-  const orphanedMessage =
-    orphanedAppointments.length > 0
-      ? `${orphanedAppointments.length} booked appointments are affected due to an edit to your availability. These bookings are still scheduled until you click "Cancel".`
-      : 'There are no booked appointments affected by availability changes.';
 
   const backLink: NavigationByHrefProps = {
     renderingStrategy: 'server',
@@ -111,7 +102,6 @@ const Page = async ({ params, searchParams }: PageProps) => {
             site={site.id}
             displayAction={canCancelBookings}
             clinicalServices={clinicalServices}
-            message={orphanedMessage}
           />
         </Tab>
         <Tab title="Cancelled">

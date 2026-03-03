@@ -265,14 +265,14 @@ describe('Day Summary Card', () => {
         />,
       );
 
-      expect(screen.getByText(/There are/)).toBeInTheDocument();
-      expect(screen.getByText('20')).toBeInTheDocument();
       expect(
-        screen.getByText(/manual cancellations on this day./),
+        screen.getByText(
+          /20 bookings were kept when availability was changed or cancelled./,
+        ),
       ).toBeInTheDocument();
     });
 
-    it('renders a link to view orphaned appointments if there are cancelled appointments', () => {
+    it('no longer renders a link to view orphaned appointments if there are orphaned appointments', () => {
       render(
         <DaySummaryCard
           daySummary={{ ...mockDaySummaries[0], orphanedAppointments: 20 }}
@@ -288,15 +288,7 @@ describe('Day Summary Card', () => {
         screen.getByRole('link', {
           name: 'View manual cancellations',
         }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('link', {
-          name: 'View manual cancellations',
-        }),
-      ).toHaveAttribute(
-        'href',
-        'daily-appointments?date=2024-12-02&page=1&tab=2',
-      );
+      ).not.toBeInTheDocument();
     });
 
     it('hides the View Daily Appointments link when the user does not have permission', () => {

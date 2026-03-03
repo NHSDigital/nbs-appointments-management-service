@@ -18,7 +18,7 @@ describe('Appointment Counts Summary', () => {
     it('renders', () => {
       render(<AppointmentCountsSummary period={mockDaySummary} />);
 
-      expect(screen.getByText('Total appointments: 123')).toBeInTheDocument();
+      expect(screen.getByText('Total appointments: 126')).toBeInTheDocument();
       expect(screen.getByText('Unbooked: 118')).toBeInTheDocument();
     });
 
@@ -54,10 +54,10 @@ describe('Appointment Counts Summary', () => {
         />,
       );
 
-      expect(screen.getByText(/There is/)).toBeInTheDocument();
-      expect(screen.getByText('1')).toBeInTheDocument();
       expect(
-        screen.getByText(/manual cancellation on this day/),
+        screen.getByText(
+          /1 booking was kept when availability was changed or cancelled./,
+        ),
       ).toBeInTheDocument();
     });
 
@@ -71,10 +71,10 @@ describe('Appointment Counts Summary', () => {
         />,
       );
 
-      expect(screen.getByText(/There are/)).toBeInTheDocument();
-      expect(screen.getByText('20')).toBeInTheDocument();
       expect(
-        screen.getByText(/manual cancellations on this day/),
+        screen.getByText(
+          /20 bookings were kept when availability was changed or cancelled./,
+        ),
       ).toBeInTheDocument();
     });
 
@@ -99,8 +99,21 @@ describe('Appointment Counts Summary', () => {
     it('renders', () => {
       render(<AppointmentCountsSummary period={mockWeekSummary} />);
 
-      expect(screen.getByText('Total appointments: 480')).toBeInTheDocument();
+      expect(screen.getByText('Total appointments: 481')).toBeInTheDocument();
       expect(screen.getByText('Unbooked: 476')).toBeInTheDocument();
+    });
+
+    it('sums orphaned bookings and total possible slots for the total appointments count', () => {
+      render(
+        <AppointmentCountsSummary
+          period={{
+            ...mockWeekSummary,
+            orphanedAppointments: 22,
+          }}
+        />,
+      );
+
+      expect(screen.getByText('Total appointments: 502')).toBeInTheDocument();
     });
 
     it('sums orphaned and non-orphaned appointments for the booked count', () => {
@@ -119,10 +132,10 @@ describe('Appointment Counts Summary', () => {
         />,
       );
 
-      expect(screen.getByText(/There is/)).toBeInTheDocument();
-      expect(screen.getByText('1')).toBeInTheDocument();
       expect(
-        screen.getByText(/manual cancellation in this week/),
+        screen.getByText(
+          /1 booking was kept when availability was changed or cancelled./,
+        ),
       ).toBeInTheDocument();
     });
 
@@ -136,10 +149,10 @@ describe('Appointment Counts Summary', () => {
         />,
       );
 
-      expect(screen.getByText(/There are/)).toBeInTheDocument();
-      expect(screen.getByText('20')).toBeInTheDocument();
       expect(
-        screen.getByText(/manual cancellations in this week/),
+        screen.getByText(
+          /20 bookings were kept when availability was changed or cancelled./,
+        ),
       ).toBeInTheDocument();
     });
 
@@ -153,10 +166,17 @@ describe('Appointment Counts Summary', () => {
         />,
       );
 
-      expect(screen.queryByText(/There are/)).toBeNull();
       expect(
-        screen.queryByText(/cancelled appointments in this week/),
-      ).toBeNull();
+        screen.queryByText(
+          /bookings were kept when availability was changed or cancelled./,
+        ),
+      ).not.toBeInTheDocument();
+
+      expect(
+        screen.queryByText(
+          /booking was kept when availability was changed or cancelled./,
+        ),
+      ).not.toBeInTheDocument();
     });
   });
 });

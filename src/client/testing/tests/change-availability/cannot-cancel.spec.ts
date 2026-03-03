@@ -33,6 +33,11 @@ test.beforeEach(async ({ page, getTestSite }) => {
     .getByRole('link', { name: 'View availability and manage' })
     .click();
   await page.getByRole('button', { name: 'Change availability' }).click();
+
+  await expect(
+    page.getByRole('button', { name: 'Continue to cancel' }),
+  ).toBeVisible();
+
   await page
     .getByRole('button', { name: 'Continue to cancel' })
     .click({ delay: 100 });

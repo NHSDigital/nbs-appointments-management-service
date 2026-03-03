@@ -84,21 +84,6 @@ public class ProposeCancelDateRangeRequestValidatorTests
     }
 
     [Fact]
-    public void FailsValidation_WhenFromDateMoreThan3MonthsInFuture()
-    {
-        var request = new ProposeCancelDateRangeRequest
-        (
-            "SiteA",
-            DateOnly.Parse("2077-04-01"),
-            DateOnly.Parse("2077-04-02")
-        );
-
-        var result = _sut.Validate(request);
-
-        result.IsValid.Should().BeFalse();
-    }
-
-    [Fact]
     public void FailsValidation_WhenToDateNotProvided()
     {
         var request = new ProposeCancelDateRangeRequest
@@ -121,21 +106,6 @@ public class ProposeCancelDateRangeRequestValidatorTests
             "SiteA",
             DateOnly.Parse("2077-01-01"),
             DateOnly.Parse("2076-12-30")
-        );
-
-        var result = _sut.Validate(request);
-
-        result.IsValid.Should().BeFalse();
-    }
-
-    [Fact]
-    public void FailsValidation_WhenToDateMoreThan3MonthsInFuture()
-    {
-        var request = new ProposeCancelDateRangeRequest
-        (
-            "SiteA",
-            DateOnly.Parse("2077-01-01"),
-            DateOnly.Parse("2077-04-01")
         );
 
         var result = _sut.Validate(request);

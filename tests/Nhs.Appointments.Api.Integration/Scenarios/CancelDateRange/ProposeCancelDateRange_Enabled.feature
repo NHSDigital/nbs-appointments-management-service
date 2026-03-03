@@ -38,7 +38,7 @@ Feature: Propose cancel a date range
       | Tomorrow | Yesterday |
     Then the call should fail with 400
 
-  Scenario: Propose cancel a date range bad request when from date over 3 months in the future
+  Scenario: Propose cancel a date range bad request when from date over 3 months after to date
     Given the following default site exists in the system
       | Name   | Address      | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude | Latitude | Type        |
       | Site-A | 1A Site Lane | 0113 1111111 | 15N     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | -60       | -60      | GP Practice |
@@ -99,10 +99,10 @@ Feature: Propose cancel a date range
 
   Scenario: Does not include cancelled sessions in the session count
     Given the following sessions exist for a created default site
-      | Date              | From  | Until | Services  | Slot Length | Capacity | Reference   |
-      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        | 43567-29374 |
-      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        | 12345-67890 |
-      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        | 54321-09876 |
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
     When I cancel the following session at the default site
       | Date     | From  | Until | Services  | Slot Length | Capacity |
       | Tomorrow | 09:00 | 17:00 | RSV:Adult | 10           | 1        |

@@ -145,6 +145,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
+    "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
     APPLICATION_NAME                                                       = "High Load Function App"
   }
 
@@ -294,6 +295,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
+    "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
     APPLICATION_NAME                                                       = "High Load Function App"
   }
 

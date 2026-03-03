@@ -4,9 +4,9 @@ using System;
 
 namespace Nhs.Appointments.Api.Validators;
 
-public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeCancelDateRangeRequest>
+public class CancelDateRangeRequestValidator : AbstractValidator<CancelDateRangeRequest>
 {
-    public ProposeCancelDateRangeRequestValidator(TimeProvider timeProvider)
+    public CancelDateRangeRequestValidator(TimeProvider timeProvider)
     {
         RuleFor(x => x.Site)
             .NotEmpty()
@@ -17,9 +17,7 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
             .LessThanOrEqualTo(x => x.To)
             .WithMessage("From date must be before To date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
-            .WithMessage("Date must be in the future.")
-            .LessThanOrEqualTo(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddDays(90))
-            .WithMessage("Date cannot be more than 90 days in the future.");
+            .WithMessage("Date must be in the future.");
         RuleFor(x => x.To)
             .NotEmpty()
             .WithMessage("To date is required.")
@@ -27,10 +25,11 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
             .WithMessage("To date must be after From date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
             .WithMessage("Date must be in the future.")
-            .LessThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")).AddDays(90))
-            .WithMessage("Date cannot be more than 90 days in the future.")
             .Must((req, until) => Within90Days(until, req.From))
             .WithMessage("To date cannot be more than 90 days after from date.");
+        RuleFor(x => x.CancelBookings)
+            .NotNull()
+            .WithMessage("Provide a value for cancel bookings.");
     }
 
     // TODO: Move this value to config in APPT-1987

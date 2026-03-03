@@ -117,6 +117,7 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"                      = var.aggregator_changefeed_enable
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
+    "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
     APPLICATION_NAME                                                       = "Service Bus Function App"
   }
 
@@ -245,6 +246,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_service_bus_func_app_previ
     "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"               = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
+    "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
     APPLICATION_NAME                                                       = "Service Bus Function App"
   }
 

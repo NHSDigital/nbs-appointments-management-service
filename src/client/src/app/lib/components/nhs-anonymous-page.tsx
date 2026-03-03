@@ -30,10 +30,10 @@ const NhsAnonymousPage = ({
     <>
       <NhsAnonymousHeader />
       <FeedbackBanner originPage={originPage} />
-      {showHomeBreadcrumb && (
-        <Breadcrumbs trail={[{ name: 'Home', href: '/sites' }]} />
-      )}
       <NhsMainContainer>
+        {showHomeBreadcrumb && (
+          <Breadcrumbs trail={[{ name: 'Home', href: '/sites' }]} />
+        )}
         {showGoBack && (
           <BackLink renderingStrategy="server" text="Go back" href={'/sites'} />
         )}

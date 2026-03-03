@@ -21,7 +21,7 @@ export const AppointmentCountsSummary = ({
   const className =
     orphanedAppointments > 0
       ? 'appointments-summary'
-      : 'appointments-summary card-item-margin';
+      : 'appointments-summary appointment-summary-card-item-margin';
 
   return (
     <>
@@ -33,7 +33,7 @@ export const AppointmentCountsSummary = ({
         <span>Unbooked: {remainingCapacity}</span>
       </div>
       {orphanedAppointments > 0 && (
-        <div className="card-item-margin" style={{ marginTop: 8 }}>
+        <div className="appointment-summary-card-item-margin appointment-summary-card-orphaned-hint">
           <OrphanedAppointmentsMessage
             orphanedAppointments={orphanedAppointments}
           />

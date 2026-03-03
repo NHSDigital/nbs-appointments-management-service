@@ -216,14 +216,16 @@ export default class WeekViewAvailabilityPage extends RootPage {
 
     if (dayOverview.orphaned === 1) {
       await expect(
-        cardDiv.getByText('There is 1 manual cancellation on this day'),
+        cardDiv.getByText(
+          '1 booking was kept when availability was changed or cancelled.',
+        ),
       ).toBeVisible();
     }
 
     if (dayOverview.orphaned > 1) {
       await expect(
         cardDiv.getByText(
-          `There are ${dayOverview.orphaned} manual cancellations on this day.`,
+          `${dayOverview.orphaned} bookings were kept when availability was changed or cancelled.`,
         ),
       ).toBeVisible();
     }

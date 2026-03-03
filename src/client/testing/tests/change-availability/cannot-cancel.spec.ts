@@ -26,10 +26,13 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
 
-  await page.goto(
-    `/manage-your-appointments/site/${site.id}/change-availability`,
-  );
-
+  await page.goto('/manage-your-appointments/sites');
+  await page.waitForURL(`/manage-your-appointments/sites`);
+  await page.getByRole('link', { name: 'View Church Lane Pharmacy' }).click();
+  await page
+    .getByRole('link', { name: 'View availability and manage' })
+    .click();
+  await page.getByRole('button', { name: 'Change availability' }).click();
   await page
     .getByRole('button', { name: 'Continue to cancel' })
     .click({ delay: 100 });

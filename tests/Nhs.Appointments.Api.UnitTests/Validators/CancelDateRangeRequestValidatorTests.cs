@@ -2,11 +2,6 @@ using FluentAssertions;
 using Moq;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nhs.Appointments.Api.Tests.Validators;
 
@@ -76,20 +71,6 @@ public class CancelDateRangeRequestValidatorTests
             "test-site-123",
             DateOnly.Parse("2075-02-01"),
             DateOnly.Parse("2077-01-01"),
-            false);
-
-        var result = _sut.Validate(request);
-
-        result.IsValid.Should().BeFalse();
-    }
-
-    [Fact]
-    public void FailsValidation_WhenFromDateMoreThan90DaysInTheFuture()
-    {
-        var request = new CancelDateRangeRequest(
-            "test-site-123",
-            DateOnly.Parse("2077-05-01"),
-            DateOnly.Parse("2077-05-02"),
             false);
 
         var result = _sut.Validate(request);

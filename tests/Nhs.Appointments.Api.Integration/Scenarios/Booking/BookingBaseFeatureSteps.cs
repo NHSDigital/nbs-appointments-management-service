@@ -68,14 +68,6 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             jsonContent);
     }
-
-    [When(@"I cancel the booking at the default site with reference '(.+)'")]
-    public async Task CancelAppointmentWithReference(string reference)
-    {
-        var customId = CreateUniqueTestValue(reference);
-        var site = GetSiteId();
-        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
-    }
     
     [When("I make the booking with the following details for the default site")]
     public async Task MakeBooking(DataTable dataTable)

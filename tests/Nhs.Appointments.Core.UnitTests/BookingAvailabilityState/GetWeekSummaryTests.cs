@@ -20,6 +20,16 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
             TestBooking("8", "Blue", new DateOnly(2025, 1, 6), status: "Cancelled", creationOrder: 8),
             TestBooking("9", "Green", new DateOnly(2025, 1, 6), status: "Cancelled", creationOrder: 9),
             TestBooking("10", "Pink", new DateOnly(2025, 1, 6), duration: 60, avStatus: "Orphaned", creationOrder: 10),
+            
+            TestBooking("11", "Blue", new DateOnly(2025, 1, 7), avStatus: "Orphaned", creationOrder: 11),
+            TestBooking("12", "Blue", new DateOnly(2025, 1, 7), avStatus: "Orphaned", creationOrder: 12),
+            TestBooking("13", "Green", new DateOnly(2025, 1, 7), avStatus: "Orphaned", creationOrder: 13),
+            TestBooking("14", "Green", new DateOnly(2025, 1, 7), avStatus: "Orphaned", creationOrder: 16),
+            TestBooking("15", "Blue", new DateOnly(2025, 1, 7), avStatus: "Orphaned", creationOrder: 17),
+            TestBooking("16", "Green", new DateOnly(2025, 1, 7), avStatus: "Orphaned", creationOrder: 14),
+            TestBooking("17", "Blue", new DateOnly(2025, 1, 7), avStatus: "Orphaned", creationOrder: 15),
+            TestBooking("18", "Blue", new DateOnly(2025, 1, 7), status: "Cancelled", creationOrder: 18),
+            TestBooking("19", "Green", new DateOnly(2025, 1, 7), status: "Cancelled", creationOrder: 19)
         };
 
         var sessions = new List<LinkedSessionInstance>
@@ -36,6 +46,17 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 internalSessionId: Guid.Parse("df7c3571-bfab-4c88-8ae3-7a4b1622bddb")),
             TestSession(new DateOnly(2025, 1, 6), "09:00", "10:00", ["Pink"], capacity: 1, slotLength: 60,
                 internalSessionId: Guid.Parse("927588e1-09c2-4e9d-8dfa-61f51be853bd")),
+            
+            TestSession(new DateOnly(2025, 1, 7), "09:00", "10:00", ["Green", "Blue", "Red"], capacity: 2,
+                internalSessionId: Guid.Parse("a9907d84-a0e3-41d4-ae49-bed6c23d9742")),
+            TestSession(new DateOnly(2025, 1, 7), "09:00", "10:00", ["Green"], capacity: 1,
+                internalSessionId: Guid.Parse("acff90d1-fe20-477e-af02-dac209dd86c0")),
+            TestSession(new DateOnly(2025, 1, 7), "09:00", "10:00", ["Blue"], capacity: 1,
+                internalSessionId: Guid.Parse("ac1b5938-922d-45f0-b301-5f9156bb0de4")),
+            TestSession(new DateOnly(2025, 1, 7), "09:00", "10:00", ["Blue", "Red", "Purple"], capacity: 1,
+                internalSessionId: Guid.Parse("a28f5107-3972-4a35-bd35-b7476442ad95")),
+            TestSession(new DateOnly(2025, 1, 7), "09:00", "15:00", ["Yellow"], capacity: 5, slotLength: 30,
+                internalSessionId: Guid.Parse("af7c3571-bfab-4c88-8ae3-7a4b1622bddb"))
         };
 
         SetupAvailabilityAndBookings(bookings, sessions);
@@ -44,33 +65,33 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
 
         weekSummary.DaySummaries.Should().HaveCount(7);
 
-        weekSummary.MaximumCapacity.Should().Be(91);
-        weekSummary.TotalRemainingCapacity.Should().Be(85);
+        weekSummary.MaximumCapacity.Should().Be(181);
+        weekSummary.TotalRemainingCapacity.Should().Be(170);
 
-        weekSummary.TotalSupportedAppointments.Should().Be(6);
+        weekSummary.TotalSupportedAppointments.Should().Be(11);
         weekSummary.TotalSupportedAppointmentsByService.Should().BeEquivalentTo(new Dictionary<string, int>
         {
-            { "Blue", 3 }, { "Green", 2 }, { "Pink", 1 }, { "Red", 0 }, { "Yellow", 0 }, { "Purple", 0 }
+            { "Blue", 6 }, { "Green", 4 }, { "Pink", 1 }, { "Red", 0 }, { "Yellow", 0 }, { "Purple", 0 }
         });
 
-        weekSummary.TotalOrphanedAppointments.Should().Be(2);
+        weekSummary.TotalOrphanedAppointments.Should().Be(4);
         weekSummary.TotalOrphanedAppointmentsByService.Should().BeEquivalentTo(new Dictionary<string, int>
         {
-            { "Blue", 1 }, { "Green", 1 }
+            { "Blue", 2 }, { "Green", 2 }
         });
 
-        weekSummary.TotalCancelledAppointments.Should().Be(2);
+        weekSummary.TotalCancelledAppointments.Should().Be(4);
         weekSummary.TotalCancelledAppointmentsByService.Should().BeEquivalentTo(new Dictionary<string, int>
         {
-            { "Blue", 1 }, { "Green", 1 }
+            { "Blue", 2 }, { "Green", 2 }
         });
         
         weekSummary.TotalRemainingCapacityByService.Should().BeEquivalentTo(new Dictionary<string, int>
         {
-            { "Blue", 21 }, { "Green", 16 }, { "Red", 18 }, { "Yellow", 60 }, { "Purple", 6 }, { "Pink", 0 }
+            { "Blue", 40 }, { "Green", 30 }, { "Red", 30 }, { "Yellow", 120 }, { "Purple", 10 }, { "Pink", 0 }
         });
 
-        var expectedSessionSummaries = new List<SessionAvailabilitySummary>
+        var expectedSessionSummaries1 = new List<SessionAvailabilitySummary>
         {
             new()
             {
@@ -81,7 +102,9 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 SlotLength = 10,
                 Capacity = 2,
                 TotalSupportedAppointmentsByService =
-                    new Dictionary<string, int> { { "Green", 1 }, { "Blue", 1 }, { "Red", 0 } }
+                    new Dictionary<string, int> { { "Green", 1 }, { "Blue", 1 }, { "Red", 0 } },
+                TotalRemainingCapacityByService = 
+                    new Dictionary<string, int> { { "Green", 10 }, { "Blue", 10 }, { "Red", 10 } },
             },
             new()
             {
@@ -91,7 +114,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 6,
                 SlotLength = 10,
                 Capacity = 1,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Green", 1 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Green", 1 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Green", 5 } },
             },
             new()
             {
@@ -101,7 +125,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 6,
                 SlotLength = 10,
                 Capacity = 1,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Blue", 1 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Blue", 1 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Blue", 5 } },
             },
             new()
             {
@@ -111,7 +136,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 6,
                 SlotLength = 10,
                 Capacity = 1,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Blue", 1 }, { "Red", 0 }, { "Purple", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Blue", 1 }, { "Red", 0 }, { "Purple", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Blue", 5 }, { "Red", 5 }, { "Purple", 5 } },
             },
             new()
             {
@@ -121,7 +147,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 60,
                 SlotLength = 30,
                 Capacity = 5,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Yellow", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Yellow", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Yellow", 60 } }
             },
             new()
             {
@@ -131,28 +158,106 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 1,
                 SlotLength = 60,
                 Capacity = 1,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Pink", 1 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Pink", 1 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Pink", 0 } },
             }
         };
 
-        var daySummaryAffected = weekSummary.DaySummaries.Single(x => x.Date == new DateOnly(2025, 1, 6));
+        var daySummaryAffected1 = weekSummary.DaySummaries.Single(x => x.Date == new DateOnly(2025, 1, 6));
 
-        daySummaryAffected.Date.Should().Be(new DateOnly(2025, 1, 6));
-        daySummaryAffected.MaximumCapacity.Should().Be(91);
+        daySummaryAffected1.Date.Should().Be(new DateOnly(2025, 1, 6));
+        daySummaryAffected1.MaximumCapacity.Should().Be(91);
         
-        daySummaryAffected.TotalRemainingCapacity.Should().Be(85);
-        daySummaryAffected.TotalRemainingCapacityByService.Should().BeEquivalentTo(new Dictionary<string, int>
+        daySummaryAffected1.TotalRemainingCapacity.Should().Be(85);
+        daySummaryAffected1.TotalRemainingCapacityByService.Should().BeEquivalentTo(new Dictionary<string, int>
         {
-            { "Blue", 21 }, { "Green", 16 }, { "Red", 18 }, { "Yellow", 60 }, { "Purple", 6 }, { "Pink", 0 }
+            { "Blue", 20 }, { "Green", 15 }, { "Red", 15 }, { "Yellow", 60 }, { "Purple", 5 }, { "Pink", 0 }
         });
         
-        daySummaryAffected.TotalSupportedAppointments.Should().Be(6);
-        daySummaryAffected.TotalOrphanedAppointments.Should().Be(2);
-        daySummaryAffected.TotalCancelledAppointments.Should().Be(2);
+        daySummaryAffected1.TotalSupportedAppointments.Should().Be(6);
+        daySummaryAffected1.TotalOrphanedAppointments.Should().Be(2);
+        daySummaryAffected1.TotalCancelledAppointments.Should().Be(2);
 
-        daySummaryAffected.SessionSummaries.Should().BeEquivalentTo(expectedSessionSummaries);
+        daySummaryAffected1.SessionSummaries.Should().BeEquivalentTo(expectedSessionSummaries1);
+        
+        var expectedSessionSummaries2 = new List<SessionAvailabilitySummary>
+        {
+            new()
+            {
+                Id = Guid.Parse("a9907d84-a0e3-41d4-ae49-bed6c23d9742"),
+                UkStartDatetime = new DateTime(2025, 1, 7, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 7, 10, 0, 0),
+                MaximumCapacity = 12,
+                SlotLength = 10,
+                Capacity = 2,
+                TotalSupportedAppointmentsByService =
+                    new Dictionary<string, int> { { "Green", 1 }, { "Blue", 1 }, { "Red", 0 } },
+                TotalRemainingCapacityByService = 
+                    new Dictionary<string, int> { { "Green", 10 }, { "Blue", 10 }, { "Red", 10 } },
+            },
+            new()
+            {
+                Id = Guid.Parse("acff90d1-fe20-477e-af02-dac209dd86c0"),
+                UkStartDatetime = new DateTime(2025, 1, 7, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 7, 10, 0, 0),
+                MaximumCapacity = 6,
+                SlotLength = 10,
+                Capacity = 1,
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Green", 1 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Green", 5 } },
+            },
+            new()
+            {
+                Id = Guid.Parse("ac1b5938-922d-45f0-b301-5f9156bb0de4"),
+                UkStartDatetime = new DateTime(2025, 1, 7, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 7, 10, 0, 0),
+                MaximumCapacity = 6,
+                SlotLength = 10,
+                Capacity = 1,
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Blue", 1 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Blue", 5 } },
+            },
+            new()
+            {
+                Id = Guid.Parse("a28f5107-3972-4a35-bd35-b7476442ad95"),
+                UkStartDatetime = new DateTime(2025, 1, 7, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 7, 10, 0, 0),
+                MaximumCapacity = 6,
+                SlotLength = 10,
+                Capacity = 1,
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Blue", 1 }, { "Red", 0 }, { "Purple", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Blue", 5 }, { "Red", 5 }, { "Purple", 5 } },
+            },
+            new()
+            {
+                Id = Guid.Parse("af7c3571-bfab-4c88-8ae3-7a4b1622bddb"),
+                UkStartDatetime = new DateTime(2025, 1, 7, 9, 0, 0),
+                UkEndDatetime = new DateTime(2025, 1, 7, 15, 0, 0),
+                MaximumCapacity = 60,
+                SlotLength = 30,
+                Capacity = 5,
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "Yellow", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "Yellow", 60 } }
+            }
+        };
 
-        weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 7));
+        var daySummaryAffected2 = weekSummary.DaySummaries.Single(x => x.Date == new DateOnly(2025, 1, 7));
+
+        daySummaryAffected2.Date.Should().Be(new DateOnly(2025, 1, 7));
+        daySummaryAffected2.MaximumCapacity.Should().Be(90);
+        
+        daySummaryAffected2.TotalRemainingCapacity.Should().Be(85);
+        daySummaryAffected2.TotalRemainingCapacityByService.Should().BeEquivalentTo(new Dictionary<string, int>
+        {
+            { "Blue", 20 }, { "Green", 15 }, { "Red", 15 }, { "Yellow", 60 }, { "Purple", 5 }
+        });
+        
+        daySummaryAffected2.TotalSupportedAppointments.Should().Be(5);
+        daySummaryAffected2.TotalOrphanedAppointments.Should().Be(2);
+        daySummaryAffected2.TotalCancelledAppointments.Should().Be(2);
+
+        daySummaryAffected2.SessionSummaries.Should().BeEquivalentTo(expectedSessionSummaries2);
+
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 8));
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 9));
         weekSummary.DaySummaries.AssertEmptySessionSummariesOnDate(new DateOnly(2025, 1, 10));
@@ -223,6 +328,15 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                     { "E", 1 },
                     { "F", 1 },
                     { "G", 1 },
+                },
+                TotalRemainingCapacityByService = new Dictionary<string, int>
+                {
+                    { "B", 9 },
+                    { "C", 9 },
+                    { "D", 9 },
+                    { "E", 9 },
+                    { "F", 9 },
+                    { "G", 9 },
                 }
             },
             new()
@@ -233,7 +347,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 17 }, { "C", 17 }, { "D", 17 } },
             }
         };
 
@@ -271,7 +386,16 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                     { "E", 1 },
                     { "F", 1 },
                     { "G", 1 },
-                }
+                },
+                TotalRemainingCapacityByService = new Dictionary<string, int>
+                {
+                    { "B", 9 },
+                    { "C", 9 },
+                    { "D", 9 },
+                    { "E", 9 },
+                    { "F", 9 },
+                    { "G", 9 },
+                },
             },
             new()
             {
@@ -281,7 +405,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 17 }, { "C", 17 }, { "D", 17 } }
             }
         };
 
@@ -351,7 +476,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "B", 9 }, { "C", 9 }, { "D", 9 } },
             },
             new()
             {
@@ -361,7 +487,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 17 }, { "C", 17 }, { "D", 17 } },
             }
         };
 
@@ -391,7 +518,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "B", 3 }, { "C", 0 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "B", 9 }, { "C", 9 }, { "D", 9 } },
             },
             new()
             {
@@ -401,7 +529,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 3 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 17 }, { "C", 17 }, { "D", 17 } },
             }
         };
 
@@ -487,6 +616,15 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                     { "E", 0 },
                     { "F", 0 },
                     { "G", 0 },
+                },
+                TotalRemainingCapacityByService = new Dictionary<string, int>
+                {
+                    { "B", 12 },
+                    { "C", 12 },
+                    { "D", 12 },
+                    { "E", 12 },
+                    { "F", 12 },
+                    { "G", 12 },
                 }
             },
             new()
@@ -507,7 +645,18 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                     { "H", 0 },
                     { "I", 0 },
                     { "J", 0 },
-                }
+                },
+                TotalRemainingCapacityByService = new Dictionary<string, int>
+                {
+                    { "A", 20 },
+                    { "C", 20 },
+                    { "D", 20 },
+                    { "U", 20 },
+                    { "Z", 20 },
+                    { "H", 20 },
+                    { "I", 20 },
+                    { "J", 20 },
+                }                
             }
         };
 
@@ -544,6 +693,15 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                     { "E", 0 },
                     { "F", 0 },
                     { "G", 0 },
+                },
+                TotalRemainingCapacityByService = new Dictionary<string, int>
+                {
+                    { "B", 45 },
+                    { "C", 45 },
+                    { "D", 45 },
+                    { "E", 45 },
+                    { "F", 45 },
+                    { "G", 45 },
                 }
             },
             new()
@@ -564,6 +722,17 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                     { "H", 0 },
                     { "I", 0 },
                     { "J", 0 },
+                },
+                TotalRemainingCapacityByService = new Dictionary<string, int>
+                {
+                    { "A", 16 },
+                    { "C", 16 },
+                    { "D", 16 },
+                    { "U", 16 },
+                    { "Z", 16 },
+                    { "H", 16 },
+                    { "I", 16 },
+                    { "J", 16 },
                 }
             }
         };
@@ -596,7 +765,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 72,
                 SlotLength = 5,
                 Capacity = 2,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 0 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 0 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 72 }, { "B", 72 }, { "C", 72 }, { "D", 72 } },
             }
         ]);
     }
@@ -661,7 +831,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 0 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 0 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 20 }, { "C", 20 }, { "D", 20 } },
             },
             new()
             {
@@ -671,7 +842,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 3 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 3 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 9 }, { "B", 9 }, { "C", 9 } },
             }
         };
 
@@ -701,7 +873,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 20,
                 SlotLength = 10,
                 Capacity = 5,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 0 }, { "D", 0 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "C", 0 }, { "D", 0 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 20 }, { "C", 20 }, { "D", 20 } },
             },
             new()
             {
@@ -711,7 +884,8 @@ public class GetWeekSummaryTests : BookingAvailabilityStateServiceTestBase
                 MaximumCapacity = 12,
                 SlotLength = 10,
                 Capacity = 3,
-                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 3 } }
+                TotalSupportedAppointmentsByService = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 3 } },
+                TotalRemainingCapacityByService = new Dictionary<string, int> { { "A", 9 }, { "B", 9 }, { "C", 9 } },
             }
         };
 

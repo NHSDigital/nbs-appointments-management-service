@@ -75,47 +75,47 @@
         | Next Saturday    | 24               | 21                 | 3                   | 1                     | 0                      |
         | Next Sunday      | 24               | 21                 | 3                   | 1                     | 0                      |
       And the following session summaries on day 'Next Monday' are returned
-        | StartDate      | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
-        | Next Monday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
-        | Next Monday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
-        | Next Monday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |
-        | Next Monday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
+        | StartDate      | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity | Total Supported Appointments |
+        | Next Monday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                | 0                            |
+        | Next Monday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                | 1                            |
+        | Next Monday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                | 1                            |
+        | Next Monday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                | 1                            |
       And the following session summaries on day 'Next Tuesday' are returned
-        | StartDate       | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
-        | Next Tuesday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
-        | Next Tuesday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
-        | Next Tuesday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |
-        | Next Tuesday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
+        | StartDate       | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity | Total Supported Appointments |
+        | Next Tuesday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                | 0                            |
+        | Next Tuesday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                | 1                            |
+        | Next Tuesday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                | 1                            |
+        | Next Tuesday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                | 1                            |
       And the following session summaries on day 'Next Wednesday' are returned
-        | StartDate         | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
-        | Next Wednesday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
-        | Next Wednesday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
-        | Next Wednesday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |
-        | Next Wednesday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
+        | StartDate         | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity | Total Supported Appointments |
+        | Next Wednesday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                | 0                            |
+        | Next Wednesday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                | 1                            |
+        | Next Wednesday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                | 1                            |
+        | Next Wednesday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                | 1                            |
       And the following session summaries on day 'Next Thursday' are returned
-        | StartDate        | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
-        | Next Thursday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
-        | Next Thursday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
-        | Next Thursday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |
-        | Next Thursday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
+        | StartDate        | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity | Total Supported Appointments |
+        | Next Thursday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                | 0                            |
+        | Next Thursday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                | 1                            |
+        | Next Thursday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                | 1                            |
+        | Next Thursday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                | 1                            |
       And the following session summaries on day 'Next Friday' are returned
-        | StartDate      | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
-        | Next Friday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
-        | Next Friday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
-        | Next Friday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |
-        | Next Friday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
+        | StartDate      | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity | Total Supported Appointments |
+        | Next Friday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                | 0                            |
+        | Next Friday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                | 1                            |
+        | Next Friday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                | 1                            |
+        | Next Friday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                | 1                            |
       And the following session summaries on day 'Next Saturday' are returned
-        | StartDate        | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
-        | Next Saturday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
-        | Next Saturday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
-        | Next Saturday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |
-        | Next Saturday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
+        | StartDate        | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity | Total Supported Appointments |
+        | Next Saturday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                | 0                            |
+        | Next Saturday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                | 1                            |
+        | Next Saturday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                | 1                            |
+        | Next Saturday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                | 1                            |
       And the following session summaries on day 'Next Sunday' are returned
-        | StartDate      | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity |
-        | Next Sunday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                |
-        | Next Sunday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                |
-        | Next Sunday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                |
-        | Next Sunday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                |
+        | StartDate      | Start Time | End Time | Total Supported Appointments By Service           | Capacity | Slot Length | Maximum Capacity | Total Supported Appointments |
+        | Next Sunday    | 09:00      | 10:00    | COVID:0, RSV:0, FLU:0, FLU-C:0, FLU-D:0, FLU-E:0  | 1        | 10          | 6                | 0                            |
+        | Next Sunday    | 09:00      | 10:00    | COVID:1, FLU-B:0                                  | 1        | 10          | 6                | 1                            |
+        | Next Sunday    | 09:00      | 10:00    | FLU:1, FLU-B:0, FLU-C:0                           | 1        | 10          | 6                | 1                            |
+        | Next Sunday    | 09:00      | 10:00    | FLU-B:0, RSV:1                                    | 1        | 10          | 6                | 1                            |
   
     Scenario: Returns Bad Request when fetched for a Tuesday
       Given the following sessions exist for a created default site

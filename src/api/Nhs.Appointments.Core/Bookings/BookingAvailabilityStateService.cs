@@ -278,22 +278,15 @@ public class BookingAvailabilityStateService(
         foreach (var daySummary in daySummaries)
         {
             var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
-
+        
             foreach (var booking in bookingsOnDay)
             {
                 switch (booking.Status)
                 {
                     case AppointmentStatus.Booked:
-                        switch (booking.AvailabilityStatus)
-                        {
-                            case AvailabilityStatus.Supported:
-                                daySummary.TotalSupportedAppointmentsByService[booking.Service] = daySummary.TotalSupportedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                                break;
-                            case AvailabilityStatus.Orphaned:
-                                daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                                break;
+                        if (booking.AvailabilityStatus is AvailabilityStatus.Orphaned){
+                            daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
                         }
-            
                         break;
                     case AppointmentStatus.Cancelled:
                         daySummary.TotalCancelledAppointmentsByService[booking.Service] = daySummary.TotalCancelledAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;

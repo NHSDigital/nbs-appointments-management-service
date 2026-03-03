@@ -92,6 +92,10 @@ public static class FunctionConfigurationExtensions
             {
                 opts.MinimumParallelization = configuration.GetValue<int>("SITE_SUMMARY_MINIMUM_PARALLELIZATION");
             })
+            .Configure<ChangeAvailabilityOptions>(opts =>
+            {
+                opts.CancelADateRangeMaximumDays = configuration.GetValue<int>("CancelADateRangeMaximumDays");
+            })
             .ConfigureSiteService(configuration)
             .AddTypedCosmosDataStores()
             .AddDocumentStores()

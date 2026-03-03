@@ -75,6 +75,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS = var.site_supports_service_sliding_cache_absolute_expiration_seconds
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS    = var.site_supports_service_sliding_cache_slide_threshold_seconds
     SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER                         = var.site_supports_service_batch_multiplier
+    CancelADateRangeMaximumDays                                    = var.cancel_a_date_range_maximum_days
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                      = true
@@ -176,6 +177,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS = var.site_supports_service_sliding_cache_absolute_expiration_seconds
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS    = var.site_supports_service_sliding_cache_slide_threshold_seconds
     SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER                         = var.site_supports_service_batch_multiplier
+       CancelADateRangeMaximumDays                                 = var.cancel_a_date_range_maximum_days
     "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                      = true

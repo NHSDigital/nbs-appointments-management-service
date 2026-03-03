@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
 
@@ -8,15 +10,24 @@ namespace Nhs.Appointments.Api.Tests.Validators;
 public class ProposeCancelDateRangeRequestValidatorTests
 {
     private readonly Mock<TimeProvider> _timeProvider = new();
+    private readonly Mock<IOptions<ChangeAvailabilityOptions>> _availabilityConfig = new();
     private readonly ProposeCancelDateRangeRequestValidator _sut;
+    
 
     public ProposeCancelDateRangeRequestValidatorTests()
     {
         _timeProvider
             .Setup(x => x.GetUtcNow())
             .Returns(new DateTimeOffset(DateTime.Parse("2076-12-31T00:00:00Z")));
+        _availabilityConfig.Setup(x => x.Value).Returns(new ChangeAvailabilityOptions
+        {
+            CancelADateRangeMaximumDays = 90
+        });
 
-        _sut = new ProposeCancelDateRangeRequestValidator(_timeProvider.Object);
+        _sut = new ProposeCancelDateRangeRequestValidator(
+            _timeProvider.Object,
+            _availabilityConfig.Object
+        );
     }
 
     [Theory]

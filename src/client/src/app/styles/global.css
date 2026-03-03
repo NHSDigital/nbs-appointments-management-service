@@ -285,8 +285,12 @@
   padding-left: 0;
 }
 
-.card-item-margin {
-  margin-bottom: 30px;
+.appointment-summary-card-item-margin {
+  margin-bottom: 3vh;
+}
+
+.appointment-summary-card-orphaned-hint {
+  margin-top: 1vh;
 }
 
 .search-bar {
@@ -330,4 +334,17 @@
 
 .nhsuk-list > li > * {
   margin-bottom: 0 !important;
+}
+
+.nhsuk-pagination {
+  margin: 3vh 0;
+}
+
+.nhsuk-main-wrapper {
+  padding: 3vh 0;
+}
+
+.nhsuk-back-link,
+.nhsuk-breadcrumb {
+  margin: 2vh 0;
 }

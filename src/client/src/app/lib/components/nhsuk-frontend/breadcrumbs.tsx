@@ -16,6 +16,10 @@ type Props = {
  * @see https://service-manual.nhs.uk/design-system/components/breadcrumbs
  */
 const Breadcrumbs = ({ trail = [] }: Props) => {
+  if (trail.length === 0) {
+    return undefined;
+  }
+
   const previousCrumb = trail.length > 1 ? trail.slice(-2)[0] : undefined;
 
   return (

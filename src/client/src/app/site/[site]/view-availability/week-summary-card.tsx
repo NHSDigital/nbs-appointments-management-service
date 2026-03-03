@@ -35,7 +35,10 @@ export const WeekSummaryCard = ({
 
   return (
     <Card>
-      <Card.Heading headingLevel="h3">
+      <Card.Heading
+        headingLevel="h3"
+        className="appointment-summary-card-item-margin"
+      >
         {startDate.format('D MMMM')} to {endDate.format('D MMMM')}
       </Card.Heading>
       {Object.entries(allBookingsInWeek).length > 0 ? (
@@ -44,7 +47,9 @@ export const WeekSummaryCard = ({
           clinicalServices={clinicalServices}
         />
       ) : (
-        <div className="card-item-margin">No availability</div>
+        <div className="appointment-summary-card-item-margin">
+          No availability
+        </div>
       )}
 
       <AppointmentCountsSummary period={ukWeekSummary} />

@@ -34,58 +34,68 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await page
     .getByRole('link', { name: 'View availability and manage' })
     .click();
+  await page.getByRole('button', { name: 'Change availability' }).click();
+  await page
+    .getByRole('button', { name: 'Continue to cancel' })
+    .click({ delay: 100 });
 });
 
 test('There are no sessions in this date range - Choose a new date range', async ({
   page,
 }) => {
-  await page.getByRole('button', { name: 'Change availability' }).click();
-  await page.getByRole('button', { name: 'Continue to cancel' }).click();
+  const now = new Date();
+
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() + 1);
+
+  const endDate = new Date(now);
+  endDate.setDate(now.getDate() + 23);
+
+  await page.locator('#start-date-day').fill(startDate.getDate().toString());
   await page
-    .getByRole('group', { name: 'Start date' })
-    .getByLabel('Day')
-    .click();
+    .locator('#start-date-month')
+    .fill((startDate.getMonth() + 1).toString());
   await page
-    .getByRole('group', { name: 'Start date' })
-    .getByLabel('Day')
-    .fill('3');
+    .locator('#start-date-year')
+    .fill(startDate.getFullYear().toString());
+
+  await page.locator('#end-date-day').fill(endDate.getDate().toString());
   await page
-    .getByRole('group', { name: 'Start date' })
-    .getByLabel('Month')
-    .click();
+    .locator('#end-date-month')
+    .fill((endDate.getMonth() + 1).toString());
+  await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
+
   await page
-    .getByRole('group', { name: 'Start date' })
-    .getByLabel('Month')
-    .fill('3');
+    .getByRole('button', { name: 'Continue', exact: true })
+    .click({ delay: 100 });
+
   await page
-    .getByRole('group', { name: 'Start date' })
-    .getByLabel('Year')
-    .click();
-  await page
-    .getByRole('group', { name: 'Start date' })
-    .getByLabel('Year')
-    .fill('2026');
-  await page.getByRole('group', { name: 'End date' }).getByLabel('Day').click();
-  await page
-    .getByRole('group', { name: 'End date' })
-    .getByLabel('Day')
-    .fill('25');
-  await page
-    .getByRole('group', { name: 'End date' })
-    .getByLabel('Month')
-    .click();
-  await page
-    .getByRole('group', { name: 'End date' })
-    .getByLabel('Month')
-    .fill('3');
-  await page
-    .getByRole('group', { name: 'End date' })
-    .getByLabel('Year')
-    .click();
-  await page
-    .getByRole('group', { name: 'End date' })
-    .getByLabel('Year')
-    .fill('2026');
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByRole('button', { name: 'Choose a new date range.' }).click();
+    .getByRole('button', { name: 'Choose a new date range' })
+    .click({ delay: 100 });
+
+  await expect(page).toHaveURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+    { timeout: 15000 },
+  );
+
+  // Verify that the inputs still contain the dates previously populated
+  await expect(page.locator('#start-date-day')).toHaveValue(
+    startDate.getDate().toString(),
+  );
+  await expect(page.locator('#start-date-month')).toHaveValue(
+    (startDate.getMonth() + 1).toString(),
+  );
+  await expect(page.locator('#start-date-year')).toHaveValue(
+    startDate.getFullYear().toString(),
+  );
+
+  await expect(page.locator('#end-date-day')).toHaveValue(
+    endDate.getDate().toString(),
+  );
+  await expect(page.locator('#end-date-month')).toHaveValue(
+    (endDate.getMonth() + 1).toString(),
+  );
+  await expect(page.locator('#end-date-year')).toHaveValue(
+    endDate.getFullYear().toString(),
+  );
 });

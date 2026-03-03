@@ -91,7 +91,7 @@ public abstract class ProposeCancelDateRangeFeatureSteps(string flag, bool enabl
 }
 
 [Collection(FeatureToggleCollectionNames.CancelDateRangeAndBookingsCollection)]
-[FeatureFile("./Scenarios/CancelDateRange/ProposeCancelDateRange_DIsabled.feature")]
+[FeatureFile("./Scenarios/CancelDateRange/ProposeCancelDateRange_Disabled.feature")]
 public class ProposeCancelDateRange_Disabled() : ProposeCancelDateRangeFeatureSteps(Flags.CancelADateRange, false) { }
 
 

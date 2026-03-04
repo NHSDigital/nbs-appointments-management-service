@@ -205,3 +205,31 @@ Feature: Cancel date range
       | 876589    | Cancelled |
       | 141213    | Cancelled |
 
+  Scenario: Ensure supported orphaned bookings are cancelled and included in the cancelled booking count
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration  | Service   | Reference |
+      | Tomorrow          | 09:00 | 10        | RSV:Adult | 101112    |
+      | 2 days from today | 09:10 | 10        | RSV:Adult | 707172    |
+      | 3 days from today | 09:10 | 10        | RSV:Adult | 515253    |
+    And the following orphaned bookings exist at the default site
+      | Date              | Time  | Duration | Service | Reference |
+      | 2 days from today | 09:20 | 10       | COVID   | 989796    |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 3 days from today | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 3            | 4            | 0                             |
+    When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
+    Then the daily availability should be empty
+    And the following bookings at the default site are now in the following state
+      | Reference | Status    |
+      | 101112    | Cancelled |
+      | 707172    | Cancelled |
+      | 515253    | Cancelled |
+      | 989796    | Cancelled |

@@ -747,6 +747,13 @@ Feature: Site Location Dependent - Query Sites Disabled
       | Date     | From  | Until | Services           | Slot Length | Capacity |
       | Tomorrow | 09:00 | 12:20 | COVID:5_11,FLU:2_3 | 10          | 1        |
       | Tomorrow | 12:00 | 16:20 | RSV:Adult          | 10          | 1        |
+    
+#   The slide threshold is a large value, and this is because for this test to pass, 
+#   we need to guarantee the step "the following sessions exist for existing site 'fa8ceff5-d152-4687-b8ea-030df7d5efb1'" 
+#   has written to DB (retry DB operation currently has a CutoffRetryMs of 10 seconds with TooManyRequests)
+#   we don't know when it will have written and waiting for its existence doesn't help
+#   just that logically we need the SlideThreshold > ContainerRetry.CutoffRetryMs to be a requirement for this test to work consistently
+
     When I make the 'get sites by area' request with service filtering, access needs, and caching
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
@@ -755,8 +762,16 @@ Feature: Site Location Dependent - Query Sites Disabled
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
+    
+#   The slide threshold is a large value, and this is because for this test to pass, 
+#   we need to guarantee the step "the following sessions exist for existing site 'fa8ceff5-d152-4687-b8ea-030df7d5efb1'" 
+#   has written to DB (retry DB operation currently has a CutoffRetryMs of 10 seconds with TooManyRequests)
+#   we don't know when it will have written and waiting for its existence doesn't help
+#   just that logically we need the SlideThreshold > ContainerRetry.CutoffRetryMs to be a requirement for this test to work consistently
+    
 #   Wait for the slide threshold to pass
-    When I wait for '1050' milliseconds
+    When I wait for '11000' milliseconds
+    
 #   First request should slide the cache, updating the cache value to the new, but still return the old value
     When I make the 'get sites by area' request with service filtering, access needs, and caching
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |

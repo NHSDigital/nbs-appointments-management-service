@@ -94,7 +94,7 @@ public static class FunctionConfigurationExtensions
             })
             .Configure<ChangeAvailabilityOptions>(opts =>
             {
-                opts.CancelADateRangeMaximumDays = configuration.GetValue<int>("CancelADateRangeMaximumDays");
+                opts.CancelADateRangeMaximumDays = configuration.GetValue<int>("CANCEL_A_DATE_RANGE_MAXIMUM_DAYS");
             })
             .ConfigureSiteService(configuration)
             .AddTypedCosmosDataStores()

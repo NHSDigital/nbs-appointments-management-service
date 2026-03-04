@@ -119,7 +119,7 @@ services:
       - ContainerRetry__Configurations__5__BackoffRetryType=2
       - ContainerRetry__Configurations__5__InitialValueMs=200
       - ContainerRetry__Configurations__5__CutoffRetryMs=10000
-      - CancelADateRangeMaximumDays=90
+      - CANCEL_A_DATE_RANGE_MAXIMUM_DAYS=90
   splunk:
     image: splunk/splunk:9.3
     container_name: splunk

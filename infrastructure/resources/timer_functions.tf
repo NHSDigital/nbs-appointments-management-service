@@ -54,6 +54,8 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     AutoCancelledBookingsCronSchedule                                      = var.auto_cancelled_bookings_cron_schedule
+    CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                                       = var.cancel_a_date_range_maximum_days
+    APPLICATION_NAME                                                       = "Timer Function App"
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -127,7 +129,6 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = var.aggregator_changefeed_enable
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
     "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
-    APPLICATION_NAME                                                       = "Timer Function App"
   }
 
   sticky_settings {
@@ -189,6 +190,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
     AutoCancelledBookingsCronSchedule                                      = var.auto_cancelled_bookings_cron_schedule
+    CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                                       = var.cancel_a_date_range_maximum_days
+    APPLICATION_NAME                                                       = "Timer Function App"
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -262,7 +265,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"                    = var.aggregator_changefeed_enable
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
     "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
-    APPLICATION_NAME                                                       = "Timer Function App"
   }
 
   identity {

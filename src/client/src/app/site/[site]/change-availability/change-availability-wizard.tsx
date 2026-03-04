@@ -16,19 +16,17 @@ import { yupResolver } from '@hookform/resolvers/yup';
 interface Props {
   cancelADateRangeWithBookings: boolean;
   site: string;
+  rangeMaximumDays: number;
 }
-
-const DEFAULT_MAX_CANCELLATION_DAYS = 90;
 
 const ChangeAvailabilityWizard = ({
   cancelADateRangeWithBookings,
   site,
+  rangeMaximumDays,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const methods = useForm<ChangeAvailabilityFormValues>({
-    resolver: yupResolver(
-      createChangeAvailabilityFormSchema(DEFAULT_MAX_CANCELLATION_DAYS),
-    ),
+    resolver: yupResolver(createChangeAvailabilityFormSchema(rangeMaximumDays)),
     defaultValues: {
       startDate: { day: '', month: '', year: '' },
       endDate: { day: '', month: '', year: '' },

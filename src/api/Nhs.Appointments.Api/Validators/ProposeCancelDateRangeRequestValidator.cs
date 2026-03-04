@@ -1,4 +1,6 @@
 using FluentValidation;
+using Microsoft.Extensions.Options;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
 using System;
 
@@ -6,8 +8,12 @@ namespace Nhs.Appointments.Api.Validators;
 
 public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeCancelDateRangeRequest>
 {
-    public ProposeCancelDateRangeRequestValidator(TimeProvider timeProvider)
+    public ProposeCancelDateRangeRequestValidator(
+        TimeProvider timeProvider,
+        IOptions<ChangeAvailabilityOptions> options)
     {
+        var maxDays = options.Value.CancelADateRangeMaximumDays;
+
         RuleFor(x => x.Site)
             .NotEmpty()
             .WithMessage("Site is required.");
@@ -25,13 +31,12 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
             .WithMessage("To date must be after From date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
             .WithMessage("Date must be in the future.")
-            .Must((req, until) => Within90Days(until, req.From))
-            .WithMessage("To date cannot be more than 90 days after from date.");
+            .Must((req, until) => WithinMaxDays(until, req.From, maxDays))
+            .WithMessage($"To date cannot be more than {maxDays} days after from date.");
     }
 
-    // TODO: Move this value to config in APPT-1987
-    private static bool Within90Days(DateOnly until, DateOnly from)
+    private static bool WithinMaxDays(DateOnly until, DateOnly from, int maxDays)
     {
-        return until <= from.AddDays(90);
+        return until <= from.AddDays(maxDays - 1);
     }
 }

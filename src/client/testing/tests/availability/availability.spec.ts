@@ -905,6 +905,7 @@ test.describe('Update Session', () => {
           '**/site/**/view-availability/daily-appointments?date=**',
         );
 
+        //message removed
         await dailyAppointmentDetailsPage.verifyOrphanedMessageDoesNotExist();
       });
     });

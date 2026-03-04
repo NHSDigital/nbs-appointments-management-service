@@ -105,10 +105,10 @@ Feature: Cancel date range
       | Tomorrow | 3 days from today | false          |
     Then the following cancel date range metrics should be returned
       | SessionCount | BookingCount | BookingsWithoutContactDetails |
-      | 3            | 0           | 0                             |
+      | 3            | 0           | 0                              |
     When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
     Then the daily availability should be empty
-    Then the following bookings at the default site are now in the following state
+    And the following bookings at the default site are now in the following state
       | Reference   | Status |
       | 42685-95135 | Booked |
       | 04283-97513 | Booked |

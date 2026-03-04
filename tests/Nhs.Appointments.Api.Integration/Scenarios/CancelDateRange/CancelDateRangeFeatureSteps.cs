@@ -28,6 +28,7 @@ public abstract class CancelDateRangeFeatureSteps(FlagState[] flagStates) : Mult
     private List<DailyAvailability> AvailabilityResponse { get; set; }
     private List<Core.Bookings.Booking> BookingResponse { get; set; }
 
+    [And("I cancel sessions and bookings for the default site within a date range")]
     [When("I cancel sessions and bookings for the default site within a date range")]
     public async Task CancelDateRange(DataTable dataTable)
     {

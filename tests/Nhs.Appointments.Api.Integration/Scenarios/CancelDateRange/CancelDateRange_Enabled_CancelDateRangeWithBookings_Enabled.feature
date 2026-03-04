@@ -76,3 +76,132 @@ Feature: Cancel date range
       | 3            | 0            | 0                             |
     When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
     Then the daily availability should be empty
+
+  Scenario: Cancel date range ensures already cancelled sessions are not returned in the session count
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+    When I cancel the following session at the default site
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | RSV:Adult | 10           | 1       |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 3 days from today | false          |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 2            | 0            | 0                             |
+    When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
+    Then the daily availability should be empty
+
+  Scenario: Ensure bookings are cancelled after cancelling a date range with bookings
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration  | Service   | Reference |
+      | Tomorrow          | 09:00 | 10        | RSV:Adult | 357951    |
+      | 2 days from today | 09:10 | 10        | RSV:Adult | 951753    |
+      | 3 days from today | 09:10 | 10        | RSV:Adult | 852147    |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 3 days from today | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 3            | 3            | 0                             |
+    When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
+    Then the daily availability should be empty
+    And the following bookings at the default site are now in the following state
+      | Reference | Status    |
+      | 357951    | Cancelled |
+      | 951753    | Cancelled |
+      | 852147    | Cancelled |
+
+  Scenario: Ensure bookings that have already been cancelled aren't returned in the booking count
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration  | Service   | Reference |
+      | Tomorrow          | 09:00 | 10        | RSV:Adult | 987321    |
+      | 2 days from today | 09:10 | 10        | RSV:Adult | 123789    |
+      | 3 days from today | 09:10 | 10        | RSV:Adult | 654753    |
+    When I cancel the booking at the default site with reference '987321'
+    And I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 3 days from today | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 3            | 2            | 0                             |
+    When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
+    Then the daily availability should be empty
+    And the following bookings at the default site are now in the following state
+      | Reference | Status    |
+      | 123789    | Cancelled |
+      | 654753    | Cancelled |
+
+  Scenario: Ensure provisional bookings aren't affected when cancelling a date range with bookings
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration  | Service   | Reference |
+      | Tomorrow          | 09:00 | 10        | RSV:Adult | 020103    |
+      | 2 days from today | 09:10 | 10        | RSV:Adult | 302010    |
+      | 3 days from today | 09:10 | 10        | RSV:Adult | 313233    |
+    And the following provisional bookings have been made at the default site
+      | Date              | Time  | Duration | Service | Reference |
+      | 2 days from today | 09:20 | 10       | COVID   | 979899    |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 3 days from today | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 3            | 3            | 0                             |
+    When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
+    Then the daily availability should be empty
+    And the following bookings at the default site are now in the following state
+      | Reference | Status      |
+      | 020103    | Cancelled   |
+      | 302010    | Cancelled   |
+      | 313233    | Cancelled   |
+      | 979899    | Provisional |
+
+  Scenario: Ensure bookings without contact details are included in the booking count when cancelling a date range with bookings
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 3 days from today | 12:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration  | Service   | Reference |
+      | Tomorrow          | 09:00 | 10        | RSV:Adult | 369123    |
+      | 2 days from today | 09:10 | 10        | RSV:Adult | 963321    |
+      | 3 days from today | 09:10 | 10        | RSV:Adult | 654718    |
+    And the following bookings without contact details exist at the default site
+      | Date              | Time  | Duration  | Service | Reference |
+      | Tomorrow          | 09:00 | 10        | FLU:2_3 | 876589    |
+      | 2 days from today | 09:10 | 10        | FLU:2_3 | 141213    |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 3 days from today | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 3            | 5            | 2                             |
+    When I check daily availability for the default site between 'Tomorrow' and '3 days from today'
+    Then the daily availability should be empty
+    And the following bookings at the default site are now in the following state
+      | Reference | Status    |
+      | 369123    | Cancelled |
+      | 963321    | Cancelled |
+      | 654718    | Cancelled |
+      | 876589    | Cancelled |
+      | 141213    | Cancelled |
+

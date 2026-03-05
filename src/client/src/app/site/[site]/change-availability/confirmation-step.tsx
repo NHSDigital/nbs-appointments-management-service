@@ -30,7 +30,7 @@ const ConfirmationStep = ({ site }: InjectedWizardProps & Props) => {
         <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
           Next steps
         </legend>
-
+        <br />
         <ul>
           <Link href={`/site/${site}/create-availability/wizard`}>
             <li>Create availability</li>

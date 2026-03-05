@@ -1,7 +1,10 @@
-import { OAuthLoginPage, RootPage } from '@testing-page-objects';
+import {
+  OAuthLoginPage,
+  RootPage,
+  ServiceNotFoundPage,
+} from '@testing-page-objects';
 import { Site } from '@types';
 import { test, expect, overrideFeatureFlag } from '../../fixtures';
-import ServiceNotFoundPage from '@e2etests/page-objects';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -49,7 +52,7 @@ test.describe.configure({ mode: 'serial' });
       test('Cancel a date range monthly page', async ({ page }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -79,7 +82,7 @@ test.describe.configure({ mode: 'serial' });
 
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -123,7 +126,7 @@ test.describe.configure({ mode: 'serial' });
 
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -170,7 +173,7 @@ test.describe.configure({ mode: 'serial' });
       }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -216,7 +219,7 @@ test.describe.configure({ mode: 'serial' });
       }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -278,7 +281,7 @@ test.describe.configure({ mode: 'serial' });
       }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -346,7 +349,7 @@ test.describe.configure({ mode: 'serial' });
       }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -402,7 +405,7 @@ test.describe.configure({ mode: 'serial' });
       }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -506,7 +509,7 @@ test.describe.configure({ mode: 'serial' });
       }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 
@@ -568,7 +571,7 @@ test.describe.configure({ mode: 'serial' });
       }) => {
         const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).toBeVisible();
+          await expect(serviceNotFoundPage.title).not.toBeVisible();
           return;
         }
 

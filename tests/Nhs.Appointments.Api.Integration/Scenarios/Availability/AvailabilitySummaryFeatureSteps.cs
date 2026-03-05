@@ -21,7 +21,7 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
     public void AssertSessionSummaries(string date, DataTable expectedSessionSummaryTable)
     {
         var expectedSessionSummaries = expectedSessionSummaryTable.Rows.Skip(1).Select(row =>
-            new SessionAvailabilitySummary
+            new SessionAvailabilitySummaryTestable
             {
                 UkStartDatetime =
                     NaturalLanguageDate.Parse(row.Cells.ElementAt(0).Value)
@@ -31,7 +31,8 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
                 TotalSupportedAppointmentsByService = GetServiceBookings(row.Cells.ElementAt(3).Value),
                 Capacity = int.Parse(row.Cells.ElementAt(4).Value),
                 SlotLength = int.Parse(row.Cells.ElementAt(5).Value),
-                MaximumCapacity = int.Parse(row.Cells.ElementAt(6).Value)
+                MaximumCapacity = int.Parse(row.Cells.ElementAt(6).Value),
+                TotalSupportedAppointments = int.Parse(row.Cells.ElementAt(7).Value),
             });
 
         var expectedDate = NaturalLanguageDate.Parse(date);
@@ -40,7 +41,9 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
         _actualResponse.DaySummaries.Single(x => x.Date == expectedDate).SessionSummaries.Should().BeEquivalentTo(
             expectedSessionSummaries,
             //exclude ID as randomly generated for linking purposes
-            options => options.Excluding(x => x.Id));
+            options => options.Excluding(x => x.Id)
+                .Excluding(x => x.TotalRemainingCapacityByService)
+                .Excluding(x => x.TotalRemainingCapacity));
     }
 
     [Then("the following day summary metrics are returned")]
@@ -102,5 +105,28 @@ public abstract class AvailabilitySummaryFeatureSteps : BaseFeatureSteps
         var serviceBookings = cellValue.Split(',');
         return serviceBookings.Select(serviceBooking => serviceBooking.Trim().Split(':'))
             .ToDictionary(parts => parts[0], parts => int.Parse(parts[1]));
+    }
+    
+    public class SessionAvailabilitySummaryTestable
+    {
+        public Guid Id { get; set; }
+
+        public DateTime UkStartDatetime { get; set; }
+
+        public DateTime UkEndDatetime { get; set; }
+
+        public Dictionary<string, int> TotalSupportedAppointmentsByService { get; set; }
+
+        public int Capacity { get; set; }
+
+        public int SlotLength { get; set; }
+
+        public int MaximumCapacity { get; set; }
+
+        public int TotalSupportedAppointments { get; set; }
+
+        public int TotalRemainingCapacity { get; set; }
+
+        public Dictionary<string, int> TotalRemainingCapacityByService { get; set; }
     }
 }

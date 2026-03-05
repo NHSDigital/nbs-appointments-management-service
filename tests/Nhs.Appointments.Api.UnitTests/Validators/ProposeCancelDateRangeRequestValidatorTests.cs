@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
 
@@ -8,15 +10,24 @@ namespace Nhs.Appointments.Api.Tests.Validators;
 public class ProposeCancelDateRangeRequestValidatorTests
 {
     private readonly Mock<TimeProvider> _timeProvider = new();
+    private readonly Mock<IOptions<ChangeAvailabilityOptions>> _availabilityConfig = new();
     private readonly ProposeCancelDateRangeRequestValidator _sut;
+    
 
     public ProposeCancelDateRangeRequestValidatorTests()
     {
         _timeProvider
             .Setup(x => x.GetUtcNow())
             .Returns(new DateTimeOffset(DateTime.Parse("2076-12-31T00:00:00Z")));
+        _availabilityConfig.Setup(x => x.Value).Returns(new ChangeAvailabilityOptions
+        {
+            CancelADateRangeMaximumDays = 90
+        });
 
-        _sut = new ProposeCancelDateRangeRequestValidator(_timeProvider.Object);
+        _sut = new ProposeCancelDateRangeRequestValidator(
+            _timeProvider.Object,
+            _availabilityConfig.Object
+        );
     }
 
     [Theory]
@@ -84,21 +95,6 @@ public class ProposeCancelDateRangeRequestValidatorTests
     }
 
     [Fact]
-    public void FailsValidation_WhenFromDateMoreThan3MonthsInFuture()
-    {
-        var request = new ProposeCancelDateRangeRequest
-        (
-            "SiteA",
-            DateOnly.Parse("2077-04-01"),
-            DateOnly.Parse("2077-04-02")
-        );
-
-        var result = _sut.Validate(request);
-
-        result.IsValid.Should().BeFalse();
-    }
-
-    [Fact]
     public void FailsValidation_WhenToDateNotProvided()
     {
         var request = new ProposeCancelDateRangeRequest
@@ -121,21 +117,6 @@ public class ProposeCancelDateRangeRequestValidatorTests
             "SiteA",
             DateOnly.Parse("2077-01-01"),
             DateOnly.Parse("2076-12-30")
-        );
-
-        var result = _sut.Validate(request);
-
-        result.IsValid.Should().BeFalse();
-    }
-
-    [Fact]
-    public void FailsValidation_WhenToDateMoreThan3MonthsInFuture()
-    {
-        var request = new ProposeCancelDateRangeRequest
-        (
-            "SiteA",
-            DateOnly.Parse("2077-01-01"),
-            DateOnly.Parse("2077-04-01")
         );
 
         var result = _sut.Validate(request);
@@ -171,5 +152,20 @@ public class ProposeCancelDateRangeRequestValidatorTests
         var result = _sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void PassesValidation_WhenFromAndToAreTheSameDate()
+    {
+        var request = new ProposeCancelDateRangeRequest
+        (
+            "SiteA",
+            DateOnly.Parse("2077-01-01"),
+            DateOnly.Parse("2077-01-01")
+        );
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
     }
 }

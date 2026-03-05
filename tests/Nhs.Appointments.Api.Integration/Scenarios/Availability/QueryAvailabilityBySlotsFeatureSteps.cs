@@ -24,7 +24,7 @@ using static Nhs.Appointments.Core.Availability.AvailabilityByHours;
 using static Nhs.Appointments.Core.Availability.AvailabilityBySlots;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.Availability;
-public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled)
+public abstract class QueryAvailabilityBySlotsFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }

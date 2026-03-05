@@ -68,14 +68,6 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{bookingReference}/cancel?site={site}",
             jsonContent);
     }
-
-    [When(@"I cancel the booking at the default site with reference '(.+)'")]
-    public async Task CancelAppointmentWithReference(string reference)
-    {
-        var customId = CreateUniqueTestValue(reference);
-        var site = GetSiteId();
-        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
-    }
     
     [When("I make the booking with the following details for the default site")]
     public async Task MakeBooking(DataTable dataTable)
@@ -197,14 +189,6 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
 
         _actionTimestamp = DateTimeOffset.UtcNow;
         _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
-    }
-    
-    //Not to be used unless explicitly need to wait
-    [When("I wait for '(.+)' milliseconds")]
-    public async Task WaitForSeconds(string milliseconds)
-    {
-        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
-        await Task.Delay(timespan);
     }
 
     [Then(@"the call should fail with (\d*)")]

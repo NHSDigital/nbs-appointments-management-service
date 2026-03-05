@@ -500,3 +500,8 @@ variable "auditor_polling_interval_seconds" {
   type = number
   default = 60
 }
+
+variable "cancel_a_date_range_maximum_days" {
+  type = number
+  default = 90
+}

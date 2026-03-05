@@ -14,7 +14,9 @@ export type PageProps = {
 
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-
+  const cancelADateRangeMaximumDays = parseInt(
+    process.env.CANCEL_A_DATE_RANGE_MAXIMUM_DAYS ?? '90',
+  );
   await fromServer(assertFeatureEnabled('CancelADateRange'));
   const cancelADateRangeWithBookings = await fromServer(
     fetchFeatureFlag('CancelADateRangeWithBookings'),
@@ -25,6 +27,7 @@ const Page = async ({ params }: PageProps) => {
       <ChangeAvailabilityWizard
         cancelADateRangeWithBookings={cancelADateRangeWithBookings.enabled}
         site={siteFromPath}
+        rangeMaximumDays={cancelADateRangeMaximumDays}
       />
     </NhsTransactionalPage>
   );

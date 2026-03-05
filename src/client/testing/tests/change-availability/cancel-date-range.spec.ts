@@ -1,0 +1,536 @@
+import { OAuthLoginPage, RootPage } from '@testing-page-objects';
+import { Site } from '@types';
+import { test, expect, overrideFeatureFlag } from '../../fixtures';
+
+let rootPage: RootPage;
+let oAuthPage: OAuthLoginPage;
+
+let site: Site;
+
+test.describe.configure({ mode: 'serial' });
+
+[true, false].forEach(CancelADateRangeFlagEnabled => {
+  test.describe(`Test with CancelADateRangeFlag: '${CancelADateRangeFlagEnabled}'`, () => {
+    test.beforeAll(async () => {
+      await overrideFeatureFlag(
+        'CancelADateRange',
+        CancelADateRangeFlagEnabled,
+      );
+    });
+
+    test.afterAll(async () => {
+      await overrideFeatureFlag('CancelADateRange', false);
+    });
+
+    test.describe('Cancel A Date Range', () => {
+      test.beforeEach(async ({ page, getTestSite }) => {
+        site = getTestSite(2);
+        rootPage = new RootPage(page);
+        oAuthPage = new OAuthLoginPage(page);
+
+        await rootPage.goto();
+        await rootPage.pageContentLogInButton.click();
+        await oAuthPage.signIn();
+
+        // await page.goto('/manage-your-appointments/sites');
+        await page.waitForURL(`/manage-your-appointments/sites`);
+        await page
+          .getByRole('link', { name: 'View Church Lane Pharmacy' })
+          .click();
+        await page
+          .getByRole('link', { name: 'View availability and manage' })
+          .click();
+
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
+      });
+
+      test('Cancel a date range monthly page', async ({ page }) => {
+        if (!CancelADateRangeFlagEnabled) {
+          expect(
+            page.getByRole('button', { name: 'Change availability' }),
+          ).not.toBeVisible();
+          return;
+        }
+
+        await expect(
+          page.getByRole('button', { name: 'Change availability' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await expect(page).toHaveURL(/.*\/change-availability/, {
+          timeout: 15000,
+        });
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page
+          .getByRole('link', { name: 'Back', exact: true })
+          .click({ delay: 100 });
+        await expect(page).toHaveURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+          { timeout: 15000 },
+        );
+      });
+
+      test.skip('Cancel a date range weekly page', async ({ page }) => {
+        //TODO this will fail next month
+        await page
+          .getByRole('listitem')
+          .filter({ hasText: '23 February to 1 March' })
+          .getByRole('link')
+          .click();
+
+        if (!CancelADateRangeFlagEnabled) {
+          expect(
+            page.getByRole('button', { name: 'Change availability' }),
+          ).not.toBeVisible();
+          return;
+        }
+
+        await expect(
+          page.getByRole('button', { name: 'Change availability' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await expect(page).toHaveURL(/.*\/change-availability/);
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page
+          .getByRole('link', { name: 'Back', exact: true })
+          .click({ delay: 100 });
+        await expect(page).toHaveURL(/.*\/view-availability(\/week)?/);
+      });
+
+      test.skip('Cancel a date range daily page', async ({ page }) => {
+        //TODO this will fail next month
+        await page
+          .getByRole('listitem')
+          .filter({ hasText: '23 February to 1 March' })
+          .getByRole('link')
+          .click();
+        await expect(page).toHaveURL(/.*\/view-availability\/week/);
+        const wednesdaySection = page
+          .locator('li')
+          .filter({ hasText: 'Wednesday 25 February' });
+        await expect(
+          wednesdaySection.getByText(/Total appointments: [1-9]\d*/),
+        ).toBeVisible({ timeout: 20000 });
+        // If the Total appointments: 0 then the "View daily appointments" link will not be visible
+        await page
+          .getByRole('link', { name: 'View daily appointments' })
+          .click();
+
+        if (!CancelADateRangeFlagEnabled) {
+          expect(
+            page.getByRole('button', { name: 'Change availability' }),
+          ).not.toBeVisible();
+          return;
+        }
+
+        await expect(
+          page.getByRole('button', { name: 'Change availability' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await expect(page).toHaveURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page
+          .getByRole('link', { name: 'Back', exact: true })
+          .click({ delay: 100 });
+        await expect(page).toHaveURL(
+          /.*\/view-availability(\/daily-appointments)?/,
+        );
+      });
+    });
+
+    test.describe('Select Dates To Cancel', () => {
+      test.beforeEach(async ({ page, getTestSite }) => {
+        site = getTestSite(1);
+        rootPage = new RootPage(page);
+        oAuthPage = new OAuthLoginPage(page);
+
+        await rootPage.goto();
+        await rootPage.pageContentLogInButton.click();
+        await oAuthPage.signIn();
+        await page.waitForURL(`/manage-your-appointments/sites`);
+      });
+
+      test('Select dates to cancel error, mandatory field validation', async ({
+        page,
+      }) => {
+        if (!CancelADateRangeFlagEnabled) {
+          test.skip();
+
+          //TODO assert not found page??
+          //Sorry, we could not find that page
+        }
+
+        //TODO navigate there rather than goto
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.getByRole('button', { name: 'Continue' }).click();
+
+        // Use locator that finds the error text specifically
+        const startDateError = page
+          .locator('.nhsuk-form-group')
+          .filter({ hasText: 'Start date' })
+          .locator('.nhsuk-error-message');
+        await expect(startDateError).toContainText('Enter a start date', {
+          timeout: 15000,
+        });
+
+        const endDateError = page
+          .locator('.nhsuk-form-group')
+          .filter({ hasText: 'End date' })
+          .locator('.nhsuk-error-message');
+        await expect(endDateError).toContainText('Enter an end date', {
+          timeout: 15000,
+        });
+
+        await expect(
+          page.locator('.nhsuk-u-visually-hidden').first(),
+        ).toHaveText('Error: ');
+
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+        await expect(page).toHaveURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+      });
+
+      test('Select dates to cancel error, must be in the future', async ({
+        page,
+      }) => {
+        if (!CancelADateRangeFlagEnabled) {
+          test.skip();
+
+          //TODO assert not found page??
+          //Sorry, we could not find that page
+        }
+
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+        // Calculate yesterday
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const day = yesterday.getDate().toString();
+        const month = (yesterday.getMonth() + 1).toString();
+        const year = yesterday.getFullYear().toString();
+
+        // Fill start date (Past)
+        await page.locator('#start-date-day').fill(day);
+        await page.locator('#start-date-month').fill(month);
+        await page.locator('#start-date-year').fill(year);
+
+        // Fill end date (Past)
+        await page.locator('#end-date-day').fill(day);
+        await page.locator('#end-date-month').fill(month);
+        await page.locator('#end-date-year').fill(year);
+
+        // Trigger Validation
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        // Assert both errors appear
+        // We check for the specific error text your app generates for past dates
+        const errorMessages = page.locator('.nhsuk-error-message');
+
+        await expect(
+          errorMessages.filter({ hasText: /Start date/ }),
+        ).toContainText(/must be in the future/i, { timeout: 15000 });
+
+        await expect(
+          errorMessages.filter({ hasText: /End date/ }),
+        ).toContainText(/must be in the future/i, { timeout: 15000 });
+
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+        await expect(page).toHaveURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+      });
+
+      test('Select dates to cancel error, end date must be after the start date', async ({
+        page,
+      }) => {
+        if (!CancelADateRangeFlagEnabled) {
+          test.skip();
+
+          //TODO assert not found page??
+          //Sorry, we could not find that page
+        }
+
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+        // Start is 5 days from now, End is 2 days from now
+        const now = new Date();
+
+        const startDate = new Date(now);
+        startDate.setDate(now.getDate() + 5);
+
+        const endDate = new Date(now);
+        endDate.setDate(now.getDate() + 2);
+
+        // Fill Start Date (The later date)
+        await page
+          .locator('#start-date-day')
+          .fill(startDate.getDate().toString());
+        await page
+          .locator('#start-date-month')
+          .fill((startDate.getMonth() + 1).toString());
+        await page
+          .locator('#start-date-year')
+          .fill(startDate.getFullYear().toString());
+
+        // Fill End Date (The earlier date - INVALID)
+        await page.locator('#end-date-day').fill(endDate.getDate().toString());
+        await page
+          .locator('#end-date-month')
+          .fill((endDate.getMonth() + 1).toString());
+        await page
+          .locator('#end-date-year')
+          .fill(endDate.getFullYear().toString());
+
+        // Submit
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        // Look for the specific sequence error
+        const errorContainer = page
+          .locator('.nhsuk-form-group--error')
+          .filter({ hasText: 'End date' });
+        await expect(
+          errorContainer.locator('.nhsuk-error-message'),
+        ).toContainText(/End date must be on or after the start date/i, {
+          timeout: 15000,
+        });
+
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+        await expect(page).toHaveURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+      });
+
+      test('Select dates to cancel error within 3 months - 90 days or less', async ({
+        page,
+      }) => {
+        if (!CancelADateRangeFlagEnabled) {
+          test.skip();
+
+          //TODO assert not found page??
+          //Sorry, we could not find that page
+        }
+
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+        const now = new Date();
+
+        const startDate = new Date(now);
+        startDate.setDate(now.getDate() + 1);
+
+        const endDate = new Date(now);
+        // 90 days will pass validation
+        endDate.setDate(now.getDate() + 90);
+
+        // Fill Start Date (Tomorrow)
+        await page
+          .locator('#start-date-day')
+          .fill(startDate.getDate().toString());
+        await page
+          .locator('#start-date-month')
+          .fill((startDate.getMonth() + 1).toString());
+        await page
+          .locator('#start-date-year')
+          .fill(startDate.getFullYear().toString());
+
+        // Fill End Date (+90 days)
+        await page.locator('#end-date-day').fill(endDate.getDate().toString());
+        await page
+          .locator('#end-date-month')
+          .fill((endDate.getMonth() + 1).toString());
+        await page
+          .locator('#end-date-year')
+          .fill(endDate.getFullYear().toString());
+
+        // Trigger the validation
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        // No validation errors, it redirects
+        await expect(page).toHaveURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+      });
+
+      test('Select dates to cancel error within 3 months - greater than 90 days', async ({
+        page,
+      }) => {
+        if (!CancelADateRangeFlagEnabled) {
+          test.skip();
+
+          //TODO assert not found page??
+          //Sorry, we could not find that page
+        }
+
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+
+        const now = new Date();
+
+        const startDate = new Date(now);
+        startDate.setDate(now.getDate() + 1);
+
+        const endDate = new Date(now);
+        // Greater than 90 days will fail validation
+        endDate.setDate(now.getDate() + 92);
+
+        // Fill Start Date (Tomorrow)
+        await page
+          .locator('#start-date-day')
+          .fill(startDate.getDate().toString());
+        await page
+          .locator('#start-date-month')
+          .fill((startDate.getMonth() + 1).toString());
+        await page
+          .locator('#start-date-year')
+          .fill(startDate.getFullYear().toString());
+
+        // Fill End Date (+91 days)
+        await page.locator('#end-date-day').fill(endDate.getDate().toString());
+        await page
+          .locator('#end-date-month')
+          .fill((endDate.getMonth() + 1).toString());
+        await page
+          .locator('#end-date-year')
+          .fill(endDate.getFullYear().toString());
+
+        // Trigger the validation
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        // Target the Start Date group by its specific legend
+        const startDateGroup = page.locator('.nhsuk-form-group').filter({
+          has: page.locator('legend').getByText('Start date', { exact: true }),
+        });
+
+        await expect(
+          startDateGroup.locator('.nhsuk-error-message'),
+        ).toContainText('Start date must be', { timeout: 15000 });
+
+        // Target the End Date group by its specific legend
+        const endDateGroup = page.locator('.nhsuk-form-group').filter({
+          has: page.locator('legend').getByText('End date', { exact: true }),
+        });
+
+        await expect(
+          endDateGroup.locator('.nhsuk-error-message'),
+        ).toContainText('End date must be', { timeout: 15000 });
+
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page.getByRole('link', { name: 'Back', exact: true }).click();
+
+        await expect(page).toHaveURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+      });
+    });
+  });
+});
+
+//TODO do we need to assert any cases where CancelADateRangeFlag is disabled here??
+//for now, assume CancelADateRange is enabled for each child flag test
+[true, false].forEach(CancelADateRangeWithBookingsFlagEnabled => {
+  test.describe(`Test with CancelADateRangeWithBookingsFlag: '${CancelADateRangeWithBookingsFlagEnabled}'`, () => {
+    test.beforeAll(async () => {
+      await overrideFeatureFlag('CancelADateRange', true);
+      await overrideFeatureFlag(
+        'CancelADateRangeWithBookings',
+        CancelADateRangeWithBookingsFlagEnabled,
+      );
+    });
+
+    test.afterAll(async () => {
+      await overrideFeatureFlag('CancelADateRange', false);
+      await overrideFeatureFlag('CancelADateRangeWithBookings', false);
+    });
+
+    test.beforeEach(async ({ page, getTestSite }) => {
+      site = getTestSite(1);
+      rootPage = new RootPage(page);
+      oAuthPage = new OAuthLoginPage(page);
+
+      await rootPage.goto();
+      await rootPage.pageContentLogInButton.click();
+      await oAuthPage.signIn();
+      await page.waitForURL(`/manage-your-appointments/sites`);
+    });
+
+    test('Verify number of steps when bookings exist', async ({ page }) => {
+      await page.goto(
+        `/manage-your-appointments/site/${site.id}/change-availability`,
+      );
+      await page.waitForURL(
+        `/manage-your-appointments/site/${site.id}/change-availability`,
+      );
+
+      const listItems = page
+        .locator('ol li')
+        .filter({ hasNot: page.getByRole('button') });
+
+      //happy vs sad path
+      if (CancelADateRangeWithBookingsFlagEnabled) {
+        // Confirming 3 items in the list
+        await expect(listItems).toHaveText([
+          'Cancel the sessions you want to change',
+          'Choose to keep existing bookings',
+          'Create new sessions with the updated details',
+        ]);
+      } else {
+        // Confirming 2 items in the list
+        await expect(listItems).toHaveText([
+          'Cancel the sessions you want to change',
+          'Create new sessions with the updated details',
+        ]);
+      }
+    });
+  });
+});

@@ -174,6 +174,26 @@ public class AvailabilityDocumentStore(
         return new OperationResult(true);
     }
 
+    public async Task<int> CancelAllSessionsInDateRange(string site, DateOnly from, DateOnly until)
+    {
+        var docType = documentStore.GetDocumentType();
+        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
+
+        if (documents is null || !documents.Any())
+        {
+            return 0;
+        }
+
+        foreach (var document in documents)
+        {
+            var documentId = document.Date.ToString("yyyyMMdd");
+            await PatchAvailabilityDocument(documentId, [], site, document, false);
+        }
+
+        return documents.SelectMany(s => s.Sessions).Count();
+    }
+
+
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
     {
         var dayDocument = await GetOrDefaultAsync(documentId, site);

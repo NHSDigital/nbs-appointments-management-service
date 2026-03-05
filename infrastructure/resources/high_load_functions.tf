@@ -76,6 +76,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Okta__PrivateKeyKid                                                    = var.okta_private_key_kid
     Okta__PEM                                                              = var.okta_pem
     Auth__Providers__1__RequiresStateForAuthorize                          = true
+    CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                                       = var.cancel_a_date_range_maximum_days
+    APPLICATION_NAME                                                       = "High Load Function App"
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -145,7 +147,7 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
-    APPLICATION_NAME                                                       = "High Load Function App"
+    "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
   }
 
   sticky_settings {
@@ -225,6 +227,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     Okta__PrivateKeyKid                                                    = var.okta_private_key_kid
     Okta__PEM                                                              = var.okta_pem
     Auth__Providers__1__RequiresStateForAuthorize                          = true
+    CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                                       = var.cancel_a_date_range_maximum_days
+    APPLICATION_NAME                                                       = "High Load Function App"
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                          = true
@@ -294,7 +298,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     "AzureWebJobs.QuerySitesFunction.Disabled"                             = true
     "AzureWebJobs.GetSiteUsersReportFunction.Disabled"                     = true
     "AzureWebJobs.ProposeCancelDateRangeFunction.Disabled"                 = true
-    APPLICATION_NAME                                                       = "High Load Function App"
+    "AzureWebJobs.CancelDateRangeFunction.Disabled"                        = true
   }
 
   identity {

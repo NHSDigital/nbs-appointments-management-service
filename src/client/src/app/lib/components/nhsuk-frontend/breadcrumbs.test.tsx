@@ -9,12 +9,26 @@ const breadcrumbTrail: Breadcrumb[] = [
 ];
 
 describe('NHSBreadcrumbs', () => {
-  it('renders', () => {
-    render(<Breadcrumbs />);
+  it('renders if trail exists', () => {
+    render(<Breadcrumbs trail={[{ name: 'Test', href: '/test' }]} />);
 
     expect(
       screen.getByRole('navigation', { name: 'Breadcrumb' }),
     ).toBeInTheDocument();
+  });
+
+  it('does not render if trail not provided or empty', () => {
+    render(<Breadcrumbs />);
+
+    expect(
+      screen.queryByRole('navigation', { name: 'Breadcrumb' }),
+    ).not.toBeInTheDocument();
+
+    render(<Breadcrumbs trail={[]} />);
+
+    expect(
+      screen.queryByRole('navigation', { name: 'Breadcrumb' }),
+    ).not.toBeInTheDocument();
   });
 
   it('constructs a trail of breadcrumbs', () => {

@@ -44,17 +44,17 @@ export const ConfirmCancelChoiceStep = ({
       />
 
       <FormGroup legend="Are you sure you want to cancel this day?" error="">
-        <ButtonGroup>
+        <ButtonGroup vertical>
           <Button type="submit" styleType="warning">
             Cancel day
           </Button>
+          <Link
+            href={`/site/${site.id}/view-availability/week?date=${date.format(RFC3339Format)}`}
+            className="nhsuk-link"
+          >
+            No, go back
+          </Link>
         </ButtonGroup>
-        <Link
-          href={`/site/${site.id}/view-availability/week?date=${date.format(RFC3339Format)}`}
-          className="nhsuk-link"
-        >
-          No, go back
-        </Link>
       </FormGroup>
     </>
   );

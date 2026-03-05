@@ -456,6 +456,11 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following cancelled bookings exist at the default site")]
     public async Task SetupCancelledBookings(DataTable dataTable) =>
         await SetupBookings(dataTable, BookingType.Cancelled);
+
+    [Given("the following bookings without contact details exist at the default site")]
+    [And("the following bookings without contact details exist at the default site")]
+    public async Task SetupBookingsWithoutContactDetails(DataTable dataTable) =>
+        await SetupBookings(dataTable, BookingType.Confirmed, provideContactDetails: false);
     
     [And("the following orphaned bookings exist for site '(.+)'")]
     public async Task SetupOrphanedBookings(string site, DataTable dataTable) =>
@@ -580,6 +585,7 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
+    [And("the following bookings at the default site are now in the following state")]
     [Then("the following bookings at the default site are now in the following state")]
     public async Task AssertBookings(DataTable dataTable)
     {
@@ -621,7 +627,7 @@ public abstract partial class BaseFeatureSteps : Feature
         }
     }
 
-    protected async Task SetupBookings(DataTable dataTable, BookingType bookingType, string siteId = DefaultSiteId)
+    protected async Task SetupBookings(DataTable dataTable, BookingType bookingType, string siteId = DefaultSiteId, bool provideContactDetails = true)
     {
         var bookings = dataTable.Rows.Skip(1).Select((row, index) =>
         {
@@ -654,7 +660,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     LastName = "LastName",
                     DateOfBirth = new DateOnly(2000, 1, 1)
                 },
-                ContactDetails =
+                ContactDetails = provideContactDetails ?
                 [
                     new ContactItem { Type = ContactItemType.Email, Value = GetContactInfo(ContactItemType.Email) },
                     new ContactItem { Type = ContactItemType.Phone, Value = GetContactInfo(ContactItemType.Phone) },
@@ -662,7 +668,7 @@ public abstract partial class BaseFeatureSteps : Feature
                     {
                         Type = ContactItemType.Landline, Value = GetContactInfo(ContactItemType.Landline)
                     }
-                ],
+                ] : [],
                 AdditionalData = new { IsAppBooking = true },
                 LastUpdatedBy = _userId
             };
@@ -1010,6 +1016,23 @@ public abstract partial class BaseFeatureSteps : Feature
         {
             await CosmosWrite(CosmosWriteAction.Create, "core_data", site);
         }
+    }
+
+    [When(@"I cancel the booking at the default site with reference '(.+)'")]
+    public async Task CancelAppointmentWithReference(string reference)
+    {
+        var customId = CreateUniqueTestValue(reference);
+        var site = GetSiteId();
+        _response = await GetHttpClientForTest().PostAsync($"http://localhost:7071/api/booking/{customId}/cancel?site={site}", null);
+    }
+    
+    //Not to be used unless explicitly need to wait
+    [When("I wait for '(.+)' milliseconds")]
+    [And("I wait for '(.+)' milliseconds")]
+    public async Task WaitForSeconds(string milliseconds)
+    {
+        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
+        await Task.Delay(timespan);
     }
 
     /// <summary>

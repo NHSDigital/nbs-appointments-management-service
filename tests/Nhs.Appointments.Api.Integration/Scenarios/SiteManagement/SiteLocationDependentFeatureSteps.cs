@@ -28,7 +28,7 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 /// <summary>
 /// Tests that depend on the setup and async disposal of sites due to location (long lat) search collisions
 /// </summary>
-public abstract class SiteLocationDependentFeatureSteps(string flag, bool enabled) : FeatureToggledSteps(flag, enabled), IAsyncLifetime
+public abstract class SiteLocationDependentFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled), IAsyncLifetime
 {
     private HttpResponseMessage Response { get; set; }
     private HttpStatusCode StatusCode { get; set; }
@@ -655,14 +655,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         };
 
         await PostQuerySitesRequestAsync(payload);
-    }
-    
-    //Not to be used unless explicitly need to wait
-    [When("I wait for '(.+)' milliseconds")]
-    public async Task WaitForSeconds(string milliseconds)
-    {
-        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
-        await Task.Delay(timespan);
     }
 
     [When("I make the 'get sites by area' request with service filtering")]

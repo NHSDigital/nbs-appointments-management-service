@@ -25,6 +25,9 @@ Feature: Manage site reference details
     And I register and use a http client with details
       | User Id    | Role                         | Scope  |
       | mya_admin  | system:integration-test-user | global |
+    #TODO Revert when APPT-2053 is fixed
+    And I wait for '1000' milliseconds
+    #TODO Revert when APPT-2053 is fixed
     When I update the reference details at the default site
       | OdsCode     | ICB  | Region |
       | 16B         | ICB2 | R34    |

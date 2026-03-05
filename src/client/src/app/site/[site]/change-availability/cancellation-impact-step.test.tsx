@@ -29,6 +29,7 @@ const defaultProps = {
 const defaultFormValues: ChangeAvailabilityFormValues = {
   startDate: { day: '01', month: '01', year: '2026' },
   endDate: { day: '02', month: '01', year: '2026' },
+  proposedCancellationSummary: { sessionCount: 0, bookingCount: 0 },
 };
 
 describe('When bookings cancellation is DISABLED', () => {
@@ -179,6 +180,28 @@ describe('When bookings cancellation is ENABLED', () => {
       await user.click(continueBtn);
 
       expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('renderResolveBookings', () => {
+    it('toggles between single and repeat', async () => {
+      const { user } = renderWithSummary(5, 5);
+
+      await user.click(screen.getByRole('radio', { name: 'Keep bookings' }));
+      expect(
+        screen.getByRole('radio', { name: 'Keep bookings' }),
+      ).toBeChecked();
+      expect(
+        screen.getByRole('radio', { name: 'Cancel bookings' }),
+      ).not.toBeChecked();
+
+      await user.click(screen.getByRole('radio', { name: 'Cancel bookings' }));
+      expect(
+        screen.getByRole('radio', { name: 'Keep bookings' }),
+      ).not.toBeChecked();
+      expect(
+        screen.getByRole('radio', { name: 'Cancel bookings' }),
+      ).toBeChecked();
     });
   });
 });

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
@@ -615,6 +614,57 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         (_, _sitesWithDistanceResponse) =
             await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
                 await Response.Content.ReadAsStreamAsync());
+    }
+    
+    //polling the request endpoint until we get the expected response length!
+    [When("I make repeated 'get sites by area' requests with service filtering, access needs, and caching - until '(.+)' sites are returned")]
+    public async Task RepeatedPollingOfRequestSitesByAreaWithServiceFilteringAndAccessNeedsAndCacheEnabled(int expectedSiteResponseLength, DataTable dataTable)
+    {
+        var pollingInterval = TimeSpan.FromSeconds(1);
+        var pollingTimeout = TimeSpan.FromSeconds(10);
+    
+        var row = dataTable.Rows.ElementAt(1);
+        var maxRecords = row.Cells.ElementAt(0).Value;
+        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
+        var longitude = row.Cells.ElementAt(2).Value;
+        var latitude = row.Cells.ElementAt(3).Value;
+
+        var services = row.Cells.ElementAt(4).Value;
+        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
+        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
+
+        var accessNeeds = row.Cells.ElementAt(7).Value;
+        
+        var httpClient = GetHttpClientForTest();
+        var requestString =
+            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=false";
+        
+        var startTime = DateTime.UtcNow;
+        
+        var attempts = 0;
+
+        while (DateTime.UtcNow - startTime < pollingTimeout)
+        {
+            attempts++;
+            Response = await httpClient.GetAsync(requestString);
+            (_, _sitesWithDistanceResponse) =
+                await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
+                    await Response.Content.ReadAsStreamAsync());
+
+            if (_sitesWithDistanceResponse.Count() == expectedSiteResponseLength)
+            {
+                var expectedLengthSuccess = $"Correct number of sites are returned after attempt: {attempts}";
+                expectedLengthSuccess.Should().NotBeNull();
+                return;
+            }
+            
+            var expectedLengthFailure = $"Wrong number of sites are returned after attempt: {attempts}";
+            expectedLengthFailure.Should().NotBeNull();
+
+            await Task.Delay(pollingInterval);
+        }
+        
+        throw new TimeoutException("Correct number of sites not returned within expected timeout period");
     }
     
     [When("I make the 'query sites' request with service filtering, access needs, and caching")]

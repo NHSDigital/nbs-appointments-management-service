@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import MockForm from '@testing/mockForm';
 import SummaryStep from './summary-step';
-import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import { verifyV10SummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 import { mockSingleService } from '@testing/data';
 
 const mockGoToNextStep = jest.fn();
@@ -88,11 +88,14 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    verifySummaryListItem('Date', '28 February 2027');
-    verifySummaryListItem('Time', '09:30 - 17:45');
-    verifySummaryListItem('Vaccinators or vaccination spaces available', '2');
-    verifySummaryListItem('Appointment length', '15 minutes');
-    verifySummaryListItem('Services available', 'RSV Adult');
+    verifyV10SummaryListItem('Date', '28 February 2027');
+    verifyV10SummaryListItem('Time', '09:30 - 17:45');
+    verifyV10SummaryListItem(
+      'Vaccinators or vaccination spaces available',
+      '2',
+    );
+    verifyV10SummaryListItem('Appointment length', '15 minutes');
+    verifyV10SummaryListItem('Services available', 'RSV Adult');
 
     expect(
       screen.queryByRole('term', { name: 'Days' }),
@@ -123,7 +126,7 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    verifySummaryListItem('Dates', '28 February 2027 - 1 March 2028');
+    verifyV10SummaryListItem('Dates', '28 February 2027 - 1 March 2028');
   });
 
   it('displays a Save button which submits the form', async () => {

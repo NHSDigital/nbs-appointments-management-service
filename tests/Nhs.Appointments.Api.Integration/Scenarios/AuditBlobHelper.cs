@@ -61,7 +61,20 @@ public static class AuditBlobHelper
         }
 
         var response = await blobClient.DownloadContentAsync();
-        return response.Value.Content.ToString();
+
+        string contentStringResponse;
+
+        try
+        {
+            contentStringResponse = response?.Value?.Content?.ToString();
+        }
+        catch (ArgumentNullException _)
+        {
+            //catch _bytes not yet populated in BinaryData and return null
+            return null;
+        }
+
+        return contentStringResponse;
     }
 }
 

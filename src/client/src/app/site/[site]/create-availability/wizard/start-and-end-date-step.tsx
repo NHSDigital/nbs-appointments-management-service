@@ -14,8 +14,7 @@ import {
   isWithinNextCalendarYearUk,
   addToUkDatetime,
 } from '@services/timeService';
-import NhsHeading from '@components/nhs-heading';
-import { DateInput } from 'nhsuk-react-components';
+import { DateInput, Heading } from 'nhsuk-react-components';
 
 const StartAndEndDateStep = ({
   stepNumber,
@@ -76,15 +75,15 @@ const StartAndEndDateStep = ({
         />
       )}
       {sessionType === 'single' ? (
-        <NhsHeading
-          title="Add a date for your session"
-          caption="Create single date session"
-        />
+        <Heading headingLevel="h2">
+          <span className="nhsuk-caption-l">Create single date session</span>
+          Add a date for your session
+        </Heading>
       ) : (
-        <NhsHeading
-          title="Add start and end dates"
-          caption="Create weekly session"
-        />
+        <Heading headingLevel="h2">
+          <span className="nhsuk-caption-l">Create weekly session</span>
+          Add start and end dates
+        </Heading>
       )}
 
       <FormGroup error={errors.startDate?.message}>

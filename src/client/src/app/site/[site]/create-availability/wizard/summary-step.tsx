@@ -1,5 +1,4 @@
 'use client';
-import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
@@ -14,7 +13,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { ClinicalService } from '@types';
-import { SummaryList } from 'nhsuk-react-components';
+import { Heading, SummaryList } from 'nhsuk-react-components';
 
 type SummaryStepProps = {
   clinicalServices: ClinicalService[];
@@ -184,7 +183,11 @@ const SummaryStep = ({
           text="Go back"
         />
       )}
-      <NhsHeading caption="Add availability" title="Check your answers" />
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">Add availability</span>
+        Check your answers
+      </Heading>
+
       <SummaryList>
         {summary.map((item, index) => (
           <SummaryList.Row key={index}>

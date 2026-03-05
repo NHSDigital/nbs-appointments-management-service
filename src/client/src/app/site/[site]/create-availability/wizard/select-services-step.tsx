@@ -9,12 +9,12 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
-import NhsHeading from '@components/nhs-heading';
 import { ClinicalService } from '@types';
 import {
   SERVICE_TYPE_TITLES,
   groupServicesByType,
 } from '@services/clinicalServices';
+import { Heading } from 'nhsuk-react-components';
 
 type SelectServicesStepProps = {
   clinicalServices: ClinicalService[];
@@ -67,14 +67,14 @@ const SelectServicesStep = ({
           text="Go back"
         />
       )}
-      <NhsHeading
-        title="Add services to your session"
-        caption={
-          sessionType === 'single'
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">
+          {sessionType === 'single'
             ? 'Create single date session'
-            : 'Create weekly session'
-        }
-      />
+            : 'Create weekly session'}
+        </span>
+        Add services to your session
+      </Heading>
 
       <p className="nhsuk-body">
         Co-admin appointments can only be booked by people eligible for both

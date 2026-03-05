@@ -15,6 +15,7 @@ export interface ChangeAvailabilityFormValues {
   endDate: DateComponents;
   proposedCancellationSummary?: ProposeCancelDateRangeResponse;
   cancellationSummary?: CancelDateRangeResponse;
+  cancellationDecision?: 'keep-bookings' | 'cancel-bookings';
 }
 
 const isDateEmpty = (date?: Partial<DateComponents>) =>

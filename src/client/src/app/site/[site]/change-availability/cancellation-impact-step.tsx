@@ -1,11 +1,17 @@
 'use client';
-import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
-import { Heading } from 'nhsuk-react-components';
+import {
+  BackLink,
+  Button,
+  ButtonGroup,
+  FormGroup,
+  RadioGroup,
+  Radio,
+} from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
-import { ProposeCancelDateRangeResponse } from '@types';
+import { Heading } from 'nhsuk-react-components';
 
 interface Props {
   cancelADateRangeWithBookingsEnabled: boolean;
@@ -20,10 +26,13 @@ const CancellationImpactStep = ({
 }: InjectedWizardProps & Props) => {
   const router = useRouter();
 
-  const { watch } = useFormContext<ChangeAvailabilityFormValues>();
-  const proposedSummary = watch(
-    'proposedCancellationSummary',
-  ) as ProposeCancelDateRangeResponse;
+  const { getValues, register } =
+    useFormContext<ChangeAvailabilityFormValues>();
+  const { proposedCancellationSummary } = getValues();
+
+  if (!proposedCancellationSummary)
+    throw new Error("Couldn't load cancellation summary");
+  const cancellationDecision = { ...register('cancellationDecision') };
 
   const renderCannotCancel = () => (
     <>
@@ -59,13 +68,78 @@ const CancellationImpactStep = ({
   const renderNoBookings = () => (
     <>
       <Heading headingLevel="h2">
-        {`You are about to cancel ${proposedSummary.sessionCount} ${proposedSummary.sessionCount > 1 ? 'sessions' : 'session'}`}
+        {`You are about to cancel ${proposedCancellationSummary.sessionCount} ${proposedCancellationSummary.sessionCount > 1 ? 'sessions' : 'session'}`}
       </Heading>
       <p>
         There are no bookings for{' '}
-        {proposedSummary.sessionCount > 1 ? 'these sessions' : 'this session'}
+        {proposedCancellationSummary.sessionCount > 1
+          ? 'these sessions'
+          : 'this session'}
       </p>
       <Button onClick={goToNextStep}>Continue</Button>
+    </>
+  );
+
+  const renderResolveBookings = () => (
+    <>
+      <Heading headingLevel="h2">
+        You are about to cancel {proposedCancellationSummary.sessionCount}{' '}
+        {proposedCancellationSummary.sessionCount > 1 ? 'sessions' : 'session'}
+      </Heading>
+
+      <p>
+        There{' '}
+        {proposedCancellationSummary.bookingCount == 1
+          ? `is ${proposedCancellationSummary.bookingCount} booking`
+          : `are ${proposedCancellationSummary.bookingCount} bookings`}{' '}
+        for these sessions
+      </p>
+
+      <Heading headingLevel="h4">
+        What do you want to do with the{' '}
+        {proposedCancellationSummary.bookingCount}{' '}
+        {proposedCancellationSummary.bookingCount > 1 ? 'bookings' : 'booking'}?
+      </Heading>
+
+      <FormGroup>
+        <RadioGroup>
+          <Radio
+            label="Keep bookings"
+            hint="These will stay in your appointments list"
+            {...{
+              ...cancellationDecision,
+              onChange: e => {
+                cancellationDecision.onChange(e);
+              },
+            }}
+            id="cancellation-keep-bookings"
+            value="keep-bookings"
+          />
+          <Radio
+            label="Cancel bookings"
+            hint="We will email or text people to confirm the cancellation"
+            {...{
+              ...cancellationDecision,
+              onChange: e => {
+                cancellationDecision.onChange(e);
+              },
+            }}
+            id="cancellation-cancel-bookings"
+            value="cancel-bookings"
+          />
+        </RadioGroup>
+      </FormGroup>
+
+      <ButtonGroup>
+        <Button
+          type="button"
+          onClick={() => {
+            goToNextStep();
+          }}
+        >
+          Continue
+        </Button>
+      </ButtonGroup>
     </>
   );
 
@@ -74,13 +148,15 @@ const CancellationImpactStep = ({
       return renderCannotCancel();
     }
 
-    if (proposedSummary.sessionCount === 0) {
+    if (proposedCancellationSummary.sessionCount === 0) {
       return renderNoSessions();
     }
 
-    if (proposedSummary.bookingCount === 0) {
+    if (proposedCancellationSummary.bookingCount === 0) {
       return renderNoBookings();
     }
+
+    return renderResolveBookings();
   };
 
   return (

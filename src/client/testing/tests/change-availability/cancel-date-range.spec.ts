@@ -177,11 +177,6 @@ test.describe.configure({ mode: 'serial' });
           return;
         }
 
-        //TODO navigate there rather than goto
-        // await page.goto(
-        //   `/manage-your-appointments/site/${site.id}/change-availability`,
-        // );
-
         await page.getByRole('button', { name: 'Change availability' }).click();
         await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,

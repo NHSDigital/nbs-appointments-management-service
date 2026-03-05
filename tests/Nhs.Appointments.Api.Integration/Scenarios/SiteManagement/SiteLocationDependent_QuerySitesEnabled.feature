@@ -1230,11 +1230,12 @@ Feature: Site Location Dependent - Query Sites Enabled
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |
-#   Second request should not slide the cache, but return the new value that was saved by the slide
-    When I make the 'query sites' request with service filtering, access needs, and caching
+#   None of the next X requests should slide the cache, but one of them should eventually return the new value that was resolved by the slide - once the operation has completed and the cache updated
+    When I make repeated 'query sites' requests with service filtering, access needs, and caching - until '2' sites are returned
       | Max Records | Search Radius | Longitude | Latitude | Service              | From     | Until    | AccessNeeds |
       | 4           | 6000          | 0.082     | 51.5     | RSV:Adult,COVID:5_11 | Tomorrow | Tomorrow | attr_one    |
-#   The site with the posted availability is returned now!
+#   Once the Xth request has the correct number of sites, assert the content of the response
+#   The site with the posted availability is returned eventually!
     Then the following sites and distances are returned
       | Site                                 | Name   | Address    | PhoneNumber  | OdsCode | Region | ICB  | InformationForCitizens | Accessibilities              | Longitude   | Latitude  | Distance |
       | 40e7b709-83c6-416b-b5d8-27d03222e1bf | Site-1 | 1 Roadside | 0113 1111111 | J12     | R1     | ICB1 | Info 1                 | accessibility/attr_one=true  | 0.082750916 | 51.494056 | 662      |

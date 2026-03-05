@@ -7,7 +7,7 @@ import {
   FormGroup,
   TextInput,
 } from '@components/nhsuk-frontend';
-import NhsHeading from '@components/nhs-heading';
+import { Heading } from 'nhsuk-react-components';
 import { Controller, useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
@@ -87,7 +87,7 @@ const SelectDatesStep = ({
         text="Back"
       />
 
-      <NhsHeading title="Select dates to cancel" />
+      <Heading headingLevel="h2">Select dates to cancel</Heading>
 
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-two-thirds">

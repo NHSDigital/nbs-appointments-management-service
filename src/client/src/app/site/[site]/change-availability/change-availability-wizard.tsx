@@ -7,6 +7,7 @@ import BeforeYouContinueStep from './before-you-continue-step';
 import SelectDatesStep from './select-dates-step';
 import CancellationImpactStep from './cancellation-impact-step';
 import CheckYourAnswersStep from './check-your-answers-step';
+import ConfirmationStep from './confirmation-step';
 import {
   createChangeAvailabilityFormSchema,
   ChangeAvailabilityFormValues,
@@ -72,7 +73,10 @@ const ChangeAvailabilityWizard = ({
             )}
           </WizardStep>
           <WizardStep>
-            {stepProps => <CheckYourAnswersStep {...stepProps} />}
+            {stepProps => <CheckYourAnswersStep {...stepProps} site={site} />}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <ConfirmationStep {...stepProps} site={site} />}
           </WizardStep>
         </Wizard>
       </form>

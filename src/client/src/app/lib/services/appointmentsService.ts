@@ -8,6 +8,8 @@ import {
   AvailabilityCreatedEvent,
   Booking,
   BookingStatus,
+  CancelDateRangeRequest,
+  CancelDateRangeResponse,
   CancelDayRequest,
   CancelDayResponse,
   CancelSessionRequest,
@@ -703,6 +705,16 @@ export const proposeCancelDateRange = async (
   appointmentsApi
     .post<ProposeCancelDateRangeResponse>(
       'availability/propose-cancel-date-range',
+      JSON.stringify(payload),
+    )
+    .then(response => handleBodyResponse(response, data => data));
+
+export const cancelDateRange = async (
+  payload: CancelDateRangeRequest,
+): Promise<ServerActionResult<CancelDateRangeResponse>> =>
+  appointmentsApi
+    .post<CancelDateRangeResponse>(
+      'availability/cancel-date-range',
       JSON.stringify(payload),
     )
     .then(response => handleBodyResponse(response, data => data));

@@ -87,9 +87,7 @@ const SelectDatesStep = ({
         text="Back"
       />
 
-      <Heading headingLevel="h2" size="l">
-        Select dates to cancel
-      </Heading>
+      <Heading headingLevel="h2">Select dates to cancel</Heading>
 
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-two-thirds">

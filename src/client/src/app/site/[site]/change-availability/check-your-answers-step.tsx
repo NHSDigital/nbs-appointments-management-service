@@ -101,9 +101,7 @@ const CheckYourAnswersStep = ({
       />
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-two-thirds">
-          <Heading headingLevel="h2" size="l">
-            Check your answers
-          </Heading>
+          <Heading headingLevel="h2">Check your answers</Heading>
           <SummaryList items={summary}></SummaryList>
 
           {pendingSubmit ? (

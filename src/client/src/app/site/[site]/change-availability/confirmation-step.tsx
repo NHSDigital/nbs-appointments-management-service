@@ -19,7 +19,7 @@ const ConfirmationStep = ({ site }: InjectedWizardProps & Props) => {
   return (
     <div className="nhsuk-grid-row">
       <div className="nhsuk-grid-column-two-thirds">
-        <Heading headingLevel="h2" size="l">
+        <Heading headingLevel="h2">
           {`${cancellationSummary.cancelledSessionsCount} ${
             cancellationSummary.cancelledSessionsCount > 1
               ? 'sessions'

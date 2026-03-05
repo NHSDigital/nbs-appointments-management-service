@@ -27,9 +27,7 @@ const CancellationImpactStep = ({
 
   const renderCannotCancel = () => (
     <>
-      <Heading headingLevel="h2" size="l">
-        You cannot cancel these sessions
-      </Heading>
+      <Heading headingLevel="h2">You cannot cancel these sessions</Heading>
       <p>
         There are existing bookings for these sessions. You should first cancel
         the bookings, then return to change availability.
@@ -51,7 +49,7 @@ const CancellationImpactStep = ({
 
   const renderNoSessions = () => (
     <>
-      <Heading headingLevel="h2" size="l">
+      <Heading headingLevel="h2">
         There are no sessions in this date range
       </Heading>
       <p>You should choose a new date range.</p>
@@ -60,7 +58,7 @@ const CancellationImpactStep = ({
   );
   const renderNoBookings = () => (
     <>
-      <Heading headingLevel="h2" size="l">
+      <Heading headingLevel="h2">
         {`You are about to cancel ${proposedSummary.sessionCount} ${proposedSummary.sessionCount > 1 ? 'sessions' : 'session'}`}
       </Heading>
       <p>

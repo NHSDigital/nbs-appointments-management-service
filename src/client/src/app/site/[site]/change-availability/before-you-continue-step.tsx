@@ -26,9 +26,7 @@ const BeforeYouContinueStep = ({
         text="Back"
       />
 
-      <Heading headingLevel="h2" size="l">
-        Before you continue
-      </Heading>
+      <Heading headingLevel="h2">Before you continue</Heading>
       <p>
         You cannot edit sessions after you create them. To change a session, you
         must:

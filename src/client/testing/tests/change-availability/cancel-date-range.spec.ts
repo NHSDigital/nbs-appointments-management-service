@@ -1,6 +1,7 @@
 import { OAuthLoginPage, RootPage } from '@testing-page-objects';
 import { Site } from '@types';
 import { test, expect, overrideFeatureFlag } from '../../fixtures';
+import ServiceNotFoundPage from '@e2etests/page-objects';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
@@ -46,10 +47,9 @@ test.describe.configure({ mode: 'serial' });
       });
 
       test('Cancel a date range monthly page', async ({ page }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -77,10 +77,9 @@ test.describe.configure({ mode: 'serial' });
           .getByRole('link')
           .click();
 
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -122,10 +121,9 @@ test.describe.configure({ mode: 'serial' });
           ),
         );
 
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -170,10 +168,9 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, mandatory field validation', async ({
         page,
       }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -217,10 +214,9 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, must be in the future', async ({
         page,
       }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -280,10 +276,9 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, end date must be after the start date', async ({
         page,
       }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -335,9 +330,7 @@ test.describe.configure({ mode: 'serial' });
           .filter({ hasText: 'End date' });
         await expect(
           errorContainer.locator('.nhsuk-error-message'),
-        ).toContainText(/End date must be on or after the start date/i, {
-          timeout: 15000,
-        });
+        ).toContainText(/End date must be on or after the start date/i);
 
         await expect(
           page.getByRole('link', { name: 'Back', exact: true }),
@@ -351,10 +344,9 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error within 3 months - 90 days or less', async ({
         page,
       }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -408,10 +400,9 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error within 3 months - greater than 90 days', async ({
         page,
       }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -513,10 +504,9 @@ test.describe.configure({ mode: 'serial' });
       test('Cannot cancel these sessions - Return to view availability', async ({
         page,
       }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 
@@ -576,10 +566,9 @@ test.describe.configure({ mode: 'serial' });
       test('Cannot cancel these sessions - Select different dates', async ({
         page,
       }) => {
+        const serviceNotFoundPage = new ServiceNotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await expect(serviceNotFoundPage.title).toBeVisible();
           return;
         }
 

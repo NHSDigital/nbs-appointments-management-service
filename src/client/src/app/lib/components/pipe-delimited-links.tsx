@@ -11,8 +11,12 @@ type PipeDelimitedLinksProps = {
 };
 
 const PipeDelimitedLinks = ({ actionLinks }: PipeDelimitedLinksProps) => {
+  if (actionLinks.length === 0) {
+    return undefined;
+  }
+
   return (
-    <>
+    <div className="appointment-summary-card-item-margin">
       {actionLinks.reduce<ReactNode[]>(
         (acc, { text, href }, index) => [
           ...acc,
@@ -23,7 +27,7 @@ const PipeDelimitedLinks = ({ actionLinks }: PipeDelimitedLinksProps) => {
         ],
         [],
       )}
-    </>
+    </div>
   );
 };
 

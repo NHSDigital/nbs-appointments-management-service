@@ -107,13 +107,13 @@ export default class DailyAppointmentDetailsPage extends RootPage {
     ).toBeVisible();
   }
 
-  async verifyManualAppointment() {
+  async verifyOrphanedMessageDoesNotExist() {
     await expect(
       this.page
         .getByRole('main')
         .getByText(
           `There are no booked appointments affected by availability changes.`,
         ),
-    ).toBeVisible();
+    ).not.toBeVisible();
   }
 }

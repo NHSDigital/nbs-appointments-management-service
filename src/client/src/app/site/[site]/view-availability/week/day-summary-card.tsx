@@ -26,10 +26,17 @@ export const DaySummaryCard = ({
   canViewDailyAppointments,
   cancelDayFlag,
 }: DaySummaryCardProps) => {
-  const { ukDate, sessions, cancelledAppointments, orphanedAppointments } =
-    daySummary;
+  const {
+    ukDate,
+    sessions,
+    bookedAppointments,
+    orphanedAppointments,
+    cancelledAppointments,
+  } = daySummary;
 
   const isFutureCalendarDate = isFutureCalendarDateUk(ukDate);
+
+  const totalAppointments = bookedAppointments + orphanedAppointments;
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
@@ -38,22 +45,31 @@ export const DaySummaryCard = ({
           text: 'Add availability to this day',
           href: `/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`,
         },
+      //logically if sessions is empty, then this could just be replace by orphanedAppointments > 0...
+      //as bookedAppointments (supported) SHOULD be zero?
+      canViewDailyAppointments &&
+        totalAppointments > 0 && {
+          text: 'View daily appointments',
+          href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1`,
+        },
       canViewDailyAppointments &&
         cancelledAppointments > 0 && {
           text: 'View cancelled appointments',
           href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
         },
-      canViewDailyAppointments &&
-        orphanedAppointments > 0 && {
-          text: 'View manual cancellations',
-          href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
-        },
     ].filter(p => p !== false);
 
     return (
       <Card>
-        <Card.Heading>{ukDate.format('dddd D MMMM')}</Card.Heading>
-        <div>No availability</div>
+        <Card.Heading
+          headingLevel="h3"
+          className="appointment-summary-card-item-margin"
+        >
+          {ukDate.format('dddd D MMMM')}
+        </Card.Heading>
+        <div className="appointment-summary-card-item-margin">
+          No availability
+        </div>
         <AppointmentCountsSummary period={daySummary} />
         <PipeDelimitedLinks actionLinks={actionLinks} />
       </Card>
@@ -70,16 +86,16 @@ export const DaySummaryCard = ({
         text: 'View cancelled appointments',
         href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
       },
-    canViewDailyAppointments &&
-      orphanedAppointments > 0 && {
-        text: 'View manual cancellations',
-        href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=2`,
-      },
   ].filter(p => p !== false);
 
   return (
     <Card>
-      <Card.Heading size="m">{ukDate.format('dddd D MMMM')}</Card.Heading>
+      <Card.Heading
+        headingLevel="h3"
+        className="appointment-summary-card-item-margin"
+      >
+        {ukDate.format('dddd D MMMM')}
+      </Card.Heading>
       {cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
         <Card.Action
           href={`${process.env.CLIENT_BASE_PATH}/site/${siteId}/cancel-day?date=${ukDate.format(RFC3339Format)}`}
@@ -99,14 +115,15 @@ export const DaySummaryCard = ({
             : undefined
         }
       />
-      <br />
       {isFutureCalendarDate && canManageAvailability && (
-        <Link
-          className="nhsuk-link"
-          href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`}
-        >
-          Add Session
-        </Link>
+        <div className="appointment-summary-card-item-margin">
+          <Link
+            className="nhsuk-link"
+            href={`/site/${siteId}/create-availability/wizard?date=${ukDate.format(RFC3339Format)}`}
+          >
+            Add Session
+          </Link>
+        </div>
       )}
       <AppointmentCountsSummary period={daySummary} />
       <PipeDelimitedLinks actionLinks={actionLinks} />

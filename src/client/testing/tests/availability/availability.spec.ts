@@ -842,7 +842,7 @@ test.describe('Update Session', () => {
         );
       });
 
-      test('Verify availability with no bookings is cancelled and manual appointments folder is empty', async ({
+      test('Verify availability with no bookings is cancelled and orphaned appointments message does not exist', async ({
         page,
       }) => {
         const dayIncrement = staticHackyDayIncrementToBump + 5;
@@ -905,7 +905,7 @@ test.describe('Update Session', () => {
           '**/site/**/view-availability/daily-appointments?date=**',
         );
 
-        await dailyAppointmentDetailsPage.verifyManualAppointment();
+        await dailyAppointmentDetailsPage.verifyOrphanedMessageDoesNotExist();
       });
     });
   });
@@ -1132,10 +1132,10 @@ test.describe('View Week Availability', () => {
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
       header: 'Thursday 20 August',
-      booked: 3,
+      booked: 4,
       unbooked: 36,
-      orphaned: 1,
-      totalAppointments: 38,
+      orphaned: 2,
+      totalAppointments: 40,
       sessions: [
         {
           serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
@@ -1170,10 +1170,10 @@ test.describe('View Week Availability', () => {
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
       header: 'Thursday 20 August',
-      booked: 3,
+      booked: 4,
       unbooked: 84,
-      orphaned: 1,
-      totalAppointments: 86,
+      orphaned: 2,
+      totalAppointments: 88,
       sessions: [
         {
           serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
@@ -1214,10 +1214,10 @@ test.describe('View Week Availability', () => {
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
       header: 'Thursday 20 August',
-      booked: 3,
+      booked: 4,
       unbooked: 104,
-      orphaned: 1,
-      totalAppointments: 106,
+      orphaned: 2,
+      totalAppointments: 108,
       sessions: [
         {
           serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
@@ -1288,10 +1288,10 @@ test.describe('View Week Availability', () => {
 
     await weekViewAvailabilityPage.verifySessionDataDisplayedInTheCorrectOrder({
       header: 'Thursday 20 August',
-      booked: 3,
+      booked: 4,
       unbooked: 56,
-      orphaned: 1,
-      totalAppointments: 58,
+      orphaned: 2,
+      totalAppointments: 60,
       sessions: [
         {
           serviceName: 'COVID 5-11RSV AdultFlu 18-64COVID 18+',
@@ -1313,6 +1313,9 @@ test.describe('View Week Availability', () => {
         },
       ],
     });
+
+    //TODO cancel one of the orphaned appointments and verify new totals
+    //currently don't have tests that cancel bookings, and this is a gap in our testing!
   });
 
   // ['Europe/London', 'UTC', 'Pacific/Kiritimati', 'Etc/GMT+12']

@@ -51,7 +51,7 @@ describe('Week Summary Card', () => {
       />,
     );
 
-    expect(screen.getByText('Total appointments: 480')).toBeInTheDocument();
+    expect(screen.getByText('Total appointments: 481')).toBeInTheDocument();
     expect(screen.getByText('Booked: 5')).toBeInTheDocument();
     expect(screen.getByText('Unbooked: 476')).toBeInTheDocument();
   });
@@ -64,10 +64,25 @@ describe('Week Summary Card', () => {
       />,
     );
 
-    expect(screen.getByText(/There are/)).toBeInTheDocument();
-    expect(screen.getByText('31')).toBeInTheDocument();
     expect(
-      screen.getByText(/manual cancellations in this week./),
+      screen.getByText(
+        /31 bookings were kept when availability was changed or cancelled./,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a warning if there is a single orphaned appointment', () => {
+    render(
+      <WeekSummaryCard
+        ukWeekSummary={{ ...mockWeekSummary, orphanedAppointments: 1 }}
+        clinicalServices={mockMultipleServices}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        /1 booking was kept when availability was changed or cancelled./,
+      ),
     ).toBeInTheDocument();
   });
 

@@ -12,6 +12,9 @@ Feature: Cancel a session
     And the following bookings have been made at the default site
       | Date     | Time  | Duration | Service | Reference   |
       | Tomorrow | 09:45 | 5        | COVID   | 68537-44913 |
+    #TODO Revert when APPT-2053 is fixed
+    And I wait for '1000' milliseconds
+    #TODO Revert when APPT-2053 is fixed
     When I cancel the following session at the default site
       | Date     | From  | Until | Services | Slot Length | Capacity |
       | Tomorrow | 09:00 | 10:00 | COVID    | 5           | 1        |

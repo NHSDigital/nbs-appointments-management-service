@@ -656,14 +656,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
 
         await PostQuerySitesRequestAsync(payload);
     }
-    
-    //Not to be used unless explicitly need to wait
-    [When("I wait for '(.+)' milliseconds")]
-    public async Task WaitForSeconds(string milliseconds)
-    {
-        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
-        await Task.Delay(timespan);
-    }
 
     [When("I make the 'get sites by area' request with service filtering")]
     public async Task RequestSitesByAreaWithServiceFiltering(DataTable dataTable)

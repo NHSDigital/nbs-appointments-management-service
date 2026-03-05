@@ -1,13 +1,11 @@
 'use client';
 import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
-import NhsHeading from '@components/nhs-heading';
+import { Heading } from 'nhsuk-react-components';
 import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
-import {
-  ChangeAvailabilityFormValues,
-  ProposedCancellationSummary,
-} from './change-availability-form-schema';
+import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
+import { ProposeCancelDateRangeResponse } from '@types';
 
 interface Props {
   cancelADateRangeWithBookingsEnabled: boolean;
@@ -25,11 +23,13 @@ const CancellationImpactStep = ({
   const { watch } = useFormContext<ChangeAvailabilityFormValues>();
   const proposedSummary = watch(
     'proposedCancellationSummary',
-  ) as ProposedCancellationSummary;
+  ) as ProposeCancelDateRangeResponse;
 
   const renderCannotCancel = () => (
     <>
-      <NhsHeading title="You cannot cancel these sessions" />
+      <Heading headingLevel="h2" size="l">
+        You cannot cancel these sessions
+      </Heading>
       <p>
         There are existing bookings for these sessions. You should first cancel
         the bookings, then return to change availability.
@@ -51,16 +51,18 @@ const CancellationImpactStep = ({
 
   const renderNoSessions = () => (
     <>
-      <NhsHeading title="There are no sessions in this date range" />
+      <Heading headingLevel="h2" size="l">
+        There are no sessions in this date range
+      </Heading>
       <p>You should choose a new date range.</p>
       <Button onClick={goToPreviousStep}>Choose a new date range.</Button>
     </>
   );
   const renderNoBookings = () => (
     <>
-      <NhsHeading
-        title={`You are about to cancel ${proposedSummary.sessionCount} ${proposedSummary.sessionCount > 1 ? 'sessions' : 'session'}`}
-      />
+      <Heading headingLevel="h2" size="l">
+        {`You are about to cancel ${proposedSummary.sessionCount} ${proposedSummary.sessionCount > 1 ? 'sessions' : 'session'}`}
+      </Heading>
       <p>
         There are no bookings for{' '}
         {proposedSummary.sessionCount > 1 ? 'these sessions' : 'this session'}

@@ -6,20 +6,39 @@ import {
   SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
-import NhsHeading from '@components/nhs-heading';
+import { Heading } from 'nhsuk-react-components';
 import { InjectedWizardProps } from '@components/wizard';
 import { useFormContext } from 'react-hook-form';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
-import { parseDateComponentsToUkDatetime } from '@services/timeService';
+import {
+  parseDateComponentsToUkDatetime,
+  RFC3339Format,
+} from '@services/timeService';
+import { cancelDateRange } from '@services/appointmentsService';
+import { useState } from 'react';
+
+interface Props {
+  site: string;
+}
 
 const CheckYourAnswersStep = ({
+  site,
   goToPreviousStep,
   setCurrentStep,
+  goToNextStep,
   pendingSubmit,
-}: InjectedWizardProps) => {
-  const { getValues } = useFormContext<ChangeAvailabilityFormValues>();
+}: InjectedWizardProps & Props) => {
+  const [error, setError] = useState<Error | null>(null);
+
+  if (error) {
+    throw error;
+  }
+
+  const { getValues, setValue } =
+    useFormContext<ChangeAvailabilityFormValues>();
   const { startDate, endDate, proposedCancellationSummary } = getValues();
 
+  const cancelBookings = false;
   const startDayjs = parseDateComponentsToUkDatetime(startDate);
   const endDayjs = parseDateComponentsToUkDatetime(endDate);
   const isSameYear = startDayjs?.isSame(endDayjs, 'year');
@@ -45,6 +64,34 @@ const CheckYourAnswersStep = ({
     },
   ];
 
+  const onContinue = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      if (!startDayjs || !endDayjs) throw new Error('Invalid dates');
+
+      const response = await cancelDateRange({
+        site: site,
+        from: startDayjs.format(RFC3339Format),
+        to: endDayjs.format(RFC3339Format),
+        cancelBookings: cancelBookings,
+      });
+
+      if (!response.success) return;
+
+      setValue('cancellationSummary', {
+        cancelledSessionsCount: response.data.cancelledSessionsCount,
+        cancelledBookingsCount: response.data.cancelledBookingsCount,
+        bookingsWithoutContactDetailsCount:
+          response.data.bookingsWithoutContactDetailsCount,
+      });
+
+      goToNextStep();
+    } catch (err) {
+      setError(err as Error);
+    }
+  };
+
   return (
     <>
       <BackLink
@@ -54,13 +101,15 @@ const CheckYourAnswersStep = ({
       />
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-two-thirds">
-          <NhsHeading title="Check your answers" />
+          <Heading headingLevel="h2" size="l">
+            Check your answers
+          </Heading>
           <SummaryList items={summary}></SummaryList>
 
           {pendingSubmit ? (
             <SmallSpinnerWithText text="Saving..." />
           ) : (
-            <Button type="submit" styleType="warning">
+            <Button type="submit" styleType="warning" onClick={onContinue}>
               Cancel sessions
             </Button>
           )}

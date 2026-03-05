@@ -5,16 +5,16 @@ import {
 } from '@services/timeService';
 import * as yup from 'yup';
 import { DateComponents } from '@types';
-
-export interface ProposedCancellationSummary {
-  sessionCount: number;
-  bookingCount: number;
-}
+import {
+  CancelDateRangeResponse,
+  ProposeCancelDateRangeResponse,
+} from '@types';
 
 export interface ChangeAvailabilityFormValues {
   startDate: DateComponents;
   endDate: DateComponents;
-  proposedCancellationSummary?: ProposedCancellationSummary;
+  proposedCancellationSummary?: ProposeCancelDateRangeResponse;
+  cancellationSummary?: CancelDateRangeResponse;
 }
 
 const isDateEmpty = (date?: Partial<DateComponents>) =>

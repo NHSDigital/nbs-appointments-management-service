@@ -1,5 +1,5 @@
 'use client';
-import NhsHeading from '@components/nhs-heading';
+import { Heading } from 'nhsuk-react-components';
 import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
@@ -26,8 +26,9 @@ const BeforeYouContinueStep = ({
         text="Back"
       />
 
-      <NhsHeading title="Before you continue" />
-
+      <Heading headingLevel="h2" size="l">
+        Before you continue
+      </Heading>
       <p>
         You cannot edit sessions after you create them. To change a session, you
         must:

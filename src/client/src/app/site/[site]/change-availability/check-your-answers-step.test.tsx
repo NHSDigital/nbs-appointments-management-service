@@ -1,17 +1,30 @@
 import render from '@testing/render';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import CheckYourAnswersStep from './check-your-answers-step';
 import MockForm from '@testing/mockForm';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
+import { cancelDateRange } from '@services/appointmentsService';
+import { CancelDateRangeResponse, ServerActionResult } from '@types';
 
 const mockGoToPreviousStep = jest.fn();
+const mockGoToNextStep = jest.fn();
 const mockSetCurrentStep = jest.fn();
 
+jest.mock('@services/appointmentsService', () => {
+  const originalModule = jest.requireActual('@services/appointmentsService');
+  return {
+    ...originalModule,
+    cancelDateRange: jest.fn(),
+  };
+});
+const mockCancelDateRange = cancelDateRange as jest.Mock<
+  Promise<ServerActionResult<CancelDateRangeResponse>>
+>;
 const defaultProps = {
   goToPreviousStep: mockGoToPreviousStep,
   setCurrentStep: mockSetCurrentStep,
   pendingSubmit: false,
-  goToNextStep: jest.fn(),
+  goToNextStep: mockGoToNextStep,
   currentStep: 3,
   stepNumber: 3,
   isActive: true,
@@ -35,7 +48,7 @@ const renderComponent = (
       defaultValues={mergedValues}
       submitHandler={jest.fn()}
     >
-      <CheckYourAnswersStep {...props} />
+      <CheckYourAnswersStep {...props} site="siteId" />
     </MockForm>,
   );
 };
@@ -116,6 +129,52 @@ describe('CheckYourAnswersStep', () => {
       expect(
         screen.queryByRole('button', { name: /Cancel sessions/i }),
       ).not.toBeInTheDocument();
+    });
+
+    it('does NOT navigate to next step if API returns failure', async () => {
+      mockCancelDateRange.mockResolvedValue({ success: false });
+
+      const { user } = renderComponent({});
+
+      await user.click(
+        screen.getByRole('button', { name: /Cancel sessions/i }),
+      );
+
+      await waitFor(() => {
+        expect(mockCancelDateRange).toHaveBeenCalled();
+        expect(mockGoToNextStep).not.toHaveBeenCalled();
+      });
+    });
+    it('calls proposeCancelDateRange and navigates to next step on success', async () => {
+      mockCancelDateRange.mockResolvedValue({
+        success: true,
+        data: {
+          cancelledSessionsCount: 5,
+          cancelledBookingsCount: 2,
+          bookingsWithoutContactDetailsCount: 0,
+        },
+      });
+
+      const { user } = renderComponent({
+        startDate: { day: '1', month: '10', year: '2026' },
+        endDate: { day: '24', month: '12', year: '2026' },
+      });
+
+      await user.click(
+        screen.getByRole('button', { name: /Cancel sessions/i }),
+      );
+
+      await waitFor(() => {
+        expect(mockCancelDateRange).toHaveBeenCalledWith(
+          expect.objectContaining({
+            from: expect.stringContaining('2026-10-01'),
+            to: expect.stringContaining('2026-12-24'),
+            cancelBookings: false,
+          }),
+        );
+
+        expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

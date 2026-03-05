@@ -450,6 +450,20 @@ type ProposeCancelDateRangeResponse = {
   sessionCount: number;
   bookingCount: number;
 };
+
+type CancelDateRangeRequest = {
+  site: string;
+  from: string;
+  to: string;
+  cancelBookings: boolean;
+};
+
+type CancelDateRangeResponse = {
+  cancelledSessionsCount: number;
+  cancelledBookingsCount: number;
+  bookingsWithoutContactDetailsCount: number;
+};
+
 export type {
   Accessibility,
   AccessibilityDefinition,
@@ -468,6 +482,8 @@ export type {
   AvailabilitySlot,
   AvailabilityTemplate,
   Booking,
+  CancelDateRangeRequest,
+  CancelDateRangeResponse,
   CancelDayRequest,
   CancelDayResponse,
   CancelSessionRequest,

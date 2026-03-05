@@ -1,5 +1,5 @@
-import { InsetText } from '@components/nhsuk-frontend';
 import { TimeComponents } from '@types';
+import { InsetText } from 'nhsuk-react-components';
 
 type CapacityCalculationProps = {
   slotLength: number;

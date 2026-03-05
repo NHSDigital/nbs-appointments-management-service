@@ -4,7 +4,6 @@ import {
   BackLink,
   Button,
   SmallSpinnerWithText,
-  SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
@@ -15,6 +14,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { ClinicalService } from '@types';
+import { SummaryList } from 'nhsuk-react-components';
 
 type SummaryStepProps = {
   clinicalServices: ClinicalService[];
@@ -185,7 +185,14 @@ const SummaryStep = ({
         />
       )}
       <NhsHeading caption="Add availability" title="Check your answers" />
-      <SummaryList items={summary}></SummaryList>
+      <SummaryList>
+        {summary.map((item, index) => (
+          <SummaryList.Row key={index}>
+            <SummaryList.Key>{item.title}</SummaryList.Key>
+            <SummaryList.Value>{item.value}</SummaryList.Value>
+          </SummaryList.Row>
+        ))}
+      </SummaryList>
 
       <h2 className="nhsuk-heading-m nhsuk-u-margin-top-6">
         Before you continue

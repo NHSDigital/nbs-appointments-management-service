@@ -23,7 +23,7 @@ stages:
       prDockerServiceConnectionName: $(prDockerServiceConnectionName)
 
   - ${{ each env in parameters.environments }}:
-      ${{ if eq(env, 'dev') }}:
+      - ${{ if eq(env, 'dev') }}:
           - template: scripts/pipeline-templates/deploy.yml
             parameters:
               env: ${{env}}
@@ -39,7 +39,7 @@ stages:
               serviceConnectionName: vaccs-mya-${{env}}-uks
               isHotfix: false
               isStrategicTenant: true
-      ${{ else }}:
+      - ${{ else }}:
           - template: scripts/pipeline-templates/deploy.yml
             parameters:
               env: ${{env}}

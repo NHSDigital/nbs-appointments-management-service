@@ -28,41 +28,41 @@ stages:
             parameters:
               env: ${{env}}
               variable_group: nbs-mya-${{env}}
-              httpFunctionAppName: vaccs-mya-func-${{env}}-uks
-              highLoadFunctionAppName: vaccs-mya-hlfunc-${{env}}-uks
-              serviceBusFunctionAppName: vaccs-mya-sbfunc-${{env}}-uks
-              timerFunctionAppName: vaccs-mya-timerfunc-${{env}}-uks
-              webServerName: vaccs-mya-app-${{env}}-uks
-              cosmosAccountName: vaccs-mya-cdb-${{env}}-uks
-              key_vault_variable_group: covid19bookingkvintuks
-              resourceGroup: vaccs-mya-${{env}}-uks
-              serviceConnectionName: vaccs-mya-${{env}}-uks
-              isHotfix: false
-              isStrategicTenant: true
+              
       - ${{ else }}:
           - template: scripts/pipeline-templates/deploy.yml
             parameters:
               env: ${{env}}
               variable_group: nbs-mya-${{env}}
-              httpFunctionAppName: nbs-mya-func-${{env}}-uks
-              highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
-              serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
-              timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
-              webServerName: nbs-mya-app-${{env}}-uks
-              cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-              ${{ if eq(env, 'perf') }}:
-                key_vault_variable_group: covid19bookingkvstaguks
-              ${{ elseif eq(env, 'dev') }}:
+              ${{ if eq(env, 'dev') }}:
+                httpFunctionAppName: vaccs-mya-func-${{env}}-uks
+                highLoadFunctionAppName: vaccs-mya-hlfunc-${{env}}-uks
+                serviceBusFunctionAppName: vaccs-mya-sbfunc-${{env}}-uks
+                timerFunctionAppName: vaccs-mya-timerfunc-${{env}}-uks
+                webServerName: vaccs-mya-app-${{env}}-uks
+                cosmosAccountName: vaccs-mya-cdb-${{env}}-uks
                 key_vault_variable_group: covid19bookingkvintuks
+                resourceGroup: vaccs-mya-${{env}}-uks
+                serviceConnectionName: vaccs-mya-${{env}}-uks
+                isStrategicTenant: true
               ${{ else }}:
-                key_vault_variable_group: covid19bookingkv${{env}}uks
-              ${{ if eq(env, 'perf') }}:
-                resourceGroup: nbs-mya${{env}}-rg-stag-uks
-                serviceConnectionName: nbs-mya${{env}}-rg-stag
-              ${{ elseif eq(env, 'dev') }}:
-                resourceGroup: nbs-mya${{env}}-rg-int-uks
-                serviceConnectionName: nbs-mya${{env}}-rg-int
-              ${{ else }}:
-                resourceGroup: nbs-mya-rg-${{env}}-uks
-                serviceConnectionName: nbs-mya-rg-${{env}}
-              isHotfix: false
+                httpFunctionAppName: nbs-mya-func-${{env}}-uks
+                highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+                serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+                timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+                webServerName: nbs-mya-app-${{env}}-uks
+                cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+                ${{ if eq(env, 'perf') }}:
+                  key_vault_variable_group: covid19bookingkvstaguks
+                ${{ else }}:
+                  key_vault_variable_group: covid19bookingkv${{env}}uks
+                ${{ if eq(env, 'perf') }}:
+                  resourceGroup: nbs-mya${{env}}-rg-stag-uks
+                  serviceConnectionName: nbs-mya${{env}}-rg-stag
+                ${{ elseif eq(env, 'dev') }}:
+                  resourceGroup: nbs-mya${{env}}-rg-int-uks
+                  serviceConnectionName: nbs-mya${{env}}-rg-int
+                ${{ else }}:
+                  resourceGroup: nbs-mya-rg-${{env}}-uks
+                  serviceConnectionName: nbs-mya-rg-${{env}}
+                isHotfix: false

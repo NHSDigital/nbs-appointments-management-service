@@ -193,6 +193,21 @@ const SummaryStep = ({
           <SummaryList.Row key={index}>
             <SummaryList.Key>{item.title}</SummaryList.Key>
             <SummaryList.Value>{item.value}</SummaryList.Value>
+            {item.action &&
+              (item.action.renderingStrategy === 'server' ? (
+                <SummaryList.Action href={item.action.href}>
+                  {item.action.text}
+                </SummaryList.Action>
+              ) : (
+                <SummaryList.Action
+                  onClick={item.action.onClick}
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                >
+                  {item.action.text}
+                </SummaryList.Action>
+              ))}
           </SummaryList.Row>
         ))}
       </SummaryList>

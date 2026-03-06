@@ -9,7 +9,7 @@ import {
 import { mockRoles } from '@testing/data';
 import { InjectedWizardProps } from '@components/wizard';
 import SummaryStep, { SummaryStepProps } from './summary-step';
-import { verifySummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
+import { verifyV10SummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.Mock;
@@ -79,8 +79,8 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    verifySummaryListItem('Email address', 'new.user@nhs.net');
-    verifySummaryListItem('Roles', 'Beta Role, Charlie Role');
+    verifyV10SummaryListItem('Email address', 'new.user@nhs.net');
+    verifyV10SummaryListItem('Roles', 'Beta Role, Charlie Role');
 
     expect(
       screen.queryByRole('term', { name: 'Name' }),
@@ -108,7 +108,7 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    verifySummaryListItem('Name', 'Elizabeth Kensington-Jones');
+    verifyV10SummaryListItem('Name', 'Elizabeth Kensington-Jones');
   });
 
   it('hides the name summary for Nhs Mail users', async () => {

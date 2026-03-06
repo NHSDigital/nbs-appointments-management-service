@@ -1,11 +1,9 @@
 'use client';
-import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
   ButtonGroup,
   SmallSpinnerWithText,
-  SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
@@ -14,6 +12,7 @@ import { SetUserRolesFormValues } from '../set-user-roles-form';
 import { sortRolesByName } from '@sorting';
 import { Role } from '@types';
 import { useRouter } from 'next/navigation';
+import { Heading, SummaryList } from 'nhsuk-react-components';
 
 export type SummaryStepProps = {
   roleOptions: Role[];
@@ -95,8 +94,30 @@ const SummaryStep = ({
         renderingStrategy="client"
         text="Go back"
       />
-      <NhsHeading title={'Check user details'} />
-      <SummaryList items={summaryItems}></SummaryList>
+      <Heading>Check user details</Heading>
+      <SummaryList>
+        {summaryItems.map((item, index) => (
+          <SummaryList.Row key={index}>
+            <SummaryList.Key>{item.title}</SummaryList.Key>
+            <SummaryList.Value>{item.value}</SummaryList.Value>
+            {item.action &&
+              (item.action.renderingStrategy === 'server' ? (
+                <SummaryList.Action href={item.action.href}>
+                  {item.action.text}
+                </SummaryList.Action>
+              ) : (
+                <SummaryList.Action
+                  onClick={item.action.onClick}
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                >
+                  {item.action.text}
+                </SummaryList.Action>
+              ))}
+          </SummaryList.Row>
+        ))}
+      </SummaryList>
 
       {!isEditingExistingUser && (
         <p>{`${isCreatingNewOktaUser ? `${firstName} ${lastName}` : email} will be sent information about how to log in.`}</p>

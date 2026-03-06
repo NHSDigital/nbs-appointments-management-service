@@ -4,16 +4,16 @@ import {
   Button,
   ButtonGroup,
   FormGroup,
-  TextInput,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
-import NhsHeading from '@components/nhs-heading';
 import { SetUserRolesFormValues } from '../set-user-roles-form';
 import { useRouter } from 'next/navigation';
 import { fetchUsers, proposeNewUser } from '@services/appointmentsService';
 import { Site, UserProfile } from '@types';
 import fromServer from '@server/fromServer';
+import { Heading } from 'nhsuk-react-components';
+import { TextInput } from 'nhsuk-react-components';
 
 export type EmailStepProps = {
   site: Site;
@@ -83,7 +83,7 @@ const NamesStep = ({
         renderingStrategy="client"
         text="Go back"
       />
-      <NhsHeading title="Add a user" />
+      <Heading>Add a user</Heading>
 
       <FormGroup error={errors?.email?.message}>
         <div className="nhsuk-hint">

@@ -9,11 +9,11 @@ import {
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
-import NhsHeading from '@components/nhs-heading';
 import { Role } from '@types';
 import { sortRolesByName } from '@sorting';
 import { useRouter } from 'next/navigation';
 import { SetUserRolesFormValues } from '../set-user-roles-form';
+import { Heading } from 'nhsuk-react-components';
 
 export type RolesStepProps = {
   roleOptions: Role[];
@@ -47,7 +47,7 @@ const SetRolesStep = ({
         renderingStrategy="client"
         text="Go back"
       />
-      <NhsHeading title="Additional details" />
+      <Heading>Additional details</Heading>
 
       <h2>Email</h2>
       <p>{getValues('email')}</p>

@@ -26,10 +26,15 @@ stages:
                     ${{ if eq(parameters.env, 'perf') }}:
                       azureSubscription: "nbs-mya${{parameters.env}}-rg-stag"
                     ${{ if eq(parameters.env, 'dev') }}:
-                      azureSubscription: "nbs-mya${{parameters.env}}-rg-int"
+                      azureSubscription: "vaccs-mya-dev-uks"
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "$(Build.SourcesDirectory)/features/scripts/import-flags.ps1"
-                    arguments: >
-                      -appConfigName nbs-mya-config-${{parameters.env}}-uks 
-                      -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json
+                    ${{ if eq(parameters.env, 'dev') }}:
+                      arguments: >
+                        -appConfigName vaccs-mya-config-dev-uks
+                        -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json
+                    ${{ else }}:
+                      arguments: >
+                        -appConfigName nbs-mya-config-${{parameters.env}}-uks 
+                        -sourceFile $(Build.SourcesDirectory)/features/${{parameters.env}}.feature.flags.json

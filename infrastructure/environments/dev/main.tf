@@ -7,8 +7,8 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "nbs-myadev-rg-int-uks"
-    storage_account_name = "myadevtfintuks"
+    resource_group_name  = "vaccs-mya-dev-uks"
+    storage_account_name = "myatfstdevuks"
     container_name       = "tfstate"
     key                  = "dev.tfstate"
   }
@@ -26,6 +26,8 @@ provider "azurerm" {
 }
 
 module "mya_application_dev" {
+  application                                     = "vaccs-mya"
+  application_short                               = "vaccsmya"
   environment                                     = "dev"
   location                                        = "uksouth"
   loc                                             = "uks"

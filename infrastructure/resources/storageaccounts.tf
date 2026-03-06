@@ -38,7 +38,7 @@ resource "azurerm_storage_account" "nbs_mya_timer_func_storage_account" {
 # High load trigger function app storage account
 resource "azurerm_storage_account" "nbs_mya_container_app_storage_account" {
   count                    = var.data_extract_file_sender_options_type == "blob" ? 1 : 0
-  name                     = "${var.application_short}strgextract${var.environment}${var.loc}"
+  name                     = "${var.application_short}strgextr${var.environment}${var.loc}"
   resource_group_name      = local.resource_group_name
   location                 = var.location
   account_replication_type = var.storage_account_replication_type

@@ -43,7 +43,7 @@ export const UsersPageTableData = ({
               {user.roleAssignments
                 .filter(ra => isVisibleRole(ra.role))
                 .map(ra => getRoleName(ra.role))
-                .join(', ')}
+                .join(' | ')}
             </Table.Cell>
             {canSeeAdminControls &&
               (userProfileEmail === user.id ? (

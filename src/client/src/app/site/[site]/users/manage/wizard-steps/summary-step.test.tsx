@@ -259,8 +259,9 @@ describe('Summary Step', () => {
       </MockForm>,
     );
 
-    const rolesRow = screen.getByRole('listitem', { name: 'Roles summary' });
-    await user.click(within(rolesRow).getByRole('button', { name: 'Change' }));
+    const keyElement = screen.getByText('Roles');
+    const rolesRow = keyElement.closest('.nhsuk-summary-list__row');
+    await user.click(within(rolesRow as HTMLElement).getByText('Change'));
 
     expect(mockGoToPreviousStep).toHaveBeenCalled();
   });

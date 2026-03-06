@@ -22,38 +22,31 @@ stages:
       prBuildServiceConnectionName: $(prBuildServiceConnectionName)
       prDockerServiceConnectionName: $(prDockerServiceConnectionName)
 
-  - ${{ each env in parameters.environments }}:
-      - ${{ if eq(env, 'dev') }}:
-          - template: scripts/pipeline-templates/deploy.yml
-            parameters:
-              env: ${{env}}
-              variable_group: nbs-mya-${{env}}
-              
-      - ${{ else }}:
-          - template: scripts/pipeline-templates/deploy.yml
-            parameters:
-              env: ${{env}}
-              variable_group: nbs-mya-${{env}}
-              ${{ if eq(env, 'dev') }}:
-                httpFunctionAppName: vaccs-mya-func-${{env}}-uks
-                highLoadFunctionAppName: vaccs-mya-hlfunc-${{env}}-uks
-                serviceBusFunctionAppName: vaccs-mya-sbfunc-${{env}}-uks
-                timerFunctionAppName: vaccs-mya-timerfunc-${{env}}-uks
-                webServerName: vaccs-mya-app-${{env}}-uks
-                cosmosAccountName: vaccs-mya-cdb-${{env}}-uks
-                key_vault_variable_group: covid19bookingkvintuks
-                resourceGroup: vaccs-mya-${{env}}-uks
-                serviceConnectionName: vaccs-mya-${{env}}-uks
-                isStrategicTenant: true
-              ${{ else }}:
-                httpFunctionAppName: nbs-mya-func-${{env}}-uks
-                highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
-                serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
-                timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
-                webServerName: nbs-mya-app-${{env}}-uks
-                cosmosAccountName: nbs-mya-cdb-${{env}}-uks
-                key_vault_variable_group: covid19bookingkvstaguks
-                resourceGroup: nbs-mya${{env}}-rg-stag-uks
-                serviceConnectionName: nbs-mya${{env}}-rg-stag
-                isHotfix: false
-                isStrategicTenant: false
+  - ${{ each env in parameters.environments }}:              
+      - template: scripts/pipeline-templates/deploy.yml
+        parameters:
+          env: ${{env}}
+          variable_group: nbs-mya-${{env}}
+          ${{ if eq(env, 'dev') }}:
+            httpFunctionAppName: vaccs-mya-func-${{env}}-uks
+            highLoadFunctionAppName: vaccs-mya-hlfunc-${{env}}-uks
+            serviceBusFunctionAppName: vaccs-mya-sbfunc-${{env}}-uks
+            timerFunctionAppName: vaccs-mya-timerfunc-${{env}}-uks
+            webServerName: vaccs-mya-app-${{env}}-uks
+            cosmosAccountName: vaccs-mya-cdb-${{env}}-uks
+            key_vault_variable_group: covid19bookingkvintuks
+            resourceGroup: vaccs-mya-${{env}}-uks
+            serviceConnectionName: vaccs-mya-${{env}}-uks
+            isStrategicTenant: true
+          ${{ else }}:
+            httpFunctionAppName: nbs-mya-func-${{env}}-uks
+            highLoadFunctionAppName: nbs-mya-hlfunc-${{env}}-uks
+            serviceBusFunctionAppName: nbs-mya-sbfunc-${{env}}-uks
+            timerFunctionAppName: nbs-mya-timerfunc-${{env}}-uks
+            webServerName: nbs-mya-app-${{env}}-uks
+            cosmosAccountName: nbs-mya-cdb-${{env}}-uks
+            key_vault_variable_group: covid19bookingkvstaguks
+            resourceGroup: nbs-mya${{env}}-rg-stag-uks
+            serviceConnectionName: nbs-mya${{env}}-rg-stag
+            isHotfix: false
+            isStrategicTenant: false

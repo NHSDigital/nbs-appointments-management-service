@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
@@ -11,6 +10,7 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { useFormContext } from 'react-hook-form';
+import { Heading } from 'nhsuk-react-components';
 
 const SingleOrRepeatingSessionStep = ({
   stepNumber,
@@ -51,10 +51,10 @@ const SingleOrRepeatingSessionStep = ({
           text="Go back"
         />
       )}
-      <NhsHeading
-        title="What type of session do you want to create?"
-        caption="Create availability"
-      />
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">Create availability</span>
+        What type of session do you want to create?
+      </Heading>
       <p>You can create weekly or single date sessions, to cover:</p>
       <ul>
         <li>Vaccinator availability</li>

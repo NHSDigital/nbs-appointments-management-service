@@ -95,7 +95,7 @@ describe('CheckYourAnswersStep', () => {
     it('calls setCurrentStep(2) when the "Change" link for Dates is clicked', async () => {
       const { user } = renderComponent({});
 
-      const changeLink = screen.getByRole('button', { name: /Change/i });
+      const changeLink = screen.getByRole('link', { name: /Change Dates/i });
       await user.click(changeLink);
 
       expect(mockSetCurrentStep).toHaveBeenCalledWith(2);
@@ -175,6 +175,65 @@ describe('CheckYourAnswersStep', () => {
 
         expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe('Booking Cancellation Summary Row', () => {
+    it('does not display the booking decision row if there are no bookings', () => {
+      renderComponent({
+        proposedCancellationSummary: { sessionCount: 5, bookingCount: 0 },
+      });
+
+      expect(
+        screen.queryByText('What you have chosen to do with the bookings'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('displays "Keep bookings" when cancellationDecision is "keep-bookings"', () => {
+      renderComponent({
+        proposedCancellationSummary: { sessionCount: 5, bookingCount: 3 },
+        cancellationDecision: 'keep-bookings',
+      });
+
+      expect(
+        screen.getByText('What you have chosen to do with the bookings', {
+          selector: 'dt',
+        }),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Keep bookings')).toBeInTheDocument();
+    });
+
+    it('displays "Cancel X bookings" when cancellationDecision is not "keep-bookings"', () => {
+      renderComponent({
+        proposedCancellationSummary: { sessionCount: 5, bookingCount: 10 },
+        cancellationDecision: 'cancel-bookings',
+      });
+
+      expect(screen.getByText('Cancel 10 bookings')).toBeInTheDocument();
+    });
+
+    it('handles singular booking grammar correctly', () => {
+      renderComponent({
+        proposedCancellationSummary: { sessionCount: 1, bookingCount: 1 },
+        cancellationDecision: 'cancel-bookings',
+      });
+
+      expect(screen.getByText('Cancel 1 booking')).toBeInTheDocument();
+    });
+
+    it('calls goToPreviousStep when the "Change" link for bookings is clicked', async () => {
+      const { user } = renderComponent({
+        proposedCancellationSummary: { sessionCount: 5, bookingCount: 5 },
+        cancellationDecision: 'keep-bookings',
+      });
+
+      const changeLink = screen.getByRole('link', {
+        name: /Change What you have chosen to do with the bookings/i,
+      });
+
+      await user.click(changeLink);
+
+      expect(mockGoToPreviousStep).toHaveBeenCalledTimes(1);
     });
   });
 });

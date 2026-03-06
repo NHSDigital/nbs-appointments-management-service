@@ -63,7 +63,7 @@ export const verifyV10SummaryListItem = (
   expect(keyElement).toHaveTextContent(key);
 
   const row = keyElement.closest('.nhsuk-summary-list__row');
-  const valueElement = within(row as HTMLElement).getByRole('definition');
+  const valueElement = within(row as HTMLElement).getAllByRole('definition')[0];
   expect(valueElement).toBeInTheDocument();
 
   if (typeof expectedValue === 'string') {

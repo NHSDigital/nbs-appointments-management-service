@@ -1,12 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import NhsHeading from '@components/nhs-heading';
-import {
-  BackLink,
-  Button,
-  FormGroup,
-  TextInput,
-} from '@components/nhsuk-frontend';
+import { BackLink, Button, FormGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import {
   CreateAvailabilityFormValues,
@@ -17,6 +11,7 @@ import CapacityCalculation from './capacity-calculation';
 import { toTimeFormat } from '@services/timeService';
 import { ChangeEvent } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
+import { Heading, TextInput } from 'nhsuk-react-components';
 
 type TimeAndCapacityStepProps = {
   goToPreviousStepOverride?: () => void;
@@ -118,14 +113,14 @@ const TimeAndCapacityStep = ({
       ) : (
         <BackLink onClick={onBack} renderingStrategy="client" text="Go back" />
       )}
-      <NhsHeading
-        title="Set time and capacity for your session"
-        caption={
-          sessionType === 'single'
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">
+          {sessionType === 'single'
             ? 'Create single date session'
-            : 'Create weekly session'
-        }
-      />
+            : 'Create weekly session'}
+        </span>
+        Set time and capacity for your session
+      </Heading>
 
       {/* TODO: Create nhsuk-frontend components for these time controls */}
       <FormGroup

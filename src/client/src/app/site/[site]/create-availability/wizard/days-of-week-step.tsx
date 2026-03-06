@@ -10,8 +10,8 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
-import NhsHeading from '@components/nhs-heading';
 import { daysOfTheWeek } from '@types';
+import { Heading } from 'nhsuk-react-components';
 
 const DaysOfWeekStep = ({
   goToNextStep,
@@ -57,10 +57,10 @@ const DaysOfWeekStep = ({
           text="Go back"
         />
       )}
-      <NhsHeading
-        title="Select days to add to your weekly session"
-        caption="Create weekly session"
-      />
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">Create weekly session</span>
+        Select days to add to your weekly session
+      </Heading>
 
       <p>You can create multiple weekly sessions, to cover:</p>
       <ul>

@@ -1,10 +1,8 @@
 'use client';
-import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
   SmallSpinnerWithText,
-  SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
@@ -15,6 +13,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { ClinicalService } from '@types';
+import { Heading, SummaryList } from 'nhsuk-react-components';
 
 type SummaryStepProps = {
   clinicalServices: ClinicalService[];
@@ -184,8 +183,34 @@ const SummaryStep = ({
           text="Go back"
         />
       )}
-      <NhsHeading caption="Add availability" title="Check your answers" />
-      <SummaryList items={summary}></SummaryList>
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">Add availability</span>
+        Check your answers
+      </Heading>
+
+      <SummaryList>
+        {summary.map((item, index) => (
+          <SummaryList.Row key={index}>
+            <SummaryList.Key>{item.title}</SummaryList.Key>
+            <SummaryList.Value>{item.value}</SummaryList.Value>
+            {item.action &&
+              (item.action.renderingStrategy === 'server' ? (
+                <SummaryList.Action href={item.action.href}>
+                  {item.action.text}
+                </SummaryList.Action>
+              ) : (
+                <SummaryList.Action
+                  onClick={item.action.onClick}
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                >
+                  {item.action.text}
+                </SummaryList.Action>
+              ))}
+          </SummaryList.Row>
+        ))}
+      </SummaryList>
 
       <h2 className="nhsuk-heading-m nhsuk-u-margin-top-6">
         Before you continue

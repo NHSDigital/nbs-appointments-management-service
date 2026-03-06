@@ -3,7 +3,6 @@ import {
   BackLink,
   Button,
   SmallSpinnerWithText,
-  SummaryList,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
 import { Heading } from 'nhsuk-react-components';
@@ -16,6 +15,7 @@ import {
 } from '@services/timeService';
 import { cancelDateRange } from '@services/appointmentsService';
 import { useState } from 'react';
+import { SummaryList } from 'nhsuk-react-components';
 
 interface Props {
   site: string;
@@ -36,7 +36,15 @@ const CheckYourAnswersStep = ({
 
   const { getValues, setValue } =
     useFormContext<ChangeAvailabilityFormValues>();
-  const { startDate, endDate, proposedCancellationSummary } = getValues();
+  const {
+    startDate,
+    endDate,
+    proposedCancellationSummary,
+    cancellationDecision,
+  } = getValues();
+
+  if (!proposedCancellationSummary)
+    throw new Error("Couldn't load proposed cancellation summary.");
 
   const cancelBookings = false;
   const startDayjs = parseDateComponentsToUkDatetime(startDate);
@@ -46,23 +54,50 @@ const CheckYourAnswersStep = ({
     ? `${startDayjs?.format('D MMMM')} to ${endDayjs?.format('D MMMM YYYY')}`
     : `${startDayjs?.format('D MMMM YYYY')} to ${endDayjs?.format('D MMMM YYYY')}`;
 
-  const summary: SummaryListItem[] = [
-    {
-      title: 'Dates',
-      value: formatedFullDateValue,
-      action: {
-        renderingStrategy: 'client',
-        text: 'Change',
-        onClick: () => {
-          setCurrentStep(2);
+  const cancellationDecisionSummary = () => {
+    return cancellationDecision == 'keep-bookings'
+      ? 'Keep bookings'
+      : `Cancel ${proposedCancellationSummary.bookingCount} ${proposedCancellationSummary.bookingCount > 1 ? 'bookings' : 'booking'}`;
+  };
+
+  const getSummaryList = () => {
+    const summary: SummaryListItem[] = [
+      {
+        title: 'Dates',
+        value: formatedFullDateValue,
+        action: {
+          renderingStrategy: 'client',
+          text: 'Change',
+          onClick: () => {
+            setCurrentStep(2);
+          },
         },
       },
-    },
-    {
-      title: 'Number of sessions',
-      value: `${proposedCancellationSummary?.sessionCount}`,
-    },
-  ];
+      {
+        title: 'Number of sessions',
+        value: `${proposedCancellationSummary?.sessionCount}`,
+      },
+    ];
+
+    if (
+      proposedCancellationSummary.bookingCount > 0 &&
+      proposedCancellationSummary.sessionCount > 0
+    ) {
+      summary.push({
+        title: 'What you have chosen to do with the bookings',
+        value: cancellationDecisionSummary(),
+        action: {
+          renderingStrategy: 'client',
+          text: 'Change',
+          onClick: () => {
+            goToPreviousStep();
+          },
+        },
+      });
+    }
+
+    return summary;
+  };
 
   const onContinue = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +137,32 @@ const CheckYourAnswersStep = ({
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-two-thirds">
           <Heading headingLevel="h2">Check your answers</Heading>
-          <SummaryList items={summary}></SummaryList>
+          <SummaryList>
+            {getSummaryList().map((item, index) => (
+              <SummaryList.Row key={index}>
+                <SummaryList.Key>{item.title}</SummaryList.Key>
+                <SummaryList.Value>{item.value}</SummaryList.Value>
+                {item.action && (
+                  <SummaryList.Action
+                    href={
+                      item.action.renderingStrategy === 'server'
+                        ? item.action.href
+                        : '#'
+                    }
+                    onClick={e => {
+                      if (item.action?.renderingStrategy === 'client') {
+                        e.preventDefault();
+                        item.action.onClick();
+                      }
+                    }}
+                    visuallyHiddenText={item.title}
+                  >
+                    {item.action.text}
+                  </SummaryList.Action>
+                )}
+              </SummaryList.Row>
+            ))}
+          </SummaryList>
 
           {pendingSubmit ? (
             <SmallSpinnerWithText text="Saving..." />

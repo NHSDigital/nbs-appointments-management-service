@@ -13,10 +13,10 @@ export default class SummaryPage extends RootPage {
   }
 
   async changeFunctionalityLink(val: string) {
-    await this.page
-      .getByRole('listitem')
-      .filter({ hasText: `${val}` })
-      .getByText('Change')
-      .click();
+    const row = this.page.locator('.nhsuk-summary-list__row', {
+      has: this.page.locator('.nhsuk-summary-list__key', { hasText: val }),
+    });
+
+    await row.locator('a', { hasText: 'Change' }).click();
   }
 }

@@ -1,4 +1,3 @@
-import { Table } from '@components/nhsuk-frontend';
 import { parseToUkDatetime } from '@services/timeService';
 import { AvailabilityCreatedEvent, ClinicalService } from '@types';
 import {
@@ -6,6 +5,7 @@ import {
   fetchClinicalServices,
 } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
+import { AvailabilityCreatedEventsTableData } from './availabilityCreatedEventsTableData';
 
 type AvailabilityCreatedEventsTableProps = {
   siteId: string;
@@ -23,17 +23,15 @@ export const AvailabilityCreatedEventsTable = async ({
     return null;
   }
 
-  return (
-    <Table {...mapTableData(availabilityCreatedEvents, clinicalServices)} />
-  );
+  const tableData = mapTableData(availabilityCreatedEvents, clinicalServices);
+
+  return <AvailabilityCreatedEventsTableData rows={tableData} />;
 };
 
 const mapTableData = (
   availabilityCreated: AvailabilityCreatedEvent[],
   clinicalServices: ClinicalService[],
 ) => {
-  const headers = ['Dates', 'Days', 'Services', 'Session type'];
-
   const rows = availabilityCreated.map(availability => {
     if (availability.template) {
       return [
@@ -59,7 +57,7 @@ const mapTableData = (
     ];
   });
 
-  return { headers, rows };
+  return rows;
 };
 
 const serviceValueToLabel = (

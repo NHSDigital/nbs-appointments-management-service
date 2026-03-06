@@ -1,11 +1,5 @@
 'use client';
-import {
-  BackLink,
-  Button,
-  DateInput,
-  FormGroup,
-  TextInput,
-} from '@components/nhsuk-frontend';
+import { BackLink, Button, FormGroup } from '@components/nhsuk-frontend';
 import { Controller, useFormContext } from 'react-hook-form';
 import {
   CreateAvailabilityFormValues,
@@ -20,7 +14,7 @@ import {
   isWithinNextCalendarYearUk,
   addToUkDatetime,
 } from '@services/timeService';
-import NhsHeading from '@components/nhs-heading';
+import { DateInput, Heading } from 'nhsuk-react-components';
 
 const StartAndEndDateStep = ({
   stepNumber,
@@ -81,15 +75,15 @@ const StartAndEndDateStep = ({
         />
       )}
       {sessionType === 'single' ? (
-        <NhsHeading
-          title="Add a date for your session"
-          caption="Create single date session"
-        />
+        <Heading headingLevel="h2">
+          <span className="nhsuk-caption-l">Create single date session</span>
+          Add a date for your session
+        </Heading>
       ) : (
-        <NhsHeading
-          title="Add start and end dates"
-          caption="Create weekly session"
-        />
+        <Heading headingLevel="h2">
+          <span className="nhsuk-caption-l">Create weekly session</span>
+          Add start and end dates
+        </Heading>
       )}
 
       <FormGroup error={errors.startDate?.message}>
@@ -138,11 +132,8 @@ const StartAndEndDateStep = ({
                 control={control}
                 name="startDate.day"
                 render={({ field }) => (
-                  <TextInput
-                    label="Day"
-                    type="number"
+                  <DateInput.Day
                     id="start-date-input-day"
-                    inputType="date"
                     onChange={e =>
                       field.onChange(handlePositiveBoundedNumberInput(e, 31))
                     }
@@ -150,16 +141,12 @@ const StartAndEndDateStep = ({
                   />
                 )}
               />
-
               <Controller
                 control={control}
                 name="startDate.month"
                 render={({ field }) => (
-                  <TextInput
-                    label="Month"
-                    type="number"
+                  <DateInput.Month
                     id="start-date-input-month"
-                    inputType="date"
                     onChange={e =>
                       field.onChange(handlePositiveBoundedNumberInput(e, 12))
                     }
@@ -167,17 +154,12 @@ const StartAndEndDateStep = ({
                   />
                 )}
               />
-
               <Controller
                 control={control}
                 name="startDate.year"
                 render={({ field }) => (
-                  <TextInput
-                    label="Year"
-                    type="number"
+                  <DateInput.Year
                     id="start-date-input-year"
-                    inputType="date"
-                    width={3}
                     onChange={e =>
                       field.onChange(
                         handlePositiveBoundedNumberInput(
@@ -241,11 +223,8 @@ const StartAndEndDateStep = ({
                     control={control}
                     name="endDate.day"
                     render={({ field }) => (
-                      <TextInput
-                        label="Day"
-                        type="number"
+                      <DateInput.Day
                         id="end-date-input-day"
-                        inputType="date"
                         onChange={e =>
                           field.onChange(
                             handlePositiveBoundedNumberInput(e, 31),
@@ -255,16 +234,12 @@ const StartAndEndDateStep = ({
                       />
                     )}
                   />
-
                   <Controller
                     control={control}
                     name="endDate.month"
                     render={({ field }) => (
-                      <TextInput
-                        label="Month"
-                        type="number"
+                      <DateInput.Month
                         id="end-date-input-month"
-                        inputType="date"
                         onChange={e =>
                           field.onChange(
                             handlePositiveBoundedNumberInput(e, 12),
@@ -274,17 +249,12 @@ const StartAndEndDateStep = ({
                       />
                     )}
                   />
-
                   <Controller
                     control={control}
                     name="endDate.year"
                     render={({ field }) => (
-                      <TextInput
-                        label="Year"
-                        type="number"
+                      <DateInput.Year
                         id="end-date-input-year"
-                        inputType="date"
-                        width={3}
                         onChange={e =>
                           field.onChange(
                             handlePositiveBoundedNumberInput(

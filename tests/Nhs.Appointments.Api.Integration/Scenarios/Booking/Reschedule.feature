@@ -63,9 +63,6 @@ Feature: Appointment reschedule
     And the original booking with details has a sanitized audit and index in blob storage at the default site
       | Appointment Status | Availability Status | Last Updated By |
       | Booked             | Supported           | api@test        |
-    #TODO Revert when APPT-2053 is fixed
-    And I wait for '1000' milliseconds
-    #TODO Revert when APPT-2053 is fixed
 #   Action 1
     When I make a provisional appointment with the following details at the default site
       | Date              | Time  | Duration | Service | NhsNumber  | FirstName | LastName | DOB        |
@@ -75,9 +72,6 @@ Feature: Appointment reschedule
     And the rescheduled booking with details has a sanitized audit and index in blob storage at the default site
       | Appointment Status | Availability Status | Last Updated By |
       | Provisional        | Supported           | api@test        |
-    #TODO Revert when APPT-2053 is fixed
-    And I wait for '1000' milliseconds
-    #TODO Revert when APPT-2053 is fixed
 #   Action 2
     When I confirm the rescheduled booking
     Then the rescheduled booking is no longer marked as provisional at the default site

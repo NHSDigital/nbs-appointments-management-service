@@ -40,20 +40,25 @@ describe('When bookings cancellation is DISABLED', () => {
     });
   });
 
-  const renderComponent = (props = defaultProps) => {
+  const renderComponent = (sessionCount: number, bookingCount: number) => {
+    const customValues: ChangeAvailabilityFormValues = {
+      ...defaultFormValues,
+      proposedCancellationSummary: { sessionCount, bookingCount },
+    };
+
     return render(
       <MockForm<ChangeAvailabilityFormValues>
-        defaultValues={defaultFormValues}
+        defaultValues={customValues}
         submitHandler={jest.fn()}
       >
-        <CancellationImpactStep {...props} />
+        <CancellationImpactStep {...defaultProps} />
       </MockForm>,
     );
   };
 
   describe('When bookings cancellation is NOT enabled', () => {
     it('renders the "Cannot cancel" heading and body text', () => {
-      renderComponent(defaultProps);
+      renderComponent(1, 1);
 
       expect(
         screen.getByText('You cannot cancel these sessions'),
@@ -64,10 +69,7 @@ describe('When bookings cancellation is DISABLED', () => {
     });
 
     it('navigates back to view availability when the return button is clicked', async () => {
-      const { user } = renderComponent({
-        ...defaultProps,
-        cancelADateRangeWithBookingsEnabled: false,
-      });
+      const { user } = renderComponent(1, 1);
 
       const returnBtn = screen.getByRole('button', {
         name: /Return to view availability/i,
@@ -80,10 +82,7 @@ describe('When bookings cancellation is DISABLED', () => {
     });
 
     it('calls goToPreviousStep when "Select different dates" is clicked', async () => {
-      const { user } = renderComponent({
-        ...defaultProps,
-        cancelADateRangeWithBookingsEnabled: false,
-      });
+      const { user } = renderComponent(1, 1);
 
       const backBtn = screen.getByRole('button', {
         name: /Select different dates/i,
@@ -94,12 +93,69 @@ describe('When bookings cancellation is DISABLED', () => {
     });
 
     it('calls goToPreviousStep when the NHS BackLink is clicked', async () => {
-      const { user } = renderComponent();
+      const { user } = renderComponent(1, 1);
 
       const backLink = screen.getByText('Back');
       await user.click(backLink);
 
       expect(mockGoToPreviousStep).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('renderNoSessions (sessionCount is 0)', () => {
+    it('renders the no sessions message and heading', () => {
+      renderComponent(0, 0);
+
+      expect(
+        screen.getByText('There are no sessions in this date range'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('You should choose a new date range.'),
+      ).toBeInTheDocument();
+    });
+
+    it('calls goToPreviousStep when "Choose a new date range" is clicked', async () => {
+      const { user } = renderComponent(0, 0);
+
+      const btn = screen.getByRole('button', {
+        name: /Choose a new date range/i,
+      });
+      await user.click(btn);
+
+      expect(mockGoToPreviousStep).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('renderNoBookings (bookingCount is 0)', () => {
+    it('renders plural text correctly when multiple sessions have no bookings', () => {
+      renderComponent(5, 0);
+
+      expect(
+        screen.getByText('You are about to cancel 5 sessions'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/There are no bookings for these sessions/i),
+      ).toBeInTheDocument();
+    });
+
+    it('renders singular text correctly when one session has no bookings', () => {
+      renderComponent(1, 0);
+
+      expect(
+        screen.getByText('You are about to cancel 1 session'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/There are no bookings for this session/i),
+      ).toBeInTheDocument();
+    });
+
+    it('calls goToNextStep when "Continue" is clicked', async () => {
+      const { user } = renderComponent(3, 0);
+
+      const continueBtn = screen.getByRole('button', { name: /Continue/i });
+      await user.click(continueBtn);
+
+      expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
     });
   });
 });

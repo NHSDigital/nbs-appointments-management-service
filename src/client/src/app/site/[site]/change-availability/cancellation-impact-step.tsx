@@ -144,16 +144,16 @@ const CancellationImpactStep = ({
   );
 
   const renderContent = () => {
-    if (!cancelADateRangeWithBookingsEnabled) {
-      return renderCannotCancel();
-    }
-
     if (proposedCancellationSummary.sessionCount === 0) {
       return renderNoSessions();
     }
 
     if (proposedCancellationSummary.bookingCount === 0) {
       return renderNoBookings();
+    }
+
+    if (!cancelADateRangeWithBookingsEnabled) {
+      return renderCannotCancel();
     }
 
     return renderResolveBookings();

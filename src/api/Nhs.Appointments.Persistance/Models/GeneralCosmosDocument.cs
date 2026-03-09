@@ -15,6 +15,9 @@ public class LastUpdatedByCosmosDocument : TypedCosmosDocument
 {
     [JsonProperty("lastUpdatedBy")] 
     public string LastUpdatedBy { get; set; }
+    
+    [JsonProperty("lastUpdatedOn")] 
+    public DateTime LastUpdatedOn { get; set; }
 }
 
 [CosmosDocument("booking_data", "site")]

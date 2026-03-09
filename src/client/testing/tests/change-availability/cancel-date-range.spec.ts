@@ -178,9 +178,7 @@ test.describe.configure({ mode: 'serial' });
         }
 
         await page.waitForURL(
-          new RegExp(
-            `.*\/site\/${site.id}\/view-availability\/daily-appointments.*`,
-          ),
+          /\/manage-your-appointments\/site\/.*\/view-availability\/daily-appointments\?date=.*/,
         );
 
         await expect(

@@ -1,8 +1,4 @@
-import {
-  OAuthLoginPage,
-  RootPage,
-  ServiceNotFoundPage,
-} from '@testing-page-objects';
+import { OAuthLoginPage, RootPage, NotFoundPage } from '@testing-page-objects';
 import { Site } from '@types';
 import { test, expect, overrideFeatureFlag } from '../../fixtures';
 
@@ -50,9 +46,12 @@ test.describe.configure({ mode: 'serial' });
       });
 
       test('Cancel a date range monthly page', async ({ page }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -73,9 +72,12 @@ test.describe.configure({ mode: 'serial' });
       });
 
       test('Cancel a date range weekly page', async ({ page }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -98,9 +100,12 @@ test.describe.configure({ mode: 'serial' });
       });
 
       test('Cancel a date range daily page', async ({ page }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -222,9 +227,12 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, mandatory field validation', async ({
         page,
       }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -268,9 +276,12 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, must be in the future', async ({
         page,
       }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -330,9 +341,12 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, end date must be after the start date', async ({
         page,
       }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -398,9 +412,12 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error within 3 months - 90 days or less', async ({
         page,
       }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -454,9 +471,12 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error within 3 months - greater than 90 days', async ({
         page,
       }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -558,9 +578,12 @@ test.describe.configure({ mode: 'serial' });
       test('Cannot cancel these sessions - Return to view availability', async ({
         page,
       }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -620,9 +643,12 @@ test.describe.configure({ mode: 'serial' });
       test('Cannot cancel these sessions - Select different dates', async ({
         page,
       }) => {
-        const serviceNotFoundPage = new ServiceNotFoundPage(page);
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          await expect(serviceNotFoundPage.title).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 

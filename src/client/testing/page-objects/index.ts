@@ -8,7 +8,6 @@ import SiteSelectionPage from './site-selection';
 import SitePage from './site';
 import NotAuthorizedPage from './unauthorized';
 import UserManagementPage from './user-management';
-import ServiceNotFoundPage from './service-not-found';
 
 import EditAccessNeedsPage from './change-site-details-pages/edit-access-need';
 import EditInformationForCitizensPage from './change-site-details-pages/edit-citizen-information';
@@ -63,5 +62,4 @@ export {
   EditAvailabilityConfirmedPage,
   MonthViewAvailabilityPage,
   WeekViewAvailabilityPage,
-  ServiceNotFoundPage,
 };

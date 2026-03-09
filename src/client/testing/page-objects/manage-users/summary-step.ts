@@ -15,18 +15,25 @@ export default class SummaryStep extends ManageUserStep {
     });
 
     this.nameSummary = this.page
-      .getByRole('listitem', { name: 'Name summary' })
-      .getByRole('definition')
-      .filter({ hasNot: this.page.getByRole('button', { name: 'Change' }) });
+      .locator('.nhsuk-summary-list__row', {
+        has: this.page.locator('.nhsuk-summary-list__key', { hasText: 'Name' }),
+      })
+      .locator('.nhsuk-summary-list__value');
 
     this.emailAddressSummary = this.page
-      .getByRole('listitem', { name: 'Address summary' })
-      .getByRole('definition')
-      .filter({ hasNot: this.page.getByRole('button', { name: 'Change' }) });
+      .locator('.nhsuk-summary-list__row', {
+        has: this.page.locator('.nhsuk-summary-list__key', {
+          hasText: 'Email address',
+        }),
+      })
+      .locator('.nhsuk-summary-list__value');
 
     this.rolesSummary = this.page
-      .getByRole('listitem', { name: 'Roles summary' })
-      .getByRole('definition')
-      .filter({ hasNot: this.page.getByRole('button', { name: 'Change' }) });
+      .locator('.nhsuk-summary-list__row', {
+        has: this.page.locator('.nhsuk-summary-list__key', {
+          hasText: 'Roles',
+        }),
+      })
+      .locator('.nhsuk-summary-list__value');
   }
 }

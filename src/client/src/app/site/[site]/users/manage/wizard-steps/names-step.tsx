@@ -4,13 +4,13 @@ import {
   Button,
   ButtonGroup,
   FormGroup,
-  TextInput,
 } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
-import NhsHeading from '@components/nhs-heading';
 import { SetUserRolesFormValues } from '../set-user-roles-form';
 import { useRouter } from 'next/navigation';
+import { Heading } from 'nhsuk-react-components';
+import { TextInput } from 'nhsuk-react-components';
 
 const NamesStep = ({
   goToNextStep,
@@ -39,7 +39,7 @@ const NamesStep = ({
         renderingStrategy="client"
         text="Go back"
       />
-      <NhsHeading title="Enter name" />
+      <Heading>Enter name</Heading>
 
       <FormGroup error={errors.firstName?.message}>
         <TextInput

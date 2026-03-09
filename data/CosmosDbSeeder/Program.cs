@@ -153,6 +153,9 @@ class Program
                 {
                     _report.TotalDocumentsFound++;
                     var item = JsonConvert.DeserializeObject<JObject>(await File.ReadAllTextAsync(file));
+                    
+                    //simulate lastUpdatedOn prop?
+                    item.Add("lastUpdatedOn", DateTime.UtcNow);
 
                     var response = _writeMode == WriteMode.AllowOverwrite ? await container.UpsertItemAsync(item) : await container.CreateItemAsync(item);
                     Console.WriteLine(response.StatusCode == HttpStatusCode.Created ? $"Created {fileName} in {containerName}" : $"Replaced {fileName} in {containerName}");

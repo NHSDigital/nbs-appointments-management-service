@@ -149,19 +149,30 @@ public abstract partial class BaseFeatureSteps : Feature
         T item,
         PartitionKey? partitionKey = null,
         ItemRequestOptions requestOptions = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) where T : TypedCosmosDocument
     {
         var container = Client.GetContainer("appts", containerName);
+        
         switch (cosmosWriteAction)
         {
             case CosmosWriteAction.Create:
                 await Retry_CosmosOperation_OnTooManyRequests(
-                    async () => await container.CreateItemAsync(item, partitionKey, requestOptions, cancellationToken),
+                    async () =>
+                    {
+                        //if the operation is retried, want to regenerate the new updatedOn time.
+                        item.LastUpdatedOn = DateTime.UtcNow;
+                        return await container.CreateItemAsync(item, partitionKey, requestOptions, cancellationToken);
+                    },
                     cancellationToken);
                 break;
             case CosmosWriteAction.Upsert:
                 await Retry_CosmosOperation_OnTooManyRequests(
-                    async () => await container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken),
+                    async () =>
+                    {
+                        //if the operation is retried, want to regenerate the new updatedOn time.
+                        item.LastUpdatedOn = DateTime.UtcNow;
+                        return await container.UpsertItemAsync(item, partitionKey, requestOptions, cancellationToken);
+                    },
                     cancellationToken);
                 break;
             default:
@@ -185,12 +196,21 @@ public abstract partial class BaseFeatureSteps : Feature
         string containerName,
         string id,
         PartitionKey partitionKey,
-        IReadOnlyList<PatchOperation> patches,
-        CancellationToken cancellationToken = default)
+        List<PatchOperation> patches,
+        CancellationToken cancellationToken = default) where T : TypedCosmosDocument
     {
         var container = Client.GetContainer("appts", containerName);
+        
+        var lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn",  DateTime.UtcNow);
+        patches.Add(lastUpdatedOnPatch);
+        
         await Retry_CosmosOperation_OnTooManyRequests(
-            async () => await container.PatchItemAsync<T>(id, partitionKey, patches, null, cancellationToken),
+            async () =>
+            {
+                //if the operation is retried, need to update the patch result for the LastUpdatedOn to be the new time
+                lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow);
+                return await container.PatchItemAsync<T>(id, partitionKey, patches.AsReadOnly(), null, cancellationToken);
+            },
             cancellationToken);
     }
 

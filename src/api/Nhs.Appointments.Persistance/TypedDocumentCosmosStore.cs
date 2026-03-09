@@ -107,11 +107,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         await Retry_CosmosOperation_OnTooManyRequests(async () =>
             {
                 //if the operation is retried, want to regenerate the new updatedOn time.
-                if (document is LastUpdatedByCosmosDocument audit)
-                {
-                    audit.LastUpdatedOn = DateTime.UtcNow;
-                }
-                
+                document.LastUpdatedOn = DateTime.UtcNow;
                 return await GetContainer().UpsertItemAsync(document);
             },
             CancellationToken.None);
@@ -196,14 +192,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             throw new NotSupportedException("Only 10 patches can be applied");
         }
 
+        var lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn",  DateTime.UtcNow);
+        patchList.Add(lastUpdatedOnPatch);
+
         var result = await Retry_CosmosOperation_OnTooManyRequests(async () =>
         {
-            if (typeof(LastUpdatedByCosmosDocument).IsAssignableFrom(typeof(TDocument)))
-            {
-                //if the operation is retried, need to update the patch result for the LastUpdatedOn to be the new time
-                patchList.RemoveAll(x => x.Path == "/lastUpdatedOn");
-                patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
-            }
+            //TODO test this updates on retry
+            //if the operation is retried, need to update the patch result for the LastUpdatedOn to be the new time
+            lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow);
             
             return await GetContainer()
                 .PatchItemAsync<TDocument>(

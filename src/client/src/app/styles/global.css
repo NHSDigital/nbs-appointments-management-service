@@ -80,15 +80,6 @@
   align-items: center;
 }
 
-.nhsuk-warning-callout-custom__close-button {
-  border: 0;
-  background: none;
-  text-decoration: underline;
-  cursor: pointer;
-  line-height: normal;
-  font-size: 1rem;
-}
-
 .nhsuk-time-input-custom {
   font-size: 0; /* 1 */
 }

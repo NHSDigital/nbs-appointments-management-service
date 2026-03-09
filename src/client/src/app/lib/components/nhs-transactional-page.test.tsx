@@ -33,20 +33,6 @@ jest.mock('next/headers', () => {
   };
 });
 
-jest.mock('@components/close-notification-form', () => {
-  const MockCloseNotificationButton = () => {
-    return (
-      <button
-        type="button"
-        className="nhsuk-warning-callout-custom__close-button"
-      >
-        Close
-      </button>
-    );
-  };
-  return MockCloseNotificationButton;
-});
-
 describe('Nhs Page', () => {
   beforeEach(() => {
     fetchPermissionsMock.mockResolvedValue(

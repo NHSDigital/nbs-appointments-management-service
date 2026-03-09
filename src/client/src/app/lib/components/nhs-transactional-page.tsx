@@ -4,7 +4,7 @@ import FeedbackBanner from '@components/feedback-banner';
 import BackLink, { BackLinkProps } from '@components/nhsuk-frontend/back-link';
 import NhsHeading from './nhs-heading';
 import { cookies } from 'next/headers';
-import NotificationBanner from './notification-banner';
+import NhsNotificationBanner from './notification-banner';
 import NhsFooter from './nhs-footer';
 import NhsPageHeader from './nhsuk-frontend/nhs-page-header';
 import { fetchUserProfile } from '@services/appointmentsService';
@@ -40,7 +40,7 @@ const NhsTransactionalPage = async ({
       <NhsMainContainer>
         {backLink && <BackLink {...backLink} />}
         {title && <NhsHeading title={title} caption={caption} />}
-        <NotificationBanner notification={notification} />
+        <NhsNotificationBanner notification={notification} />
         {children}
       </NhsMainContainer>
       <NhsFooter />

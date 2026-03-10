@@ -51,7 +51,7 @@ export default class Users extends MYALayout {
 
   async verifyRemoveUserSuccessBannerDisplayed(userName: string) {
     await expect(
-      this.page.getByRole('main').filter({
+      this.page.getByRole('alert').filter({
         has: this.page.getByText(
           `You have successfully removed ${userName} from the current site.`,
         ),
@@ -65,7 +65,7 @@ export default class Users extends MYALayout {
 
   async verifyRemoveUserSuccessBannerNotDisplayed(userName: string) {
     await expect(
-      this.page.getByRole('main').filter({
+      this.page.getByRole('alert').filter({
         has: this.page.getByText(
           `You have successfully removed ${userName} from the current site.`,
         ),

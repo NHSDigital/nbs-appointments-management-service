@@ -444,11 +444,7 @@ export const applyAvailabilityTemplate = async (
       const notificationType = 'ams-notification';
       const notificationMessage =
         'You have successfully created availability for the current site.';
-      await raiseNotification(
-        notificationType,
-        notificationMessage,
-        `site/${request.site}/create-availability`,
-      );
+      await raiseNotification(notificationType, notificationMessage);
 
       revalidateTag(`fetchAvailability`);
       return { success: true, data: undefined };
@@ -467,11 +463,7 @@ export const saveAvailability = async (
       const notificationType = 'ams-notification';
       const notificationMessage =
         'You have successfully created availability for the current site.';
-      await raiseNotification(
-        notificationType,
-        notificationMessage,
-        `site/${request.site}/create-availability`,
-      );
+      await raiseNotification(notificationType, notificationMessage);
 
       revalidateTag(`fetchAvailability`);
       return { success: true, data: undefined };

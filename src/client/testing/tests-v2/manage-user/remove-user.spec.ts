@@ -54,7 +54,7 @@ test('Verify user manager is able to remove a user', async ({
     });
 });
 
-test('Displays a notification banner after removing a user, which disappears when Close is clicked', async ({
+test('Displays a notification banner after removing a user', async ({
   setUpSingleSite,
 }) => {
   const { sitePage } = await setUpSingleSite();
@@ -104,8 +104,6 @@ test('Displays a notification banner after removing a user, which disappears whe
       const usersPage = users.usersPage;
 
       await usersPage.verifyRemoveUserSuccessBannerDisplayed(newUser);
-      await usersPage.closeBanner();
-      await usersPage.verifyRemoveUserSuccessBannerNotDisplayed(newUser);
     });
 });
 

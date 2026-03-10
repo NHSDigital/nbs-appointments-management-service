@@ -8,9 +8,9 @@ import {
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
-import NhsHeading from '@components/nhs-heading';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
 import { BackLinkProps } from '@components/nhsuk-frontend/back-link';
+import { Heading } from 'nhsuk-react-components';
 
 type DownloadReportFormProps = {
   setReportRequest: (reportRequest: DownloadReportFormValues) => void;
@@ -44,7 +44,7 @@ const DownloadReportForm = ({
     <>
       <BackLink {...backLink} />
       <br />
-      <NhsHeading title="Select the dates and run a report" />
+      <Heading headingLevel="h2">Select the dates and run a report</Heading>
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-one-third">
           <form onSubmit={handleSubmit(submitForm)}>

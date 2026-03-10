@@ -6,13 +6,13 @@ import {
   ButtonGroup,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
-import NhsHeading from '@components/nhs-heading';
 import { ukNow } from '@services/timeService';
 import { saveAs } from 'file-saver';
 import { downloadSiteSummaryReport } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import Link from 'next/link';
+import { Heading } from 'nhsuk-react-components';
 
 type DownloadReportConfirmationProps = {
   reportRequest: DownloadReportFormValues;
@@ -41,7 +41,7 @@ const DownloadReportConfirmation = ({
     <>
       <BackLink renderingStrategy={'client'} onClick={goBack} text={'Back'} />
       <br />
-      <NhsHeading title="Download the report" />
+      <Heading headingLevel="h2">Download the report</Heading>
       <p>
         Download all days between
         {' ' +

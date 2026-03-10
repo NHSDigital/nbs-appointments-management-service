@@ -1,5 +1,4 @@
 'use client';
-import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
@@ -13,6 +12,7 @@ import { DownloadReportFormValues } from '../download-report-form-schema';
 import Link from 'next/link';
 import { parseToUkDatetime } from '@services/timeService';
 import { redirect } from 'next/navigation';
+import { Heading } from 'nhsuk-react-components';
 
 interface Props {
   reportType: ReportType;
@@ -37,7 +37,7 @@ const ReportConfirmationStep = ({
     <>
       <BackLink onClick={handleBack} renderingStrategy="client" text="Back" />
       <br />
-      <NhsHeading title="Download the report" />
+      <Heading headingLevel="h2">Download the report</Heading>
 
       {reportType === ReportType.SiteSummary ? (
         <p>

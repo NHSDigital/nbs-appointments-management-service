@@ -1,5 +1,4 @@
 'use client';
-import NhsHeading from '@components/nhs-heading';
 import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
@@ -8,6 +7,7 @@ import { REPORT_DATE_EARLIEST_ALLOWED } from '../download-report-form-schema';
 import { RFC3339Format, ukNow } from '@services/timeService';
 import { redirect } from 'next/navigation';
 import { DownloadReportFormValues } from '../download-report-form-schema';
+import { Heading } from 'nhsuk-react-components';
 
 const ReportDateRangeStep = ({ goToNextStep }: InjectedWizardProps) => {
   const {
@@ -27,7 +27,7 @@ const ReportDateRangeStep = ({ goToNextStep }: InjectedWizardProps) => {
         text="Back"
       />
       <br />
-      <NhsHeading title="Select the dates and run a report" />
+      <Heading>Select the dates and run a report</Heading>
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-one-third">
           {errors.root && (

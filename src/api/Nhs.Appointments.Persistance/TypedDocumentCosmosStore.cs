@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -252,6 +253,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     {
         var requestCharge = 0.0;
         var results = new List<TOutput>();
+        var sw = new Stopwatch();
+        sw.Start();
         using (queryFeed)
         {
             while (queryFeed.HasMoreResults)
@@ -262,7 +265,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 requestCharge += resultSet.RequestCharge;
             }
         }
-
+        sw.Stop();
+        _logger.LogInformation($"Cosmos Operation on - {ContainerName} - completed with {results.Count} results, request charge: {requestCharge:0.00} RU/s. Total time: {sw.ElapsedMilliseconds} ms");
         CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, requestCharge);
         return results;
     }

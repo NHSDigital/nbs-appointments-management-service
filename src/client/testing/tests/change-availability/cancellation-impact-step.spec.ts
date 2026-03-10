@@ -28,16 +28,23 @@ test.beforeEach(async ({ page, getTestSite }) => {
   await rootPage.pageContentLogInButton.click();
   await oAuthPage.signIn();
 
-  await page.goto('/manage-your-appointments/sites');
   await page.waitForURL(`/manage-your-appointments/sites`);
   await page.getByRole('link', { name: 'View Church Lane Pharmacy' }).click();
+  await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
   await page
     .getByRole('link', { name: 'View availability and manage' })
     .click();
+  await page.waitForURL(
+    `/manage-your-appointments/site/${site.id}/view-availability`,
+  );
+  await expect(
+    page.getByRole('button', { name: 'Change availability' }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Change availability' }).click();
-  await page
-    .getByRole('button', { name: 'Continue to cancel' })
-    .click({ delay: 100 });
+  await page.waitForURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+  await page.getByRole('button', { name: 'Continue to cancel' }).click();
 });
 
 test('There are no sessions in this date range - Choose a new date range', async ({
@@ -64,14 +71,11 @@ test('There are no sessions in this date range - Choose a new date range', async
     .locator('#end-date-month')
     .fill((endDate.getMonth() + 1).toString());
   await page.locator('#end-date-year').fill(endDate.getFullYear().toString());
-
-  await page
-    .getByRole('button', { name: 'Continue', exact: true })
-    .click({ delay: 100 });
-
-  await page
-    .getByRole('button', { name: 'Choose a new date range' })
-    .click({ delay: 100 });
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page.waitForURL(
+    `/manage-your-appointments/site/${site.id}/change-availability`,
+  );
+  await page.getByRole('button', { name: 'Choose a new date range' }).click();
 
   await expect(page).toHaveURL(
     `/manage-your-appointments/site/${site.id}/change-availability`,

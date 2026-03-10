@@ -192,20 +192,20 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             throw new NotSupportedException("Only 10 patches can be applied");
         }
 
-        var lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow);
-        patchList.Add(lastUpdatedOnPatch);
+        patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
 
         var result = await Retry_CosmosOperation_OnTooManyRequests(async () =>
         {
-            //TODO test this updates on retry
-            //if the operation is retried, need to update the patch result for the LastUpdatedOn to be the new time
-            lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow);
+            //remove and readd to force readOnly list to update value
+            var lastUpdatedOnPatch = patchList.Single(x => x.Path == "/lastUpdatedOn");
+            patchList.Remove(lastUpdatedOnPatch);
+            patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
             
             return await GetContainer()
                 .PatchItemAsync<TDocument>(
                     id: documentId,
                     partitionKey: new PartitionKey(partitionKey),
-                    patchOperations: patchList.AsReadOnly());
+                    patchOperations: patchList);
         });
 
         return result.Resource;

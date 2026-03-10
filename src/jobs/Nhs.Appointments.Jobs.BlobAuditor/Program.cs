@@ -25,7 +25,6 @@ var applicationName = builder.Configuration.GetValue<string>("Application_Name")
 builder.UseAppointmentsSerilog();
 
 builder.Services
-    .AddSingleton(TimeProvider.System)
     .AddSingleton<IItemExclusionProcessor, ItemExclusionProcessor>()
     .AddCosmos(builder.Configuration)
     .AddAzureBlobStorage(builder.Configuration)

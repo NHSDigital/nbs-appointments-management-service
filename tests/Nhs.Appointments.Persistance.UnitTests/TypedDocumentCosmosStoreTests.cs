@@ -1391,10 +1391,13 @@ public class TypedDocumentCosmosStoreTests
         await _sut.PatchDocument("pk", "id", PatchOperation.Replace("/name", "New Name"));
 
         // Assert
-        capturedPatches.Should().HaveCount(2);
+        capturedPatches.Should().HaveCount(3);
         capturedPatches.Should().ContainSingle(p =>
             p.OperationType == PatchOperationType.Set &&
             p.Path == "/lastUpdatedBy");
+        capturedPatches.Should().ContainSingle(p =>
+            p.OperationType == PatchOperationType.Set &&
+            p.Path == "/lastUpdatedOn");
     }
     
     private sealed class RetryAfterCosmosException(TimeSpan retryAfter) : CosmosException("Boom",

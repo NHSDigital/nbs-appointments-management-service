@@ -125,7 +125,12 @@ test.describe.configure({ mode: 'serial' });
           });
 
           if (await viewDailyAppointmentsLink.isVisible()) {
-            await viewDailyAppointmentsLink.click();
+            await Promise.all([
+              page.waitForURL(
+                /\/manage-your-appointments\/site\/.*\/view-availability\/daily-appointments\?date=.*/,
+              ),
+              viewDailyAppointmentsLink.click(),
+            ]);
             linkFound = true;
             break; // Stop at the first card that matches
           }
@@ -177,14 +182,15 @@ test.describe.configure({ mode: 'serial' });
           );
           // Now that you have availability, the "View daily appointments" will appear
           const lastDayCard = page.locator('div.nhsuk-card').last();
-          await lastDayCard
-            .getByRole('link', { name: 'View daily appointments' })
-            .click();
+          await Promise.all([
+            page.waitForURL(
+              /\/manage-your-appointments\/site\/.*\/view-availability\/daily-appointments\?date=.*/,
+            ),
+            lastDayCard
+              .getByRole('link', { name: 'View daily appointments' })
+              .click(),
+          ]);
         }
-
-        await page.waitForURL(
-          /\/manage-your-appointments\/site\/.*\/view-availability\/daily-appointments\?date=.*/,
-        );
 
         await expect(
           page.getByRole('button', { name: 'Change availability' }),

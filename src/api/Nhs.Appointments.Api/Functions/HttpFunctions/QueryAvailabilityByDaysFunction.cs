@@ -56,18 +56,16 @@ public class QueryAvailabilityByDaysFunction(
 
     protected override async Task<ApiResult<List<AvailabilityByDays>>> HandleRequest(AvailabilityQueryRequest request, ILogger logger)
     {
-        var sites = await siteService.GetAllSites();
-        var activeSites = request.Sites.Where(rs => sites.Any(s => s.Id == rs));
-        if (!activeSites.Any())
-        {
-            return Success([]);
-        }
-
         var concurrentResults = new ConcurrentBag<AvailabilityByDays>();
-        await Parallel.ForEachAsync(activeSites, async (site, ct) =>
+        await Parallel.ForEachAsync(request.Sites, async (siteId, ct) =>
         {
-            var siteAvailability = await GetSiteAvailability(site, request.Attendees, request.From, request.Until);
-            concurrentResults.Add(siteAvailability);
+            var site = await siteService.GetSiteByIdAsync(siteId);
+            if (site is not null && (site.isDeleted is null or false))
+            {
+                var siteAvailability =
+                    await GetSiteAvailability(siteId, request.Attendees, request.From, request.Until);
+                concurrentResults.Add(siteAvailability);
+            }
         });
 
         var response = new List<AvailabilityByDays>();

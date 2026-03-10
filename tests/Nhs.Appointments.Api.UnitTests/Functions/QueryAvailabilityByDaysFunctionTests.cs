@@ -75,10 +75,8 @@ public class QueryAvailabilityByDaysFunctionTests
 
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultiServiceJointBookings))
             .ReturnsAsync(true);
-        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
-            .ReturnsAsync(new List<Site>
-            {
-                new(
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Site(
                     "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
                     "Test Site",
                     "Test Address",
@@ -95,8 +93,7 @@ public class QueryAvailabilityByDaysFunctionTests
                     null,
                     null,
                     string.Empty
-                    )
-            });
+                    ));
         _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
             .ReturnsAsync(slots);
         _availableSlotsFilter.Setup(x => x.FilterAvailableSlots(It.IsAny<List<SessionInstance>>(), It.IsAny<List<Attendee>>()))
@@ -134,10 +131,8 @@ public class QueryAvailabilityByDaysFunctionTests
 
         _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.MultiServiceJointBookings))
             .ReturnsAsync(true);
-        _siteService.Setup(x => x.GetAllSites(It.IsAny<bool>(), It.IsAny<bool>()))
-            .ReturnsAsync(new List<Site>
-            {
-                new(
+        _siteService.Setup(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Site(
                     "2de5bb57-060f-4cb5-b14d-16587d0c2e8f",
                     "Test Site",
                     "Test Address",
@@ -154,8 +149,7 @@ public class QueryAvailabilityByDaysFunctionTests
                     null,
                     null,
                     string.Empty
-                    )
-            });
+                    ));
         _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
             .ReturnsAsync(slots);
         _availableSlotsFilter.Setup(x => x.FilterAvailableSlots(It.IsAny<List<SessionInstance>>(), It.IsAny<List<Attendee>>()))

@@ -16,7 +16,6 @@ public interface ISiteService
         SiteSupportsServiceFilter siteSupportsServiceFilter = null);
 
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
-    Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false);
     Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false);
     Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities);
     Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens);
@@ -214,13 +213,6 @@ public class SiteService(
         var allSites = await GetSitesFromStoreOrCache(ignoreCache);
 
         return includeDeleted ? allSites : allSites.Where(s => s.isDeleted is null or false);
-    }
-
-    public async Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false)
-    {
-        var sites = await GetAllSites(includeDeleted);
-
-        return sites.Select(s => new SitePreview(s.Id, s.Name, s.OdsCode, s.IntegratedCareBoard));
     }
 
     public async Task<OperationResult> SaveSiteAsync(string siteId, string odsCode, string name, string address,

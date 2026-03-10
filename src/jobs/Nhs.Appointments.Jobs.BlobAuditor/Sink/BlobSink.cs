@@ -6,20 +6,20 @@ using Nhs.Appointments.Jobs.ChangeFeed;
 namespace Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
 public class BlobSink(
-    IAzureBlobStorage azureBlobStorage, 
-    TimeProvider timeProvider,
+    IAzureBlobStorage azureBlobStorage,
     IItemExclusionProcessor exclusionProcessor
 ) : ISink<JObject>
 {
     public async Task Consume(string source, JObject item)
     {
-        var now = timeProvider.GetUtcNow();
-        var containerName = GetContainerName(source, now);
-        var entityChangeTimestamp = now;
-        if (item.TryGetValue("_ts", out var timeStamp))
+        //don't process any data without this property
+        if (!item.TryGetValue("lastUpdatedOn", out var lastUpdatedOn))
         {
-            entityChangeTimestamp = DateTimeOffset.FromUnixTimeSeconds(timeStamp.Value<int>());
+            return;
         }
+
+        var entityChangeTimestamp = lastUpdatedOn.Value<DateTime>();
+        var containerName = GetContainerName(source, entityChangeTimestamp);
 
         item.TryGetValue("docType", out var entityDocType);
         var blobName = GetBlobName(entityDocType?.Value<string>() ?? "unknown", source, item, entityChangeTimestamp);
@@ -31,11 +31,8 @@ public class BlobSink(
         await writer.WriteRawAsync(JsonConvert.SerializeObject(filteredItem, Formatting.Indented));
     }
 
-    private static string GetContainerName(string source, DateTimeOffset timeStamp) => $"{timeStamp:yyyyMMdd}-{source.Replace("_", "")}";
+    private static string GetContainerName(string source, DateTime timeStamp) => $"{timeStamp:yyyyMMdd}-{source.Replace("_", "")}";
 
-    private string GetBlobName(string entityDocType, string source, JObject item, DateTimeOffset timeStamp) =>
-        Path.Combine(
-            $"{timeStamp:yyyyMMdd}", 
-            entityDocType,
-            $"{timeStamp:yyyyMMddHHmmssfff}-{item.ResolveIdentifier(source)}.json");
+    private string GetBlobName(string entityDocType, string source, JObject item, DateTime timeStamp) =>
+        Path.Combine(entityDocType, $"{timeStamp:HHmmssfffffff}-{item.ResolveIdentifier(source)}.json");
 }

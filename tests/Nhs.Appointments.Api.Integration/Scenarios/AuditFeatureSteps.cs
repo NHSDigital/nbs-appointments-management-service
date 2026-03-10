@@ -11,10 +11,10 @@ using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Audit.Persistance;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
 using Xunit.Gherkin.Quick;
-using Location = Gherkin.Ast.Location;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios;
 
@@ -87,54 +87,57 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         await VerifyBookingIndexAuditLog(itemResponse.Item2);
     }
 
-    private async Task VerifyBookingAuditLog(BookingTimestamped bookingTimestamped)
+    private async Task VerifyBookingAuditLog(BookingDocument bookingDocument)
     {
         var siteId = GetSiteId();
+        var lastUpdatedOn = bookingDocument.LastUpdatedOn!.Value;
+        
         var fileName = AuditBlobHelper.GetBlobName(
-            bookingTimestamped.DocumentType,
-            bookingTimestamped.CosmosTimestamp,
-            bookingTimestamped.Id + "-" + bookingTimestamped.Site
+            bookingDocument.DocumentType,
+            lastUpdatedOn,
+            bookingDocument.Id + "-" + bookingDocument.Site
         );
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
             BlobServiceClient,
+            lastUpdatedOn,
             BookingContainer,
             fileName
         );
 
         auditJson.Should().NotBeNullOrEmpty($"The booking audit log for site {siteId} was not found or was empty.");
 
-        var auditDoc = JsonConvert.DeserializeObject<BookingDocument>(auditJson!, new TimeOnlyConverter());
+        var auditDoc = JsonConvert.DeserializeObject<BookingDocument>(auditJson!, new ShortTimeOnlyJsonConverter());
 
-        auditDoc.Should().BeEquivalentTo(bookingTimestamped, options => options
-            .Excluding(ctx => ctx.CosmosTimestamp)
-            .Excluding(ctx => ctx.RawTimestamp)
+        auditDoc.Should().BeEquivalentTo(bookingDocument, options => options
+            .Excluding(ctx => ctx.LastUpdatedOn)
             .Excluding(x => x.AttendeeDetails)
             .Excluding(x => x.ContactDetails)
         );
-        bookingTimestamped.ContactDetails.Should().NotBeNull("because Cosmos should store the contact info");
+        bookingDocument.ContactDetails.Should().NotBeNull("because Cosmos should store the contact info");
         auditDoc.ContactDetails.Should().BeNull("because the Audit record should omit contact info");
         auditDoc.AttendeeDetails.FirstName.Should().BeNull();
         auditDoc.AttendeeDetails.LastName.Should().BeNull();
         auditDoc.AttendeeDetails.DateOfBirth.Should().Be(DateOnly.MinValue);
     }
 
-    private async Task VerifyBookingIndexAuditLog(BookingIndexTimestamped bookingIndexTimestamped)
+    private async Task VerifyBookingIndexAuditLog(BookingIndexDocument bookingIndexDocument)
     {
-        var identifier = bookingIndexTimestamped.Id + "-booking_index";
+        var identifier = bookingIndexDocument.Id + "-booking_index";
+        var lastUpdatedOn = bookingIndexDocument.LastUpdatedOn!.Value;
+        
         var fileName = AuditBlobHelper.GetBlobName(
-            bookingIndexTimestamped.DocumentType,
-            bookingIndexTimestamped.CosmosTimestamp,
+            bookingIndexDocument.DocumentType,
+            lastUpdatedOn,
             identifier
         );
 
-        var auditJson = await AuditBlobHelper.PollForAuditLogAsync(BlobServiceClient, IndexContainer, fileName);
+        var auditJson = await AuditBlobHelper.PollForAuditLogAsync(BlobServiceClient, lastUpdatedOn, IndexContainer, fileName);
         auditJson.Should().NotBeNullOrEmpty($"Index audit log {fileName} not found.");
 
         var auditDoc = JsonConvert.DeserializeObject<BookingIndexDocument>(auditJson!);
 
-        auditDoc.Should().BeEquivalentTo(bookingIndexTimestamped, options => options
-            .Excluding(ctx => ctx.CosmosTimestamp)
-            .Excluding(ctx => ctx.RawTimestamp)
+        auditDoc.Should().BeEquivalentTo(bookingIndexDocument, options => options
+            .Excluding(ctx => ctx.LastUpdatedOn)
         );
     }
     
@@ -165,16 +168,18 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
             LastUpdatedBy = dataTable.GetRowValueOrDefault(row, "Last Updated By") == _userId ? _userId : CreateUniqueTestValue(dataTable.GetRowValueOrDefault(row, "Last Updated By"))
         }).Single();
         
-        var itemResponse = await FindSiteTimestampedWithRetryAsync(expectedSite);
+        var itemResponse = await FindSiteDocumentWithRetryAsync(expectedSite);
+        var lastUpdatedOn = itemResponse.LastUpdatedOn!.Value;
         
         var fileName = AuditBlobHelper.GetBlobName(
             itemResponse.DocumentType,
-            itemResponse.CosmosTimestamp,
+            lastUpdatedOn,
             itemResponse.Id + "-" + itemResponse.DocumentType
         );
 
         var siteJson = await AuditBlobHelper.PollForAuditLogAsync(
             BlobServiceClient,
+            lastUpdatedOn,
             CoreContainer,
             fileName
         );
@@ -185,25 +190,26 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         var siteDoc = JsonConvert.DeserializeObject<SiteDocument>(siteJson!);
 
         siteDoc.Should().BeEquivalentTo(itemResponse, options => options
-            .Excluding(ctx => ctx.CosmosTimestamp)
-            .Excluding(ctx => ctx.RawTimestamp)
+            .Excluding(ctx => ctx.LastUpdatedOn)
         );
     }
     
     [And(@"a '(.+)' user should be audited in blob storage")]
     public async Task VerifyAuditLogExists(string user)
     {
-        var itemResponse = await CosmosReadItem<UserTimestamped>(CoreContainer, GetUserId(user), new PartitionKey("user"),
+        var itemResponse = await CosmosReadItem<UserDocument>(CoreContainer, GetUserId(user), new PartitionKey("user"),
             CancellationToken.None);
+        var lastUpdatedOn = itemResponse.Resource.LastUpdatedOn!.Value;
 
         var fileName = AuditBlobHelper.GetBlobName(
             itemResponse.Resource.DocumentType,
-            itemResponse.Resource.CosmosTimestamp,
+            lastUpdatedOn,
             itemResponse.Resource.Id + "-" + itemResponse.Resource.DocumentType
         );
 
         var userJson = await AuditBlobHelper.PollForAuditLogAsync(
             BlobServiceClient,
+            lastUpdatedOn,
             CoreContainer,
             fileName
         );
@@ -213,10 +219,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
 
         var userDoc = JsonConvert.DeserializeObject<UserDocument>(userJson!);
 
-        userDoc.Should().BeEquivalentTo(itemResponse.Resource, options => options
-            .Excluding(ctx => ctx.CosmosTimestamp)
-            .Excluding(ctx => ctx.RawTimestamp)
-        );
+        userDoc.Should().BeEquivalentTo(itemResponse.Resource, options => options.Excluding(x => x.LastUpdatedOn));
     }
 
     [And(@"the availability with details at the default site should be audited in blob storage")]
@@ -226,15 +229,17 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         var expectedDocument = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable).Single();
         
         var itemResponse = await FindAvailabilityTimestampedWithRetryAsync(expectedDocument);
+        var lastUpdatedOn = itemResponse.LastUpdatedOn!.Value;
 
         var fileName = AuditBlobHelper.GetBlobName(
             itemResponse.DocumentType,
-            itemResponse.CosmosTimestamp,
+            lastUpdatedOn,
             itemResponse.Id + "-" + itemResponse.Site
         );
 
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
             BlobServiceClient,
+            lastUpdatedOn,
             BookingContainer,
             fileName
         );
@@ -242,11 +247,10 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         auditJson.Should()
             .NotBeNullOrEmpty($"The daily availability audit log for site {site} was not found or was empty.");
 
-        var auditDoc = JsonConvert.DeserializeObject<DailyAvailabilityDocument>(auditJson!, new TimeOnlyConverter());
+        var auditDoc = JsonConvert.DeserializeObject<DailyAvailabilityDocument>(auditJson!, new ShortTimeOnlyJsonConverter());
 
         auditDoc.Should().BeEquivalentTo(itemResponse, options => options
-            .Excluding(ctx => ctx.CosmosTimestamp)
-            .Excluding(ctx => ctx.RawTimestamp)
+            .Excluding(ctx => ctx.LastUpdatedOn)
         );
     }
     
@@ -265,15 +269,17 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         };
         
         var itemResponse = await FindAvailabilityTimestampedWithRetryAsync(expectedDocument);
+        var lastUpdatedOn = itemResponse.LastUpdatedOn!.Value;
 
         var fileName = AuditBlobHelper.GetBlobName(
             itemResponse.DocumentType,
-            itemResponse.CosmosTimestamp,
+           lastUpdatedOn,
             itemResponse.Id + "-" + itemResponse.Site
         );
 
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
             BlobServiceClient,
+            lastUpdatedOn,
             BookingContainer,
             fileName
         );
@@ -281,11 +287,10 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         auditJson.Should()
             .NotBeNullOrEmpty($"The daily availability audit log for site {site} was not found or was empty.");
 
-        var auditDoc = JsonConvert.DeserializeObject<DailyAvailabilityDocument>(auditJson!, new TimeOnlyConverter());
+        var auditDoc = JsonConvert.DeserializeObject<DailyAvailabilityDocument>(auditJson!);
 
         auditDoc.Should().BeEquivalentTo(itemResponse, options => options
-            .Excluding(ctx => ctx.CosmosTimestamp)
-            .Excluding(ctx => ctx.RawTimestamp)
+            .Excluding(ctx => ctx.LastUpdatedOn)
         );
     }
 
@@ -294,13 +299,16 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
     public async Task VerifyNotificationAuditLog(string notificationType, string user)
     {
         var auditNotificationTimestamped = await FindAuditNotificationTimestampedWithRetryAsync(notificationType, user);
+        var lastUpdatedOn = auditNotificationTimestamped.LastUpdatedOn!.Value;
+        
         var fileName = AuditBlobHelper.GetBlobName(
             auditNotificationTimestamped.DocumentType,
-            auditNotificationTimestamped.CosmosTimestamp,
+            lastUpdatedOn,
             auditNotificationTimestamped.Id
         );
         var auditJson = await AuditBlobHelper.PollForAuditLogAsync(
             BlobServiceClient,
+            lastUpdatedOn,
             AuditContainer,
             fileName
         );
@@ -310,19 +318,18 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         var auditDoc = JsonConvert.DeserializeObject<AuditNotificationDocument>(auditJson!);
 
         auditDoc.Should().BeEquivalentTo(auditNotificationTimestamped, options => options
-            .Excluding(ctx => ctx.CosmosTimestamp)
-            .Excluding(ctx => ctx.RawTimestamp)
+            .Excluding(ctx => ctx.LastUpdatedOn)
         );
     }
 
-    private async Task<AuditNotificationTimestamped> FindAuditNotificationTimestampedWithRetryAsync(
+    private async Task<AuditNotificationDocument> FindAuditNotificationTimestampedWithRetryAsync(
         string notificationType, string user)
     {
         var startTime = DateTime.UtcNow;
 
         while (DateTime.UtcNow - startTime < _pollingTimeout)
         {
-            var notifications = (await CosmosQueryFeed<AuditNotificationTimestamped>(AuditContainer,
+            var notifications = (await CosmosQueryFeed<AuditNotificationDocument>(AuditContainer,
                 d => d.DestinationId == GetUserId(user) && d.NotificationName == notificationType)).ToList();
 
             if (notifications.Count > 0)
@@ -337,14 +344,14 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         throw new TimeoutException("AuditNotificationDocument not found within the timeout period.");
     }
 
-    private async Task<AuditFunctionDocumentTimestamped> FindAuditFunctionTimestampedWithRetryAsync(string user,
+    private async Task<AuditFunctionDocument> FindAuditFunctionTimestampedWithRetryAsync(string user,
         string functionName, string siteId)
     {
         var startTime = DateTime.UtcNow;
 
         while (DateTime.UtcNow - startTime < _pollingTimeout)
         {
-            var documentsFound = (await CosmosQueryFeed<AuditFunctionDocumentTimestamped>(AuditContainer,
+            var documentsFound = (await CosmosQueryFeed<AuditFunctionDocument>(AuditContainer,
                 d => d.User == user && d.FunctionName == functionName && d.Site == siteId)).ToList();
 
             if (documentsFound.Count > 0)
@@ -364,7 +371,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         throw new TimeoutException("AuditFunctionDocument not found within the timeout period.");
     }
 
-    private async Task<(BookingTimestamped, BookingIndexTimestamped)> FindBothBookingAndIndexTimestampedWithRetryAsync(BookingDocument details)
+    private async Task<(BookingDocument, BookingIndexDocument)> FindBothBookingAndIndexTimestampedWithRetryAsync(BookingDocument details)
     {
         var startTime = DateTime.UtcNow;
 
@@ -373,7 +380,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         while (DateTime.UtcNow - startTime < _pollingTimeout)
         {
             //make sure find the right version of the document
-            var bookingDocumentsFound = (await CosmosQueryFeed<BookingTimestamped>("booking_data",
+            var bookingDocumentsFound = (await CosmosQueryFeed<BookingDocument>("booking_data",
                 d =>
                     d.Id == details.Reference &&
                     d.Site == siteId &&
@@ -383,7 +390,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
             )).ToList();
             
             //make sure find the right version of the document
-            var indexDocumentsFound = (await CosmosQueryFeed<BookingIndexTimestamped>(IndexContainer,
+            var indexDocumentsFound = (await CosmosQueryFeed<BookingIndexDocument>(IndexContainer,
                 d =>
                     d.Id == details.Reference &&
                     d.DocumentType == "booking_index" &&
@@ -401,14 +408,14 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         throw new TimeoutException("BookingDocument or IndexDocument not found within the timeout period.");
     }
     
-    private async Task<SiteTimestamped> FindSiteTimestampedWithRetryAsync(SiteDocument details)
+    private async Task<SiteDocument> FindSiteDocumentWithRetryAsync(SiteDocument details)
     {
         var startTime = DateTime.UtcNow;
         
         while (DateTime.UtcNow - startTime < _pollingTimeout)
         {
             //make sure find the right version of the document
-            var siteDocumentsFound = (await CosmosQueryFeed<SiteTimestamped>(CoreContainer,
+            var siteDocumentsFound = (await CosmosQueryFeed<SiteDocument>(CoreContainer,
                 d =>
                     d.Id == details.Id &&
                     d.Address == details.Address &&
@@ -432,19 +439,19 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
         throw new TimeoutException("SiteDocument not found within the timeout period.");
     }
     
-    private async Task<DailyAvailabilityTimestamped> FindAvailabilityTimestampedWithRetryAsync(DailyAvailabilityDocument details)
+    private async Task<DailyAvailabilityDocument> FindAvailabilityTimestampedWithRetryAsync(DailyAvailabilityDocument details)
     {
         var startTime = DateTime.UtcNow;
         
         while (DateTime.UtcNow - startTime < _pollingTimeout)
         {
-            List<DailyAvailabilityTimestamped> availabilityDocumentsFound;
+            List<DailyAvailabilityDocument> availabilityDocumentsFound;
             if (details.Sessions.Length > 0)
             {
                 //single session with a single service assertion for now!!
                 
                 //make sure find the right version of the document
-                availabilityDocumentsFound = (await CosmosQueryFeed<DailyAvailabilityTimestamped>("booking_data",
+                availabilityDocumentsFound = (await CosmosQueryFeed<DailyAvailabilityDocument>("booking_data",
                     d =>
                         d.Id == details.Id &&
                         d.Site == details.Site &&
@@ -460,7 +467,7 @@ public abstract class AuditFeatureSteps : AggregateFeatureSteps
             else
             {
                 //make sure find the right version of the document
-                availabilityDocumentsFound = (await CosmosQueryFeed<DailyAvailabilityTimestamped>("booking_data",
+                availabilityDocumentsFound = (await CosmosQueryFeed<DailyAvailabilityDocument>("booking_data",
                     d =>
                         d.Id == details.Id &&
                         d.Site == details.Site &&

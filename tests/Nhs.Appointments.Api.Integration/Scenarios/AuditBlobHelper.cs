@@ -13,13 +13,13 @@ public static class AuditBlobHelper
     private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan PollingTimeout = TimeSpan.FromSeconds(20);
 
-    public static async Task<string> PollForAuditLogAsync(BlobServiceClient blobServiceClient, string containerSource, string fileName)
+    public static async Task<string> PollForAuditLogAsync(BlobServiceClient blobServiceClient, DateTime timeStamp, string containerSource, string fileName)
     {
         var startTime = DateTime.UtcNow;
 
         while (DateTime.UtcNow - startTime < PollingTimeout)
         {
-            var content = await ReadAuditJsonByNameAsync(blobServiceClient, containerSource, fileName);
+            var content = await ReadAuditJsonByNameAsync(blobServiceClient, timeStamp, containerSource, fileName);
 
             if (content != null)
             {
@@ -34,18 +34,15 @@ public static class AuditBlobHelper
 
     public static string GetBlobName(
         string documentType, 
-        DateTimeOffset timeStamp,
+        DateTime timeStamp,
         string identifier
 
-    ) => Path.Combine(
-        $"{timeStamp:yyyyMMdd}",
-        documentType,
-        $"{timeStamp:yyyyMMddHHmmssfff}-{identifier}.json"
+    ) => Path.Combine(documentType, $"{timeStamp:HHmmssfffffff}-{identifier}.json"
     );
 
-    private static async Task<string> ReadAuditJsonByNameAsync(BlobServiceClient blobServiceClient, string containerSource, string fileName)
+    private static async Task<string> ReadAuditJsonByNameAsync(BlobServiceClient blobServiceClient, DateTime timeStamp, string containerSource, string fileName)
     {
-        var containerName = $"{DateTime.UtcNow:yyyyMMdd}-{containerSource.Replace("_", "")}";
+        var containerName = $"{timeStamp:yyyyMMdd}-{containerSource.Replace("_", "")}";
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
         if (!await containerClient.ExistsAsync())
@@ -76,15 +73,4 @@ public static class AuditBlobHelper
 
         return contentStringResponse;
     }
-}
-
-public class TimeOnlyConverter : JsonConverter<TimeOnly>
-{
-    private const string Format = "HH:mm";
-
-    public override void WriteJson(JsonWriter writer, TimeOnly value, JsonSerializer serializer)
-        => writer.WriteValue(value.ToString(Format));
-
-    public override TimeOnly ReadJson(JsonReader reader, Type objectType, TimeOnly existingValue, bool hasExistingValue, JsonSerializer serializer)
-        => TimeOnly.Parse(((string)reader.Value)!);
 }

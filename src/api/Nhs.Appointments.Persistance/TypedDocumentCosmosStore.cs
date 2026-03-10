@@ -192,7 +192,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             throw new NotSupportedException("Only 10 patches can be applied");
         }
 
-        var lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn",  DateTime.UtcNow);
+        var lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow);
         patchList.Add(lastUpdatedOnPatch);
 
         var result = await Retry_CosmosOperation_OnTooManyRequests(async () =>

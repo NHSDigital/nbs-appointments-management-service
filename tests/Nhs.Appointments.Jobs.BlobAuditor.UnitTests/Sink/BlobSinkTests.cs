@@ -17,7 +17,7 @@ public class BlobSinkTests
     {
         _blobSink = new BlobSink(
             _mockAzureBlobStorage.Object, 
-            _mockTimeProvider.Object, 
+            // _mockTimeProvider.Object, 
             _itemExclusionProcessor.Object
         );
     }

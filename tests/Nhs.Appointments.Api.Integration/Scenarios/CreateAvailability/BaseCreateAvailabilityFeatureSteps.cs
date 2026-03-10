@@ -223,6 +223,6 @@ public abstract class BaseCreateAvailabilityFeatureSteps : AuditFeatureSteps
         var expectedDocuments = DailyAvailabilityDocumentsFromTable(site, expectedDailyAvailabilityTable);
         var actualDocuments = await CosmosQueryFeed<DailyAvailabilityDocument>("booking_data", d => d.DocumentType == "daily_availability" && d.Site == site);
         actualDocuments.Count().Should().Be(expectedDocuments.Count());
-        actualDocuments.Should().BeEquivalentTo(expectedDocuments);
+        actualDocuments.Should().BeEquivalentTo(expectedDocuments, opts => opts.Excluding(x=> x.LastUpdatedOn));
     }
 }

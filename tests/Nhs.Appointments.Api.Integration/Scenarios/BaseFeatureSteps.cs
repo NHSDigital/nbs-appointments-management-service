@@ -201,7 +201,7 @@ public abstract partial class BaseFeatureSteps : Feature
     {
         var container = Client.GetContainer("appts", containerName);
         
-        var lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn",  DateTime.UtcNow);
+        var lastUpdatedOnPatch = PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow);
         patches.Add(lastUpdatedOnPatch);
         
         await Retry_CosmosOperation_OnTooManyRequests(

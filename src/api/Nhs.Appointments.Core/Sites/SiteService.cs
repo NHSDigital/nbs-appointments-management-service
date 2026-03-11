@@ -480,17 +480,32 @@ public class SiteService(
         {
             return await siteStore.GetAllSites();
         }
-
+        
         var sitesFromCache = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
         if (sitesFromCache != null)
         {
             return sitesFromCache;
         }
-
-        var sites = (await siteStore.GetAllSites()).ToList();
-        memoryCache.Set(options.Value.SiteCacheKey, sites,
-            time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
-        return sites;
+        
+        await siteCacheLock.WaitAsync();
+        
+        sitesFromCache = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
+        if (sitesFromCache != null)
+        {
+            return sitesFromCache;
+        }
+        
+        try
+        {
+            var sites = (await siteStore.GetAllSites()).ToList();
+            memoryCache.Set(options.Value.SiteCacheKey, sites,
+                time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
+            return sites;
+        }
+        finally
+        {
+            siteCacheLock.Release();
+        }
     }
 
     internal async Task UpdateSiteInCacheAsync(string siteId)

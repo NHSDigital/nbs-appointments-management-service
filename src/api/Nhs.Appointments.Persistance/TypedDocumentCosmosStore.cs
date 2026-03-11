@@ -253,8 +253,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     {
         var requestCharge = 0.0;
         var results = new List<TOutput>();
-        var sw = new Stopwatch();
-        sw.Start();
+        
+        _logger.LogInformation($"Cosmos Operation on - {ContainerName} - Started {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff}");
         using (queryFeed)
         {
             while (queryFeed.HasMoreResults)
@@ -265,8 +265,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 requestCharge += resultSet.RequestCharge;
             }
         }
-        sw.Stop();
-        _logger.LogInformation($"Cosmos Operation on - {ContainerName} - completed with {results.Count} results, request charge: {requestCharge:0.00} RU/s. Total time: {sw.ElapsedMilliseconds} ms");
+        
+        _logger.LogInformation($"Cosmos Operation on - {ContainerName} - Finished {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss.fff} - Completed with {results.Count} results, request charge: {requestCharge:0.00} RU/s.");
         CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, requestCharge);
         return results;
     }

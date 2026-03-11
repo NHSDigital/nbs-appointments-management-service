@@ -8,6 +8,7 @@ import SelectDatesStep from './select-dates-step';
 import CancellationImpactStep from './cancellation-impact-step';
 import CheckYourAnswersStep from './check-your-answers-step';
 import ConfirmationStep from './confirmation-step';
+import NoNotificationStep from './no-notification-step';
 import {
   createChangeAvailabilityFormSchema,
   ChangeAvailabilityFormValues,
@@ -77,6 +78,9 @@ const ChangeAvailabilityWizard = ({
           </WizardStep>
           <WizardStep>
             {stepProps => <ConfirmationStep {...stepProps} site={site} />}
+          </WizardStep>
+          <WizardStep>
+            {stepProps => <NoNotificationStep {...stepProps} site={site} />}
           </WizardStep>
         </Wizard>
       </form>

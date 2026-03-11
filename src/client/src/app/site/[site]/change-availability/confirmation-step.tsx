@@ -9,7 +9,10 @@ interface Props {
   site: string;
 }
 
-const ConfirmationStep = ({ site }: InjectedWizardProps & Props) => {
+const ConfirmationStep = ({
+  site,
+  goToNextStep,
+}: InjectedWizardProps & Props) => {
   const { getValues } = useFormContext<ChangeAvailabilityFormValues>();
   const { cancellationSummary, cancellationDecision } = getValues();
 
@@ -115,9 +118,8 @@ const ConfirmationStep = ({ site }: InjectedWizardProps & Props) => {
         can, you should contact people to tell them their booking is cancelled.
       </p>
 
-      {/* TODO: link to be updated in APPT-1967 */}
-      <Link href={`/site/${site}/change-availability`}>
-        View the list of people whi have not been notified.
+      <Link href="" onClick={onContinue}>
+        View the list of people who have not been notified.
       </Link>
 
       <br />
@@ -157,8 +159,8 @@ const ConfirmationStep = ({ site }: InjectedWizardProps & Props) => {
         These people did not provide an email address or mobile number. If you
         can, you should contact them to tell them their booking is cancelled.
       </p>
-      {/* TODO: link to be updated in APPT-1967 */}
-      <Link href={`/site/${site}/change-availability`}>
+
+      <Link href="" onClick={onContinue}>
         View the list of people who have not been notified
       </Link>
 
@@ -196,6 +198,12 @@ const ConfirmationStep = ({ site }: InjectedWizardProps & Props) => {
     }
 
     return cancelBookingsNoOneNotifiedCancellation();
+  };
+
+  const onContinue = async (e: React.MouseEvent | React.FormEvent) => {
+    e.preventDefault();
+
+    goToNextStep();
   };
 
   return (

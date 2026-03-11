@@ -25,7 +25,7 @@ export const SessionBookingsContactDetailsPage = ({
 }: Props) => {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
-  const page = Number(params.get('page')) ?? 1;
+  const page = Number(params.get('page')) || 1;
 
   const hasNextPage = (): boolean => {
     return page * ROWS_PER_PAGE < bookings.length;

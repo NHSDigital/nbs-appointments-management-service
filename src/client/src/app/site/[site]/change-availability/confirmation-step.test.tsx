@@ -4,13 +4,14 @@ import ConfirmationStep from './confirmation-step';
 import MockForm from '@testing/mockForm';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
 
+const mockGoToNextStep = jest.fn();
 const siteID = 'site-123';
 const defaultProps = {
   site: siteID,
   currentStep: 4,
   stepNumber: 4,
   isActive: true,
-  goToNextStep: jest.fn(),
+  goToNextStep: mockGoToNextStep,
   goToPreviousStep: jest.fn(),
   setCurrentStep: jest.fn(),
   goToLastStep: jest.fn(),
@@ -191,11 +192,28 @@ describe('ConfirmationStep', () => {
         ),
       ).toBeInTheDocument();
 
-      const link = screen.getByRole('link', {
-        name: /View the list of people who have not been notified/i,
-      });
+      const link = screen.getByText(
+        /View the list of people who have not been notified/i,
+      );
       expect(link).toBeInTheDocument();
       expectNavigationLinksToHaveCorrectSiteId(siteID);
+    });
+
+    it('calls goToNextStep when the not notified link is clicked', async () => {
+      const { user } = renderComponent(
+        {
+          cancelledSessionsCount: 5,
+          cancelledBookingsCount: 5,
+          bookingsWithoutContactDetailsCount: 3,
+        },
+        'cancel-bookings',
+      );
+
+      const link = screen.getByText(
+        /View the list of people who have not been notified/i,
+      );
+      await user.click(link);
+      expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -222,9 +240,9 @@ describe('ConfirmationStep', () => {
           /If you can, you should contact people to tell them their booking is cancelled/i,
         ),
       ).toBeInTheDocument();
-      const viewListLink = screen.getByRole('link', {
-        name: /View the list of people whi have not been notified/i,
-      });
+      const viewListLink = screen.getByText(
+        /View the list of people who have not been notified/i,
+      );
       expect(viewListLink).toBeInTheDocument();
       expectNavigationLinksToHaveCorrectSiteId(siteID);
     });
@@ -251,11 +269,28 @@ describe('ConfirmationStep', () => {
           /If you can, you should contact people to tell them their booking is cancelled/i,
         ),
       ).toBeInTheDocument();
-      const viewListLink = screen.getByRole('link', {
-        name: /View the list of people whi have not been notified/i,
-      });
+      const viewListLink = screen.getByText(
+        /View the list of people who have not been notified/i,
+      );
       expect(viewListLink).toBeInTheDocument();
       expectNavigationLinksToHaveCorrectSiteId(siteID);
+    });
+
+    it('calls goToNextStep when the not notified link is clicked', async () => {
+      const { user } = renderComponent(
+        {
+          cancelledSessionsCount: 1,
+          cancelledBookingsCount: 1,
+          bookingsWithoutContactDetailsCount: 0,
+        },
+        'cancel-bookings',
+      );
+
+      const link = screen.getByText(
+        /View the list of people who have not been notified/i,
+      );
+      await user.click(link);
+      expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
     });
   });
 });

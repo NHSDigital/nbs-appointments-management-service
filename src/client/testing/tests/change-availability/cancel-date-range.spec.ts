@@ -1,4 +1,4 @@
-import { OAuthLoginPage, RootPage } from '@testing-page-objects';
+import { OAuthLoginPage, RootPage, NotFoundPage } from '@testing-page-objects';
 import { Site } from '@types';
 import { test, expect, overrideFeatureFlag } from '../../fixtures';
 
@@ -32,25 +32,26 @@ test.describe.configure({ mode: 'serial' });
         await rootPage.pageContentLogInButton.click();
         await oAuthPage.signIn();
 
-        // await page.goto('/manage-your-appointments/sites');
         await page.waitForURL(`/manage-your-appointments/sites`);
         await page
           .getByRole('link', { name: 'View Church Lane Pharmacy' })
           .click();
+        await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
         await page
           .getByRole('link', { name: 'View availability and manage' })
           .click();
-
         await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/view-availability`,
         );
       });
 
       test('Cancel a date range monthly page', async ({ page }) => {
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
           return;
         }
 
@@ -58,123 +59,198 @@ test.describe.configure({ mode: 'serial' });
           page.getByRole('button', { name: 'Change availability' }),
         ).toBeVisible();
         await page.getByRole('button', { name: 'Change availability' }).click();
-        await expect(page).toHaveURL(/.*\/change-availability/, {
-          timeout: 15000,
-        });
-        await expect(
-          page.getByRole('link', { name: 'Back', exact: true }),
-        ).toBeVisible();
-        await page
-          .getByRole('link', { name: 'Back', exact: true })
-          .click({ delay: 100 });
-        await expect(page).toHaveURL(
-          `/manage-your-appointments/site/${site.id}/view-availability`,
-          { timeout: 15000 },
-        );
-      });
-
-      test.skip('Cancel a date range weekly page', async ({ page }) => {
-        //TODO this will fail next month
-        await page
-          .getByRole('listitem')
-          .filter({ hasText: '23 February to 1 March' })
-          .getByRole('link')
-          .click();
-
-        if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
-          return;
-        }
-
-        await expect(
-          page.getByRole('button', { name: 'Change availability' }),
-        ).toBeVisible();
-        await page.getByRole('button', { name: 'Change availability' }).click();
-        await expect(page).toHaveURL(/.*\/change-availability/);
-        await expect(
-          page.getByRole('link', { name: 'Back', exact: true }),
-        ).toBeVisible();
-        await page
-          .getByRole('link', { name: 'Back', exact: true })
-          .click({ delay: 100 });
-        await expect(page).toHaveURL(/.*\/view-availability(\/week)?/);
-      });
-
-      test.skip('Cancel a date range daily page', async ({ page }) => {
-        //TODO this will fail next month
-        await page
-          .getByRole('listitem')
-          .filter({ hasText: '23 February to 1 March' })
-          .getByRole('link')
-          .click();
-        await expect(page).toHaveURL(/.*\/view-availability\/week/);
-        const wednesdaySection = page
-          .locator('li')
-          .filter({ hasText: 'Wednesday 25 February' });
-        await expect(
-          wednesdaySection.getByText(/Total appointments: [1-9]\d*/),
-        ).toBeVisible({ timeout: 20000 });
-        // If the Total appointments: 0 then the "View daily appointments" link will not be visible
-        await page
-          .getByRole('link', { name: 'View daily appointments' })
-          .click();
-
-        if (!CancelADateRangeFlagEnabled) {
-          expect(
-            page.getByRole('button', { name: 'Change availability' }),
-          ).not.toBeVisible();
-          return;
-        }
-
-        await expect(
-          page.getByRole('button', { name: 'Change availability' }),
-        ).toBeVisible();
-        await page.getByRole('button', { name: 'Change availability' }).click();
-        await expect(page).toHaveURL(
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
         await expect(
           page.getByRole('link', { name: 'Back', exact: true }),
         ).toBeVisible();
-        await page
-          .getByRole('link', { name: 'Back', exact: true })
-          .click({ delay: 100 });
-        await expect(page).toHaveURL(
-          /.*\/view-availability(\/daily-appointments)?/,
+        await page.getByRole('link', { name: 'Back', exact: true }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
         );
+      });
+
+      test('Cancel a date range weekly page', async ({ page }) => {
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        const firstWeeklyCard = page.locator('div.nhsuk-card').first();
+        await firstWeeklyCard.getByRole('link', { name: 'View week' }).click();
+        await page.waitForURL(/.*\/view-availability\/week/);
+
+        await expect(
+          page.getByRole('button', { name: 'Change availability' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page.getByRole('link', { name: 'Back', exact: true }).click();
+        await page.waitForURL(/.*\/view-availability(\/week)?/);
+      });
+
+      test('Cancel a date range daily page', async ({ page }) => {
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        const lastWeekCard = page.locator('div.nhsuk-card').last();
+        await lastWeekCard.getByRole('link', { name: 'View week' }).click();
+        await page.waitForURL(/.*\/view-availability\/week/);
+
+        const dayCards = page.locator('div.nhsuk-card');
+        const cardCount = await dayCards.count();
+        let linkFound = false;
+
+        // Iterate through the day cards to find "View daily appointments" link
+        for (let i = 0; i < cardCount; i++) {
+          const currentCard = dayCards.nth(i);
+          const viewDailyAppointmentsLink = currentCard.getByRole('link', {
+            name: 'View daily appointments',
+          });
+
+          if (await viewDailyAppointmentsLink.isVisible()) {
+            await Promise.all([
+              page.waitForURL(
+                /\/manage-your-appointments\/site\/.*\/view-availability\/daily-appointments\?date=.*/,
+              ),
+              viewDailyAppointmentsLink.click(),
+            ]);
+            linkFound = true;
+            break; // Stop at the first card that matches
+          }
+        }
+
+        // If no link was found, go to the last card and click "Add availability"
+        if (!linkFound && cardCount > 0) {
+          const lastCard = dayCards.last();
+          await lastCard
+            .getByRole('link', { name: 'Add availability to this day' })
+            .click();
+          await page.waitForURL(
+            /\/manage-your-appointments\/site\/.*\/create-availability\/wizard\?date=.*/,
+          );
+          await page
+            .getByRole('textbox', { name: 'Session start time - hour' })
+            .fill('09');
+          await page
+            .getByRole('textbox', { name: 'Session start time - minute' })
+            .fill('00');
+          await page
+            .getByRole('textbox', { name: 'Session end time - hour' })
+            .fill('10');
+          await page
+            .getByRole('textbox', { name: 'Session end time - minute' })
+            .fill('00');
+          // if the element is an <input type="number">, Playwright will identify it as a spinbutton, and textbox may not find it.
+          await page
+            .getByRole('spinbutton', {
+              name: 'How many vaccinators or vaccination spaces do you have?',
+            })
+            .fill('1');
+          await page
+            .getByRole('spinbutton', {
+              name: 'How long are your appointments?',
+            })
+            .fill('10');
+          await page.getByRole('button', { name: 'Continue' }).click();
+          await page
+            .getByRole('checkbox', { name: 'Flu and COVID 18 to 64' })
+            .check();
+          await page.getByRole('button', { name: 'Continue' }).click();
+          await page
+            .getByRole('button', { name: 'Save and publish availability' })
+            .click();
+          // Redirect back to the daily page
+          await page.waitForURL(
+            /\/manage-your-appointments\/site\/.*\/view-availability\/week\?date=.*/,
+          );
+          // Now that you have availability, the "View daily appointments" will appear
+          const lastDayCard = page.locator('div.nhsuk-card').last();
+          await Promise.all([
+            page.waitForURL(
+              /\/manage-your-appointments\/site\/.*\/view-availability\/daily-appointments\?date=.*/,
+            ),
+            lastDayCard
+              .getByRole('link', { name: 'View daily appointments' })
+              .click(),
+          ]);
+        }
+
+        await expect(
+          page.getByRole('button', { name: 'Change availability' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await expect(
+          page.getByRole('link', { name: 'Back', exact: true }),
+        ).toBeVisible();
+        await page.getByRole('link', { name: 'Back', exact: true }).click();
+        await page.waitForURL(/.*\/view-availability(\/daily-appointments)?/);
       });
     });
 
     test.describe('Select Dates To Cancel', () => {
       test.beforeEach(async ({ page, getTestSite }) => {
-        site = getTestSite(1);
+        site = getTestSite(2);
         rootPage = new RootPage(page);
         oAuthPage = new OAuthLoginPage(page);
 
         await rootPage.goto();
         await rootPage.pageContentLogInButton.click();
         await oAuthPage.signIn();
+
         await page.waitForURL(`/manage-your-appointments/sites`);
+        await page
+          .getByRole('link', { name: 'View Church Lane Pharmacy' })
+          .click();
+        await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
+        await page
+          .getByRole('link', { name: 'View availability and manage' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
       });
 
       test('Select dates to cancel error, mandatory field validation', async ({
         page,
       }) => {
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          test.skip();
-
-          //TODO assert not found page??
-          //Sorry, we could not find that page
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
         }
 
-        //TODO navigate there rather than goto
-        await page.goto(
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
 
-        await page.getByRole('button', { name: 'Continue to cancel' }).click();
         await page.getByRole('button', { name: 'Continue' }).click();
 
         // Use locator that finds the error text specifically
@@ -182,17 +258,13 @@ test.describe.configure({ mode: 'serial' });
           .locator('.nhsuk-form-group')
           .filter({ hasText: 'Start date' })
           .locator('.nhsuk-error-message');
-        await expect(startDateError).toContainText('Enter a start date', {
-          timeout: 15000,
-        });
+        await expect(startDateError).toContainText('Enter a start date');
 
         const endDateError = page
           .locator('.nhsuk-form-group')
           .filter({ hasText: 'End date' })
           .locator('.nhsuk-error-message');
-        await expect(endDateError).toContainText('Enter an end date', {
-          timeout: 15000,
-        });
+        await expect(endDateError).toContainText('Enter an end date');
 
         await expect(
           page.locator('.nhsuk-u-visually-hidden').first(),
@@ -202,8 +274,7 @@ test.describe.configure({ mode: 'serial' });
           page.getByRole('link', { name: 'Back', exact: true }),
         ).toBeVisible();
         await page.getByRole('link', { name: 'Back', exact: true }).click();
-
-        await expect(page).toHaveURL(
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
       });
@@ -211,18 +282,23 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, must be in the future', async ({
         page,
       }) => {
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          test.skip();
-
-          //TODO assert not found page??
-          //Sorry, we could not find that page
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
         }
 
-        await page.goto(
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
-
         await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
 
         // Calculate yesterday
         const yesterday = new Date();
@@ -253,18 +329,17 @@ test.describe.configure({ mode: 'serial' });
 
         await expect(
           errorMessages.filter({ hasText: /Start date/ }),
-        ).toContainText(/must be in the future/i, { timeout: 15000 });
+        ).toContainText(/must be in the future/i);
 
         await expect(
           errorMessages.filter({ hasText: /End date/ }),
-        ).toContainText(/must be in the future/i, { timeout: 15000 });
+        ).toContainText(/must be in the future/i);
 
         await expect(
           page.getByRole('link', { name: 'Back', exact: true }),
         ).toBeVisible();
         await page.getByRole('link', { name: 'Back', exact: true }).click();
-
-        await expect(page).toHaveURL(
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
       });
@@ -272,18 +347,23 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error, end date must be after the start date', async ({
         page,
       }) => {
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          test.skip();
-
-          //TODO assert not found page??
-          //Sorry, we could not find that page
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
         }
 
-        await page.goto(
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
-
         await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
 
         // Start is 5 days from now, End is 2 days from now
         const now = new Date();
@@ -314,7 +394,6 @@ test.describe.configure({ mode: 'serial' });
           .locator('#end-date-year')
           .fill(endDate.getFullYear().toString());
 
-        // Submit
         await page
           .getByRole('button', { name: 'Continue', exact: true })
           .click();
@@ -325,16 +404,13 @@ test.describe.configure({ mode: 'serial' });
           .filter({ hasText: 'End date' });
         await expect(
           errorContainer.locator('.nhsuk-error-message'),
-        ).toContainText(/End date must be on or after the start date/i, {
-          timeout: 15000,
-        });
+        ).toContainText(/End date must be on or after the start date/i);
 
         await expect(
           page.getByRole('link', { name: 'Back', exact: true }),
         ).toBeVisible();
         await page.getByRole('link', { name: 'Back', exact: true }).click();
-
-        await expect(page).toHaveURL(
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
       });
@@ -342,18 +418,23 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error within 3 months - 90 days or less', async ({
         page,
       }) => {
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          test.skip();
-
-          //TODO assert not found page??
-          //Sorry, we could not find that page
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
         }
 
-        await page.goto(
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
-
         await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
 
         const now = new Date();
 
@@ -388,9 +469,7 @@ test.describe.configure({ mode: 'serial' });
         await page
           .getByRole('button', { name: 'Continue', exact: true })
           .click();
-
-        // No validation errors, it redirects
-        await expect(page).toHaveURL(
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
       });
@@ -398,18 +477,23 @@ test.describe.configure({ mode: 'serial' });
       test('Select dates to cancel error within 3 months - greater than 90 days', async ({
         page,
       }) => {
+        const notFoundPage = new NotFoundPage(page);
         if (!CancelADateRangeFlagEnabled) {
-          test.skip();
-
-          //TODO assert not found page??
-          //Sorry, we could not find that page
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
         }
 
-        await page.goto(
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
-
         await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
 
         const now = new Date();
 
@@ -452,7 +536,7 @@ test.describe.configure({ mode: 'serial' });
 
         await expect(
           startDateGroup.locator('.nhsuk-error-message'),
-        ).toContainText('Start date must be', { timeout: 15000 });
+        ).toContainText('Start date must be');
 
         // Target the End Date group by its specific legend
         const endDateGroup = page.locator('.nhsuk-form-group').filter({
@@ -461,15 +545,199 @@ test.describe.configure({ mode: 'serial' });
 
         await expect(
           endDateGroup.locator('.nhsuk-error-message'),
-        ).toContainText('End date must be', { timeout: 15000 });
+        ).toContainText('End date must be');
 
         await expect(
           page.getByRole('link', { name: 'Back', exact: true }),
         ).toBeVisible();
         await page.getByRole('link', { name: 'Back', exact: true }).click();
-
-        await expect(page).toHaveURL(
+        await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+      });
+    });
+
+    test.describe('Cannot Cancel', () => {
+      test.beforeEach(async ({ page, getTestSite }) => {
+        site = getTestSite(2);
+        rootPage = new RootPage(page);
+        oAuthPage = new OAuthLoginPage(page);
+
+        await rootPage.goto();
+        await rootPage.pageContentLogInButton.click();
+        await oAuthPage.signIn();
+
+        await page.goto('/manage-your-appointments/sites');
+        await page.waitForURL(`/manage-your-appointments/sites`);
+        await page
+          .getByRole('link', { name: 'View Church Lane Pharmacy' })
+          .click();
+        await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
+        await page
+          .getByRole('link', { name: 'View availability and manage' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
+      });
+
+      test('Cannot cancel these sessions - Return to view availability', async ({
+        page,
+      }) => {
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await expect(
+          page.getByRole('button', { name: 'Continue to cancel' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        const now = new Date();
+
+        const startDate = new Date(now);
+        startDate.setDate(now.getDate() + 1);
+
+        const endDate = new Date(now);
+        endDate.setDate(now.getDate() + 23);
+
+        await page
+          .locator('#start-date-day')
+          .fill(startDate.getDate().toString());
+        await page
+          .locator('#start-date-month')
+          .fill((startDate.getMonth() + 1).toString());
+        await page
+          .locator('#start-date-year')
+          .fill(startDate.getFullYear().toString());
+
+        await page.locator('#end-date-day').fill(endDate.getDate().toString());
+        await page
+          .locator('#end-date-month')
+          .fill((endDate.getMonth() + 1).toString());
+        await page
+          .locator('#end-date-year')
+          .fill(endDate.getFullYear().toString());
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await page
+          .getByRole('button', { name: 'Return to view availability' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
+      });
+
+      test('Cannot cancel these sessions - Select different dates', async ({
+        page,
+      }) => {
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await expect(
+          page.getByRole('button', { name: 'Continue to cancel' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        const now = new Date();
+
+        const startDate = new Date(now);
+        startDate.setDate(now.getDate() + 1);
+
+        const endDate = new Date(now);
+        endDate.setDate(now.getDate() + 23);
+
+        await page
+          .locator('#start-date-day')
+          .fill(startDate.getDate().toString());
+        await page
+          .locator('#start-date-month')
+          .fill((startDate.getMonth() + 1).toString());
+        await page
+          .locator('#start-date-year')
+          .fill(startDate.getFullYear().toString());
+
+        await page.locator('#end-date-day').fill(endDate.getDate().toString());
+        await page
+          .locator('#end-date-month')
+          .fill((endDate.getMonth() + 1).toString());
+        await page
+          .locator('#end-date-year')
+          .fill(endDate.getFullYear().toString());
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        await expect(
+          page.getByRole('button', {
+            name: 'Select different dates',
+            exact: true,
+          }),
+        ).toBeVisible();
+
+        await page
+          .getByRole('button', { name: 'Select different dates' })
+          .click();
+
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await expect(
+          page.getByRole('heading', { name: 'Select dates to cancel' }),
+        ).toBeVisible();
+
+        // Verify that the inputs still contain the dates previously populated
+        await expect(page.locator('#start-date-day')).toHaveValue(
+          startDate.getDate().toString(),
+        );
+        await expect(page.locator('#start-date-month')).toHaveValue(
+          (startDate.getMonth() + 1).toString(),
+        );
+        await expect(page.locator('#start-date-year')).toHaveValue(
+          startDate.getFullYear().toString(),
+        );
+
+        await expect(page.locator('#end-date-day')).toHaveValue(
+          endDate.getDate().toString(),
+        );
+        await expect(page.locator('#end-date-month')).toHaveValue(
+          (endDate.getMonth() + 1).toString(),
+        );
+        await expect(page.locator('#end-date-year')).toHaveValue(
+          endDate.getFullYear().toString(),
         );
       });
     });
@@ -494,24 +762,36 @@ test.describe.configure({ mode: 'serial' });
     });
 
     test.beforeEach(async ({ page, getTestSite }) => {
-      site = getTestSite(1);
+      site = getTestSite(2);
       rootPage = new RootPage(page);
       oAuthPage = new OAuthLoginPage(page);
 
       await rootPage.goto();
       await rootPage.pageContentLogInButton.click();
       await oAuthPage.signIn();
-      await page.waitForURL(`/manage-your-appointments/sites`);
-    });
 
-    test('Verify number of steps when bookings exist', async ({ page }) => {
-      await page.goto(
-        `/manage-your-appointments/site/${site.id}/change-availability`,
+      await page.goto('/manage-your-appointments/sites');
+      await page.waitForURL(`/manage-your-appointments/sites`);
+      await page
+        .getByRole('link', { name: 'View Church Lane Pharmacy' })
+        .click();
+      await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
+      await page
+        .getByRole('link', { name: 'View availability and manage' })
+        .click();
+      await page.waitForURL(
+        `/manage-your-appointments/site/${site.id}/view-availability`,
       );
+      await expect(
+        page.getByRole('button', { name: 'Change availability' }),
+      ).toBeVisible();
+      await page.getByRole('button', { name: 'Change availability' }).click();
       await page.waitForURL(
         `/manage-your-appointments/site/${site.id}/change-availability`,
       );
+    });
 
+    test('Verify number of steps when bookings exist', async ({ page }) => {
       const listItems = page
         .locator('ol li')
         .filter({ hasNot: page.getByRole('button') });

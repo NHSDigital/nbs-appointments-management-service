@@ -38,12 +38,12 @@ const NoNotificationStep = ({ site }: InjectedWizardProps & Props) => {
 
   const startDateUkDateTime = useMemo(
     () => parseDateComponentsToUkDatetime(startDate),
-    [startDate.day, startDate.month, startDate.year],
+    [startDate],
   );
 
   const endDateUkDateTime = useMemo(
     () => parseDateComponentsToUkDatetime(endDate),
-    [endDate.day, endDate.month, endDate.year],
+    [endDate],
   );
   const isSameYear = startDateUkDateTime?.isSame(endDateUkDateTime, 'year');
   const formatedFullDateValue = isSameYear

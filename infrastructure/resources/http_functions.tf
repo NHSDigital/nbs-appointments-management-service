@@ -77,7 +77,7 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER                         = var.site_supports_service_batch_multiplier
     CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                               = var.cancel_a_date_range_maximum_days
     APPLICATION_NAME                                               = "HTTP Function App"
-    "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.create_high_load_function_app
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                      = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                  = true
@@ -90,14 +90,15 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"    = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"              = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"               = true
-    "AzureWebJobs.BulkImportFunction.Disabled"                     = var.disable_bulk_import_function
+    "AzureWebJobs.BulkImportFunction.Disabled"                     = var.create_high_load_function_app
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"            = true
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"             = true
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"              = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"           = true
-    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = var.disable_query_availability_function
-    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = var.disable_query_availability_function
-    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = var.create_high_load_function_app
+    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = var.create_high_load_function_app
+    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = var.create_high_load_function_app
+    "AzureWebJobs.QuerySitesFunction.Disabled"                     = var.create_high_load_function_app
   }
 
   sticky_settings {
@@ -179,7 +180,7 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER                         = var.site_supports_service_batch_multiplier
     CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                               = var.cancel_a_date_range_maximum_days
     APPLICATION_NAME                                               = "HTTP Function App"
-    "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityFunction.Disabled"              = var.create_high_load_function_app
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                 = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                      = true
     "AzureWebJobs.NotifyBookingReminder.Disabled"                  = true
@@ -192,14 +193,15 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     "AzureWebJobs.SetLocalFeatureFlagOverrideFunction.Disabled"    = true
     "AzureWebJobs.AggregateDailySiteSummary.Disabled"              = true
     "AzureWebJobs.TriggerDailySitesSummary.Disabled"               = true
-    "AzureWebJobs.BulkImportFunction.Disabled"                     = var.disable_bulk_import_function
+    "AzureWebJobs.BulkImportFunction.Disabled"                     = var.create_high_load_function_app
     "AzureWebJobs.DailySiteSummaryAggregation.Disabled"            = true
     "AzureWebJobs.SendAutoCancelledBookings.Disabled"              = true
     "AzureWebJobs.NotifyBookingAutoCancelled.Disabled"             = true
     "AzureWebJobs.TriggerAutoCancelledBookings.Disabled"           = true
-    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = var.disable_query_availability_function
-    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = var.disable_query_availability_function
-    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = var.disable_query_availability_function
+    "AzureWebJobs.QueryAvailabilityByDaysFunction.Disabled"        = var.create_high_load_function_app
+    "AzureWebJobs.QueryAvailabilityByHoursFunction.Disabled"       = var.create_high_load_function_app
+    "AzureWebJobs.QueryAvailabilityBySlotsFunction.Disabled"       = var.create_high_load_function_app
+    "AzureWebJobs.QuerySitesFunction.Disabled"                     = var.create_high_load_function_app
   }
 
   identity {

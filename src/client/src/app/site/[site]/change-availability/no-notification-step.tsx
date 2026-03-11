@@ -8,7 +8,7 @@ import {
   parseDateComponentsToUkDatetime,
   dateTimeFormat,
 } from '@services/timeService';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FetchBookingsRequest, Booking, ClinicalService } from '@types';
 import fromServer from '@server/fromServer';
 import {
@@ -36,8 +36,15 @@ const NoNotificationStep = ({ site }: InjectedWizardProps & Props) => {
   const { getValues } = useFormContext<ChangeAvailabilityFormValues>();
   const { startDate, endDate, cancellationSummary } = getValues();
 
-  const startDateUkDateTime = parseDateComponentsToUkDatetime(startDate);
-  const endDateUkDateTime = parseDateComponentsToUkDatetime(endDate);
+  const startDateUkDateTime = useMemo(
+    () => parseDateComponentsToUkDatetime(startDate),
+    [startDate.day, startDate.month, startDate.year],
+  );
+
+  const endDateUkDateTime = useMemo(
+    () => parseDateComponentsToUkDatetime(endDate),
+    [endDate.day, endDate.month, endDate.year],
+  );
   const isSameYear = startDateUkDateTime?.isSame(endDateUkDateTime, 'year');
   const formatedFullDateValue = isSameYear
     ? `${startDateUkDateTime?.format('D MMMM')} to ${endDateUkDateTime?.format('D MMMM YYYY')}`

@@ -17,6 +17,9 @@ test('The user can change their cookie acceptance', async ({ page }) => {
 
   await rootPage.cookieBanner.acceptCookiesButton.click();
 
+  await expect(rootPage.cookieBanner.preAcceptanceHeader).not.toBeVisible();
+  await expect(rootPage.cookieBanner.postAcceptanceMessage).toBeVisible();
+
   await rootPage.footerLinks.cookiesPolicy.click();
   await page.waitForURL('**/cookies-policy');
 

@@ -1,6 +1,6 @@
-import { InsetText } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import { DaySummaryV2, ClinicalService } from '@types';
+import { InsetText } from 'nhsuk-react-components';
 
 type Props = {
   date: string;

@@ -3,7 +3,10 @@ import { screen } from '@testing-library/react';
 import CancellationImpactStep from './cancellation-impact-step';
 import { useRouter } from 'next/navigation';
 import MockForm from '@testing/mockForm';
-import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
+import {
+  ChangeAvailabilityFormValues,
+  createChangeAvailabilityFormSchema,
+} from './change-availability-form-schema';
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -176,6 +179,7 @@ describe('When bookings cancellation is ENABLED', () => {
       <MockForm<ChangeAvailabilityFormValues>
         defaultValues={customValues}
         submitHandler={jest.fn()}
+        schema={createChangeAvailabilityFormSchema(90)}
       >
         <CancellationImpactStep {...enabledProps} />
       </MockForm>,
@@ -258,6 +262,42 @@ describe('When bookings cancellation is ENABLED', () => {
       expect(
         screen.getByRole('radio', { name: 'Cancel bookings' }),
       ).toBeChecked();
+    });
+  });
+
+  describe('renderResolveBookings Validation', () => {
+    it('shows singular error and prevents navigation when nothing is selected for 1 booking', async () => {
+      const { user } = renderWithSummary(1, 1);
+
+      const continueBtn = screen.getByRole('button', { name: /Continue/i });
+      await user.click(continueBtn);
+
+      expect(mockGoToNextStep).not.toHaveBeenCalled();
+      const expectedError = 'Select what you want to do with the booking';
+      expect(screen.getByText('There is a problem')).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: expectedError }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(expectedError, { selector: '.nhsuk-error-message' }),
+      ).toBeInTheDocument();
+    });
+
+    it('shows plural error and prevents navigation when nothing is selected for multiple bookings', async () => {
+      const { user } = renderWithSummary(1, 5);
+
+      const continueBtn = screen.getByRole('button', { name: /Continue/i });
+      await user.click(continueBtn);
+
+      expect(mockGoToNextStep).not.toHaveBeenCalled();
+      const expectedError = 'Select what you want to do with the bookings';
+      expect(screen.getByText('There is a problem')).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: expectedError }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(expectedError, { selector: '.nhsuk-error-message' }),
+      ).toBeInTheDocument();
     });
   });
 });

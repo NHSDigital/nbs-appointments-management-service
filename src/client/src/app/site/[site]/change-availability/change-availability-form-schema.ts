@@ -59,6 +59,11 @@ export const createChangeAvailabilityFormSchema = (maxDays: number) => {
         'Enter an end date',
         'End date must be in the future',
       ),
+      cancellationDecision: yup
+        .string()
+        .nullable()
+        .oneOf(['keep-bookings', 'cancel-bookings'])
+        .required(),
     })
     .test('date-range-logic', '', function (values) {
       const { startDate, endDate } = values;

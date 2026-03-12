@@ -6,9 +6,7 @@ import { editSession } from '@services/appointmentsService';
 import {
   Button,
   FormGroup,
-  InsetText,
   SmallSpinnerWithText,
-  TextInput,
 } from '@components/nhsuk-frontend';
 import { Controller } from 'react-hook-form';
 import {
@@ -24,6 +22,7 @@ import { ChangeEvent, useEffect, useTransition } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
 import fromServer from '@server/fromServer';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
+import { InsetText, TextInput } from 'nhsuk-react-components';
 
 export type EditSessionFormValues = {
   sessionToEdit: Session;

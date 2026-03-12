@@ -14,7 +14,6 @@ import {
   CheckBox,
   CheckBoxes,
   FormGroup,
-  InsetText,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import {
@@ -29,6 +28,7 @@ import {
   SERVICE_TYPE_TITLES,
   groupServicesByType,
 } from '@services/clinicalServices';
+import { InsetText } from 'nhsuk-react-components';
 
 export type RemoveServicesFormValues = {
   sessionToEdit: Session;

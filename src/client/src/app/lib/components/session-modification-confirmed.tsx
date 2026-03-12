@@ -3,9 +3,9 @@ import {
   SessionSummary,
   SessionModificationAction,
 } from '@types';
-import { Card, InsetText } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import { SessionSummaryTable } from '@components/session-summary-table';
+import { BodyText, Card, InsetText } from 'nhsuk-react-components';
 
 type PageProps = {
   clinicalServices: ClinicalService[];
@@ -96,11 +96,12 @@ export const SessionModificationConfirmed = ({
 
       {modificationAction === 'cancel-appointments' && (
         <>
-          <Card
-            title={String(newlyUnsupportedBookingsCount)}
-            description={`${newlyUnsupportedBookingsCount > 1 ? 'Bookings' : 'Booking'} have been cancelled`}
-            maxWidth={250}
-          />
+          <Card style={{ maxWidth: 250 }}>
+            <Card.Heading>{String(newlyUnsupportedBookingsCount)}</Card.Heading>
+            <BodyText>
+              {`${newlyUnsupportedBookingsCount > 1 ? 'Bookings' : 'Booking'} have been cancelled`}
+            </BodyText>
+          </Card>
           {renderCommsSummary()}
         </>
       )}

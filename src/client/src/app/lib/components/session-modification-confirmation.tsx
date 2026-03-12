@@ -11,7 +11,6 @@ import {
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import {
   ClinicalService,
@@ -26,6 +25,7 @@ import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
+import { BodyText, Card } from 'nhsuk-react-components';
 
 type Mode = 'edit' | 'cancel';
 type FormData = { action?: SessionModificationAction };
@@ -297,11 +297,14 @@ export const SessionModificationConfirmation = ({
           )}
 
           {texts.impactCard(decision) && (
-            <Card
-              title={String(newlyUnsupportedBookingsCount)}
-              description={`${newlyUnsupportedBookingsCount > 1 ? 'Bookings' : 'Booking'}  may have to be cancelled`}
-              maxWidth={250}
-            />
+            <Card style={{ maxWidth: 250 }}>
+              <Card.Heading>
+                {String(newlyUnsupportedBookingsCount)}
+              </Card.Heading>
+              <BodyText>
+                {`${newlyUnsupportedBookingsCount > 1 ? 'Bookings' : 'Booking'}  may have to be cancelled`}
+              </BodyText>
+            </Card>
           )}
 
           {texts.notificationNote(decision) && (

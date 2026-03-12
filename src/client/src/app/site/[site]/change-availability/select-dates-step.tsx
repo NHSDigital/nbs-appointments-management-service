@@ -101,7 +101,7 @@ const SelectDatesStep = ({
                 name="startDate.day"
                 render={({ field }) => (
                   <DateInput.Day
-                    id="start-date-input-day"
+                    id="start-date-day"
                     onChange={e =>
                       field.onChange(handlePositiveBoundedNumberInput(e, 31))
                     }
@@ -114,7 +114,7 @@ const SelectDatesStep = ({
                 name="startDate.month"
                 render={({ field }) => (
                   <DateInput.Month
-                    id="start-date-input-month"
+                    id="start-date-month"
                     onChange={e =>
                       field.onChange(handlePositiveBoundedNumberInput(e, 12))
                     }
@@ -127,7 +127,7 @@ const SelectDatesStep = ({
                 name="startDate.year"
                 render={({ field }) => (
                   <DateInput.Year
-                    id="start-date-input-year"
+                    id="start-date-year"
                     onChange={e =>
                       field.onChange(
                         handlePositiveBoundedNumberInput(
@@ -157,7 +157,7 @@ const SelectDatesStep = ({
                 name="endDate.day"
                 render={({ field }) => (
                   <DateInput.Day
-                    id="end-date-input-day"
+                    id="end-date-day"
                     onChange={e =>
                       field.onChange(handlePositiveBoundedNumberInput(e, 31))
                     }
@@ -170,7 +170,7 @@ const SelectDatesStep = ({
                 name="endDate.month"
                 render={({ field }) => (
                   <DateInput.Month
-                    id="end-date-input-month"
+                    id="end-date-month"
                     onChange={e =>
                       field.onChange(handlePositiveBoundedNumberInput(e, 12))
                     }
@@ -183,7 +183,7 @@ const SelectDatesStep = ({
                 name="endDate.year"
                 render={({ field }) => (
                   <DateInput.Year
-                    id="end-date-input-year"
+                    id="end-date-year"
                     onChange={e =>
                       field.onChange(
                         handlePositiveBoundedNumberInput(e, maxYear),

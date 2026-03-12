@@ -81,14 +81,17 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
     >
       {cancelADateRangeFeature.enabled == true && (
-        <Link href={`/site/${siteFromPath}/change-availability`}>
+        <Link
+          href={`/site/${siteFromPath}/change-availability`}
+          className="no-print nhsuk-u-margin-right-3"
+        >
           <Button type="button" styleType="secondary">
             Change availability
           </Button>
         </Link>
       )}
 
-      <span className="nhsuk-u-margin-left-3">
+      <span>
         <PrintPageButton />
       </span>
 

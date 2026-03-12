@@ -77,6 +77,8 @@ resource "azurerm_windows_function_app" "nbs_mya_high_load_func_app" {
     Okta__PEM                                                              = var.okta_pem
     Auth__Providers__1__RequiresStateForAuthorize                          = true
     CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                                       = var.cancel_a_date_range_maximum_days
+    SITE_CACHE_DURATION_MINUTES                                            = 60
+    SITE_CACHE_SLIDE_DURATION_MINUTES                                      = 20
     APPLICATION_NAME                                                       = "High Load Function App"
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true
@@ -227,6 +229,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_high_load_func_app_preview
     Okta__PEM                                                              = var.okta_pem
     Auth__Providers__1__RequiresStateForAuthorize                          = true
     CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                                       = var.cancel_a_date_range_maximum_days
+    SITE_CACHE_DURATION_MINUTES                                            = 60
+    SITE_CACHE_SLIDE_DURATION_MINUTES                                      = 20
     APPLICATION_NAME                                                       = "High Load Function App"
     "AzureWebJobs.NotifyBookingCancelled.Disabled"                         = true
     "AzureWebJobs.NotifyBookingMade.Disabled"                              = true

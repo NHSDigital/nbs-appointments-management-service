@@ -11,6 +11,11 @@ public class SiteServiceOptions
     /// <summary>
     ///     The duration, in minutes, to cache sites for.
     /// </summary>
+    public int SiteCacheSlideDuration { get; set; }
+    
+    /// <summary>
+    ///     The duration, in minutes, to cache sites for.
+    /// </summary>
     public int SiteCacheDuration { get; set; }
 
     /// <summary>

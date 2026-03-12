@@ -484,8 +484,8 @@ public class SiteService(
         return await cacheService.GetLazySlidingCacheValue(options.Value.SiteCacheKey,
                 new LazySlideCacheOptions<IEnumerable<Site>>(
                     async () => await siteStore.GetAllSites(), 
-                    TimeSpan.FromMinutes(options.Value.SiteCacheDuration), 
-                    TimeSpan.FromMinutes(20)));
+                    TimeSpan.FromMinutes(options.Value.SiteCacheSlideDuration), 
+                    TimeSpan.FromMinutes(options.Value.SiteCacheDuration)));
     }
     
     internal async Task UpdateSiteInCacheAsync(string siteId)

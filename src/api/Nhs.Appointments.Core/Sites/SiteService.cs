@@ -243,7 +243,7 @@ public class SiteService(
 
         if (result.Success)
         {
-            await UpdateSiteInCacheAsync(siteId);
+            // await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -254,7 +254,7 @@ public class SiteService(
         var result = await siteStore.UpdateAccessibilities(siteId, accessibilities);
         if (result.Success)
         {
-            await UpdateSiteInCacheAsync(siteId);
+            // await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -265,7 +265,7 @@ public class SiteService(
         var result = await siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
         if (result.Success)
         {
-            await UpdateSiteInCacheAsync(siteId);
+            // await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -278,7 +278,7 @@ public class SiteService(
         var result = await siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
         if (result.Success)
         {
-            await UpdateSiteInCacheAsync(siteId);
+            // await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -290,7 +290,7 @@ public class SiteService(
         var result = await siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
         if (result.Success)
         {
-            await UpdateSiteInCacheAsync(siteId);
+            // await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -301,7 +301,7 @@ public class SiteService(
         var result = await siteStore.UpdateSiteStatusAsync(siteId, status);
         if (result.Success)
         {
-            await UpdateSiteInCacheAsync(siteId);
+            // await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -315,7 +315,7 @@ public class SiteService(
         var result = await siteStore.ToggleSiteSoftDeletionAsync(siteId);
         if (result.Success)
         {
-            await UpdateSiteInCacheAsync(siteId);
+            // await UpdateSiteInCacheAsync(siteId);
         }
 
         return result;
@@ -481,33 +481,13 @@ public class SiteService(
             return await siteStore.GetAllSites();
         }
         
-        var sitesFromCache = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
-        if (sitesFromCache != null)
-        {
-            return sitesFromCache;
-        }
-        
-        await siteCacheLock.WaitAsync();
-        
-        sitesFromCache = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
-        if (sitesFromCache != null)
-        {
-            return sitesFromCache;
-        }
-        
-        try
-        {
-            var sites = (await siteStore.GetAllSites()).ToList();
-            memoryCache.Set(options.Value.SiteCacheKey, sites,
-                time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
-            return sites;
-        }
-        finally
-        {
-            siteCacheLock.Release();
-        }
+        return await cacheService.GetLazySlidingCacheValue(options.Value.SiteCacheKey,
+                new LazySlideCacheOptions<IEnumerable<Site>>(
+                    async () => await siteStore.GetAllSites(), 
+                    TimeSpan.FromMinutes(options.Value.SiteCacheDuration), 
+                    TimeSpan.FromMinutes(20)));
     }
-
+    
     internal async Task UpdateSiteInCacheAsync(string siteId)
     {
         if (options.Value.DisableSiteCache)

@@ -606,10 +606,8 @@ test.describe.configure({ mode: 'serial' });
         );
 
         const now = new Date();
-
         const startDate = new Date(now);
         startDate.setDate(now.getDate() + 1);
-
         const endDate = new Date(now);
         endDate.setDate(now.getDate() + 23);
 
@@ -622,7 +620,6 @@ test.describe.configure({ mode: 'serial' });
         await page
           .locator('#start-date-year')
           .fill(startDate.getFullYear().toString());
-
         await page.locator('#end-date-day').fill(endDate.getDate().toString());
         await page
           .locator('#end-date-month')
@@ -630,14 +627,12 @@ test.describe.configure({ mode: 'serial' });
         await page
           .locator('#end-date-year')
           .fill(endDate.getFullYear().toString());
-
         await page
           .getByRole('button', { name: 'Continue', exact: true })
           .click();
         await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
-
         await page
           .getByRole('button', { name: 'Return to view availability' })
           .click();
@@ -671,10 +666,8 @@ test.describe.configure({ mode: 'serial' });
         );
 
         const now = new Date();
-
         const startDate = new Date(now);
         startDate.setDate(now.getDate() + 1);
-
         const endDate = new Date(now);
         endDate.setDate(now.getDate() + 23);
 
@@ -687,7 +680,6 @@ test.describe.configure({ mode: 'serial' });
         await page
           .locator('#start-date-year')
           .fill(startDate.getFullYear().toString());
-
         await page.locator('#end-date-day').fill(endDate.getDate().toString());
         await page
           .locator('#end-date-month')
@@ -695,26 +687,21 @@ test.describe.configure({ mode: 'serial' });
         await page
           .locator('#end-date-year')
           .fill(endDate.getFullYear().toString());
-
         await page
           .getByRole('button', { name: 'Continue', exact: true })
           .click();
-
         await expect(
           page.getByRole('button', {
             name: 'Select different dates',
             exact: true,
           }),
         ).toBeVisible();
-
         await page
           .getByRole('button', { name: 'Select different dates' })
           .click();
-
         await page.waitForURL(
           `/manage-your-appointments/site/${site.id}/change-availability`,
         );
-
         await expect(
           page.getByRole('heading', { name: 'Select dates to cancel' }),
         ).toBeVisible();
@@ -729,7 +716,6 @@ test.describe.configure({ mode: 'serial' });
         await expect(page.locator('#start-date-year')).toHaveValue(
           startDate.getFullYear().toString(),
         );
-
         await expect(page.locator('#end-date-day')).toHaveValue(
           endDate.getDate().toString(),
         );
@@ -776,6 +762,9 @@ test.describe.configure({ mode: 'serial' });
         .getByRole('link', { name: 'View Church Lane Pharmacy' })
         .click();
       await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
+    });
+
+    test('Verify number of steps when bookings exist', async ({ page }) => {
       await page
         .getByRole('link', { name: 'View availability and manage' })
         .click();
@@ -789,9 +778,6 @@ test.describe.configure({ mode: 'serial' });
       await page.waitForURL(
         `/manage-your-appointments/site/${site.id}/change-availability`,
       );
-    });
-
-    test('Verify number of steps when bookings exist', async ({ page }) => {
       const listItems = page
         .locator('ol li')
         .filter({ hasNot: page.getByRole('button') });
@@ -810,6 +796,251 @@ test.describe.configure({ mode: 'serial' });
           'Cancel the sessions you want to change',
           'Create new sessions with the updated details',
         ]);
+      }
+    });
+
+    test('There are no sessions in this date range - Choose a new date range', async ({
+      page,
+    }) => {
+      await page
+        .getByRole('link', { name: 'View availability and manage' })
+        .click();
+      await page.waitForURL(
+        `/manage-your-appointments/site/${site.id}/view-availability`,
+      );
+      await expect(
+        page.getByRole('button', { name: 'Change availability' }),
+      ).toBeVisible();
+      await page.getByRole('button', { name: 'Change availability' }).click();
+      await page.waitForURL(
+        `/manage-your-appointments/site/${site.id}/change-availability`,
+      );
+      await page.getByRole('button', { name: 'Continue to cancel' }).click();
+      await page.waitForURL(
+        `/manage-your-appointments/site/${site.id}/change-availability`,
+      );
+
+      const now = new Date();
+      const startDate = new Date(now);
+      startDate.setDate(now.getDate() + 365);
+      const endDate = new Date(now);
+      endDate.setDate(now.getDate() + 366);
+
+      await page
+        .locator('#start-date-day')
+        .fill(startDate.getDate().toString());
+      await page
+        .locator('#start-date-month')
+        .fill((startDate.getMonth() + 1).toString());
+      await page
+        .locator('#start-date-year')
+        .fill(startDate.getFullYear().toString());
+      await page.locator('#end-date-day').fill(endDate.getDate().toString());
+      await page
+        .locator('#end-date-month')
+        .fill((endDate.getMonth() + 1).toString());
+      await page
+        .locator('#end-date-year')
+        .fill(endDate.getFullYear().toString());
+      await page.getByRole('button', { name: 'Continue', exact: true }).click();
+      await page.waitForURL(
+        `/manage-your-appointments/site/${site.id}/change-availability`,
+      );
+      await expect(
+        page.getByRole('heading', {
+          name: 'There are no sessions in this date range',
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Choose a new date range' }),
+      ).toBeVisible();
+      await page
+        .getByRole('button', { name: 'Choose a new date range' })
+        .click();
+
+      // Verify that the inputs still contain the dates previously populated
+      await expect(page.locator('#start-date-day')).toHaveValue(
+        startDate.getDate().toString(),
+      );
+      await expect(page.locator('#start-date-month')).toHaveValue(
+        (startDate.getMonth() + 1).toString(),
+      );
+      await expect(page.locator('#start-date-year')).toHaveValue(
+        startDate.getFullYear().toString(),
+      );
+
+      await expect(page.locator('#end-date-day')).toHaveValue(
+        endDate.getDate().toString(),
+      );
+      await expect(page.locator('#end-date-month')).toHaveValue(
+        (endDate.getMonth() + 1).toString(),
+      );
+      await expect(page.locator('#end-date-year')).toHaveValue(
+        endDate.getFullYear().toString(),
+      );
+    });
+
+    test('You are about to cancel X sessions - with/without bookings', async ({
+      page,
+    }) => {
+      const now = new Date();
+      const startDate = new Date(now);
+      const endDate = new Date(now);
+
+      if (CancelADateRangeWithBookingsFlagEnabled) {
+        startDate.setDate(now.getDate() + 1);
+        endDate.setDate(now.getDate() + 48);
+
+        await page
+          .getByRole('link', { name: 'View availability and manage' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
+        await expect(
+          page.getByRole('button', { name: 'Change availability' }),
+        ).toBeVisible();
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page
+          .locator('#start-date-day')
+          .fill(startDate.getDate().toString());
+        await page
+          .locator('#start-date-month')
+          .fill((startDate.getMonth() + 1).toString());
+        await page
+          .locator('#start-date-year')
+          .fill(startDate.getFullYear().toString());
+        await page.locator('#end-date-day').fill(endDate.getDate().toString());
+        await page
+          .locator('#end-date-month')
+          .fill((endDate.getMonth() + 1).toString());
+        await page
+          .locator('#end-date-year')
+          .fill(endDate.getFullYear().toString());
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await expect(
+          page.getByRole('heading', {
+            name: /You are about to cancel \d+ sessions?/i,
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole('radio', { name: 'Keep bookings' }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole('radio', { name: 'Cancel bookings' }),
+        ).toBeVisible();
+      } else {
+        startDate.setDate(now.getDate() + 180);
+        const startDay = startDate.getDate().toString();
+        const startMonth = (startDate.getMonth() + 1).toString();
+        const startYear = startDate.getFullYear().toString();
+        endDate.setDate(now.getDate() + 181);
+        const endDay = endDate.getDate().toString();
+        const endMonth = (endDate.getMonth() + 1).toString();
+        const endYear = endDate.getFullYear().toString();
+
+        await page
+          .getByLabel('Menu')
+          .getByRole('link', { name: 'Create availability' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/create-availability`,
+        );
+        await page
+          .getByRole('button', { name: 'Create new availability' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard`,
+        );
+        await page.getByText('Single date session', { exact: true }).click();
+        await page.getByRole('button', { name: 'Continue' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard`,
+        );
+        await page.getByRole('textbox', { name: 'Day' }).fill(startDay);
+        await page.getByRole('textbox', { name: 'Month' }).fill(startMonth);
+        await page.getByRole('textbox', { name: 'Year' }).fill(startYear);
+        await page.getByRole('button', { name: 'Continue' }).click();
+        await page
+          .getByRole('textbox', { name: 'Session start time - hour' })
+          .fill('09');
+        await page
+          .getByRole('textbox', { name: 'Session start time - minute' })
+          .fill('00');
+        await page
+          .getByRole('textbox', { name: 'Session end time - hour' })
+          .fill('10');
+        await page
+          .getByRole('textbox', { name: 'Session end time - minute' })
+          .fill('00');
+        await page
+          .getByRole('spinbutton', {
+            name: 'How many vaccinators or vaccination spaces do you have?',
+          })
+          .fill('1');
+        await page
+          .getByRole('spinbutton', {
+            name: 'How long are your appointments?',
+          })
+          .fill('10');
+        await page.getByRole('button', { name: 'Continue' }).click();
+        await page
+          .getByRole('checkbox', { name: 'Flu and COVID 18 to 64' })
+          .check();
+        await page.getByRole('button', { name: 'Continue' }).click();
+        await page
+          .getByRole('button', { name: 'Save and publish availability' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/create-availability`,
+        );
+        await page
+          .getByLabel('Menu')
+          .getByRole('link', { name: 'View availability' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.locator('#start-date-day').fill(startDay);
+        await page.locator('#start-date-month').fill(startMonth);
+        await page.locator('#start-date-year').fill(startYear);
+        await page.locator('#end-date-day').fill(endDay);
+        await page.locator('#end-date-month').fill(endMonth);
+        await page.locator('#end-date-year').fill(endYear);
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await expect(
+          page.getByRole('heading', {
+            name: /You are about to cancel \d+ sessions?/i,
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByText(/There are no bookings for (this|these) sessions?/i),
+        ).toBeVisible();
       }
     });
   });

@@ -46,7 +46,6 @@ const CheckYourAnswersStep = ({
   if (!proposedCancellationSummary)
     throw new Error("Couldn't load proposed cancellation summary.");
 
-  const cancelBookings = false;
   const startDayjs = parseDateComponentsToUkDatetime(startDate);
   const endDayjs = parseDateComponentsToUkDatetime(endDate);
   const isSameYear = startDayjs?.isSame(endDayjs, 'year');
@@ -109,7 +108,7 @@ const CheckYourAnswersStep = ({
         site: site,
         from: startDayjs.format(RFC3339Format),
         to: endDayjs.format(RFC3339Format),
-        cancelBookings: cancelBookings,
+        cancelBookings: cancellationDecision == 'cancel-bookings',
       });
 
       if (!response.success) return;

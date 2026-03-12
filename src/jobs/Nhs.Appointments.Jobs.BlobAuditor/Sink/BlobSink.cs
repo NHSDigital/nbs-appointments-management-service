@@ -12,13 +12,29 @@ public class BlobSink(
 {
     public async Task Consume(string source, JObject item)
     {
-        //don't process any data without this property
-        if (!item.TryGetValue("lastUpdatedOn", out var lastUpdatedOn))
-        {
-            return;
-        }
+        DateTime entityChangeTimestamp;
 
-        var entityChangeTimestamp = lastUpdatedOn.Value<DateTime>();
+        item.TryGetValue("lastUpdatedOn", out var lastUpdatedOn);
+
+        if (lastUpdatedOn != null)
+        {
+            entityChangeTimestamp = lastUpdatedOn.Value<DateTime>();
+        }
+        else
+        {
+            item.TryGetValue("_ts", out var cosmosTimeStamp);
+
+            if (cosmosTimeStamp != null)
+            {
+                entityChangeTimestamp = DateTimeOffset.FromUnixTimeSeconds(cosmosTimeStamp.Value<int>()).UtcDateTime;
+            }
+            else
+            {
+                //TODO log error?
+                return;
+            }
+        }
+        
         var containerName = GetContainerName(source, entityChangeTimestamp);
 
         item.TryGetValue("docType", out var entityDocType);

@@ -21,13 +21,15 @@ public class BlobSinkTests
     }
 
     [Fact]
-    public async Task Consume_ShouldUseTimestampFromItem_When_LastUpdatedOnExists()
+    public async Task Consume_ShouldUseLastUpdatedOnTimestampFromItem_When_LastUpdatedOnExists()
     {
         // Arrange
         var source = "audit_data";
+        var cosmosTsValue = new DateTimeOffset(2023, 1, 2, 15, 4, 2, TimeSpan.Zero).ToUnixTimeSeconds();
 
         var item = new JObject
         {
+            ["_ts"] = cosmosTsValue,
             ["docType"] = "patient",
             ["id"] = "456",
             ["lastUpdatedOn"] = "2024-03-10T09:30:11.5872696Z",
@@ -49,15 +51,42 @@ public class BlobSinkTests
     }
     
     [Fact]
-    public async Task Consume_ShouldNotRecord_When_LastUpdatedNotExists()
+    public async Task Consume_ShouldRecord_When_LastUpdatedNotExists_ButTsDoes()
     {
         // Arrange
         var source = "audit_data";
 
-        var tsValue = new DateTimeOffset(2023, 1, 2, 15, 0, 0, TimeSpan.Zero).ToUnixTimeSeconds();
+        var tsValue = new DateTimeOffset(2023, 1, 2, 15, 4, 2, TimeSpan.Zero).ToUnixTimeSeconds();
         var item = new JObject
         {
             ["_ts"] = tsValue,
+            ["docType"] = "patient",
+            ["id"] = "789"
+        };
+
+        var memStream = new MemoryStream();
+        _mockAzureBlobStorage
+            .Setup(a => a.GetBlobUploadStream(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(memStream);
+
+        // Act
+        await _blobSink.Consume(source, item);
+
+        // Assert
+        _mockAzureBlobStorage.Verify(a => a.GetBlobUploadStream(
+            "20230102-auditdata",
+            "patient/1504020000000-789.json"
+        ), Times.Once);
+    }
+    
+    [Fact]
+    public async Task Consume_ShouldNotRecord_When_NeitherLastUpdatedNorTs_Exists()
+    {
+        // Arrange
+        var source = "audit_data";
+
+        var item = new JObject
+        {
             ["docType"] = "patient",
             ["id"] = "456"
         };

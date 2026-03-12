@@ -1431,7 +1431,9 @@ public class TypedDocumentCosmosStoreTests
         var firstArg = upsertInvocation!.Arguments[0] as TestDocument;
         firstArg.Should().NotBeNull();
         firstArg!.LastUpdatedOn.Should().NotBeNull();
-        firstArg!.LastUpdatedOn!.Value.Should().BeAfter(utcNow.AddMilliseconds(6 * retryPeriod));
+        
+        //the first attempt is not delayed!
+        firstArg!.LastUpdatedOn!.Value.Should().BeAfter(utcNow.AddMilliseconds(5 * retryPeriod));
     }
 
     [Fact]
@@ -1502,7 +1504,9 @@ public class TypedDocumentCosmosStoreTests
         var patchOperation = thirdArg!.Single(x => x.Path == "/lastUpdatedOn");
         var value = ((PatchOperation<DateTime>)patchOperation).Value;
         value.Should().NotBe(default);
-        value.Should().BeAfter(utcNow.AddMilliseconds(6 * retryPeriod));
+        
+        //the first attempt is not delayed!
+        value.Should().BeAfter(utcNow.AddMilliseconds(5 * retryPeriod));
     }
 
     [Fact]

@@ -14,7 +14,8 @@ public class ServiceRegistrationTests
         var configurationData = new Dictionary<string, string>
         {
             ["SITE_CACHE_KEY"] = "test-sites-key",
-            ["SITE_CACHE_DURATION_MINUTES"] = "15",
+            ["SITE_CACHE_DURATION_MINUTES"] = "20",
+            ["SITE_CACHE_SLIDE_DURATION_MINUTES"] = "15",
             ["DISABLE_SITE_CACHE"] = "true",
             ["SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS"] = "5",
             ["SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS"] = "1",
@@ -28,7 +29,8 @@ public class ServiceRegistrationTests
         var options = serviceProvider.GetRequiredService<IOptions<SiteServiceOptions>>().Value;
 
         options.SiteCacheKey.Should().Be("test-sites-key");
-        options.SiteCacheDuration.Should().Be(15);
+        options.SiteCacheDuration.Should().Be(20);
+        options.SiteCacheSlideDuration.Should().Be(15);
         options.DisableSiteCache.Should().BeTrue();
         options.SiteSupportsServiceSlidingCacheSlideThresholdSeconds.Should().Be(1);          
         options.SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds.Should().Be(5);
@@ -47,7 +49,8 @@ public class ServiceRegistrationTests
         var options = serviceProvider.GetRequiredService<IOptions<SiteServiceOptions>>().Value;
 
         options.SiteCacheKey.Should().Be("sites");
-        options.SiteCacheDuration.Should().Be(10);
+        options.SiteCacheDuration.Should().Be(20);
+        options.SiteCacheSlideDuration.Should().Be(10);
         options.DisableSiteCache.Should().BeFalse();
         options.SiteSupportsServiceSlidingCacheSlideThresholdSeconds.Should().Be(900);
         options.SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds.Should().Be(14400);

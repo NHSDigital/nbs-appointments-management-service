@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,12 +12,14 @@ public class BlobSinkTests
     private readonly Mock<IAzureBlobStorage> _mockAzureBlobStorage = new();
     private readonly Mock<IItemExclusionProcessor> _itemExclusionProcessor = new();
     private readonly BlobSink _blobSink;
+    private readonly Mock<ILogger<BlobSink>> _logger = new();
 
     public BlobSinkTests()
     {
         _blobSink = new BlobSink(
             _mockAzureBlobStorage.Object,
-            _itemExclusionProcessor.Object
+            _itemExclusionProcessor.Object,
+            _logger.Object
         );
     }
 
@@ -87,8 +90,8 @@ public class BlobSinkTests
 
         var item = new JObject
         {
+            ["id"] = "456",
             ["docType"] = "patient",
-            ["id"] = "456"
         };
 
         var memStream = new MemoryStream();
@@ -104,6 +107,17 @@ public class BlobSinkTests
             It.IsAny<string>(),
             It.IsAny<string>()
         ), Times.Never);
+        
+        _logger.Verify(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, t) =>
+                    state.ToString().Contains("Auditor cannot process document with id: '456' and docType: 'patient', as both lastUpdatedOn and _ts are null")
+                ),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()
+            ), Times.Once
+        );
     }
 
     [Fact]

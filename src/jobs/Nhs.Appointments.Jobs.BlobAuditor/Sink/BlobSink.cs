@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Jobs.BlobAuditor.Blob;
@@ -7,7 +8,8 @@ namespace Nhs.Appointments.Jobs.BlobAuditor.Sink;
 
 public class BlobSink(
     IAzureBlobStorage azureBlobStorage,
-    IItemExclusionProcessor exclusionProcessor
+    IItemExclusionProcessor exclusionProcessor,
+    ILogger<BlobSink> logger
 ) : ISink<JObject>
 {
     public async Task Consume(string source, JObject item)
@@ -30,7 +32,10 @@ public class BlobSink(
             }
             else
             {
-                //TODO log error?
+                item.TryGetValue("id", out var id);
+                item.TryGetValue("docType", out var docType);
+                    
+                logger.LogError("Auditor cannot process document with id: '{Id}' and docType: '{DocType}', as both lastUpdatedOn and _ts are null", id?.Value<string>() ?? "unknown", docType?.Value<string>() ?? "unknown");
                 return;
             }
         }

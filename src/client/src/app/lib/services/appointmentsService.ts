@@ -402,7 +402,7 @@ export const saveSiteAccessibilities = async (
         `site/${site}/details`,
       );
 
-      revalidatePath(`/site/${site}/details`);
+      revalidatePath(`/site/${site}/accessibilities`);
       return { success: true, data: undefined };
     });
 

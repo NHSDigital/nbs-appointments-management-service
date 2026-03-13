@@ -25,6 +25,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '', month: '', year: '' },
         endDate: { day: '', month: '', year: '' },
+        cancellationDecision: 'keep-bookings',
       };
 
       try {
@@ -41,6 +42,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '23', month: '02', year: '2026' },
         endDate: { day: '24', month: '02', year: '2026' },
+        cancellationDecision: 'keep-bookings',
       };
 
       await expect(schema.validate(data)).rejects.toThrow(
@@ -52,6 +54,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '30', month: '02', year: '2027' },
         endDate: { day: '01', month: '03', year: '2027' },
+        cancellationDecision: 'keep-bookings',
       };
 
       await expect(schema.validate(data)).rejects.toThrow(
@@ -65,6 +68,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '10', month: '03', year: '2026' },
         endDate: { day: '09', month: '03', year: '2026' },
+        cancellationDecision: 'keep-bookings',
       };
 
       await expect(schema.validate(data)).rejects.toThrow(
@@ -76,6 +80,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '10', month: '03', year: '2026' },
         endDate: { day: '10', month: '03', year: '2026' },
+        cancellationDecision: 'keep-bookings',
       };
 
       const result = await schema.validate(data);
@@ -88,6 +93,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '01', month: '07', year: '2026' },
         endDate: { day: '29', month: '09', year: '2026' },
+        cancellationDecision: 'keep-bookings',
       };
 
       try {
@@ -108,6 +114,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '01', month: '03', year: '2026' },
         endDate: { day: '29', month: '05', year: '2026' },
+        cancellationDecision: 'keep-bookings',
       };
 
       const result = await schema.validate(data);
@@ -119,6 +126,7 @@ describe('changeAvailabilityFormSchema', () => {
       const data = {
         startDate: { day: '01', month: '03', year: '2026' },
         endDate: { day: '12', month: '03', year: '2026' },
+        cancellationDecision: 'keep-bookings',
       };
 
       try {
@@ -133,6 +141,53 @@ describe('changeAvailabilityFormSchema', () => {
           'Start date must be within 10 days of the end date',
         );
       }
+    });
+  });
+
+  describe('CancellationDecision Validation', () => {
+    it('passes if cancellationDecision is keep-bookings', async () => {
+      const data = {
+        startDate: { day: '10', month: '03', year: '2026' },
+        endDate: { day: '10', month: '03', year: '2026' },
+        cancellationDecision: 'keep-bookings',
+      };
+
+      const result = await schema.validate(data);
+      expect(result).toEqual(data);
+    });
+
+    it('passes if cancellationDecision is cancel-bookings', async () => {
+      const data = {
+        startDate: { day: '10', month: '03', year: '2026' },
+        endDate: { day: '10', month: '03', year: '2026' },
+        cancellationDecision: 'cancel-bookings',
+      };
+
+      const result = await schema.validate(data);
+      expect(result).toEqual(data);
+    });
+
+    it('fails if cancellationDecision is not set', async () => {
+      const data = {
+        startDate: { day: '10', month: '03', year: '2026' },
+        endDate: { day: '10', month: '03', year: '2026' },
+      };
+
+      await expect(schema.validate(data)).rejects.toThrow(
+        'Select what you want to do with the bookings',
+      );
+    });
+
+    it('fails if cancellationDecision is not one of the allowed values', async () => {
+      const data = {
+        startDate: { day: '10', month: '03', year: '2026' },
+        endDate: { day: '10', month: '03', year: '2026' },
+        cancellationDecision: '',
+      };
+
+      await expect(schema.validate(data)).rejects.toThrow(
+        'Please select a valid cancellation option',
+      );
     });
   });
 });

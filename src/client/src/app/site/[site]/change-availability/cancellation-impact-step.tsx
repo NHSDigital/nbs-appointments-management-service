@@ -11,7 +11,7 @@ import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, ErrorSummary } from 'nhsuk-react-components';
 
 interface Props {
   cancelADateRangeWithBookingsEnabled: boolean;
@@ -26,13 +26,29 @@ const CancellationImpactStep = ({
 }: InjectedWizardProps & Props) => {
   const router = useRouter();
 
-  const { getValues, register } =
-    useFormContext<ChangeAvailabilityFormValues>();
+  const {
+    getValues,
+    register,
+    trigger,
+    formState: { errors },
+  } = useFormContext<ChangeAvailabilityFormValues>();
   const { proposedCancellationSummary } = getValues();
 
   if (!proposedCancellationSummary)
     throw new Error("Couldn't load cancellation summary");
   const cancellationDecision = { ...register('cancellationDecision') };
+
+  const customErrorMessage = errors.cancellationDecision
+    ? `Select what you want to do with the ${(proposedCancellationSummary?.bookingCount ?? 0) > 1 ? 'bookings' : 'booking'}`
+    : undefined;
+
+  const onResolveBookingsContinue = async () => {
+    const isValid = await trigger('cancellationDecision');
+
+    if (!isValid) return;
+
+    goToNextStep();
+  };
 
   const renderCannotCancel = () => (
     <>
@@ -82,6 +98,16 @@ const CancellationImpactStep = ({
 
   const renderResolveBookings = () => (
     <>
+      {customErrorMessage && (
+        <ErrorSummary>
+          <ErrorSummary.Title>There is a problem</ErrorSummary.Title>
+          <ErrorSummary.List>
+            <ErrorSummary.ListItem href="#cancellation-keep-bookings">
+              {customErrorMessage}
+            </ErrorSummary.ListItem>
+          </ErrorSummary.List>
+        </ErrorSummary>
+      )}
       <Heading headingLevel="h2">
         You are about to cancel {proposedCancellationSummary.sessionCount}{' '}
         {proposedCancellationSummary.sessionCount > 1 ? 'sessions' : 'session'}
@@ -101,7 +127,7 @@ const CancellationImpactStep = ({
         {proposedCancellationSummary.bookingCount > 1 ? 'bookings' : 'booking'}?
       </Heading>
 
-      <FormGroup>
+      <FormGroup error={customErrorMessage}>
         <RadioGroup>
           <Radio
             label="Keep bookings"
@@ -134,7 +160,7 @@ const CancellationImpactStep = ({
         <Button
           type="button"
           onClick={() => {
-            goToNextStep();
+            onResolveBookingsContinue();
           }}
         >
           Continue

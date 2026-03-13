@@ -1,4 +1,4 @@
-﻿{
+{
   "id": "well_known_ods_codes",
   "docType": "system",
   "entries": [
@@ -245,6 +245,36 @@
     {
       "odsCode": "QT6",
       "displayName": "Cornwall And The Isles Of Scilly Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "S1Y5D",
+      "displayName": "NHS Central East Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "D7T5G",
+      "displayName": "NHS Essex Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "T6Y0W",
+      "displayName": "NHS Norfolk and Suffolk Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "Z9B2Z",
+      "displayName": "NHS West and North London Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "S0E4D",
+      "displayName": "NHS Thames Valley Integrated Care Board",
+      "type": "icb"
+    },
+    {
+      "odsCode": "S9B9J",
+      "displayName": "NHS Surrey and Sussex Integrated Care Board",
       "type": "icb"
     }
   ]

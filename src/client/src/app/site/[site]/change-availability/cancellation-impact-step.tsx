@@ -44,7 +44,7 @@ const CancellationImpactStep = ({
 
   const onResolveBookingsContinue = async () => {
     const isValid = await trigger('cancellationDecision');
-    console.log('isValid: ' + isValid);
+
     if (!isValid) return;
 
     goToNextStep();

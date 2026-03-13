@@ -9,6 +9,9 @@ public class TypedCosmosDocument
 
     [JsonProperty("docType")]
     public string DocumentType { get; set; }
+    
+    [JsonProperty("lastUpdatedOn")] 
+    public DateTime? LastUpdatedOn { get; set; }
 }
 
 public class LastUpdatedByCosmosDocument : TypedCosmosDocument

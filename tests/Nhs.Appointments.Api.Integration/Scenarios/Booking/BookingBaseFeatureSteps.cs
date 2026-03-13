@@ -190,6 +190,14 @@ public abstract class BookingBaseFeatureSteps : AuditFeatureSteps
         _actionTimestamp = DateTimeOffset.UtcNow;
         _response = await GetHttpClientForTest().PostAsJsonAsync("http://localhost:7071/api/booking", payload);
     }
+    
+    //Not to be used unless explicitly need to wait
+    [When("I wait for '(.+)' milliseconds")]
+    public async Task WaitForSeconds(string milliseconds)
+    {
+        var timespan = TimeSpan.FromMilliseconds(int.Parse(milliseconds));
+        await Task.Delay(timespan);
+    }
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);

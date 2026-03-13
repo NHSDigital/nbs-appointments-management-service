@@ -104,7 +104,12 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             auditable.LastUpdatedBy = _lastUpdatedByResolver.GetLastUpdatedBy();
         }
 
-        await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().UpsertItemAsync(document),
+        await Retry_CosmosOperation_OnTooManyRequests(async () =>
+            {
+                //if the operation is retried, want to regenerate the new updatedOn time.
+                document.LastUpdatedOn = DateTime.UtcNow;
+                return await GetContainer().UpsertItemAsync(document);
+            },
             CancellationToken.None);
     }
 
@@ -187,11 +192,21 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             throw new NotSupportedException("Only 10 patches can be applied");
         }
 
-        var result = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
-            .PatchItemAsync<TDocument>(
-                id: documentId,
-                partitionKey: new PartitionKey(partitionKey),
-                patchOperations: patchList.AsReadOnly()));
+        patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
+
+        var result = await Retry_CosmosOperation_OnTooManyRequests(async () =>
+        {
+            //remove and readd to force readOnly list to update value
+            var lastUpdatedOnPatch = patchList.Single(x => x.Path == "/lastUpdatedOn");
+            patchList.Remove(lastUpdatedOnPatch);
+            patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
+            
+            return await GetContainer()
+                .PatchItemAsync<TDocument>(
+                    id: documentId,
+                    partitionKey: new PartitionKey(partitionKey),
+                    patchOperations: patchList);
+        });
 
         return result.Resource;
     }

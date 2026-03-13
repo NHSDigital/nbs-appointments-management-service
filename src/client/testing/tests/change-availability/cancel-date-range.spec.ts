@@ -1002,10 +1002,6 @@ test.describe.configure({ mode: 'serial' });
       await page.waitForURL(
         `/manage-your-appointments/site/${site.id}/change-availability`,
       );
-      await page.getByRole('button', { name: 'Continue to cancel' }).click();
-      await page.waitForURL(
-        `/manage-your-appointments/site/${site.id}/change-availability`,
-      );
     });
 
     test('Verify number of steps when bookings exist', async ({ page }) => {
@@ -1039,6 +1035,10 @@ test.describe.configure({ mode: 'serial' });
       startDate.setDate(now.getDate() + 1);
       endDate.setDate(now.getDate() + 48);
 
+      await page.getByRole('button', { name: 'Continue to cancel' }).click();
+      await page.waitForURL(
+        `/manage-your-appointments/site/${site.id}/change-availability`,
+      );
       await page
         .locator('#start-date-day')
         .fill(startDate.getDate().toString());

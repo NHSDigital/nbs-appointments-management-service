@@ -875,6 +875,7 @@ const createSessionOnDay = async (page: Page, dayIncrement: number) => {
         await checkAnswersPage.verifySummaryListItemV10ContentValue(
           'Dates',
           expectedDates,
+          'Change',
         );
         await checkAnswersPage.verifySummaryListItemV10ContentValue(
           'Number of sessions',
@@ -951,6 +952,7 @@ const createSessionOnDay = async (page: Page, dayIncrement: number) => {
         await checkAnswersPage.verifySummaryListItemV10ContentValue(
           'Dates',
           expectedDates,
+          'Change',
         );
         await checkAnswersPage.verifySummaryListItemV10ContentValue(
           'Number of sessions',

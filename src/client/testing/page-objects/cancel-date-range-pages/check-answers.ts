@@ -12,7 +12,14 @@ export default class CheckAnswersPage extends RootPage {
     });
   }
 
-  async verifySummaryListItemV10ContentValue(title: string, value: string) {
-    await expect(this.summaryList.getV10Item(title)).toHaveText(value);
+  async verifySummaryListItemV10ContentValue(
+    title: string,
+    value: string,
+    action: string | undefined = undefined,
+  ) {
+    await expect(this.summaryList.getV10Value(title)).toHaveText(value);
+    if (action) {
+      await expect(this.summaryList.getV10Action(title)).toHaveText(action);
+    }
   }
 }

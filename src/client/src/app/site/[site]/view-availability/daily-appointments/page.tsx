@@ -19,6 +19,7 @@ import {
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
+import PrintPageButton from '@components/print-page-button';
 import Link from 'next/link';
 
 type PageProps = {
@@ -78,15 +79,21 @@ const Page = async ({ params, searchParams }: PageProps) => {
       backLink={backLink}
       originPage="view-availability-daily-appointments"
       site={site}
-      showPrintButton
     >
       {cancelADateRangeFeature.enabled == true && (
-        <Link href={`/site/${siteFromPath}/change-availability`}>
+        <Link
+          href={`/site/${siteFromPath}/change-availability`}
+          className="no-print nhsuk-u-margin-right-3"
+        >
           <Button type="button" styleType="secondary">
             Change availability
           </Button>
         </Link>
       )}
+
+      <span>
+        <PrintPageButton />
+      </span>
 
       <p className="print-out-data" aria-hidden="true">
         Generated: {GetCurrentDateTime()}

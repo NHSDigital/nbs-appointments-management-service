@@ -65,11 +65,7 @@ const NoNotificationStep = ({ site }: InjectedWizardProps & Props) => {
         setIsLoading(true);
         const fetchBookingsRequest: FetchBookingsRequest = {
           from: startDateUkDateTime.format(dateTimeFormat),
-          to: endDateUkDateTime
-            .set('hour', 23)
-            .set('minute', 59)
-            .set('second', 59)
-            .format(dateTimeFormat),
+          to: endDateUkDateTime.endOf('day').format(dateTimeFormat),
           site: site,
         };
 

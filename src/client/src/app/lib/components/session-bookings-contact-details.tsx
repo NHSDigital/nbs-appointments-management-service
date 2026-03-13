@@ -1,10 +1,8 @@
 'use client';
-import { Table, Pagination } from '@nhsuk-frontend-components';
-import { AttendeeDetails, ContactItem, Booking, ClinicalService } from '@types';
-import { toTimeFormat, jsDateFormat } from '@services/timeService';
-import { ReactNode } from 'react';
-import Link from 'next/link';
+import { Pagination } from '@nhsuk-frontend-components';
+import { Booking, ClinicalService } from '@types';
 import { useSearchParams } from 'next/navigation';
+import { SessionBookingsContactDetailsTableData } from './session-bookings-contact-details-table-data';
 
 const ROWS_PER_PAGE = 50;
 
@@ -38,84 +36,17 @@ export const SessionBookingsContactDetailsPage = ({
     return b.slice(startIndex, endIndex);
   };
 
-  const mapContactDetails = (contactDetails: ContactItem[]): ReactNode => {
-    return contactDetails.map((details, key) => {
-      return (
-        <span key={key}>
-          {details.value}
-          <br />
-        </span>
-      );
-    });
-  };
-
-  const mapNameAndNHSNumber = (attendeeDetails: AttendeeDetails): ReactNode => {
-    return (
-      <span>
-        {attendeeDetails.firstName} {attendeeDetails.lastName}
-        <br />
-        {attendeeDetails.nhsNumber}
-      </span>
-    );
-  };
-
-  const mapTableData = () => {
-    if (!bookings.length) {
-      return undefined;
-    }
-
-    const headers = [
-      'Time',
-      'Name and NHS number',
-      'Date of birth',
-      'Contact details',
-      'Services',
-    ];
-
-    if (displayAction) {
-      headers.push('Action');
-    }
-
-    const rows = getPagedBookings(bookings).map(booking => {
-      const row = [
-        toTimeFormat(booking.from),
-        mapNameAndNHSNumber(booking.attendeeDetails),
-        jsDateFormat(booking.attendeeDetails.dateOfBirth),
-        booking.contactDetails && booking.contactDetails.length > 0
-          ? mapContactDetails(booking.contactDetails)
-          : 'Not provided',
-        clinicalServices.find(c => c.value === booking.service)?.label ??
-          booking.service,
-      ];
-
-      if (displayAction) {
-        row.push(
-          <Link
-            key={`cancel-${booking.reference}`}
-            href={`/site/${site}/appointment/${booking.reference}/cancel`}
-          >
-            Cancel
-          </Link>,
-        );
-      }
-
-      return row;
-    });
-
-    return { headers, rows };
-  };
-
-  const appointmentsTableData = mapTableData();
-
   const hasPreviousPage = page > 1;
 
   return (
     <>
       {message && <p className="no-print">{message}</p>}
-
-      {appointmentsTableData && (
-        <Table {...appointmentsTableData} nonPrintableColumnIndices={[5]} />
-      )}
+      <SessionBookingsContactDetailsTableData
+        bookings={getPagedBookings(bookings)}
+        clinicalServices={clinicalServices}
+        displayAction={displayAction}
+        site={site}
+      />
 
       <Pagination
         previous={

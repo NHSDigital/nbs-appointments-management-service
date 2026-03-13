@@ -1,4 +1,3 @@
-import NhsHeading from '@components/nhs-heading';
 import {
   BackLink,
   Button,
@@ -10,6 +9,7 @@ import Link from 'next/link';
 import CancelDaySummary from '../cancel-day-summary';
 import { DaySummaryV2, ClinicalService, Site } from '@types';
 import { DayJsType, RFC3339Format } from '@services/timeService';
+import { Heading } from 'nhsuk-react-components';
 
 export type ConfirmCancelChoiceStepProps = {
   site: Site;
@@ -32,10 +32,10 @@ export const ConfirmCancelChoiceStep = ({
         renderingStrategy="client"
         text="Back"
       />
-      <NhsHeading
-        title={`Cancel ${date.format('dddd D MMMM')}`}
-        caption={site.name}
-      />
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">{site.name}</span>
+        {`Cancel ${date.format('dddd D MMMM')}`}
+      </Heading>
 
       <CancelDaySummary
         clinicalServices={clinicalServices}

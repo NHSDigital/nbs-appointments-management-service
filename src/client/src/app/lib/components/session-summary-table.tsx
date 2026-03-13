@@ -1,4 +1,3 @@
-// import { Cell, Table } from '@components/nhsuk-frontend';
 import { ClinicalService, SessionSummary } from '@types';
 import Link from 'next/link';
 import { UrlObject } from 'url';

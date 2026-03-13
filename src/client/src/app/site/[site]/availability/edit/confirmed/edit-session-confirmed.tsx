@@ -1,7 +1,7 @@
-import { Table, InsetText } from '@components/nhsuk-frontend';
 import { AvailabilitySession, ClinicalService, Site } from '@types';
-import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
+import { BodyText, Card, InsetText } from 'nhsuk-react-components';
+import { EditSessionConfirmedTableData } from './edit-session-confirmed-table-data';
 
 type PageProps = {
   updatedSession: AvailabilitySession;
@@ -30,26 +30,9 @@ const EditSessionConfirmed = ({
 }: PageProps) => {
   return (
     <>
-      <Table
-        headers={['Time', 'Services']}
-        rows={[
-          [
-            <strong key={`session-0-start-and-end-time`}>
-              {`${updatedSession.from} - ${updatedSession.until}`}
-            </strong>,
-            <>
-              {updatedSession.services.map((service, serviceIndex) => {
-                return (
-                  <span key={`service-name-${serviceIndex}`}>
-                    {clinicalServices.find(c => c.value === service)?.label ??
-                      service}
-                    <br />
-                  </span>
-                );
-              })}
-            </>,
-          ],
-        ]}
+      <EditSessionConfirmedTableData
+        updatedSession={updatedSession}
+        clinicalServices={clinicalServices}
       />
 
       {changeSessionUpliftedJourneyEnabled === false ? (
@@ -80,19 +63,16 @@ const EditSessionConfirmed = ({
             This session has been updated and the new time and capacity has been
             saved.
           </div>
-          {newlyUnsupportedBookingsCount > 1 ? (
-            <Card
-              title={newlyUnsupportedBookingsCount.toString()}
-              description="Bookings have been cancelled"
-              maxWidth={250}
-            />
-          ) : (
-            <Card
-              title={newlyUnsupportedBookingsCount.toString()}
-              description="Booking has been cancelled"
-              maxWidth={250}
-            />
-          )}
+          <Card style={{ maxWidth: 250 }}>
+            <Card.Heading>
+              {newlyUnsupportedBookingsCount.toString()}
+            </Card.Heading>
+            <BodyText>
+              {newlyUnsupportedBookingsCount > 1
+                ? 'Bookings have been cancelled'
+                : 'Booking has been cancelled'}
+            </BodyText>
+          </Card>
           {cancelledWithDetailsCount > 0 && (
             <div className="margin-top-bottom">
               {cancelledWithDetailsCount}{' '}

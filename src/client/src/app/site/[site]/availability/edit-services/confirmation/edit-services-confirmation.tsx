@@ -11,7 +11,6 @@ import {
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Card } from '@nhsuk-frontend-components';
 import Link from 'next/link';
 import {
   ClinicalService,
@@ -25,6 +24,7 @@ import { toTimeFormat } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { BodyText, Card } from 'nhsuk-react-components';
 
 type FormData = { action?: SessionModificationAction };
 
@@ -249,15 +249,16 @@ export const EditServicesConfirmationPage = ({
           )}
 
           {newlyUnsupportedBookingsCount && decision != 'remove-services' && (
-            <Card
-              title={String(newlyUnsupportedBookingsCount)}
-              description={
-                newlyUnsupportedBookingsCount > 1
+            <Card style={{ maxWidth: 250 }}>
+              <Card.Heading>
+                {String(newlyUnsupportedBookingsCount)}
+              </Card.Heading>
+              <BodyText>
+                {newlyUnsupportedBookingsCount > 1
                   ? 'Bookings may have to be cancelled'
-                  : 'Booking may have to be cancelled'
-              }
-              maxWidth={250}
-            />
+                  : 'Booking may have to be cancelled'}
+              </BodyText>
+            </Card>
           )}
 
           {decision && (

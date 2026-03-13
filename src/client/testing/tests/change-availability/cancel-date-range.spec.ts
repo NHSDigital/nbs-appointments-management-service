@@ -1,9 +1,22 @@
-import { OAuthLoginPage, RootPage, NotFoundPage } from '@testing-page-objects';
+import {
+  OAuthLoginPage,
+  RootPage,
+  NotFoundPage,
+  AddSessionPage,
+  CheckSessionDetailsPage,
+  AddServicesPage,
+  // CheckAnswersPage,
+} from '@testing-page-objects';
 import { Site } from '@types';
 import { test, expect, overrideFeatureFlag } from '../../fixtures';
+import { daysFromToday, getDateInFuture } from '../../utils/date-utility';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
+// let checkAnswersPage: CheckAnswersPage;
+let addSessionPage: AddSessionPage;
+let addServicesPage: AddServicesPage;
+let checkSessionDetailsPage: CheckSessionDetailsPage;
 
 let site: Site;
 
@@ -739,6 +752,130 @@ test.describe.configure({ mode: 'serial' });
         await expect(page.locator('#end-date-year')).toHaveValue(
           endDate.getFullYear().toString(),
         );
+      });
+    });
+
+    test.describe('Check your answers', () => {
+      test.beforeEach(async ({ page, getTestSite }) => {
+        site = getTestSite(2);
+        rootPage = new RootPage(page);
+        oAuthPage = new OAuthLoginPage(page);
+        addSessionPage = new AddSessionPage(page);
+        addServicesPage = new AddServicesPage(page);
+        checkSessionDetailsPage = new CheckSessionDetailsPage(page);
+        // checkAnswersPage = new CheckAnswersPage(page);
+
+        await rootPage.goto();
+        await rootPage.pageContentLogInButton.click();
+        await oAuthPage.signIn();
+
+        await page.goto('/manage-your-appointments/sites');
+        await page.waitForURL(`/manage-your-appointments/sites`);
+        await page
+          .getByRole('link', { name: 'View Church Lane Pharmacy' })
+          .click();
+        await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
+        await page
+          .getByRole('link', { name: 'View availability and manage' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
+      });
+
+      test('Single session to remove - table content', async ({ page }) => {
+        //flaky when the day this targets has other sessions in it - move to V2...
+        //flaky when the day this targets has any bookings in - move to V2...
+
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        //create availability for today
+        const dayIncrement = 1;
+        const dateStringForTest = daysFromToday(dayIncrement);
+        const dateComponentForTest = getDateInFuture(dayIncrement);
+
+        //create one session
+        await page.goto(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=${dateStringForTest}`,
+        );
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=${dateStringForTest}`,
+        );
+
+        await addSessionPage.addSession('09', '00', '17', '00', '2', '5');
+        await addServicesPage.addService('Flu 18 to 64');
+        await checkSessionDetailsPage.saveSession();
+        await page.waitForURL('**/site/**/view-availability/week?date=**');
+        //done
+
+        //click through continue page
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        //cancel this single day using range tool
+        await page
+          .locator('#start-date-day')
+          .fill(dateComponentForTest.day.toString());
+        await page
+          .locator('#start-date-month')
+          .fill(dateComponentForTest.month.toString());
+        await page
+          .locator('#start-date-year')
+          .fill(dateComponentForTest.year.toString());
+
+        await page
+          .locator('#end-date-day')
+          .fill(dateComponentForTest.day.toString());
+        await page
+          .locator('#end-date-month')
+          .fill(dateComponentForTest.month.toString());
+        await page
+          .locator('#end-date-year')
+          .fill(dateComponentForTest.year.toString());
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        await expect(
+          page.getByRole('heading', {
+            name: /You are about to cancel 1 session/i,
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByText(/There are no bookings for this session/i),
+        ).toBeVisible();
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        // //assertions
+        // await expect(checkAnswersPage.title).toBeVisible();
+
+        // const expectedDates = `${daysFromToday(dayIncrement, 'D MMMM')} to ${daysFromToday(dayIncrement, 'D MMMM YYYY')}`;
+
+        // await checkAnswersPage.verifySummaryListItemV10ContentValue(
+        //   'Dates',
+        //   expectedDates,
+        // );
+        // await checkAnswersPage.verifySummaryListItemV10ContentValue(
+        //   'Number of sessions',
+        //   '1',
+        // );
       });
     });
   });

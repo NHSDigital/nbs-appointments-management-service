@@ -32,6 +32,8 @@ import EditAvailabilityConfirmedPage from './view-availability-appointment-pages
 import MonthViewAvailabilityPage from './view-availability-appointment-pages/month-view-availability-page';
 import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
 
+// import CheckAnswersPage from './cancel-date-range-pages/check-answers';
+
 export {
   CookiesPolicyPage,
   CreateAvailabilityPage,
@@ -62,4 +64,5 @@ export {
   EditAvailabilityConfirmedPage,
   MonthViewAvailabilityPage,
   WeekViewAvailabilityPage,
+  // CheckAnswersPage,
 };

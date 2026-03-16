@@ -182,8 +182,8 @@ export const test = base.extend<MyaFixtures>({
       const mockOidcLoginPage = await loginPage.logInWithNhsMail();
 
       // 1. Manually fill fields since we can't use .signIn()
-      // await mockOidcLoginPage.usernameField.fill(user.username);
-      // await mockOidcLoginPage.passwordField.fill(user.password);
+      await mockOidcLoginPage.usernameField.fill(oidcUser.username);
+      await mockOidcLoginPage.passwordField.fill(oidcUser.password);
       await mockOidcLoginPage.passwordField.press('Enter');
 
       // 2. The Flexible Wait: This is the secret sauce.
@@ -217,9 +217,18 @@ export const test = base.extend<MyaFixtures>({
 
     // Clean up the fixture.
     await Promise.all([
-      //TODO add back in
-      // await cosmosDbClient.deleteSite(site.id),
-      // await cosmosDbClient.deleteUser(user.id),
+      async () => {
+        if (siteDocument !== undefined) {
+          await cosmosDbClient.deleteSite(siteDocument.id);
+        }
+        return;
+      },
+      async () => {
+        if (userDocument !== undefined) {
+          await cosmosDbClient.deleteUser(userDocument.id);
+        }
+        return;
+      },
       ...Array.from(additionalUserData.values()).map(data =>
         cosmosDbClient.deleteUser(data.user.document.id),
       ),

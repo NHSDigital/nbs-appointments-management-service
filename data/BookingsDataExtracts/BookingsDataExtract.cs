@@ -55,6 +55,8 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.IntegratedCareBoard, dataConverter.ExtractICB),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
+            new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, BookingDataConverter.ExtractCancellationReason),
+            new DataFactory<BookingDocument, string>(BookingDataExtractFields.SiteType, BookingDataConverter.ExtractSiteType),
         };
 
         if (includeJointBookingsFields)

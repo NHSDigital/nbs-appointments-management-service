@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { CosmosClient } from '@azure/cosmos';
-import { Role, SiteDocument, UserDocument } from '@e2etests/types';
-import { buildSiteDocument, buildUserDocument } from '@e2etests/data';
+import { SiteDocument, UserDocument } from '@e2etests/types';
 
 class CosmosDbClient {
   private readonly client: CosmosClient;
@@ -32,9 +31,7 @@ class CosmosDbClient {
     return appts;
   }
 
-  public async createSite(testId: number, siteConfig?: Partial<SiteDocument>) {
-    const siteDocument = { ...buildSiteDocument(testId), ...siteConfig };
-
+  public async createSite(siteDocument: SiteDocument) {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
@@ -44,30 +41,21 @@ class CosmosDbClient {
     console.log(`Written site: ${siteDocument.id} to Cosmos DB.`);
   }
 
-  public async deleteSite(testId: number) {
-    const siteDocument = buildSiteDocument(testId);
-
+  public async deleteSite(siteId: string) {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
       partitionKey: { paths: ['/docType'] },
     });
     try {
-      await container.item(siteDocument.id, 'site').delete();
-      console.log(`Deleted site: ${siteDocument.id} from Cosmos DB.`);
+      await container.item(siteId, 'site').delete();
+      console.log(`Deleted site: ${siteId} from Cosmos DB.`);
     } catch (e) {
       console.error(e);
     }
   }
 
-  public async createUser(
-    testId: number,
-    roles: Role[],
-    userConfig?: Partial<UserDocument>,
-  ) {
-    // Merge the default buildUserDocument with our custom userConfig
-    const userDocument = { ...buildUserDocument(testId, roles), ...userConfig };
-
+  public async createUser(userDocument: UserDocument) {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
@@ -79,17 +67,15 @@ class CosmosDbClient {
     );
   }
 
-  public async deleteUser(testId: number) {
-    const userDocument = buildUserDocument(testId, []);
-
+  public async deleteUser(userId: string) {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
       partitionKey: { paths: ['/docType'] },
     });
     try {
-      await container.item(userDocument.id, 'user').delete();
-      console.log(`Deleted user: ${userDocument.id} from Cosmos DB.`);
+      await container.item(userId, 'user').delete();
+      console.log(`Deleted user: ${userId} from Cosmos DB.`);
     } catch (e) {
       console.error(e);
     }

@@ -1,15 +1,8 @@
-import {
-  buildAddress,
-  buildIcbName,
-  buildOdsCode,
-  buildPhoneNumber,
-  buildRegionName,
-  buildSiteName,
-} from '@e2etests/data';
+import { buildIcbName, buildRegionName } from '@e2etests/data';
 import { test, expect } from '../../fixtures-v2';
 
-test('A user views the details of a site', async ({ setUpSingleSite }) => {
-  const { sitePage, testId } = await setUpSingleSite();
+test('A user views the details of a site', async ({ setup }) => {
+  const { site, sitePage, testId } = await setup();
 
   await sitePage.clickSiteDetailsCard().then(async siteDetailsPage => {
     await expect(siteDetailsPage.title).toBeVisible();
@@ -18,10 +11,10 @@ test('A user views the details of a site', async ({ setUpSingleSite }) => {
     await expect(siteDetailsPage.detailsCard.title).toBeVisible();
     await expect(
       siteDetailsPage.detailsCard.summaryList.getV10Item('Name'),
-    ).toHaveText(buildSiteName(testId));
+    ).toHaveText(site.name);
     await expect(
       siteDetailsPage.detailsCard.summaryList.getV10Item('Address'),
-    ).toHaveText(buildAddress(testId));
+    ).toHaveText(site.address);
     await expect(
       siteDetailsPage.detailsCard.summaryList.getV10Item('Latitude'),
     ).toHaveText('53.795467');
@@ -30,13 +23,13 @@ test('A user views the details of a site', async ({ setUpSingleSite }) => {
     ).toHaveText('-1.6610648');
     await expect(
       siteDetailsPage.detailsCard.summaryList.getV10Item('Phone Number'),
-    ).toHaveText(buildPhoneNumber(testId));
+    ).toHaveText(site.phoneNumber);
 
     // Check all site reference details are present
     await expect(siteDetailsPage.referenceDetailsCard.title).toBeVisible();
     await expect(
       siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ODS code'),
-    ).toHaveText(buildOdsCode(testId));
+    ).toHaveText(site.odsCode);
     await expect(
       siteDetailsPage.referenceDetailsCard.summaryList.getV10Item('ICB'),
     ).toHaveText(buildIcbName(testId));

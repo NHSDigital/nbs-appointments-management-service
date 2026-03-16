@@ -1,12 +1,12 @@
 import { type Locator } from '@playwright/test';
 import { EulaConsentPage, SiteSelectionPage } from '@e2etests/page-objects';
-import { E2ETestUser, PageObject } from '@e2etests/types';
+import { MockOidcUser, PageObject } from '@e2etests/types';
 
 export default class MockOidcLoginPage extends PageObject {
   readonly usernameField: Locator = this.page.getByLabel('Username');
   readonly passwordField: Locator = this.page.getByLabel('Password');
 
-  async signIn(user: E2ETestUser): Promise<SiteSelectionPage> {
+  async signIn(user: MockOidcUser): Promise<SiteSelectionPage> {
     await this.enterCredentials(user.username, user.password);
 
     await this.page.waitForURL(`**/sites`);
@@ -14,7 +14,7 @@ export default class MockOidcLoginPage extends PageObject {
   }
 
   async signInExpectingEulaRedirect(
-    user: E2ETestUser,
+    user: MockOidcUser,
   ): Promise<EulaConsentPage> {
     await this.enterCredentials(user.username, user.password);
 

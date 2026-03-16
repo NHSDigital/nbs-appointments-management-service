@@ -3,8 +3,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 import { test as base, TestInfo } from '@playwright/test';
 import {
-  buildE2ETestSite,
-  buildE2ETestUser,
+  buildMockOidcUser,
+  buildSiteDocument,
+  buildUserDocument,
   CosmosDbClient,
   FeatureFlagClient,
   MockOidcClient,
@@ -12,7 +13,13 @@ import {
 export * from '@playwright/test';
 import { LoginPage, SitePage, SiteSelectionPage } from '@e2etests/page-objects';
 import env from './testEnvironment';
-import { Role, FeatureFlag, SiteDocument, UserDocument } from '@e2etests/types';
+import {
+  Role,
+  FeatureFlag,
+  SiteDocument,
+  UserDocument,
+  MockOidcUser,
+} from '@e2etests/types';
 import {
   AddServicesPage,
   AddSessionPage,
@@ -34,16 +41,29 @@ type AdditionalUserOptions = {
   roles?: Role[];
 };
 
-type SetUpSingleSiteFixtureOptions = {
+type UserData = {
+  document: UserDocument;
+  oidc: MockOidcUser;
+};
+
+type AdditionalUserSetupData = {
+  user: UserData;
+  site: SiteDocument;
+};
+
+type setupFixtureOptions = {
   siteConfig?: Partial<SiteDocument>;
   skipSiteSelection?: boolean;
 } & FixtureOptions;
 
 type MyaFixtures = {
-  setUpSingleSite: (options?: SetUpSingleSiteFixtureOptions) => Promise<{
+  setup: (options?: setupFixtureOptions) => Promise<{
+    site: SiteDocument;
+    user: UserData;
     sitePage: SitePage;
+    //TODO restructure
+    additionalUserData: Map<string, AdditionalUserSetupData>;
     testId: number;
-    additionalUserIds: Map<string, number>;
   }>;
 
   monthViewAvailabilityPage: MonthViewAvailabilityPage;
@@ -79,7 +99,7 @@ export const test = base.extend<MyaFixtures>({
   },
 
   // TODO: Extend this (or create new fixtures) to cover multiple sites and multiple users per site
-  setUpSingleSite: async ({ page }, use, testInfo) => {
+  setup: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
       env.COSMOS_ENDPOINT,
       env.COSMOS_TOKEN,
@@ -89,7 +109,7 @@ export const test = base.extend<MyaFixtures>({
 
     const testId = generateUniqueTestId(testInfo);
 
-    const defaultFixtureOptions: SetUpSingleSiteFixtureOptions = {
+    const defaultFixtureOptions: setupFixtureOptions = {
       roles: [
         'canned:availability-manager',
         'canned:appointment-manager',
@@ -99,7 +119,9 @@ export const test = base.extend<MyaFixtures>({
     };
 
     let featuresUsed: FeatureFlag[] = [];
-    const additionalUserIds = new Map<string, number>();
+    let siteDocument: SiteDocument | undefined = undefined;
+    let userDocument: UserDocument | undefined = undefined;
+    const additionalUserData = new Map<string, AdditionalUserSetupData>();
 
     // Fixture setup. Result of use() is piped to the test
     // This currently accepts a list of roles and feature flags.
@@ -118,21 +140,35 @@ export const test = base.extend<MyaFixtures>({
         ...options,
       };
 
-      await cosmosDbClient.createSite(testId, siteConfig);
+      siteDocument = buildSiteDocument(testId, siteConfig);
+      userDocument = buildUserDocument(testId, roles, userConfig);
+      const oidcUser = buildMockOidcUser(testId);
+
+      await cosmosDbClient.createSite(siteDocument);
       // Pass userConfig here!
-      await cosmosDbClient.createUser(testId, roles, userConfig);
-      await mockOidcClient.registerTestUser(testId);
+      await cosmosDbClient.createUser(userDocument);
+      await mockOidcClient.registerTestUser(oidcUser);
 
       if (additionalUsers.length > 0) {
         let index = 1;
 
-        for (const [key, user] of Object.entries(additionalUsers)) {
+        for (const [key, additionalUser] of Object.entries(additionalUsers)) {
           const userTestId = Number(`${testId}${index++}`);
 
-          await cosmosDbClient.createSite(userTestId, siteConfig);
-          await cosmosDbClient.createUser(userTestId, user.roles ?? []);
-          await mockOidcClient.registerTestUser(userTestId);
-          additionalUserIds.set(key, userTestId);
+          const newUserDocument = buildUserDocument(
+            userTestId,
+            additionalUser.roles ?? [],
+          );
+          const newOidcUser = buildMockOidcUser(userTestId);
+          const newSiteDocument = buildSiteDocument(userTestId, siteConfig);
+
+          await cosmosDbClient.createSite(newSiteDocument);
+          await cosmosDbClient.createUser(newUserDocument);
+          await mockOidcClient.registerTestUser(newOidcUser);
+          additionalUserData.set(key, {
+            user: { document: userDocument, oidc: newOidcUser },
+            site: newSiteDocument,
+          });
         }
       }
 
@@ -145,14 +181,12 @@ export const test = base.extend<MyaFixtures>({
       const loginPage = new LoginPage(page);
       const mockOidcLoginPage = await loginPage.logInWithNhsMail();
 
-      const user = buildE2ETestUser(testId);
-
       // 1. Manually fill fields since we can't use .signIn()
-      await mockOidcLoginPage.usernameField.fill(user.username);
-      await mockOidcLoginPage.passwordField.fill(user.password);
+      // await mockOidcLoginPage.usernameField.fill(user.username);
+      // await mockOidcLoginPage.passwordField.fill(user.password);
       await mockOidcLoginPage.passwordField.press('Enter');
 
-      // 2. The Flexible Wait: This is the secret sauce. 
+      // 2. The Flexible Wait: This is the secret sauce.
       // It allows the app to go to either the EULA or the Sites page.
       await page.waitForURL(/\/sites|\/eula/);
 
@@ -160,27 +194,34 @@ export const test = base.extend<MyaFixtures>({
 
       // 3. Logic: Only try to select a site if we aren't on the EULA page
       if (page.url().includes('/eula')) {
-        sitePage = undefined; 
+        sitePage = undefined;
       } else if (skipSiteSelection) {
         sitePage = undefined;
       } else {
         // We use the existing SiteSelectionPage logic if we landed on /sites
         const selectionPage = new SiteSelectionPage(page);
-        sitePage = await selectionPage.selectSite(buildE2ETestSite(testId));
+        sitePage = await selectionPage.selectSite(siteDocument);
       }
 
       featuresUsed = features ?? [];
 
       // Type cast sitePage to satisfy tests that expect sitePage to be non-optional
-      return { sitePage: sitePage as SitePage, testId, additionalUserIds };
+      return {
+        site: siteDocument,
+        user: { document: userDocument, oidc: oidcUser },
+        sitePage: sitePage as SitePage,
+        testId,
+        additionalUserData,
+      };
     });
 
     // Clean up the fixture.
     await Promise.all([
-      await cosmosDbClient.deleteSite(testId),
-      await cosmosDbClient.deleteUser(testId),
-      ...Array.from(additionalUserIds.values()).map(id =>
-        cosmosDbClient.deleteUser(id),
+      //TODO add back in
+      // await cosmosDbClient.deleteSite(site.id),
+      // await cosmosDbClient.deleteUser(user.id),
+      ...Array.from(additionalUserData.values()).map(data =>
+        cosmosDbClient.deleteUser(data.user.document.id),
       ),
       //revert all flags if they were used in the enabled state
       featuresUsed.map(async feature => {

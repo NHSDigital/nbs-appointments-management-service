@@ -1,9 +1,7 @@
 import { test, expect } from '../../fixtures-v2';
 
-test('A user updates the citizen information for a site', async ({
-  setUpSingleSite,
-}) => {
-  const { sitePage } = await setUpSingleSite();
+test('A user updates the citizen information for a site', async ({ setup }) => {
+  const { sitePage } = await setup();
 
   await sitePage
     .clickSiteDetailsCard()
@@ -37,9 +35,9 @@ test('A user updates the citizen information for a site', async ({
 });
 
 test('A user starts to update the citizen information then changes their mind using the back button', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  const { sitePage } = await setUpSingleSite();
+  const { sitePage } = await setup();
   await sitePage
     .clickSiteDetailsCard()
     .then(siteDetailsPage =>

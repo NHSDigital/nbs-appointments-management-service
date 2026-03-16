@@ -3,9 +3,9 @@ import { test, expect } from '../../fixtures-v2';
 test.describe.configure({ mode: 'serial' });
 
 test('A site manager cannot edit site status when the feature toggle is disabled', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'SiteStatus', enabled: false }],
   })
     .then(({ sitePage }) => {
@@ -20,10 +20,8 @@ test('A site manager cannot edit site status when the feature toggle is disabled
     });
 });
 
-test('A site manager takes an online site offline', async ({
-  setUpSingleSite,
-}) => {
-  await setUpSingleSite({
+test('A site manager takes an online site offline', async ({ setup }) => {
+  await setup({
     features: [{ name: 'SiteStatus', enabled: true }],
   })
     .then(({ sitePage }) => {
@@ -57,10 +55,8 @@ test('A site manager takes an online site offline', async ({
     });
 });
 
-test('A site manager takes an offline site online', async ({
-  setUpSingleSite,
-}) => {
-  await setUpSingleSite({
+test('A site manager takes an offline site online', async ({ setup }) => {
+  await setup({
     features: [{ name: 'SiteStatus', enabled: true }],
     siteConfig: { status: 'Offline' },
   })
@@ -96,9 +92,9 @@ test('A site manager takes an offline site online', async ({
 });
 
 test('A user starts to update site status then changes their mind using the back button', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  await setUpSingleSite({ features: [{ name: 'SiteStatus', enabled: true }] })
+  await setup({ features: [{ name: 'SiteStatus', enabled: true }] })
     .then(({ sitePage }) => {
       return sitePage.clickSiteDetailsCard();
     })

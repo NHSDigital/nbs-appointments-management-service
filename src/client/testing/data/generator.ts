@@ -1,6 +1,4 @@
 import {
-  E2ETestSite,
-  E2ETestUser,
   MockOidcUser,
   Role,
   SiteDocument,
@@ -8,7 +6,7 @@ import {
 } from '@e2etests/types';
 import { createHash } from 'crypto';
 
-const buildSiteDocument = (testId: number): SiteDocument => {
+const buildBaseSiteDocument = (testId: number): SiteDocument => {
   return {
     id: buildSiteId(testId),
     docType: 'site',
@@ -29,8 +27,11 @@ const buildSiteDocument = (testId: number): SiteDocument => {
   };
 };
 
-const buildE2ETestSite = (testId: number): E2ETestSite => {
-  return { id: buildSiteId(testId), name: buildSiteName(testId) };
+const buildSiteDocument = (
+  testId: number,
+  siteConfig?: Partial<SiteDocument>,
+): SiteDocument => {
+  return { ...buildBaseSiteDocument(testId), ...siteConfig };
 };
 
 const buildPhoneNumber = (testId: number): string => {
@@ -123,7 +124,7 @@ const buildUserPassword = (): string => {
   return `TestUserPassword123!`;
 };
 
-const buildUserDocument = (testId: number, roles: Role[]): UserDocument => {
+const buildCoreUserDocument = (testId: number, roles: Role[]): UserDocument => {
   return {
     id: buildUserId(testId),
     docType: 'user',
@@ -132,6 +133,14 @@ const buildUserDocument = (testId: number, roles: Role[]): UserDocument => {
       return { role, scope: buildScopeForRole(testId, role) };
     }),
   };
+};
+
+const buildUserDocument = (
+  testId: number,
+  roles: Role[],
+  userConfig?: Partial<UserDocument>,
+): UserDocument => {
+  return { ...buildCoreUserDocument(testId, roles), ...userConfig };
 };
 
 const buildMockOidcUser = (testId: number): MockOidcUser => {
@@ -143,17 +152,9 @@ const buildMockOidcUser = (testId: number): MockOidcUser => {
   };
 };
 
-const buildE2ETestUser = (testId: number): E2ETestUser => {
-  return {
-    id: buildUserId(testId),
-    username: buildUsername(testId),
-    password: buildUserPassword(),
-  };
-};
-
 export {
   buildAddress,
-  buildSiteDocument,
+  buildBaseSiteDocument,
   buildSiteName,
   buildIcb,
   buildIcbName,
@@ -163,6 +164,5 @@ export {
   buildPhoneNumber,
   buildUserDocument,
   buildMockOidcUser,
-  buildE2ETestSite,
-  buildE2ETestUser,
+  buildSiteDocument,
 };

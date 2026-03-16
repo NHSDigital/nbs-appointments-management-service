@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { buildMockOidcUser } from '@e2etests/data';
+import { MockOidcUser } from '@e2etests/types';
 
 class MockOidcClient {
   private readonly baseUrl: string;
@@ -8,9 +8,7 @@ class MockOidcClient {
     this.baseUrl = baseUrl;
   }
 
-  public async registerTestUser(testId: number) {
-    const testUser = buildMockOidcUser(testId);
-
+  public async registerTestUser(testUser: MockOidcUser) {
     await fetch(`${this.baseUrl}/api/v1/user`, {
       method: 'POST',
       body: JSON.stringify(testUser),

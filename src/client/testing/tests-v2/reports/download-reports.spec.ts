@@ -4,9 +4,9 @@ import { test, expect } from '../../fixtures-v2';
 test.describe.configure({ mode: 'serial' });
 
 test('Navigates to the reports page via the header before selecting a site - ReportsUplift false', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
@@ -18,9 +18,9 @@ test('Navigates to the reports page via the header before selecting a site - Rep
 });
 
 test('Navigates to the reports page via a site page - ReportsUplift false', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
@@ -33,11 +33,11 @@ test('Navigates to the reports page via a site page - ReportsUplift false', asyn
 
 test('Downloads a site summary report - ReportsUplift false', async ({
   page,
-  setUpSingleSite,
+  setup,
 }) => {
   const fileName = 'downloaded-test-report.csv';
 
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: false }],
   })
     .then(async sitePageFixture =>
@@ -80,9 +80,9 @@ test('Downloads a site summary report - ReportsUplift false', async ({
 });
 
 test('Navigates to the reports page via the header before selecting a site - ReportsUplift true', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: true }],
   })
     // Destructured { sitePage } directly for cleaner access to the fixture result
@@ -96,9 +96,9 @@ test('Navigates to the reports page via the header before selecting a site - Rep
 });
 
 test('Navigates to the reports page via a site page - ReportsUplift true', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: true }],
   })
     .then(async ({ sitePage }) => sitePage.clickReportsCard(true))
@@ -112,13 +112,13 @@ test('Navigates to the reports page via a site page - ReportsUplift true', async
 
 test('Downloads a site summary report - ReportsUplift true', async ({
   page,
-  setUpSingleSite,
+  setup,
 }) => {
   // Added Date.now() to ensure unique filenames.
   // This prevents OS-level file-lock errors when running tests in rapid succession.
   const fileName = `site-summary-${Date.now()}.csv`;
 
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
@@ -168,10 +168,10 @@ test('Downloads a site summary report - ReportsUplift true', async ({
     });
 });
 
-test('Download all sites report', async ({ page, setUpSingleSite }) => {
+test('Download all sites report', async ({ page, setup }) => {
   const fileName = `all-sites-${Date.now()}.csv`;
 
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })
@@ -208,10 +208,10 @@ test('Download all sites report', async ({ page, setUpSingleSite }) => {
     });
 });
 
-test('Download users report', async ({ page, setUpSingleSite }) => {
+test('Download users report', async ({ page, setup }) => {
   const fileName = `users-${Date.now()}.csv`;
 
-  await setUpSingleSite({
+  await setup({
     features: [{ name: 'ReportsUplift', enabled: true }],
     roles: ['system:admin-user'],
   })

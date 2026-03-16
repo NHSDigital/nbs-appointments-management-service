@@ -1,10 +1,8 @@
 import { NotFoundPage } from '@e2etests/page-objects';
 import { test, expect } from '../../fixtures-v2';
 
-test('Verify user manager is able to remove a user', async ({
-  setUpSingleSite,
-}) => {
-  const { sitePage } = await setUpSingleSite();
+test('Verify user manager is able to remove a user', async ({ setup }) => {
+  const { sitePage } = await setup();
 
   await sitePage
     .clickManageUsersCard()
@@ -55,9 +53,9 @@ test('Verify user manager is able to remove a user', async ({
 });
 
 test('Displays a notification banner after removing a user', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  const { sitePage } = await setUpSingleSite();
+  const { sitePage } = await setup();
 
   await sitePage
     .clickManageUsersCard()
@@ -109,9 +107,9 @@ test('Displays a notification banner after removing a user', async ({
 
 test('Receives 404 when trying to remove an invalid user', async ({
   page,
-  setUpSingleSite,
+  setup,
 }) => {
-  const { sitePage } = await setUpSingleSite();
+  const { sitePage } = await setup();
   const notFoundPage = new NotFoundPage(page);
 
   await page.goto(

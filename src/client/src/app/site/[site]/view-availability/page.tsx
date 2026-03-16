@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchSite,
@@ -33,12 +32,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const searchMonth = date ? parseToUkDatetime(date, RFC3339Format) : ukNow();
 
   return (
-    <NhsPage
-      title={`View availability for ${searchMonth.format('MMMM YYYY')}`}
-      caption={site.name}
-      site={site}
-      originPage="view-availability"
-    >
+    <>
       {cancelADateRangeFeature.enabled && (
         <Link href={`/site/${siteFromPath}/change-availability`}>
           <Button type="button" styleType="secondary">
@@ -48,7 +42,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       )}
 
       <ViewAvailabilityPage site={site} searchMonth={searchMonth} />
-    </NhsPage>
+    </>
   );
 };
 

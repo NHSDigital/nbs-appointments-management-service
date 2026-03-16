@@ -1,13 +1,43 @@
-import { OAuthLoginPage, RootPage, NotFoundPage } from '@testing-page-objects';
+import {
+  OAuthLoginPage,
+  RootPage,
+  NotFoundPage,
+  AddSessionPage,
+  CheckSessionDetailsPage,
+  AddServicesPage,
+  CheckAnswersPage,
+} from '@testing-page-objects';
 import { Site } from '@types';
-import { test, expect, overrideFeatureFlag } from '../../fixtures';
+import { test, expect, overrideFeatureFlag, Page } from '../../fixtures';
+import { daysFromToday, getDateInFuture } from '../../utils/date-utility';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
+let checkAnswersPage: CheckAnswersPage;
+let addSessionPage: AddSessionPage;
+let addServicesPage: AddServicesPage;
+let checkSessionDetailsPage: CheckSessionDetailsPage;
 
 let site: Site;
 
 test.describe.configure({ mode: 'serial' });
+
+const createSessionOnDay = async (page: Page, dayIncrement: number) => {
+  const dateStringForTest = daysFromToday(dayIncrement);
+
+  //create one session
+  await page.goto(
+    `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=${dateStringForTest}`,
+  );
+  await page.waitForURL(
+    `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=${dateStringForTest}`,
+  );
+
+  await addSessionPage.addSession('09', '00', '17', '00', '2', '5');
+  await addServicesPage.addService('Flu 18 to 64');
+  await checkSessionDetailsPage.saveSession();
+  await page.waitForURL('**/site/**/view-availability/week?date=**');
+};
 
 [true, false].forEach(CancelADateRangeFlagEnabled => {
   test.describe(`Test with CancelADateRangeFlag: '${CancelADateRangeFlagEnabled}'`, () => {
@@ -952,6 +982,282 @@ test.describe.configure({ mode: 'serial' });
         await expect(
           page.getByText(/There are no bookings for (this|these) sessions?/i),
         ).toBeVisible();
+      });
+    });
+
+    test.describe('Check your answers', () => {
+      test.beforeEach(async ({ page, getTestSite }) => {
+        site = getTestSite(2);
+        rootPage = new RootPage(page);
+        oAuthPage = new OAuthLoginPage(page);
+        addSessionPage = new AddSessionPage(page);
+        addServicesPage = new AddServicesPage(page);
+        checkSessionDetailsPage = new CheckSessionDetailsPage(page);
+        checkAnswersPage = new CheckAnswersPage(page);
+
+        await rootPage.goto();
+        await rootPage.pageContentLogInButton.click();
+        await oAuthPage.signIn();
+
+        await page.goto('/manage-your-appointments/sites');
+        await page.waitForURL(`/manage-your-appointments/sites`);
+        await page
+          .getByRole('link', { name: 'View Church Lane Pharmacy' })
+          .click();
+        await page.waitForURL(`/manage-your-appointments/site/${site.id}`);
+        await page
+          .getByRole('link', { name: 'View availability and manage' })
+          .click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/view-availability`,
+        );
+      });
+
+      test('Single session to remove - table content', async ({ page }) => {
+        //flaky when the day this targets has other sessions in it - move to V2...
+        //flaky when the day this targets has any bookings in - move to V2...
+
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        //create availability for today
+        const dayIncrement = 1;
+        const dateComponentForTest = getDateInFuture(dayIncrement);
+        await createSessionOnDay(page, dayIncrement);
+        //done
+
+        //click through continue page
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        //cancel this single day using range tool
+        await page
+          .locator('#start-date-day')
+          .fill(dateComponentForTest.day.toString());
+        await page
+          .locator('#start-date-month')
+          .fill(dateComponentForTest.month.toString());
+        await page
+          .locator('#start-date-year')
+          .fill(dateComponentForTest.year.toString());
+
+        await page
+          .locator('#end-date-day')
+          .fill(dateComponentForTest.day.toString());
+        await page
+          .locator('#end-date-month')
+          .fill(dateComponentForTest.month.toString());
+        await page
+          .locator('#end-date-year')
+          .fill(dateComponentForTest.year.toString());
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        await expect(
+          page.getByRole('heading', {
+            name: /You are about to cancel 1 session/i,
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByText(/There are no bookings for this session/i),
+        ).toBeVisible();
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        // //assertions
+        await expect(checkAnswersPage.title).toBeVisible();
+
+        const expectedDates = `${daysFromToday(dayIncrement, 'D MMMM')} to ${daysFromToday(dayIncrement, 'D MMMM YYYY')}`;
+
+        await checkAnswersPage.verifySummaryListItemV10ContentValue(
+          'Dates',
+          expectedDates,
+          'Change Dates',
+        );
+        await checkAnswersPage.verifySummaryListItemV10ContentValue(
+          'Number of sessions',
+          '1',
+        );
+      });
+
+      test('Multiple sessions to remove across multiple days - table content', async ({
+        page,
+      }) => {
+        //flaky when the day this targets has other sessions in it - move to V2...
+        //flaky when the day this targets has any bookings in - move to V2...
+
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        //create 5 sessions across two different days
+        await createSessionOnDay(page, 2);
+        await createSessionOnDay(page, 2);
+        await createSessionOnDay(page, 2);
+        await createSessionOnDay(page, 3);
+        await createSessionOnDay(page, 3);
+
+        const fromDate = getDateInFuture(2);
+        const toDate = getDateInFuture(3);
+
+        //click through continue page
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        //cancel this single day using range tool
+        await page.locator('#start-date-day').fill(fromDate.day.toString());
+        await page.locator('#start-date-month').fill(fromDate.month.toString());
+        await page.locator('#start-date-year').fill(fromDate.year.toString());
+
+        await page.locator('#end-date-day').fill(toDate.day.toString());
+        await page.locator('#end-date-month').fill(toDate.month.toString());
+        await page.locator('#end-date-year').fill(toDate.year.toString());
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        await expect(
+          page.getByRole('heading', {
+            name: /You are about to cancel 5 sessions/i,
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByText(/There are no bookings for these sessions/i),
+        ).toBeVisible();
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        // //assertions
+        await expect(checkAnswersPage.title).toBeVisible();
+
+        const expectedDates = `${daysFromToday(2, 'D MMMM')} to ${daysFromToday(3, 'D MMMM YYYY')}`;
+
+        await checkAnswersPage.verifySummaryListItemV10ContentValue(
+          'Dates',
+          expectedDates,
+          'Change Dates',
+        );
+        await checkAnswersPage.verifySummaryListItemV10ContentValue(
+          'Number of sessions',
+          '5',
+        );
+      });
+
+      test('Selected dates are persisted on Change link click', async ({
+        page,
+      }) => {
+        //flaky when the day this targets has other sessions in it - move to V2...
+        //flaky when the day this targets has any bookings in - move to V2...
+
+        const notFoundPage = new NotFoundPage(page);
+        if (!CancelADateRangeFlagEnabled) {
+          await page.goto(
+            `/manage-your-appointments/site/${site.id}/change-availability`,
+          );
+          await expect(notFoundPage.title).toBeVisible();
+          return;
+        }
+
+        //create 5 sessions across two different days
+        await createSessionOnDay(page, 4);
+
+        const fromDate = getDateInFuture(4);
+        const toDate = getDateInFuture(5);
+
+        //click through continue page
+        await page.getByRole('button', { name: 'Change availability' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+        await page.getByRole('button', { name: 'Continue to cancel' }).click();
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        await page.locator('#start-date-day').fill(fromDate.day.toString());
+        await page.locator('#start-date-month').fill(fromDate.month.toString());
+        await page.locator('#start-date-year').fill(fromDate.year.toString());
+
+        await page.locator('#end-date-day').fill(toDate.day.toString());
+        await page.locator('#end-date-month').fill(toDate.month.toString());
+        await page.locator('#end-date-year').fill(toDate.year.toString());
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        await expect(
+          page.getByRole('heading', {
+            name: /You are about to cancel 1 session/i,
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByText(/There are no bookings for this session/i),
+        ).toBeVisible();
+
+        await page
+          .getByRole('button', { name: 'Continue', exact: true })
+          .click();
+
+        //assertions
+        await expect(checkAnswersPage.title).toBeVisible();
+
+        await page.getByRole('link', { name: 'Change Dates' }).click();
+
+        await page.waitForURL(
+          `/manage-your-appointments/site/${site.id}/change-availability`,
+        );
+
+        //assert
+        await expect(page.locator('#start-date-day')).toHaveValue(
+          Number(fromDate.day).toString(),
+        );
+        await expect(page.locator('#start-date-month')).toHaveValue(
+          Number(fromDate.month).toString(),
+        );
+        await expect(page.locator('#start-date-year')).toHaveValue(
+          Number(fromDate.year).toString(),
+        );
+
+        await expect(page.locator('#end-date-day')).toHaveValue(
+          Number(toDate.day).toString(),
+        );
+        await expect(page.locator('#end-date-month')).toHaveValue(
+          Number(toDate.month).toString(),
+        );
+        await expect(page.locator('#end-date-year')).toHaveValue(
+          Number(toDate.year).toString(),
+        );
       });
     });
   });

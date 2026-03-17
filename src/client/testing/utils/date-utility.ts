@@ -5,6 +5,7 @@ import {
   parseToUkDatetime,
   startOfUkWeek,
   ukNow,
+  parseDateComponentsToUkDatetime,
 } from '@services/timeService';
 import { DateComponents } from '@types';
 
@@ -28,3 +29,13 @@ export const daysFromToday = (
 
 export const weekHeaderText = (date: string) =>
   `${startOfUkWeek(parseToUkDatetime(date)).format('D MMMM')} to ${endOfUkWeek(parseToUkDatetime(date)).format('D MMMM')}`;
+
+export const getLongDayDateText = (dateComponents: DateComponents): string => {
+  const dayjsDate = parseDateComponentsToUkDatetime(dateComponents);
+
+  if (!dayjsDate || !dayjsDate.isValid()) {
+    return '';
+  }
+
+  return dayjsDate.format('dddd D MMMM');
+};

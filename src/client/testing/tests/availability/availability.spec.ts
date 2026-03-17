@@ -692,7 +692,9 @@ test.describe('Update Session', () => {
         await changeAvailabilityPage.selectChangeType('CancelSession');
         await changeAvailabilityPage.saveChanges();
 
-        await page.waitForURL('**/site/**/availability/cancel?session=**');
+        await page.waitForURL(
+          '**/site/**/availability/cancel/confirmed?session=**',
+        );
 
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 
@@ -747,7 +749,9 @@ test.describe('Update Session', () => {
         await changeAvailabilityPage.selectChangeType('CancelSession');
         await changeAvailabilityPage.saveChanges();
 
-        await page.waitForURL('**/site/**/availability/cancel?session=**');
+        await page.waitForURL(
+          '**/site/**/availability/confirmed/cancel?session=**',
+        );
 
         await cancelSessionDetailsPage.confirmSessionCancellation('No');
         await changeAvailabilityPage.verifyChangeAvailabilityPageDisplayed(
@@ -890,7 +894,9 @@ test.describe('Update Session', () => {
         await changeAvailabilityPage.selectChangeType('CancelSession');
         await changeAvailabilityPage.saveChanges();
 
-        await page.waitForURL('**/site/**/availability/cancel?session=**');
+        await page.waitForURL(
+          '**/site/**/availability/confirmed/cancel?session=**',
+        );
 
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
 

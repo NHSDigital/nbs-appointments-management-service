@@ -1277,7 +1277,9 @@ test.describe('View Week Availability', () => {
     await changeAvailabilityPage.selectChangeType('CancelSession');
     await changeAvailabilityPage.saveChanges();
 
-    await page.waitForURL(`**/site/${site.id}/availability/cancel?session**`);
+    await page.waitForURL(
+      `**/site/${site.id}/availability/confirmed/cancel?session**`,
+    );
 
     await changeAvailabilityPage.confirmCancelRadioOption.click();
     await changeAvailabilityPage.saveChanges();
@@ -1518,7 +1520,7 @@ test.describe('View Week Availability', () => {
             await changeAvailabilityPage.saveChanges();
 
             await page.waitForURL(
-              `**/site/${site.id}/availability/cancel?session**`,
+              `**/site/${site.id}/availability/confirmed/cancel?session**`,
             );
 
             await expect(

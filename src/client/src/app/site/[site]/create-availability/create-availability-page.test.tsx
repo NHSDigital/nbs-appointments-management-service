@@ -14,7 +14,7 @@ jest.mock('./availabilityCreatedEventsTable', () => {
 
 describe('Create Availability Page', () => {
   it('renders a button to create more availability periods', () => {
-    render(<CreateAvailabilityPage site={mockSite} />);
+    render(<CreateAvailabilityPage site={mockSite} cancelADateRange={false} />);
 
     expect(
       screen.getByRole('button', { name: 'Create new availability' }),
@@ -28,7 +28,7 @@ describe('Create Availability Page', () => {
   });
 
   it('renders a button to change availability', () => {
-    render(<CreateAvailabilityPage site={mockSite} />);
+    render(<CreateAvailabilityPage site={mockSite} cancelADateRange={true} />);
 
     expect(
       screen.getByRole('button', { name: 'Change availability' }),
@@ -38,8 +38,19 @@ describe('Create Availability Page', () => {
     ).toHaveAttribute('href', `/site/${mockSite.id}/change-availability`);
   });
 
+  it('does not render a button to change availability', () => {
+    render(<CreateAvailabilityPage site={mockSite} cancelADateRange={false} />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Change availability' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Change availability' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders the session history section with the correct legend and helper text', () => {
-    render(<CreateAvailabilityPage site={mockSite} />);
+    render(<CreateAvailabilityPage site={mockSite} cancelADateRange={false} />);
 
     expect(
       screen.getByText('History of sessions you created'),
@@ -55,7 +66,7 @@ describe('Create Availability Page', () => {
   });
 
   it('renders the "View availability" link with the correct destination', () => {
-    render(<CreateAvailabilityPage site={mockSite} />);
+    render(<CreateAvailabilityPage site={mockSite} cancelADateRange={false} />);
 
     const viewAvailabilityLink = screen.getByRole('link', {
       name: 'View availability',

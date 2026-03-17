@@ -19,7 +19,6 @@ type EditSessionDecisionProps = {
   sessionSummary: string;
   date: string;
   clinicalServices: ClinicalService[];
-  cancelSessionUpliftedJourneyFlag: boolean;
 };
 
 type EditSessionDecisionFormData = {
@@ -31,7 +30,6 @@ export const EditSessionDecision = ({
   sessionSummary,
   date,
   clinicalServices,
-  cancelSessionUpliftedJourneyFlag,
 }: EditSessionDecisionProps) => {
   const [pendingSubmit, startTransition] = useTransition();
   const router = useRouter();
@@ -61,11 +59,7 @@ export const EditSessionDecision = ({
           reroute += `edit-services?session=${sessionSummary}&date=${date}`;
           break;
         case 'cancel-session':
-          if (cancelSessionUpliftedJourneyFlag) {
-            reroute += `cancel/confirmation?session=${sessionSummary}&date=${date}`;
-          } else {
-            reroute += `cancel?session=${sessionSummary}&date=${date}`;
-          }
+          reroute += `cancel/confirmation?session=${sessionSummary}&date=${date}`;
           break;
         default:
           throw new Error('Invalid form action');
@@ -85,15 +79,13 @@ export const EditSessionDecision = ({
         showUnbooked={false}
       />
 
-      {!cancelSessionUpliftedJourneyFlag && (
-        <InsetText>
-          <p>
-            You can only reduce time, capacity or services from this screen. If
-            you want to increase availability for this day, you must create a
-            new session.
-          </p>
-        </InsetText>
-      )}
+      <InsetText>
+        <p>
+          You can only reduce time, capacity or services from this screen. If
+          you want to increase availability for this day, you must create a new
+          session.
+        </p>
+      </InsetText>
 
       <form onSubmit={handleSubmit(submitForm)}>
         <FormGroup

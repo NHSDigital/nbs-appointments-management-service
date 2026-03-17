@@ -114,7 +114,9 @@ public sealed class BookingExtractsFeatureSteps : Feature
                 {
                     Source = "NHSApp",
                     ReferralType = ""
-                }
+                },
+                CancellationReason = CancellationReason.CancelledByCitizen,
+                SiteType = SiteType.Pharmacy,
             });
 
         foreach (var booking in bookings)

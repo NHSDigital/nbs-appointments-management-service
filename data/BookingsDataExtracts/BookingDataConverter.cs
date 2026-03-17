@@ -33,8 +33,9 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public static string ExtractCancellationReason(BookingDocument booking) => booking.CancellationReason switch
     {
-        CancellationReason.CancelledBySite => "Cancelled By Site",
-        CancellationReason.CancelledByCitizen => "Cancelled By Citizen",
+        CancellationReason.CancelledBySite => "Cancelled by Site",
+        CancellationReason.CancelledByCitizen => "Cancelled by Citizen",
+        CancellationReason.RescheduledByCitizen => "Rescheduled by Citizen",
         CancellationReason.CancelledByService => "Auto-cancellation",
         null => null,
         _ => throw new ArgumentOutOfRangeException(nameof(booking.CancellationReason)),

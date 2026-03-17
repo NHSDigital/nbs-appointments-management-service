@@ -31,4 +31,8 @@ public class BookingExtactDataRow
     public string REGION { get; set; }
 
     public string ICB { get; set; }
+
+    public string CANCELLATION_REASON { get; set; }
+
+    public string SITE_TYPE { get; set; }
 }

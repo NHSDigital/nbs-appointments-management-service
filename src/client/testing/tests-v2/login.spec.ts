@@ -2,28 +2,28 @@ import { test, expect } from '../fixtures-v2';
 import { SiteSelectionPage } from '@e2etests/page-objects';
 
 test.describe.configure({ mode: 'serial' });
-  
-test('User visits the site origin, signs in and see the Site Selection menu', async ({ 
-  page,
-  setUpSingleSite 
-}) => {
-  await setUpSingleSite({ skipSiteSelection: true });
 
-  // Since skipSiteSelection is true, sitePage is undefined, 
+test('User visits the site origin, signs in and see the Site Selection menu', async ({
+  page,
+  setup,
+}) => {
+  await setup({ skipSiteSelection: true });
+
+  // Since skipSiteSelection is true, sitePage is undefined,
   // but the browser is left on the Site Selection page.
   const selectionPage = new SiteSelectionPage(page);
-  
+
   await expect(selectionPage.title).toBeVisible();
   // Access the logOutButton via the header property defined in MYALayout
   await expect(selectionPage.header.logOutButton).toBeVisible();
 });
 
-test('User visits the site origin, signs in, then signs out again', async ({ 
-  page, 
-  setUpSingleSite 
+test('User visits the site origin, signs in, then signs out again', async ({
+  page,
+  setup,
 }) => {
-  await setUpSingleSite({ skipSiteSelection: true });
-  
+  await setup({ skipSiteSelection: true });
+
   const selectionPage = new SiteSelectionPage(page);
 
   await expect(selectionPage.header.logOutButton).toBeVisible();
@@ -42,14 +42,14 @@ test('User visits the site origin, signs in, then signs out again', async ({
   ).toBeVisible();
 });
 
-test('Users with no roles at any site but valid auth credentials can still sign in', async ({ 
-  page, 
-  setUpSingleSite 
+test('Users with no roles at any site but valid auth credentials can still sign in', async ({
+  page,
+  setup,
 }) => {
   // We pass an empty array to roles to simulate a user with no permissions
-  await setUpSingleSite({ 
-    roles: [], 
-    skipSiteSelection: true 
+  await setup({
+    roles: [],
+    skipSiteSelection: true,
   });
 
   const selectionPage = new SiteSelectionPage(page);

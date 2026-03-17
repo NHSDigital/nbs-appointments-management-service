@@ -1,10 +1,8 @@
 import { test, expect } from '../../fixtures-v2';
 import NotAuthorizedPage from '../../page-objects-v2/not-authorized-page';
 
-test('Verify user manage is able to edit a user role', async ({
-  setUpSingleSite,
-}) => {
-  const { sitePage } = await setUpSingleSite();
+test('Verify user manage is able to edit a user role', async ({ setup }) => {
+  const { sitePage } = await setup();
 
   await sitePage
     .clickManageUsersCard()
@@ -57,11 +55,8 @@ test('Verify user manage is able to edit a user role', async ({
     });
 });
 
-test('Receives 403 when trying to edit self', async ({
-  page,
-  setUpSingleSite,
-}) => {
-  const { sitePage, testId } = await setUpSingleSite();
+test('Receives 403 when trying to edit self', async ({ page, setup }) => {
+  const { sitePage, testId } = await setup();
   const notAuthorizedPage = new NotAuthorizedPage(page);
   const testUserEmail = `test-user-${testId}@nhs.net`;
 

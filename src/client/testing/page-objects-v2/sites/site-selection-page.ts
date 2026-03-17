@@ -1,5 +1,5 @@
 import { type Locator } from '@playwright/test';
-import { E2ETestSite, MYALayout } from '@e2etests/types';
+import { MYALayout, SiteDocument } from '@e2etests/types';
 import { SitePage } from '@e2etests/page-objects';
 
 export default class SiteSelectionPage extends MYALayout {
@@ -13,7 +13,7 @@ export default class SiteSelectionPage extends MYALayout {
 
   readonly sitesTable: Locator = this.page.getByRole('table');
 
-  async selectSite(site: E2ETestSite): Promise<SitePage> {
+  async selectSite(site: SiteDocument): Promise<SitePage> {
     await this.page.getByRole('link', { name: site.name }).click();
     await this.page.waitForURL(`**/site/${site.id}`);
 

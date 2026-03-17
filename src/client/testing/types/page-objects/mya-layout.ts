@@ -4,12 +4,12 @@ import PageObject from './page-object';
 import Footer from './footer';
 import CookieBanner from './cookie-banner';
 import Header from './header';
-import { E2ETestSite } from '..';
+import { SiteDocument } from '../cosmos';
 
 export default abstract class MYALayout extends PageObject {
-  readonly site?: E2ETestSite;
+  readonly site?: SiteDocument;
 
-  constructor(page: Page, site?: E2ETestSite) {
+  constructor(page: Page, site?: SiteDocument) {
     super(page);
     this.site = site;
   }

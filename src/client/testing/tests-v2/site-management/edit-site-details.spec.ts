@@ -1,8 +1,7 @@
-import { buildSiteName } from '@e2etests/data';
 import { test, expect } from '../../fixtures-v2';
 
-test('A user updates the details for a site', async ({ setUpSingleSite }) => {
-  const { sitePage } = await setUpSingleSite();
+test('A user updates the details for a site', async ({ setup }) => {
+  const { sitePage } = await setup();
 
   await sitePage
     .clickSiteDetailsCard()
@@ -47,9 +46,9 @@ test('A user updates the details for a site', async ({ setUpSingleSite }) => {
 });
 
 test('A user starts to update the details for a site then changes their mind using the back button', async ({
-  setUpSingleSite,
+  setup,
 }) => {
-  const { sitePage, testId } = await setUpSingleSite();
+  const { site, sitePage } = await setup();
   await sitePage
     .clickSiteDetailsCard()
     .then(siteDetailsPage => siteDetailsPage.clickEditDetailsLink())
@@ -67,6 +66,6 @@ test('A user starts to update the details for a site then changes their mind usi
 
       await expect(
         siteDetailsPage.detailsCard.summaryList.getV10Item('Name'),
-      ).toHaveText(buildSiteName(testId));
+      ).toHaveText(site.name);
     });
 });

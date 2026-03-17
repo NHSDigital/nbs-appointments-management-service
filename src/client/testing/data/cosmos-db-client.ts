@@ -1,7 +1,11 @@
 /* eslint-disable no-console */
 import { CosmosClient } from '@azure/cosmos';
-import { Role, SiteDocument, UserDocument } from '@e2etests/types';
-import { buildSiteDocument, buildUserDocument } from '@e2etests/data';
+import {
+  BookingDocument,
+  BookingIndexDocument,
+  SiteDocument,
+  UserDocument,
+} from '@e2etests/types';
 
 class CosmosDbClient {
   private readonly client: CosmosClient;
@@ -32,9 +36,7 @@ class CosmosDbClient {
     return appts;
   }
 
-  public async createSite(testId: number, siteConfig?: Partial<SiteDocument>) {
-    const siteDocument = { ...buildSiteDocument(testId), ...siteConfig };
-
+  public async createSite(siteDocument: SiteDocument) {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
@@ -44,30 +46,23 @@ class CosmosDbClient {
     console.log(`Written site: ${siteDocument.id} to Cosmos DB.`);
   }
 
-  public async deleteSite(testId: number) {
-    const siteDocument = buildSiteDocument(testId);
-
-    const database = await this.getDatabase();
-    const { container } = await database.containers.createIfNotExists({
-      id: this.coreContainerId,
-      partitionKey: { paths: ['/docType'] },
-    });
-    try {
-      await container.item(siteDocument.id, 'site').delete();
-      console.log(`Deleted site: ${siteDocument.id} from Cosmos DB.`);
-    } catch (e) {
-      console.error(e);
+  public async deleteSite(site: SiteDocument | undefined) {
+    if (site !== undefined) {
+      const database = await this.getDatabase();
+      const { container } = await database.containers.createIfNotExists({
+        id: this.coreContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+      try {
+        await container.item(site.id, 'site').delete();
+        console.log(`Deleted site: ${site.id} from Cosmos DB.`);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
-  public async createUser(
-    testId: number,
-    roles: Role[],
-    userConfig?: Partial<UserDocument>,
-  ) {
-    // Merge the default buildUserDocument with our custom userConfig
-    const userDocument = { ...buildUserDocument(testId, roles), ...userConfig };
-
+  public async createUser(userDocument: UserDocument) {
     const database = await this.getDatabase();
     const { container } = await database.containers.createIfNotExists({
       id: this.coreContainerId,
@@ -79,21 +74,93 @@ class CosmosDbClient {
     );
   }
 
-  public async deleteUser(testId: number) {
-    const userDocument = buildUserDocument(testId, []);
-
-    const database = await this.getDatabase();
-    const { container } = await database.containers.createIfNotExists({
-      id: this.coreContainerId,
-      partitionKey: { paths: ['/docType'] },
-    });
-    try {
-      await container.item(userDocument.id, 'user').delete();
-      console.log(`Deleted user: ${userDocument.id} from Cosmos DB.`);
-    } catch (e) {
-      console.error(e);
+  public async deleteUser(user: UserDocument | undefined) {
+    if (user !== undefined) {
+      const database = await this.getDatabase();
+      const { container } = await database.containers.createIfNotExists({
+        id: this.coreContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+      try {
+        await container.item(user.id, 'user').delete();
+        console.log(`Deleted user: ${user.id} from Cosmos DB.`);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
+
+  public async createBookings(bookingDocuments: BookingDocument[]) {
+    const database = await this.getDatabase();
+    const { container: bookingContainer } =
+      await database.containers.createIfNotExists({
+        id: this.bookingContainerId,
+        partitionKey: { paths: ['/site'] },
+      });
+
+    const { container: indexContainer } =
+      await database.containers.createIfNotExists({
+        id: this.indexContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+
+    const upsertTasks = bookingDocuments.map(async bookingDocument => {
+      await bookingContainer.items.upsert(bookingDocument);
+      console.log(`Written booking: ${bookingDocument.id} to Cosmos DB.`);
+
+      const indexDocument = this.mapToIndexDocument(bookingDocument);
+
+      await indexContainer.items.upsert(indexDocument);
+      console.log(`Written booking index: ${indexDocument.id} to Cosmos DB.`);
+    });
+
+    await Promise.all(upsertTasks);
+  }
+
+  public async deleteAllBookings(bookings: BookingDocument[]) {
+    const database = await this.getDatabase();
+    const { container: bookingContainer } =
+      await database.containers.createIfNotExists({
+        id: this.bookingContainerId,
+        partitionKey: { paths: ['/site'] },
+      });
+
+    const { container: indexContainer } =
+      await database.containers.createIfNotExists({
+        id: this.indexContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+
+    const deleteTasks = bookings.map(async booking => {
+      try {
+        await bookingContainer.item(booking.id, booking.site).delete();
+        console.log(`Deleted booking: ${booking.id} from Cosmos DB.`);
+
+        await indexContainer.item(booking.id, 'booking_index').delete();
+        console.log(`Deleted booking index: ${booking.id} from Cosmos DB.`);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    await Promise.all(deleteTasks);
+  }
+
+  public mapToIndexDocument = (
+    bookingDocument: BookingDocument,
+  ): BookingIndexDocument => {
+    return {
+      docType: 'booking_index',
+      id: bookingDocument.id,
+      reference: bookingDocument.reference,
+      site: bookingDocument.site,
+      from: bookingDocument.from,
+      status: bookingDocument.status,
+      nhsNumber: bookingDocument.attendeeDetails.nhsNumber,
+      created: bookingDocument.created,
+      statusUpdated: bookingDocument.statusUpdated,
+    };
+  };
 }
 
 export default CosmosDbClient;

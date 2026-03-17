@@ -1,3 +1,5 @@
+import { BookingStatus } from '@types';
+
 type SiteDocument = {
   id: string;
   docType: 'site';
@@ -11,6 +13,51 @@ type SiteDocument = {
   status?: 'Online' | 'Offline';
   accessibilities: string[];
   informationForCitizens: string;
+};
+
+type BookingDocument = {
+  docType: 'booking';
+  id: string;
+  reference: string;
+  site: string;
+  from: string;
+  duration: number;
+  service: string;
+  status: BookingStatus;
+  availabilityStatus: string;
+  attendeeDetails: AttendeeDetails;
+  contactDetails: string[];
+  additionalData: AdditionalData;
+  reminderSent: boolean;
+  created: string;
+  statusUpdated: string;
+};
+
+type BookingIndexDocument = {
+  docType: 'booking_index';
+  id: string;
+  reference: string;
+  site: string;
+  from: string;
+  status: BookingStatus;
+  nhsNumber: string;
+  created: string;
+  statusUpdated: string;
+};
+
+type AttendeeDetails = {
+  nhsNumber: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+};
+
+type AdditionalData = {
+  isCallCentreBooking: boolean;
+  callCentreHandlerEmail: string | undefined;
+  isAppBooking: boolean;
+  selfReferralOccupation: string;
+  decisionReason: string;
 };
 
 type SiteLocation = {
@@ -39,4 +86,10 @@ type Role =
   | 'system:regional-user'
   | 'system:icb-user';
 
-export type { SiteDocument, UserDocument, Role };
+export type {
+  SiteDocument,
+  UserDocument,
+  BookingDocument,
+  BookingIndexDocument,
+  Role,
+};

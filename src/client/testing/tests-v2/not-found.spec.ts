@@ -1,12 +1,9 @@
 import { test, expect } from '../fixtures-v2';
 import { NotFoundPage } from '@e2etests/page-objects';
 
-test('Invalid roots yield a styled 404 page', async ({ 
-  page, 
-  setUpSingleSite 
-}) => {
+test('Invalid roots yield a styled 404 page', async ({ page, setup }) => {
   // Skip site selection because we just need an authenticated session.
-  await setUpSingleSite({ skipSiteSelection: true });
+  await setup({ skipSiteSelection: true });
 
   // Navigate to the invalid route
   await page.goto('/this-route-does-not-exist');

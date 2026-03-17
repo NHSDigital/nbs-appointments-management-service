@@ -4,7 +4,6 @@ import {
   SiteSelectionPage,
   LoginPage,
 } from '@e2etests/page-objects';
-import { buildE2ETestUser } from '@e2etests/data';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -12,12 +11,12 @@ const STALE_EULA_DATE = '2000-01-01';
 
 test('A user with an out of date EULA consent version is prompted with the EULA consent page', async ({
   page,
-  setUpSingleSite,
+  setup,
 }) => {
   // 1. Set up the site/user.
   // If your app triggers EULA for ALL new users, this is enough.
   // If it requires a specific configuration, pass it in siteConfig.
-  await setUpSingleSite({
+  await setup({
     skipSiteSelection: true,
     userConfig: {
       // Use a valid date format that the C# converter can parse
@@ -37,10 +36,10 @@ test('A user with an out of date EULA consent version is prompted with the EULA 
 
 test('A user with an out of date EULA version is prompted with the EULA consent page on login, but not again after they have consented', async ({
   page,
-  setUpSingleSite,
+  setup,
 }) => {
   // 1. Use the modified fixture (Safe because skipSiteSelection defaults to false elsewhere)
-  const { testId } = await setUpSingleSite({
+  const { user } = await setup({
     skipSiteSelection: true,
     userConfig: { latestAcceptedEulaVersion: STALE_EULA_DATE },
   });
@@ -68,9 +67,9 @@ test('A user with an out of date EULA version is prompted with the EULA consent 
   // Use the login helper that worked in the fixture
   const mockOidcLoginPage = await loginPage.logInWithNhsMail();
 
-  const user = buildE2ETestUser(testId);
-  await mockOidcLoginPage.usernameField.fill(user.username);
-  await mockOidcLoginPage.passwordField.fill(user.password);
+  //TODO fix
+  await mockOidcLoginPage.usernameField.fill(user.oidc.username);
+  await mockOidcLoginPage.passwordField.fill(user.oidc.password);
   await mockOidcLoginPage.passwordField.press('Enter');
 
   // 6. Verify EULA is skipped

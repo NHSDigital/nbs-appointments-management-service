@@ -104,6 +104,7 @@ type AvailabilityTemplate = {
 };
 
 export type BookingStatus = 'Unknown' | 'Provisional' | 'Booked' | 'Cancelled';
+export type AvailabilityStatus = 'Unknown' | 'Supported' | 'Orphaned';
 
 type IdentityProvider = 'NhsMail' | 'Okta';
 type UserIdentityStatus = {
@@ -269,7 +270,7 @@ type Booking = {
   service: string;
   site: string;
   status: BookingStatus;
-  availabilityStatus: 'Unknown' | 'Supported' | 'Orphaned';
+  availabilityStatus: AvailabilityStatus;
   attendeeDetails: AttendeeDetails;
   contactDetails?: ContactItem[];
   reminderSet: boolean;

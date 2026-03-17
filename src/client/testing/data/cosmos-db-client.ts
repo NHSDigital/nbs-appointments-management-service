@@ -1,6 +1,11 @@
 /* eslint-disable no-console */
 import { CosmosClient } from '@azure/cosmos';
-import { SiteDocument, UserDocument } from '@e2etests/types';
+import {
+  BookingDocument,
+  BookingIndexDocument,
+  SiteDocument,
+  UserDocument,
+} from '@e2etests/types';
 
 class CosmosDbClient {
   private readonly client: CosmosClient;
@@ -84,6 +89,78 @@ class CosmosDbClient {
       }
     }
   }
+
+  public async createBookings(bookingDocuments: BookingDocument[]) {
+    const database = await this.getDatabase();
+    const { container: bookingContainer } =
+      await database.containers.createIfNotExists({
+        id: this.bookingContainerId,
+        partitionKey: { paths: ['/site'] },
+      });
+
+    const { container: indexContainer } =
+      await database.containers.createIfNotExists({
+        id: this.indexContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+
+    const upsertTasks = bookingDocuments.map(async bookingDocument => {
+      await bookingContainer.items.upsert(bookingDocument);
+      console.log(`Written booking: ${bookingDocument.id} to Cosmos DB.`);
+
+      const indexDocument = this.mapToIndexDocument(bookingDocument);
+
+      await indexContainer.items.upsert(indexDocument);
+      console.log(`Written booking index: ${indexDocument.id} to Cosmos DB.`);
+    });
+
+    await Promise.all(upsertTasks);
+  }
+
+  public async deleteAllBookings(bookings: BookingDocument[]) {
+    const database = await this.getDatabase();
+    const { container: bookingContainer } =
+      await database.containers.createIfNotExists({
+        id: this.bookingContainerId,
+        partitionKey: { paths: ['/site'] },
+      });
+
+    const { container: indexContainer } =
+      await database.containers.createIfNotExists({
+        id: this.indexContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+
+    const deleteTasks = bookings.map(async booking => {
+      try {
+        await bookingContainer.item(booking.id, booking.site).delete();
+        console.log(`Deleted booking: ${booking.id} from Cosmos DB.`);
+
+        await indexContainer.item(booking.id, 'booking_index').delete();
+        console.log(`Deleted booking index: ${booking.id} from Cosmos DB.`);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    await Promise.all(deleteTasks);
+  }
+
+  public mapToIndexDocument = (
+    bookingDocument: BookingDocument,
+  ): BookingIndexDocument => {
+    return {
+      docType: 'booking_index',
+      id: bookingDocument.id,
+      reference: bookingDocument.reference,
+      site: bookingDocument.site,
+      from: bookingDocument.from,
+      status: bookingDocument.status,
+      nhsNumber: bookingDocument.attendeeDetails.nhsNumber,
+      created: bookingDocument.created,
+      statusUpdated: bookingDocument.statusUpdated,
+    };
+  };
 }
 
 export default CosmosDbClient;

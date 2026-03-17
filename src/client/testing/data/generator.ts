@@ -1,9 +1,13 @@
 import {
+  BookingDocument,
+  BookingIndexDocument,
   MockOidcUser,
   Role,
   SiteDocument,
   UserDocument,
 } from '@e2etests/types';
+import { dateTimeFormat, ukNow } from '@services/timeService';
+import { AvailabilityStatus, BookingStatus } from '@types';
 import { createHash } from 'crypto';
 
 const buildBaseSiteDocument = (testId: number): SiteDocument => {
@@ -152,9 +156,55 @@ const buildMockOidcUser = (testId: number): MockOidcUser => {
   };
 };
 
+const buildBookingId = (testId: number, index: number): string => {
+  const idString = testId.toString();
+  return `${index}-${idString.substring(0, 5)}-${idString.substring(5, idString.length)}`;
+};
+
+const buildBookingDocument = (
+  testId: number,
+  index: number,
+  siteId: string,
+  fromDate: string,
+  fromTime: string,
+  durationMins: number,
+  service: string,
+  status: BookingStatus,
+  availabilityStatus: AvailabilityStatus,
+): BookingDocument => {
+  return {
+    id: buildBookingId(testId, index),
+    reference: buildBookingId(testId, index),
+    site: siteId,
+    from: fromDate + 'T' + fromTime,
+    duration: durationMins,
+    service: service,
+    status: status,
+    availabilityStatus: availabilityStatus,
+    docType: 'booking',
+
+    attendeeDetails: {
+      nhsNumber: '1975486535',
+      firstName: 'Jeremy',
+      lastName: 'Oswald',
+      dateOfBirth: '1952-11-13',
+    },
+    contactDetails: [],
+    additionalData: {
+      isCallCentreBooking: false,
+      callCentreHandlerEmail: undefined,
+      isAppBooking: false,
+      selfReferralOccupation: '',
+      decisionReason: '',
+    },
+    reminderSent: false,
+    created: ukNow().format(dateTimeFormat),
+    statusUpdated: ukNow().format(dateTimeFormat),
+  };
+};
+
 export {
   buildAddress,
-  buildBaseSiteDocument,
   buildSiteName,
   buildIcb,
   buildIcbName,
@@ -165,4 +215,5 @@ export {
   buildUserDocument,
   buildMockOidcUser,
   buildSiteDocument,
+  buildBookingDocument,
 };

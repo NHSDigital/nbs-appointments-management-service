@@ -3,6 +3,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 import { test as base, TestInfo } from '@playwright/test';
 import {
+  buildBookingDocument,
   buildMockOidcUser,
   buildSiteDocument,
   buildUserDocument,
@@ -19,6 +20,7 @@ import {
   SiteDocument,
   UserDocument,
   MockOidcUser,
+  BookingDocument,
 } from '@e2etests/types';
 import {
   AddServicesPage,
@@ -29,12 +31,14 @@ import {
 } from '@e2etests/page-objects';
 import CancelDayForm from './page-objects-v2/cancel-day-pages/cancel-day-form';
 import ConfirmedCancellationPage from './page-objects-v2/cancel-day-pages/confirm-cancellation';
+import { AvailabilityStatus, BookingStatus } from '@types';
 
 type FixtureOptions = {
   roles?: Role[];
   features?: FeatureFlag[];
   additionalUsers?: AdditionalUserOptions[];
   userConfig?: Partial<UserDocument>;
+  bookings?: BookingSetup[];
 };
 
 type AdditionalUserOptions = {
@@ -44,6 +48,15 @@ type AdditionalUserOptions = {
 type UserData = {
   document: UserDocument;
   oidc: MockOidcUser;
+};
+
+type BookingSetup = {
+  fromDate: string;
+  fromTime: string;
+  durationMins: number;
+  service: string;
+  status: BookingStatus;
+  availabilityStatus: AvailabilityStatus;
 };
 
 type AdditionalUserSetupData = {
@@ -59,11 +72,12 @@ type setupFixtureOptions = {
 type MyaFixtures = {
   setup: (options?: setupFixtureOptions) => Promise<{
     site: SiteDocument;
+    bookings: BookingDocument[] | undefined;
     user: UserData;
     sitePage: SitePage;
-    //TODO restructure
-    additionalUserData: Map<string, AdditionalUserSetupData>;
     testId: number;
+    //TODO additional user data
+    additionalUserData: Map<string, AdditionalUserSetupData>;
   }>;
 
   monthViewAvailabilityPage: MonthViewAvailabilityPage;
@@ -121,6 +135,7 @@ export const test = base.extend<MyaFixtures>({
     let featuresUsed: FeatureFlag[] = [];
     let siteDocument: SiteDocument | undefined = undefined;
     let userDocument: UserDocument | undefined = undefined;
+    const bookingDocuments: BookingDocument[] = [];
     const additionalUserData = new Map<string, AdditionalUserSetupData>();
 
     // Fixture setup. Result of use() is piped to the test
@@ -132,6 +147,7 @@ export const test = base.extend<MyaFixtures>({
         roles = [],
         features,
         siteConfig,
+        bookings: bookingConfigs,
         userConfig, // Extract userConfig
         additionalUsers = [],
         skipSiteSelection = false, // Default to false so existing tests don't break
@@ -144,8 +160,29 @@ export const test = base.extend<MyaFixtures>({
       userDocument = buildUserDocument(testId, roles, userConfig);
       const oidcUser = buildMockOidcUser(testId);
 
+      if (bookingConfigs !== undefined) {
+        for (let index = 0; index < bookingConfigs.length; index++) {
+          const data = bookingConfigs[index];
+
+          bookingDocuments.push(
+            buildBookingDocument(
+              testId,
+              index,
+              siteDocument.id,
+              data?.fromDate,
+              data?.fromTime,
+              data.durationMins,
+              data.service,
+              data.status,
+              data.availabilityStatus,
+            ),
+          );
+        }
+      }
+
+      await cosmosDbClient.createBookings(bookingDocuments);
+
       await cosmosDbClient.createSite(siteDocument);
-      // Pass userConfig here!
       await cosmosDbClient.createUser(userDocument);
       await mockOidcClient.registerTestUser(oidcUser);
 
@@ -208,6 +245,7 @@ export const test = base.extend<MyaFixtures>({
       // Type cast sitePage to satisfy tests that expect sitePage to be non-optional
       return {
         site: siteDocument,
+        bookings: bookingDocuments,
         user: { document: userDocument, oidc: oidcUser },
         sitePage: sitePage as SitePage,
         testId,
@@ -222,6 +260,9 @@ export const test = base.extend<MyaFixtures>({
       ...Array.from(additionalUserData.values()).map(data =>
         cosmosDbClient.deleteUser(data.user.document),
       ),
+
+      // await cosmosDbClient.deleteAllBookings(bookingDocuments),
+
       //revert all flags if they were used in the enabled state
       featuresUsed.map(async feature => {
         if (feature.enabled) {

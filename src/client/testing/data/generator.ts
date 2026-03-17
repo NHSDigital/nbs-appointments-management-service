@@ -1,6 +1,5 @@
 import {
   BookingDocument,
-  BookingIndexDocument,
   MockOidcUser,
   Role,
   SiteDocument,

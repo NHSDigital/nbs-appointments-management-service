@@ -233,3 +233,95 @@ Feature: Cancel date range
       | 707172    | Cancelled |
       | 515253    | Cancelled |
       | 989796    | Cancelled |
+
+  Scenario: Cancel date range only removes sessions inside the requested range
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 5 days from today | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration | Service   | Reference |
+      | Tomorrow          | 09:00 | 10       | RSV:Adult | 11111     |
+      | 5 days from today | 09:10 | 10       | RSV:Adult | 22222     |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 2 days from today | false          |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 2            | 0            | 0                              |
+    And the following bookings at the default site are now in the following state
+      | Reference | Status |
+      | 11111     | Booked |
+      | 22222     | Booked |
+
+  Scenario: Cancel date range cancels orphaned bookings without sessions
+    Given the following orphaned bookings exist at the default site
+      | Date              | Time  | Duration | Service   | Reference |
+      | Tomorrow          | 09:00 | 10       | RSV:Adult | 33333     |
+      | 2 days from today | 09:10 | 10       | RSV:Adult | 44444     |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 2 days from today | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 0            | 2            | 0                              |
+    And the following bookings at the default site are now in the following state
+      | Reference | Status    |
+      | 33333     | Cancelled |
+      | 44444     | Cancelled |
+
+  Scenario: Cancelling the same date range twice should not double cancel bookings
+    Given the following sessions exist for a created default site
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date     | Time  | Duration | Service   | Reference |
+      | Tomorrow | 09:00 | 10       | RSV:Adult | 66666     |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To       | CancelBookings |
+      | Tomorrow | Tomorrow | true           |
+    And I cancel sessions and bookings for the default site within a date range
+      | From     | To       | CancelBookings |
+      | Tomorrow | Tomorrow | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 0            | 0            | 0                             |
+
+  Scenario: Cancel date range only cancels sessions within the range
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 5 days from today | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 2 days from today | false          |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 2            | 0            | 0                             |
+
+  Scenario: Cancel date range where from and to dates are the same
+    Given the following sessions exist for a created default site
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To       | CancelBookings |
+      | Tomorrow | Tomorrow | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 1            | 0            | 0                             |
+
+  Scenario: Cancel date range does not count bookings already cancelled
+    Given the following sessions exist for a created default site
+      | Date     | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+    And the following bookings exist at the default site
+      | Date     | Time  | Duration | Service   | Reference | Status    |
+      | Tomorrow | 09:00 | 10       | RSV:Adult | 111111    | Cancelled |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To       | CancelBookings |
+      | Tomorrow | Tomorrow | true           |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 1            | 0            | 0                             |

@@ -485,7 +485,8 @@ public abstract partial class BaseFeatureSteps : Feature
     [And("the following orphaned bookings exist for site '(.+)'")]
     public async Task SetupOrphanedBookings(string site, DataTable dataTable) =>
         await SetupBookings(dataTable, BookingType.Orphaned, site);
-    
+
+    [Given("the following orphaned bookings exist at the default site")]
     [And("the following orphaned bookings exist at the default site")]
     public async Task SetupOrphanedBookings(DataTable dataTable) =>
         await SetupBookings(dataTable, BookingType.Orphaned);

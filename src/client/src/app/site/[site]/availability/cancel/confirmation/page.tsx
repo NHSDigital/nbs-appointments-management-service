@@ -3,7 +3,6 @@ import {
   fetchSite,
   availabilityChangeProposal,
   fetchClinicalServices,
-  assertFeatureEnabled,
 } from '@services/appointmentsService';
 import { AvailabilityChangeProposalRequest, SessionSummary } from '@types';
 import { SessionModificationConfirmation } from '@components/session-modification-confirmation';

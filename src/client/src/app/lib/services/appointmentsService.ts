@@ -396,7 +396,11 @@ export const saveSiteAccessibilities = async (
       const notificationType = 'ams-notification';
       const notificationMessage =
         'You have successfully updated the access needs for the current site.';
-      await raiseNotification(notificationType, notificationMessage);
+      await raiseNotification(
+        notificationType,
+        notificationMessage,
+        `site/${site}/details`,
+      );
 
       revalidatePath(`/site/${site}/accessibilities`);
       return { success: true, data: undefined };
@@ -418,7 +422,11 @@ export const removeUserFromSite = async (
     .then(async _ => {
       const notificationType = 'ams-notification';
       const notificationMessage = `You have successfully removed ${user} from the current site.`;
-      await raiseNotification(notificationType, notificationMessage);
+      await raiseNotification(
+        notificationType,
+        notificationMessage,
+        `site/${site}/users`,
+      );
 
       revalidatePath(`/site/${site}/users`);
       return { success: true, data: undefined };
@@ -485,7 +493,11 @@ export const setSiteInformationForCitizen = async (
       const notificationType = 'ams-notification';
       const notificationMessage =
         "You have successfully updated the current site's information.";
-      await raiseNotification(notificationType, notificationMessage);
+      await raiseNotification(
+        notificationType,
+        notificationMessage,
+        `site/${site}/details`,
+      );
 
       revalidatePath(`/site/${site}/details`);
       return { success: true, data: undefined };
@@ -566,7 +578,11 @@ export const saveSiteDetails = async (
       const notificationType = 'ams-notification';
       const notificationMessage =
         'You have successfully updated the details for the current site.';
-      await raiseNotification(notificationType, notificationMessage);
+      await raiseNotification(
+        notificationType,
+        notificationMessage,
+        `site/${site}/details`,
+      );
 
       return { success: true, data: undefined };
     });
@@ -582,7 +598,11 @@ export const saveSiteReferenceDetails = async (
       const notificationType = 'ams-notification';
       const notificationMessage =
         'You have successfully updated the reference details for the current site.';
-      raiseNotification(notificationType, notificationMessage);
+      raiseNotification(
+        notificationType,
+        notificationMessage,
+        `site/${site}/details`,
+      );
       return { success: true, data: undefined };
     });
 };
@@ -649,7 +669,11 @@ export const updateSiteStatus = async (
         status === 'Online'
           ? 'The site is now online and is available for appointments.'
           : 'The site is now offline and will not be available for appointments.';
-      await raiseNotification(notificationType, notificationMessage);
+      await raiseNotification(
+        notificationType,
+        notificationMessage,
+        `site/${site}/details`,
+      );
       return response;
     })
     .then(response => {

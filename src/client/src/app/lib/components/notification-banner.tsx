@@ -1,5 +1,8 @@
 'use client';
-import CloseNotificationForm from '@components/close-notification-form';
+import {
+  NotificationBanner,
+  NotificationBannerTitle,
+} from 'nhsuk-react-components';
 
 type Props = {
   notification?: string;
@@ -11,15 +14,13 @@ const exists = (notification: string | undefined | null): boolean => {
   );
 };
 
-const NotificationBanner = ({ notification }: Props) => {
+const NhsNotificationBanner = ({ notification }: Props) => {
   return exists(notification) ? (
-    <div className="nhsuk-warning-callout-custom no-print" role="banner">
-      <div className="nhsuk-warning-callout-custom__container">
-        {notification}
-        <CloseNotificationForm />
-      </div>
-    </div>
+    <NotificationBanner success>
+      <NotificationBannerTitle>Success</NotificationBannerTitle>
+      <p>{notification}</p>
+    </NotificationBanner>
   ) : null;
 };
 
-export default NotificationBanner;
+export default NhsNotificationBanner;

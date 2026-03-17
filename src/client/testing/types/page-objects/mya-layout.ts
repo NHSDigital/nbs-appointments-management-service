@@ -20,7 +20,7 @@ export default abstract class MYALayout extends PageObject {
 
   readonly notificationBanner: Locator = this.page
     .getByRole('main')
-    .getByRole('banner');
+    .getByRole('alert');
 
   readonly footer: Footer = new Footer(this.page);
 
@@ -29,16 +29,6 @@ export default abstract class MYALayout extends PageObject {
     await this.page.waitForURL('**/login');
 
     return new LoginPage(this.page);
-  }
-
-  async dismissNotification(): Promise<this> {
-    await this.notificationBanner
-      .getByRole('button', { name: 'Close' })
-      .click();
-
-    await this.page.waitForLoadState('networkidle');
-
-    return this;
   }
 
   async clickCookiesFooterLink(): Promise<CookiePoliciesPage> {

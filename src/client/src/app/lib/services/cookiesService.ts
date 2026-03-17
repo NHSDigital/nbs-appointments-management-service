@@ -39,5 +39,5 @@ export const setCookieConsent = async (consented: boolean) => {
   // TODO: I'd like to find a way to "pop" notifications. i.e. remove them the first time they're read.
   // Then we can safely leave max age a little longer to account for race conditions, but know we'll only ever read the notification once
   // NextJS doesn't allow you to do this currently, at least not through a server action like this.
-  raiseNotification(notificationType, notificationMessage, 1);
+  raiseNotification(notificationType, notificationMessage, undefined, 1);
 };

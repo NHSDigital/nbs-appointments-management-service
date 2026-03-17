@@ -5,7 +5,7 @@ import {
   NavigationLink,
 } from '@nhsuk-frontend-components';
 import { ReactNode } from 'react';
-import NotificationBanner from '@components/notification-banner';
+import NhsNotificationBanner from '@components/notification-banner';
 import { cookies } from 'next/headers';
 import NhsFooter from '@components/nhs-footer';
 import NhsMainContainer from '@components/nhs-main-container';
@@ -87,7 +87,7 @@ const NhsPage = async ({
           </div>
         </div>
 
-        <NotificationBanner notification={notification} />
+        <NhsNotificationBanner notification={notification} />
         {children}
       </NhsMainContainer>
       <NhsFooter buildNumber={<BuildNumber />} />

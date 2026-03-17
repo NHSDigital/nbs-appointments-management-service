@@ -4,7 +4,6 @@
     "SiteStatus": true,
     "CancelDay": false,
     "ChangeSessionUpliftedJourney": true,
-    "CancelSessionUpliftedJourney": true,
     "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,

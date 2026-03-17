@@ -5,7 +5,6 @@ public static class Flags
     public const string SiteStatus = "SiteStatus";
     public const string CancelDay = "CancelDay";
     public const string ChangeSessionUpliftedJourney = "ChangeSessionUpliftedJourney";
-    public const string CancelSessionUpliftedJourney = "CancelSessionUpliftedJourney";
     public const string QuerySites = "QuerySites";
     public const string MultiServiceJointBookings = "MultiServiceJointBookings";
     public const string JointBookingsReporting = "JointBookingsReporting";

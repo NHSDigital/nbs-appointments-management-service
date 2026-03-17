@@ -6,20 +6,23 @@ import { Site } from '@types';
 
 type Props = {
   site: Site;
+  cancelADateRange: boolean;
 };
 
-export const CreateAvailabilityPage = ({ site }: Props) => {
+export const CreateAvailabilityPage = ({ site, cancelADateRange }: Props) => {
   return (
     <>
       <ButtonGroup>
         <Link href={`/site/${site.id}/create-availability/wizard`}>
           <Button type="button">Create new availability</Button>
         </Link>
-        <Link href={`/site/${site.id}/change-availability`}>
-          <Button type="button" styleType="secondary">
-            Change availability
-          </Button>
-        </Link>
+        {cancelADateRange && (
+          <Link href={`/site/${site.id}/change-availability`}>
+            <Button type="button" styleType="secondary">
+              Change availability
+            </Button>
+          </Link>
+        )}
       </ButtonGroup>
       <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--m">
         History of sessions you created

@@ -217,20 +217,10 @@ export const test = base.extend<MyaFixtures>({
 
     // Clean up the fixture.
     await Promise.all([
-      async () => {
-        if (siteDocument !== undefined) {
-          await cosmosDbClient.deleteSite(siteDocument.id);
-        }
-        return;
-      },
-      async () => {
-        if (userDocument !== undefined) {
-          await cosmosDbClient.deleteUser(userDocument.id);
-        }
-        return;
-      },
+      await cosmosDbClient.deleteSite(siteDocument),
+      await cosmosDbClient.deleteUser(userDocument),
       ...Array.from(additionalUserData.values()).map(data =>
-        cosmosDbClient.deleteUser(data.user.document.id),
+        cosmosDbClient.deleteUser(data.user.document),
       ),
       //revert all flags if they were used in the enabled state
       featuresUsed.map(async feature => {

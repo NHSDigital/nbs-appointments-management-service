@@ -41,17 +41,19 @@ class CosmosDbClient {
     console.log(`Written site: ${siteDocument.id} to Cosmos DB.`);
   }
 
-  public async deleteSite(siteId: string) {
-    const database = await this.getDatabase();
-    const { container } = await database.containers.createIfNotExists({
-      id: this.coreContainerId,
-      partitionKey: { paths: ['/docType'] },
-    });
-    try {
-      await container.item(siteId, 'site').delete();
-      console.log(`Deleted site: ${siteId} from Cosmos DB.`);
-    } catch (e) {
-      console.error(e);
+  public async deleteSite(site: SiteDocument | undefined) {
+    if (site !== undefined) {
+      const database = await this.getDatabase();
+      const { container } = await database.containers.createIfNotExists({
+        id: this.coreContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+      try {
+        await container.item(site.id, 'site').delete();
+        console.log(`Deleted site: ${site.id} from Cosmos DB.`);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -67,17 +69,19 @@ class CosmosDbClient {
     );
   }
 
-  public async deleteUser(userId: string) {
-    const database = await this.getDatabase();
-    const { container } = await database.containers.createIfNotExists({
-      id: this.coreContainerId,
-      partitionKey: { paths: ['/docType'] },
-    });
-    try {
-      await container.item(userId, 'user').delete();
-      console.log(`Deleted user: ${userId} from Cosmos DB.`);
-    } catch (e) {
-      console.error(e);
+  public async deleteUser(user: UserDocument | undefined) {
+    if (user !== undefined) {
+      const database = await this.getDatabase();
+      const { container } = await database.containers.createIfNotExists({
+        id: this.coreContainerId,
+        partitionKey: { paths: ['/docType'] },
+      });
+      try {
+        await container.item(user.id, 'user').delete();
+        console.log(`Deleted user: ${user.id} from Cosmos DB.`);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 }

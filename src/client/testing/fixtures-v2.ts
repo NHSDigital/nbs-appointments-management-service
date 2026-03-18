@@ -190,21 +190,27 @@ export const test = base.extend<MyaFixtures>({
         let index = 1;
 
         for (const [key, additionalUser] of Object.entries(additionalUsers)) {
-          const userTestId = Number(`${testId}${index++}`);
+          const additionalUserTestId = Number(`${testId}${index++}`);
 
-          const newUserDocument = buildUserDocument(
-            userTestId,
+          const additionalUserDocument = buildUserDocument(
+            additionalUserTestId,
             additionalUser.roles ?? [],
           );
-          const newOidcUser = buildMockOidcUser(userTestId);
-          const newSiteDocument = buildSiteDocument(userTestId, siteConfig);
+          const additionalOidcUser = buildMockOidcUser(additionalUserTestId);
+          const additionalSiteDocument = buildSiteDocument(
+            additionalUserTestId,
+            siteConfig,
+          );
 
-          await cosmosDbClient.createSite(newSiteDocument);
-          await cosmosDbClient.createUser(newUserDocument);
-          await mockOidcClient.registerTestUser(newOidcUser);
+          await cosmosDbClient.createSite(additionalSiteDocument);
+          await cosmosDbClient.createUser(additionalUserDocument);
+          await mockOidcClient.registerTestUser(additionalOidcUser);
           additionalUserData.set(key, {
-            user: { document: userDocument, oidc: newOidcUser },
-            site: newSiteDocument,
+            user: {
+              document: additionalUserDocument,
+              oidc: additionalOidcUser,
+            },
+            site: additionalSiteDocument,
           });
         }
       }
@@ -261,7 +267,7 @@ export const test = base.extend<MyaFixtures>({
         cosmosDbClient.deleteUser(data.user.document),
       ),
 
-      // await cosmosDbClient.deleteAllBookings(bookingDocuments),
+      await cosmosDbClient.deleteAllBookings(bookingDocuments),
 
       //revert all flags if they were used in the enabled state
       featuresUsed.map(async feature => {

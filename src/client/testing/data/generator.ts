@@ -10,7 +10,7 @@ import {
 import { dateTimeFormat, ukNow } from '@services/timeService';
 import { AvailabilityStatus, BookingStatus } from '@types';
 import { createHash } from 'crypto';
-import { AvailabilitySetup, SessionSetup } from '../fixtures-v2';
+import { AvailabilitySetup } from '../fixtures-v2';
 
 const buildBaseSiteDocument = (testId: number): SiteDocument => {
   return {

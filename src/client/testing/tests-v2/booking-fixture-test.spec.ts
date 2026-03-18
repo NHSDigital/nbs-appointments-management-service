@@ -7,6 +7,27 @@ test('Bookings can be setup for the test-scoped site', async ({
 }) => {
   const day = daysFromToday(0);
   await setup({
+    availability: [
+      {
+        date: day,
+        sessions: [
+          {
+            from: '09:00',
+            until: '10:00',
+            services: ['COVID:5_11', 'COVID_FLU:65+'],
+            slotLength: 5,
+            capacity: 5,
+          },
+          {
+            from: '09:05',
+            until: '10:05',
+            services: ['COVID_FLU:65+'],
+            slotLength: 5,
+            capacity: 5,
+          },
+        ],
+      },
+    ],
     bookings: [
       {
         fromDate: day,
@@ -55,5 +76,16 @@ test('Bookings can be setup for the test-scoped site', async ({
     await expect(page.getByText('09:00')).not.toBeVisible();
     await expect(page.getByText('09:10')).not.toBeVisible();
     await expect(page.getByText('17:00')).toBeVisible();
+
+    //week view
+    await page.goto(
+      `/manage-your-appointments/site/${site.id}/view-availability/week?date=${day}`,
+    );
+    await page.waitForURL(
+      `/manage-your-appointments/site/${site.id}/view-availability/week?date=${day}`,
+    );
+
+    await expect(page.getByText('09:00 - 10:00')).toBeVisible();
+    await expect(page.getByText('09:05 - 10:05')).toBeVisible();
   });
 });

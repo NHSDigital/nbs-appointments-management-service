@@ -33,6 +33,22 @@ type BookingDocument = {
   statusUpdated: string;
 };
 
+type DailyAvailabilityDocument = {
+  docType: 'daily_availability';
+  id: string;
+  date: string;
+  site: string;
+  sessions: SessionData[];
+};
+
+type SessionData = {
+  from: string;
+  until: string;
+  services: string[];
+  slotLength: number;
+  capacity: number;
+};
+
 type BookingIndexDocument = {
   docType: 'booking_index';
   id: string;
@@ -89,6 +105,8 @@ type Role =
 export type {
   SiteDocument,
   UserDocument,
+  DailyAvailabilityDocument,
+  SessionData,
   BookingDocument,
   BookingIndexDocument,
   Role,

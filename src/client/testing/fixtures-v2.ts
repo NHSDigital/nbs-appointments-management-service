@@ -4,6 +4,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 import { test as base, TestInfo } from '@playwright/test';
 import {
   buildBookingDocument,
+  buildDailyAvailabilityDocument,
   buildMockOidcUser,
   buildSiteDocument,
   buildUserDocument,
@@ -21,6 +22,7 @@ import {
   UserDocument,
   MockOidcUser,
   BookingDocument,
+  DailyAvailabilityDocument,
 } from '@e2etests/types';
 import {
   AddServicesPage,
@@ -39,6 +41,7 @@ type FixtureOptions = {
   additionalUsers?: AdditionalUserOptions[];
   userConfig?: Partial<UserDocument>;
   bookings?: BookingSetup[];
+  availability?: AvailabilitySetup[];
 };
 
 type AdditionalUserOptions = {
@@ -59,6 +62,19 @@ type BookingSetup = {
   availabilityStatus: AvailabilityStatus;
 };
 
+export type AvailabilitySetup = {
+  date: string;
+  sessions: SessionSetup[];
+};
+
+export type SessionSetup = {
+  from: string;
+  until: string;
+  services: string[];
+  slotLength: number;
+  capacity: number;
+};
+
 type AdditionalUserSetupData = {
   user: UserData;
   site: SiteDocument;
@@ -73,6 +89,7 @@ type MyaFixtures = {
   setup: (options?: setupFixtureOptions) => Promise<{
     site: SiteDocument;
     bookings: BookingDocument[] | undefined;
+    availability: DailyAvailabilityDocument[] | undefined;
     user: UserData;
     sitePage: SitePage;
     testId: number;
@@ -136,6 +153,8 @@ export const test = base.extend<MyaFixtures>({
     let siteDocument: SiteDocument | undefined = undefined;
     let userDocument: UserDocument | undefined = undefined;
     const bookingDocuments: BookingDocument[] = [];
+    const dailyAvailabilityDocuments: DailyAvailabilityDocument[] = [];
+
     const additionalUserData = new Map<string, AdditionalUserSetupData>();
 
     // Fixture setup. Result of use() is piped to the test
@@ -147,7 +166,8 @@ export const test = base.extend<MyaFixtures>({
         roles = [],
         features,
         siteConfig,
-        bookings: bookingConfigs,
+        bookings,
+        availability,
         userConfig, // Extract userConfig
         additionalUsers = [],
         skipSiteSelection = false, // Default to false so existing tests don't break
@@ -160,9 +180,9 @@ export const test = base.extend<MyaFixtures>({
       userDocument = buildUserDocument(testId, roles, userConfig);
       const oidcUser = buildMockOidcUser(testId);
 
-      if (bookingConfigs !== undefined) {
-        for (let index = 0; index < bookingConfigs.length; index++) {
-          const data = bookingConfigs[index];
+      if (bookings !== undefined) {
+        for (let index = 0; index < bookings.length; index++) {
+          const data = bookings[index];
 
           bookingDocuments.push(
             buildBookingDocument(
@@ -180,11 +200,22 @@ export const test = base.extend<MyaFixtures>({
         }
       }
 
-      await cosmosDbClient.createBookings(bookingDocuments);
+      if (availability !== undefined) {
+        for (let index = 0; index < availability.length; index++) {
+          const data = availability[index];
+
+          dailyAvailabilityDocuments.push(
+            buildDailyAvailabilityDocument(siteDocument.id, data),
+          );
+        }
+      }
 
       await cosmosDbClient.createSite(siteDocument);
       await cosmosDbClient.createUser(userDocument);
       await mockOidcClient.registerTestUser(oidcUser);
+
+      await cosmosDbClient.createBookings(bookingDocuments);
+      await cosmosDbClient.createAvailability(dailyAvailabilityDocuments);
 
       if (additionalUsers.length > 0) {
         let index = 1;
@@ -252,6 +283,7 @@ export const test = base.extend<MyaFixtures>({
       return {
         site: siteDocument,
         bookings: bookingDocuments,
+        availability: dailyAvailabilityDocuments,
         user: { document: userDocument, oidc: oidcUser },
         sitePage: sitePage as SitePage,
         testId,
@@ -261,13 +293,14 @@ export const test = base.extend<MyaFixtures>({
 
     // Clean up the fixture.
     await Promise.all([
-      await cosmosDbClient.deleteSite(siteDocument),
-      await cosmosDbClient.deleteUser(userDocument),
+      cosmosDbClient.deleteSite(siteDocument),
+      cosmosDbClient.deleteUser(userDocument),
       ...Array.from(additionalUserData.values()).map(data =>
         cosmosDbClient.deleteUser(data.user.document),
       ),
 
-      await cosmosDbClient.deleteAllBookings(bookingDocuments),
+      cosmosDbClient.deleteAllBookings(bookingDocuments),
+      cosmosDbClient.deleteAvailability(dailyAvailabilityDocuments),
 
       //revert all flags if they were used in the enabled state
       featuresUsed.map(async feature => {

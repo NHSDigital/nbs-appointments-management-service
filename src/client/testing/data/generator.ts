@@ -1,13 +1,16 @@
 import {
   BookingDocument,
+  DailyAvailabilityDocument,
   MockOidcUser,
   Role,
+  SessionData,
   SiteDocument,
   UserDocument,
 } from '@e2etests/types';
 import { dateTimeFormat, ukNow } from '@services/timeService';
 import { AvailabilityStatus, BookingStatus } from '@types';
 import { createHash } from 'crypto';
+import { AvailabilitySetup } from '../fixtures-v2';
 
 const buildBaseSiteDocument = (testId: number): SiteDocument => {
   return {
@@ -202,6 +205,23 @@ const buildBookingDocument = (
   };
 };
 
+const buildDailyAvailabilityDocument = (
+  siteId: string,
+  setup: AvailabilitySetup,
+): DailyAvailabilityDocument => {
+  return {
+    docType: 'daily_availability',
+    id: setup.date.replaceAll('-', ''),
+    date: setup.date,
+    site: siteId,
+    sessions: setup.sessions.map(session => {
+      return {
+        ...session,
+      } as SessionData;
+    }),
+  };
+};
+
 export {
   buildAddress,
   buildSiteName,
@@ -215,4 +235,5 @@ export {
   buildMockOidcUser,
   buildSiteDocument,
   buildBookingDocument,
+  buildDailyAvailabilityDocument,
 };

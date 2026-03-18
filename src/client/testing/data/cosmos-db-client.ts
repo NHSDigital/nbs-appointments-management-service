@@ -3,6 +3,7 @@ import { CosmosClient } from '@azure/cosmos';
 import {
   BookingDocument,
   BookingIndexDocument,
+  DailyAvailabilityDocument,
   SiteDocument,
   UserDocument,
 } from '@e2etests/types';
@@ -143,7 +144,7 @@ class CosmosDbClient {
       }
     });
 
-    await Promise.all(deleteTasks);
+    Promise.all(deleteTasks);
   }
 
   public mapToIndexDocument = (
@@ -161,6 +162,49 @@ class CosmosDbClient {
       statusUpdated: bookingDocument.statusUpdated,
     };
   };
+
+  public async createAvailability(
+    dailyAvailabilityDocuments: DailyAvailabilityDocument[],
+  ) {
+    const database = await this.getDatabase();
+    const { container } = await database.containers.createIfNotExists({
+      id: this.bookingContainerId,
+      partitionKey: { paths: ['/site'] },
+    });
+
+    const upsertTasks = dailyAvailabilityDocuments.map(
+      async dailyAvailabilityDocument => {
+        await container.items.upsert(dailyAvailabilityDocument);
+        console.log(
+          `Written daily availability: ${dailyAvailabilityDocument.id} for site: ${dailyAvailabilityDocument.site} to Cosmos DB.`,
+        );
+      },
+    );
+
+    await Promise.all(upsertTasks);
+  }
+
+  public async deleteAvailability(availability: DailyAvailabilityDocument[]) {
+    const database = await this.getDatabase();
+    const { container: bookingContainer } =
+      await database.containers.createIfNotExists({
+        id: this.bookingContainerId,
+        partitionKey: { paths: ['/site'] },
+      });
+
+    const deleteTasks = availability.map(async date => {
+      try {
+        await bookingContainer.item(date.id, date.site).delete();
+        console.log(
+          `Deleted daily availability: ${date.id} for site: ${date.site} from Cosmos DB.`,
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    Promise.all(deleteTasks);
+  }
 }
 
 export default CosmosDbClient;

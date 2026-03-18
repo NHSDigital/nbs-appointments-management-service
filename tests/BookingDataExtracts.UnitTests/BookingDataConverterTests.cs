@@ -35,6 +35,36 @@ public class BookingDataConverterTests
     }
 
     [Theory]
+    [InlineData(CancellationReason.CancelledBySite, "Cancelled by Site")]
+    [InlineData(CancellationReason.CancelledByCitizen, "Cancelled by Citizen")]
+    [InlineData(CancellationReason.RescheduledByCitizen, "Rescheduled by Citizen")]
+    [InlineData(CancellationReason.CancelledByService, "Auto-cancellation")]
+    public void ExtractCancellationReason_ConvertsCancellationReason(CancellationReason cancellationReason, string expectedData)
+    {
+        var testDocument = new NbsBookingDocument
+        {
+            CancellationReason = cancellationReason
+        };
+        var result = BookingDataConverter.ExtractCancellationReason(testDocument);
+        result.Should().Be(expectedData);
+    }
+
+    [Theory]
+    [InlineData(SiteType.Pharmacy, "Pharmacy")]
+    [InlineData(SiteType.PCN, "PCN")]
+    [InlineData(SiteType.VaccinationCentre, "Vaccination Centre")]
+    [InlineData(SiteType.GPPractice, "GP Practice")]
+    public void ExtractSiteType_ConvertsSiteType(SiteType siteType, string expectedData)
+    {
+        var testDocument = new NbsBookingDocument
+        {
+            SiteType = siteType
+        };
+        var result = BookingDataConverter.ExtractSiteType(testDocument);
+        result.Should().Be(expectedData);
+    }
+
+    [Theory]
     [InlineData(AppointmentStatus.Booked, "2025-01-01 14:44", null)]
     [InlineData(AppointmentStatus.Cancelled, "2025-01-01 14:44", "2025-01-01T14:44:00+00:00")]
     public void ExtractCancelledDateTime_GetDateTime_OnlyWhenCancelled(AppointmentStatus status, string statusDateTime, string expectedData)

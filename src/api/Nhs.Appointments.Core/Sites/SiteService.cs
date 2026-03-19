@@ -45,8 +45,7 @@ public class SiteService(
     TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
     ICacheService cacheService,
-    IOptions<SiteServiceOptions> options,
-    SiteCacheLock siteCacheLock) : ISiteService
+    IOptions<SiteServiceOptions> options) : ISiteService
 {
     public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
         int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
@@ -228,7 +227,7 @@ public class SiteService(
         string region, Location location, IEnumerable<Accessibility> accessibilities, string type,
         SiteStatus? siteStatus = null)
     {
-        var result = await siteStore.SaveSiteAsync(
+        return await siteStore.SaveSiteAsync(
             siteId,
             odsCode,
             name,
@@ -240,71 +239,34 @@ public class SiteService(
             accessibilities,
             type,
             siteStatus);
-
-        if (result.Success)
-        {
-            await UpdateSiteInCacheAsync(siteId);
-        }
-
-        return result;
     }
 
     public async Task<OperationResult> UpdateAccessibilities(string siteId, IEnumerable<Accessibility> accessibilities)
     {
-        var result = await siteStore.UpdateAccessibilities(siteId, accessibilities);
-        if (result.Success)
-        {
-            await UpdateSiteInCacheAsync(siteId);
-        }
-
-        return result;
+        return await siteStore.UpdateAccessibilities(siteId, accessibilities);
     }
 
     public async Task<OperationResult> UpdateInformationForCitizens(string siteId, string informationForCitizens)
     {
-        var result = await siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
-        if (result.Success)
-        {
-            await UpdateSiteInCacheAsync(siteId);
-        }
-
-        return result;
+        return await siteStore.UpdateInformationForCitizens(siteId, informationForCitizens);
     }
 
     public async Task<OperationResult> UpdateSiteDetailsAsync(string siteId, string name, string address,
         string phoneNumber,
         decimal? longitude, decimal? latitude)
     {
-        var result = await siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
-        if (result.Success)
-        {
-            await UpdateSiteInCacheAsync(siteId);
-        }
-
-        return result;
+        return await siteStore.UpdateSiteDetails(siteId, name, address, phoneNumber, longitude, latitude);
     }
 
     public async Task<OperationResult> UpdateSiteReferenceDetailsAsync(string siteId, string odsCode, string icb,
         string region)
     {
-        var result = await siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
-        if (result.Success)
-        {
-            await UpdateSiteInCacheAsync(siteId);
-        }
-
-        return result;
+        return await siteStore.UpdateSiteReferenceDetails(siteId, odsCode, icb, region);
     }
 
     public async Task<OperationResult> SetSiteStatus(string siteId, SiteStatus status)
     {
-        var result = await siteStore.UpdateSiteStatusAsync(siteId, status);
-        if (result.Success)
-        {
-            await UpdateSiteInCacheAsync(siteId);
-        }
-
-        return result;
+        return await siteStore.UpdateSiteStatusAsync(siteId, status);
     }
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
@@ -312,13 +274,7 @@ public class SiteService(
 
     public async Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId)
     {
-        var result = await siteStore.ToggleSiteSoftDeletionAsync(siteId);
-        if (result.Success)
-        {
-            await UpdateSiteInCacheAsync(siteId);
-        }
-
-        return result;
+        return await siteStore.ToggleSiteSoftDeletionAsync(siteId);
     }
 
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords,
@@ -481,60 +437,21 @@ public class SiteService(
             return await siteStore.GetAllSites();
         }
 
-        var sitesFromCache = memoryCache.Get(options.Value.SiteCacheKey) as IEnumerable<Site>;
-        if (sitesFromCache != null)
+        if (options.Value.SlidingCacheEnabled)
         {
-            return sitesFromCache;
+            return await cacheService.GetLazySlidingCacheValue(
+                options.Value.SiteCacheKey,
+                new LazySlideCacheOptions<IEnumerable<Site>>(
+                    async () => await siteStore.GetAllSites(),
+                    TimeSpan.FromMinutes(options.Value.SiteSlideCacheDuration),
+                    TimeSpan.FromMinutes(options.Value.SiteCacheDuration)));
         }
 
-        var sites = (await siteStore.GetAllSites()).ToList();
-        memoryCache.Set(options.Value.SiteCacheKey, sites,
-            time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
-        return sites;
-    }
-
-    internal async Task UpdateSiteInCacheAsync(string siteId)
-    {
-        if (options.Value.DisableSiteCache)
-        {
-            return;
-        }
-
-        await siteCacheLock.WaitAsync();
-        try
-        {
-            if (!memoryCache.TryGetValue(options.Value.SiteCacheKey, out List<Site> cachedSites))
-            {
-                return;
-            }
-
-            var updatedSite = await siteStore.GetSiteById(siteId);
-
-            var existingIndex = cachedSites.FindIndex(s => s.Id == siteId);
-
-            if (existingIndex >= 0)
-            {
-                if (updatedSite != null)
-                {
-                    cachedSites[existingIndex] = updatedSite;
-                }
-                else
-                {
-                    cachedSites.RemoveAt(existingIndex);
-                }
-            }
-            else if (updatedSite != null)
-            {
-                cachedSites.Add(updatedSite);
-            }
-
-            memoryCache.Set(options.Value.SiteCacheKey, cachedSites,
-                time.GetUtcNow().AddMinutes(options.Value.SiteCacheDuration));
-        }
-        finally
-        {
-            siteCacheLock.Release();
-        }
+        return await cacheService.GetCacheValue(
+            options.Value.SiteCacheKey,
+            new CacheOptions<IEnumerable<Site>>(
+                async () => await siteStore.GetAllSites(),
+                TimeSpan.FromMinutes(options.Value.SiteCacheDuration)));
     }
 
     private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from,

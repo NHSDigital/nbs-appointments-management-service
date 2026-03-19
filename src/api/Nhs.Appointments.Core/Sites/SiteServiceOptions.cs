@@ -9,9 +9,19 @@ public class SiteServiceOptions
     public bool DisableSiteCache { get; set; }
 
     /// <summary>
+    ///     When true, and DisableSiteCache is false, Caching will using sliding behavior.
+    /// </summary>
+    public bool SlidingCacheEnabled { get; set; }
+    
+    /// <summary>
     ///     The duration, in minutes, to cache sites for.
     /// </summary>
     public int SiteCacheDuration { get; set; }
+    
+    /// <summary>
+    ///     The duration, in minutes, to wait before sliding the cache. SlidingCacheEnabled must be true for this to take effect.
+    /// </summary>
+    public int SiteSlideCacheDuration { get; set; }
 
     /// <summary>
     ///     The unique string identifying the site cache.

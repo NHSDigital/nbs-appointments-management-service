@@ -71,7 +71,6 @@ public class NotificationsServiceProviderExtensionsTests
             .AddSingleton<IFeatureToggleHelper, FakeFeatureToggleHelper>()
             .AddScoped<ILastUpdatedByResolver, LastUpdatedByResolver>()
             .AddScoped<IUserContextProvider, UserContextProvider>()
-            .AddSingleton<SiteCacheLock>()
             .BuildServiceProvider();
 
         var messageBus = serviceProvider.GetService(typeof(IMessageBus));

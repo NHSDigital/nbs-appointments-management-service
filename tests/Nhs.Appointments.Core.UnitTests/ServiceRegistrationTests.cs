@@ -47,7 +47,9 @@ public class ServiceRegistrationTests
         var options = serviceProvider.GetRequiredService<IOptions<SiteServiceOptions>>().Value;
 
         options.SiteCacheKey.Should().Be("sites");
-        options.SiteCacheDuration.Should().Be(10);
+        options.SlidingCacheEnabled.Should().BeTrue();
+        options.SiteCacheDuration.Should().Be(60);
+        options.SiteSlideCacheDuration.Should().Be(20);
         options.DisableSiteCache.Should().BeFalse();
         options.SiteSupportsServiceSlidingCacheSlideThresholdSeconds.Should().Be(900);
         options.SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds.Should().Be(14400);

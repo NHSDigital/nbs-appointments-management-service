@@ -19,7 +19,6 @@ public class SiteServiceTests
     private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly SiteService _sut;
     private readonly Mock<IOptions<SiteServiceOptions>> _options = new();
-    private readonly Mock<SiteCacheLock> _siteCacheLock = new();
 
     public SiteServiceTests()
     {
@@ -36,7 +35,7 @@ public class SiteServiceTests
         var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
         
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, cacheService, _options.Object, _siteCacheLock.Object);
+            TimeProvider.System, _featureToggleHelper.Object, cacheService, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 
@@ -871,7 +870,7 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 3573),
         };
-        object outSites = sites.Select(s => s.Site);
+        object outSites = new CacheService.CacheObject<IEnumerable<Site>>(sites.Select(s => s.Site));
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
@@ -1059,7 +1058,7 @@ public class SiteServiceTests
                     status: SiteStatus.Online, isDeleted: null,
                     Type: string.Empty)
         };
-        object outSites = sites;
+        object outSites = new CacheService.CacheObject<IEnumerable<Site>>(sites);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         var result = await _sut.GetSitesPreview();
 
@@ -1101,7 +1100,7 @@ public class SiteServiceTests
                     Type: string.Empty)
         };
         object outSites = null;
-        _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(false);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 
         var result = await _sut.GetSitesPreview();
@@ -3710,5 +3709,262 @@ public class SiteServiceTests
         _memoryCache.Verify(x => x.CreateEntry(CacheService.LazySlideCacheKey("site_test654_supports_COVID:5_11_RSV:Adult_in_20250901_20251001")), Times.Never);
 
         _availabilityStore.Verify(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.Is<List<string>>(l => l.SequenceEqual(expectedServices)), It.IsAny<List<string>>()), Times.Exactly(0));
+    }
+
+    [Fact]
+    public async Task GetAllSites_ReturnsFromBasicCache_WhenOptionsSiteSlidingCache_Disabled()
+    {
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+        };
+
+        object outResult = new CacheService.CacheObject<IEnumerable<Site>>(sites);
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outResult)).Returns(true);
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites",
+        });
+        
+        var result = await _sut.GetAllSites();
+        
+        _siteStore.Verify(x => x.GetAllSites(), Times.Never);
+        _memoryCache.Verify(x => x.TryGetValue("sites", out outResult), Times.Once);
+        Assert.Equal(sites, result);
+    }
+    
+    [Fact]
+    public async Task GetAllSites_ReturnsFromBasicCache_WhenOptionsSiteSlidingCache_Enabled()
+    {
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+        };
+
+        object outResult = new CacheService.LazySlideCacheObject(sites, DateTime.UtcNow);
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("sites"), out outResult)).Returns(true);
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SlidingCacheEnabled = true,
+            SiteSlideCacheDuration = 1,
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites",
+        });
+        
+        var result = await _sut.GetAllSites();
+        
+        _siteStore.Verify(x => x.GetAllSites(), Times.Never);
+        _memoryCache.Verify(x => x.TryGetValue(CacheService.LazySlideCacheKey("sites"), out outResult), Times.Once);
+        Assert.Equal(sites, result);
+    }
+    
+    [Fact]
+    public async Task GetAllSites_ReturnsFromStore_WhenOptionsSiteSlidingCache_Disabled_And_CacheFalse()
+    {
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+        };
+
+        object outResult = null;
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outResult)).Returns(false);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites",
+        });
+        
+        var result = await _sut.GetAllSites();
+        
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
+        _memoryCache.Verify(x => x.TryGetValue("sites", out outResult), Times.Once);
+        Assert.Equal(sites, result);
+    }
+    
+    [Fact]
+    public async Task GetAllSites_ReturnsFromStore_WhenOptionsSiteSlidingCache_Disabled_And_CacheEmpty()
+    {
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+        };
+
+        object outResult = new CacheService.CacheObject<IEnumerable<Site>>(null);
+        _memoryCache.Setup(x => x.TryGetValue("sites", out outResult)).Returns(true);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites",
+        });
+        
+        var result = await _sut.GetAllSites();
+        
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
+        _memoryCache.Verify(x => x.TryGetValue("sites", out outResult), Times.Once);
+        Assert.Equal(sites, result);
+    }
+    
+    [Fact]
+    public async Task GetAllSites_ReturnsFromStore_WhenOptionsSiteSlidingCache_Enabled_And_CacheFalse()
+    {
+        var sites = new List<Site>
+        {
+            new("test123",
+                "Test Site 1",
+                string.Empty,
+                string.Empty,
+                "ODS1", "R1", "ICB1",
+                string.Empty,
+                new List<Accessibility>(),
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "Pharmacy"),
+            new("test321",
+                "Test Site 2",
+                string.Empty,
+                string.Empty,
+                "ODS2", "R2", "ICB2",
+                string.Empty,
+                new List<Accessibility>
+                {
+                    new("accessibility/test_access_need1", "true"),
+                    new("accessibility/test_access_need2", "true")
+                },
+                new Location("Point", [-1.6610648, 53.795467]),
+                null,
+                null,
+                "GP Practice"),
+        };
+
+        object outResult = null;
+        _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("sites"), out outResult)).Returns(false);
+        _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
+        
+        _options.Setup(x => x.Value).Returns(new SiteServiceOptions
+        {
+            DisableSiteCache = false, 
+            SlidingCacheEnabled = true,
+            SiteSlideCacheDuration = 1,
+            SiteCacheDuration = 10, 
+            SiteCacheKey = "sites",
+        });
+        
+        var result = await _sut.GetAllSites();
+        
+        _siteStore.Verify(x => x.GetAllSites(), Times.Once);
+        _memoryCache.Verify(x => x.TryGetValue(CacheService.LazySlideCacheKey("sites"), out outResult), Times.Once);
+        Assert.Equal(sites, result);
     }
 }

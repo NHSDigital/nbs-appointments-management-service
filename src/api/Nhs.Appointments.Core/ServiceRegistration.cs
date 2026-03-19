@@ -27,7 +27,9 @@ public static class ServiceRegistration
         services.Configure<SiteServiceOptions>(opts =>
         {
             opts.SiteCacheKey = configuration.GetValue("SITE_CACHE_KEY", "sites");
-            opts.SiteCacheDuration = configuration.GetValue("SITE_CACHE_DURATION_MINUTES", 10);
+            opts.SlidingCacheEnabled = configuration.GetValue("SITE_SLIDING_CACHE_ENABLED", true);
+            opts.SiteCacheDuration = configuration.GetValue("SITE_CACHE_DURATION_MINUTES", 60);
+            opts.SiteSlideCacheDuration = configuration.GetValue("SITE_SLIDING_CACHE_DURATION", 20);
             opts.DisableSiteCache = configuration.GetValue("DISABLE_SITE_CACHE", false);
             //default 4 hours
             opts.SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = configuration.GetValue("SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS", 14400);

@@ -43,17 +43,19 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
 
     public string ExtractSiteType(BookingDocument bookingDocument)
     {
-        var site = sites.SingleOrDefault(s => s.Id == bookingDocument.Site);
+        var site = sites.Single(s => s.Id == bookingDocument.Site);
 
         // Map the string 'Type' from that site to output
-        return site?.Type switch
+        return site.Type switch
         {
             "Pharmacy" => "Pharmacy",
             "PCN" => "PCN",
             "VaccinationCentre" => "Vaccination Centre",
             "GPPractice" => "GP Practice",
-            null => null,
-            _ => site.Type // Fallback if it's a new string value
+            null or "" => null, // Handle both null and empty string as null
+            _ => throw new ArgumentOutOfRangeException(
+                                        nameof(site.Type),
+                                        $"Unexpected Site Type: {site.Type}")
         };
     }
 

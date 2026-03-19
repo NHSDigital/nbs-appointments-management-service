@@ -48,6 +48,39 @@ public class BookingDataConverterTests
         result.Should().Be(expectedData);
     }
 
+    [Fact]
+    public void ExtractCancellationReason_ReturnsNull_WhenReasonIsNull()
+    {
+        // Arrange: Create a document where CancellationReason is explicitly null
+        var testDocument = new NbsBookingDocument
+        {
+            CancellationReason = null
+        };
+
+        // Act
+        var result = BookingDataConverter.ExtractCancellationReason(testDocument);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void ExtractCancellationReason_ThrowsException_WhenReasonIsUnknown()
+    {
+        // Arrange: Cast an undefined integer to the enum to simulate an unhandled case
+        var testDocument = new NbsBookingDocument
+        {
+            CancellationReason = (CancellationReason)999
+        };
+
+        // Act
+        Action act = () => BookingDataConverter.ExtractCancellationReason(testDocument);
+
+        // Assert: Verify it throws the ArgumentOutOfRangeException
+        act.Should().Throw<ArgumentOutOfRangeException>()
+           .WithMessage("*CancellationReason*");
+    }
+
     [Theory]
     [InlineData("1", "Pharmacy")]
     [InlineData("2", "PCN")]
@@ -63,6 +96,34 @@ public class BookingDataConverterTests
         var converter = new BookingDataConverter(TestSites);
         var result = converter.ExtractSiteType(testDocument);
         result.Should().Be(expectedData);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void ExtractSiteType_ReturnsNull_WhenTypeIsNullOrEmpty(string siteTypeInDb)
+    {
+        var siteId = "99";
+        var site = new SiteDocument { Id = siteId, Type = siteTypeInDb };
+        var sut = new BookingDataConverter(new[] { site });
+        var booking = new BookingDocument { Site = siteId };
+
+        var result = sut.ExtractSiteType(booking);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void ExtractSiteType_ThrowsException_WhenTypeIsUnexpected()
+    {
+        var siteId = "100";
+        var site = new SiteDocument { Id = siteId, Type = "SomeRandomNewType" };
+        var sut = new BookingDataConverter(new[] { site });
+        var booking = new BookingDocument { Site = siteId };
+
+        Action act = () => sut.ExtractSiteType(booking);
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Theory]

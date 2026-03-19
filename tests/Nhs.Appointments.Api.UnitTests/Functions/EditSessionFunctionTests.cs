@@ -22,7 +22,6 @@ public class EditSessionFunctionTests
     private readonly Mock<IUserContextProvider> _mockUserContext = new();
     private readonly Mock<ILogger<EditSessionFunction>> _mockLogger = new();
     private readonly Mock<IMetricsRecorder> _mockMetricsRecorder = new();
-    private readonly Mock<IFeatureToggleHelper> _mockFeatureToggleHelper = new();
     private readonly Mock<IAvailabilityWriteService> _mockAvailabilityWriteService = new();
 
     private readonly EditSessionFunction _sut;
@@ -34,30 +33,10 @@ public class EditSessionFunctionTests
             _mockUserContext.Object,
             _mockLogger.Object,
             _mockMetricsRecorder.Object,
-            _mockAvailabilityWriteService.Object,
-            _mockFeatureToggleHelper.Object);
+            _mockAvailabilityWriteService.Object);
 
         _mockValidator.Setup(x => x.ValidateAsync(It.IsAny<EditSessionRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
-    }
-
-    [Fact]
-    public async Task RunAsync_ReturnsNoImplemented_WhenFeatureToggleIsDisabled()
-    {
-        var editSessionRequest = new EditSessionRequest(
-            "TEST123",
-            new DateOnly(2025, 10, 10),
-            new DateOnly(2025, 10, 12),
-            new SessionOrWildcard { IsWildcard = true, Session = null },
-            null);
-        var request = BuildRequest(editSessionRequest);
-
-        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
-            .ReturnsAsync(false);
-
-        var result = await _sut.RunAsync(request) as ContentResult;
-
-        result.StatusCode.Should().Be(501);
     }
 
     [Fact]
@@ -77,8 +56,6 @@ public class EditSessionFunctionTests
             null);
         var request = BuildRequest(editSessionRequest);
 
-        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
-            .ReturnsAsync(true);
         _mockAvailabilityWriteService.Setup(x => x.EditOrCancelSessionAsync(
             It.IsAny<string>(),
             It.IsAny<DateOnly>(),
@@ -114,8 +91,6 @@ public class EditSessionFunctionTests
             null);
         var request = BuildRequest(editSessionRequest);
 
-        _mockFeatureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
-            .ReturnsAsync(true);
         _mockAvailabilityWriteService.Setup(x => x.EditOrCancelSessionAsync(
             It.IsAny<string>(),
             It.IsAny<DateOnly>(),

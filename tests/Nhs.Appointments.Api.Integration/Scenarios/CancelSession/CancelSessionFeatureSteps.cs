@@ -5,18 +5,15 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Core.Availability;
-using Nhs.Appointments.Core.Features;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 
 [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
-public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
+public class CancelSessionFeatureSteps : BaseFeatureSteps
 {
     private Core.Bookings.Booking _actualResponse;
 
@@ -84,13 +81,5 @@ public abstract class CancelSessionFeatureSteps(string flag, bool enabled) : Sin
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
-    public class CancelSessionFeatureSteps_Enabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/CancelSession/CancelSession_Disabled.feature")]
-    public class CancelSessionFeatureSteps_Disabled() : CancelSessionFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }
 

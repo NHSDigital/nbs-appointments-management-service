@@ -15,6 +15,10 @@ public static class FeatureToggleCollectionNames
 
     public const string CancelDateRangeAndBookingsCollection = $"{Flags.CancelADateRange}|{Flags.CancelADateRangeWithBookings}_Toggle";
 
+    public const string CancellationReasonBookingsReportingCollection = $"{Flags.CancellationReasonBookingsReporting}_Toggle";
+
+    public const string SiteTypeBookingsReportingCollection = $"{Flags.SiteTypeBookingsReporting}_Toggle";
+
     public const string TestMultipleCollection = $"{Flags.TestFeaturePercentageEnabled}|{Flags.TestFeatureSitesEnabled}|{Flags.TestFeatureUsersEnabled}_Toggle";
 }
 
@@ -55,5 +59,15 @@ public class ReportsUpliftCollection : ICollectionFixture<object>
 
 [CollectionDefinition(FeatureToggleCollectionNames.CancelDateRangeAndBookingsCollection)]
 public class CancelDateRangeAndBookingsCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.CancellationReasonBookingsReportingCollection)]
+public class CancellationReasonBookingsReportingCollection : ICollectionFixture<object>
+{
+}
+
+[CollectionDefinition(FeatureToggleCollectionNames.SiteTypeBookingsReportingCollection)]
+public class SiteTypeBookingsReportingCollection : ICollectionFixture<object>
 {
 }

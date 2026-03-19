@@ -17,7 +17,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 
-[FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Enabled.feature")]
+[FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics.feature")]
 public class GenerateSessionProposalActionMetricsFeatureSteps : BaseFeatureSteps
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;

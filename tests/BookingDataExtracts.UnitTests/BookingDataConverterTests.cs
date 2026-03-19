@@ -1,7 +1,6 @@
 using BookingsDataExtracts;
 using DataExtract.Documents;
 using FluentAssertions;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
@@ -50,17 +49,19 @@ public class BookingDataConverterTests
     }
 
     [Theory]
-    [InlineData(SiteType.Pharmacy, "Pharmacy")]
-    [InlineData(SiteType.PCN, "PCN")]
-    [InlineData(SiteType.VaccinationCentre, "Vaccination Centre")]
-    [InlineData(SiteType.GPPractice, "GP Practice")]
-    public void ExtractSiteType_ConvertsSiteType(SiteType siteType, string expectedData)
+    [InlineData("1", "Pharmacy")]
+    [InlineData("2", "PCN")]
+    [InlineData("3", "Vaccination Centre")]
+    [InlineData("4", "GP Practice")]
+    public void ExtractSiteType_ConvertsSiteType(string siteId, string expectedData)
     {
         var testDocument = new NbsBookingDocument
         {
-            SiteType = siteType
+            Site = siteId // The booking only knows the ID
         };
-        var result = BookingDataConverter.ExtractSiteType(testDocument);
+
+        var converter = new BookingDataConverter(TestSites);
+        var result = converter.ExtractSiteType(testDocument);
         result.Should().Be(expectedData);
     }
 
@@ -290,6 +291,7 @@ public class BookingDataConverterTests
         new SiteDocument
         {
             Id = "1",
+            Type = "Pharmacy",
             Name = "Site One",
             OdsCode = "ODS_01",
             IntegratedCareBoard = "ICB01",
@@ -299,11 +301,32 @@ public class BookingDataConverterTests
         new SiteDocument
         {
             Id = "2",
+            Type = "PCN",
             Name = "Site Two",
             OdsCode = "ODS_02",
             IntegratedCareBoard = "ICB02",
             Region = "RGN02",
             Location = new Location("Point", new []{2.0, 0.2 })
-        }
+        },
+        new SiteDocument
+    {
+        Id = "3",
+        Type = "VaccinationCentre",
+        Name = "Site Three",
+        OdsCode = "ODS_03",
+        IntegratedCareBoard = "ICB03",
+        Region = "RGN03",
+        Location = new Location("Point", new []{3.0, 0.3 })
+    },
+    new SiteDocument
+    {
+        Id = "4",
+        Type = "GPPractice",
+        Name = "Site Four",
+        OdsCode = "ODS_04",
+        IntegratedCareBoard = "ICB04",
+        Region = "RGN04",
+        Location = new Location("Point", new []{4.0, 0.4 })
+    }
     };
 }

@@ -24,7 +24,6 @@ public class CancelSessionFunctionTests
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<CancelSessionRequest>> _validator = new();
-    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
     public CancelSessionFunctionTests()
     {
@@ -49,7 +48,6 @@ public class CancelSessionFunctionTests
             ["RSV:Adult"], 5, 2);
 
         var request = BuildRequest(cancelSessionRequest);
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney)).ReturnsAsync(false);
 
         var response = await _sut.RunAsync(request) as ContentResult;
 

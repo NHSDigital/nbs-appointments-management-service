@@ -2,7 +2,6 @@ import {
   assertPermission,
   fetchClinicalServices,
   fetchSite,
-  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
 import { parseToUkDatetime } from '@services/timeService';
@@ -46,10 +45,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
 
-  const changeSessionUpliftedJourneyFlag = await fromServer(
-    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
-  );
-
   const [site, clinicalServices] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
     fromServer(fetchClinicalServices()),
@@ -88,9 +83,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}
         cancelledWithoutDetailsCount={cancelledWithoutDetailsCount ?? 0}
         clinicalServices={clinicalServices}
-        changeSessionUpliftedJourneyEnabled={
-          changeSessionUpliftedJourneyFlag.enabled
-        }
       />
     </NhsPage>
   );

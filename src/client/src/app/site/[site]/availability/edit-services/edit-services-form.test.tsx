@@ -55,7 +55,6 @@ describe('EditServicesForm', () => {
         existingSession={mockExistingSession}
         date="2023-10-10"
         clinicalServices={mockClinicalServices}
-        changeSessionUpliftedJourneyEnabled={false}
         {...props}
       />,
     );

@@ -21,8 +21,7 @@ public class ProposeAvailabilityChangeFunction(
     IValidator<AvailabilityChangeProposalRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<ProposeAvailabilityChangeFunction> logger,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper)
+    IMetricsRecorder metricsRecorder)
     : BaseApiFunction<AvailabilityChangeProposalRequest, AvailabilityChangeProposalResponse>(
         validator,
         userContextProvider,
@@ -46,9 +45,7 @@ public class ProposeAvailabilityChangeFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/propose-edit")]
         HttpRequest req)
     {
-        return await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney)
-            ? await base.RunAsync(req)
-            : ProblemResponse(HttpStatusCode.NotImplemented, null);
+        return await base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<AvailabilityChangeProposalResponse>> HandleRequest(

@@ -8,7 +8,6 @@ import {
   ClinicalService,
 } from '@types';
 import { useRouter } from 'next/navigation';
-import { editSession } from '@services/appointmentsService';
 import {
   Button,
   CheckBox,
@@ -23,7 +22,6 @@ import {
   toTimeFormat,
 } from '@services/timeService';
 import { useTransition } from 'react';
-import fromServer from '@server/fromServer';
 import {
   SERVICE_TYPE_TITLES,
   groupServicesByType,
@@ -41,7 +39,6 @@ type Props = {
   site: Site;
   existingSession: SessionSummary;
   clinicalServices: ClinicalService[];
-  changeSessionUpliftedJourneyEnabled: boolean;
 };
 
 const EditServicesForm = ({
@@ -49,7 +46,6 @@ const EditServicesForm = ({
   existingSession,
   date,
   clinicalServices,
-  changeSessionUpliftedJourneyEnabled,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
@@ -95,37 +91,7 @@ const EditServicesForm = ({
     form: RemoveServicesFormValues,
   ) => {
     startTransition(async () => {
-      const remainingServices = form.newSession.services.filter(
-        service => form.servicesToRemove.findIndex(x => x === service) === -1,
-      );
-
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
-
-      const updatedSession: AvailabilitySession = {
-        from: toTimeFormat(form.newSession.startTime) ?? '',
-        until: toTimeFormat(form.newSession.endTime) ?? '',
-        slotLength: form.newSession.slotLength,
-        capacity: form.newSession.capacity,
-        services: remainingServices,
-      };
-
-      if (!changeSessionUpliftedJourneyEnabled) {
-        await fromServer(
-          editSession({
-            date,
-            site: site.id,
-            mode: 'Edit',
-            sessions: [updatedSession],
-            sessionToEdit: {
-              from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
-              until: toTimeFormat(form.sessionToEdit.endTime) ?? '',
-              slotLength: form.sessionToEdit.slotLength,
-              capacity: form.sessionToEdit.capacity,
-              services: form.sessionToEdit.services,
-            },
-          }),
-        );
-      }
 
       const sessionToEdit: AvailabilitySession = {
         from: toTimeFormat(form.sessionToEdit.startTime) ?? '',
@@ -143,12 +109,7 @@ const EditServicesForm = ({
         services: form.servicesToRemove,
       };
 
-      let reroute = `/site/${site.id}/availability/`;
-      if (changeSessionUpliftedJourneyEnabled) {
-        reroute += `edit-services/confirmation?removedServicesSession=${encode(servicesRemovedSession)}&date=${date}&session=${encode(existingSession)}&sessionToEdit=${encode(sessionToEdit)}`;
-      } else {
-        reroute += `edit-services/confirmed?removedServicesSession=${encode(servicesRemovedSession)}&date=${date}`;
-      }
+      const reroute = `/site/${site.id}/availability/edit-services/confirmation?removedServicesSession=${encode(servicesRemovedSession)}&date=${date}&session=${encode(existingSession)}&sessionToEdit=${encode(sessionToEdit)}`;
 
       router.push(reroute);
     });

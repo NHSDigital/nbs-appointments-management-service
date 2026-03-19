@@ -9,7 +9,11 @@ import {
 } from '@testing-page-objects';
 import { Site } from '@types';
 import { test, expect, overrideFeatureFlag, Page } from '../../fixtures';
-import { daysFromToday, getDateInFuture } from '../../utils/date-utility';
+import {
+  daysFromToday,
+  getDateInFuture,
+  getLongDayDateText,
+} from '../../utils/date-utility';
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;

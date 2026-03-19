@@ -12,7 +12,7 @@
     "ReportsUplift": false,
     "CancelADateRange": false,
     "CancelADateRangeWithBookings": false,
-    "CancellationReasonBookingsReporting": true,
+    "CancellationReasonBookingsReporting": false,
     "SiteTypeBookingsReporting": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [

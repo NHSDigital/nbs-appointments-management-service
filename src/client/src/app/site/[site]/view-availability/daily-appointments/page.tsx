@@ -51,12 +51,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
     site: siteFromPath,
   };
 
-  const [site, bookings, clinicalServices, cancelADateRangeFeature] =
+  const [site, bookings, clinicalServices, cancelADateRange, sitePermissions] =
     await Promise.all([
       fromServer(fetchSite(siteFromPath)),
       fromServer(fetchBookings(fetchBookingsRequest, ['Booked', 'Cancelled'])),
       fromServer(fetchClinicalServices()),
       fromServer(fetchFeatureFlag('CancelADateRange')),
+      fromServer(fetchPermissions(siteFromPath)),
     ]);
 
   const bookedAppointments = bookings.filter(b => b.status === 'Booked');
@@ -68,9 +69,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
     text: 'Back to week view',
   };
 
-  const canCancelBookings = (
-    await fromServer(fetchPermissions(site.id))
-  ).includes('booking:cancel');
+  const canCancelBookings = sitePermissions.includes('booking:cancel');
+
+  const canChangeAvailability =
+    cancelADateRange.enabled && sitePermissions.includes('availability:setup');
 
   return (
     <NhsPage
@@ -80,7 +82,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       originPage="view-availability-daily-appointments"
       site={site}
     >
-      {cancelADateRangeFeature.enabled == true && (
+      {canChangeAvailability && (
         <Link
           href={`/site/${siteFromPath}/change-availability`}
           className="no-print nhsuk-u-margin-right-3"

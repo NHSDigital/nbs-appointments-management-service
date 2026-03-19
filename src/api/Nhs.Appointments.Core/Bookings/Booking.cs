@@ -47,9 +47,6 @@ public class Booking
     [JsonProperty("cancellationReason")]
     public CancellationReason? CancellationReason { get; set; }
 
-    [JsonProperty("siteType")]
-    public SiteType? SiteType { get; set; }
-
     [JsonProperty("cancellationNotificationStatus")]
     public CancellationNotificationStatus? CancellationNotificationStatus { get; set; }
 
@@ -128,12 +125,4 @@ public enum CancellationReason
     CancelledBySite,
     RescheduledByCitizen,
     CancelledByService
-}
-
-public enum SiteType
-{
-    Pharmacy,
-    PCN,
-    VaccinationCentre,
-    GPPractice
 }

@@ -22,8 +22,8 @@ public class BookingDataExtract(
         
         var allBookings = await bookingsStore.RunQueryAsync(
             b => b.DocumentType == "booking"
-                && b.StatusUpdated > timeProvider.GetUtcNow().Date.AddDays(-1) 
-                && b.StatusUpdated < timeProvider.GetUtcNow().Date, 
+                && b.StatusUpdated > timeProvider.GetUtcNow().Date.AddDays(-1)
+                && b.StatusUpdated < timeProvider.GetUtcNow().Date,
             b => b
         );
         var bookings = allBookings.Where(b => b.Status != AppointmentStatus.Provisional).ToList();
@@ -35,6 +35,14 @@ public class BookingDataExtract(
         var includeJointBookingsFields = await featureManager.IsEnabledAsync(Flags.JointBookingsReporting);
         logger.LogInformation("Running with Feature flag {JointBookingsReporting} : {IncludeJointBookingsFields}",
             Flags.JointBookingsReporting, includeJointBookingsFields);
+
+        var includeCancellationReasonBookingsFields = await featureManager.IsEnabledAsync(Flags.CancellationReasonBookingsReporting);
+        logger.LogInformation("Running with Feature flag {CancellationReasonBookingsReporting} : {IncludeCancellationReasonBookingsFields}",
+            Flags.CancellationReasonBookingsReporting, includeCancellationReasonBookingsFields);
+
+        var includeSiteTypeBookingsFields = await featureManager.IsEnabledAsync(Flags.SiteTypeBookingsReporting);
+        logger.LogInformation("Running with Feature flag {SiteTypeBookingsReporting} : {IncludeSiteTypeBookingsFields}",
+            Flags.SiteTypeBookingsReporting, includeSiteTypeBookingsFields);
 
         var dataFactories = new List<DataFactory>
         {
@@ -56,7 +64,7 @@ public class BookingDataExtract(
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.BookingSystem, doc => "MYA"),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancelledDateTime, BookingDataConverter.ExtractCancelledDateTime),
             new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason, BookingDataConverter.ExtractCancellationReason),
-            new DataFactory<BookingDocument, string>(BookingDataExtractFields.SiteType, BookingDataConverter.ExtractSiteType),
+            new DataFactory<BookingDocument, string>(BookingDataExtractFields.SiteType, dataConverter.ExtractSiteType),
         };
 
         if (includeJointBookingsFields)
@@ -64,7 +72,19 @@ public class BookingDataExtract(
             dataFactories.Add(new DataFactory<BookingDocument, int?>(BookingDataExtractFields.BatchSize,
                 BookingDataConverter.ExtractBatchSize));
         }
-           
+
+        if (includeCancellationReasonBookingsFields)
+        {
+            dataFactories.Add(new DataFactory<BookingDocument, string>(BookingDataExtractFields.CancellationReason,
+                BookingDataConverter.ExtractCancellationReason));
+        }
+
+        if (includeSiteTypeBookingsFields)
+        {
+            dataFactories.Add(new DataFactory<BookingDocument, string>(BookingDataExtractFields.SiteType, 
+                dataConverter.ExtractSiteType));
+        }
+
         logger.LogInformation("Preparing to write");
 
         var schema = new ParquetSchema(dataFactories.Select(df => df.Field).ToArray());

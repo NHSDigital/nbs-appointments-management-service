@@ -1,11 +1,11 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace Nhs.Appointments.Core.Metrics;
 
 public class InMemoryMetricsRecorder : IMetricsRecorder
 {
     private readonly ConcurrentStack<string> _scopeStack = new();
-    private readonly List<(string Path, double Value)> _metrics = [];
+    private readonly List<(string Path, object Value)> _metrics = [];
 
     public void RecordMetric(string name, double value)
     {
@@ -17,7 +17,17 @@ public class InMemoryMetricsRecorder : IMetricsRecorder
         }
     }
 
-    public IReadOnlyCollection<(string Path, double Value)> Metrics
+    public void RecordMetric(string name, IMetric value)
+    {
+        lock (_metrics)
+        {
+            _scopeStack.TryPeek(out var currentName);
+            var scopeName = string.IsNullOrEmpty(currentName) ? name : currentName + "/" + name;
+            _metrics.Add((scopeName, value));
+        }
+    }
+
+    public IReadOnlyCollection<(string Path, object Value)> Metrics
     {
         get
         {

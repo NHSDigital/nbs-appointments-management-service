@@ -9,6 +9,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
@@ -116,7 +117,8 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
         {
             foreach (var metric in metricsRecorder.Metrics)
             {
-                Console.WriteLine(metric.Path + ": " + metric.Value);
+                var json = JsonConvert.SerializeObject(metric);
+                logger.LogInformation("{Path}: {json}", metric.Path, json);
             }
         }
     }

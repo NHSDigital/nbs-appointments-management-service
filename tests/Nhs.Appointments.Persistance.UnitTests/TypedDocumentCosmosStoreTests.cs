@@ -92,7 +92,8 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Never
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 2.5), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric",
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == 2.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]
@@ -141,7 +142,8 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Never
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 1.5), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric",
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == 1.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]
@@ -214,7 +216,8 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //ten invocations x 2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 20), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric",
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == 20 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]
@@ -282,7 +285,8 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(5)
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 12), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", 
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == 12 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]
@@ -343,7 +347,7 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //ten invocations x 2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 20), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", It.Is<CosmosOperationMetric>(c => c.RuCharge == 20 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]
@@ -433,7 +437,7 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //total of initial 2 exception, and 3.5 successful retry
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 5.5), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", It.Is<CosmosOperationMetric>(c => c.RuCharge == 5.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Theory]
@@ -508,10 +512,10 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(retriesNeeded)
         );
 
-        //each exception = 2 x retires plus 3.5 successful
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", (2 * retriesNeeded) + 3.5), Times.Once);
+        //each exception = 2 x retries plus 3.5 successful
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", 
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == (2 * retriesNeeded) + 3.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
-
 
     [Theory]
     [InlineData(2)]
@@ -586,8 +590,9 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(retriesNeeded)
         );
 
-        //each exception = 2 x retires plus 3.5 successful
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", (2 * retriesNeeded) + 3.5), Times.Once);
+        //each exception = 2 x retries plus 3.5 successful
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", 
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == (2 * retriesNeeded) + 3.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]
@@ -708,7 +713,7 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //cannot extract request charge from TModel usage of FeedResponse
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", It.IsAny<double>()), Times.Never);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", It.IsAny<CosmosOperationMetric>()), Times.Never);
     }
 
     [Theory]
@@ -781,7 +786,7 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //Response Message does not record metrics
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", It.IsAny<double>()), Times.Never);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", It.IsAny<double>()), Times.Never);
     }
 
     [Fact]
@@ -911,7 +916,8 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //6x2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 12), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric",
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == 12 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]
@@ -1029,7 +1035,8 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //5x2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 10), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric",
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == 10 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Theory]
@@ -1147,7 +1154,8 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Once
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 10), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric",
+            It.Is<CosmosOperationMetric>(c => c.RuCharge == 10 && c.Container == "test-container" && c.DocumentType == "test_doc")), Times.Once);
     }
 
     [Fact]

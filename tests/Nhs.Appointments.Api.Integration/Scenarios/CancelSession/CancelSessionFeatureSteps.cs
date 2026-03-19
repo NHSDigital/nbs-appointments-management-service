@@ -13,7 +13,7 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.CancelSession;
 
 [FeatureFile("./Scenarios/CancelSession/CancelSession.feature")]
-public class CancelSessionFeatureSteps : BaseFeatureSteps
+public class CancelSessionFeatureSteps : AuditFeatureSteps
 {
     private Core.Bookings.Booking _actualResponse;
 

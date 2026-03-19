@@ -18,7 +18,7 @@ using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 
-[FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftEnabled.feature")]
+[FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUplift.feature")]
 public class BestFitFeatureSteps : BaseFeatureSteps
 {
     private List<Core.Bookings.Booking> _getBookingsResponse;

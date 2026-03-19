@@ -2,7 +2,6 @@
   "FeatureManagement": {
     "SiteStatus": true,
     "CancelDay": false,
-    "ChangeSessionUpliftedJourney": true,
     "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,

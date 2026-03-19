@@ -1,7 +1,6 @@
 import NhsPage from '@components/nhs-page';
 import { CreateAvailabilityPage } from './create-availability-page';
 import {
-  assertPermission,
   fetchSite,
   fetchFeatureFlag,
   fetchPermissions,

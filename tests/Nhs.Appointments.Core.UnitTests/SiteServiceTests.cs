@@ -34,8 +34,7 @@ public class SiteServiceTests
 
         var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
         
-        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _memoryCache.Object, _logger.Object,
-            TimeProvider.System, _featureToggleHelper.Object, cacheService, _options.Object);
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _logger.Object, _featureToggleHelper.Object, cacheService, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 

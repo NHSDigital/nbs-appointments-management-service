@@ -40,9 +40,7 @@ public interface ISiteService
 public class SiteService(
     ISiteStore siteStore,
     IAvailabilityStore availabilityStore,
-    IMemoryCache memoryCache,
     ILogger<ISiteService> logger,
-    TimeProvider time,
     IFeatureToggleHelper featureToggleHelper,
     ICacheService cacheService,
     IOptions<SiteServiceOptions> options) : ISiteService

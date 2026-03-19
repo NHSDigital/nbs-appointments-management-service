@@ -1,6 +1,7 @@
 using System.Globalization;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.Availability;
 
@@ -8,6 +9,8 @@ public class AvailabilityWriteService(
     IAvailabilityStore availabilityStore,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
     IBookingWriteService bookingWriteService,
+    IRecurrenceService recurrenceService,
+    IFeatureToggleHelper featureToggleHelper,
     ISiteLeaseManager siteLeaseManager) : IAvailabilityWriteService
 {
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
@@ -41,6 +44,11 @@ public class AvailabilityWriteService(
         foreach (var date in dates)
         {
             await SetAvailabilityAsync(date, site, template.Sessions, mode);
+        }
+
+        if (await featureToggleHelper.IsFeatureEnabled(Flags.Recurrence))
+        {
+            var x = recurrenceService.GenerateStandardOccurrences(from, until, template);
         }
 
         await availabilityCreatedEventStore.LogTemplateCreated(site, from, until, template, user);

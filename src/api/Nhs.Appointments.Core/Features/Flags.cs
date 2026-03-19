@@ -12,6 +12,7 @@ public static class Flags
     public const string ReportsUplift = "ReportsUplift";
     public const string CancelADateRange = "CancelADateRange";
     public const string CancelADateRangeWithBookings = "CancelADateRangeWithBookings";
+    public const string Recurrence = "Recurrence";
 
     #region TestFlags
     //a simple on/off global flag

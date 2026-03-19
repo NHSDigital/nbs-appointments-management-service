@@ -1,6 +1,7 @@
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Concurrency;
+using Nhs.Appointments.Core.Features;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -10,12 +11,45 @@ public class AvailabilityWriteServiceTests
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IBookingWriteService> _bookingsWriteService = new();
     private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
+    private readonly Mock<IRecurrenceService> _recurrenceService = new();
+    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly AvailabilityWriteService _sut;
 
     public AvailabilityWriteServiceTests()
     {
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.Recurrence)).ReturnsAsync(false);
         _sut = new AvailabilityWriteService(_availabilityStore.Object, _availabilityCreatedEventStore.Object,
-            _bookingsWriteService.Object, _siteLeaseManager.Object);
+            _bookingsWriteService.Object, _recurrenceService.Object, _featureToggleHelper.Object, _siteLeaseManager.Object);
+    }
+
+    [Fact] public async Task Recurrence_Toggle()
+    {
+        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.Recurrence)).ReturnsAsync(true);
+        
+        const string site = "2de5bb57-060f-4cb5-b14d-16587d0c2e8f";
+        const string user = "mock.user@nhs.net";
+        var from = new DateOnly(2025, 01, 06);
+        var until = new DateOnly(2025, 01, 12);
+        Session[] sessions =
+        [
+            new()
+            {
+                Capacity = 1,
+                From = new TimeOnly(09, 00),
+                Until = new TimeOnly(10, 00),
+                SlotLength = 5,
+                Services = ["Service 1"]
+            }
+        ];
+
+        var template = new Template
+        {
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Saturday, DayOfWeek.Sunday], Sessions = sessions
+        };
+
+        await _sut.ApplyAvailabilityTemplateAsync(site, from, until, template, ApplyAvailabilityMode.Overwrite, user);
+        
+        _recurrenceService.Verify(x=> x.GenerateStandardOccurrences(from, until, template), Times.Once);
     }
 
     [Theory]

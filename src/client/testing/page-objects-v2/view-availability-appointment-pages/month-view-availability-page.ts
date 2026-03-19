@@ -1,20 +1,37 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { WeekOverview } from '../../availability';
+import ChangeAvailabilityPage from '../change-availability/change-availability-page';
 
 export default class MonthViewAvailabilityPage extends MYALayout {
   title = this.page.getByRole('heading');
 
   readonly nextButton = this.page.getByRole('link', {
-      name: 'Next',
+    name: 'Next',
   });
 
   readonly previousButton = this.page.getByRole('link', {
     name: 'Previous',
   });
 
+  readonly changeAvailabilityButton = this.page.getByRole('button', {
+    name: 'Change availability',
+  });
+
+  async clickChangeAvailabilityButton(): Promise<ChangeAvailabilityPage> {
+    await this.changeAvailabilityButton.click();
+
+    await this.page.waitForURL(
+      `/manage-your-appointments/site/${this.site?.id}/change-availability`,
+    );
+
+    return new ChangeAvailabilityPage(this.page, this.site);
+  }
+
   async verifyHeadingDisplayed(requiredMonthYearDate: string) {
-    const heading = this.title.filter({ hasText: `View availability for ${requiredMonthYearDate}` });
+    const heading = this.title.filter({
+      hasText: `View availability for ${requiredMonthYearDate}`,
+    });
     await expect(heading).toBeVisible();
   }
 

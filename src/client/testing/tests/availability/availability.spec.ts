@@ -750,7 +750,7 @@ test.describe('Update Session', () => {
         await changeAvailabilityPage.saveChanges();
 
         await page.waitForURL(
-          '**/site/**/availability/confirmed/cancel?session=**',
+          '**/site/**/availability/cancel/confirmation?session=**',
         );
 
         await cancelSessionDetailsPage.confirmSessionCancellation('No');
@@ -895,7 +895,7 @@ test.describe('Update Session', () => {
         await changeAvailabilityPage.saveChanges();
 
         await page.waitForURL(
-          '**/site/**/availability/confirmed/cancel?session=**',
+          '**/site/**/availability/cancel/confirmation?session=**',
         );
 
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
@@ -1278,7 +1278,7 @@ test.describe('View Week Availability', () => {
     await changeAvailabilityPage.saveChanges();
 
     await page.waitForURL(
-      `**/site/${site.id}/availability/confirmed/cancel?session**`,
+      `**/site/${site.id}/availability/cancel/confirmation?session**`,
     );
 
     await changeAvailabilityPage.confirmCancelRadioOption.click();
@@ -1520,7 +1520,7 @@ test.describe('View Week Availability', () => {
             await changeAvailabilityPage.saveChanges();
 
             await page.waitForURL(
-              `**/site/${site.id}/availability/confirmed/cancel?session**`,
+              `**/site/${site.id}/availability/cancel/confirmation?session**`,
             );
 
             await expect(

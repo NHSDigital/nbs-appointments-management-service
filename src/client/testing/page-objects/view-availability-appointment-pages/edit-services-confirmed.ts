@@ -8,10 +8,6 @@ export default class EditServicesConfirmedPage extends RootPage {
       `Services removed on ${removedSessions.date}`,
     );
 
-    await expect(
-      this.page.getByText('You have successfully edited the session.'),
-    ).toBeVisible();
-
     const sessionTable = this.page.getByRole('table');
 
     //single table

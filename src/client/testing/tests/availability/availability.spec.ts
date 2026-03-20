@@ -33,6 +33,7 @@ import {
 import EditServicesPage from '../../page-objects/view-availability-appointment-pages/edit-services-page';
 import EditServicesConfirmedPage from '../../page-objects/view-availability-appointment-pages/edit-services-confirmed';
 import EditAvailabilityConfirmationPage from '../../page-objects/view-availability-appointment-pages/edit-availability-confirmation-page';
+import EditServicesConfirmationPage from '../../page-objects/view-availability-appointment-pages/edit-services-confirmation-page';
 
 test.describe('Create Availability', () => {
   let rootPage: RootPage;
@@ -366,6 +367,7 @@ test.describe('Update Session', () => {
   let cancelSessionDetailsPage: CancelSessionDetailsPage;
   let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
   let editAvailabilityConfirmationPage: EditAvailabilityConfirmationPage;
+  let editServicesConfirmationPage: EditServicesConfirmationPage;
 
   let siteId: string;
 
@@ -391,6 +393,7 @@ test.describe('Update Session', () => {
         editAvailabilityConfirmationPage = new EditAvailabilityConfirmationPage(
           page,
         );
+        editServicesConfirmationPage = new EditServicesConfirmationPage(page);
 
         await rootPage.goto();
         await rootPage.cookieBanner.acceptCookiesButton.click();
@@ -627,6 +630,12 @@ test.describe('Update Session', () => {
 
         await page.waitForURL(
           '**/site/**/availability/edit-services/confirmation?removedServicesSession=**',
+        );
+
+        await editServicesConfirmationPage.removeServicesButton.click();
+
+        await page.waitForURL(
+          '**/site/**/availability/edit-services/confirmed?removedServicesSession=**',
         );
 
         await editServicesConfirmedPage.verifyServicesRemoved({

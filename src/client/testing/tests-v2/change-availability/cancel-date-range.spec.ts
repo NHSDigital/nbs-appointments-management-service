@@ -1,4 +1,3 @@
-import { ChangeAvailabilityPage } from '@testing-page-objects';
 import { test, expect, BookingSetup } from '../../fixtures-v2';
 import { daysFromToday, getDateInFuture } from '../../utils/date-utility';
 

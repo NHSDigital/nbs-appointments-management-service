@@ -1,0 +1,60 @@
+{
+  "date": "2026-08-20",
+  "sessions": [
+    {
+      "from": "11:00",
+      "until": "12:00",
+      "services": ["COVID:5_11", "RSV:Adult", "FLU:18_64", "COVID:18+"],
+      "slotLength": 5,
+      "capacity": 2
+    },
+    {
+      "from": "11:15",
+      "until": "17:50",
+      "services": ["COVID:5_11", "FLU:18_64", "RSV:Adult"],
+      "slotLength": 5,
+      "capacity": 2,
+      //exceptions/breaks are NOT limited to recursion sessions only.
+      //individually created sessions can have adhoc breaks
+      //would need to "find" this exact session when editing in UI (due to lack of sessionId)
+      //we currently 'fuzzy match' and check that the 
+      "exceptions": [
+        {
+          "from": "14:00",
+          "until": "14:15"
+        }
+      ]
+    },
+    {
+      //optional recurrenceId, which informs what recurrence manages this data
+      "recurrenceId": "c5858f02-05d7-419b-865f-818599a6c0e0",
+      "from": "09:00",
+      "until": "17:00",
+      "services": [
+        "COVID:5_11",
+        "RSV:Adult",
+        "FLU:18_64",
+        "COVID:18+"
+      ],
+      "slotLength": 10,
+      "capacity": 5,
+      "exceptions": [
+        {
+          "from": "10:00",
+          "until": "10:15"
+        },
+        {
+          "from": "12:00",
+          "until": "12:15"
+        },
+        {
+          "from": "14:00",
+          "until": "16:00"
+        }
+      ]
+    }
+  ],
+  "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "id": "20260820",
+  "docType": "daily_availability"
+}

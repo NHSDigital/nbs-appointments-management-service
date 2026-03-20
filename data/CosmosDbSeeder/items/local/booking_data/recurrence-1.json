@@ -1,0 +1,118 @@
+{
+  "id": "c5858f02-05d7-419b-865f-818599a6c0e0",
+  
+  "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "docType": "recurrence",
+  
+  "from": "2026-08-20",
+  "until": "2026-10-08",
+
+  //keep template explicit and similar to RRule properties
+  //means can be extended if other recurrences needed
+  "recurrencePattern": {
+    "frequency": "Weekly", 
+    "interval": 1, //repeats every week (i.e when value = 2 would be every other week)
+    "byDay": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ]
+  },
+
+  "sessions": [
+    {
+      "from": "09:00",
+      "until": "17:00",
+      "services": [
+        "COVID:5_11",
+        "RSV:Adult",
+        "FLU:18_64",
+        "COVID:18+"
+      ],
+      "slotLength": 10,
+      "capacity": 5,
+      // these are "breaks" - predefined session gaps on main recurrence rule
+      //this is LIKE an exception rule, but not quite and matches our current data model
+      //for managing slots implicitly
+      //the from and until need to match the slot times
+      //overlap allowed??
+      "exceptions": [
+        {
+          "from": "10:00",
+          "until": "10:15"
+        },
+        {
+          "from": "12:00",
+          "until": "12:15"
+        },
+        {
+          "from": "14:00",
+          "until": "16:00"
+        }
+      ]
+    }
+  ],
+  
+  //WE ARE NOT PERMITTING EXRULES within the exceptions data pattern
+  //i.e you cannot define a new nested recursion that overrides the parent for a specific date range
+  
+  //exceptions should be ideally listed in chronological date order
+  //only one exception per date allowed, changes should upsert existing record and not create new ones
+  
+  //in UI ,could display these in two different sections
+  //section 1 = exceptions (no session days)
+  //section 2 = overrides (days where the session exists but is different)
+  
+  //Can we allow exception date range...? (minimal ExRule...?)
+  //would we prevent overlaps?? (i.e two range/individual days intersecting)
+  "exceptions": [
+    {
+      "date": "2026-08-22",
+      //empty session represents blocked out day for this occurrence
+      "sessions": []
+    },
+    {
+      "date": "2026-08-23",
+      "sessions": []
+    },
+    {
+      "date": "2026-08-24",
+      "sessions": []
+    },
+    {
+      // this is a new linked override session to replace the rule for this day
+      //all the data CAN be different, as editing an individual session is allowed
+      
+      //we COULD offer them the option, when editing this session on this day
+      //to choose to KEEP the link to the recurrence, or unlink it
+      //this matters because edits/deleteing the original recurrence may affect this session
+      
+      //LINKED = Listed in here with session details different - will be affected by edit/deletions of parent
+      //UNLINKED = Listed in here but with session array empty - and a new session is added to daily_availability WITHOUT a recurrenceId
+      "date": "2026-08-30",
+      "sessions": [
+        {
+          "from": "09:00",
+          "until": "12:00",
+          "services": [
+            "FLU:18_64",
+            "COVID:18+"
+          ],
+          "slotLength": 10,
+          "capacity": 5,
+          "exceptions": [
+            {
+              "from": "12:00",
+              "until": "12:15"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  
+  "created": "2020-01-01T14:54:31.233324Z",
+  "by": "cc.agent@nhs.net"
+}

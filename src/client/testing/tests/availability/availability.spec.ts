@@ -32,6 +32,7 @@ import {
 } from '../../availability';
 import EditServicesPage from '../../page-objects/view-availability-appointment-pages/edit-services-page';
 import EditServicesConfirmedPage from '../../page-objects/view-availability-appointment-pages/edit-services-confirmed';
+import EditAvailabilityConfirmationPage from '../../page-objects/view-availability-appointment-pages/edit-availability-confirmation-page';
 
 test.describe('Create Availability', () => {
   let rootPage: RootPage;
@@ -364,6 +365,7 @@ test.describe('Update Session', () => {
   let editServicesConfirmedPage: EditServicesConfirmedPage;
   let cancelSessionDetailsPage: CancelSessionDetailsPage;
   let dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
+  let editAvailabilityConfirmationPage: EditAvailabilityConfirmationPage;
 
   let siteId: string;
 
@@ -386,6 +388,9 @@ test.describe('Update Session', () => {
         dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
         editAvailabilityConfirmedPage = new EditAvailabilityConfirmedPage(page);
         editServicesConfirmedPage = new EditServicesConfirmedPage(page);
+        editAvailabilityConfirmationPage = new EditAvailabilityConfirmationPage(
+          page,
+        );
 
         await rootPage.goto();
         await rootPage.cookieBanner.acceptCookiesButton.click();
@@ -519,8 +524,15 @@ test.describe('Update Session', () => {
         await addSessionPage.updateSessionEndTime('9', '30');
 
         await page.waitForURL(
+          '**/site/**/availability/edit/confirmation?session=**',
+        );
+
+        await editAvailabilityConfirmationPage.confirmSessionChange('Yes');
+
+        await page.waitForURL(
           '**/site/**/availability/edit/confirmed?session=**',
         );
+
         await editAvailabilityConfirmedPage.verifySessionUpdated();
       });
 
@@ -614,7 +626,7 @@ test.describe('Update Session', () => {
         await editServicesPage.removeServices(['RSV Adult', 'Flu 2 to 3']);
 
         await page.waitForURL(
-          '**/site/**/availability/edit-services/confirmed?removedServicesSession=**',
+          '**/site/**/availability/edit-services/confirmation?removedServicesSession=**',
         );
 
         await editServicesConfirmedPage.verifyServicesRemoved({
@@ -693,7 +705,7 @@ test.describe('Update Session', () => {
         await changeAvailabilityPage.saveChanges();
 
         await page.waitForURL(
-          '**/site/**/availability/cancel/confirmed?session=**',
+          '**/site/**/availability/cancel/confirmation?session=**',
         );
 
         await cancelSessionDetailsPage.confirmSessionCancellation('Yes');
@@ -702,7 +714,7 @@ test.describe('Update Session', () => {
           '**/site/**/availability/cancel/confirmed?session=**',
         );
 
-        const cancelDate = daysFromToday(dayIncrement, 'DD MMMM');
+        const cancelDate = daysFromToday(dayIncrement, 'dddd DD MMMM');
         await cancelSessionDetailsPage.verifySessionCancelled(cancelDate);
       });
 
@@ -852,8 +864,7 @@ test.describe('Update Session', () => {
         const dayIncrement = staticHackyDayIncrementToBump + 5;
 
         const day = daysFromToday(dayIncrement);
-        const formattedDate1 = parseToUkDatetime(day).format('DD MMMM');
-        const formattedDate2 = parseToUkDatetime(day).format('dddd D MMMM');
+        const formattedDate = parseToUkDatetime(day).format('dddd D MMMM');
         const requiredWeekRange = weekHeaderText(day);
 
         await page.goto(
@@ -872,8 +883,8 @@ test.describe('Update Session', () => {
 
         await page.waitForURL('**/site/**/view-availability/week?date=**');
 
-        await weekViewAvailabilityPage.verifyDateCardDisplayed(formattedDate2);
-        await weekViewAvailabilityPage.addAvailability(formattedDate2);
+        await weekViewAvailabilityPage.verifyDateCardDisplayed(formattedDate);
+        await weekViewAvailabilityPage.addAvailability(formattedDate);
 
         await page.waitForURL('**/site/**/create-availability/wizard?date=**');
 
@@ -885,7 +896,7 @@ test.describe('Update Session', () => {
 
         await weekViewAvailabilityPage.verifySessionAdded();
         await weekViewAvailabilityPage.openChangeAvailabilityPage(
-          formattedDate2,
+          formattedDate,
         );
 
         await page.waitForURL(
@@ -904,12 +915,10 @@ test.describe('Update Session', () => {
           '**/site/**/availability/cancel/confirmed?session=**',
         );
 
-        await cancelSessionDetailsPage.verifySessionCancelled(formattedDate1);
-        await cancelSessionDetailsPage.clickCancelAppointment();
+        await cancelSessionDetailsPage.verifySessionCancelled(formattedDate);
+        await cancelSessionDetailsPage.clickViewBookings();
 
-        await page.waitForURL(
-          '**/site/**/view-availability/daily-appointments?date=**',
-        );
+        await page.waitForURL('**/site/**/view-availability/week?date=**');
 
         await dailyAppointmentDetailsPage.verifyOrphanedMessageDoesNotExist();
       });
@@ -1281,7 +1290,7 @@ test.describe('View Week Availability', () => {
       `**/site/${site.id}/availability/cancel/confirmation?session**`,
     );
 
-    await changeAvailabilityPage.confirmCancelRadioOption.click();
+    await changeAvailabilityPage.cancelSessionButton.click();
     await changeAvailabilityPage.saveChanges();
 
     await page.goto(
@@ -1526,7 +1535,7 @@ test.describe('View Week Availability', () => {
             await expect(
               cancelSessionDetailsPage.cancelSessionHeader,
             ).toHaveText(
-              'Cancel sessionAre you sure you want to cancel this session?',
+              `${site.name}Cancel session for ${daySession.dayCardHeader}`,
             );
 
             //single table

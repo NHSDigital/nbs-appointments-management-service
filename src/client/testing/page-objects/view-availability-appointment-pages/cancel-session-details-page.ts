@@ -27,17 +27,16 @@ export default class CancelSessionDetailsPage extends RootPage {
 
   async confirmSessionCancellation(option: 'Yes' | 'No') {
     if (option == 'Yes') {
-      await this.page.getByLabel('Yes, I want to cancel this session').click();
+      await this.page.getByRole('button', { name: 'Cancel session' }).click();
     }
     if (option == 'No') {
       await this.page.getByText(`No, go back`).click();
     }
-    await this.continueButton.click();
   }
 
   async verifySessionCancelled(requiredDate: string) {
     await expect(this.page.getByRole('main')).toContainText(
-      `Cancelled session for ${requiredDate}`,
+      `Session cancelled for ${requiredDate}`,
     );
   }
 
@@ -48,5 +47,13 @@ export default class CancelSessionDetailsPage extends RootPage {
         .getByText(`You'll need to manually cancel any affected appointments.`),
     ).toBeVisible();
     await this.page.getByRole('link', { name: 'Cancel appointments' }).click();
+  }
+
+  async clickViewBookings() {
+    await this.page
+      .getByRole('link', {
+        name: 'View all bookings for this week',
+      })
+      .click();
   }
 }

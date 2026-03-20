@@ -30,9 +30,7 @@ export default class CancelSessionDetailsPage extends RootPage {
       await this.page.getByLabel('Yes, I want to cancel this session').click();
     }
     if (option == 'No') {
-      await this.page
-        .getByLabel(`No, I don't want to cancel this session`)
-        .click();
+      await this.page.getByText(`No, go back`).click();
     }
     await this.continueButton.click();
   }

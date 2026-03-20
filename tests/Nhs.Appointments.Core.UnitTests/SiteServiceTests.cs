@@ -25,7 +25,7 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SiteCacheDuration = 10, 
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites", 
             SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
             SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
@@ -713,7 +713,7 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SiteCacheDuration = 10, 
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites", 
             SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
             SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
@@ -2327,7 +2327,7 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SiteCacheDuration = 10, 
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites", 
             SiteSupportsServiceSlidingCacheSlideThresholdSeconds = 900,
             SiteSupportsServiceSlidingCacheAbsoluteExpirationSeconds = 14400,
@@ -3749,7 +3749,7 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SiteCacheDuration = 10, 
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites",
         });
         
@@ -3799,9 +3799,9 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SlidingCacheEnabled = true,
-            SiteSlideCacheDuration = 1,
-            SiteCacheDuration = 10, 
+            AllSitesSlidingCacheEnabled = true,
+            AllSitesSlideCacheDurationMinutes = 1,
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites",
         });
         
@@ -3852,7 +3852,7 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SiteCacheDuration = 10, 
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites",
         });
         
@@ -3903,7 +3903,7 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SiteCacheDuration = 10, 
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites",
         });
         
@@ -3954,9 +3954,9 @@ public class SiteServiceTests
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
         {
             DisableSiteCache = false, 
-            SlidingCacheEnabled = true,
-            SiteSlideCacheDuration = 1,
-            SiteCacheDuration = 10, 
+            AllSitesSlidingCacheEnabled = true,
+            AllSitesSlideCacheDurationMinutes = 1,
+            AllSitesCacheDurationMinutes = 10, 
             SiteCacheKey = "sites",
         });
         

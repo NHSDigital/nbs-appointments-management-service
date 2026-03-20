@@ -229,6 +229,31 @@ variable "SITE_SUPPORTS_SERVICE_BATCH_MULTIPLIER" {
   sensitive = false
 }
 
+variable "SITE_CACHE_KEY" {
+  type = string
+  sensitive = false
+}
+
+variable "ALLSITES_SLIDING_CACHE_ENABLED" {
+  type = bool
+  sensitive = false
+}
+
+variable "ALLSITES_CACHE_DURATION_MINUTES" {
+  type = number
+  sensitive = false
+}
+
+variable "ALLSITES_SLIDING_CACHE_DURATION_MINUTES" {
+  type = number
+  sensitive = false
+}
+
+variable "DISABLE_SITE_CACHE" {
+  type = bool
+  sensitive = false
+}
+
 variable "AUDITOR_ENABLE" {
   type = bool
 }

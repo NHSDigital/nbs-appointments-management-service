@@ -1,6 +1,5 @@
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Concurrency;
 
 namespace Nhs.Appointments.Core.UnitTests;
 
@@ -9,13 +8,13 @@ public class AvailabilityWriteServiceTests
     private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<IBookingWriteService> _bookingsWriteService = new();
-    private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
+    private readonly Mock<IBookingQueryService> _bookingsQueryService = new();
     private readonly AvailabilityWriteService _sut;
 
     public AvailabilityWriteServiceTests()
     {
         _sut = new AvailabilityWriteService(_availabilityStore.Object, _availabilityCreatedEventStore.Object,
-            _bookingsWriteService.Object, _siteLeaseManager.Object);
+            _bookingsWriteService.Object, _bookingsQueryService.Object);
     }
 
     [Theory]
@@ -703,7 +702,20 @@ public class AvailabilityWriteServiceTests
     {
         _availabilityStore.Setup(x => x.CancelAllSessionsInDateRange(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync(5);
-        _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+        _bookingsQueryService.Setup(x => x.GetBookings(It.IsAny<BookingQueryFilter>()))
+            .ReturnsAsync(new List<Booking>
+            {
+                new()
+                {
+                    Reference = "1234",
+                    Status = AppointmentStatus.Booked
+                },
+                new()
+                {
+                    Reference = "4321",
+                    Status = AppointmentStatus.Booked
+                }
+            });
 
         var (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount) = await _sut.CancelDateRangeAsync(
             "TEST_SITE_123",
@@ -717,14 +729,16 @@ public class AvailabilityWriteServiceTests
         bookingsWithoutContactDetailsCount.Should().Be(0);
 
         _bookingsWriteService.Verify(x => x.CancelAllBookingsInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()), Times.Never);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses("TEST_SITE_123", It.IsAny<DateOnly[]>(), It.IsAny<NewlyUnsupportedBookingAction>()), Times.Once);
     }
 
     [Fact]
-    public async Task CancelDateRangeAsync_CancelsSessions_ButNotBookigns_WhenCanceDateRangeWithBookingsIsFalse()
+    public async Task CancelDateRangeAsync_CancelsSessions_ButNotBookings_WhenCanceDateRangeWithBookingsIsFalse()
     {
         _availabilityStore.Setup(x => x.CancelAllSessionsInDateRange(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync(5);
-        _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+        _bookingsQueryService.Setup(x => x.GetBookings(It.IsAny<BookingQueryFilter>()))
+            .ReturnsAsync(new List<Booking>());
 
         var (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount) = await _sut.CancelDateRangeAsync(
             "TEST_SITE_123",
@@ -747,7 +761,6 @@ public class AvailabilityWriteServiceTests
             .ReturnsAsync(5);
         _bookingsWriteService.Setup(x => x.CancelAllBookingsInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
             .ReturnsAsync((30, 12));
-        _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
 
         var (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount) = await _sut.CancelDateRangeAsync(
             "TEST_SITE_123",
@@ -761,5 +774,28 @@ public class AvailabilityWriteServiceTests
         bookingsWithoutContactDetailsCount.Should().Be(12);
 
         _bookingsWriteService.Verify(x => x.CancelAllBookingsInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CancelDateRangeAsync_DoesntRecalculateBookings_WhenNoneAreInDateRange()
+    {
+        _availabilityStore.Setup(x => x.CancelAllSessionsInDateRange(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync(5);
+        _bookingsQueryService.Setup(x => x.GetBookings(It.IsAny<BookingQueryFilter>()))
+            .ReturnsAsync(new List<Booking>());
+
+        var (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount) = await _sut.CancelDateRangeAsync(
+            "TEST_SITE_123",
+            new DateOnly(2025, 1, 1),
+            new DateOnly(2025, 1, 7),
+            true,
+            false);
+
+        cancelledSessionsCount.Should().Be(5);
+        cancelledBookingsCount.Should().Be(0);
+        bookingsWithoutContactDetailsCount.Should().Be(0);
+
+        _bookingsWriteService.Verify(x => x.CancelAllBookingsInDateRangeAsync(It.IsAny<string>(), It.IsAny<DateOnly>(), It.IsAny<DateOnly>()), Times.Never);
+        _bookingsWriteService.Verify(x => x.RecalculateAppointmentStatuses("TEST_SITE_123", It.IsAny<DateOnly[]>(), It.IsAny<NewlyUnsupportedBookingAction>()), Times.Never);
     }
 }

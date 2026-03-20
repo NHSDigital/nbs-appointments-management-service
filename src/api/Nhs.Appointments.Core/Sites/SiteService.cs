@@ -434,21 +434,21 @@ public class SiteService(
             return await siteStore.GetAllSites();
         }
 
-        if (options.Value.SlidingCacheEnabled)
+        if (options.Value.AllSitesSlidingCacheEnabled)
         {
             return await cacheService.GetLazySlidingCacheValue(
                 options.Value.SiteCacheKey,
                 new LazySlideCacheOptions<IEnumerable<Site>>(
                     async () => await siteStore.GetAllSites(),
-                    TimeSpan.FromMinutes(options.Value.SiteSlideCacheDuration),
-                    TimeSpan.FromMinutes(options.Value.SiteCacheDuration)));
+                    TimeSpan.FromMinutes(options.Value.AllSitesSlideCacheDurationMinutes),
+                    TimeSpan.FromMinutes(options.Value.AllSitesCacheDurationMinutes)));
         }
 
         return await cacheService.GetCacheValue(
             options.Value.SiteCacheKey,
             new CacheOptions<IEnumerable<Site>>(
                 async () => await siteStore.GetAllSites(),
-                TimeSpan.FromMinutes(options.Value.SiteCacheDuration)));
+                TimeSpan.FromMinutes(options.Value.AllSitesCacheDurationMinutes)));
     }
 
     private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from,

@@ -78,12 +78,12 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
 
     public async Task<T> GetCacheValue<T>(string cacheKey, CacheOptions<T> options)
     {
-        if (memoryCache.TryGetValue<CacheObject<T>>(cacheKey, out var value))
+        if (memoryCache.TryGetValue<CacheObject<T>>(cacheKey, out var cacheObj))
         {
-            ArgumentNullException.ThrowIfNull(value);
-            if (value.Value != null)
+            ArgumentNullException.ThrowIfNull(cacheObj);
+            if (cacheObj.Value != null)
             {
-                return value.Value;
+                return cacheObj.Value;
             }
         }
         

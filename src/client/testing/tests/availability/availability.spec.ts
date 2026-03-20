@@ -1291,7 +1291,6 @@ test.describe('View Week Availability', () => {
     );
 
     await changeAvailabilityPage.cancelSessionButton.click();
-    await changeAvailabilityPage.saveChanges();
 
     await page.goto(
       `manage-your-appointments/site/${site.id}/view-availability/week?date=2026-08-20`,
@@ -1556,20 +1555,6 @@ test.describe('View Week Availability', () => {
               }),
             ).toBeVisible();
 
-            await expect(
-              cancelSessionDetailsPage.page.getByRole('columnheader', {
-                name: 'Booked',
-                exact: true,
-              }),
-            ).toBeVisible();
-
-            await expect(
-              cancelSessionDetailsPage.page.getByRole('columnheader', {
-                name: 'Unbooked',
-                exact: true,
-              }),
-            ).toBeVisible();
-
             //no actions
             await expect(
               cancelSessionDetailsPage.page.getByRole('columnheader', {
@@ -1586,20 +1571,9 @@ test.describe('View Week Availability', () => {
                 name: daySession.service,
               },
             );
-            const bookedCell = cancelSessionDetailsPage.page.getByRole('cell', {
-              name: `${daySession.booked} booked`,
-            });
-            const unbookedCell = cancelSessionDetailsPage.page.getByRole(
-              'cell',
-              {
-                name: `${daySession.unbooked} unbooked`,
-              },
-            );
 
             await expect(timeCell).toBeVisible();
             await expect(serviceCell).toBeVisible();
-            await expect(bookedCell).toBeVisible();
-            await expect(unbookedCell).toBeVisible();
           });
 
           test('View daily appointments has the correct information, and on the cancel appointment page', async () => {

@@ -8,20 +8,18 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
 
-public abstract class BestFitFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
+[FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUplift.feature")]
+public class BestFitFeatureSteps : BaseFeatureSteps
 {
     private List<Core.Bookings.Booking> _getBookingsResponse;
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
@@ -162,12 +160,4 @@ public abstract class BestFitFeatureSteps(string flag, bool enabled) : SingleFea
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftEnabled.feature")]
-    public class BestFitFeatureSteps_ChangeSessionUplift_Enabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/BestFit_ChangeSessionUpliftDisabled.feature")]
-    public class BestFitFeatureSteps_ChangeSessionUplift_Disabled() : BestFitFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

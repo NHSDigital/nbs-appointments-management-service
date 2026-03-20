@@ -10,22 +10,20 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
 using Nhs.Appointments.Persistance.Models;
-using Xunit;
 using Xunit.Gherkin.Quick;
 using static System.Enum;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.ChangeSessionUpliftedJourney;
 
-public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
+[FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney.feature")]
+public class ChangeSessionUpliftedJourneyFeatureSteps : BaseFeatureSteps
 {
     private HttpResponseMessage Response { get; set; }
     private Session SessionToCheck { get; set; }
@@ -383,12 +381,4 @@ public abstract class ChangeSessionUpliftedJourneyFeatureSteps(string flag, bool
             matchingSessions.Should().BeEmpty();
         }
     }
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Enabled.feature")]
-    public class ChangeSessionUpliftedJourneyFeatureSteps_Enabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/ChangeSessionUpliftedJourney/ChangeSessionUpliftedJourney_Disabled.feature")]
-    public class ChangeSessionUpliftedJourneyFeatureSteps_Disabled() : ChangeSessionUpliftedJourneyFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
 }

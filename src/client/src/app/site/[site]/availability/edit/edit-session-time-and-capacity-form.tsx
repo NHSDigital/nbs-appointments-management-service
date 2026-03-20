@@ -2,7 +2,6 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Site, SessionSummary, Session, AvailabilitySession } from '@types';
 import { useRouter } from 'next/navigation';
-import { editSession } from '@services/appointmentsService';
 import {
   Button,
   FormGroup,
@@ -20,7 +19,6 @@ import {
 } from '@services/timeService';
 import { ChangeEvent, useEffect, useTransition } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
-import fromServer from '@server/fromServer';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
 import { InsetText, TextInput } from 'nhsuk-react-components';
 
@@ -33,14 +31,12 @@ type Props = {
   date: string;
   site: Site;
   existingSession: SessionSummary;
-  changeSessionUpliftedJourneyEnabled: boolean;
 };
 
 const EditSessionTimeAndCapacityForm = ({
   site,
   existingSession,
   date,
-  changeSessionUpliftedJourneyEnabled,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
   const existingUkStartTime = parseToUkDatetime(
@@ -142,11 +138,6 @@ const EditSessionTimeAndCapacityForm = ({
 
       const encode = (obj: unknown) => btoa(JSON.stringify(obj));
 
-      if (!changeSessionUpliftedJourneyEnabled) {
-        await updateSession(form, updatedSession);
-        return;
-      }
-
       const onlyEndTimeChanged =
         dirtyFields.newSession?.endTime && !dirtyFields.newSession.startTime;
       const validSessionStartTime = isValidStartTime(
@@ -170,25 +161,6 @@ const EditSessionTimeAndCapacityForm = ({
       const editUrl = `edit/edit-start-time?date=${date}&existingSession=${encode(existingSession)}&updatedSession=${encode(updatedSession)}`;
       router.push(editUrl);
     });
-  };
-
-  const updateSession = async (
-    form: EditSessionFormValues,
-    updatedSession: AvailabilitySession,
-  ) => {
-    await fromServer(
-      editSession({
-        date,
-        site: site.id,
-        mode: 'Edit',
-        sessions: [updatedSession],
-        sessionToEdit: toAvailabilitySession(form.sessionToEdit),
-      }),
-    );
-
-    router.push(
-      `edit/confirmed?session=${btoa(JSON.stringify(updatedSession))}&date=${date}`,
-    );
   };
 
   const toAvailabilitySession = (session: Session): AvailabilitySession => ({

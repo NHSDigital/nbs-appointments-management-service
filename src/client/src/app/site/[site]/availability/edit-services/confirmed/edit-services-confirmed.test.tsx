@@ -23,46 +23,11 @@ describe('Cancellation Confirmed Page', () => {
         newlyUnsupportedBookingsCount={2}
         cancelledWithDetailsCount={0}
         cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
     expect(
       screen.getByRole('row', { name: '09:00 - 12:00 RSV Adult' }),
     ).toBeInTheDocument();
-  });
-
-  it('renders a link back to the cancel appointments page', () => {
-    render(
-      <EditServicesConfirmed
-        removedServicesSession={{
-          from: '09:00',
-          until: '12:00',
-          services: ['RSV:Adult'],
-          capacity: 10,
-          slotLength: 5,
-        }}
-        clinicalServices={mockSingleService}
-        date="2025-01-15"
-        site={mockSite}
-        chosenAction="cancel-appointments"
-        hasBookings={true}
-        servicesCount={1}
-        newlyUnsupportedBookingsCount={2}
-        cancelledWithDetailsCount={0}
-        cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={false}
-      />,
-    );
-
-    expect(
-      screen.getByRole('link', { name: 'Cancel appointments' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Cancel appointments' }),
-    ).toHaveAttribute(
-      'href',
-      '/site/34e990af-5dc9-43a6-8895-b9123216d699/view-availability/daily-appointments?date=2025-01-15&page=1',
-    );
   });
 });

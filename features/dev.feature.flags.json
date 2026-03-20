@@ -3,8 +3,6 @@
     "TestFeatureEnabled": true,
     "SiteStatus": true,
     "CancelDay": true,
-    "ChangeSessionUpliftedJourney": true,
-    "CancelSessionUpliftedJourney": true,
     "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,

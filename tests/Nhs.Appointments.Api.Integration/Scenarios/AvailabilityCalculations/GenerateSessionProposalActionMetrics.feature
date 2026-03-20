@@ -1,4 +1,4 @@
-Feature: Availability Edit Proposal Enabled
+Feature: Availability Edit Proposal
 
   Scenario: Update a single session on a single day
     Given the default site exists

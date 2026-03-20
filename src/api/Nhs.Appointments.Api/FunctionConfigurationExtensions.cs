@@ -100,7 +100,6 @@ public static class FunctionConfigurationExtensions
             .AddTypedCosmosDataStores()
             .AddDocumentStores()
             .AddServices()
-            .AddSingleton<SiteCacheLock>()
             .AddTransient<IAvailabilityGrouperFactory, AvailabilityGrouperFactory>()
             .AddTransient<IReferenceNumberProvider, ReferenceNumberProvider>()
             .AddTransient<IPermissionChecker, PermissionChecker>()

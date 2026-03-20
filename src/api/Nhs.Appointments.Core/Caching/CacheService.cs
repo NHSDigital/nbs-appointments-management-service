@@ -4,10 +4,13 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Nhs.Appointments.Core.Caching;
 
 public record LazySlideCacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan SlideThreshold, TimeSpan AbsoluteExpiration);
+public record CacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan AbsoluteExpiration);
 
 public interface ICacheService
 {
     Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options);
+
+    Task<T> GetCacheValue<T>(string cacheKey, CacheOptions<T> options);
 }
 
 public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) : ICacheService
@@ -73,6 +76,22 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         }
     }
 
+    public async Task<T> GetCacheValue<T>(string cacheKey, CacheOptions<T> options)
+    {
+        if (memoryCache.TryGetValue<CacheObject<T>>(cacheKey, out var cacheObj))
+        {
+            ArgumentNullException.ThrowIfNull(cacheObj);
+            if (cacheObj.Value != null)
+            {
+                return cacheObj.Value;
+            }
+        }
+        
+        var newValue = await options.UpdateOperation();
+        memoryCache.Set(cacheKey, new CacheObject<T>(newValue), options.AbsoluteExpiration);
+        return newValue;
+    }
+
     private async Task SlideCache<T>(string lazySlideCacheKey, LazySlideCacheOptions<T> options, SemaphoreSlim lazySlideCacheLock, T lazyValue, DateTimeOffset dateTime)
     {
         try
@@ -94,4 +113,5 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
     }
 
     internal record LazySlideCacheObject(object Value, DateTimeOffset DateTimeUpdated);
+    internal record CacheObject<T>(T Value);
 }

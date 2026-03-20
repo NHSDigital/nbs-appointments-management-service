@@ -3,6 +3,7 @@ import {
   assertPermission,
   fetchSite,
   fetchFeatureFlag,
+  fetchPermissions,
 } from '@services/appointmentsService';
 import { ViewAvailabilityPage } from './view-availability-page';
 import { RFC3339Format, parseToUkDatetime, ukNow } from '@services/timeService';
@@ -25,10 +26,14 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   await fromServer(assertPermission(siteFromPath, 'availability:query'));
 
-  const [cancelADateRangeFeature, site] = await Promise.all([
+  const [cancelADateRange, site, sitePermissions] = await Promise.all([
     fromServer(fetchFeatureFlag('CancelADateRange')),
     fromServer(fetchSite(siteFromPath)),
+    fromServer(fetchPermissions(siteFromPath)),
   ]);
+
+  const canChangeAvailability =
+    cancelADateRange.enabled && sitePermissions.includes('availability:setup');
 
   const searchMonth = date ? parseToUkDatetime(date, RFC3339Format) : ukNow();
 
@@ -39,7 +44,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       site={site}
       originPage="view-availability"
     >
-      {cancelADateRangeFeature.enabled && (
+      {canChangeAvailability && (
         <Link href={`/site/${siteFromPath}/change-availability`}>
           <Button type="button" styleType="secondary">
             Change availability

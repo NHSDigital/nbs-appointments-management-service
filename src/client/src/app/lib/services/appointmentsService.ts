@@ -241,11 +241,22 @@ export const assertPermission = async (
   const response = await fetchPermissions(site);
   if (!response.success) {
     return Promise.reject(
-      new ServerActionException('Failed to fetch feature flag'),
+      new ServerActionException('Failed to fetch permissions'),
     );
   }
 
   if (!response.data.includes(permission)) {
+    return Promise.reject(new ServerActionForbidden());
+  }
+
+  return { success: true, data: undefined };
+};
+
+export const assertPermissionInArray = async (
+  permissions: string[],
+  permission: string,
+): Promise<ServerActionResult<void>> => {
+  if (!permissions.includes(permission)) {
     return Promise.reject(new ServerActionForbidden());
   }
 

@@ -2,6 +2,7 @@ import NhsTransactionalPage from '@components/nhs-transactional-page';
 import ChangeAvailabilityWizard from './change-availability-wizard';
 import {
   assertFeatureEnabled,
+  assertPermission,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
@@ -17,6 +18,7 @@ const Page = async ({ params }: PageProps) => {
   const cancelADateRangeMaximumDays = parseInt(
     process.env.CANCEL_A_DATE_RANGE_MAXIMUM_DAYS ?? '90',
   );
+  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   await fromServer(assertFeatureEnabled('CancelADateRange'));
   const cancelADateRangeWithBookings = await fromServer(
     fetchFeatureFlag('CancelADateRangeWithBookings'),

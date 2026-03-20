@@ -1,9 +1,10 @@
 import NhsPage from '@components/nhs-page';
 import { CreateAvailabilityPage } from './create-availability-page';
 import {
-  assertPermission,
   fetchSite,
   fetchFeatureFlag,
+  fetchPermissions,
+  assertPermissionInArray,
 } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
 
@@ -16,11 +17,16 @@ type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
 
-  await fromServer(assertPermission(siteFromPath, 'availability:setup'));
-  const [site, cancelADateRange] = await Promise.all([
+  const [site, cancelADateRange, sitePermissions] = await Promise.all([
     fromServer(fetchSite(siteFromPath)),
     fromServer(fetchFeatureFlag('CancelADateRange')),
+    fromServer(fetchPermissions(siteFromPath)),
   ]);
+
+  await assertPermissionInArray(sitePermissions, 'availability:setup');
+
+  const canChangeAvailability =
+    cancelADateRange.enabled && sitePermissions.includes('availability:setup');
 
   return (
     <NhsPage
@@ -31,7 +37,7 @@ const Page = async ({ params }: PageProps) => {
     >
       <CreateAvailabilityPage
         site={site}
-        cancelADateRange={cancelADateRange.enabled}
+        canChangeAvailability={canChangeAvailability}
       />
     </NhsPage>
   );

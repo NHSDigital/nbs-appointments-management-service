@@ -6,17 +6,20 @@ import { Site } from '@types';
 
 type Props = {
   site: Site;
-  cancelADateRange: boolean;
+  canChangeAvailability: boolean;
 };
 
-export const CreateAvailabilityPage = ({ site, cancelADateRange }: Props) => {
+export const CreateAvailabilityPage = ({
+  site,
+  canChangeAvailability,
+}: Props) => {
   return (
     <>
       <ButtonGroup>
         <Link href={`/site/${site.id}/create-availability/wizard`}>
           <Button type="button">Create new availability</Button>
         </Link>
-        {cancelADateRange && (
+        {canChangeAvailability && (
           <Link href={`/site/${site.id}/change-availability`}>
             <Button type="button" styleType="secondary">
               Change availability

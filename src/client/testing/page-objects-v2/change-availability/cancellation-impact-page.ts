@@ -18,6 +18,11 @@ export default class CancellationImpactPage extends MYALayout {
     name: /You cannot cancel these sessions/i,
   });
 
+  readonly noSessionsHeading = this.page.getByRole('heading', {
+    name: 'There are no sessions in this date range',
+    exact: true,
+  });
+
   readonly canNotCancelReturnButton = this.page.getByRole('button', {
     name: 'Return to view availability',
     exact: true,

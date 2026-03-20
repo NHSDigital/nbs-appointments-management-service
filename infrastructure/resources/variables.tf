@@ -447,6 +447,30 @@ variable "site_supports_service_batch_multiplier" {
   default = 2
 }
 
+variable "disable_site_cache" {
+  type = bool
+  default = false
+}
+
+variable "site_cache_key" {
+  type = string
+  default = "sites"
+}
+
+variable "allsites_sliding_cache_enabled" {
+  type = bool
+  default = true
+}
+
+variable "allsites_cache_duration_minutes" {
+  type = number
+  default = 60
+}
+
+variable "allsites_sliding_cache_duration_minutes" {
+  type = number
+  default = 20
+}
 
 variable "auditor_enable" {
   type = bool

@@ -325,3 +325,49 @@ Feature: Cancel date range
     Then the following cancel date range metrics should be returned
       | SessionCount | BookingCount | BookingsWithoutContactDetails |
       | 1            | 0            | 0                             |
+
+  Scenario: Cancel date range sets bookings to orphaned when cancel bookings is false
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 5 days from today | 09:00 | 17:00 | FLU:2_3   | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration | Service   | Reference |
+      | Tomorrow          | 09:00 | 10       | RSV:Adult | 77777     |
+      | 5 days from today | 09:10 | 10       | FLU:2_3   | 88888     |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 5 days from today | false          |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 3            | 0            | 0                              |
+    And the following bookings at the default site are now in the following state
+      | Reference | Status |
+      | 77777     | Booked |
+      | 88888     | Booked |
+    Then the booking at the default site with reference '77777' has availability status 'Orphaned'
+    And the booking at the default site with reference '88888' has availability status 'Orphaned'
+
+  Scenario: Cancel date range only sets bookings to orphaned within the date range
+    Given the following sessions exist for a created default site
+      | Date              | From  | Until | Services  | Slot Length | Capacity |
+      | Tomorrow          | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 2 days from today | 09:00 | 17:00 | RSV:Adult | 10          | 1        |
+      | 5 days from today | 09:00 | 17:00 | FLU:2_3   | 10          | 1        |
+    And the following bookings have been made at the default site
+      | Date              | Time  | Duration | Service   | Reference |
+      | Tomorrow          | 09:00 | 10       | RSV:Adult | 25894     |
+      | 5 days from today | 09:10 | 10       | FLU:2_3   | 35764     |
+    When I cancel sessions and bookings for the default site within a date range
+      | From     | To                | CancelBookings |
+      | Tomorrow | 3 days from today | false          |
+    Then the following cancel date range metrics should be returned
+      | SessionCount | BookingCount | BookingsWithoutContactDetails |
+      | 2            | 0            | 0                              |
+    And the following bookings at the default site are now in the following state
+      | Reference | Status |
+      | 25894     | Booked |
+      | 35764     | Booked |
+    Then the booking at the default site with reference '25894' has availability status 'Orphaned'
+    And the booking at the default site with reference '35764' has availability status 'Supported'

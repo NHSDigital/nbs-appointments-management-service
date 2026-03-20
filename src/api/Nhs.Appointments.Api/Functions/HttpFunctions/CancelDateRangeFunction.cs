@@ -11,6 +11,8 @@ using Nhs.Appointments.Core.Users;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Core.Inspectors;
 
 namespace Nhs.Appointments.Api.Functions.HttpFunctions;
 
@@ -38,6 +40,7 @@ public class CancelDateRangeFunction(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotImplemented,
         Description = "The cancel date range function is disabled or not available.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "The body of the request is invalid.")]
+    [RequiresPermission(Permissions.SetupAvailability, typeof(SiteFromBodyInspector))]
     [Function("CancelDateRangeFunction")]
     public override async Task<IActionResult> RunAsync(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "availability/cancel-date-range")]

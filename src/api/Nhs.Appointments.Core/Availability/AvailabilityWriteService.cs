@@ -1,6 +1,5 @@
 using System.Globalization;
 using Nhs.Appointments.Core.Bookings;
-using Nhs.Appointments.Core.Concurrency;
 
 namespace Nhs.Appointments.Core.Availability;
 
@@ -8,7 +7,7 @@ public class AvailabilityWriteService(
     IAvailabilityStore availabilityStore,
     IAvailabilityCreatedEventStore availabilityCreatedEventStore,
     IBookingWriteService bookingWriteService,
-    ISiteLeaseManager siteLeaseManager) : IAvailabilityWriteService
+    IBookingQueryService bookingQueryService) : IAvailabilityWriteService
 {
     public async Task ApplyAvailabilityTemplateAsync(string site, DateOnly from, DateOnly until, Template template, ApplyAvailabilityMode mode, string user)
     {
@@ -170,17 +169,23 @@ public class AvailabilityWriteService(
     public async Task<(int cancelledSessionsCount, int cancelledBookingsCount, int bookingsWithoutContactDetailsCount)> CancelDateRangeAsync(
         string site, DateOnly from, DateOnly until, bool cancelBookings, bool cancelDateRangeWithBookingsEnabled)
     {
-        using var leaseContent = siteLeaseManager.Acquire(site);
-
         var cancelledBookingsCount = 0;
         var bookingsWithoutContactDetailsCount = 0;
         var cancelledSessionsCount = await availabilityStore.CancelAllSessionsInDateRange(site, from, until);
+
+        var bookingQueryFilter = new BookingQueryFilter(from.ToDateTime(new TimeOnly(0, 0)), until.ToDateTime(new TimeOnly(23, 59, 59)), site);
+        var bookings = await bookingQueryService.GetBookings(bookingQueryFilter);
 
         if (cancelBookings && cancelDateRangeWithBookingsEnabled)
         {
             var result = await bookingWriteService.CancelAllBookingsInDateRangeAsync(site, from, until);
             cancelledBookingsCount = result.cancelledBookingsCount;
             bookingsWithoutContactDetailsCount = result.bookingsWithoutContactDetailsCount;
+        }
+        else if (!cancelBookings && bookings.Any())
+        {
+            var days = Enumerable.Range(0, until.DayNumber - from.DayNumber + 1).Select(from.AddDays).ToArray();
+            _ = await bookingWriteService.RecalculateAppointmentStatuses(site, days);
         }
 
         return (cancelledSessionsCount, cancelledBookingsCount, bookingsWithoutContactDetailsCount);

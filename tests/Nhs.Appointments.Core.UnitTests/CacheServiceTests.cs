@@ -50,6 +50,11 @@ public class CacheServiceTests
         tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         return await tcs.Task;
     }
+    
+    private Task<object> FakeOperation(object operationResult)
+    {
+        return Task.FromResult(operationResult);
+    }
 
     [Fact]
     public void LazySlidingCacheValuesSet()
@@ -405,5 +410,49 @@ public class CacheServiceTests
         
         //no more operations triggered, the current cache value returned and no slide occurred
         FakeExpensiveBoolOperationCallCount.Should().Be(5);
+    }
+
+    [Fact]
+    public async Task GivenCacheNull_WhenGetCacheValueIsCalled_ThenThrow()
+    {
+        _memoryCache.Set<object>("test_null", null);
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => _sut.GetCacheValue("test_null",
+                new CacheOptions<object>(async () => await FakeOperation(null), TimeSpan.FromSeconds(10))));
+    }
+    
+    [Fact]
+    public async Task GivenCacheValueNull_WhenGetCacheValueIsCalled_ThenRunOperation()
+    {
+        _sut.GetCacheValue("test_null_value",
+            new CacheOptions<object>(async () => await FakeOperation(null), TimeSpan.FromSeconds(10)));
+
+        var returnObj = new { Value = "Test_Success" };
+        var value = await _sut.GetCacheValue("test_null_value",
+            new CacheOptions<object>(async () => await FakeOperation(returnObj), TimeSpan.FromSeconds(10)));
+
+        Assert.Equal(returnObj, value);
+    }
+    
+    [Fact]
+    public async Task GivenCacheNoValue_WhenGetCacheValueIsCalled_ThenRunOperation()
+    {
+        var returnObj = new { Value = "Test_Success" };
+        var value = await _sut.GetCacheValue("test_no_value",
+            new CacheOptions<object>(async () => await FakeOperation(returnObj), TimeSpan.FromSeconds(10)));
+
+        Assert.Equal(returnObj, value);
+    }
+    
+    [Fact]
+    public async Task GivenValue_WhenGetCacheValueIsCalled_ThenReturnCache()
+    {
+        var returnObj = new { Value = "Test_Success" };
+        _sut.GetCacheValue("test_has_value",
+            new CacheOptions<object>(async () => await FakeOperation(returnObj), TimeSpan.FromSeconds(10)));
+        var value = await _sut.GetCacheValue("test_has_value",
+            new CacheOptions<object>(async () => await FakeOperation(new { Value = "Test_Fail" }), TimeSpan.FromSeconds(10)));
+
+        Assert.Equal(returnObj, value);
     }
 }

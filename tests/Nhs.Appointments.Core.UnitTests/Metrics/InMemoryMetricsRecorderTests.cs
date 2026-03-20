@@ -1,10 +1,10 @@
-﻿using Nhs.Appointments.Core.Metrics;
+using Nhs.Appointments.Core.Metrics;
 
 namespace Nhs.Appointments.Core.UnitTests.Metrics;
 
 public class InMemoryMetricsRecorderTests
 {
-    private readonly InMemoryMetricsRecorder _sut = new InMemoryMetricsRecorder();
+    private readonly InMemoryMetricsRecorder _sut = new();
 
     [Fact]
     public void RecordMetric_RecordsMetrics()
@@ -20,6 +20,23 @@ public class InMemoryMetricsRecorderTests
     }
 
     [Fact]
+    public void DifferentMetricsAreRecorded_RecordMetricIsCalled_TheMetricsAreRecordedFaithfully()
+    {
+        var generatedValue = Guid.NewGuid().ToString();
+        var mockMetric = new Mock<IMetric>();
+        mockMetric.SetupGet(x => x.Name).Returns(generatedValue);
+
+        _sut.RecordMetric("Test", 1);
+        _sut.RecordMetric("IMetric", mockMetric.Object);
+        var expectedResults = new List<(string Path, object Value)>
+        {
+            ("Test", 1),
+            ("IMetric", mockMetric.Object)
+        };
+        _sut.Metrics.Should().BeEquivalentTo(expectedResults);
+    }
+
+    [Fact]
     public void BeginScope_CreatesNestedScopes()
     {
         using(_sut.BeginScope("Scope1"))
@@ -30,7 +47,7 @@ public class InMemoryMetricsRecorderTests
             }
         }
                 
-        var expectedResults = new List<(string Path, double Value)>
+        var expectedResults = new List<(string Path, object Value)>
         {
             ("Scope1/Scope2/Test", 1),
         };
@@ -45,15 +62,18 @@ public class InMemoryMetricsRecorderTests
             _sut.RecordMetric("Test", 1);            
         }
 
+        var generatedValue = Guid.NewGuid().ToString();
+        var mockMetric = new Mock<IMetric>();
+        mockMetric.SetupGet(x => x.Name).Returns(generatedValue);
         using (_sut.BeginScope("Scope2"))
         {
-            _sut.RecordMetric("Other", 1);
+            _sut.RecordMetric("IMetric", mockMetric.Object);
         }
 
-        var expectedResults = new List<(string Path, double Value)>
+        var expectedResults = new List<(string Path, object Value)>
         {
             ("Scope1/Test", 1),
-            ("Scope2/Other", 1),
+            ("Scope2/IMetric", mockMetric.Object),
         };
         _sut.Metrics.Should().BeEquivalentTo(expectedResults);
     }

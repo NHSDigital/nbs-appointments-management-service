@@ -8,5 +8,5 @@ public interface IMetricsRecorder
 
     void RecordMetric(string name, IMetric values);
 
-    IReadOnlyCollection<(string Path, object Value)> Metrics { get; } // TODO: Replace this with IMetric rather than object.
+    IReadOnlyCollection<(string Path, object Value)> Metrics { get; }
 }

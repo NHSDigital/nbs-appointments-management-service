@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Metrics;
 using Nhs.Appointments.Persistance.UnitTests.Helpers;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
@@ -787,7 +788,7 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //Response Message does not record metrics
-        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", It.IsAny<double>()), Times.Never);
+        _metricsRecorder.Verify(f => f.RecordMetric("CosmosOperationMetric", It.IsAny<IMetric>()), Times.Never);
     }
 
     [Fact]

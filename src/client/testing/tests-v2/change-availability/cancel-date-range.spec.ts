@@ -1,7 +1,250 @@
+import { ChangeAvailabilityPage } from '@testing-page-objects';
 import { test, expect, BookingSetup } from '../../fixtures-v2';
 import { daysFromToday, getDateInFuture } from '../../utils/date-utility';
 
 test.describe.configure({ mode: 'serial' });
+
+[true, false].forEach(CancelADateRangeFlagEnabled => {
+  test.describe(`Test with CancelADateRangeFlag: '${CancelADateRangeFlagEnabled}'`, () => {
+    test.describe('Select Dates To Cancel', () => {
+      test('Select dates to cancel error, must be in the future', async ({
+        setup,
+      }) => {
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+        });
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            const date = getDateInFuture(-1);
+            await selectDatePage.fillDates(date, date);
+            await selectDatePage.clickContinueButtonForError();
+
+            await expect(selectDatePage.startDateError).toContainText(
+              /must be in the future/i,
+            );
+
+            await expect(selectDatePage.endDateError).toContainText(
+              /must be in the future/i,
+            );
+
+            await expect(selectDatePage.backButton).toBeVisible();
+            return await selectDatePage.clickBackButton();
+          })
+          .then(async changeAvailabilityPage => {
+            await expect(
+              changeAvailabilityPage.beforeYouContinueHeading,
+            ).toBeVisible();
+          });
+      });
+
+      test('Select dates to cancel error, mandatory field validation', async ({
+        setup,
+      }) => {
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+        });
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            await selectDatePage.clickContinueButtonForError();
+
+            await expect(selectDatePage.startDateError).toContainText(
+              /Enter a start date/i,
+            );
+
+            await expect(selectDatePage.endDateError).toContainText(
+              /Enter an end date/i,
+            );
+
+            await expect(selectDatePage.backButton).toBeVisible();
+            return await selectDatePage.clickBackButton();
+          })
+          .then(async changeAvailabilityPage => {
+            await expect(
+              changeAvailabilityPage.beforeYouContinueHeading,
+            ).toBeVisible();
+          });
+      });
+
+      test('Select dates to cancel error, end date must be after the start date', async ({
+        setup,
+      }) => {
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+        });
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            const startDate = getDateInFuture(5);
+            const endDate = getDateInFuture(2);
+            await selectDatePage.fillDates(startDate, endDate);
+            await selectDatePage.clickContinueButtonForError();
+
+            await expect(selectDatePage.endDateError).toContainText(
+              /End date must be on or after the start date/i,
+            );
+
+            await expect(selectDatePage.backButton).toBeVisible();
+            return await selectDatePage.clickBackButton();
+          })
+          .then(async changeAvailabilityPage => {
+            await expect(
+              changeAvailabilityPage.beforeYouContinueHeading,
+            ).toBeVisible();
+          });
+      });
+
+      test('Select dates to cancel error within 3 months - 90 days or less', async ({
+        setup,
+      }) => {
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+        });
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            const startDate = getDateInFuture(1);
+            const endDate = getDateInFuture(90);
+            await selectDatePage.fillDates(startDate, endDate);
+            return await selectDatePage.clickContinueButton();
+          })
+          .then(async cancellationImpactPage => {
+            await expect(
+              cancellationImpactPage.noSessionsHeading,
+            ).toBeVisible();
+          });
+      });
+
+      test('Select dates to cancel error within 3 months - greater than 90 days', async ({
+        setup,
+      }) => {
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+        });
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            const startDate = getDateInFuture(1);
+            const endDate = getDateInFuture(91);
+            await selectDatePage.fillDates(startDate, endDate);
+            await selectDatePage.clickContinueButtonForError();
+
+            await expect(selectDatePage.startDateError).toContainText(
+              /Start date must be within 90 days of the end date/i,
+            );
+
+            await expect(selectDatePage.endDateError).toContainText(
+              /End date must be within 90 days of the start date/i,
+            );
+
+            await expect(selectDatePage.backButton).toBeVisible();
+            return await selectDatePage.clickBackButton();
+          })
+          .then(async changeAvailabilityPage => {
+            await expect(
+              changeAvailabilityPage.beforeYouContinueHeading,
+            ).toBeVisible();
+          });
+      });
+    });
+  });
+});
 
 [true, false].forEach(CancelADateRangeWithBookingsFlagEnabled => {
   test.describe(`Test with CancelADateRangeWithBookingsFlag: '${CancelADateRangeWithBookingsFlagEnabled}'`, () => {

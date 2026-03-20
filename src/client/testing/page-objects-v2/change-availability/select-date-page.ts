@@ -1,6 +1,7 @@
 import { MYALayout } from '@e2etests/types';
 import { DateComponents } from '@types';
 import CancellationImpactPage from './cancellation-impact-page';
+import ChangeAvailabilityPage from './change-availability-page';
 
 export default class SelectDatePage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -13,9 +14,27 @@ export default class SelectDatePage extends MYALayout {
   readonly endDateDayInput = this.page.locator('#end-date-day');
   readonly endDateMonthInput = this.page.locator('#end-date-month');
   readonly endDateYearInput = this.page.locator('#end-date-year');
-
   readonly continueButton = this.page.getByRole('button', {
     name: 'Continue',
+    exact: true,
+  });
+
+  readonly startDateError = this.page
+    .locator('.nhsuk-form-group--error')
+    .filter({
+      has: this.page.locator('legend', { hasText: /^Start date$/ }),
+    })
+    .locator('.nhsuk-error-message');
+
+  readonly endDateError = this.page
+    .locator('.nhsuk-form-group--error')
+    .filter({
+      has: this.page.locator('legend', { hasText: /^End date$/ }),
+    })
+    .locator('.nhsuk-error-message');
+
+  readonly backButton = this.page.getByRole('link', {
+    name: 'Back',
     exact: true,
   });
 
@@ -35,5 +54,15 @@ export default class SelectDatePage extends MYALayout {
     await this.continueButton.click();
 
     return new CancellationImpactPage(this.page, this.site);
+  }
+
+  async clickContinueButtonForError(): Promise<void> {
+    await this.continueButton.click();
+  }
+
+  async clickBackButton(): Promise<ChangeAvailabilityPage> {
+    await this.backButton.click();
+
+    return new ChangeAvailabilityPage(this.page, this.site);
   }
 }

@@ -14,6 +14,11 @@ export default class ChangeAvailabilityPage extends MYALayout {
     .locator('ol.nhsuk-list--number')
     .getByRole('listitem');
 
+  readonly beforeYouContinueHeading = this.page.getByRole('heading', {
+    name: 'Before you continue',
+    exact: true,
+  });
+
   async clickContinueButton(): Promise<SelectDatePage> {
     await this.continueButton.click();
 

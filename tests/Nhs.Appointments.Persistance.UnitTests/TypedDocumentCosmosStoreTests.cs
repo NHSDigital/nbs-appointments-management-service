@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Persistance.UnitTests.Helpers;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
 
@@ -1550,12 +1551,5 @@ public class TypedDocumentCosmosStoreTests
         capturedPatches.Should().ContainSingle(p =>
             p.OperationType == PatchOperationType.Set &&
             p.Path == "/lastUpdatedOn");
-    }
-
-    private sealed class RetryAfterCosmosException(TimeSpan retryAfter) : CosmosException("Boom",
-        HttpStatusCode.TooManyRequests, subStatusCode: 0,
-        activityId: Guid.NewGuid().ToString(), requestCharge: 2)
-    {
-        public override TimeSpan? RetryAfter => retryAfter;
     }
 }

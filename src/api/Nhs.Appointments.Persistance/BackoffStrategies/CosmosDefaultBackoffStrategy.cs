@@ -6,12 +6,13 @@ namespace Nhs.Appointments.Persistance.BackoffStrategies;
 /// This class implements the Cosmos default backoff strategy.
 /// </summary>
 /// <param name="containerRetryConfiguration">The configuration to be used for retrying the database operation.</param>
-internal class CosmosDefaultBackoffStrategy(ContainerRetryConfiguration containerRetryConfiguration) 
-    : BaseCosmosBackoffStrategy(containerRetryConfiguration)
+internal class CosmosDefaultBackoffStrategy(ContainerRetryConfiguration containerRetryConfiguration) : ICosmosBackoffStrategy
 {
-    private const int DefaultCosmosMaxRetries = 9;
+    public const int DefaultCosmosMaxRetries = 9;
 
-    public override void Backoff(CosmosException ex, CosmosBackoffContext context)
+    public TimeSpan NextRetryDelayMs { get; private set; }
+
+    public void Backoff(CosmosException ex, CosmosBackoffContext context)
     {
         if (!ex.RetryAfter.HasValue)
         {
@@ -22,12 +23,10 @@ internal class CosmosDefaultBackoffStrategy(ContainerRetryConfiguration containe
         if (context.RetryCount == DefaultCosmosMaxRetries)
         {
             var error =
-                $"{context.LinkId} - Cosmos TooManyRequests failed after max retries ({DefaultCosmosMaxRetries}) exceeded for container: {ContainerRetryConfiguration.ContainerName}, total delay time ms: {context.TotalDelayMs.TotalMilliseconds}";
-            throw new ApplicationException(error); // TODO: Replace with a specific exception?
+                $"{context.LinkId} - Cosmos TooManyRequests failed after max retries ({DefaultCosmosMaxRetries}) exceeded for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {context.TotalDelayMs.TotalMilliseconds}";
+            throw new BackoffException(error);
         }
 
         NextRetryDelayMs = ex.RetryAfter.Value;
-
-        base.Backoff(ex, context);
     }
 }

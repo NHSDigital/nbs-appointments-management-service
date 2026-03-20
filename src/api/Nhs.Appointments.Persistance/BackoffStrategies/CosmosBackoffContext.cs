@@ -8,7 +8,7 @@ internal record CosmosBackoffContext
 
     public TimeSpan TotalDelayMs { get; private set; } = TimeSpan.FromMilliseconds(0);
 
-    public bool Reattempt => RetryCount > 0;
+    public bool IsReattempt => RetryCount > 0;
 
     public void RecordBackoff(TimeSpan nextRetryDelayMs)
     {

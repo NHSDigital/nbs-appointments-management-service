@@ -1,13 +1,14 @@
+using Microsoft.Azure.Cosmos;
+
 namespace Nhs.Appointments.Persistance.BackoffStrategies;
 
 /// <summary>
 /// This class implements a linear backoff strategy.
 /// </summary>
 /// <param name="containerRetryConfiguration">The configuration to be used for retrying the database operation.</param>
-internal class CosmosLinearBackoffStrategy : BaseCosmosBackoffStrategy
+internal class CosmosLinearBackoffStrategy(ContainerRetryConfiguration containerRetryConfiguration) : ICosmosBackoffStrategy
 {
-    public CosmosLinearBackoffStrategy(ContainerRetryConfiguration containerRetryConfiguration) : base(containerRetryConfiguration)
-    {
-        NextRetryDelayMs = TimeSpan.FromMilliseconds(ContainerRetryConfiguration.InitialValueMs);
-    }
+    public TimeSpan NextRetryDelayMs { get; } = TimeSpan.FromMilliseconds(containerRetryConfiguration.InitialValueMs);
+
+    public void Backoff(CosmosException ex, CosmosBackoffContext context) { }
 }

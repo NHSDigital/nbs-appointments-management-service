@@ -6,16 +6,15 @@ namespace Nhs.Appointments.Persistance.BackoffStrategies;
 /// This class implements a geometric double backoff strategy.
 /// </summary>
 /// <param name="containerRetryConfiguration">The configuration to be used for retrying the database operation.</param>
-internal class CosmosGeometricDoubleBackoffStrategy(ContainerRetryConfiguration containerRetryConfiguration) 
-    : BaseCosmosBackoffStrategy(containerRetryConfiguration)
+internal class CosmosGeometricDoubleBackoffStrategy(ContainerRetryConfiguration containerRetryConfiguration) : ICosmosBackoffStrategy
 {
     private TimeSpan customDelayMs = TimeSpan.FromMilliseconds(containerRetryConfiguration.InitialValueMs);
 
-    public override void Backoff(CosmosException ex, CosmosBackoffContext context)
+    public TimeSpan NextRetryDelayMs { get; private set; }
+
+    public void Backoff(CosmosException ex, CosmosBackoffContext context)
     {
         NextRetryDelayMs = customDelayMs;
         customDelayMs *= 2;
-
-        base.Backoff(ex, context);
     }
 }

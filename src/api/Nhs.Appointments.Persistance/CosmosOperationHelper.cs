@@ -14,10 +14,11 @@ public static class CosmosOperationHelper
         ILogger logger,
         IMetricsRecorder metricsRecorder,
         string documentType, // TODO: Revisit this
-        // TODO: Add ITimeProvider
+                             // TODO: Add ITimeProvider
         CancellationToken cancellationToken = default)
     {
         var context = new CosmosBackoffContext();
+        var customCutoffMs = TimeSpan.FromMilliseconds(containerRetryConfiguration.CutoffRetryMs);
 
         T retryResult;
 
@@ -31,33 +32,43 @@ public static class CosmosOperationHelper
 
         try
         {
-            while (true)
+        while (true)
+        {
+            try
             {
-                try
+                LogReattempt(containerRetryConfiguration, logger, context);
+
+                retryResult = await Attempt(cosmosOperation, metric);
+
+                break; // No error if we reach this point.
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                metric.AddRuCharge(ex.RequestCharge); // TODO: Can we always extract the RequestCharge?
+                backoffStrategy.Backoff(ex, context);
+
+                if (context.TotalDelayMs + backoffStrategy.NextRetryDelayMs > customCutoffMs)
                 {
-                    LogReattempt(containerRetryConfiguration, logger, context);
+                    var error =
+                        $"{context.LinkId} - Cosmos TooManyRequests failed because the CutoffRetryMs ({containerRetryConfiguration.CutoffRetryMs}) would be exceeded on the next retry attempt : total retries: {context.RetryCount} for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {context.TotalDelayMs.TotalMilliseconds}";
 
-                    retryResult = await Attempt(cosmosOperation, metric);
-
-                    break; // No error if we reach this point.
+                    throw new BackoffException(error);
                 }
-                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    metric.AddRuCharge(ex.RequestCharge); // TODO: Can we always extract the RequestCharge?
-                    backoffStrategy.Backoff(ex, context);
 
-                    await Task.Delay(backoffStrategy.NextRetryDelayMs, cancellationToken);
-                }
-                catch (CosmosException ex)
-                {
-                    metric.AddRuCharge(ex.RequestCharge);
+                context.RecordBackoff(backoffStrategy.NextRetryDelayMs);
 
-                    RecordQueryMetrics(metricsRecorder, metric);
-                    throw;
-                }
+                await Task.Delay(backoffStrategy.NextRetryDelayMs, cancellationToken);
+            }
+            catch (CosmosException ex)
+            {
+                metric.AddRuCharge(ex.RequestCharge);
+
+                RecordQueryMetrics(metricsRecorder, metric);
+                throw;
             }
         }
-        catch (ApplicationException ex) // TODO: Replace with specific exception?
+        }
+        catch (BackoffException ex) 
         {
             RecordQueryMetrics(metricsRecorder, metric);
             logger.LogError(ex.Message);
@@ -85,7 +96,7 @@ public static class CosmosOperationHelper
 
     private static void LogReattempt(ContainerRetryConfiguration containerRetryConfiguration, ILogger logger, CosmosBackoffContext context)
     {
-        if (context.Reattempt)
+        if (context.IsReattempt)
         {
             logger.LogInformation(
                 "{linkId} - Cosmos TooManyRequests retryCount: {retryCount}, for container: {container}, total delay time ms: {totalDelayMs}",

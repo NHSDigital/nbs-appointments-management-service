@@ -1,6 +1,7 @@
 import { MYALayout } from '@e2etests/types';
 import CheckYourAnswersPage from './check-your-answers-page';
 import SelectDatePage from './select-date-page';
+import MonthViewAvailabilityPage from '../view-availability-appointment-pages/month-view-availability-page';
 
 export default class CancellationImpactPage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -62,6 +63,18 @@ export default class CancellationImpactPage extends MYALayout {
 
   async clickNewDateRangeButton(): Promise<SelectDatePage> {
     await this.newDateRangeButton.click();
+
+    return new SelectDatePage(this.page, this.site);
+  }
+
+  async clickCanNotCancelReturnButton(): Promise<MonthViewAvailabilityPage> {
+    await this.canNotCancelReturnButton.click();
+
+    return new MonthViewAvailabilityPage(this.page, this.site);
+  }
+
+  async clickCanNotCancelDifferentDatesButton(): Promise<SelectDatePage> {
+    await this.canNotCancelDifferentDatesButton.click();
 
     return new SelectDatePage(this.page, this.site);
   }

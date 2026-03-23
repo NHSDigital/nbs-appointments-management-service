@@ -8,6 +8,11 @@ export default class SelectDatePage extends MYALayout {
     name: this.site?.name,
   });
 
+  readonly pageHeading = this.page.getByRole('heading', {
+    name: 'Select dates to cancel',
+    exact: true,
+  });
+
   readonly startDateDayInput = this.page.locator('#start-date-day');
   readonly startDateMonthInput = this.page.locator('#start-date-month');
   readonly startDateYearInput = this.page.locator('#start-date-year');

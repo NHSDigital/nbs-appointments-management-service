@@ -1,5 +1,6 @@
 import { test, expect, BookingSetup } from '../../fixtures-v2';
 import { daysFromToday, getDateInFuture } from '../../utils/date-utility';
+import { ukNow } from '@services/timeService';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -939,6 +940,212 @@ test.describe.configure({ mode: 'serial' });
               }
             });
         });
+      });
+    });
+
+    test.describe('Cannot Cancel', () => {
+      test('Cannot cancel these sessions - Return to view availability', async ({
+        setup,
+      }) => {
+        const day = daysFromToday(1);
+        const availability = [
+          {
+            date: day,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+        ];
+        const bookings: BookingSetup[] = [
+          {
+            fromDate: day,
+            fromTime: '09:00:00',
+            durationMins: 5,
+            service: 'COVID_FLU:65+',
+            status: 'Booked',
+            availabilityStatus: 'Supported',
+          },
+          {
+            fromDate: day,
+            fromTime: '09:10:00',
+            durationMins: 5,
+            service: 'COVID_FLU:65+',
+            status: 'Booked',
+            availabilityStatus: 'Supported',
+          },
+        ];
+
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRangeWithBookings',
+              enabled: CancelADateRangeWithBookingsFlagEnabled,
+            },
+            {
+              name: 'CancelADateRange',
+              enabled: true,
+            },
+          ],
+          availability: availability,
+          bookings: bookings,
+        });
+        const totalSessionCount = availability.reduce(
+          (acc, sessionDay) => acc + sessionDay.sessions.length,
+          0,
+        );
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(
+            async monthViewAvailabilityPage =>
+              await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
+          )
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            const fromDate = getDateInFuture(1);
+            const toDate = getDateInFuture(1);
+            await selectDatePage.fillDates(fromDate, toDate);
+            return await selectDatePage.clickContinueButton();
+          })
+          .then(async cancellationImpactPage => {
+            if (CancelADateRangeWithBookingsFlagEnabled) {
+              await expect(
+                cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
+              ).toBeVisible();
+              test.skip();
+            }
+
+            await expect(
+              cancellationImpactPage.canNotCancelHeading,
+            ).toBeVisible();
+
+            return await cancellationImpactPage.clickCanNotCancelReturnButton();
+          })
+          .then(async monthViewAvailabilityPage => {
+            const formattedMonthAndYear = ukNow().format('MMMM YYYY');
+            await monthViewAvailabilityPage.verifyHeadingDisplayed(
+              formattedMonthAndYear,
+            );
+          });
+      });
+
+      test('Cannot cancel these sessions - Select different dates', async ({
+        setup,
+      }) => {
+        const day = daysFromToday(1);
+        const availability = [
+          {
+            date: day,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+        ];
+        const bookings: BookingSetup[] = [
+          {
+            fromDate: day,
+            fromTime: '09:00:00',
+            durationMins: 5,
+            service: 'COVID_FLU:65+',
+            status: 'Booked',
+            availabilityStatus: 'Supported',
+          },
+          {
+            fromDate: day,
+            fromTime: '09:10:00',
+            durationMins: 5,
+            service: 'COVID_FLU:65+',
+            status: 'Booked',
+            availabilityStatus: 'Supported',
+          },
+        ];
+
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRangeWithBookings',
+              enabled: CancelADateRangeWithBookingsFlagEnabled,
+            },
+            {
+              name: 'CancelADateRange',
+              enabled: true,
+            },
+          ],
+          availability: availability,
+          bookings: bookings,
+        });
+        const totalSessionCount = availability.reduce(
+          (acc, sessionDay) => acc + sessionDay.sessions.length,
+          0,
+        );
+        const fromDate = getDateInFuture(1);
+        const toDate = getDateInFuture(1);
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(
+            async monthViewAvailabilityPage =>
+              await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
+          )
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            await selectDatePage.fillDates(fromDate, toDate);
+            return await selectDatePage.clickContinueButton();
+          })
+          .then(async cancellationImpactPage => {
+            if (CancelADateRangeWithBookingsFlagEnabled) {
+              await expect(
+                cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
+              ).toBeVisible();
+              test.skip();
+            }
+
+            await expect(
+              cancellationImpactPage.canNotCancelDifferentDatesButton,
+            ).toBeVisible();
+
+            return await cancellationImpactPage.clickCanNotCancelDifferentDatesButton();
+          })
+          .then(async selectDatePage => {
+            await expect(selectDatePage.pageHeading).toBeVisible();
+            await expect(selectDatePage.startDateDayInput).toHaveValue(
+              parseInt(fromDate.day.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.startDateMonthInput).toHaveValue(
+              parseInt(fromDate.month.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.startDateYearInput).toHaveValue(
+              fromDate.year.toString(),
+            );
+
+            await expect(selectDatePage.endDateDayInput).toHaveValue(
+              parseInt(toDate.day.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.endDateMonthInput).toHaveValue(
+              parseInt(toDate.month.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.endDateYearInput).toHaveValue(
+              toDate.year.toString(),
+            );
+          });
       });
     });
   });

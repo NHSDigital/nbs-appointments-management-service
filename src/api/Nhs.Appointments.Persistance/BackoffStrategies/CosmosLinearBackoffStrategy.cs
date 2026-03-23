@@ -8,7 +8,8 @@ namespace Nhs.Appointments.Persistance.BackoffStrategies;
 /// <param name="containerRetryConfiguration">The configuration to be used for retrying the database operation.</param>
 internal class CosmosLinearBackoffStrategy(ContainerRetryConfiguration containerRetryConfiguration) : ICosmosBackoffStrategy
 {
-    public TimeSpan NextRetryDelayMs { get; } = TimeSpan.FromMilliseconds(containerRetryConfiguration.InitialValueMs);
-
-    public void Backoff(CosmosException ex, CosmosBackoffContext context) { }
+    public TimeSpan Backoff(CosmosException ex, CosmosBackoffContext context)
+    {
+        return TimeSpan.FromMilliseconds(containerRetryConfiguration.InitialValueMs);
+    }
 }

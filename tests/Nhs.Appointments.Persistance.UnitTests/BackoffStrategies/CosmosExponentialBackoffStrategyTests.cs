@@ -22,10 +22,10 @@ public class CosmosExponentialBackoffStrategyTests
         var sut = new CosmosExponentialBackoffStrategy(retryConfiguration);
 
         // Act.
-        sut.Backoff(exception, context);
+        var nextRetryDelayMs = sut.Backoff(exception, context);
 
         // Assert.
-        sut.NextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
+        nextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
     }
 
     [Fact]
@@ -40,15 +40,16 @@ public class CosmosExponentialBackoffStrategyTests
         var exception = new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, Guid.NewGuid().ToString(), 2);
         var context = new CosmosBackoffContext();
         var sut = new CosmosExponentialBackoffStrategy(retryConfiguration);
+        sut.Backoff(exception, context);
 
         // Act.
-        for (var i = 0; i < numberOfRetries; i++)
+        for (var i = 1; i < numberOfRetries; i++)
         {
-            sut.Backoff(exception, context);
+            var nextRetryDelayMs = sut.Backoff(exception, context);
             
             // Assert.
             var exponent = Math.Log(retryConfiguration.InitialValueMs) + i;
-            sut.NextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds((int)Math.Floor(Math.Exp(exponent))));
+            nextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds((int)Math.Floor(Math.Exp(exponent))));
         }
     }
 }

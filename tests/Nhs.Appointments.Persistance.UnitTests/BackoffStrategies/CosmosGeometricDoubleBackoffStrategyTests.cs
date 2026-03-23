@@ -22,10 +22,10 @@ public class CosmosGeometricDoubleBackoffStrategyTests
         var sut = new CosmosGeometricDoubleBackoffStrategy(retryConfiguration);
 
         // Act.
-        sut.Backoff(exception, context);
+        var nextRetryDelayMs = sut.Backoff(exception, context);
 
         // Assert.
-        sut.NextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
+        nextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
     }
 
     [Fact]
@@ -43,11 +43,11 @@ public class CosmosGeometricDoubleBackoffStrategyTests
         for (var retryCount = 0; retryCount < numberOfBackoffs; retryCount++)
         {
             // Act.
-            sut.Backoff(exception, context);
+            var nextRetryDelayMs = sut.Backoff(exception, context);
 
             // Assert.
             var expectedValue = TimeSpan.FromMilliseconds(retryConfiguration.InitialValueMs * Math.Pow(2, retryCount));
-            sut.NextRetryDelayMs.Should().Be(expectedValue);
+            nextRetryDelayMs.Should().Be(expectedValue);
         }
     }
 }

@@ -20,10 +20,10 @@ public class CosmosDefaultBackoffStrategyTests
         var sut = new CosmosDefaultBackoffStrategy(retryConfiguration);
 
         // Act.
-        sut.Backoff(exception, context);
+        var nextRetryDelayMs = sut.Backoff(exception, context);
 
         // Assert.
-        sut.NextRetryDelayMs.Should().Be(expectedRetryValue);
+        nextRetryDelayMs.Should().Be(expectedRetryValue);
     }
 
     [Fact]

@@ -13,14 +13,12 @@ public static class CosmosOperationHelper
         Func<Task<T>> cosmosOperation,
         ILogger logger,
         IMetricsRecorder metricsRecorder,
-        string documentType, // TODO: Revisit this
-                             // TODO: Add ITimeProvider
+        string documentType,
+        // TODO: Add ITimeProvider
         CancellationToken cancellationToken = default)
     {
         var context = new CosmosBackoffContext();
         var customCutoffMs = TimeSpan.FromMilliseconds(containerRetryConfiguration.CutoffRetryMs);
-
-        T retryResult;
 
         var metric = new CosmosOperationMetric
         {
@@ -32,43 +30,44 @@ public static class CosmosOperationHelper
 
         try
         {
-        while (true)
-        {
-            try
+            while (true)
             {
-                LogReattempt(containerRetryConfiguration, logger, context);
-
-                retryResult = await Attempt(cosmosOperation, metric);
-
-                break; // No error if we reach this point.
-            }
-            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                metric.AddRuCharge(ex.RequestCharge); // TODO: Can we always extract the RequestCharge?
-                backoffStrategy.Backoff(ex, context);
-
-                if (context.TotalDelayMs + backoffStrategy.NextRetryDelayMs > customCutoffMs)
+                try
                 {
-                    var error =
-                        $"{context.LinkId} - Cosmos TooManyRequests failed because the CutoffRetryMs ({containerRetryConfiguration.CutoffRetryMs}) would be exceeded on the next retry attempt : total retries: {context.RetryCount} for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {context.TotalDelayMs.TotalMilliseconds}";
+                    LogReattempt(containerRetryConfiguration, logger, context);
 
-                    throw new BackoffException(error);
+                    var retryResult = await Attempt(cosmosOperation, metric);
+
+                    // TODO: Can we safely add the results request charge by extracting it here, so as not to need to extract it in the caller? Need to understand the "canExtractRequestCharge" boolean.
+                    return (retryResult, metric); // No error if we reach this point.
                 }
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    metric.AddRuCharge(ex.RequestCharge);
+                    var nextRetryDelayMs = backoffStrategy.Backoff(ex, context);
 
-                context.RecordBackoff(backoffStrategy.NextRetryDelayMs);
+                    if (context.TotalDelayMs + nextRetryDelayMs > customCutoffMs)
+                    {
+                        var error =
+                            $"{context.LinkId} - Cosmos TooManyRequests failed because the CutoffRetryMs ({containerRetryConfiguration.CutoffRetryMs}) would be exceeded on the next retry attempt : total retries: {context.RetryCount} for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {context.TotalDelayMs.TotalMilliseconds}";
 
-                await Task.Delay(backoffStrategy.NextRetryDelayMs, cancellationToken);
-            }
-            catch (CosmosException ex)
-            {
-                metric.AddRuCharge(ex.RequestCharge);
+                        throw new BackoffException(error);
+                    }
 
-                RecordQueryMetrics(metricsRecorder, metric);
-                throw;
+                    context.RecordBackoff(nextRetryDelayMs);
+
+                    await Task.Delay(nextRetryDelayMs, cancellationToken);
+                }
+                catch (CosmosException ex)
+                {
+                    metric.AddRuCharge(ex.RequestCharge);
+
+                    RecordQueryMetrics(metricsRecorder, metric);
+                    throw;
+                }
             }
         }
-        }
-        catch (BackoffException ex) 
+        catch (BackoffException ex)
         {
             RecordQueryMetrics(metricsRecorder, metric);
             logger.LogError(ex.Message);
@@ -76,8 +75,6 @@ public static class CosmosOperationHelper
             throw new InvalidOperationException(
                 $"Container '{containerRetryConfiguration.ContainerName}' too many requests were exceeded for linkId: {context.LinkId}");
         }
-
-        return (retryResult, metric);
     }
 
     private static async Task<T> Attempt<T>(Func<Task<T>> cosmosOperation, CosmosOperationMetric metric)
@@ -90,7 +87,6 @@ public static class CosmosOperationHelper
         finally
         {
             metric.EndAttempt(DateTime.UtcNow);
-            // TODO: Can we add the results request charge here, so as not to need to extract it later? Need to understand the canExtract... boolean.
         }
     }
 

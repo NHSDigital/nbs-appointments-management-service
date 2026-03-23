@@ -12,17 +12,17 @@ public record CosmosOperationMetric : IMetric
 
     private CosmosOperationAttemptTiming Current => timings.LastOrDefault();
 
-    internal DateTime? StartTime { get; private set; }
+    public DateTime? StartTime { get; private set; }
 
-    internal DateTime? EndTime { get; private set; }
+    public DateTime? EndTime { get; private set; }
 
-    internal double RuCharge { get; private set; } = 0.0;
+    public double RuCharge { get; private set; } = 0.0;
 
-    internal string Container { get; init; }
+    public string Container { get; init; }
 
-    internal string DocumentType { get; init; }
+    public string DocumentType { get; init; }
 
-    internal List<CosmosOperationAttemptTiming> Timings => timings.Where(t => t.IsStarted).ToList();
+    public List<CosmosOperationAttemptTiming> Timings => timings.Where(t => t.IsStarted).ToList();
 
     public string Name => nameof(CosmosOperationMetric);
 

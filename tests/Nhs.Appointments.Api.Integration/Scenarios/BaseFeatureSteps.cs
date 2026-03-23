@@ -136,7 +136,7 @@ public abstract partial class BaseFeatureSteps : Feature
             cosmosOperation,
             new Logger<T>(new LoggerFactory()),
             new InMemoryMetricsRecorder(),
-            "TODO: DocumentType",
+            "TestDocumentType",
             cancellationToken)).result;
     }
 

@@ -4,7 +4,5 @@ namespace Nhs.Appointments.Persistance.BackoffStrategies;
 
 internal interface ICosmosBackoffStrategy
 {
-    void Backoff(CosmosException ex, CosmosBackoffContext context);
-
-    TimeSpan NextRetryDelayMs { get; }
+    TimeSpan Backoff(CosmosException ex, CosmosBackoffContext context);
 }

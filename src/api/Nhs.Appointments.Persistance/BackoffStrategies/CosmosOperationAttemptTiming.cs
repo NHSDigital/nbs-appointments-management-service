@@ -8,7 +8,7 @@ public record CosmosOperationAttemptTiming
     private DateTime? startTime = null!;
     private DateTime? endTime = null!;
 
-    internal DateTime? StartTime
+    public DateTime? StartTime
     {
         get => startTime;
         set
@@ -22,7 +22,7 @@ public record CosmosOperationAttemptTiming
         }
     }
 
-    internal DateTime? EndTime
+    public DateTime? EndTime
     {
         get => endTime;
         set
@@ -46,7 +46,7 @@ public record CosmosOperationAttemptTiming
         }
     }
 
-    internal TimeSpan? Elapsed => EndTime is not null ? EndTime - StartTime : null!;
+    public TimeSpan? Elapsed => EndTime is not null ? EndTime - StartTime : null!;
 
     internal bool IsStarted => StartTime is not null;
 }

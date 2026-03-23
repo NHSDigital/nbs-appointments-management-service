@@ -23,10 +23,10 @@ public class CosmosLinearBackoffStrategyTests
         var sut = new CosmosLinearBackoffStrategy(retryConfiguration);
 
         // Act.
-        sut.Backoff(exception, context);
+        var nextRetryDelayMs = sut.Backoff(exception, context);
 
         // Assert.
-        sut.NextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
+        nextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
     }
 
     [Fact]
@@ -45,10 +45,9 @@ public class CosmosLinearBackoffStrategyTests
         // Act.
         for (var i = 0; i < randomNumberOfBackoffCalls; i++)
         {
-            sut.Backoff(exception, context);
+            var nextRetryDelayMs = sut.Backoff(exception, context);
+            // Assert.
+            nextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
         }
-
-        // Assert.
-        sut.NextRetryDelayMs.Should().Be(TimeSpan.FromMilliseconds(randomInitialValueMs));
     }
 }

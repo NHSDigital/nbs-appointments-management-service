@@ -12,11 +12,11 @@ internal class CosmosExponentialBackoffStrategy(ContainerRetryConfiguration cont
 
     private double exponent = Math.Log(containerRetryConfiguration.InitialValueMs) + 1;
 
-    public TimeSpan NextRetryDelayMs { get; private set; }
-
-    public void Backoff(CosmosException ex, CosmosBackoffContext context)
+    public TimeSpan Backoff(CosmosException ex, CosmosBackoffContext context)
     {
-        NextRetryDelayMs = customDelayMs;
+        var nextRetryDelayMs = customDelayMs;
         customDelayMs = TimeSpan.FromMilliseconds((int)Math.Floor(Math.Exp(exponent++)));
+
+        return nextRetryDelayMs;
     }
 }

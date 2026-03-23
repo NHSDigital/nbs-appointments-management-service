@@ -10,9 +10,7 @@ internal class CosmosDefaultBackoffStrategy(ContainerRetryConfiguration containe
 {
     public const int DefaultCosmosMaxRetries = 9;
 
-    public TimeSpan NextRetryDelayMs { get; private set; }
-
-    public void Backoff(CosmosException ex, CosmosBackoffContext context)
+    public TimeSpan Backoff(CosmosException ex, CosmosBackoffContext context)
     {
         if (!ex.RetryAfter.HasValue)
         {
@@ -27,6 +25,6 @@ internal class CosmosDefaultBackoffStrategy(ContainerRetryConfiguration containe
             throw new BackoffException(error);
         }
 
-        NextRetryDelayMs = ex.RetryAfter.Value;
+        return ex.RetryAfter.Value;
     }
 }

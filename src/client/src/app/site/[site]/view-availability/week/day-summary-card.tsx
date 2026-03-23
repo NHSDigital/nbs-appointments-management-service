@@ -41,6 +41,9 @@ export const DaySummaryCard = ({
   const isFutureCalendarDate = isFutureCalendarDateUk(ukDate);
 
   const totalAppointments = bookedAppointments + orphanedAppointments;
+  const dayHeading = dateIsToday(ukDate)
+    ? `${ukDate.format('dddd D MMMM')} (today)`
+    : `${ukDate.format('dddd D MMMM')}`;
 
   if (sessions.length === 0) {
     const actionLinks: ActionLink[] = [
@@ -69,7 +72,7 @@ export const DaySummaryCard = ({
           headingLevel="h3"
           className="appointment-summary-card-item-margin"
         >
-          {ukDate.format('dddd D MMMM')}
+          {dayHeading}
         </Card.Heading>
         <div className="appointment-summary-card-item-margin">
           No availability
@@ -91,10 +94,6 @@ export const DaySummaryCard = ({
         href: `daily-appointments?date=${ukDate.format(RFC3339Format)}&page=1&tab=1`,
       },
   ].filter(p => p !== false);
-
-  const dayHeading = dateIsToday(ukDate)
-    ? `${ukDate.format('dddd D MMMM')} (today)`
-    : `${ukDate.format('dddd D MMMM')}`;
 
   return (
     <Card>

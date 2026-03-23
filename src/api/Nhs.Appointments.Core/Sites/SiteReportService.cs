@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.OdsCodes;
@@ -44,7 +45,7 @@ public class SiteReportService(
             return await Task.WhenAll(sites.Select(site =>
                 GenerateReport(site, clinicalServices, wellKnownOdsCodes, startDate, endDate)));
         }
-        var report =  new List<SiteReport>();
+        var report =  new ConcurrentBag<SiteReport>();
 
         await Parallel.ForEachAsync(sites, async (site, _) =>
         {

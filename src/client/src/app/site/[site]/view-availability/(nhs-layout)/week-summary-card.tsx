@@ -34,8 +34,8 @@ export const WeekSummaryCard = ({
   );
 
   const weekHeading = isThisWeek(startDate, endDate)
-    ? `${startDate.format('D MMM')} to ${endDate.format('D MMM')} (this week)`
-    : `${startDate.format('D MMM')} to ${endDate.format('D MMM')}`;
+    ? `${startDate.format('D MMMM')} to ${endDate.format('D MMMM')} (this week)`
+    : `${startDate.format('D MMMM')} to ${endDate.format('D MMMM')}`;
 
   return (
     <Card>

@@ -12,6 +12,7 @@ import {
   parseToUkDatetime,
   ukNow,
   RFC3339Format,
+  dateIsToday,
 } from '@services/timeService';
 import { cookies } from 'next/headers';
 
@@ -21,6 +22,7 @@ jest.mock('@services/timeService', () => {
     ...originalModule,
     isFutureCalendarDateUk: jest.fn(),
     ukNow: jest.fn(),
+    dateIsToday: jest.fn(),
   };
 });
 
@@ -30,6 +32,7 @@ jest.mock('next/headers', () => ({
 
 const mockIsFutureCalendarDateUk = isFutureCalendarDateUk as jest.Mock<boolean>;
 const mockUkNow = ukNow as jest.Mock<DayJsType>;
+const mockDateIsToday = dateIsToday as jest.Mock<boolean>;
 
 describe('Day Summary Card', () => {
   beforeEach(() => {
@@ -723,5 +726,43 @@ describe('Day Summary Card', () => {
 
       expect(screen.queryByRole('link', { name: 'Cancel day' })).toBeNull();
     });
+  });
+
+  it('Adds today label when date is today on empty day card', () => {
+    mockDateIsToday.mockReturnValue(true);
+
+    render(
+      <DaySummaryCard
+        daySummary={mockEmptyDays[0]}
+        siteId={'mock-site'}
+        canManageAvailability={true}
+        clinicalServices={mockSingleService}
+        canViewDailyAppointments={true}
+        cancelDayFlag={true}
+      />,
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'Friday 6 December (today)' }),
+    ).toBeInTheDocument();
+  });
+
+  it('Add today label when date is today on summary day card', () => {
+    mockDateIsToday.mockReturnValue(true);
+
+    render(
+      <DaySummaryCard
+        daySummary={mockDaySummaries[0]}
+        siteId={'mock-site'}
+        canManageAvailability={true}
+        clinicalServices={mockSingleService}
+        canViewDailyAppointments={true}
+        cancelDayFlag={true}
+      />,
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'Monday 2 December (today)' }),
+    ).toBeInTheDocument();
   });
 });

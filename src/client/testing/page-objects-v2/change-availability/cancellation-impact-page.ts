@@ -1,5 +1,6 @@
 import { MYALayout } from '@e2etests/types';
 import CheckYourAnswersPage from './check-your-answers-page';
+import SelectDatePage from './select-date-page';
 
 export default class CancellationImpactPage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -28,10 +29,19 @@ export default class CancellationImpactPage extends MYALayout {
     exact: true,
   });
 
+  readonly newDateRangeButton = this.page.getByRole('button', {
+    name: 'Choose a new date range.',
+    exact: true,
+  });
+
   readonly canNotCancelDifferentDatesButton = this.page.getByRole('button', {
     name: 'Select different dates',
     exact: true,
   });
+
+  readonly cancelSessionsContentText = this.page.getByText(
+    /There are no bookings for (this|these) (session|sessions)?/i,
+  );
 
   readonly cancelSessionsHeading = (sessionCount: number) =>
     this.page.getByRole('heading', {
@@ -48,5 +58,11 @@ export default class CancellationImpactPage extends MYALayout {
     await this.continueButton.click();
 
     return new CheckYourAnswersPage(this.page, this.site);
+  }
+
+  async clickNewDateRangeButton(): Promise<SelectDatePage> {
+    await this.newDateRangeButton.click();
+
+    return new SelectDatePage(this.page, this.site);
   }
 }

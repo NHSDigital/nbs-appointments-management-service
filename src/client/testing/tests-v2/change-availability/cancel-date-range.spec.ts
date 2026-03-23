@@ -369,8 +369,304 @@ test.describe.configure({ mode: 'serial' });
               cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
             ).toBeVisible();
             await expect(
-              cancellationImpactPage.cancelSessionsContentText,
+              cancellationImpactPage.cancelSessionsNoBookingsText,
             ).toBeVisible();
+          });
+      });
+    });
+
+    test.describe('Check your answers', () => {
+      test('Single session to remove - table content', async ({ setup }) => {
+        const dayIncrement = 1;
+        const day = daysFromToday(dayIncrement);
+        const startDate = getDateInFuture(dayIncrement);
+        const availability = [
+          {
+            date: day,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+        ];
+
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+          availability: availability,
+        });
+        const totalSessionCount = availability.reduce(
+          (acc, sessionDay) => acc + sessionDay.sessions.length,
+          0,
+        );
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            await selectDatePage.fillDates(startDate, startDate);
+            return await selectDatePage.clickContinueButton();
+          })
+          .then(async cancellationImpactPage => {
+            await expect(
+              cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
+            ).toBeVisible();
+            await expect(
+              cancellationImpactPage.cancelSessionsNoBookingsText,
+            ).toBeVisible();
+            return await cancellationImpactPage.clickContinueButton();
+          })
+          .then(async checkYourAnswersPage => {
+            await expect(
+              checkYourAnswersPage.checkYourAnswersHeading,
+            ).toBeVisible();
+
+            const expectedDates = `${daysFromToday(dayIncrement, 'D MMMM')} to ${daysFromToday(dayIncrement, 'D MMMM YYYY')}`;
+            await expect(
+              checkYourAnswersPage.listItemValue('Dates'),
+            ).toHaveText(expectedDates);
+            await expect(
+              checkYourAnswersPage.listItemValue('Number of sessions'),
+            ).toHaveText(totalSessionCount.toString());
+          });
+      });
+
+      test('Multiple sessions to remove across multiple days - table content', async ({
+        setup,
+      }) => {
+        const startDayIncrement = 1;
+        const endDayIncrement = 2;
+        const startDay = daysFromToday(startDayIncrement);
+        const endDay = daysFromToday(endDayIncrement);
+        const startDateComponent = getDateInFuture(startDayIncrement);
+        const endDateComponent = getDateInFuture(endDayIncrement);
+
+        const availability = [
+          {
+            date: startDay,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+          {
+            date: endDay,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+        ];
+
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+          availability: availability,
+        });
+        const totalSessionCount = availability.reduce(
+          (acc, sessionDay) => acc + sessionDay.sessions.length,
+          0,
+        );
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            await selectDatePage.fillDates(
+              startDateComponent,
+              endDateComponent,
+            );
+            return await selectDatePage.clickContinueButton();
+          })
+          .then(async cancellationImpactPage => {
+            await expect(
+              cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
+            ).toBeVisible();
+            await expect(
+              cancellationImpactPage.cancelSessionsNoBookingsText,
+            ).toBeVisible();
+            return await cancellationImpactPage.clickContinueButton();
+          })
+          .then(async checkYourAnswersPage => {
+            await expect(
+              checkYourAnswersPage.checkYourAnswersHeading,
+            ).toBeVisible();
+
+            const expectedDates = `${daysFromToday(startDayIncrement, 'D MMMM')} to ${daysFromToday(endDayIncrement, 'D MMMM YYYY')}`;
+            await expect(
+              checkYourAnswersPage.listItemValue('Dates'),
+            ).toHaveText(expectedDates);
+            await expect(
+              checkYourAnswersPage.listItemValue('Number of sessions'),
+            ).toHaveText(totalSessionCount.toString());
+          });
+      });
+
+      test('Selected dates are persisted on Change link click', async ({
+        setup,
+      }) => {
+        const startDayIncrement = 4;
+        const endDayIncrement = 5;
+        const startDay = daysFromToday(startDayIncrement);
+        const endDay = daysFromToday(endDayIncrement);
+        const startDateComponent = getDateInFuture(startDayIncrement);
+        const endDateComponent = getDateInFuture(endDayIncrement);
+
+        const availability = [
+          {
+            date: startDay,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+          {
+            date: endDay,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+        ];
+
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+          availability: availability,
+        });
+        const totalSessionCount = availability.reduce(
+          (acc, sessionDay) => acc + sessionDay.sessions.length,
+          0,
+        );
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            await selectDatePage.fillDates(
+              startDateComponent,
+              endDateComponent,
+            );
+            return await selectDatePage.clickContinueButton();
+          })
+          .then(async cancellationImpactPage => {
+            await expect(
+              cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
+            ).toBeVisible();
+            await expect(
+              cancellationImpactPage.cancelSessionsNoBookingsText,
+            ).toBeVisible();
+            return await cancellationImpactPage.clickContinueButton();
+          })
+          .then(async checkYourAnswersPage => {
+            await expect(
+              checkYourAnswersPage.checkYourAnswersHeading,
+            ).toBeVisible();
+
+            const expectedDates = `${daysFromToday(startDayIncrement, 'D MMMM')} to ${daysFromToday(endDayIncrement, 'D MMMM YYYY')}`;
+            await expect(
+              checkYourAnswersPage.listItemValue('Dates'),
+            ).toHaveText(expectedDates);
+            await expect(
+              checkYourAnswersPage.listItemValue('Number of sessions'),
+            ).toHaveText(totalSessionCount.toString());
+
+            return await checkYourAnswersPage.clickChangeDatesButton();
+          })
+          .then(async selectDatePage => {
+            await expect(selectDatePage.pageHeading).toBeVisible();
+            await expect(selectDatePage.startDateDayInput).toHaveValue(
+              parseInt(startDateComponent.day.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.startDateMonthInput).toHaveValue(
+              parseInt(startDateComponent.month.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.startDateYearInput).toHaveValue(
+              startDateComponent.year.toString(),
+            );
+
+            await expect(selectDatePage.endDateDayInput).toHaveValue(
+              parseInt(endDateComponent.day.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.endDateMonthInput).toHaveValue(
+              parseInt(endDateComponent.month.toString(), 10).toString(),
+            );
+            await expect(selectDatePage.endDateYearInput).toHaveValue(
+              endDateComponent.year.toString(),
+            );
           });
       });
     });

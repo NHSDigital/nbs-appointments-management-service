@@ -40,7 +40,7 @@ export default class CancellationImpactPage extends MYALayout {
     exact: true,
   });
 
-  readonly cancelSessionsContentText = this.page.getByText(
+  readonly cancelSessionsNoBookingsText = this.page.getByText(
     /There are no bookings for (this|these) (session|sessions)?/i,
   );
 

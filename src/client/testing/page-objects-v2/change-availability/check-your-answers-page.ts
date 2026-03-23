@@ -1,5 +1,6 @@
 import { MYALayout } from '@e2etests/types';
 import CancellationImpactPage from './cancellation-impact-page';
+import SelectDatePage from './select-date-page';
 
 export default class CheckYourAnswersPage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -30,5 +31,11 @@ export default class CheckYourAnswersPage extends MYALayout {
     await this.listItemChangeLink(label).click();
 
     return new CancellationImpactPage(this.page, this.site);
+  }
+
+  async clickChangeDatesButton(): Promise<SelectDatePage> {
+    await this.listItemChangeLink('Dates').click();
+
+    return new SelectDatePage(this.page, this.site);
   }
 }

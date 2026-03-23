@@ -1,9 +1,6 @@
 import { MYALayout } from '@e2etests/types';
-import { expect, Locator } from '../../fixtures-v2';
-import { WeekOverview } from '../../availability';
+import { Locator } from '../../fixtures-v2';
 import ChangeAvailabilityPage from '../change-availability/change-availability-page';
-import WeekViewAvailabilityPage from './week-view-availability-page';
-
 export default class DayViewAvailabilityPage extends MYALayout {
   title = this.page.getByRole('heading');
 

@@ -759,7 +759,6 @@ test.describe.configure({ mode: 'serial' });
       test('Cancel a date range daily page', async ({ setup }) => {
         const day = daysFromToday(10);
         const dayViewDate = daysFromToday(10, 'dddd D MMMM');
-        console.log('dayViewDate: ' + dayViewDate);
         const availability = [
           {
             date: day,

@@ -5,7 +5,6 @@ import {
   AddSessionPage,
   CheckSessionDetailsPage,
   AddServicesPage,
-  CheckAnswersPage,
 } from '@testing-page-objects';
 import { Site } from '@types';
 import { test, expect, overrideFeatureFlag, Page } from '../../fixtures';
@@ -17,7 +16,6 @@ import {
 
 let rootPage: RootPage;
 let oAuthPage: OAuthLoginPage;
-let checkAnswersPage: CheckAnswersPage;
 let addSessionPage: AddSessionPage;
 let addServicesPage: AddServicesPage;
 let checkSessionDetailsPage: CheckSessionDetailsPage;

@@ -12,6 +12,7 @@ export default class ChangeAvailabilityPage extends MYALayout {
   readonly continueButton = this.page.getByRole('button', {
     name: 'Continue to cancel',
   });
+
   readonly backButton = this.page.getByRole('link', {
     name: 'Back',
     exact: true,

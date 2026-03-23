@@ -4,7 +4,11 @@ import PipeDelimitedLinks, {
   ActionLink,
 } from '@components/pipe-delimited-links';
 import { SessionSummaryTable } from '@components/session-summary-table';
-import { RFC3339Format, isFutureCalendarDateUk } from '@services/timeService';
+import {
+  RFC3339Format,
+  dateIsToday,
+  isFutureCalendarDateUk,
+} from '@services/timeService';
 import { ClinicalService, DaySummary } from '@types';
 import Link from 'next/link';
 import { Card } from 'nhsuk-react-components';
@@ -88,13 +92,17 @@ export const DaySummaryCard = ({
       },
   ].filter(p => p !== false);
 
+  const dayHeading = dateIsToday(ukDate)
+    ? `${ukDate.format('dddd D MMMM')} (today)`
+    : `${ukDate.format('dddd D MMMM')}`;
+
   return (
     <Card>
       <Card.Heading
         headingLevel="h3"
         className="appointment-summary-card-item-margin"
       >
-        {ukDate.format('dddd D MMMM')}
+        {dayHeading}
       </Card.Heading>
       {cancelDayFlag && canManageAvailability && isFutureCalendarDate ? (
         <Card.Action

@@ -1,5 +1,5 @@
 import { mockSecondaryLinks } from '@testing/data';
-import { SecondaryNavigation } from './seconday-navigation';
+import { SecondaryNavigation } from './secondary-navigation';
 import { render, screen } from '@testing-library/react';
 
 describe('SecondaryNavigation tests', () => {

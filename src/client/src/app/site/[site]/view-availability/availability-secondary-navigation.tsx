@@ -1,6 +1,6 @@
 'use client';
 
-import { SecondaryNavigation } from '@components/seconday-navigation';
+import { SecondaryNavigation } from '@components/secondary-navigation';
 import { GetCurrentDateTime } from '@services/timeService';
 import { NavigationLink } from '@types';
 import { usePathname, useSearchParams } from 'next/navigation';

@@ -394,7 +394,7 @@ test.describe.configure({ mode: 'serial' });
           )
           .then(async selectDatePage => {
             const startDate = getDateInFuture(1);
-            const endDate = getDateInFuture(91);
+            const endDate = getDateInFuture(95);
             await selectDatePage.fillDates(startDate, endDate);
             await selectDatePage.clickContinueButtonForError();
 

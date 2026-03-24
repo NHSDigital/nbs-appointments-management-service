@@ -94,7 +94,7 @@ export const createChangeAvailabilityFormSchema = (maxDays: number) => {
         });
       }
 
-      const allowedEnd = addToUkDatetime(start, maxDays, 'day');
+      const allowedEnd = addToUkDatetime(start, maxDays - 1, 'day');
 
       if (isAfter(end, allowedEnd)) {
         return new yup.ValidationError([

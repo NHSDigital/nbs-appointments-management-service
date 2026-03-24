@@ -21,6 +21,7 @@ import BuildNumber from './build-number';
 import PrintPageButton from './print-page-button';
 import fromServer from '@server/fromServer';
 import NhsPageHeader from './nhsuk-frontend/nhs-page-header';
+import { GetCurrentDateTime } from '@services/timeService';
 
 type Props = {
   children: ReactNode;
@@ -123,7 +124,7 @@ const getLinksForSite = async (
     if (permissionsAtSite.includes('availability:query')) {
       navigationLinks.push({
         label: 'View availability',
-        href: `${basePath}/site/${site.id}/view-availability`,
+        href: `${basePath}/site/${site.id}/view-availability/daily-appointments?date=${GetCurrentDateTime('YYYY-MM-DD')}&page=1`,
       });
     }
 

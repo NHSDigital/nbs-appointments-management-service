@@ -7,6 +7,7 @@ import {
 import { ServerActionResult, UserProfile } from '@types';
 import { mockAllPermissions, mockSite } from '@testing/data';
 import asServerActionResult from '@testing/asServerActionResult';
+import { GetCurrentDateTime } from '@services/timeService';
 
 jest.mock('@services/appointmentsService');
 const fetchUserProfileMock = fetchUserProfile as jest.Mock<
@@ -38,6 +39,15 @@ jest.mock('next/headers', () => {
     },
   };
 });
+
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    GetCurrentDateTime: jest.fn(),
+  };
+});
+const mockGetCurrentDatTime = GetCurrentDateTime as jest.Mock<string>;
 
 describe('Nhs Page', () => {
   beforeEach(() => {
@@ -175,7 +185,11 @@ describe('Nhs Page', () => {
   });
 
   it.each([
-    ['availability:query', 'View availability', 'view-availability'],
+    [
+      'availability:query',
+      'View availability',
+      'view-availability/daily-appointments?date=2026-06-05&page=1',
+    ],
     ['availability:setup', 'Create availability', 'create-availability'],
     ['site:manage', 'Change site details', 'details'],
     ['site:view', 'Change site details', 'details'],
@@ -189,6 +203,7 @@ describe('Nhs Page', () => {
       fetchPermissionsMock.mockResolvedValue(
         asServerActionResult([permission]),
       );
+      mockGetCurrentDatTime.mockReturnValue('2026-06-05');
 
       const jsx = await NhsPage({
         title: 'Test title',

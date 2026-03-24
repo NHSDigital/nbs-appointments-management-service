@@ -34,7 +34,7 @@ export const AvailabilitySecondaryNavigation = ({ site }: Props) => {
             className="app-secondary-navigation__link"
             href={`/site/${site}/view-availability/daily-appointments?${queryString}`}
             {...(pathname.includes('daily-appointments')
-              ? { 'aria-current': true }
+              ? { 'aria-current': 'page' }
               : {})}
           >
             Day view
@@ -44,7 +44,7 @@ export const AvailabilitySecondaryNavigation = ({ site }: Props) => {
           <Link
             className="app-secondary-navigation__link"
             href={`/site/${site}/view-availability/week?${queryString}`}
-            {...(pathname.includes('week') ? { 'aria-current': true } : {})}
+            {...(pathname.includes('week') ? { 'aria-current': 'page' } : {})}
           >
             Week view
           </Link>
@@ -55,7 +55,7 @@ export const AvailabilitySecondaryNavigation = ({ site }: Props) => {
             href={`/site/${site}/view-availability?${queryString}`}
             {...(!pathname.includes('week') &&
             !pathname.includes('daily-appointments')
-              ? { 'aria-current': true }
+              ? { 'aria-current': 'page' }
               : {})}
           >
             Month view

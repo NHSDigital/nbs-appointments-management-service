@@ -79,7 +79,8 @@ module "mya_application_perf" {
   allsites_sliding_cache_enabled                                  = var.ALLSITES_SLIDING_CACHE_ENABLED
   allsites_cache_duration_minutes                                 = var.ALLSITES_CACHE_DURATION_MINUTES
   allsites_sliding_cache_duration_minutes                         = var.ALLSITES_SLIDING_CACHE_DURATION_MINUTES 
-  create_data_extracts                                            = true
+  create_booking_data_extracts                                    = true
+  create_capacity_data_extracts                                   = true
   data_extract_file_sender_options_type                           = "blob"
   disable_query_availability_function                             = true
   create_high_load_function_app                                   = true

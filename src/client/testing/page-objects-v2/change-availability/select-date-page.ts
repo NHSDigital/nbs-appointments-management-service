@@ -25,13 +25,17 @@ export default class SelectDatePage extends MYALayout {
   });
 
   readonly startDateError = this.page
-    .locator('fieldset')
-    .filter({ has: this.page.locator('legend', { hasText: /^Start date$/ }) })
+    .locator('.nhsuk-form-group--error')
+    .filter({
+      has: this.page.locator('legend', { hasText: /^Start date$/ }),
+    })
     .locator('.nhsuk-error-message');
 
   readonly endDateError = this.page
-    .locator('fieldset')
-    .filter({ has: this.page.locator('legend', { hasText: /^End date$/ }) })
+    .locator('.nhsuk-form-group--error')
+    .filter({
+      has: this.page.locator('legend', { hasText: /^End date$/ }),
+    })
     .locator('.nhsuk-error-message');
 
   readonly backButton = this.page.getByRole('link', {

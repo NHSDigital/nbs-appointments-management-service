@@ -12,7 +12,7 @@ import {
 } from '@testing/data';
 import asServerActionResult from '@testing/asServerActionResult';
 import { GetCurrentDateTime } from '@services/timeService';
-import { SecondaryNavigation } from './seconday-navigation';
+import { SecondaryNavigation } from './secondary-navigation';
 
 jest.mock('@services/appointmentsService');
 const fetchUserProfileMock = fetchUserProfile as jest.Mock<

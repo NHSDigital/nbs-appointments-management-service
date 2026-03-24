@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import Link from 'next/link';
+import NhsHeading from '@components/nhs-heading';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -44,6 +45,10 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <>
+      <NhsHeading
+        title={`${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`}
+      />
+
       {canChangeAvailability && (
         <Link href={`/site/${siteFromPath}/change-availability`}>
           <Button type="button" styleType="secondary">

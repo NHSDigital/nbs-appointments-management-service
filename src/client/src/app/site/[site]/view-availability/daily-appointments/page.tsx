@@ -19,6 +19,7 @@ import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import PrintPageButton from '@components/print-page-button';
 import Link from 'next/link';
+import NhsHeading from '@components/nhs-heading';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -68,6 +69,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <>
+      <div className="nhsuk-grid-column-three-quarters">
+        <NhsHeading title={fromDate.format('dddd D MMMM')} />
+      </div>
+
       {canChangeAvailability && (
         <Link
           href={`/site/${siteFromPath}/change-availability`}

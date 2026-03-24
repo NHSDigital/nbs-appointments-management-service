@@ -1,5 +1,5 @@
 export type NhsHeadingProps = {
-  title: string;
+  title?: string;
   caption?: string;
 };
 

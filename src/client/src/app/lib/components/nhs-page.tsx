@@ -64,7 +64,7 @@ const NhsPage = async ({
         trail={[
           ...breadcrumbs,
           ...(breadcrumbs.length > 0 && !omitTitleFromBreadcrumbs
-            ? [{ name: title }]
+            ? [{ name: title ?? '' }]
             : []),
         ]}
       />
@@ -80,9 +80,11 @@ const NhsPage = async ({
         {secondaryNavigation}
 
         <div className="nhsuk-grid-row">
-          <div className="nhsuk-grid-column-three-quarters">
-            <NhsHeading title={title} caption={caption} />
-          </div>
+          {title && (
+            <div className="nhsuk-grid-column-three-quarters">
+              <NhsHeading title={title} caption={caption} />
+            </div>
+          )}
           <div className="nhsuk-grid-column-one-quarter">
             {showPrintButton && (
               <div className="custom-print-button-wrapper nhsuk-u-padding-top-3">

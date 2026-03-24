@@ -9,6 +9,7 @@ import { RFC3339Format, parseToUkDatetime, ukNow } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import Link from 'next/link';
+import NhsHeading from '@components/nhs-heading';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -38,6 +39,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <>
+      <NhsHeading
+        title={`View availability for ${searchMonth.format('MMMM YYYY')}`}
+      />
+
       {canChangeAvailability && (
         <Link href={`/site/${siteFromPath}/change-availability`}>
           <Button type="button" styleType="secondary">

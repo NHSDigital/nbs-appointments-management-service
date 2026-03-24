@@ -2,6 +2,7 @@ import NhsPage from '@components/nhs-page';
 import fromServer from '@server/fromServer';
 import { fetchSite } from '@services/appointmentsService';
 import { AvailabilitySecondaryNavigation } from './availability-secondary-navigation';
+
 type LayoutProps = {
   children: React.ReactNode;
   params: {
@@ -14,7 +15,6 @@ export default async function Layout({ children, params }: LayoutProps) {
 
   return (
     <NhsPage
-      title="Test title"
       site={site}
       originPage="view-availability"
       secondaryNavigation={

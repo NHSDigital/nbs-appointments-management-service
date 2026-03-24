@@ -22,6 +22,8 @@
     ]
   },
 
+  //why an array?
+  //can we flatten??
   "sessions": [
     {
       "from": "09:00",
@@ -30,6 +32,7 @@
         "COVID:5_11",
         "RSV:Adult",
         "FLU:18_64",
+        "COVID:18+"
       ],
       "slotLength": 10,
       "capacity": 5,
@@ -65,6 +68,8 @@
   //section 1 = exceptions (no session days)
   //section 2 = overrides (days where the session exists but is different)
   
+  //exclusions and overrides?? names?
+  
   //Can we allow exception date range...? (minimal ExRule...?)
   //would we prevent overlaps?? (i.e two range/individual days intersecting)
   //would rather not if we can help it...
@@ -83,76 +88,50 @@
       "sessions": []
     },
     {
-      // this is a new linked override session to replace the rule for this day
-      //all the data CAN be different, as editing an individual session is allowed
-
-      //TODO decision???
+      //ATOMIC CHANGE FROM PARENT RECURRENCE??
+      //means will auto update on any parent changes
       
-      //default linked? (most likely use-case i.e one off blocks of time)
-      //LINKED = Listed in here with session details different - will be affected by edit/deletions of parent
+      //how do you distinguish between exceptions that SHOULD follow parent data
+      //OR
+      //exceptions that should exist and be managed on their own merit??
       
-      //do we have UI that allows bulk excpetions for a date range (i.e these specific 2 weeks are different from the rest, so make it in bulk)
-      //while still being linked
-      
-      //we COULD offer them the option, when editing this session on this day
-      //to choose to KEEP the link to the recurrence, or unlink it
-      //this matters because edits/deleteing the original recurrence may affect this session
-      
-      //UNLINKED = Listed in here but with session array empty - 
-      //and a new session is added to daily_availability WITHOUT a recurrenceId - 
-      //COULDNT THIS JUST BE DONE MANUALLY?? - i.e add exception then create a new session
-      
+      //is the fact that they are linked indication that they should follow??
+      //i.e if you DONT want it to follow, remove it and make a new session/recurrence that won't follow
       "date": "2026-08-30",
       "sessions": [
         {
-          "from": "09:00",
-          "until": "12:00",
-          "services": [
-            "FLU:18_64",
-            "COVID:18+"
-          ],
+          //with this pattern, may still need to question whether to keep change linked (listed here)
+          //or
+          //unlinked (split out into new unrelated session)
+          
+          //OR 
+          
+          //keep cloned pattern and simply asking to apply to children when make service/break changes to parent??
+          
+          
+          //cloned and static, WON'T react to parent!
+          "from": "10:00",
+          "until": "15:00",
           "slotLength": 10,
-          "capacity": 5,
+          "capacity": 2,
+          
+          //are atomic patch operations, WILL react to parent edits!
+          "services": [
+            "-FLU:18_64",
+            "+COVID:18+"
+          ],
           "exceptions": [
             {
-              "from": "12:00",
-              "until": "12:15"
-            }
-          ]
-        }
-      ],
-      "date": "2026-09-30",
-      "sessions": [
-        {
-          "from": "09:00",
-          "until": "12:00",
-          "services": [
-            "FLU:18_64",
-            "COVID:18+"
-          ],
-          "slotLength": 10,
-          "capacity": 5,
-          "exceptions": [
+              //add this new one-off break.
+              //may merge with existing breaks to make one large unioned break?
+              //how would we handle naming on merges??
+              "type": "add",
+              "from": "13:15",
+              "until": "13:30"
+            },
             {
-              "from": "12:00",
-              "until": "12:15"
-            }
-          ]
-        }
-      ],
-      "date": "2026-10-30",
-      "sessions": [
-        {
-          "from": "09:00",
-          "until": "12:00",
-          "services": [
-            "FLU:18_64",
-            "COVID:18+"
-          ],
-          "slotLength": 10,
-          "capacity": 5,
-          "exceptions": [
-            {
+              //if an exception in the parent lists this data exactly, remove it for this one-off
+              "type": "remove",
               "from": "12:00",
               "until": "12:15"
             }

@@ -16,7 +16,7 @@
       "capacity": 2
     }
     //a session does not exist with recurrenceId: "c5858f02-05d7-419b-865f-818599a6c0e0",
-    //this represents it being excluded from the recursion
+    //this represents it being an exception within the recursion (if date valid for rule)
   ],
   "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
   "id": "20260822",

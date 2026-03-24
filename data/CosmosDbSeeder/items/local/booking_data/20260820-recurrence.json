@@ -17,7 +17,7 @@
       //exceptions/breaks are NOT limited to recursion sessions only.
       //individually created sessions can have adhoc breaks
       //would need to "find" this exact session when editing in UI (due to lack of sessionId)
-      //we currently 'fuzzy match' and check that the 
+      //we currently 'fuzzy match' and check that all the data matches
       "exceptions": [
         {
           "from": "14:00",
@@ -27,6 +27,8 @@
     },
     {
       //optional recurrenceId, which informs what recurrence manages this data
+      //this data could be part of the standard rule or an exception
+      //but this readModel doesn't need to know
       "recurrenceId": "c5858f02-05d7-419b-865f-818599a6c0e0",
       "from": "09:00",
       "until": "17:00",

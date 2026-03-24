@@ -1,0 +1,197 @@
+{
+  "id": "c5858f02-05d7-419b-865f-818599a6c0e0",
+  
+  "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
+  "docType": "recurrence",
+  
+  "label": "Jonny's Spring Schedule",
+  
+  //limited to 3 months to prevent messiness!!
+  "from": "2026-08-20",
+  "until": "2026-10-08",
+
+  //keep template explicit and similar to RRule properties
+  //means can be extended if other recurrence templates ever needed
+  "recurrencePattern": {
+    "frequency": "Weekly", 
+    "interval": 1, //repeats every week (i.e when value = 2 would be every other week)
+    "byDay": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ]
+  },
+  
+  //flattened session data (only ever manage single!)
+  "from": "09:00",
+  "until": "17:00",
+  "services": [
+    "COVID:5_11",
+    "RSV:Adult",
+    "FLU:18_64",
+    "COVID:18+"
+  ],
+  "slotLength": 10,
+  "capacity": 5,
+  //these are "breaks" i/e predefined recurring gaps
+  "exclusionTimes": [
+    {
+      "label": "Morning Coffee",
+      "type": "Break",
+      "from": "10:00",
+      "until": "10:15"
+    },
+    {
+      "label": "Dispensing Time",
+      "type": "Other Meetings",
+      "from": "14:00",
+      "until": "16:00"
+    }
+  ],
+
+  //if someone adds an exclusion date, REMOVE affected override on that date (so that if this exclusion is undone, the override doesn't come back!)
+  //i.e. exclusionDate takes precedence over an override
+  //these are overrides with no sessions on that day
+  
+  //once a date is excluded, only way to bring it back is to remove that exclusion instance in recursion
+  //can then add override to new date if desired...
+  
+  "exclusionDates": ["2026-08-22", "2026-08-23", "2026-08-24"],
+  
+  //this is an EXRULE... danger zone!!
+  //how will this respond to overlapping dates/ranges?
+  
+  //unionised exclusions aren't THAT bad as the outcome is the same, no availability on these dates
+  //i.e sequencing does not matter as the operations are identical!
+  //i.e. A then B <=> B then A
+  "exclusionDateRanges": [
+    {
+      "label": "Easter Break",
+      "from": "2026-08-22",
+      "until": "2026-09-06"
+    },
+    {
+      //do we even care about union overlapping??
+      //from CancelDateRange tool - possibly no label...
+      //small UI concern but not that impactful (pros > cons)
+      "from": "2026-07-22",
+      "until": "2026-10-06"
+    }
+  ],
+  
+  "overrideDates": [
+    {
+      //on creation of an edit occurrence, could offer user to link/unlink from parent recurrence
+      //this means that it splits and clones data into its own session and adds a new exclusionDate to this rule
+      //OR
+      //adds the override below that responds to parent changes as is listed as atomic patches/static changes
+      "date": "2026-08-30",
+      
+      //logic if linked, COMPARE new session to parent, and store any atomic changes and static changes, then save!
+      
+      "sessions": [
+        {
+          //if these props are undefined, use parent data!
+          "from": "10:00",
+          "until": "15:00",
+          "slotLength": 10,
+          //dont want capacity to be atomic as it could introduce silly edge cases :D 
+          //i.e. capacity is one fewer than parent, then parent goes down to 1 capacity!
+          "capacity": 2,
+          //if these props ARE defined then use this data instead of parent...
+          //dont want these atomic patches, as they dont make sense to 'adjust' on parent change
+          //i.e. time change forward 1 hour, won't want a reaction!
+          //i.e. capcity of parent changes, but this override was defined with a specific capacity (when created) - so dont want to react to parent change!
+          //i.e. from, until and slot length was defined as different to parent (when created) - so dont want to react to any parent changes!
+          
+          //are atomic patch operations, and WILL react to parent edits!
+          //desired for this specific data only!
+          //i.e. a service is removed/added from parent recursion, want all children overrides to respond also!
+          //i.e. new break added/removed/edited to parent recursion, want all children overrides to respond also!
+          "services": [
+            {
+              "operation": "add",
+              "service": "COVID:18+"
+            },
+            {
+              "operation": "remove",
+              "service": "FLU:18_64"
+            }
+          ],
+          //adhoc block out time
+          //edge cases of overlapping times with parent recurrence
+          //how might this be displayed in UI...
+          "exclusionTimes": [
+            {
+              "label": "One-off coffee",
+              "operation": "add",
+              "from": "13:15",
+              "until": "13:30"
+            },
+            {
+              //we are actually available for this break that exists in the main pattern!!
+              //on this one day specifically!
+              //edge cases with parent data shifting/editing, what do we want to happen!
+              "operation": "remove",
+              "from": "12:00",
+              "until": "12:15"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      //a date with a small one-off block of time
+      
+      //minimalised structure with flattened session
+      "date": "2026-09-30",
+      //atomic...
+      "exclusionTimes": [
+        {
+          "label": "One-off coffee",
+          "operation": "add",
+          "from": "13:15",
+          "until": "13:30"
+        }
+      ]
+    },
+    {
+      //a date with a different start and end time.
+      //all other data from parent...
+      "date": "2026-09-31",
+      "from": "10:00",
+      "until": "15:00"
+    },
+    {
+      //a date with a one-off change of services
+      //i.e. we have run out of Covid vaccines for this day...
+      //but dont want to alter parent...
+
+      //minimalised structure with flattened session
+      "date": "2026-10-02",
+      //atomic...
+      "services": [
+        {
+          "operation": "remove",
+          "service": "COVID:18+"
+        }
+      ]
+    }
+  ],
+  
+  //do we even DARE risk going this far...
+  //don't want to risk this as it depends on sequencing etc and feels far too difficult
+  //would have to manage sequence order when applying from overrideDates and itself
+  
+  //without this, we can't define nested overrides
+  //get around by using exclusionRange, and then create a new recurrence for the time period desired...
+  //i.e fill the gaps
+  "overrideDateRanges": [
+    ///...
+  ],
+  
+  "created": "2020-01-01T14:54:31.233324Z",
+  "by": "cc.agent@nhs.net"
+}

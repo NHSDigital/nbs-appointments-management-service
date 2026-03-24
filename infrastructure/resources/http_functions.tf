@@ -74,8 +74,8 @@ resource "azurerm_windows_function_app" "nbs_mya_http_func_app" {
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                           = var.site_summary_minimum_parallelization
     SITE_CACHE_KEY                                                 = var.site_cache_key
     ALLSITES_SLIDING_CACHE_ENABLED                                 = var.allsites_sliding_cache_enabled
-    ALLSITES_CACHE_DURATION_MINUTES                                = var.allsites_sliding_cache_duration_minutes
-    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                        = var.allsites_cache_duration_minutes
+    ALLSITES_CACHE_DURATION_MINUTES                                = var.allsites_cache_duration_minutes
+    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                        = var.allsites_sliding_cache_duration_minutes
     DISABLE_SITE_CACHE                                             = var.disable_site_cache
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS = var.site_supports_service_sliding_cache_absolute_expiration_seconds
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS    = var.site_supports_service_sliding_cache_slide_threshold_seconds
@@ -181,8 +181,8 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_http_func_app_preview" {
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                           = var.site_summary_minimum_parallelization
     SITE_CACHE_KEY                                                 = var.site_cache_key
     ALLSITES_SLIDING_CACHE_ENABLED                                 = var.allsites_sliding_cache_enabled
-    ALLSITES_CACHE_DURATION_MINUTES                                = var.allsites_sliding_cache_duration_minutes
-    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                        = var.allsites_cache_duration_minutes
+    ALLSITES_CACHE_DURATION_MINUTES                                = var.allsites_cache_duration_minutes
+    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                        = var.allsites_sliding_cache_duration_minutes
     DISABLE_SITE_CACHE                                             = var.disable_site_cache
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_ABSOLUTE_EXPIRATION_SECONDS = var.site_supports_service_sliding_cache_absolute_expiration_seconds
     SITE_SUPPORTS_SERVICE_SLIDING_CACHE_SLIDE_THRESHOLD_SECONDS    = var.site_supports_service_sliding_cache_slide_threshold_seconds

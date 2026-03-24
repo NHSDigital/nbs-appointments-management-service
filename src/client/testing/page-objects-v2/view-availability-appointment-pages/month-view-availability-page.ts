@@ -3,6 +3,7 @@ import { expect } from '../../fixtures-v2';
 import { WeekOverview } from '../../availability';
 import ChangeAvailabilityPage from '../change-availability/change-availability-page';
 import WeekViewAvailabilityPage from './week-view-availability-page';
+import { DateComponents } from '@types';
 
 export default class MonthViewAvailabilityPage extends MYALayout {
   title = this.page.getByRole('heading');
@@ -150,5 +151,18 @@ export default class MonthViewAvailabilityPage extends MYALayout {
     await this.page.goto(
       `/manage-your-appointments/site/${siteId}/view-availability?date=${month}`,
     );
+  }
+
+  async goToWeekForDate(
+    date: DateComponents,
+  ): Promise<WeekViewAvailabilityPage> {
+    await this.page.goto(
+      `/manage-your-appointments/site/${this.site?.id}/view-availability/week?date=${date.year}-${date.month}-${date.day}`,
+    );
+    await this.page.waitForURL(
+      `/manage-your-appointments/site/${this.site?.id}/view-availability/week?date=${date.year}-${date.month}-${date.day}`,
+    );
+
+    return new WeekViewAvailabilityPage(this.page, this.site);
   }
 }

@@ -33,6 +33,16 @@ export default class WeekViewAvailabilityPage extends MYALayout {
 
   readonly dailyCards = this.page.locator('div.nhsuk-card');
 
+  async getDailyCard(text: string): Promise<Locator> {
+    return this.dailyCards.filter({ hasText: text });
+  }
+
+  async getAddAvailabilityLinkForDailyCard(text: string): Promise<Locator> {
+    return (await this.getDailyCard(text)).getByRole('link', {
+      name: 'Add availability to this day',
+    });
+  }
+
   async getHeading(text: string): Promise<Locator> {
     return this.page.getByRole('heading', {
       name: text,

@@ -1,11 +1,184 @@
 import { test, expect, BookingSetup } from '../../fixtures-v2';
-import { daysFromToday, getDateInFuture } from '../../utils/date-utility';
+import {
+  daysFromToday,
+  getDateInFuture,
+  getLongDayDateText,
+} from '../../utils/date-utility';
 import { ukNow, startOfUkWeek, endOfUkWeek } from '@services/timeService';
 
 test.describe.configure({ mode: 'serial' });
 
 [true, false].forEach(CancelADateRangeFlagEnabled => {
   test.describe(`Test with CancelADateRangeFlag: '${CancelADateRangeFlagEnabled}'`, () => {
+    test.describe('Cancel A Date Range Button is available', () => {
+      test('Cancel a date range monthly page', async ({ setup }) => {
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+        });
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(async changeAvailabilityPage => {
+            await expect(changeAvailabilityPage.backButton).toBeVisible();
+            return await changeAvailabilityPage.clickBackToMonthViewButton();
+          })
+          .then(async monthViewAvailabilityPage => {
+            const formattedMonthAndYear = ukNow().format('MMMM YYYY');
+            await monthViewAvailabilityPage.verifyHeadingDisplayed(
+              formattedMonthAndYear,
+            );
+          });
+      });
+
+      test('Cancel a date range weekly page', async ({ setup }) => {
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+        });
+        const ukWeekStart = startOfUkWeek(ukNow());
+        const ukWeekEnd = endOfUkWeek(ukNow());
+        const currentWeekTitle = `${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`;
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                monthViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+
+            const formattedMonthAndYear = ukNow().format('MMMM YYYY');
+            await monthViewAvailabilityPage.verifyHeadingDisplayed(
+              formattedMonthAndYear,
+            );
+            return await monthViewAvailabilityPage.clickViewWeekInCardByDate(
+              currentWeekTitle,
+            );
+          })
+          .then(async weekViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                weekViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+            return await weekViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(async changeAvailabilityPage => {
+            await expect(changeAvailabilityPage.backButton).toBeVisible();
+            return await changeAvailabilityPage.clickBackToWeekViewButton();
+          })
+          .then(async weekViewAvailabilityPage => {
+            await expect(
+              await weekViewAvailabilityPage.getHeading(currentWeekTitle),
+            ).toBeVisible();
+          });
+      });
+
+      test('Cancel a date range daily page', async ({ setup }) => {
+        const day = daysFromToday(10);
+        const dayViewDate = daysFromToday(10, 'dddd D MMMM');
+        const availability = [
+          {
+            date: day,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+        ];
+        const bookings: BookingSetup[] = [
+          {
+            fromDate: day,
+            fromTime: '09:00:00',
+            durationMins: 5,
+            service: 'COVID_FLU:65+',
+            status: 'Booked',
+            availabilityStatus: 'Supported',
+          },
+          {
+            fromDate: day,
+            fromTime: '09:10:00',
+            durationMins: 5,
+            service: 'COVID_FLU:65+',
+            status: 'Booked',
+            availabilityStatus: 'Supported',
+          },
+        ];
+
+        const { sitePage } = await setup({
+          features: [
+            {
+              name: 'CancelADateRange',
+              enabled: CancelADateRangeFlagEnabled,
+            },
+          ],
+          availability: availability,
+          bookings: bookings,
+        });
+        const ukWeekStart = startOfUkWeek(day);
+        const ukWeekEnd = endOfUkWeek(day);
+        const selectedWeekTitle = `${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`;
+
+        await sitePage
+          .clickSiteAvailabilityCard()
+          .then(async monthViewAvailabilityPage => {
+            return await monthViewAvailabilityPage.clickViewWeekInCardByDate(
+              selectedWeekTitle,
+            );
+          })
+          .then(async weekViewAvailabilityPage => {
+            return await weekViewAvailabilityPage.clickViewDailyAppointmentsForDate(
+              dayViewDate,
+            );
+          })
+          .then(async dayViewAvailabilityPage => {
+            if (!CancelADateRangeFlagEnabled) {
+              await expect(
+                dayViewAvailabilityPage.changeAvailabilityButton,
+              ).not.toBeVisible();
+              test.skip();
+            }
+
+            return await dayViewAvailabilityPage.clickChangeAvailabilityButton();
+          })
+          .then(async changeAvailabilityPage => {
+            await expect(changeAvailabilityPage.backButton).toBeVisible();
+            return await changeAvailabilityPage.clickBackToDayViewButton();
+          })
+          .then(async dayViewAvailabilityPage => {
+            await expect(
+              await dayViewAvailabilityPage.getHeading(dayViewDate),
+            ).toBeVisible();
+          });
+      });
+    });
+
     test.describe('Select Dates To Cancel', () => {
       test('Select dates to cancel error, must be in the future', async ({
         setup,
@@ -671,8 +844,43 @@ test.describe.configure({ mode: 'serial' });
       });
     });
 
-    test.describe('Cancel A Date Range Button is available', () => {
-      test('Cancel a date range monthly page', async ({ setup }) => {
+    test.describe('Cancellation Confirmation', () => {
+      test('Cancel sessions, verify sessions have been cancelled', async ({
+        setup,
+      }) => {
+        const fromDayIncrement = 170;
+        const toDayIncrement = 171;
+        const startDay = daysFromToday(fromDayIncrement);
+        const endDay = daysFromToday(toDayIncrement);
+        const startDate = getDateInFuture(fromDayIncrement);
+        const endDate = getDateInFuture(toDayIncrement);
+        const availability = [
+          {
+            date: startDay,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+          {
+            date: endDay,
+            sessions: [
+              {
+                from: '09:00',
+                until: '10:00',
+                services: ['COVID:5_11', 'COVID_FLU:65+'],
+                slotLength: 5,
+                capacity: 5,
+              },
+            ],
+          },
+        ];
+
         const { sitePage } = await setup({
           features: [
             {
@@ -680,7 +888,12 @@ test.describe.configure({ mode: 'serial' });
               enabled: CancelADateRangeFlagEnabled,
             },
           ],
+          availability: availability,
         });
+        const totalSessionCount = availability.reduce(
+          (acc, sessionDay) => acc + sessionDay.sessions.length,
+          0,
+        );
 
         await sitePage
           .clickSiteAvailabilityCard()
@@ -693,72 +906,82 @@ test.describe.configure({ mode: 'serial' });
             }
             return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
           })
-          .then(async changeAvailabilityPage => {
-            await expect(changeAvailabilityPage.backButton).toBeVisible();
-            return await changeAvailabilityPage.clickBackToMonthViewButton();
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            await selectDatePage.fillDates(startDate, endDate);
+            return await selectDatePage.clickContinueButton();
           })
-          .then(async monthViewAvailabilityPage => {
-            const formattedMonthAndYear = ukNow().format('MMMM YYYY');
-            await monthViewAvailabilityPage.verifyHeadingDisplayed(
-              formattedMonthAndYear,
-            );
-          });
-      });
-
-      test('Cancel a date range weekly page', async ({ setup }) => {
-        const { sitePage } = await setup({
-          features: [
-            {
-              name: 'CancelADateRange',
-              enabled: CancelADateRangeFlagEnabled,
-            },
-          ],
-        });
-        const ukWeekStart = startOfUkWeek(ukNow());
-        const ukWeekEnd = endOfUkWeek(ukNow());
-        const currentWeekTitle = `${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`;
-
-        await sitePage
-          .clickSiteAvailabilityCard()
-          .then(async monthViewAvailabilityPage => {
-            if (!CancelADateRangeFlagEnabled) {
-              await expect(
-                monthViewAvailabilityPage.changeAvailabilityButton,
-              ).not.toBeVisible();
-              test.skip();
-            }
-
-            const formattedMonthAndYear = ukNow().format('MMMM YYYY');
-            await monthViewAvailabilityPage.verifyHeadingDisplayed(
-              formattedMonthAndYear,
-            );
-            return await monthViewAvailabilityPage.clickViewWeekInCardByDate(
-              currentWeekTitle,
-            );
-          })
-          .then(async weekViewAvailabilityPage => {
-            if (!CancelADateRangeFlagEnabled) {
-              await expect(
-                weekViewAvailabilityPage.changeAvailabilityButton,
-              ).not.toBeVisible();
-              test.skip();
-            }
-            return await weekViewAvailabilityPage.clickChangeAvailabilityButton();
-          })
-          .then(async changeAvailabilityPage => {
-            await expect(changeAvailabilityPage.backButton).toBeVisible();
-            return await changeAvailabilityPage.clickBackToWeekViewButton();
-          })
-          .then(async weekViewAvailabilityPage => {
+          .then(async cancellationImpactPage => {
             await expect(
-              await weekViewAvailabilityPage.getHeading(currentWeekTitle),
+              cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
+            ).toBeVisible();
+            await expect(
+              cancellationImpactPage.cancelSessionsNoBookingsText,
+            ).toBeVisible();
+            return await cancellationImpactPage.clickContinueButton();
+          })
+          .then(async checkYourAnswersPage => {
+            await expect(
+              checkYourAnswersPage.checkYourAnswersHeading,
+            ).toBeVisible();
+
+            const expectedDates = `${daysFromToday(fromDayIncrement, 'D MMMM')} to ${daysFromToday(toDayIncrement, 'D MMMM YYYY')}`;
+            await expect(
+              checkYourAnswersPage.listItemValue('Dates'),
+            ).toHaveText(expectedDates);
+            await expect(
+              checkYourAnswersPage.listItemValue('Number of sessions'),
+            ).toHaveText(totalSessionCount.toString());
+            return await checkYourAnswersPage.clickCancelSessionsButton();
+          })
+          .then(async confirmationPage => {
+            await expect(
+              await confirmationPage.getSessionOnlyCancellationHeading(
+                totalSessionCount,
+              ),
+            ).toBeVisible();
+
+            return await confirmationPage.clickGoBackToViewAvailabilityLink();
+          })
+          .then(async monthViewAvailabilityPage => {
+            const formattedMonthAndYear = ukNow().format('MMMM YYYY');
+            await monthViewAvailabilityPage.verifyHeadingDisplayed(
+              formattedMonthAndYear,
+            );
+            return await monthViewAvailabilityPage.goToWeekForDate(startDate);
+          })
+          .then(async weekViewAvailabilityPage => {
+            const date = getLongDayDateText(startDate);
+            await expect(
+              await weekViewAvailabilityPage.getDailyCard(date),
+            ).toBeVisible();
+            await expect(
+              await weekViewAvailabilityPage.getAddAvailabilityLinkForDailyCard(
+                date,
+              ),
+            ).toBeVisible();
+            expect(
+              (await weekViewAvailabilityPage.getDailyCard(date)).getByText(
+                'No availability',
+              ),
+            ).toBeVisible();
+            await expect(
+              (await weekViewAvailabilityPage.getDailyCard(date)).getByText(
+                'Total appointments: 0',
+              ),
             ).toBeVisible();
           });
       });
 
-      test('Cancel a date range daily page', async ({ setup }) => {
-        const day = daysFromToday(10);
-        const dayViewDate = daysFromToday(10, 'dddd D MMMM');
+      test('Cancel session, verify session has been cancelled', async ({
+        setup,
+      }) => {
+        const dayIncrement = 170;
+        const day = daysFromToday(dayIncrement);
+        const startDate = getDateInFuture(dayIncrement);
         const availability = [
           {
             date: day,
@@ -773,24 +996,6 @@ test.describe.configure({ mode: 'serial' });
             ],
           },
         ];
-        const bookings: BookingSetup[] = [
-          {
-            fromDate: day,
-            fromTime: '09:00:00',
-            durationMins: 5,
-            service: 'COVID_FLU:65+',
-            status: 'Booked',
-            availabilityStatus: 'Supported',
-          },
-          {
-            fromDate: day,
-            fromTime: '09:10:00',
-            durationMins: 5,
-            service: 'COVID_FLU:65+',
-            status: 'Booked',
-            availabilityStatus: 'Supported',
-          },
-        ];
 
         const { sitePage } = await setup({
           features: [
@@ -800,41 +1005,89 @@ test.describe.configure({ mode: 'serial' });
             },
           ],
           availability: availability,
-          bookings: bookings,
         });
-        const ukWeekStart = startOfUkWeek(day);
-        const ukWeekEnd = endOfUkWeek(day);
-        const selectedWeekTitle = `${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`;
+        const totalSessionCount = availability.reduce(
+          (acc, sessionDay) => acc + sessionDay.sessions.length,
+          0,
+        );
 
         await sitePage
           .clickSiteAvailabilityCard()
           .then(async monthViewAvailabilityPage => {
-            return await monthViewAvailabilityPage.clickViewWeekInCardByDate(
-              selectedWeekTitle,
-            );
-          })
-          .then(async weekViewAvailabilityPage => {
-            return await weekViewAvailabilityPage.clickViewDailyAppointmentsForDate(
-              dayViewDate,
-            );
-          })
-          .then(async dayViewAvailabilityPage => {
             if (!CancelADateRangeFlagEnabled) {
               await expect(
-                dayViewAvailabilityPage.changeAvailabilityButton,
+                monthViewAvailabilityPage.changeAvailabilityButton,
               ).not.toBeVisible();
               test.skip();
             }
-
-            return await dayViewAvailabilityPage.clickChangeAvailabilityButton();
+            return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
           })
-          .then(async changeAvailabilityPage => {
-            await expect(changeAvailabilityPage.backButton).toBeVisible();
-            return await changeAvailabilityPage.clickBackToDayViewButton();
+          .then(
+            async changeAvailabilityPage =>
+              await changeAvailabilityPage.clickContinueButton(),
+          )
+          .then(async selectDatePage => {
+            await selectDatePage.fillDates(startDate, startDate);
+            return await selectDatePage.clickContinueButton();
           })
-          .then(async dayViewAvailabilityPage => {
+          .then(async cancellationImpactPage => {
             await expect(
-              await dayViewAvailabilityPage.getHeading(dayViewDate),
+              cancellationImpactPage.cancelSessionsHeading(totalSessionCount),
+            ).toBeVisible();
+            await expect(
+              cancellationImpactPage.cancelSessionsNoBookingsText,
+            ).toBeVisible();
+            return await cancellationImpactPage.clickContinueButton();
+          })
+          .then(async checkYourAnswersPage => {
+            await expect(
+              checkYourAnswersPage.checkYourAnswersHeading,
+            ).toBeVisible();
+
+            const expectedDates = `${daysFromToday(dayIncrement, 'D MMMM')} to ${daysFromToday(dayIncrement, 'D MMMM YYYY')}`;
+            await expect(
+              checkYourAnswersPage.listItemValue('Dates'),
+            ).toHaveText(expectedDates);
+            await expect(
+              checkYourAnswersPage.listItemValue('Number of sessions'),
+            ).toHaveText(totalSessionCount.toString());
+            return await checkYourAnswersPage.clickCancelSessionsButton();
+          })
+          .then(async confirmationPage => {
+            await expect(
+              await confirmationPage.getSessionOnlyCancellationHeading(
+                totalSessionCount,
+              ),
+            ).toBeVisible();
+
+            return await confirmationPage.clickGoBackToViewAvailabilityLink();
+          })
+          .then(async monthViewAvailabilityPage => {
+            const formattedMonthAndYear = ukNow().format('MMMM YYYY');
+            await monthViewAvailabilityPage.verifyHeadingDisplayed(
+              formattedMonthAndYear,
+            );
+            return await monthViewAvailabilityPage.goToWeekForDate(startDate);
+          })
+          .then(async weekViewAvailabilityPage => {
+            const date = getLongDayDateText(startDate);
+            await expect(
+              await weekViewAvailabilityPage.getDailyCard(date),
+            ).toBeVisible();
+            await expect(
+              await weekViewAvailabilityPage.getAddAvailabilityLinkForDailyCard(
+                date,
+              ),
+            ).toBeVisible();
+            expect(
+              (await weekViewAvailabilityPage.getDailyCard(date)).getByText(
+                'No availability',
+              ),
+            ).toBeVisible();
+            await expect(
+              (await weekViewAvailabilityPage.getDailyCard(date)).getByText(
+                'Total appointments: 0',
+              ),
             ).toBeVisible();
           });
       });

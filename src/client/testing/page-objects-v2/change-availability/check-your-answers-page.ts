@@ -1,6 +1,7 @@
 import { MYALayout } from '@e2etests/types';
 import CancellationImpactPage from './cancellation-impact-page';
 import SelectDatePage from './select-date-page';
+import ConfirmationPage from './confirmation-page';
 
 export default class CheckYourAnswersPage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -10,6 +11,10 @@ export default class CheckYourAnswersPage extends MYALayout {
   readonly checkYourAnswersHeading = this.page.getByRole('heading', {
     name: 'Check your answers',
     exact: true,
+  });
+
+  readonly cancelSessionsButton = this.page.getByRole('button', {
+    name: 'Cancel sessions',
   });
 
   readonly listItemValue = (label: string) =>
@@ -37,5 +42,11 @@ export default class CheckYourAnswersPage extends MYALayout {
     await this.listItemChangeLink('Dates').click();
 
     return new SelectDatePage(this.page, this.site);
+  }
+
+  async clickCancelSessionsButton(): Promise<ConfirmationPage> {
+    await this.cancelSessionsButton.click();
+
+    return new ConfirmationPage(this.page, this.site);
   }
 }

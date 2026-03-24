@@ -25,7 +25,7 @@ parameters:
   - name: runBooking
     displayName: "Run Booking Data Extract"
     type: boolean
-    default: true
+    default: false
 
 variables:
   - group: covid19bookingkv${{parameters.env}}uks

@@ -1,7 +1,8 @@
 'use client';
 
+import { SecondaryNavigation } from '@components/seconday-navigation';
 import { GetCurrentDateTime } from '@services/timeService';
-import Link from 'next/link';
+import { NavigationLink } from '@types';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 type Props = {
@@ -26,42 +27,27 @@ export const AvailabilitySecondaryNavigation = ({ site }: Props) => {
 
   const queryString = query.toString();
 
-  return (
-    <nav className="app-secondary-navigation">
-      <ul className="app-secondary-navigation__list">
-        <li className="app-secondary-navigation__list-item">
-          <Link
-            className="app-secondary-navigation__link"
-            href={`/site/${site}/view-availability/daily-appointments?${queryString}`}
-            {...(pathname.includes('daily-appointments')
-              ? { 'aria-current': 'page' }
-              : {})}
-          >
-            Day view
-          </Link>
-        </li>
-        <li className="app-secondary-navigation__list-item">
-          <Link
-            className="app-secondary-navigation__link"
-            href={`/site/${site}/view-availability/week?${queryString}`}
-            {...(pathname.includes('week') ? { 'aria-current': 'page' } : {})}
-          >
-            Week view
-          </Link>
-        </li>
-        <li className="app-secondary-navigation__list-item">
-          <Link
-            className="app-secondary-navigation__link"
-            href={`/site/${site}/view-availability?${queryString}`}
-            {...(!pathname.includes('week') &&
-            !pathname.includes('daily-appointments')
-              ? { 'aria-current': 'page' }
-              : {})}
-          >
-            Month view
-          </Link>
-        </li>
-      </ul>
-    </nav>
-  );
+  const links: NavigationLink[] = [
+    {
+      id: 'day-view',
+      href: `/site/${site}/view-availability/daily-appointments?${queryString}`,
+      isCurrent: pathname.includes('daily-appointments'),
+      label: 'Day view',
+    },
+    {
+      id: 'week-view',
+      href: `/site/${site}/view-availability/week?${queryString}`,
+      isCurrent: pathname.includes('week'),
+      label: 'Week view',
+    },
+    {
+      id: 'month-view',
+      href: `/site/${site}/view-availability?${queryString}`,
+      isCurrent:
+        !pathname.includes('week') && !pathname.includes('daily-appointments'),
+      label: 'Month view',
+    },
+  ];
+
+  return <SecondaryNavigation links={links} />;
 };

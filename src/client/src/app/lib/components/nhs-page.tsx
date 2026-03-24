@@ -31,6 +31,7 @@ type Props = {
   backLink?: NavigationByHrefProps;
   originPage: string;
   showPrintButton?: boolean;
+  secondaryNavigation?: ReactNode;
 } & NhsHeadingProps;
 
 const NhsPage = async ({
@@ -43,6 +44,7 @@ const NhsPage = async ({
   backLink,
   originPage,
   showPrintButton = false,
+  secondaryNavigation,
 }: Props) => {
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
@@ -73,6 +75,8 @@ const NhsPage = async ({
             text={backLink.text}
           />
         )}
+
+        {secondaryNavigation}
 
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-three-quarters">

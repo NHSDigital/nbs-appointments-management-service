@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchPermissions,
@@ -10,7 +9,6 @@ import { fetchBookings } from '../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
-import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import {
   dateTimeFormat,
   parseToUkDatetime,
@@ -63,25 +61,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const bookedAppointments = bookings.filter(b => b.status === 'Booked');
   const cancelledAppointments = bookings.filter(b => b.status === 'Cancelled');
 
-  const backLink: NavigationByHrefProps = {
-    renderingStrategy: 'server',
-    href: `/site/${site.id}/view-availability/week?date=${date}`,
-    text: 'Back to week view',
-  };
-
   const canCancelBookings = sitePermissions.includes('booking:cancel');
 
   const canChangeAvailability =
     cancelADateRange.enabled && sitePermissions.includes('availability:setup');
 
   return (
-    <NhsPage
-      title={fromDate.format('dddd D MMMM')}
-      caption={site.name}
-      backLink={backLink}
-      originPage="view-availability-daily-appointments"
-      site={site}
-    >
+    <>
       {canChangeAvailability && (
         <Link
           href={`/site/${siteFromPath}/change-availability`}
@@ -125,7 +111,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           />
         </Tab>
       </Tabs>
-    </NhsPage>
+    </>
   );
 };
 

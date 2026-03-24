@@ -5,9 +5,14 @@ import {
   fetchPermissions,
 } from '@services/appointmentsService';
 import { ServerActionResult, UserProfile } from '@types';
-import { mockAllPermissions, mockSite } from '@testing/data';
+import {
+  mockAllPermissions,
+  mockSecondaryLinks,
+  mockSite,
+} from '@testing/data';
 import asServerActionResult from '@testing/asServerActionResult';
 import { GetCurrentDateTime } from '@services/timeService';
+import { SecondaryNavigation } from './seconday-navigation';
 
 jest.mock('@services/appointmentsService');
 const fetchUserProfileMock = fetchUserProfile as jest.Mock<
@@ -401,5 +406,65 @@ describe('Nhs Page', () => {
     expect(
       screen.getByRole('link', { name: 'Test back link' }),
     ).toHaveAttribute('href', '/test/url');
+  });
+
+  it('displays secondary navgation with the correct details when provided', async () => {
+    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
+
+    const secondaryNavJsx = await SecondaryNavigation({
+      links: mockSecondaryLinks,
+    });
+
+    const jsx = await NhsPage({
+      title: 'Test title',
+      children: null,
+      site: {
+        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
+        name: 'Test site',
+        address: '',
+        odsCode: 'K12',
+        integratedCareBoard: '',
+        region: '',
+        phoneNumber: '01189998819991197253',
+        location: {
+          coordinates: [-2.3, 53.1],
+          type: 'point',
+        },
+        accessibilities: [],
+        informationForCitizens: '',
+      },
+      breadcrumbs: [],
+      backLink: {
+        href: '/test/url',
+        renderingStrategy: 'server',
+        text: 'Test back link',
+      },
+      originPage: '',
+      secondaryNavigation: secondaryNavJsx,
+    });
+
+    render(jsx);
+
+    expect(screen.getByRole('link', { name: 'Link One' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Link One' })).toHaveAttribute(
+      'href',
+      '/link/one/url',
+    );
+    expect(screen.getByRole('link', { name: 'Link Two' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Link Two' })).toHaveAttribute(
+      'href',
+      '/link/two/url',
+    );
+    expect(screen.getByRole('link', { name: 'Link Two' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(
+      screen.getByRole('link', { name: 'Link Three' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Link Three' })).toHaveAttribute(
+      'href',
+      '/link/three/url',
+    );
   });
 });

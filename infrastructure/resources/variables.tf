@@ -338,7 +338,11 @@ variable "container_registry_password" {
   sensitive = true
 }
 
-variable "create_data_extracts" {
+variable "create_booking_data_extracts" {
+  type = bool
+}
+
+variable "create_capacity_data_extracts" {
   type = bool
 }
 

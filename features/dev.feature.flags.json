@@ -8,9 +8,9 @@
     "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,
-    "ReportsUplift": false,
-    "CancelADateRange": false,
-    "CancelADateRangeWithBookings": false,
+    "ReportsUplift": true,
+    "CancelADateRange": true,
+    "CancelADateRangeWithBookings": true,
     "CancellationReasonBookingsReporting": false,
     "SiteTypeBookingsReporting": false,
     "TestFeaturePercentageEnabled": {

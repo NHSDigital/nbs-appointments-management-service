@@ -129,7 +129,7 @@ describe('ConfirmationStep', () => {
         {
           cancelledSessionsCount: 5,
           cancelledBookingsCount: 5,
-          bookingsWithoutContactDetailsCount: 5,
+          bookingsWithoutContactDetailsCount: 0,
         },
         'cancel-bookings',
       );
@@ -147,7 +147,7 @@ describe('ConfirmationStep', () => {
         {
           cancelledSessionsCount: 1,
           cancelledBookingsCount: 1,
-          bookingsWithoutContactDetailsCount: 1,
+          bookingsWithoutContactDetailsCount: 0,
         },
         'cancel-bookings',
       );
@@ -223,7 +223,7 @@ describe('ConfirmationStep', () => {
         {
           cancelledSessionsCount: 5,
           cancelledBookingsCount: 5,
-          bookingsWithoutContactDetailsCount: 0,
+          bookingsWithoutContactDetailsCount: 5,
         },
         'cancel-bookings',
       );
@@ -252,7 +252,7 @@ describe('ConfirmationStep', () => {
         {
           cancelledSessionsCount: 1,
           cancelledBookingsCount: 1,
-          bookingsWithoutContactDetailsCount: 0,
+          bookingsWithoutContactDetailsCount: 1,
         },
         'cancel-bookings',
       );
@@ -281,7 +281,7 @@ describe('ConfirmationStep', () => {
         {
           cancelledSessionsCount: 1,
           cancelledBookingsCount: 1,
-          bookingsWithoutContactDetailsCount: 0,
+          bookingsWithoutContactDetailsCount: 1,
         },
         'cancel-bookings',
       );

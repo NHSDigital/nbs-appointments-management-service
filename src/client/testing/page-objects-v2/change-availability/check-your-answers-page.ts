@@ -17,6 +17,10 @@ export default class CheckYourAnswersPage extends MYALayout {
     name: 'Cancel sessions',
   });
 
+  readonly cancelSessionsAndBookingsButton = this.page.getByRole('button', {
+    name: 'Cancel sessions and bookings',
+  });
+
   readonly listItemValue = (label: string) =>
     this.page
       .locator('dt')
@@ -46,6 +50,12 @@ export default class CheckYourAnswersPage extends MYALayout {
 
   async clickCancelSessionsButton(): Promise<ConfirmationPage> {
     await this.cancelSessionsButton.click();
+
+    return new ConfirmationPage(this.page, this.site);
+  }
+
+  async clickCancelSessionsAndBookingsButton(): Promise<ConfirmationPage> {
+    await this.cancelSessionsAndBookingsButton.click();
 
     return new ConfirmationPage(this.page, this.site);
   }

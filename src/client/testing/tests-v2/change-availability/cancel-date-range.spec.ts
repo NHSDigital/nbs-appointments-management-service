@@ -1239,7 +1239,7 @@ test.describe.configure({ mode: 'serial' });
                     cancellationImpactPage.canNotCancelReturnButton,
                   ).toBeVisible();
                   await expect(
-                    cancellationImpactPage.canNotCancelDifferentDatesButton,
+                    cancellationImpactPage.canNotCancelDifferentDatesLink,
                   ).toBeVisible();
                 } else {
                   await expect(
@@ -1387,6 +1387,16 @@ test.describe.configure({ mode: 'serial' });
                       'What you have chosen to do with the bookings',
                     ),
                   ).toHaveText(cancellationDecisionText);
+
+                  if (cancellationDecision === 'Keep bookings') {
+                    await expect(
+                      checkYourAnswersPage.cancelSessionsButton,
+                    ).toBeVisible();
+                  } else {
+                    await expect(
+                      checkYourAnswersPage.cancelSessionsAndBookingsButton,
+                    ).toBeVisible();
+                  }
                 });
             });
           });
@@ -1548,6 +1558,15 @@ test.describe.configure({ mode: 'serial' });
                       'What you have chosen to do with the bookings',
                     ),
                   ).toHaveText(cancellationDecisionText);
+                  if (cancellationDecision === 'Keep bookings') {
+                    await expect(
+                      checkYourAnswersPage.cancelSessionsButton,
+                    ).toBeVisible();
+                  } else {
+                    await expect(
+                      checkYourAnswersPage.cancelSessionsAndBookingsButton,
+                    ).toBeVisible();
+                  }
                 });
             });
           });
@@ -1875,7 +1894,7 @@ test.describe.configure({ mode: 'serial' });
                 }
 
                 await expect(
-                  cancellationImpactPage.canNotCancelDifferentDatesButton,
+                  cancellationImpactPage.canNotCancelDifferentDatesLink,
                 ).toBeVisible();
 
                 return await cancellationImpactPage.clickCanNotCancelDifferentDatesButton();

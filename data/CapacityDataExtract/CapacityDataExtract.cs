@@ -12,6 +12,8 @@ public class CapacityDataExtract(
     TimeProvider timeProvider,
     ILogger<CapacityDataExtract> logger) : IExtractor
 {
+    private const int ChunkSize = 10000;
+    
     public async Task RunAsync(FileInfo outputFile)
     {
         var availabilityTask = availabilityStore.RunQueryAsync(
@@ -34,9 +36,7 @@ public class CapacityDataExtract(
                     Services = s.Services,
                     SlotLength = s.SlotLength,
                     Capacity = s.Capacity
-                })).SelectMany(slot => slot.ToSiteSlots()).ToList();
-
-        logger.LogInformation($"Preparing to parse {capacity.Count} report to rows - time: {timeProvider.GetUtcNow():HH:mm:ss}");
+                })).SelectMany(slot => slot.ToSiteSlots());
 
         var rows = capacity.Select(
                 x => new SiteSessionParquet()
@@ -51,13 +51,16 @@ public class CapacityDataExtract(
                     REGION = CapacityDataConverter.ExtractRegion(x),
                     ICB = CapacityDataConverter.ExtractICB(x),
                     SERVICE = CapacityDataConverter.ExtractService(x),
-                }).ToList();
+                });
 
-        logger.LogInformation($"Preparing to write {rows.Count} capacity records to {outputFile.FullName} - time: {timeProvider.GetUtcNow():HH:mm:ss}");
+        logger.LogInformation($"Preparing to write capacity records to {outputFile.FullName}");
 
         using (Stream fs = outputFile.OpenWrite())
         {
-            await ParquetSerializer.SerializeAsync(rows, fs);
+            await ParquetSerializer.SerializeAsync(rows, fs, new ParquetSerializerOptions()
+            {
+                RowGroupSize = ChunkSize
+            });
         }
 
         logger.LogInformation("done");

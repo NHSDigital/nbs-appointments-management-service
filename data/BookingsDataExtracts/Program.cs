@@ -2,6 +2,7 @@ using BookingsDataExtracts;
 using DataExtract;
 using DataExtract.Documents;
 using Microsoft.FeatureManagement;
+using Nhs.Appointments.Core.Logger;
 using Nhs.Appointments.Persistance.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -19,7 +20,7 @@ builder.Configuration
             .UseFeatureFlags();
     });
 
-builder.Logging.AddConsole();
+builder.UseAppointmentsSerilog();
 
 builder.Services
     .AddDataExtractServices("booking", builder.Configuration)

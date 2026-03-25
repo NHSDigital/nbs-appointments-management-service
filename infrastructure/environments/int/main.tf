@@ -68,7 +68,7 @@ module "mya_application_int" {
   container_registry_username                                     = var.CONTAINER_REGISTRY_USERNAME
   container_registry_password                                     = var.CONTAINER_REGISTRY_PASSWORD
   create_booking_data_extracts                                    = true
-  create_capacity_data_extracts                                   = false
+  create_capacity_data_extracts                                   = true
   data_extract_file_sender_options_type                           = "mesh"
   mesh_mailbox_destination                                        = var.MESH_MAILBOX_DESTINATION
   mesh_mailbox_workflow_capacity                                  = var.MESH_MAILBOX_WORKFLOW_CAPACITY

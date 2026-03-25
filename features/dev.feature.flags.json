@@ -2,15 +2,15 @@
   "FeatureManagement": {
     "TestFeatureEnabled": true,
     "SiteStatus": true,
-    "CancelDay": true,
+    "CancelDay": false,
     "ChangeSessionUpliftedJourney": true,
     "CancelSessionUpliftedJourney": true,
     "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,
     "ReportsUplift": true,
-    "CancelADateRange": false,
-    "CancelADateRangeWithBookings": false,
+    "CancelADateRange": true,
+    "CancelADateRangeWithBookings": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

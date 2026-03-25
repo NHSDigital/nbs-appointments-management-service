@@ -70,7 +70,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   return (
     <>
       <div className="nhsuk-grid-column-three-quarters">
-        <Heading title={fromDate.format('dddd D MMMM')} />
+        <Heading headingLevel="h2">{fromDate.format('dddd D MMMM')}</Heading>
       </div>
 
       {canChangeAvailability && (

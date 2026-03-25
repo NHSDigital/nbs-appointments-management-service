@@ -404,7 +404,7 @@ public class BookingCosmosDocumentStore(
                     successfulCancellations++;
                 }
 
-                if (booking.ContactDetails is null || booking.ContactDetails.Length == 0)
+                if (booking.ContactDetails == null || booking.ContactDetails.All(c => c.Type == ContactItemType.Landline))
                 {
                     bookingsWithoutContactDetailsCount++;
                 }

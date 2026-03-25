@@ -35,7 +35,7 @@ export default class CancellationImpactPage extends MYALayout {
     exact: true,
   });
 
-  readonly canNotCancelDifferentDatesButton = this.page.getByRole('button', {
+  readonly canNotCancelDifferentDatesLink = this.page.getByRole('button', {
     name: 'Select different dates',
     exact: true,
   });
@@ -74,7 +74,7 @@ export default class CancellationImpactPage extends MYALayout {
   }
 
   async clickCanNotCancelDifferentDatesButton(): Promise<SelectDatePage> {
-    await this.canNotCancelDifferentDatesButton.click();
+    await this.canNotCancelDifferentDatesLink.click();
 
     return new SelectDatePage(this.page, this.site);
   }

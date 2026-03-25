@@ -4,9 +4,7 @@ public interface IMetricsRecorder
 {
     IDisposable BeginScope(string scopeName);
 
-    void RecordMetric(string name, double value);
+    void RecordMetric(IMetric metric);
 
-    void RecordMetric(string name, IMetric value);
-
-    IReadOnlyCollection<(string Path, object Value)> Metrics { get; }
+    IReadOnlyCollection<(string Path, IMetric Metric)> Metrics { get; }
 }

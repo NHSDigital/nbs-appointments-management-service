@@ -102,6 +102,6 @@ public static class CosmosOperationHelper
 
     public static void RecordQueryMetrics(IMetricsRecorder metricsRecorder, IMetric metric)
     {
-        metricsRecorder.RecordMetric(metric.Name, metric);
+        metricsRecorder.RecordMetric(metric);
     }
 }

@@ -9,6 +9,8 @@
     "JointBookingsReporting": false,
     "ReportsUplift": true,
     "CancelADateRange": true,
-    "CancelADateRangeWithBookings": true
+    "CancelADateRangeWithBookings": true,
+    "CancellationReasonBookingsReporting": false,
+    "SiteTypeBookingsReporting": false
   }
 }

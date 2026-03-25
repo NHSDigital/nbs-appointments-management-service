@@ -11,6 +11,8 @@
     "ReportsUplift": true,
     "CancelADateRange": true,
     "CancelADateRangeWithBookings": true,
+    "CancellationReasonBookingsReporting": false,
+    "SiteTypeBookingsReporting": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {
@@ -49,7 +51,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }
@@ -80,7 +82,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }

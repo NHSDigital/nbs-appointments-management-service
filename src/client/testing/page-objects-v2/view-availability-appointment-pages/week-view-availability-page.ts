@@ -1,6 +1,8 @@
 import { MYALayout } from '@e2etests/types';
-import { expect } from '../../fixtures-v2';
+import { expect, Locator } from '../../fixtures-v2';
 import { DayOverview } from '../../availability';
+import ChangeAvailabilityPage from '../change-availability/change-availability-page';
+import DayViewAvailabilityPage from './day-view-availability-page';
 
 export default class WeekViewAvailabilityPage extends MYALayout {
   title = this.page.getByRole('heading');
@@ -24,6 +26,55 @@ export default class WeekViewAvailabilityPage extends MYALayout {
   readonly cancelDayLink = this.page.getByRole('link', {
     name: 'Cancel day',
   });
+
+  readonly changeAvailabilityButton = this.page.getByRole('button', {
+    name: 'Change availability',
+  });
+
+  readonly dailyCards = this.page.locator('div.nhsuk-card');
+
+  async getDailyCard(text: string): Promise<Locator> {
+    return this.dailyCards.filter({ hasText: text });
+  }
+
+  async getAddAvailabilityLinkForDailyCard(text: string): Promise<Locator> {
+    return (await this.getDailyCard(text)).getByRole('link', {
+      name: 'Add availability to this day',
+    });
+  }
+
+  async getHeading(text: string): Promise<Locator> {
+    return this.page.getByRole('heading', {
+      name: text,
+    });
+  }
+
+  async clickChangeAvailabilityButton(): Promise<ChangeAvailabilityPage> {
+    await this.changeAvailabilityButton.click();
+
+    await this.page.waitForURL(
+      `/manage-your-appointments/site/${this.site?.id}/change-availability`,
+    );
+
+    return new ChangeAvailabilityPage(this.page, this.site);
+  }
+
+  async clickViewDailyAppointmentsForDate(
+    date: string,
+  ): Promise<DayViewAvailabilityPage> {
+    const targetCard = this.dailyCards.filter({ hasText: date });
+    await targetCard
+      .getByRole('link', { name: 'View daily appointments' })
+      .click();
+
+    await this.page.waitForURL(url =>
+      url.pathname.includes(
+        `/site/${this.site?.id}/view-availability/daily-appointments`,
+      ),
+    );
+
+    return new DayViewAvailabilityPage(this.page, this.site);
+  }
 
   async verifyHeadingDisplayed(requiredWeekRange: string) {
     const heading = this.title.filter({ hasText: requiredWeekRange });

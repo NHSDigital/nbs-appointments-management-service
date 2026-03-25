@@ -16,7 +16,7 @@ export type PageProps = {
 const Page = async ({ params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const cancelADateRangeMaximumDays = parseInt(
-    process.env.CANCEL_A_DATE_RANGE_MAXIMUM_DAYS ?? '90',
+    process.env.CANCEL_A_DATE_RANGE_MAXIMUM_DAYS || '90',
   );
   await fromServer(assertPermission(siteFromPath, 'availability:setup'));
   await fromServer(assertFeatureEnabled('CancelADateRange'));

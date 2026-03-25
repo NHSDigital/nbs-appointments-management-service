@@ -1,20 +1,54 @@
 import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { WeekOverview } from '../../availability';
+import ChangeAvailabilityPage from '../change-availability/change-availability-page';
+import WeekViewAvailabilityPage from './week-view-availability-page';
+import { DateComponents } from '@types';
 
 export default class MonthViewAvailabilityPage extends MYALayout {
   title = this.page.getByRole('heading');
 
   readonly nextButton = this.page.getByRole('link', {
-      name: 'Next',
+    name: 'Next',
   });
 
   readonly previousButton = this.page.getByRole('link', {
     name: 'Previous',
   });
 
+  readonly changeAvailabilityButton = this.page.getByRole('button', {
+    name: 'Change availability',
+  });
+
+  readonly weeklyCards = this.page.locator('div.nhsuk-card');
+
+  async clickChangeAvailabilityButton(): Promise<ChangeAvailabilityPage> {
+    await this.changeAvailabilityButton.click();
+
+    await this.page.waitForURL(
+      `/manage-your-appointments/site/${this.site?.id}/change-availability`,
+    );
+
+    return new ChangeAvailabilityPage(this.page, this.site);
+  }
+
+  async clickViewWeekInCardByDate(
+    dateRange: string,
+  ): Promise<WeekViewAvailabilityPage> {
+    const targetCard = this.weeklyCards.filter({ hasText: dateRange });
+    await targetCard.getByRole('link', { name: 'View week' }).click();
+
+    await this.page.waitForURL(url =>
+      url.pathname.includes(`/site/${this.site?.id}/view-availability/week`),
+    );
+
+    return new WeekViewAvailabilityPage(this.page, this.site);
+  }
+
   async verifyHeadingDisplayed(requiredMonthYearDate: string) {
-    const heading = this.title.filter({ hasText: `View availability for ${requiredMonthYearDate}` });
+    const heading = this.title.filter({
+      hasText: `View availability for ${requiredMonthYearDate}`,
+    });
     await expect(heading).toBeVisible();
   }
 
@@ -117,5 +151,18 @@ export default class MonthViewAvailabilityPage extends MYALayout {
     await this.page.goto(
       `/manage-your-appointments/site/${siteId}/view-availability?date=${month}`,
     );
+  }
+
+  async goToWeekForDate(
+    date: DateComponents,
+  ): Promise<WeekViewAvailabilityPage> {
+    await this.page.goto(
+      `/manage-your-appointments/site/${this.site?.id}/view-availability/week?date=${date.year}-${date.month}-${date.day}`,
+    );
+    await this.page.waitForURL(
+      `/manage-your-appointments/site/${this.site?.id}/view-availability/week?date=${date.year}-${date.month}-${date.day}`,
+    );
+
+    return new WeekViewAvailabilityPage(this.page, this.site);
   }
 }

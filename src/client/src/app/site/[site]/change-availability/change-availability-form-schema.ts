@@ -2,6 +2,8 @@ import {
   occurInOrder,
   parseDateComponentsToUkDatetime,
   ukNow,
+  isAfter,
+  addToUkDatetime,
 } from '@services/timeService';
 import * as yup from 'yup';
 import { DateComponents } from '@types';
@@ -79,8 +81,8 @@ export const createChangeAvailabilityFormSchema = (maxDays: number) => {
       if (
         !start ||
         !end ||
-        !start.isAfter(ukNow(), 'day') ||
-        !end.isAfter(ukNow(), 'day')
+        !isAfter(start, ukNow()) ||
+        !isAfter(end, ukNow())
       ) {
         return true;
       }
@@ -92,9 +94,9 @@ export const createChangeAvailabilityFormSchema = (maxDays: number) => {
         });
       }
 
-      const diffInDays = end.diff(start, 'day') + 1;
+      const allowedEnd = addToUkDatetime(start, maxDays - 1, 'day');
 
-      if (diffInDays > maxDays) {
+      if (isAfter(end, allowedEnd)) {
         return new yup.ValidationError([
           this.createError({
             path: 'startDate',

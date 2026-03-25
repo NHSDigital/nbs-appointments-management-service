@@ -10,7 +10,7 @@ import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import Link from 'next/link';
-import NhsHeading from '@components/nhs-heading';
+import { Heading } from 'nhsuk-react-components';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -45,9 +45,9 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <>
-      <NhsHeading
-        title={`${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`}
-      />
+      <Heading>
+        {`${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`}
+      </Heading>
 
       {canChangeAvailability && (
         <Link href={`/site/${siteFromPath}/change-availability`}>

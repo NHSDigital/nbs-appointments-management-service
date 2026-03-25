@@ -1,5 +1,5 @@
 import { Booking, ClinicalService } from '@types';
-import { DailyAppointmentsPage } from '../../view-availability/daily-appointments/daily-appointments-page';
+import { DailyAppointmentsPage } from '../../view-availability/(shared-layout)/daily-appointments/daily-appointments-page';
 
 type Props = {
   bookings: Booking[];

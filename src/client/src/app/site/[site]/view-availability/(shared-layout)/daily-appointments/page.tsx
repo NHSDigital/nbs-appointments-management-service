@@ -5,7 +5,7 @@ import {
   fetchClinicalServices,
   fetchFeatureFlag,
 } from '@services/appointmentsService';
-import { fetchBookings } from '../../../../lib/services/appointmentsService';
+import { fetchBookings } from '../../../../../lib/services/appointmentsService';
 import { DailyAppointmentsPage } from './daily-appointments-page';
 import { FetchBookingsRequest } from '@types';
 import { Tab, Tabs } from '@nhsuk-frontend-components';
@@ -19,7 +19,7 @@ import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import PrintPageButton from '@components/print-page-button';
 import Link from 'next/link';
-import NhsHeading from '@components/nhs-heading';
+import { Heading } from 'nhsuk-react-components';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -70,7 +70,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
   return (
     <>
       <div className="nhsuk-grid-column-three-quarters">
-        <NhsHeading title={fromDate.format('dddd D MMMM')} />
+        <Heading title={fromDate.format('dddd D MMMM')} />
       </div>
 
       {canChangeAvailability && (

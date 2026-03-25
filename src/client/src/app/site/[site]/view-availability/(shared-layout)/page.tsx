@@ -9,7 +9,7 @@ import { RFC3339Format, parseToUkDatetime, ukNow } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import Link from 'next/link';
-import NhsHeading from '@components/nhs-heading';
+import { Heading } from 'nhsuk-react-components';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -39,9 +39,9 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <>
-      <NhsHeading
-        title={`View availability for ${searchMonth.format('MMMM YYYY')}`}
-      />
+      <Heading>
+        {`View availability for ${searchMonth.format('MMMM YYYY')}`}
+      </Heading>
 
       {canChangeAvailability && (
         <Link href={`/site/${siteFromPath}/change-availability`}>

@@ -5,21 +5,20 @@ import { AvailabilitySecondaryNavigation } from './availability-secondary-naviga
 
 type LayoutProps = {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     site: string;
-  };
+  }>;
 };
 
 export default async function Layout({ children, params }: LayoutProps) {
-  const site = await fromServer(fetchSite(params.site));
+  const { site: siteFromPath } = { ...(await params) };
+  const site = await fromServer(fetchSite(siteFromPath));
 
   return (
     <NhsPage
       site={site}
       originPage="view-availability"
-      secondaryNavigation={
-        <AvailabilitySecondaryNavigation site={params.site} />
-      }
+      secondaryNavigation={<AvailabilitySecondaryNavigation site={site.id} />}
     >
       {children}
     </NhsPage>

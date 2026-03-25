@@ -37,7 +37,7 @@ public class MeshFileSender(IMeshFactory meshFactory, IOptions<MeshSendOptions> 
                         content);
             }
 
-            logger.LogInformation($"Sent {file.Name} with id {messageId} to {meshMailbox.MailboxId}");
+            logger.LogInformation("Sent {Name} with id {messageId} to {MailboxId}", file.Name, messageId, meshMailbox.MailboxId);
         }
     }
 }

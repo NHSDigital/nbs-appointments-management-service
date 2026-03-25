@@ -118,7 +118,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
             foreach (var metric in metricsRecorder.Metrics)
             {
                 var json = JsonConvert.SerializeObject(metric);
-                logger.LogInformation("{Path}: {json}", metric.Path, json);
+                logger.LogInformation("{Path}: {Json}", metric.Path, json);
             }
         }
     }

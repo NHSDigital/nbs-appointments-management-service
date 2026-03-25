@@ -1,7 +1,7 @@
 namespace Nhs.Appointments.Persistance.BackoffStrategies;
 
 [Serializable]
-internal class BackoffException : Exception
+public class BackoffException : Exception
 {
     public BackoffException() { }
     public BackoffException(string message) : base(message) { }

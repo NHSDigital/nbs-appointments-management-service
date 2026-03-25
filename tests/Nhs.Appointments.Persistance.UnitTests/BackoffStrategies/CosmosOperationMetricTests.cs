@@ -148,6 +148,47 @@ public class CosmosOperationMetricTests
     }
 
     [Fact]
+    public void StartAttemptHasBeenCalled_StartAttemptIsCalledAgain_ThrowsInvalidOperationException()
+    {
+        // Arrange.
+        var fixedTime = DateTime.UtcNow;
+        var startTime = fixedTime;
+        var sut = new CosmosOperationMetric();
+        var nextStartTime = startTime.AddMilliseconds(234);
+        sut.StartAttempt(startTime);
+
+        // Act.
+        Action act = () => sut.StartAttempt(nextStartTime);
+
+        // Assert.
+        act.Should()
+           .Throw<InvalidOperationException>()
+           .WithMessage("StartAttempt cannot be called before EndAttempt");
+    }
+
+    [Fact]
+    public void StartAttemptAndEndAttemptHaveAlreadyBeenCalled_EndAttemptIsCalled_ThrowsInvalidOperationException()
+    {
+        // Arrange.
+        var fixedTime = DateTime.UtcNow;
+        var startTime = fixedTime;
+        var sut = new CosmosOperationMetric();
+        var firstEndTime = fixedTime.AddMilliseconds(123);
+        var nextStartTime = firstEndTime.AddMilliseconds(234);
+        var nextEndTime = nextStartTime.AddMilliseconds(345);
+        sut.StartAttempt(startTime);
+        sut.EndAttempt(firstEndTime);
+
+        // Act.
+        Action act = () => sut.EndAttempt(nextEndTime);
+
+        // Assert.
+        act.Should()
+           .Throw<InvalidOperationException>()
+           .WithMessage("EndAttempt cannot be called before StartAttempt");
+    }
+
+    [Fact]
     public void MetricIsCreated_RuChargeIsRead_ReturnsZero()
     {
         // Arrange.

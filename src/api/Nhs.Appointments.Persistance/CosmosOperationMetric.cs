@@ -8,9 +8,7 @@ namespace Nhs.Appointments.Persistance;
 /// </summary>
 public record CosmosOperationMetric : IMetric
 {
-    private readonly List<CosmosOperationAttemptTiming> timings = [];
-
-    private CosmosOperationAttemptTiming Current => timings.LastOrDefault();
+    private CosmosOperationAttemptTiming Current => Timings.LastOrDefault();
 
     public DateTime? StartTime { get; private set; }
 
@@ -22,35 +20,32 @@ public record CosmosOperationMetric : IMetric
 
     public string DocumentType { get; init; }
 
-    public List<CosmosOperationAttemptTiming> Timings => timings.Where(t => t.IsStarted).ToList();
+    public List<CosmosOperationAttemptTiming> Timings { get; private set; } = [];
 
     public string Name => nameof(CosmosOperationMetric);
 
     internal void StartAttempt(DateTime startTime)
     {
+        if (Current is not null && Current.StartTime is not null && Current.EndTime is null)
+        {
+            throw new InvalidOperationException($"{nameof(StartAttempt)} cannot be called before {nameof(EndAttempt)}");
+        }
+
         StartTime ??= startTime;
 
-        if (Current == null) // First time through.
-        {
-            timings.Add(new CosmosOperationAttemptTiming { StartTime = startTime });
-        }
-        else
-        {
-            Current.StartTime = startTime;
-        }
+        Timings.Add(new CosmosOperationAttemptTiming { StartTime = startTime });
 
         EndTime = null;
     }
 
     internal void EndAttempt(DateTime endTime)
     {
-        if (Current == null)
+        if (Current == null || Current.EndTime is not null)
         {
             throw new InvalidOperationException($"{nameof(EndAttempt)} cannot be called before {nameof(StartAttempt)}");
         }
-
+        
         Current.EndTime = endTime;
-        timings.Add(new CosmosOperationAttemptTiming());
         EndTime = endTime;
     }
 

@@ -47,6 +47,4 @@ public record CosmosOperationAttemptTiming
     }
 
     public TimeSpan? Elapsed => EndTime is not null ? EndTime - StartTime : null!;
-
-    internal bool IsStarted => StartTime is not null;
 }

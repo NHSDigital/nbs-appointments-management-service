@@ -53,7 +53,7 @@ type UserData = {
   oidc: MockOidcUser;
 };
 
-type BookingSetup = {
+export type BookingSetup = {
   fromDate: string;
   fromTime: string;
   durationMins: number;

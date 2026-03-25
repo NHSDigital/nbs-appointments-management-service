@@ -75,7 +75,7 @@ resource "azurerm_container_app" "nbs_mya_splunk_otel_collector" {
 }
 
 resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
-  count                        = var.create_data_extracts ? 1 : 0 
+  count                        = var.create_booking_data_extracts ? 1 : 0 
   name                         = "${var.application}-bookjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location
@@ -189,7 +189,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
 
 
 resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
-  count                        = var.create_data_extracts ? 1 : 0 
+  count                        = var.create_capacity_data_extracts ? 1 : 0 
   name                         = "${var.application}-capjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location

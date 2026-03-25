@@ -52,8 +52,8 @@ resource "azurerm_windows_function_app" "nbs_mya_service_bus_func_app" {
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                                   = var.site_summary_minimum_parallelization
     SITE_CACHE_KEY                                                         = var.site_cache_key
     ALLSITES_SLIDING_CACHE_ENABLED                                         = var.allsites_sliding_cache_enabled
-    ALLSITES_CACHE_DURATION_MINUTES                                        = var.allsites_sliding_cache_duration_minutes
-    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                                = var.allsites_cache_duration_minutes
+    ALLSITES_CACHE_DURATION_MINUTES                                        = var.allsites_cache_duration_minutes
+    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                                = var.allsites_sliding_cache_duration_minutes
     DISABLE_SITE_CACHE                                                     = var.disable_site_cache
     CANCEL_A_DATE_RANGE_MAXIMUM_DAYS                                       = var.cancel_a_date_range_maximum_days
     APPLICATION_NAME                                                       = "Service Bus Function App"

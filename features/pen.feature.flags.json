@@ -7,7 +7,7 @@
     "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": false,
-    "ReportsUplift": false,
+    "ReportsUplift": true,
     "CancelADateRange": true,
     "CancelADateRangeWithBookings": true
   }

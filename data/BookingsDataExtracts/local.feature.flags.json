@@ -9,6 +9,7 @@
     "CancelSessionUpliftedJourney": false,
     "QuerySites": false,
     "MultiServiceJointBookings": false,
+    "JointBookingsReporting": false,
     "ReportsUplift": false,
     "CancelADateRange": false,
     "CancelADateRangeWithBookings": false,

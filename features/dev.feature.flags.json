@@ -7,12 +7,12 @@
     "CancelSessionUpliftedJourney": true,
     "QuerySites": true,
     "MultiServiceJointBookings": true,
-    "JointBookingsReporting": false,
+    "JointBookingsReporting": true,
     "ReportsUplift": true,
     "CancelADateRange": true,
     "CancelADateRangeWithBookings": true,
-    "CancellationReasonBookingsReporting": false,
-    "SiteTypeBookingsReporting": false,
+    "CancellationReasonBookingsReporting": true,
+    "SiteTypeBookingsReporting": true,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

@@ -2,7 +2,6 @@ import {
   assertPermission,
   fetchClinicalServices,
   fetchSite,
-  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { notFound } from 'next/navigation';
 import { EditSessionDecision } from './edit-session-decision';
@@ -21,10 +20,6 @@ type PageProps = {
 };
 
 const Page = async ({ searchParams, params }: PageProps) => {
-  const cancelSessionUpliftedJourneyFlag = await fromServer(
-    fetchFeatureFlag('CancelSessionUpliftedJourney'),
-  );
-
   const { site: siteFromPath } = { ...(await params) };
   const { session, date } = { ...(await searchParams) };
   if (session === undefined || date === undefined) {
@@ -56,9 +51,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         sessionSummary={session}
         date={date}
         clinicalServices={clinicalServices}
-        cancelSessionUpliftedJourneyFlag={
-          cancelSessionUpliftedJourneyFlag.enabled
-        }
       ></EditSessionDecision>
     </NhsTransactionalPage>
   );

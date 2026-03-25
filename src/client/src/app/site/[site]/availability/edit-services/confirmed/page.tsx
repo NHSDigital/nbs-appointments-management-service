@@ -2,7 +2,6 @@ import {
   assertPermission,
   fetchClinicalServices,
   fetchSite,
-  fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { AvailabilitySession } from '@types';
 import NhsPage from '@components/nhs-page';
@@ -50,10 +49,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
     fromServer(fetchClinicalServices()),
   ]);
 
-  const changeSessionUpliftedJourneyFlag = await fromServer(
-    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
-  );
-
   const parsedDate = parseToUkDatetime(date);
 
   const removedServicesSession: AvailabilitySession = JSON.parse(
@@ -92,9 +87,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         newlyUnsupportedBookingsCount={newlyUnsupportedBookingsCount ?? 0}
         cancelledWithDetailsCount={cancelledWithDetailsCount ?? 0}
         cancelledWithoutDetailsCount={cancelledWithoutDetailsCount ?? 0}
-        changeSessionUpliftedJourneyEnabled={
-          changeSessionUpliftedJourneyFlag.enabled
-        }
       />
     </NhsPage>
   );

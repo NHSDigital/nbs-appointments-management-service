@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Gherkin.Ast;
 using Newtonsoft.Json;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Core.Availability;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Json;
-using Xunit;
 using Xunit.Gherkin.Quick;
 
 namespace Nhs.Appointments.Api.Integration.Scenarios.AvailabilityCalculations;
-public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string flag, bool enabled) : SingleFeatureToggledSteps(flag, enabled)
+
+[FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics.feature")]
+public class GenerateSessionProposalActionMetricsFeatureSteps : BaseFeatureSteps
 {
     private AvailabilityChangeProposalResponse _availabilityChangeProposalResponse;
     
@@ -83,12 +82,4 @@ public abstract class GenerateSessionProposalActionMetricsFeatureSteps(string fl
 
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => _response.StatusCode.Should().Be((HttpStatusCode)statusCode);
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Disabled.feature")]
-    public class GenerateSessionProposalActionMetricsFeatureStepsFeatureDisabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, false);
-
-    [Collection(FeatureToggleCollectionNames.ChangeSessionUpliftedJourneyCollection)]
-    [FeatureFile("./Scenarios/AvailabilityCalculations/GenerateSessionProposalActionMetrics_Enabled.feature")]
-    public class GenerateSessionProposalActionMetricsFeatureStepsFeatureEnabled() : GenerateSessionProposalActionMetricsFeatureSteps(Flags.ChangeSessionUpliftedJourney, true);
 }

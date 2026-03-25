@@ -10,6 +10,7 @@ export default class ChangeAvailabilityPage extends RootPage {
   readonly cancelRadioOption: Locator;
   readonly confirmCancelRadioOption: Locator;
   readonly changeHeader: Locator;
+  readonly cancelSessionButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -31,6 +32,9 @@ export default class ChangeAvailabilityPage extends RootPage {
     });
     this.confirmCancelRadioOption = page.getByRole('radio', {
       name: 'Yes, I want to cancel this session',
+    });
+    this.cancelSessionButton = page.getByRole('button', {
+      name: 'Cancel session',
     });
   }
 

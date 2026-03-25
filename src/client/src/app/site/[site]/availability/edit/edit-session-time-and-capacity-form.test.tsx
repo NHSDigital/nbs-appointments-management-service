@@ -40,7 +40,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
@@ -54,84 +53,12 @@ describe('Edit Session Time And Capacity Form', () => {
     });
   });
 
-  it('calls the service and navigates to the confirmation page when the form is submitted', async () => {
-    const { user } = render(
-      <EditSessionTimeAndCapacityForm
-        date={'2024-06-10 07:00:00'}
-        site={mockSite}
-        existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
-      />,
-    );
-
-    const startTimeHourInput = screen.getByRole('textbox', {
-      name: 'Session start time - hour',
-    });
-    const startTimeMinuteInput = screen.getByRole('textbox', {
-      name: 'Session start time - minute',
-    });
-    const endTimeHourInput = screen.getByRole('textbox', {
-      name: 'Session end time - hour',
-    });
-    const endTimeMinuteInput = screen.getByRole('textbox', {
-      name: 'Session end time - minute',
-    });
-
-    await user.clear(startTimeHourInput);
-    await user.type(startTimeHourInput, '10');
-
-    await user.clear(startTimeMinuteInput);
-    await user.type(startTimeMinuteInput, '15');
-
-    await user.clear(endTimeHourInput);
-    await user.type(endTimeHourInput, '11');
-
-    await user.clear(endTimeMinuteInput);
-    await user.type(endTimeMinuteInput, '30');
-
-    const capacityInput = screen.getByRole('spinbutton', {
-      name: 'How many vaccinators or vaccination spaces do you have?',
-    });
-    await user.clear(capacityInput);
-    await user.type(capacityInput, '1');
-
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-
-    expect(editSessionMock).toHaveBeenCalledTimes(1);
-    expect(editSessionMock).toHaveBeenCalledWith({
-      date: '2024-06-10 07:00:00',
-      site: '34e990af-5dc9-43a6-8895-b9123216d699',
-      mode: 'Edit',
-      sessions: [
-        {
-          from: '10:15',
-          until: '11:30',
-          slotLength: 5,
-          capacity: 1,
-          services: ['RSV:Adult'],
-        },
-      ],
-      sessionToEdit: {
-        from: '09:00',
-        until: '12:00',
-        slotLength: 5,
-        capacity: 2,
-        services: ['RSV:Adult'],
-      },
-    });
-
-    waitFor(() => {
-      expect(mockPush).toHaveBeenCalledTimes(1);
-    });
-  });
-
   it('permits start and end time data entry', async () => {
     const { user } = render(
       <EditSessionTimeAndCapacityForm
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
@@ -188,7 +115,6 @@ describe('Edit Session Time And Capacity Form', () => {
           date={'2024-06-10 07:00:00'}
           site={mockSite}
           existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-          changeSessionUpliftedJourneyEnabled={false}
         />,
       );
 
@@ -232,7 +158,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
@@ -252,7 +177,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
@@ -272,7 +196,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
@@ -301,7 +224,6 @@ describe('Edit Session Time And Capacity Form', () => {
         date={'2024-06-10 07:00:00'}
         site={mockSite}
         existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={true}
       />,
     );
 
@@ -333,53 +255,5 @@ describe('Edit Session Time And Capacity Form', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(editSessionMock).not.toHaveBeenCalled();
-  });
-
-  it('navigates to the edit start time page when the feature flag is disabled and start time is invalid', async () => {
-    const { user } = render(
-      <EditSessionTimeAndCapacityForm
-        date={'2024-06-10 07:00:00'}
-        site={mockSite}
-        existingSession={mockWeekAvailability__Summary[0].sessions[0]}
-        changeSessionUpliftedJourneyEnabled={false}
-      />,
-    );
-
-    const startTimeHourInput = screen.getByRole('textbox', {
-      name: 'Session start time - hour',
-    });
-    const startTimeMinuteInput = screen.getByRole('textbox', {
-      name: 'Session start time - minute',
-    });
-    const endTimeHourInput = screen.getByRole('textbox', {
-      name: 'Session end time - hour',
-    });
-    const endTimeMinuteInput = screen.getByRole('textbox', {
-      name: 'Session end time - minute',
-    });
-
-    await user.clear(startTimeHourInput);
-    await user.type(startTimeHourInput, '10');
-
-    await user.clear(startTimeMinuteInput);
-    await user.type(startTimeMinuteInput, '27');
-
-    await user.clear(endTimeHourInput);
-    await user.type(endTimeHourInput, '12');
-
-    await user.clear(endTimeMinuteInput);
-    await user.type(endTimeMinuteInput, '00');
-
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-
-    expect(editSessionMock).toHaveBeenCalled();
-
-    const setItemSpy = jest.spyOn(sessionStorage, 'setItem');
-    waitFor(() => {
-      expect(setItemSpy).toHaveBeenCalledWith(
-        'availability-edit-draft',
-        expect.stringContaining('"startTime":{"hour":"10","minute":"27"}'),
-      );
-    });
   });
 });

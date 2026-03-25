@@ -1,8 +1,4 @@
-import {
-  assertPermission,
-  fetchFeatureFlag,
-  fetchSite,
-} from '@services/appointmentsService';
+import { assertPermission, fetchSite } from '@services/appointmentsService';
 import { SessionSummary } from '@types';
 import EditSessionTimeAndCapacityForm from './edit-session-time-and-capacity-form';
 import { parseToUkDatetime } from '@services/timeService';
@@ -23,9 +19,6 @@ type PageProps = {
 const Page = async ({ searchParams, params }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
   const { session, date } = { ...(await searchParams) };
-  const changeSessionUpliftedJourneyFlag = await fromServer(
-    fetchFeatureFlag('ChangeSessionUpliftedJourney'),
-  );
 
   if (session === undefined || date === undefined) {
     return notFound();
@@ -52,9 +45,6 @@ const Page = async ({ searchParams, params }: PageProps) => {
         date={date}
         site={site}
         existingSession={sessionSummary}
-        changeSessionUpliftedJourneyEnabled={
-          changeSessionUpliftedJourneyFlag.enabled
-        }
       />
     </NhsTransactionalPage>
   );

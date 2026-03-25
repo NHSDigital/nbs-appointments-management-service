@@ -22,46 +22,12 @@ describe('Cancellation Confirmed Page', () => {
         newlyUnsupportedBookingsCount={0}
         cancelledWithDetailsCount={0}
         cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={false}
       />,
     );
 
     expect(
       screen.getByRole('row', { name: '09:00 - 12:00 RSV Adult' }),
     ).toBeInTheDocument();
-  });
-
-  it('renders a link back to the cancel appointments page', () => {
-    render(
-      <EditSessionConfirmed
-        updatedSession={{
-          from: '09:00',
-          until: '12:00',
-          services: ['RSV:Adult'],
-          capacity: 10,
-          slotLength: 5,
-        }}
-        clinicalServices={mockSingleService}
-        date="2025-01-15"
-        site={mockSite}
-        hasBookings={false}
-        chosenAction={''}
-        newlyUnsupportedBookingsCount={0}
-        cancelledWithDetailsCount={0}
-        cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={false}
-      />,
-    );
-
-    expect(
-      screen.getByRole('link', { name: 'Cancel appointments' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'Cancel appointments' }),
-    ).toHaveAttribute(
-      'href',
-      '/site/34e990af-5dc9-43a6-8895-b9123216d699/view-availability/daily-appointments?date=2025-01-15&page=1',
-    );
   });
 
   it('renders confirmation and weekly bookings link when no bookings and uplift enabled', () => {
@@ -82,7 +48,6 @@ describe('Cancellation Confirmed Page', () => {
         newlyUnsupportedBookingsCount={0}
         cancelledWithDetailsCount={0}
         cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={true}
       />,
     );
 
@@ -115,7 +80,6 @@ describe('Cancellation Confirmed Page', () => {
         newlyUnsupportedBookingsCount={2}
         cancelledWithDetailsCount={1}
         cancelledWithoutDetailsCount={1}
-        changeSessionUpliftedJourneyEnabled={true}
       />,
     );
 
@@ -156,7 +120,6 @@ describe('Cancellation Confirmed Page', () => {
         newlyUnsupportedBookingsCount={1}
         cancelledWithDetailsCount={0}
         cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={true}
       />,
     );
 
@@ -188,7 +151,6 @@ describe('Cancellation Confirmed Page', () => {
         newlyUnsupportedBookingsCount={1}
         cancelledWithDetailsCount={2}
         cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={true}
       />,
     );
 
@@ -196,35 +158,6 @@ describe('Cancellation Confirmed Page', () => {
       screen.getByText('2 people will be sent a text message or email', {
         exact: false,
       }),
-    ).toBeInTheDocument();
-  });
-
-  it('renders fallback message when no bookings and uplift disabled', () => {
-    render(
-      <EditSessionConfirmed
-        updatedSession={{
-          from: '09:00',
-          until: '12:00',
-          services: ['RSV:Adult'],
-          capacity: 10,
-          slotLength: 5,
-        }}
-        clinicalServices={mockSingleService}
-        date="2025-01-15"
-        site={mockSite}
-        hasBookings={false}
-        chosenAction=""
-        newlyUnsupportedBookingsCount={0}
-        cancelledWithDetailsCount={0}
-        cancelledWithoutDetailsCount={0}
-        changeSessionUpliftedJourneyEnabled={false}
-      />,
-    );
-
-    expect(
-      screen.getByText(
-        /Some booked appointments may be affected by this change/,
-      ),
     ).toBeInTheDocument();
   });
 });

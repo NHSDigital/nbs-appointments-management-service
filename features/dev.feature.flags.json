@@ -2,7 +2,7 @@
   "FeatureManagement": {
     "TestFeatureEnabled": true,
     "SiteStatus": true,
-    "CancelDay": true,
+    "CancelDay": false,
     "ChangeSessionUpliftedJourney": true,
     "CancelSessionUpliftedJourney": true,
     "QuerySites": true,

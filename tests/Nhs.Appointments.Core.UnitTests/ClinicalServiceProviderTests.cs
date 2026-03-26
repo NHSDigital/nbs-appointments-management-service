@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.ClinicalServices;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -18,7 +19,7 @@ public class ClinicalServiceProviderTests
     {
         _storeMock = new Mock<IClinicalServiceStore>();
         _memoryCacheMock = new Mock<IMemoryCache>();
-        _sut = new ClinicalServiceProvider(_storeMock.Object, _memoryCacheMock.Object);
+        _sut = new ClinicalServiceProvider(_storeMock.Object, new CacheService(new InMemoryCacheStore(_memoryCacheMock.Object), TimeProvider.System));
     }
 
     [Fact]
@@ -68,7 +69,7 @@ public class ClinicalServiceProviderTests
     public async Task GetFromCache_ReturnsFromCache_WhenPresent()
     {
         // Arrange
-        object cached = _sampleServices;
+        object cached = new CacheService.CacheObject<IEnumerable<ClinicalServiceType>>(_sampleServices);
         _memoryCacheMock.Setup(mc => mc.TryGetValue(_cacheKey, out cached)).Returns(true);
 
         // Act

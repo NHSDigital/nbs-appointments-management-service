@@ -1,10 +1,14 @@
 using Microsoft.Extensions.Caching.Memory;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Caching;
 
 namespace Nhs.Appointments.Core.Messaging;
 
-public class NotificationConfigurationService(IMemoryCache memoryCache, INotificationConfigurationStore notificationConfigurationStore) : INotificationConfigurationService
+public class NotificationConfigurationService(ICacheService cacheService, INotificationConfigurationStore notificationConfigurationStore) : INotificationConfigurationService
 {
+    private const string CacheKey = "notification_configuration";
+    private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(60);
+    
     public async Task<NotificationConfiguration> GetNotificationConfigurationsAsync(string eventType)
     {
         var config = await LoadNotificationConfiguration();
@@ -35,14 +39,11 @@ public class NotificationConfigurationService(IMemoryCache memoryCache, INotific
 
     private async Task<IEnumerable<NotificationConfiguration>> LoadNotificationConfiguration()
     {
-        const string cacheKey = "notification_configuration";
-        var notificationConfiguration = memoryCache.Get<IEnumerable<NotificationConfiguration>>(cacheKey);
-        if(notificationConfiguration == null)
-        {
-            notificationConfiguration = await notificationConfigurationStore.GetNotificationConfiguration();
-            memoryCache.Set(cacheKey, notificationConfiguration, DateTimeOffset.UtcNow.AddMinutes(60));
-        }
-        return notificationConfiguration;
+        return await cacheService.GetCacheValue(
+            CacheKey,
+            new CacheOptions<IEnumerable<NotificationConfiguration>>(
+                notificationConfigurationStore.GetNotificationConfiguration,
+                _cacheDuration));
     }
 }
 

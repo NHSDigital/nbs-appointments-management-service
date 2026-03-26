@@ -12,7 +12,7 @@ public class CacheServiceTests
     
     public CacheServiceTests()
     {
-        _sut = new CacheService(_memoryCache, _timeProvider);
+        _sut = new CacheService(new InMemoryCacheStore(_memoryCache), _timeProvider);
     }
 
     private int FakeExpensiveBoolOperationCallCount { get; set; }

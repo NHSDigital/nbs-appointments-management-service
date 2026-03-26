@@ -32,7 +32,7 @@ public class SiteServiceTests
             SiteSupportsServiceBatchMultiplier = 2,
         });
 
-        var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
+        var cacheService = new CacheService(new InMemoryCacheStore(_memoryCache.Object), TimeProvider.System);
         
         _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _logger.Object, _featureToggleHelper.Object, cacheService, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Core.Caching;
 
 namespace Nhs.Appointments.Api.Tests.Auth;
 
@@ -14,7 +15,7 @@ public class JwksRetrieverTests
 
     public JwksRetrieverTests()
     {
-        _sut = new JwksRetriever(_httpClientFactory.Object, _memoryCache.Object);
+        _sut = new JwksRetriever(_httpClientFactory.Object, new CacheService(new InMemoryCacheStore(_memoryCache.Object), TimeProvider.System));
     }
 
     [Fact]

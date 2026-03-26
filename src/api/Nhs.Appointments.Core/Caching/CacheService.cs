@@ -4,7 +4,9 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Nhs.Appointments.Core.Caching;
 
 public record LazySlideCacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan SlideThreshold, TimeSpan AbsoluteExpiration);
-public record CacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan AbsoluteExpiration);
+public record CacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan AbsoluteExpiration, TryPatternOptions<T> TryPatternOptions = null);
+
+public record TryPatternOptions<T>(bool UseTryPattern = true, T DefaultResponse = default);
 
 public interface ICacheService
 {
@@ -86,8 +88,24 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
                 return cacheObj.Value;
             }
         }
-        
-        var newValue = await options.UpdateOperation();
+
+        T newValue;
+        if (options.TryPatternOptions?.UseTryPattern ?? false)
+        {
+            var tryResult = await TryPattern.TryAsync(options.UpdateOperation);
+            
+            if (!tryResult.Completed)
+            {
+                return options.TryPatternOptions.DefaultResponse;
+            }
+            
+            newValue = tryResult.Result;
+        }
+        else
+        {
+            newValue = await options.UpdateOperation();
+        }
+
         memoryCache.Set(cacheKey, new CacheObject<T>(newValue), options.AbsoluteExpiration);
         return newValue;
     }

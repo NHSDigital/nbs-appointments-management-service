@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Auth;
 
-public class PermissionChecker(IUserService userService, IRolesService rolesService, IMemoryCache cache, ISiteService siteService)
+public class PermissionChecker(IUserService userService, IRolesService rolesService, ICacheService cacheService, ISiteService siteService)
     : IPermissionChecker
 {
     private const string GlobalScope = "global";
@@ -19,6 +20,12 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     private const string SiteScopePrefix = $"{SiteScope}:";
     private const string IcbScope = "icb";
     private const string IcbScopePrefix = $"{IcbScope}:";
+    
+    private readonly string _rolesCacheKey = "roles";
+    private readonly TimeSpan _rolesCacheDuration = TimeSpan.FromMinutes(5);
+    
+    private string UserRolesCacheKey(string userId) => $"user_roles_{userId}";
+    private readonly TimeSpan _userRolesCacheDuration = TimeSpan.FromSeconds(20);
 
     public async Task<bool> HasPermissionAsync(string userId, IEnumerable<string> siteIds, string requiredPermission)
     {
@@ -170,39 +177,26 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
     private async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignmentsAsync(string userId)
     {
-        var cacheKey = $"user_roles_{userId}";
-        if (cache.TryGetValue(cacheKey, out List<RoleAssignment> cachedRoleAssignments))
-        {
-            return cachedRoleAssignments;
-        }
-
-        var userRoleAssignmentsOp = await TryPattern.TryAsync(() => userService.GetUserRoleAssignments(userId));
-        if (userRoleAssignmentsOp.Completed == false)
-        {
-            return [];
-        }
-
-        var userRoleAssignments = userRoleAssignmentsOp.Result.ToList();
-        cache.Set(cacheKey, userRoleAssignments, TimeSpan.FromSeconds(20));
-        return userRoleAssignments;
+        var tryPatternOptions = new TryPatternOptions<IEnumerable<RoleAssignment>>(true, []);
+        
+        return await cacheService.GetCacheValue(
+            UserRolesCacheKey(userId),
+            new CacheOptions<IEnumerable<RoleAssignment>>(
+                () => userService.GetUserRoleAssignments(userId),
+                _userRolesCacheDuration,
+                tryPatternOptions));
     }
 
     private async Task<IEnumerable<Role>> GetRolesAsync()
     {
-        if (cache.TryGetValue("roles", out List<Role> cachedRoles))
-        {
-            return cachedRoles;
-        }
-
-        var rolesOp = await TryPattern.TryAsync(rolesService.GetRoles);
-        if (rolesOp.Completed == false)
-        {
-            return [];
-        }
-
-        var roles = rolesOp.Result.ToList();
-        cache.Set("roles", roles, TimeSpan.FromMinutes(5));
-        return roles;
+        var tryPatternOptions = new TryPatternOptions<IEnumerable<Role>>(true, []);
+        
+        return await cacheService.GetCacheValue(
+            _rolesCacheKey,
+            new CacheOptions<IEnumerable<Role>>(
+                rolesService.GetRoles,
+                _rolesCacheDuration,
+                tryPatternOptions));
     }
 
     private async Task<IEnumerable<RoleAssignmentScope>> GetScopesWithPermissionsAsync(string userId, string permission)

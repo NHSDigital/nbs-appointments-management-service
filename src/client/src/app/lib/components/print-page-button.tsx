@@ -9,7 +9,7 @@ const PrintPageButton = () => {
 
   return (
     <Button
-      className="no-print"
+      className="no-print nhsuk-button--small"
       styleType="secondary"
       onClick={() => onClick()}
     >

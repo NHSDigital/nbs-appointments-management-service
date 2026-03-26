@@ -13,13 +13,14 @@ import {
   dateTimeFormat,
   parseToUkDatetime,
   GetCurrentDateTime,
+  RFC3339Format,
 } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import PrintPageButton from '@components/print-page-button';
 import Link from 'next/link';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Pagination } from 'nhsuk-react-components';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -67,11 +68,28 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const canChangeAvailability =
     cancelADateRange.enabled && sitePermissions.includes('availability:setup');
 
+  const previousDay = fromDate.add(-1, 'day');
+  const nextDay = fromDate.add(1, 'day');
+
+  const previous = {
+    title: previousDay.format('dddd D MMMM'),
+    href: `daily-appointments?date=${previousDay.format(RFC3339Format)}&page=1`,
+  };
+  const next = {
+    title: nextDay.format('dddd D MMMM'),
+    href: `daily-appointments?date=${nextDay.format(RFC3339Format)}&page=1`,
+  };
+
   return (
     <>
-      <div className="nhsuk-grid-column-three-quarters">
-        <Heading headingLevel="h2">{fromDate.format('dddd D MMMM')}</Heading>
+      <div className="nhsuk-button-group nhsuk-button-group--small">
+        <PrintPageButton />
       </div>
+
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">{site.name}</span>
+        {fromDate.format('dddd D MMMM YYYY')}
+      </Heading>
 
       {canChangeAvailability && (
         <Link
@@ -84,13 +102,22 @@ const Page = async ({ params, searchParams }: PageProps) => {
         </Link>
       )}
 
-      <span>
-        <PrintPageButton />
-      </span>
-
       <p className="print-out-data" aria-hidden="true">
         Generated: {GetCurrentDateTime()}
       </p>
+
+      <Pagination>
+        <Pagination.Item
+          previous
+          labelText={previous.title}
+          href={previous.href}
+        >
+          Previous
+        </Pagination.Item>
+        <Pagination.Item next labelText={next.title} href={next.href}>
+          Next
+        </Pagination.Item>
+      </Pagination>
 
       <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
         <Tab title="Scheduled">

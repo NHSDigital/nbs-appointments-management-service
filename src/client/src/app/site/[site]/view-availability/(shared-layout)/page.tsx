@@ -39,7 +39,8 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <>
-      <Heading>
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">{site.name}</span>
         {`View availability for ${searchMonth.format('MMMM YYYY')}`}
       </Heading>
 

@@ -45,7 +45,8 @@ const Page = async ({ searchParams, params }: PageProps) => {
 
   return (
     <>
-      <Heading>
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">{site.name}</span>
         {`${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`}
       </Heading>
 

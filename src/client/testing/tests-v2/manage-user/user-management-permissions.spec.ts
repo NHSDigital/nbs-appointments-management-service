@@ -83,7 +83,7 @@ test('Verify user can only view appointment manager related tiles when they have
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:appointment-manager'],
+        siteRoles: [['canned:appointment-manager']],
       },
     ],
   });
@@ -95,7 +95,7 @@ test('Verify user can only view appointment manager related tiles when they have
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()
@@ -142,7 +142,7 @@ test('Verify user can only view availability manager related tiles when they hav
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:availability-manager'],
+        siteRoles: [['canned:availability-manager']],
       },
     ],
   });
@@ -154,7 +154,7 @@ test('Verify user can only view availability manager related tiles when they hav
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()
@@ -201,7 +201,7 @@ test('Verify user can only view user manager related tiles when they have user m
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:user-manager'],
+        siteRoles: [['canned:user-manager']],
       },
     ],
   });
@@ -213,7 +213,7 @@ test('Verify user can only view user manager related tiles when they have user m
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()
@@ -260,7 +260,7 @@ test('Verify user can only view site details manager related tiles when they hav
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:site-details-manager'],
+        siteRoles: [['canned:site-details-manager']],
       },
     ],
   });
@@ -272,7 +272,7 @@ test('Verify user can only view site details manager related tiles when they hav
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()

@@ -1,10 +1,15 @@
 {
+  //unique recurrenceId
   "id": "c5858f02-05d7-419b-865f-818599a6c0e0",
+  //suggestion to increment a versionNumber for audit/historic linking if needed
+  "version": 1,
   
   "site": "6877d86e-c2df-4def-8508-e1eccf0ea6be",
   "docType": "recurrence",
   
   "label": "Jonny's Spring Schedule",
+  
+  //TODO - put core datetime/recursion related data into recurrencePattern object?
   
   //limited to 3 months to prevent messiness!!
   "from": "2026-08-20",
@@ -13,31 +18,36 @@
   //keep template explicit and similar to RRule properties
   //means can be extended if other recurrence templates ever needed
   "recurrencePattern": {
+    //undefined means default (dont store it)
     "frequency": "Weekly", 
     "interval": 1, //repeats every week (i.e when value = 2 would be every other week)
+    //undefined means default (dont store it)
+    
+    //bit storage or enum??
     "byDay": [
       "Monday",
       "Tuesday",
-      "Wednesday",
       "Thursday",
       "Friday"
     ]
   },
   
-  //flattened session data (only ever manage single!)
+  //flattened session data (only ever manage a single session)
   "from": "09:00",
   "until": "17:00",
+  "slotLength": 10,
   "services": [
     "COVID:5_11",
     "RSV:Adult",
     "FLU:18_64",
     "COVID:18+"
   ],
-  "slotLength": 10,
   "capacity": 5,
+  
   //these are "breaks" i/e predefined recurring gaps
   "exclusionTimes": [
     {
+      //maybe not needed label/type in breaks
       "label": "Morning Coffee",
       "type": "Break",
       "from": "10:00",
@@ -63,14 +73,19 @@
   //this is an EXRULE... danger zone!!
   //how will this respond to overlapping dates/ranges?
   
+  //potentially move to a different document with relational database
+  //multiple document fetches vs large blob ot return??
+  
+  //keep just one of these two objects (dates vs ranges) and store all in the same place??
+  
   //unionised exclusions aren't THAT bad as the outcome is the same, no availability on these dates
   //i.e sequencing does not matter as the operations are identical!
   //i.e. A then B <=> B then A
   "exclusionDateRanges": [
     {
-      "label": "Easter Break",
+      "label": "Easter Break (for Jonny)",
       "from": "2026-08-22",
-      "until": "2026-09-06"
+      "until": "2026-09-01"
     },
     {
       //do we even care about union overlapping??
@@ -81,6 +96,7 @@
     }
   ],
   
+  //go into exception single objects?
   "overrideDates": [
     {
       //on creation of an edit occurrence, could offer user to link/unlink from parent recurrence
@@ -91,52 +107,95 @@
       
       //logic if linked, COMPARE new session to parent, and store any atomic changes and static changes, then save!
       
-      "sessions": [
+      //if these props are undefined, use parent data!
+      "from": "10:00",
+      "until": "15:00",
+      "slotLength": 10,
+      "capacity": 2,
+      //dont want capacity to be atomic as it could introduce silly edge cases!!
+      //i.e. if the atomic capacity is one fewer than the parent, then parent goes down to 1 capacity!
+      
+      //if these props ARE defined then use this data instead of parent...
+      //dont want these atomic patches, as they dont make sense to 'adjust' on parent change
+      //i.e. time change forward 1 hour, won't want a reaction!
+      //i.e. capcity of parent changes, but this override was defined with a specific capacity (when created) - so dont want to react to parent change!
+      //i.e. from, until and slot length was defined as different to parent (when created) - so dont want to react to any parent changes!
+      
+      //are atomic patch operations, and WILL react to parent edits!
+      //desired for this specific data only!
+      //i.e. a service is removed/added from parent recursion, want all children overrides to respond also!
+      //i.e. new break added/removed/edited to parent recursion, want all children overrides to respond also!
+      
+      //1) adhoc service change for a single date
+      //validation rules
+      //either one single replace operation (atomic reacts to parent)
+      //OR
+      //one or more 'add'/'remove' operations (static override, no reaction to parent)
+      "services": [
         {
-          //if these props are undefined, use parent data!
-          "from": "10:00",
-          "until": "15:00",
-          "slotLength": 10,
-          //dont want capacity to be atomic as it could introduce silly edge cases :D 
-          //i.e. capacity is one fewer than parent, then parent goes down to 1 capacity!
-          "capacity": 2,
-          //if these props ARE defined then use this data instead of parent...
-          //dont want these atomic patches, as they dont make sense to 'adjust' on parent change
-          //i.e. time change forward 1 hour, won't want a reaction!
-          //i.e. capcity of parent changes, but this override was defined with a specific capacity (when created) - so dont want to react to parent change!
-          //i.e. from, until and slot length was defined as different to parent (when created) - so dont want to react to any parent changes!
-          
-          //are atomic patch operations, and WILL react to parent edits!
-          //desired for this specific data only!
-          //i.e. a service is removed/added from parent recursion, want all children overrides to respond also!
-          //i.e. new break added/removed/edited to parent recursion, want all children overrides to respond also!
-          "services": [
+          "operation": "add",
+          "service": "COVID:18+"
+        },
+        {
+          "operation": "remove",
+          "service": "FLU:18_64"
+        },
+        //--OR--//
+        {
+          "operation": "replace",
+          "values": [
+            "COVID:5_11",
+            "RSV:Adult"
+          ]
+        }
+      ],
+      
+      //2) adhoc block out time
+      //validation rules
+      //either one single replace operation (static override, no reaction to parent)
+      //OR
+      //one or more 'add'/'remove' operations (atomic reacts to parent)
+
+      //potential edge cases of overlapping times with parent recurrence for atomic patches
+      //how might edge cases be displayed in the UI...
+      "exclusionTimes": [
+        {
+          "label": "One-off coffee",
+          "operation": "add",
+          "from": "13:15",
+          "until": "13:30"
+        },
+        {
+          //we are actually available for this existing break that exists in the parent recurrence!!
+          //on this one day specifically!
+          //edge cases with parent exclusionTimes data shifting/editing, what would we like to happen?
+          "operation": "remove",
+          "from": "12:00",
+          "until": "13:00"
+          //do we store a GUID in the parent exclusionTimes entity to help link the 'remove' operation more cleanly?
+          //or do we just fuzzy match data?
+        },
+        //--OR--//
+        {
+          "operation": "replace",
+          "values": [
             {
-              "operation": "add",
-              "service": "COVID:18+"
+              "label": "Morning Coffee",
+              "type": "Break",
+              "from": "10:00",
+              "until": "10:15"
             },
             {
-              "operation": "remove",
-              "service": "FLU:18_64"
-            }
-          ],
-          //adhoc block out time
-          //edge cases of overlapping times with parent recurrence
-          //how might this be displayed in UI...
-          "exclusionTimes": [
+              "label": "Dispensing Time",
+              "type": "Other Meetings",
+              "from": "14:00",
+              "until": "16:00"
+            },
             {
               "label": "One-off coffee",
-              "operation": "add",
+              "type": "Break",
               "from": "13:15",
               "until": "13:30"
-            },
-            {
-              //we are actually available for this break that exists in the main pattern!!
-              //on this one day specifically!
-              //edge cases with parent data shifting/editing, what do we want to happen!
-              "operation": "remove",
-              "from": "12:00",
-              "until": "12:15"
             }
           ]
         }
@@ -161,8 +220,14 @@
       //a date with a different start and end time.
       //all other data from parent...
       "date": "2026-09-31",
+      
       "from": "10:00",
-      "until": "15:00"
+      "until": "15:00",
+      
+      //should slot length be tied to from/until
+      //against -> want shortening/lengthening of parent length to reflect in child
+      //pro -> consistency??
+      "slotLength": 10
     },
     {
       //a date with a one-off change of services
@@ -185,13 +250,13 @@
   //don't want to risk this as it depends on sequencing etc and feels far too difficult
   //would have to manage sequence order when applying from overrideDates and itself
   
-  //without this, we can't define nested overrides
+  //without this, we can't define nested recurring overrides
   //get around by using exclusionRange, and then create a new recurrence for the time period desired...
-  //i.e fill the gaps
+  //i.e fill the gaps with a new, unlinked, recurrence that must be managed separately
   "overrideDateRanges": [
-    ///...
+    ///DO NOT IMPLEMENT THIS!!
   ],
   
-  "created": "2020-01-01T14:54:31.233324Z",
-  "by": "cc.agent@nhs.net"
+  "created": "2026-03-25T14:54:31.233324Z",
+  "by": "jonathan.dyson1@nhs.net"
 }

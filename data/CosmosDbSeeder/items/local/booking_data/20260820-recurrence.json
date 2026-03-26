@@ -16,12 +16,16 @@
       "capacity": 2,
       //exceptions/breaks are NOT limited to recursion sessions only.
       //individually created sessions can have adhoc breaks
-      //would need to "find" this exact session when editing in UI (due to lack of sessionId)
-      //we currently 'fuzzy match' and check that all the data matches
-      "exceptions": [
+      //would we need to "find" this exact session when editing in UI (due to lack of a sessionId)
+      //we currently 'fuzzy match' and check that all the data matches for current session edits (returns first fuzzy match)
+      "exclusionTimes": [
         {
           "from": "14:00",
           "until": "14:15"
+        },
+        {
+          "from": "14:15",
+          "until": "14:30"
         }
       ]
     },
@@ -40,7 +44,7 @@
       ],
       "slotLength": 10,
       "capacity": 5,
-      "exceptions": [
+      "exclusionTimes": [
         {
           "from": "10:00",
           "until": "10:15"

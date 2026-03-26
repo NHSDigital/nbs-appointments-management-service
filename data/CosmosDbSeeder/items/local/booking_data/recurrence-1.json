@@ -121,44 +121,6 @@
           ]
         }
       ],
-      "date": "2026-09-30",
-      "sessions": [
-        {
-          "from": "09:00",
-          "until": "12:00",
-          "services": [
-            "FLU:18_64",
-            "COVID:18+"
-          ],
-          "slotLength": 10,
-          "capacity": 5,
-          "exceptions": [
-            {
-              "from": "12:00",
-              "until": "12:15"
-            }
-          ]
-        }
-      ],
-      "date": "2026-10-30",
-      "sessions": [
-        {
-          "from": "09:00",
-          "until": "12:00",
-          "services": [
-            "FLU:18_64",
-            "COVID:18+"
-          ],
-          "slotLength": 10,
-          "capacity": 5,
-          "exceptions": [
-            {
-              "from": "12:00",
-              "until": "12:15"
-            }
-          ]
-        }
-      ]
     }
   ],
   

@@ -1,10 +1,11 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nbs.MeshClient;
 using Nbs.MeshClient.Auth;
 
 namespace DataExtract;
 
-public class MeshFileSender(IMeshFactory meshFactory, IOptions<MeshSendOptions> sendOptions, IOptions<MeshAuthorizationOptions> meshAuthOptions) : IFileSender
+public class MeshFileSender(IMeshFactory meshFactory, IOptions<MeshSendOptions> sendOptions, IOptions<MeshAuthorizationOptions> meshAuthOptions, ILogger<MeshFileSender> logger) : IFileSender
 {
     private const int chunkSizeBytes = 100_000_000;
 
@@ -35,6 +36,8 @@ public class MeshFileSender(IMeshFactory meshFactory, IOptions<MeshSendOptions> 
                         totalChunks, 
                         content);
             }
+
+            logger.LogInformation("Sent {Name} with id {messageId} to {MailboxId}", file.Name, messageId, meshMailbox.MailboxId);
         }
     }
 }

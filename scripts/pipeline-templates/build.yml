@@ -3,6 +3,9 @@ parameters:
     type: string
   - name: prDockerServiceConnectionName
     type: string
+  - name: buildDockerImages
+    type: boolean
+    default: true
 
 stages:
   - stage: Build
@@ -202,6 +205,7 @@ stages:
               publishLocation: "Container"
           - task: Docker@2
             displayName: Build and push booking extract image to container registry
+            condition: ${{ eq(parameters.buildDockerImages, true) }}
             inputs:
               command: buildAndPush
               repository: booking-extract
@@ -211,6 +215,7 @@ stages:
                 $(ExtractVersionStep.extractedBuildNumber)
           - task: Docker@2
             displayName: Build and push capacity extract image to container registry
+            condition: ${{ eq(parameters.buildDockerImages, true) }}
             inputs:
               command: buildAndPush
               repository: capacity-extract
@@ -220,6 +225,7 @@ stages:
                 $(ExtractVersionStep.extractedBuildNumber)
           - task: Docker@2
             displayName: Build and push cosmos auditor image to container registry
+            condition: ${{ eq(parameters.buildDockerImages, true) }}
             inputs:
               command: buildAndPush
               repository: auditor
@@ -229,6 +235,7 @@ stages:
                 $(ExtractVersionStep.extractedBuildNumber)
           - task: Docker@2
             displayName: Build and push cosmos aggregator image to container registry
+            condition: ${{ eq(parameters.buildDockerImages, true) }}
             inputs:
               command: buildAndPush
               repository: aggregator

@@ -1,11 +1,11 @@
-import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { WeekOverview } from '../../availability';
 import ChangeAvailabilityPage from '../change-availability/change-availability-page';
 import WeekViewAvailabilityPage from './week-view-availability-page';
 import { DateComponents } from '@types';
+import BaseViewAvailabilityPage from './base-view-availability-page';
 
-export default class MonthViewAvailabilityPage extends MYALayout {
+export default class MonthViewAvailabilityPage extends BaseViewAvailabilityPage {
   title = this.page.getByRole('heading');
 
   readonly nextButton = this.page.getByRole('link', {

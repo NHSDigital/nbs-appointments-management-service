@@ -27,6 +27,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -63,6 +66,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -152,6 +158,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 return await monthViewAvailabilityPage.clickViewWeekInCardByDate(
                   selectedWeekTitle,
@@ -199,6 +208,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -249,6 +261,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -297,6 +312,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -344,6 +362,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -384,6 +405,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -439,6 +463,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -525,6 +552,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -593,6 +623,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -689,6 +722,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -788,6 +824,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -912,6 +951,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -1032,6 +1074,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(async monthViewAvailabilityPage => {
                 if (!CancelADateRangeFlagEnabled) {
                   await expect(
@@ -1139,6 +1184,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(
                 async monthViewAvailabilityPage =>
                   await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
@@ -1217,6 +1265,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(
                 async monthViewAvailabilityPage =>
                   await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
@@ -1319,6 +1370,9 @@ test.describe.configure({ mode: 'serial' });
 
               await sitePage
                 .clickSiteAvailabilityCard()
+                .then(async dayViewAvailabilityPage => {
+                  return await dayViewAvailabilityPage.clickMonthViewLink();
+                })
                 .then(
                   async monthViewAvailabilityPage =>
                     await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
@@ -1490,6 +1544,9 @@ test.describe.configure({ mode: 'serial' });
 
               await sitePage
                 .clickSiteAvailabilityCard()
+                .then(async dayViewAvailabilityPage => {
+                  return await dayViewAvailabilityPage.clickMonthViewLink();
+                })
                 .then(
                   async monthViewAvailabilityPage =>
                     await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
@@ -1631,6 +1688,9 @@ test.describe.configure({ mode: 'serial' });
 
               await sitePage
                 .clickSiteAvailabilityCard()
+                .then(async dayViewAvailabilityPage => {
+                  return await dayViewAvailabilityPage.clickMonthViewLink();
+                })
                 .then(
                   async monthViewAvailabilityPage =>
                     await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
@@ -1774,6 +1834,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(
                 async monthViewAvailabilityPage =>
                   await monthViewAvailabilityPage.clickChangeAvailabilityButton(),
@@ -1872,6 +1935,9 @@ test.describe.configure({ mode: 'serial' });
 
             await sitePage
               .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
               .then(
                 async monthViewAvailabilityPage =>
                   await monthViewAvailabilityPage.clickChangeAvailabilityButton(),

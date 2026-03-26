@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Caching;
 

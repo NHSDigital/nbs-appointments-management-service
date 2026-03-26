@@ -471,11 +471,11 @@ public class CacheServiceTests
     public async Task GivenSuccessOperation_WhenGetCacheCalledWithTryPattern_ThenReturnDefault()
     {
         var defaultResponse = new { Value = "FailedInTryPattern" };
-        var succesfulResponse = new { Value = "PassedInTryPattern" };
+        var successfulResponse = new { Value = "PassedInTryPattern" };
         
         var value = await _sut.GetCacheValue("try_pattern_success",
-            new CacheOptions<object>(async () => await FakeOperation(succesfulResponse), TimeSpan.FromSeconds(10), new TryPatternOptions<object>(true, defaultResponse)));
+            new CacheOptions<object>(async () => await FakeOperation(successfulResponse), TimeSpan.FromSeconds(10), new TryPatternOptions<object>(true, defaultResponse)));
         
-        Assert.Equal(succesfulResponse, value);
+        Assert.Equal(successfulResponse, value);
     }
 }

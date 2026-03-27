@@ -1,23 +1,23 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace Nhs.Appointments.Core.Metrics;
 
 public class InMemoryMetricsRecorder : IMetricsRecorder
 {
     private readonly ConcurrentStack<string> _scopeStack = new();
-    private readonly List<(string Path, double Value)> _metrics = [];
+    private readonly List<(string Path, IMetric Metric)> _metrics = [];
 
-    public void RecordMetric(string name, double value)
+    public void RecordMetric(IMetric metric)
     {
         lock (_metrics)
         {
             _scopeStack.TryPeek(out var currentName);
-            var scopeName = string.IsNullOrEmpty(currentName) ? name : currentName + "/" + name;
-            _metrics.Add((scopeName, value));
+            var scopeName = string.IsNullOrEmpty(currentName) ? metric.Name : currentName + "/" + metric.Name;
+            _metrics.Add((scopeName, metric));
         }
     }
 
-    public IReadOnlyCollection<(string Path, double Value)> Metrics
+    public IReadOnlyCollection<(string Path, IMetric Metric)> Metrics
     {
         get
         {
@@ -33,6 +33,7 @@ public class InMemoryMetricsRecorder : IMetricsRecorder
         _scopeStack.TryPeek(out var currentName);
         var newScope = string.IsNullOrEmpty(currentName) ? scopeName : currentName + "/" + scopeName;
         _scopeStack.Push(newScope);
+
         return new InMemoryMetricsRecorderScope(this);
     }
 

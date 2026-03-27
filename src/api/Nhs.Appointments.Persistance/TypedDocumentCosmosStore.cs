@@ -236,23 +236,24 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default,
         bool canExtractRequestCharge = true)
     {
-        var (result, totalRequestCharge) = await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(
+        var (result, metric) = await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(
             ContainerRetryConfiguration,
             cosmosOperation,
             _logger,
             _metricsRecorder,
+            _documentType.Value,
             cancellationToken);
 
         if (canExtractRequestCharge)
         {
-            totalRequestCharge += ExtractRequestCharge(result);
-            CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, totalRequestCharge);
+            metric.AddRuCharge(ExtractRequestCharge(result));
+            CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, metric);
         }
 
         return result;
     }
 
-    private double ExtractRequestCharge<T>(T result)
+    private static double ExtractRequestCharge<T>(T result)
     {
         return result switch
         {
@@ -265,8 +266,15 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed,
         Func<TSource, TOutput> map, bool canExtractRequestCharge = true)
     {
-        var requestCharge = 0.0;
         var results = new List<TOutput>();
+
+        var metric = new CosmosOperationMetric
+        {
+            Container = ContainerName,
+            DocumentType = _documentType.Value
+        };
+
+        metric.StartAttempt(DateTime.UtcNow);
         using (queryFeed)
         {
             while (queryFeed.HasMoreResults)
@@ -274,11 +282,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 var resultSet = await Retry_CosmosOperation_OnTooManyRequests(
                     async () => await queryFeed.ReadNextAsync(), CancellationToken.None, canExtractRequestCharge);
                 results.AddRange(resultSet.Select(map));
-                requestCharge += resultSet.RequestCharge;
+                metric.AddRuCharge(resultSet.RequestCharge);
             }
+            
+            metric.EndAttempt(DateTime.UtcNow);
         }
 
-        CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, requestCharge);
+        CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, metric);
+
         return results;
     }
 

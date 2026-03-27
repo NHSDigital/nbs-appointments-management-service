@@ -5,6 +5,9 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
+using Nhs.Appointments.Core.Metrics;
+using Nhs.Appointments.Persistance.BackoffStrategies;
+using Nhs.Appointments.Persistance.UnitTests.Helpers;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
 
@@ -92,7 +95,9 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Never
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 2.5), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 2.5 && c.Container == "test-container" && c.DocumentType == "test_doc")),
+            Times.Once);
     }
 
     [Fact]
@@ -141,7 +146,9 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Never
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 1.5), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 1.5 && c.Container == "test-container" && c.DocumentType == "test_doc")),
+            Times.Once);
     }
 
     [Fact]
@@ -187,12 +194,10 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
-                        .Contains(
-                            "Cosmos TooManyRequests failed after max retries (9) exceeded for container")
-                ),
-                It.IsAny<Exception>(),
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
+                        .Contains("Cosmos TooManyRequests failed after max retries (9) exceeded for container")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -214,7 +219,9 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //ten invocations x 2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 20), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 20 && c.Container == "test-container" && c.DocumentType == "test_doc")),
+            Times.Once);
     }
 
     [Fact]
@@ -257,12 +264,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            "Cosmos TooManyRequests failed because the CutoffRetryMs (30000) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")
-                ),
-                It.IsAny<Exception>(),
+                            "Cosmos TooManyRequests failed because the CutoffRetryMs (30000) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -282,7 +288,9 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(5)
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 12), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 12 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
 
     [Fact]
@@ -343,7 +351,9 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //ten invocations x 2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 20), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 20 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
 
     [Fact]
@@ -433,7 +443,9 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //total of initial 2 exception, and 3.5 successful retry
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 5.5), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 5.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
 
     [Theory]
@@ -508,10 +520,11 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(retriesNeeded)
         );
 
-        //each exception = 2 x retires plus 3.5 successful
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", (2 * retriesNeeded) + 3.5), Times.Once);
+        //each exception = 2 x retries plus 3.5 successful
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == (2 * retriesNeeded) + 3.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
-
 
     [Theory]
     [InlineData(2)]
@@ -586,8 +599,10 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(retriesNeeded)
         );
 
-        //each exception = 2 x retires plus 3.5 successful
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", (2 * retriesNeeded) + 3.5), Times.Once);
+        //each exception = 2 x retries plus 3.5 successful
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == (2 * retriesNeeded) + 3.5 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
 
     [Fact]
@@ -708,7 +723,7 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //cannot extract request charge from TModel usage of FeedResponse
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", It.IsAny<double>()), Times.Never);
+        _metricsRecorder.Verify(f => f.RecordMetric(It.IsAny<CosmosOperationMetric>()), Times.Never);
     }
 
     [Theory]
@@ -781,7 +796,7 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //Response Message does not record metrics
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", It.IsAny<double>()), Times.Never);
+        _metricsRecorder.Verify(f => f.RecordMetric(It.IsAny<IMetric>()), Times.Never);
     }
 
     [Fact]
@@ -832,12 +847,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            "Cosmos TooManyRequests failed because the CutoffRetryMs (500) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")
-                ),
-                It.IsAny<Exception>(),
+                            "Cosmos TooManyRequests failed because the CutoffRetryMs (500) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -911,7 +925,9 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //6x2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 12), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 12 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
 
     [Fact]
@@ -938,7 +954,7 @@ public class TypedDocumentCosmosStoreTests
             .SetupSequence(f => f())
             //initial call
             .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2)) //10
-            //retries
+                                                                                                //retries
             .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2)) //20
             .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2)) //40
             .ThrowsAsync(new CosmosException("Boom", HttpStatusCode.TooManyRequests, 0, "", 2)) //80
@@ -963,12 +979,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            "Cosmos TooManyRequests failed because the CutoffRetryMs (200) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: 150")
-                ),
-                It.IsAny<Exception>(),
+                            "Cosmos TooManyRequests failed because the CutoffRetryMs (200) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: 150")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -1029,7 +1044,9 @@ public class TypedDocumentCosmosStoreTests
         );
 
         //5x2
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 10), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 10 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
 
     [Theory]
@@ -1083,12 +1100,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            $"Cosmos TooManyRequests failed because the CutoffRetryMs ({cutoff}) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: {initialValue + expectedSecondValue + expectedThirdValue + expectedFourthValue}")
-                ),
-                It.IsAny<Exception>(),
+                            $"Cosmos TooManyRequests failed because the CutoffRetryMs ({cutoff}) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: {initialValue + expectedSecondValue + expectedThirdValue + expectedFourthValue}")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -1147,7 +1163,9 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Once
         );
 
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", 10), Times.Once);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => c.Name == "CosmosOperationMetric" && c.RuCharge == 10 && c.Container == "test-container" && c.DocumentType == "test_doc")), 
+            Times.Once);
     }
 
     [Fact]
@@ -1431,7 +1449,7 @@ public class TypedDocumentCosmosStoreTests
         var firstArg = upsertInvocation!.Arguments[0] as TestDocument;
         firstArg.Should().NotBeNull();
         firstArg!.LastUpdatedOn.Should().NotBeNull();
-        
+
         //the first attempt is not delayed!
         firstArg!.LastUpdatedOn!.Value.Should().BeAfter(utcNow.AddMilliseconds(5 * retryPeriod));
     }
@@ -1504,7 +1522,7 @@ public class TypedDocumentCosmosStoreTests
         var patchOperation = thirdArg!.Single(x => x.Path == "/lastUpdatedOn");
         var value = ((PatchOperation<DateTime>)patchOperation).Value;
         value.Should().NotBe(default);
-        
+
         //the first attempt is not delayed!
         value.Should().BeAfter(utcNow.AddMilliseconds(5 * retryPeriod));
     }
@@ -1542,12 +1560,5 @@ public class TypedDocumentCosmosStoreTests
         capturedPatches.Should().ContainSingle(p =>
             p.OperationType == PatchOperationType.Set &&
             p.Path == "/lastUpdatedOn");
-    }
-
-    private sealed class RetryAfterCosmosException(TimeSpan retryAfter) : CosmosException("Boom",
-        HttpStatusCode.TooManyRequests, subStatusCode: 0,
-        activityId: Guid.NewGuid().ToString(), requestCharge: 2)
-    {
-        public override TimeSpan? RetryAfter => retryAfter;
     }
 }

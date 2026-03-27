@@ -7,7 +7,7 @@ trigger:
       - hotfix/*
 
 pool:
-  vmImage: "ubuntu-24.03"
+  vmImage: "ubuntu-24.04"
 
 variables:
   prBuildServiceConnectionName: "nbs-myacicd-rg-int"

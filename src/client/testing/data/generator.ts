@@ -149,7 +149,7 @@ const buildCoreUserDocument = (
   testId: number,
   siteRoles: Role[][],
 ): UserDocument => {
-  const allRoles: RoleAssignment[] = [];
+  let allRoles: RoleAssignment[] = [];
 
   siteRoles.forEach((site, idx) => {
     const roles = site.map(role => {
@@ -161,7 +161,7 @@ const buildCoreUserDocument = (
       } as RoleAssignment;
     });
 
-    allRoles.concat(roles);
+    allRoles = allRoles.concat(roles);
   });
 
   return {

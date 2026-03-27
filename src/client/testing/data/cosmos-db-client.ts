@@ -73,6 +73,13 @@ class CosmosDbClient {
     console.log(
       `Written user: ${userDocument.id} with EULA v${userDocument.latestAcceptedEulaVersion} to Cosmos DB.`,
     );
+    for (let index = 0; index < userDocument.roleAssignments.length; index++) {
+      const roleAssignment = userDocument.roleAssignments[index];
+
+      console.log(
+        `Role: ${roleAssignment.role}, Scope: ${roleAssignment.scope}`,
+      );
+    }
   }
 
   public async deleteUser(user: UserDocument | undefined) {

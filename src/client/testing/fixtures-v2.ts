@@ -285,7 +285,7 @@ export const test = base.extend<MyaFixtures>({
 
           for (
             let siteRoleIndex = 0;
-            index < siteRoles.length;
+            siteRoleIndex < siteRoles.length;
             siteRoleIndex++
           ) {
             const siteTestId = generateExtraSiteIdForSameUser(

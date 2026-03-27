@@ -15,9 +15,9 @@ export default class Header extends PageObject {
     .getByRole('banner')
     .getByRole('link', { name: 'Manage Your Appointments' });
 
-  public readonly changeSiteButton: Locator = this.page
+  public readonly changeSiteLink: Locator = this.page
     .getByRole('banner')
-    .getByRole('button', { name: 'Change Site' });
+    .getByRole('link', { name: 'Change Site', exact: true });
 
   public readonly logOutButton: Locator = this.page
     .getByRole('banner')

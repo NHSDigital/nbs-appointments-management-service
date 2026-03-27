@@ -129,10 +129,13 @@ export default class SitePage extends MYALayout {
   }
 
   async verifyTileNotVisible(
-    tileName: 'UserManagement' | 'CreateAvailability',
+    tileName: 'UserManagement' | 'CreateAvailability' | 'SiteManagement',
   ) {
     if (tileName == 'CreateAvailability') {
       await expect(this.createAvailabilityCard).not.toBeVisible();
+    }
+    if (tileName == 'SiteManagement') {
+      await expect(this.siteManagementCard).toBeVisible();
     }
     if (tileName == 'UserManagement') {
       await expect(this.userManagementCard).not.toBeVisible();

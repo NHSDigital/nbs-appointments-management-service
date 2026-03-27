@@ -40,22 +40,42 @@ test('Navigating straight to the user management page without permission shows 4
   await expect(notAuthorizedPage.title).toBeVisible();
 });
 
-// TODO: This test needs migrating over when we have a way to assign multiple sites to a user
-// Copied from v1 as that file is being removed now the rest have been converted over to v2
+test('permissions are applied per site', async ({ setup }) => {
+  const { sitePage, additionalUserData } = await setup({
+    additionalUsers: [
+      {
+        //userManager at site1, integrationser at site2
+        siteRoles: [['canned:user-manager'], ['system:integration-test-user']],
+      },
+    ],
+  });
 
-test.skip('permissions are applied per site', async ({}) => {
-  // await rootPage.goto();
-  // await rootPage.pageContentLogInButton.click();
-  // await oAuthPage.signIn(getTestUser(2));
-  // // First check Edit column exists at Church Lane
-  // await siteSelectionPage.selectSite(site2);
-  // await sitePage.userManagementCard.click();
-  // await expect(usersPage.manageColumn).toBeVisible();
-  // // Then check it does NOT exist at Robin Lane
-  // await rootPage.goto();
-  // await siteSelectionPage.selectSite(site1);
-  // await sitePage.siteManagementCard.click();
-  // await expect(siteDetailsPage1.editSiteDetailsButton).not.toBeVisible();
+  const newUser = additionalUserData.get('0');
+
+  if (newUser === undefined) {
+    throw new Error();
+  }
+
+  const oidc = newUser.user.oidc;
+  const site1 = newUser.sites[0];
+  const site2 = newUser.sites[1];
+
+  //login as extra user that has two site permissions
+  await sitePage.logOut().then(async loginPage => {
+    const mockOidcLoginPage = await loginPage.logInWithNhsMail();
+    const siteSelectionPage1 = await mockOidcLoginPage.signIn(oidc);
+    const site1Page = await siteSelectionPage1.selectSite(site1);
+
+    await site1Page.verifyTileVisible('UserManagement');
+    await site1Page.verifyTileNotVisible('CreateAvailability');
+    await site1Page.verifyTileNotVisible('SiteManagement');
+
+    await site1Page.changeSite().then(async siteSelectionPage2 => {
+      const site2Page = await siteSelectionPage2.selectSite(site2);
+
+      await site2Page.verifyTileVisible('SiteManagement');
+    });
+  });
 });
 
 test('Verify user manager cannot edit or remove themself', async ({

@@ -308,7 +308,6 @@ stages:
               arguments: "-resourceGroup $(prBuildResourceGroup) -blobAccountName $(blobAccountName)"
           - script: |
               mkdir -p $(PFX_CERT_PATH)
-              dotnet dev-certs https --clean
               dotnet dev-certs https --trust -ep $(PFX_CERT_PATH)/aspnetapp.pfx -ep SSL_CERT_DIR=$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs --verbose -p password -t -v
             displayName: "Create aspnet developer certificate"
           - script: |

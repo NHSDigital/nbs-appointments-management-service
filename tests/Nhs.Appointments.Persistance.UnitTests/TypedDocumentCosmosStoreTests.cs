@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Metrics;
+using Nhs.Appointments.Persistance.BackoffStrategies;
 using Nhs.Appointments.Persistance.UnitTests.Helpers;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
@@ -193,12 +194,10 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
-                        .Contains(
-                            "Cosmos TooManyRequests failed after max retries (9) exceeded for container")
-                ),
-                It.IsAny<Exception>(),
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
+                        .Contains("Cosmos TooManyRequests failed after max retries (9) exceeded for container")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -265,12 +264,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            "Cosmos TooManyRequests failed because the CutoffRetryMs (30000) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")
-                ),
-                It.IsAny<Exception>(),
+                            "Cosmos TooManyRequests failed because the CutoffRetryMs (30000) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -849,12 +847,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            "Cosmos TooManyRequests failed because the CutoffRetryMs (500) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")
-                ),
-                It.IsAny<Exception>(),
+                            "Cosmos TooManyRequests failed because the CutoffRetryMs (500) would be exceeded on the next retry attempt : total retries: 5 for container: test-container, total delay time ms: 500")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -982,12 +979,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            "Cosmos TooManyRequests failed because the CutoffRetryMs (200) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: 150")
-                ),
-                It.IsAny<Exception>(),
+                            "Cosmos TooManyRequests failed because the CutoffRetryMs (200) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: 150")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );
@@ -1104,12 +1100,11 @@ public class TypedDocumentCosmosStoreTests
         _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, t) =>
-                    state.ToString()
+                It.IsAny<It.IsAnyType>(),
+                It.Is<BackoffException>(ex => 
+                    ex.Message
                         .Contains(
-                            $"Cosmos TooManyRequests failed because the CutoffRetryMs ({cutoff}) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: {initialValue + expectedSecondValue + expectedThirdValue + expectedFourthValue}")
-                ),
-                It.IsAny<Exception>(),
+                            $"Cosmos TooManyRequests failed because the CutoffRetryMs ({cutoff}) would be exceeded on the next retry attempt : total retries: 4 for container: test-container, total delay time ms: {initialValue + expectedSecondValue + expectedThirdValue + expectedFourthValue}")),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()
             ), Times.Once
         );

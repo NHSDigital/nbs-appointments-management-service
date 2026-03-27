@@ -70,7 +70,7 @@ public static class CosmosOperationHelper
         catch (BackoffException ex)
         {
             RecordQueryMetrics(metricsRecorder, metric);
-            logger.LogError(ex.Message);
+            logger.LogError(ex, "A backoff exception was thrown.");
 
             throw new InvalidOperationException(
                 $"Container '{containerRetryConfiguration.ContainerName}' too many requests were exceeded for linkId: {context.LinkId}");

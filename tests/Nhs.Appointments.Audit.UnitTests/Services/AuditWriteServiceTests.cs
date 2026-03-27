@@ -12,6 +12,7 @@ public class AuditWriteServiceTests
     private readonly Mock<ITypedDocumentCosmosStore<AuditAuthDocument>> _auditAuthStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<AuditNotificationDocument>> _auditNotificationStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<AuditUserRemovedDocument>> _auditUserRemovedStore = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     public AuditWriteServiceTests()
     {
@@ -19,7 +20,8 @@ public class AuditWriteServiceTests
             _auditFunctionStore.Object,
             _auditAuthStore.Object,
             _auditNotificationStore.Object,
-            _auditUserRemovedStore.Object
+            _auditUserRemovedStore.Object,
+            _metricsRecorder.Object
         );
     }
 
@@ -45,5 +47,6 @@ public class AuditWriteServiceTests
             x.RemovedUser == userId &&
             x.DocumentType == docType
         )), Times.Once);
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.Audit.RecordUserDeleted), Times.Once());
     }
 }

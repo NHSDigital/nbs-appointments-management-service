@@ -7,12 +7,16 @@ namespace Nhs.Appointments.Persistance.UnitTests;
 public class SiteStoreTests
 {
     private readonly Mock<ITypedDocumentCosmosStore<SiteDocument>> _siteStore = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     private readonly SiteStore _sut;
 
     public SiteStoreTests()
     {
-        _sut = new SiteStore(_siteStore.Object);
+        _sut = new SiteStore(
+            _siteStore.Object, 
+            _metricsRecorder.Object
+            );
     }
 
     [Fact]
@@ -26,6 +30,7 @@ public class SiteStoreTests
         result.Success.Should().BeFalse();
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.Sites.UpdateSiteStatus), Times.Once());
     }
 
     [Fact]
@@ -61,6 +66,7 @@ public class SiteStoreTests
         patchOperations.First().Path.Should().Be("/status");
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.Sites.UpdateSiteStatus), Times.Once());
     }
 
     [Fact]
@@ -96,6 +102,7 @@ public class SiteStoreTests
         patchOperations.First().Path.Should().Be("/status");
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.Sites.UpdateSiteStatus), Times.Once());
     }
 
     [Fact]
@@ -131,6 +138,7 @@ public class SiteStoreTests
         patchOperations.First().Path.Should().Be("/isDeleted");
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.Sites.ToggleSiteSoftDeletion), Times.Once());
     }
 
     [Fact]
@@ -166,6 +174,7 @@ public class SiteStoreTests
         patchOperations.First().Path.Should().Be("/isDeleted");
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.Sites.ToggleSiteSoftDeletion), Times.Once());
     }
 
     [Fact]
@@ -179,5 +188,6 @@ public class SiteStoreTests
         result.Success.Should().BeFalse();
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.Sites.ToggleSiteSoftDeletion), Times.Once());
     }
 }

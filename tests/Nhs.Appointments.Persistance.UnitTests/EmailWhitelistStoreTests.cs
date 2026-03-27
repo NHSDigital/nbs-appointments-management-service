@@ -6,11 +6,12 @@ namespace Nhs.Appointments.Persistance.UnitTests;
 public class EmailWhitelistStoreTests
 {
     private readonly Mock<ITypedDocumentCosmosStore<WhitelistedEmailDomainsDocument>> _cosmosStore = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly EmailWhitelistStore _sut;
 
     public EmailWhitelistStoreTests()
     {
-        _sut = new EmailWhitelistStore(_cosmosStore.Object);
+        _sut = new EmailWhitelistStore(_cosmosStore.Object, _metricsRecorder.Object);
     }
 
     [Fact]
@@ -28,5 +29,6 @@ public class EmailWhitelistStoreTests
         whitelistedEmails.Should().Contain("@nhs.net");
 
         _cosmosStore.Verify(x => x.GetDocument<WhitelistedEmailDomainsDocument>("whitelisted_email_domains"), Times.Once());
+        _metricsRecorder.Verify(x => x.BeginScope(MetricScopes.EmailWhiteList.Get), Times.Once());
     }
 }

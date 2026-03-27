@@ -4,13 +4,20 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class RolesStore(ITypedDocumentCosmosStore<RolesDocument> cosmosStore, IMapper mapper) : IRolesStore
+public class RolesStore(
+    ITypedDocumentCosmosStore<RolesDocument> cosmosStore, 
+    IMapper mapper,
+    IMetricsRecorder metricsRecorder
+    ) : IRolesStore
 {
     private const string GlobalRolesDocumentId = "global_roles";
-    
+
     public async Task<IEnumerable<Core.Users.Role>> GetRoles()
     {
-        var rolesDocument = await cosmosStore.GetByIdAsync<RolesDocument>(GlobalRolesDocumentId);
-        return rolesDocument.Roles.Select(mapper.Map<Core.Users.Role>);
+        using (metricsRecorder.BeginScope(MetricScopes.Roles.Get))
+        {
+            var rolesDocument = await cosmosStore.GetByIdAsync<RolesDocument>(GlobalRolesDocumentId);
+            return rolesDocument.Roles.Select(mapper.Map<Core.Users.Role>);
+        }
     }
 }

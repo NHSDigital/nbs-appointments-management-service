@@ -3,29 +3,36 @@ using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Persistance.Models;
 
-namespace Nhs.Appointments.Persistance
+namespace Nhs.Appointments.Persistance;
+
+public class ReferenceGroupCosmosDocumentStore : IReferenceNumberDocumentStore
 {
-    public class ReferenceGroupCosmosDocumentStore : IReferenceNumberDocumentStore
+    private const string DocumentId = "main";
+    private readonly ITypedDocumentCosmosStore<ReferenceGroupDocument> _cosmosStore;
+    private readonly ReferenceGroupOptions _options;
+    private readonly IMetricsRecorder _metricsRecorder;
+
+    public ReferenceGroupCosmosDocumentStore(
+        ITypedDocumentCosmosStore<ReferenceGroupDocument> cosmosStore, 
+        IOptions<ReferenceGroupOptions> options,
+        IMetricsRecorder metricsRecorder)
     {
-        private const string DocumentId = "main";
-        private readonly ITypedDocumentCosmosStore<ReferenceGroupDocument> _cosmosStore;
-        private readonly ReferenceGroupOptions _options;
+        _cosmosStore = cosmosStore;
+        _options = options.Value;
+        _metricsRecorder = metricsRecorder;
+    }
 
-        public ReferenceGroupCosmosDocumentStore(ITypedDocumentCosmosStore<ReferenceGroupDocument> cosmosStore, IOptions<ReferenceGroupOptions> options)
+    public async Task<int> AssignReferenceGroup()
+    {
+        ReferenceGroupDocument referenceGroupDocument;
+        using (_metricsRecorder.BeginScope(MetricScopes.ReferenceGroup.Assign))
         {
-            _cosmosStore = cosmosStore;
-            _options = options.Value;
-        }
-
-        public async Task<int> AssignReferenceGroup()
-        {
-            ReferenceGroupDocument referenceGroupDocument;
             var docType = _cosmosStore.GetDocumentType();
             try
             {
                 referenceGroupDocument = await _cosmosStore.GetByIdAsync<ReferenceGroupDocument>("main");
             }
-            catch(CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 referenceGroupDocument = new ReferenceGroupDocument
                 {
@@ -41,15 +48,18 @@ namespace Nhs.Appointments.Persistance
 
                 await _cosmosStore.WriteAsync(referenceGroupDocument);
             }
-            
+
             var target = referenceGroupDocument!.Groups.Where(g => g.Prefix > 0).OrderBy(g => g.SiteCount).ThenBy(g => g.Prefix).First();
             var siteCountIncrement = PatchOperation.Increment($"/Groups/{target.Prefix}/SiteCount", 1);
-            
+
             await _cosmosStore.PatchDocument(docType, DocumentId, siteCountIncrement);
             return target.Prefix;
         }
+    }
 
-        public async Task<int> GetNextSequenceNumber(int prefix)
+    public async Task<int> GetNextSequenceNumber(int prefix)
+    {
+        using (_metricsRecorder.BeginScope(MetricScopes.ReferenceGroup.GetNextSequenceNumberForPrefix))
         {
             var incrementSequencePatch = PatchOperation.Increment($"/Groups/{prefix}/Sequence", 1);
             var docType = _cosmosStore.GetDocumentType();
@@ -57,9 +67,9 @@ namespace Nhs.Appointments.Persistance
             return referenceGroupDocument.Groups.Single(gr => gr.Prefix == prefix).Sequence;
         }
     }
+}
 
-    public class ReferenceGroupOptions
-    {
-        public int InitialGroupCount { get; set; }
-    }
+public class ReferenceGroupOptions
+{
+    public int InitialGroupCount { get; set; }
 }

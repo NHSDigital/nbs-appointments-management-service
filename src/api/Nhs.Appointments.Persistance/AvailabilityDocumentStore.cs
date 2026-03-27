@@ -13,7 +13,7 @@ public class AvailabilityDocumentStore(
     {
         var results = new List<SessionInstance>();
         var docType = documentStore.GetDocumentType();
-        using (metricsRecorder.BeginScope("GetSessions"))
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.GetSessions))
         {
             var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
                 b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
@@ -23,7 +23,9 @@ public class AvailabilityDocumentStore(
                 results.AddRange(day.Sessions.Select(s =>
                     new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
                     {
-                        Services = s.Services, SlotLength = s.SlotLength, Capacity = s.Capacity
+                        Services = s.Services,
+                        SlotLength = s.SlotLength,
+                        Capacity = s.Capacity
                     }
                 ));
             }
@@ -38,66 +40,78 @@ public class AvailabilityDocumentStore(
         var documentType = documentStore.GetDocumentType();
         var documentId = date.ToString("yyyyMMdd");
 
-        switch (mode)
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.ApplyAvailabilityTemplate))
         {
-            case ApplyAvailabilityMode.Overwrite:
-                await WriteDocument(date, documentType, documentId, sessions, site);
-                break;
-            case ApplyAvailabilityMode.Additive:
-                var originalDocument = await GetOrDefaultAsync(documentId, site);
-                if (originalDocument == null)
-                {
+            switch (mode)
+            {
+                case ApplyAvailabilityMode.Overwrite:
                     await WriteDocument(date, documentType, documentId, sessions, site);
-                }
-                else
-                {
-                    await PatchAvailabilityDocument(documentId, sessions, site, originalDocument);
-                }
+                    break;
+                case ApplyAvailabilityMode.Additive:
+                    var originalDocument = await GetOrDefaultAsync(documentId, site);
+                    if (originalDocument == null)
+                    {
+                        await WriteDocument(date, documentType, documentId, sessions, site);
+                    }
+                    else
+                    {
+                        await PatchAvailabilityDocument(documentId, sessions, site, originalDocument);
+                    }
 
-                break;
-            case ApplyAvailabilityMode.Edit:
-                await EditExistingSession(documentId, site, sessions.Single(), sessionToEdit);
+                    break;
+                case ApplyAvailabilityMode.Edit:
+                    await EditExistingSession(documentId, site, sessions.Single(), sessionToEdit);
 
-                break;
-            default:
-                throw new NotSupportedException();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
         }
     }
 
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
     {
         var docType = documentStore.GetDocumentType();
-        return await documentStore.RunQueryAsync<DailyAvailability>(b =>
-            b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.GetDailyAvailability))
+        {
+            return await documentStore.RunQueryAsync<DailyAvailability>(b =>
+                b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+        }
     }
 
     public async Task<SessionInstance> CancelSession(string site, DateOnly date, Session session)
     {
-        var documentId = date.ToString("yyyyMMdd");
-        var dayDocument = await GetOrDefaultAsync(documentId, site);
-        var extantSessions = dayDocument.Sessions.ToList();
-
-        var firstMatchingSession = FindMatchingSession(extantSessions, session);
-        if (firstMatchingSession is null)
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.CancelSession))
         {
-            throw new InvalidOperationException(
-                "The requested Session to cancel could not be found in the sessions for that day.");
+            var documentId = date.ToString("yyyyMMdd");
+
+            var dayDocument = await GetOrDefaultAsync(documentId, site);
+            var extantSessions = dayDocument.Sessions.ToList();
+
+            var firstMatchingSession = FindMatchingSession(extantSessions, session);
+            if (firstMatchingSession is null)
+            {
+                throw new InvalidOperationException(
+                    "The requested Session to cancel could not be found in the sessions for that day.");
+            }
+
+            extantSessions.Remove(firstMatchingSession);
+
+            await PatchAvailabilityDocument(documentId, [.. extantSessions], site, dayDocument, false);
+
+            return new SessionInstance(dayDocument.Date.ToDateTime(session.From),
+                dayDocument.Date.ToDateTime(session.Until))
+            {
+                Services = session.Services,
+                SlotLength = session.SlotLength,
+                Capacity = session.Capacity,
+            };
         }
-
-        extantSessions.Remove(firstMatchingSession);
-
-        await PatchAvailabilityDocument(documentId, [.. extantSessions], site, dayDocument, false);
-
-        return new SessionInstance(dayDocument.Date.ToDateTime(session.From),
-            dayDocument.Date.ToDateTime(session.Until))
-        {
-            Services = session.Services, SlotLength = session.SlotLength, Capacity = session.Capacity,
-        };
     }
 
     public async Task<bool> SiteSupportsAllServicesOnSingleDateInRangeAsync(string siteId, List<string> services, List<string> datesInPeriod)
     {
-        using (metricsRecorder.BeginScope("SiteSupportsAllServicesOnSingleDateInRangeAsync"))
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.SiteSupportsAllServicesOnSingleDateInRange))
         {
             var docType = documentStore.GetDocumentType();
 
@@ -127,72 +141,85 @@ public class AvailabilityDocumentStore(
     public async Task CancelDayAsync(string site, DateOnly date)
     {
         var documentId = date.ToString("yyyyMMdd");
-        var document = await GetOrDefaultAsync(documentId, site)
-            ?? throw new InvalidOperationException($"The requested Availability for site {site} could not be found on date: {date}.");
 
-        await PatchAvailabilityDocument(documentId, [], site, document, false);
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.CancelDayForSite))
+        {
+            var document = await GetOrDefaultAsync(documentId, site)
+                ?? throw new InvalidOperationException($"The requested Availability for site {site} could not be found on date: {date}.");
+
+            await PatchAvailabilityDocument(documentId, [], site, document, false);
+        }
     }
 
     public async Task<OperationResult> EditSessionsAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement)
     {
-        var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
-
-        if (documents == null || !documents.Any())
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.EditSessions))
         {
-            return new OperationResult(false, $"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
-        }
+            var docType = documentStore.GetDocumentType();
+            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
-        foreach (var document in documents)
-        {
-            await ReplaceSessionAndPatchAsync(document, site, sessionMatcher, sessionReplacement);
-        }
+            if (documents == null || !documents.Any())
+            {
+                return new OperationResult(false, $"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
+            }
 
-        return new OperationResult(true);
+            foreach (var document in documents)
+            {
+                await ReplaceSessionAndPatchAsync(document, site, sessionMatcher, sessionReplacement);
+            }
+
+            return new OperationResult(true);
+        }
     }
 
     public async Task<OperationResult> CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher = null)
     {
         var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
-        if (documents == null || !documents.Any())
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.CancelMultipleSessions))
         {
-            return new OperationResult(false, $"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
+            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
+
+            if (documents == null || !documents.Any())
+            {
+                return new OperationResult(false, $"No matching documents found for date range From: {from} - Until: {until} for Site: {site}");
+            }
+
+            foreach (var document in documents)
+            {
+                var updatedSessions = sessionMatcher is null
+                    ? []
+                    : document.Sessions.Where(s => !SessionsMatch(s, sessionMatcher)).ToArray();
+
+                var documentId = document.Date.ToString("yyyyMMdd");
+                await PatchAvailabilityDocument(documentId, updatedSessions, site, document, false);
+            }
+
+            return new OperationResult(true);
         }
-
-        foreach (var document in documents)
-        {
-            var updatedSessions = sessionMatcher is null
-                ? []
-                : document.Sessions.Where(s => !SessionsMatch(s, sessionMatcher)).ToArray();
-
-            var documentId = document.Date.ToString("yyyyMMdd");
-            await PatchAvailabilityDocument(documentId, updatedSessions, site, document, false);
-        }
-
-        return new OperationResult(true);
     }
 
     public async Task<int> CancelAllSessionsInDateRange(string site, DateOnly from, DateOnly until)
     {
         var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
-
-        if (documents is null || !documents.Any())
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.CancelAllSessionsInDateRange))
         {
-            return 0;
-        }
+            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
-        foreach (var document in documents)
-        {
-            var documentId = document.Date.ToString("yyyyMMdd");
-            await PatchAvailabilityDocument(documentId, [], site, document, false);
-        }
+            if (documents is null || !documents.Any())
+            {
+                return 0;
+            }
 
-        return documents.SelectMany(s => s.Sessions).Count();
+            foreach (var document in documents)
+            {
+                var documentId = document.Date.ToString("yyyyMMdd");
+                await PatchAvailabilityDocument(documentId, [], site, document, false);
+            }
+
+            return documents.SelectMany(s => s.Sessions).Count();
+        }
     }
-
 
     private async Task EditExistingSession(string documentId, string site, Session newSession, Session sessionToEdit)
     {

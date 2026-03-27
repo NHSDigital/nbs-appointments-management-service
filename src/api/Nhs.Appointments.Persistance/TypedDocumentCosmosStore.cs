@@ -104,23 +104,29 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             auditable.LastUpdatedBy = _lastUpdatedByResolver.GetLastUpdatedBy();
         }
 
-        await Retry_CosmosOperation_OnTooManyRequests(async () =>
+        using (_metricsRecorder.BeginScope(nameof(WriteAsync)))
+        {
+            await Retry_CosmosOperation_OnTooManyRequests(async () =>
             {
                 //if the operation is retried, want to regenerate the new updatedOn time.
                 document.LastUpdatedOn = DateTime.UtcNow;
                 return await GetContainer().UpsertItemAsync(document);
             },
             CancellationToken.None);
+        }
     }
 
     public async Task<TModel> GetByIdAsync<TModel>(string documentId)
     {
-        var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
+        using (_metricsRecorder.BeginScope(nameof(GetByIdAsync)))
+        {
+            var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
             .ReadItemAsync<TDocument>(
                 id: documentId,
                 partitionKey: new PartitionKey(_documentType.Value)), CancellationToken.None);
 
-        return _mapper.Map<TModel>(readResponse.Resource);
+            return _mapper.Map<TModel>(readResponse.Resource);
+        }
     }
 
     public async Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId)
@@ -130,16 +136,19 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId, string partitionKey)
     {
-        using var response = await Retry_CosmosOperation_OnTooManyRequests(
-            async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)),
-            CancellationToken.None, canExtractRequestCharge: false);
-        if (!response.IsSuccessStatusCode)
+        using (_metricsRecorder.BeginScope(nameof(GetByIdOrDefaultAsync)))
         {
-            return default;
-        }
+            using var response = await Retry_CosmosOperation_OnTooManyRequests(
+                async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)),
+                CancellationToken.None, canExtractRequestCharge: false);
+            if (!response.IsSuccessStatusCode)
+            {
+                return default;
+            }
 
-        var document = _cosmosClient.ClientOptions.Serializer.FromStream<TDocument>(response.Content);
-        return _mapper.Map<TModel>(document);
+            var document = _cosmosClient.ClientOptions.Serializer.FromStream<TDocument>(response.Content);
+            return _mapper.Map<TModel>(document);
+        }
     }
 
     public async Task<TModel> GetDocument<TModel>(string documentId)
@@ -149,25 +158,34 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey)
     {
-        var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
+        using (_metricsRecorder.BeginScope(nameof(GetDocument)))
+        {
+            var readResponse = await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer()
             .ReadItemAsync<TDocument>(
                 id: documentId,
                 partitionKey: new PartitionKey(partitionKey)), CancellationToken.None);
 
-        return _mapper.Map<TModel>(readResponse.Resource);
+            return _mapper.Map<TModel>(readResponse.Resource);
+        }
     }
 
     public async Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate)
     {
-        var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
-        return await IterateResults(queryFeed, rs => _mapper.Map<TModel>(rs));
+        using (_metricsRecorder.BeginScope(nameof(RunQueryAsync)))
+        {
+            var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
+            return await IterateResults(queryFeed, rs => _mapper.Map<TModel>(rs));
+        }
     }
 
     public async Task DeleteDocument(string documentId, string partitionKey)
     {
-        await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().DeleteItemAsync<TDocument>(
-            id: documentId,
-            partitionKey: new PartitionKey(partitionKey)));
+        using (_metricsRecorder.BeginScope(nameof(DeleteDocument)))
+        {
+            await Retry_CosmosOperation_OnTooManyRequests(async () => await GetContainer().DeleteItemAsync<TDocument>(
+                id: documentId,
+                partitionKey: new PartitionKey(partitionKey)));
+        }
     }
 
     public async Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
@@ -175,7 +193,10 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
             queryDefinition: query);
 
-        return await IterateResults(queryFeed, item => item, canExtractRequestCharge: false);
+        using (_metricsRecorder.BeginScope(nameof(RunSqlQueryAsync)))
+        {
+            return await IterateResults(queryFeed, item => item, canExtractRequestCharge: false);
+        }
     }
 
     public async Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches)
@@ -194,21 +215,24 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
         patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
 
-        var result = await Retry_CosmosOperation_OnTooManyRequests(async () =>
+        using (_metricsRecorder.BeginScope(nameof(PatchDocument)))
         {
-            //remove and readd to force readOnly list to update value
-            var lastUpdatedOnPatch = patchList.Single(x => x.Path == "/lastUpdatedOn");
-            patchList.Remove(lastUpdatedOnPatch);
-            patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
-            
-            return await GetContainer()
-                .PatchItemAsync<TDocument>(
-                    id: documentId,
-                    partitionKey: new PartitionKey(partitionKey),
-                    patchOperations: patchList);
-        });
+            var result = await Retry_CosmosOperation_OnTooManyRequests(async () =>
+            {
+                //remove and re-add to force readOnly list to update value
+                var lastUpdatedOnPatch = patchList.Single(x => x.Path == "/lastUpdatedOn");
+                patchList.Remove(lastUpdatedOnPatch);
+                patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
 
-        return result.Resource;
+                return await GetContainer()
+                    .PatchItemAsync<TDocument>(
+                        id: documentId,
+                        partitionKey: new PartitionKey(partitionKey),
+                        patchOperations: patchList);
+            });
+
+            return result.Resource;
+        }
     }
 
     public string GetDocumentType()
@@ -266,6 +290,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed,
         Func<TSource, TOutput> map, bool canExtractRequestCharge = true)
     {
+
         var results = new List<TOutput>();
 
         var metric = new CosmosOperationMetric
@@ -284,7 +309,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 results.AddRange(resultSet.Select(map));
                 metric.AddRuCharge(resultSet.RequestCharge);
             }
-            
+
             metric.EndAttempt(DateTime.UtcNow);
         }
 

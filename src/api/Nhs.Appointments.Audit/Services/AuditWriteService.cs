@@ -8,7 +8,8 @@ public class AuditWriteService(
     ITypedDocumentCosmosStore<AuditFunctionDocument> auditFunctionStore, 
     ITypedDocumentCosmosStore<AuditAuthDocument> auditAuthStore,
     ITypedDocumentCosmosStore<AuditNotificationDocument> auditNotificationStore,
-    ITypedDocumentCosmosStore<AuditUserRemovedDocument> auditUserRemovedStore
+    ITypedDocumentCosmosStore<AuditUserRemovedDocument> auditUserRemovedStore,
+    IMetricsRecorder metricsRecorder
 ) : IAuditWriteService, IUserDeletedAuditService
 {
     public async Task RecordFunction(string id, DateTime timestamp, string user, string functionName, string site)
@@ -24,7 +25,10 @@ public class AuditWriteService(
             Site = site
         };
 
-        await auditFunctionStore.WriteAsync(doc);
+        using (metricsRecorder.BeginScope(MetricScopes.Audit.RecordFunction))
+        {
+            await auditFunctionStore.WriteAsync(doc);
+        }
     }
     
     public async Task RecordAuth(string id, DateTime timestamp, string user, AuditAuthActionType actionType)
@@ -44,7 +48,10 @@ public class AuditWriteService(
             User = user
         };
 
-        await auditAuthStore.WriteAsync(doc);
+        using (metricsRecorder.BeginScope(MetricScopes.Audit.RecordAuth))
+        {
+            await auditAuthStore.WriteAsync(doc);
+        }
     }
 
     public async Task RecordNotification(
@@ -72,7 +79,10 @@ public class AuditWriteService(
             User = user
         };
 
-        await auditNotificationStore.WriteAsync(doc);
+        using (metricsRecorder.BeginScope(MetricScopes.Audit.RecordNotification))
+        {
+            await auditNotificationStore.WriteAsync(doc);
+        }
     }
 
     public async Task RecordUserDeleted(string userId, string scope, string removedBy)
@@ -88,6 +98,9 @@ public class AuditWriteService(
             Timestamp = DateTime.Now
         };
 
-        await auditUserRemovedStore.WriteAsync(doc);
+        using (metricsRecorder.BeginScope(MetricScopes.Audit.RecordUserDeleted))
+        {
+            await auditUserRemovedStore.WriteAsync(doc);
+        }
     }
 }

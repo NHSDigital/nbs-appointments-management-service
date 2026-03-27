@@ -4,41 +4,50 @@ using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance;
 
-public class AggregationStore(ITypedDocumentCosmosStore<AggregationDocument> store) : IAggregationStore
+public class AggregationStore(
+    ITypedDocumentCosmosStore<AggregationDocument> store,
+    IMetricsRecorder metricsRecorder
+    ) : IAggregationStore
 {
     private const string AggregationDocumentId = "daily-site-summary";
     private ITypedDocumentCosmosStore<AggregationDocument> Store { get; } = store;
 
     public async Task<Aggregation> GetLastRun()
     {
-        return await Store.GetByIdOrDefaultAsync<Aggregation>(AggregationDocumentId);
+        using (metricsRecorder.BeginScope(MetricScopes.Aggregation.GetLastRun))
+        {
+            return await Store.GetByIdOrDefaultAsync<Aggregation>(AggregationDocumentId);
+        }
     }
 
     public async Task SetLastRun(DateTimeOffset lastTriggerUtcDate, DateOnly aggregationFrom, DateOnly aggregationTo, DateOnly dateUntilAggregated)
     {
-        var document = await Store.GetByIdOrDefaultAsync<AggregationDocument>(AggregationDocumentId);
-
-        if (document is not null)
+        using (metricsRecorder.BeginScope(MetricScopes.Aggregation.SetLastRun))
         {
-            await Store.PatchDocument(Store.GetDocumentType(), AggregationDocumentId,
-                PatchOperation.Set("/lastTriggerUtcDate", lastTriggerUtcDate),
-                PatchOperation.Set("/lastRunMetaData/fromDateOnly", aggregationFrom),
-                PatchOperation.Set("/lastRunMetaData/toDateOnly", aggregationTo),
-                PatchOperation.Set("/lastRunMetaData/lastRanToDateOnly", dateUntilAggregated));
-            return;
-        }
+            var document = await Store.GetByIdOrDefaultAsync<AggregationDocument>(AggregationDocumentId);
 
-        await Store.WriteAsync(new AggregationDocument
-        {
-            Id = AggregationDocumentId, 
-            LastTriggeredUtcDate = lastTriggerUtcDate, 
-            DocumentType = Store.GetDocumentType(),
-            LastRunMetaData = new AggregationLastRunMetaData()
+            if (document is not null)
             {
-                FromDateOnly = aggregationFrom,
-                ToDateOnly = aggregationTo,
-                LastRanToDateOnly = dateUntilAggregated
+                await Store.PatchDocument(Store.GetDocumentType(), AggregationDocumentId,
+                    PatchOperation.Set("/lastTriggerUtcDate", lastTriggerUtcDate),
+                    PatchOperation.Set("/lastRunMetaData/fromDateOnly", aggregationFrom),
+                    PatchOperation.Set("/lastRunMetaData/toDateOnly", aggregationTo),
+                    PatchOperation.Set("/lastRunMetaData/lastRanToDateOnly", dateUntilAggregated));
+                return;
             }
-        });
+
+            await Store.WriteAsync(new AggregationDocument
+            {
+                Id = AggregationDocumentId,
+                LastTriggeredUtcDate = lastTriggerUtcDate,
+                DocumentType = Store.GetDocumentType(),
+                LastRunMetaData = new AggregationLastRunMetaData()
+                {
+                    FromDateOnly = aggregationFrom,
+                    ToDateOnly = aggregationTo,
+                    LastRanToDateOnly = dateUntilAggregated
+                }
+            });
+        }
     }
 }

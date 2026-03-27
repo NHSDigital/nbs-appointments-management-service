@@ -17,6 +17,7 @@ public class ServiceTests
     private readonly Mock<ITypedDocumentCosmosStore<AuditAuthDocument>> _auditAuthDocumentStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<AuditNotificationDocument>> _auditNotificationDocumentStore = new();
     private readonly Mock<ITypedDocumentCosmosStore<AuditUserRemovedDocument>> _auditUserRemovedDocumentStore = new();
+    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     private readonly Mock<CosmosClient> _mockCosmosClient = new();
     private readonly Mock<IMapper> _mockMapper = new();
@@ -35,7 +36,8 @@ public class ServiceTests
             _auditFunctionDocumentStore.Object, 
             _auditAuthDocumentStore.Object,
             _auditNotificationDocumentStore.Object,
-            _auditUserRemovedDocumentStore.Object
+            _auditUserRemovedDocumentStore.Object,
+            _metricsRecorder.Object
         );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
@@ -62,7 +64,8 @@ public class ServiceTests
             _auditFunctionDocumentStore.Object, 
             _auditAuthDocumentStore.Object,
             _auditNotificationDocumentStore.Object,
-            _auditUserRemovedDocumentStore.Object
+            _auditUserRemovedDocumentStore.Object,
+            _metricsRecorder.Object
         );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
@@ -87,8 +90,9 @@ public class ServiceTests
         var sut = new AuditWriteService(
             _auditFunctionDocumentStore.Object, 
             _auditAuthDocumentStore.Object,
-            _auditNotificationDocumentStore.Object, 
-            _auditUserRemovedDocumentStore.Object
+            _auditNotificationDocumentStore.Object,
+            _auditUserRemovedDocumentStore.Object,
+            _metricsRecorder.Object
         );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";
@@ -121,7 +125,8 @@ public class ServiceTests
             _auditFunctionDocumentStore.Object, 
             _auditAuthDocumentStore.Object,
             _auditNotificationDocumentStore.Object,
-            _auditUserRemovedDocumentStore.Object
+            _auditUserRemovedDocumentStore.Object,
+            _metricsRecorder.Object
         );
 
         var id = $"{Guid.NewGuid()}_{Guid.NewGuid()}";

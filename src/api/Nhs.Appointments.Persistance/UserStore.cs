@@ -15,20 +15,29 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task<string> GetApiUserSigningKey(string clientId)
     {
-        var documentId = $"api@{clientId}";
-        var userDocument = await cosmosStore.GetByIdAsync<UserDocument>(documentId);
-        return userDocument.ApiSigningKey;
+        using (metricsRecorder.BeginScope(MetricScopes.Users.GetApiUserSigningKey))
+        {
+            var documentId = $"api@{clientId}";
+            var userDocument = await cosmosStore.GetByIdAsync<UserDocument>(documentId);
+            return userDocument.ApiSigningKey; 
+        }
     }
 
     public async Task<User> GetUserAsync(string userId)
     {
-        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower());
+        using (metricsRecorder.BeginScope(MetricScopes.Users.GetUserById))
+        {
+            return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower()); 
+        }
     }
 
     public async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
     {
-        var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId.ToLower());
-        return userDocument is not null ? userDocument.RoleAssignments.Select(mapper.Map<RoleAssignment>) : Array.Empty<RoleAssignment>();
+        using (metricsRecorder.BeginScope(MetricScopes.Users.GetUserRoleAssignments))
+        {
+            var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId.ToLower());
+            return userDocument is not null ? userDocument.RoleAssignments.Select(mapper.Map<RoleAssignment>) : Array.Empty<RoleAssignment>(); 
+        }
     }
 
     /// <summary>
@@ -41,129 +50,165 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     /// <exception cref="Exception"></exception>
     public async Task UpdateUserRoleAssignments(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var originalDocument = await GetOrDefaultAsync(userId);
-        if (originalDocument == null)
+        using (metricsRecorder.BeginScope(MetricScopes.Users.UpdateUserRoleAssignments))
         {
-            var user = new User
+            var originalDocument = await GetOrDefaultAsync(userId);
+            if (originalDocument == null)
             {
-                Id = userId,
-                RoleAssignments = roleAssignments.ToArray()
-            };
-            await InsertAsync(user);
-        }
-        else
-        {
-            var documentType = cosmosStore.GetDocumentType();
-            var originalRoleAssignments = originalDocument.RoleAssignments;
-            var newRoleAssignments = originalRoleAssignments
-                .Where(ra => ra.Scope != scope)
-                .Concat(roleAssignments);
-            var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
-            await cosmosStore.PatchDocument(documentType, userId.ToLower(), userDocumentPatch);
+                var user = new User
+                {
+                    Id = userId,
+                    RoleAssignments = roleAssignments.ToArray()
+                };
+                await InsertAsync(user);
+            }
+            else
+            {
+                var documentType = cosmosStore.GetDocumentType();
+                var originalRoleAssignments = originalDocument.RoleAssignments;
+                var newRoleAssignments = originalRoleAssignments
+                    .Where(ra => ra.Scope != scope)
+                    .Concat(roleAssignments);
+                var userDocumentPatch = PatchOperation.Add("/roleAssignments", newRoleAssignments);
+                await cosmosStore.PatchDocument(documentType, userId.ToLower(), userDocumentPatch);
+            } 
         }
     }
 
     public async Task<OperationResult> RemoveUserAsync(string userId, string siteId)
     {
-        var user = await GetOrDefaultAsync(userId);
-        if (user is null)
+        using (metricsRecorder.BeginScope(MetricScopes.Users.RemoveUserByIdFromSite))
         {
-            return new OperationResult(false, "User not found");
+            var user = await GetOrDefaultAsync(userId);
+            if (user is null)
+            {
+                return new OperationResult(false, "User not found");
+            }
+
+            if (user.RoleAssignments.All(role => role.Scope != $"site:{siteId}"))
+            {
+                return new OperationResult(false, $"User has no roles at site {siteId}");
+            }
+
+            var roleAssignmentsWithSiteRemoved = user.RoleAssignments
+                .Where(ra => ra.Scope != $"site:{siteId}")
+                .ToList();
+
+            if (roleAssignmentsWithSiteRemoved.Count == 0)
+            {
+                await cosmosStore.DeleteDocument(userId, cosmosStore.GetDocumentType());
+                return new OperationResult(true);
+            }
+
+            var userDocumentPatch = PatchOperation.Add("/roleAssignments", roleAssignmentsWithSiteRemoved);
+            await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId.ToLower(), userDocumentPatch);
+            return new OperationResult(true); 
         }
-
-        if (user.RoleAssignments.All(role => role.Scope != $"site:{siteId}"))
-        {
-            return new OperationResult(false, $"User has no roles at site {siteId}");
-        }
-
-        var roleAssignmentsWithSiteRemoved = user.RoleAssignments
-            .Where(ra => ra.Scope != $"site:{siteId}")
-            .ToList();
-
-        if (roleAssignmentsWithSiteRemoved.Count == 0)
-        {
-            await cosmosStore.DeleteDocument(userId, cosmosStore.GetDocumentType());
-            return new OperationResult(true);
-        }
-
-        var userDocumentPatch = PatchOperation.Add("/roleAssignments", roleAssignmentsWithSiteRemoved);
-        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId.ToLower(), userDocumentPatch);
-        return new OperationResult(true);
     }
 
     public async Task UpdateUserRegionPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var originalDocument = await GetOrDefaultAsync(userId);
-        if (originalDocument is null)
+        using (metricsRecorder.BeginScope(MetricScopes.Users.UpdateUserRegionPermissions))
         {
-            var user = new User
+            var originalDocument = await GetOrDefaultAsync(userId);
+            if (originalDocument is null)
             {
-                Id = userId,
-                RoleAssignments = roleAssignments.ToArray()
-            };
-            await InsertAsync(user);
-            return;
+                var user = new User
+                {
+                    Id = userId,
+                    RoleAssignments = roleAssignments.ToArray()
+                };
+                await InsertAsync(user);
+                return;
+            }
+
+            var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, RegionalUserRole, IcbUserRole);
+
+            var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
+            await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, regionalRolePatch); 
         }
-
-        var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, RegionalUserRole, IcbUserRole);
-
-        var regionalRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
-        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, regionalRolePatch);
     }
 
     public async Task<OperationResult> RecordEulaAgreementAsync(string userId, DateOnly versionDate)
     {
-        var user = await GetOrDefaultAsync(userId);
-        if (user is null)
+        using (metricsRecorder.BeginScope(MetricScopes.Users.RecordEulaAgreement))
         {
-            return new OperationResult(false, "User not found");
-        }
+            var user = await GetOrDefaultAsync(userId);
+            if (user is null)
+            {
+                return new OperationResult(false, "User not found");
+            }
 
-        var updateEulaPatch = PatchOperation.Set("/latestAcceptedEulaVersion", $"{versionDate:yyyy-MM-dd}");
-        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId.ToLower(), updateEulaPatch);
-        return new OperationResult(true);
+            var updateEulaPatch = PatchOperation.Set("/latestAcceptedEulaVersion", $"{versionDate:yyyy-MM-dd}");
+            await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId.ToLower(), updateEulaPatch);
+            return new OperationResult(true); 
+        }
     }
 
     public async Task<IEnumerable<User>> GetUsersAsync(string site)
     {
-        return await cosmosStore.RunQueryAsync<User>(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{site}"));
+        using (metricsRecorder.BeginScope(MetricScopes.Users.GetUsersForSite))
+        {
+            return await cosmosStore.RunQueryAsync<User>(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{site}")); 
+        }
     }
     
     private async Task InsertAsync(User user)
     {
-        var document = cosmosStore.ConvertToDocument(user);
-        await cosmosStore.WriteAsync(document);
+        using (metricsRecorder.BeginScope(MetricScopes.Users.InsertUser))
+        {
+            var document = cosmosStore.ConvertToDocument(user);
+            await cosmosStore.WriteAsync(document); 
+        }
     }
 
     public async Task<User> GetOrDefaultAsync(string userId)
     {
-        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower());
+        // TODO: SJH - Make the decision between this method or GetUserAsync. Only one should exist.
+        // To make this clear, I've not created a separate scope.
+        using (metricsRecorder.BeginScope(MetricScopes.Users.GetUserById))
+        {
+            return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower());
+        }
     }
 
     public async Task SaveAdminUserAsync(User adminUser)
-        => await InsertAsync(adminUser);
+    {
+        using (metricsRecorder.BeginScope(MetricScopes.Users.SaveAdminUser))
+        {
+            await InsertAsync(adminUser); 
+        }
+    }
 
-    public async Task RemoveAdminUserAsync(string userId) =>
-        await cosmosStore.DeleteDocument(userId.ToLower(), cosmosStore.GetDocumentType());
+    public async Task RemoveAdminUserAsync(string userId)
+    {
+        using (metricsRecorder.BeginScope(MetricScopes.Users.RemoveAdminUser))
+        {
+            await cosmosStore.DeleteDocument(userId.ToLower(), cosmosStore.GetDocumentType()); 
+        }
+    }
 
     public async Task UpdateUserIcbPermissionsAsync(string userId, string scope, IEnumerable<RoleAssignment> roleAssignments)
     {
-        var originalDocument = await GetOrDefaultAsync(userId);
-        if (originalDocument is null)
+        using (metricsRecorder.BeginScope(MetricScopes.Users.UpdateUserIcbPermissions))
         {
-            var user = new User
+            var originalDocument = await GetOrDefaultAsync(userId);
+            if (originalDocument is null)
             {
-                Id = userId,
-                RoleAssignments = roleAssignments.ToArray()
-            };
-            await InsertAsync(user);
-            return;
+                var user = new User
+                {
+                    Id = userId,
+                    RoleAssignments = roleAssignments.ToArray()
+                };
+                await InsertAsync(user);
+                return;
+            }
+
+            var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, IcbUserRole, RegionalUserRole);
+
+            var icbRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
+            await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, icbRolePatch); 
         }
-
-        var updatedRoleAssignments = GetUpdatedPermissions(originalDocument.RoleAssignments, scope, roleAssignments, IcbUserRole, RegionalUserRole);
-
-        var icbRolePatch = PatchOperation.Set("/roleAssignments", updatedRoleAssignments);
-        await cosmosStore.PatchDocument(cosmosStore.GetDocumentType(), userId, icbRolePatch);
     }
 
     internal IEnumerable<RoleAssignment> GetUpdatedPermissions(
@@ -208,7 +253,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task<IEnumerable<User>> GetUsersWithPermissionScope(string scope)
     {
-        using (metricsRecorder.BeginScope("GetUsersWithPermissionScope"))
+        using (metricsRecorder.BeginScope(MetricScopes.Users.GetUsersWithPermissionScope))
         {
             var docType = cosmosStore.GetDocumentType();
 

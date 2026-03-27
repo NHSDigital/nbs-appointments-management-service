@@ -3,7 +3,9 @@ using Nhs.Appointments.Core.Availability;
 
 namespace Nhs.Appointments.Persistance;
 
-public class AvailabilityCreatedEventDocumentStore(ITypedDocumentCosmosStore<AvailabilityCreatedEventDocument> documentStore, TimeProvider time) : IAvailabilityCreatedEventStore
+public class AvailabilityCreatedEventDocumentStore(
+    ITypedDocumentCosmosStore<AvailabilityCreatedEventDocument> documentStore, 
+    TimeProvider time) : IAvailabilityCreatedEventStore
 {
     public async Task LogTemplateCreated(string site, DateOnly from, DateOnly until, Template template, string user)
     {

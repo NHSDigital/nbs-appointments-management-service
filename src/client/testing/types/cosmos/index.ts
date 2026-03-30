@@ -101,6 +101,7 @@ type Role =
   | 'system:admin-user'
   | 'system:regional-user'
   | 'system:icb-user'
+  | 'system:api-user'
   | 'system:integration-test-user';
 
 export type {

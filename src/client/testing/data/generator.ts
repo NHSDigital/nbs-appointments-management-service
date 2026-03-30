@@ -138,8 +138,8 @@ export const generateExtraSiteIdForSameUser = (
 
   //if more than one site provided, need to generate a new ID
   if (siteIndex > 0) {
-    //append site index on end of testId for new number generation
-    siteTestId = Number(`${testId}${siteIndex}`);
+    //prepend site index on end of testId for new number generation
+    siteTestId = Number(`${siteIndex}${testId}`);
   }
 
   return siteTestId;

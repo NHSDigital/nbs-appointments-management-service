@@ -17,11 +17,11 @@ export default class Header extends PageObject {
 
   public readonly changeSiteLink: Locator = this.page
     .getByRole('banner')
-    .getByRole('link', { name: 'Change Site', exact: true });
+    .getByRole('link', { name: 'Change site', exact: true });
 
   public readonly logOutButton: Locator = this.page
     .getByRole('banner')
-    .getByRole('button', { name: 'Log Out' });
+    .getByRole('button', { name: 'Log out' });
 
   public readonly currentUser: (userName: string) => Locator = (
     userName: string,

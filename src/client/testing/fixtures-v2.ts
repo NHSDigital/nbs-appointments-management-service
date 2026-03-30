@@ -363,9 +363,18 @@ export const test = base.extend<MyaFixtures>({
     await Promise.all([
       cosmosDbClient.deleteSite(siteDocument),
       cosmosDbClient.deleteUser(userDocument),
-      ...Array.from(additionalUserData.values()).map(data =>
-        cosmosDbClient.deleteUser(data.user.document),
-      ),
+      ...Array.from(additionalUserData.values()).map(data => {
+        const additionalUserCleanup = [];
+        additionalUserCleanup.push(
+          cosmosDbClient.deleteUser(data.user.document),
+        );
+        for (let siteIndex = 0; siteIndex < data.sites.length; siteIndex++) {
+          additionalUserCleanup.push(
+            cosmosDbClient.deleteSite(data.sites[siteIndex]),
+          );
+        }
+        return additionalUserCleanup;
+      }),
 
       cosmosDbClient.deleteAllBookings(bookingDocuments),
       cosmosDbClient.deleteAvailability(dailyAvailabilityDocuments),

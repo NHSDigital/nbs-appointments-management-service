@@ -47,7 +47,8 @@ export default class SitePage extends MYALayout {
   readonly reportsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'Report',
+      name: 'Download reports',
+      exact: true,
     });
 
   readonly topNav = {
@@ -113,32 +114,60 @@ export default class SitePage extends MYALayout {
       | 'ManageAppointment'
       | 'SiteManagement'
       | 'UserManagement'
-      | 'CreateAvailability',
+      | 'CreateAvailability'
+      | 'DownloadReports',
   ) {
     if (tileName == 'ManageAppointment') {
       await expect(
         this.viewAvailabilityAndManageAppointmentsCard,
       ).toBeVisible();
     }
+
     if (tileName == 'SiteManagement') {
       await expect(this.siteManagementCard).toBeVisible();
     }
+
     if (tileName == 'CreateAvailability') {
       await expect(this.createAvailabilityCard).toBeVisible();
+    }
+
+    if (tileName == 'UserManagement') {
+      await expect(this.userManagementCard).toBeVisible();
+    }
+
+    if (tileName == 'DownloadReports') {
+      await expect(this.reportsCard).toBeVisible();
     }
   }
 
   async verifyTileNotVisible(
-    tileName: 'UserManagement' | 'CreateAvailability' | 'SiteManagement',
+    tileName:
+      | 'ManageAppointment'
+      | 'SiteManagement'
+      | 'UserManagement'
+      | 'CreateAvailability'
+      | 'DownloadReports',
   ) {
+    if (tileName == 'ManageAppointment') {
+      await expect(
+        this.viewAvailabilityAndManageAppointmentsCard,
+      ).not.toBeVisible();
+    }
+
     if (tileName == 'CreateAvailability') {
       await expect(this.createAvailabilityCard).not.toBeVisible();
     }
+
     if (tileName == 'SiteManagement') {
-      await expect(this.siteManagementCard).toBeVisible();
+      await expect(this.siteManagementCard).not.toBeVisible();
     }
+
     if (tileName == 'UserManagement') {
       await expect(this.userManagementCard).not.toBeVisible();
+    }
+
+    if (tileName == 'DownloadReports') {
+      await expect(this.reportsCard).not.toBeVisible();
     }
   }
 }

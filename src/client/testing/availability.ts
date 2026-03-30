@@ -374,13 +374,13 @@ export const sessionTestCases: SessionTestCase[] = [
 
 export const weekTestCases: WeekViewTestCase[] = [
   {
-    week: '2026-04-20',
-    weekHeader: '20 April to 26 April',
-    previousWeek: '13-19 April 2026',
-    nextWeek: '27-3 May 2026',
+    week: '2027-03-22',
+    weekHeader: '22 March to 28 March',
+    previousWeek: '15-21 March 2027',
+    nextWeek: '29-4 April 2027',
     dayOverviews: [
       {
-        header: 'Monday 20 April',
+        header: 'Monday 22 March',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -388,7 +388,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Tuesday 21 April',
+        header: 'Tuesday 23 March',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -396,7 +396,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Wednesday 22 April',
+        header: 'Wednesday 24 March',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -404,7 +404,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Thursday 23 April',
+        header: 'Thursday 25 March',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -412,7 +412,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Friday 24 April',
+        header: 'Friday 26 March',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -420,156 +420,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Saturday 25 April',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 418,
-            sessionTimeInterval: '10:00 - 17:00',
-          },
-        ],
-        totalAppointments: 420,
-        booked: 2,
-        unbooked: 418,
-        orphaned: 0,
-      },
-      {
-        header: 'Sunday 26 April',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 418,
-            sessionTimeInterval: '10:00 - 17:00',
-          },
-        ],
-        totalAppointments: 420,
-        booked: 2,
-        unbooked: 418,
-        orphaned: 0,
-      },
-    ],
-  },
-  {
-    week: '2026-04-27',
-    weekHeader: '27 April to 3 May',
-    previousWeek: '20-26 April 2026',
-    nextWeek: '4-10 May 2026',
-    dayOverviews: [
-      {
-        header: 'Monday 27 April',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 418,
-            sessionTimeInterval: '10:00 - 17:00',
-          },
-        ],
-        totalAppointments: 420,
-        booked: 2,
-        unbooked: 418,
-        orphaned: 0,
-      },
-      {
-        header: 'Tuesday 28 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Wednesday 29 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Thursday 30 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Friday 1 May',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Saturday 2 May',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Sunday 3 May',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-    ],
-  },
-  {
-    week: '2026-03-23',
-    weekHeader: '23 March to 29 March',
-    previousWeek: '16-22 March 2026',
-    nextWeek: '30-5 April 2026',
-    dayOverviews: [
-      {
-        header: 'Monday 23 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Tuesday 24 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Wednesday 25 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Thursday 26 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Friday 27 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Saturday 28 March',
+        header: 'Saturday 27 March',
         sessions: [
           {
             serviceName: 'RSV Adult',
@@ -584,7 +435,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Sunday 29 March',
+        header: 'Sunday 28 March',
         sessions: [
           {
             serviceName: 'RSV Adult',
@@ -601,13 +452,13 @@ export const weekTestCases: WeekViewTestCase[] = [
     ],
   },
   {
-    week: '2026-03-30',
-    weekHeader: '30 March to 5 April',
-    previousWeek: '23-29 March 2026',
-    nextWeek: '6-12 April 2026',
+    week: '2027-03-29',
+    weekHeader: '29 March to 4 April',
+    previousWeek: '22-28 March 2027',
+    nextWeek: '5-11 April 2027',
     dayOverviews: [
       {
-        header: 'Monday 30 March',
+        header: 'Monday 29 March',
         sessions: [
           {
             serviceName: 'RSV Adult',
@@ -622,7 +473,22 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Tuesday 31 March',
+        header: 'Tuesday 30 March',
+        sessions: [
+          {
+            serviceName: 'RSV Adult',
+            booked: '2 booked',
+            unbooked: 238,
+            sessionTimeInterval: '08:00 - 14:00',
+          },
+        ],
+        totalAppointments: 240,
+        booked: 2,
+        unbooked: 238,
+        orphaned: 0,
+      },
+      {
+        header: 'Wednesday 31 March',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -630,7 +496,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Wednesday 1 April',
+        header: 'Thursday 1 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -638,7 +504,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Thursday 2 April',
+        header: 'Friday 2 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -646,7 +512,7 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Friday 3 April',
+        header: 'Saturday 3 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -654,7 +520,23 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Saturday 4 April',
+        header: 'Sunday 4 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+    ],
+  },
+  {
+    week: '2027-04-19',
+    weekHeader: '19 April to 26 April',
+    previousWeek: '12-18 April 2027',
+    nextWeek: '26-2 May 2027',
+    dayOverviews: [
+      {
+        header: 'Monday 19 April',
         sessions: [],
         totalAppointments: 0,
         booked: 0,
@@ -662,7 +544,132 @@ export const weekTestCases: WeekViewTestCase[] = [
         orphaned: 0,
       },
       {
-        header: 'Sunday 5 April',
+        header: 'Tuesday 20 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Wednesday 21 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Thursday 22 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Friday 23 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Saturday 24 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Sunday 25 April',
+        sessions: [
+          {
+            serviceName: 'RSV Adult',
+            booked: '2 booked',
+            unbooked: 418,
+            sessionTimeInterval: '10:00 - 17:00',
+          },
+        ],
+        totalAppointments: 420,
+        booked: 2,
+        unbooked: 418,
+        orphaned: 0,
+      },
+    ],
+  },
+  {
+    week: '2027-04-26',
+    weekHeader: '26 April to 2 May',
+    previousWeek: '19-25 April 2027',
+    nextWeek: '3-9 May 2027',
+    dayOverviews: [
+      {
+        header: 'Monday 26 April',
+        sessions: [
+          {
+            serviceName: 'RSV Adult',
+            booked: '2 booked',
+            unbooked: 418,
+            sessionTimeInterval: '10:00 - 17:00',
+          },
+        ],
+        totalAppointments: 420,
+        booked: 2,
+        unbooked: 418,
+        orphaned: 0,
+      },
+      {
+        header: 'Tuesday 27 April',
+        sessions: [
+          {
+            serviceName: 'RSV Adult',
+            booked: '2 booked',
+            unbooked: 418,
+            sessionTimeInterval: '10:00 - 17:00',
+          },
+        ],
+        totalAppointments: 420,
+        booked: 2,
+        unbooked: 418,
+        orphaned: 0,
+      },
+      {
+        header: 'Wednesday 28 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Thursday 29 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Friday 30 April',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Saturday 1 May',
+        sessions: [],
+        totalAppointments: 0,
+        booked: 0,
+        unbooked: 0,
+        orphaned: 0,
+      },
+      {
+        header: 'Sunday 2 May',
         sessions: [],
         totalAppointments: 0,
         booked: 0,

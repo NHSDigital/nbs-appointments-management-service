@@ -5,7 +5,9 @@ namespace Nhs.Appointments.Persistance;
 
 public class AvailabilityCreatedEventDocumentStore(
     ITypedDocumentCosmosStore<AvailabilityCreatedEventDocument> documentStore, 
-    TimeProvider time) : IAvailabilityCreatedEventStore
+    TimeProvider time,
+    IMetricsRecorder metricsRecorder
+    ) : IAvailabilityCreatedEventStore
 {
     public async Task LogTemplateCreated(string site, DateOnly from, DateOnly until, Template template, string user)
     {
@@ -52,8 +54,11 @@ public class AvailabilityCreatedEventDocumentStore(
     {
         var docType = documentStore.GetDocumentType();
 
-        return await documentStore.RunQueryAsync<AvailabilityCreatedEvent>(b =>
-            b.DocumentType == docType
-            && b.Site == site);
+        using (metricsRecorder.BeginScope(MetricScopes.Availability.GetAvailabilityCreatedEvents))
+        {
+            return await documentStore.RunQueryAsync<AvailabilityCreatedEvent>(b =>
+                b.DocumentType == docType
+                && b.Site == site);
+        }
     }
 }

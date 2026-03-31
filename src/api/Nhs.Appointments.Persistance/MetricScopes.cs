@@ -127,6 +127,7 @@ public static class MetricScopes
         public const string CancelSession = "CancelSession";
         public const string CancelMultipleSessions = "CancelMultipleSessions";
         public const string EditSessions = "EditSessions";
+        public const string GetAvailabilityCreatedEvents = "GetAvailabilityCreatedEvents";
         public const string GetDailyAvailability = "GetDailyAvailability";
         public const string GetSessions = "GetSessions";
         public const string SiteSupportsAllServicesOnSingleDateInRange = "SiteSupportsAllServicesOnSingleDateInRange";

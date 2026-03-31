@@ -129,7 +129,6 @@ export const test = base.extend<MyaFixtures>({
     await use(new ConfirmedCancellationPage(page));
   },
 
-  // TODO: Extend this (or create new fixtures) to cover multiple sites and multiple users per site
   setup: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
       env.COSMOS_ENDPOINT,
@@ -157,10 +156,6 @@ export const test = base.extend<MyaFixtures>({
 
     const additionalUserData = new Map<string, AdditionalUserSetupData>();
 
-    // Fixture setup. Result of use() is piped to the test
-    // This currently accepts a list of roles and feature flags.
-    // In the future this will be extended to accept a list of users and sites to enable tests to request extra users and sites in their setup.
-    // Alternatively, we can add extra fixtures to this list and make them each responsible for setup/teardown of a different thing. Tests can import multiple fixtures as needed.
     await use(async options => {
       const {
         roles = [],

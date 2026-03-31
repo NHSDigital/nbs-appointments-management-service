@@ -6,21 +6,19 @@ import {
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { fetchBookings } from '../../../../../lib/services/appointmentsService';
-import { DailyAppointmentsPage } from './daily-appointments-page';
 import { FetchBookingsRequest } from '@types';
-import { Tab, Tabs } from '@nhsuk-frontend-components';
 import {
   dateTimeFormat,
   parseToUkDatetime,
   GetCurrentDateTime,
-  RFC3339Format,
 } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import PrintPageButton from '@components/print-page-button';
 import Link from 'next/link';
-import { Heading, Pagination } from 'nhsuk-react-components';
+import { Heading } from 'nhsuk-react-components';
+import { DayView } from './day-view';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -60,25 +58,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
       fromServer(fetchPermissions(siteFromPath)),
     ]);
 
-  const bookedAppointments = bookings.filter(b => b.status === 'Booked');
-  const cancelledAppointments = bookings.filter(b => b.status === 'Cancelled');
-
   const canCancelBookings = sitePermissions.includes('booking:cancel');
 
   const canChangeAvailability =
     cancelADateRange.enabled && sitePermissions.includes('availability:setup');
-
-  const previousDay = fromDate.add(-1, 'day');
-  const nextDay = fromDate.add(1, 'day');
-
-  const previous = {
-    title: previousDay.format('dddd D MMMM'),
-    href: `daily-appointments?date=${previousDay.format(RFC3339Format)}&page=1`,
-  };
-  const next = {
-    title: nextDay.format('dddd D MMMM'),
-    href: `daily-appointments?date=${nextDay.format(RFC3339Format)}&page=1`,
-  };
 
   return (
     <>
@@ -106,43 +89,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
         Generated: {GetCurrentDateTime()}
       </p>
 
-      <Pagination>
-        <Pagination.Item
-          previous
-          labelText={previous.title}
-          href={previous.href}
-        >
-          Previous
-        </Pagination.Item>
-        <Pagination.Item next labelText={next.title} href={next.href}>
-          Next
-        </Pagination.Item>
-      </Pagination>
-
-      <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
-        <Tab title="Scheduled">
-          <div className="print-out-data" aria-hidden="true">
-            <h3>Scheduled Appointments</h3>
-          </div>
-          <DailyAppointmentsPage
-            bookings={bookedAppointments}
-            site={site.id}
-            displayAction={canCancelBookings}
-            clinicalServices={clinicalServices}
-          />
-        </Tab>
-        <Tab title="Cancelled">
-          <div className="print-out-data" aria-hidden="true">
-            <h3>Cancelled Appointments</h3>
-          </div>
-          <DailyAppointmentsPage
-            bookings={cancelledAppointments}
-            site={site.id}
-            displayAction={false}
-            clinicalServices={clinicalServices}
-          />
-        </Tab>
-      </Tabs>
+      <DayView
+        fromDate={fromDate}
+        bookings={bookings}
+        canCancelBookings={canCancelBookings}
+        clinicalServices={clinicalServices}
+        site={site}
+      />
     </>
   );
 };

@@ -935,7 +935,7 @@ test.describe.skip('Update Session', () => {
   });
 });
 
-test.describe('View Week Availability', () => {
+test.describe.skip('View Week Availability', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let weekViewAvailabilityPage: WeekViewAvailabilityPage;

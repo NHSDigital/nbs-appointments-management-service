@@ -100,8 +100,8 @@ test.describe.configure({ mode: 'serial' });
           });
 
           test('Cancel a date range daily page', async ({ setup }) => {
-            const day = daysFromToday(10);
-            const dayViewDate = daysFromToday(10, 'dddd D MMMM');
+            const day = daysFromToday(0);
+            const dayViewDate = daysFromToday(0, 'dddd D MMMM');
             const availability = [
               {
                 date: day,
@@ -116,6 +116,7 @@ test.describe.configure({ mode: 'serial' });
                 ],
               },
             ];
+
             const bookings: BookingSetup[] = [
               {
                 fromDate: day,

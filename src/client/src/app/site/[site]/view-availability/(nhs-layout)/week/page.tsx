@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchSite,
@@ -7,11 +6,11 @@ import {
 } from '@services/appointmentsService';
 import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfUkWeek, startOfUkWeek } from '@services/timeService';
-import { NavigationByHrefProps } from '@components/nhsuk-frontend/back-link';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import Link from 'next/link';
+import { Heading } from 'nhsuk-react-components';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -44,19 +43,13 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const ukWeekStart = startOfUkWeek(date);
   const ukWeekEnd = endOfUkWeek(date);
 
-  const backLink: NavigationByHrefProps = {
-    renderingStrategy: 'server',
-    href: `/site/${site.id}/view-availability?date=${date}`,
-    text: 'Back to month view',
-  };
-
   return (
-    <NhsPage
-      title={`${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`}
-      site={site}
-      backLink={backLink}
-      originPage="view-availability-week"
-    >
+    <>
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">{site.name}</span>
+        {`${ukWeekStart.format('D MMMM')} to ${ukWeekEnd.format('D MMMM')}`}
+      </Heading>
+
       {canChangeAvailability && (
         <Link href={`/site/${siteFromPath}/change-availability`}>
           <Button type="button" styleType="secondary">
@@ -70,7 +63,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         ukWeekEnd={ukWeekEnd}
         site={site}
       />
-    </NhsPage>
+    </>
   );
 };
 

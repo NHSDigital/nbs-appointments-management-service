@@ -1,4 +1,3 @@
-import NhsPage from '@components/nhs-page';
 import {
   assertPermission,
   fetchSite,
@@ -10,6 +9,7 @@ import { RFC3339Format, parseToUkDatetime, ukNow } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { Button } from '@components/nhsuk-frontend';
 import Link from 'next/link';
+import { Heading } from 'nhsuk-react-components';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -38,12 +38,12 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const searchMonth = date ? parseToUkDatetime(date, RFC3339Format) : ukNow();
 
   return (
-    <NhsPage
-      title={`View availability for ${searchMonth.format('MMMM YYYY')}`}
-      caption={site.name}
-      site={site}
-      originPage="view-availability"
-    >
+    <>
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">{site.name}</span>
+        {`View availability for ${searchMonth.format('MMMM YYYY')}`}
+      </Heading>
+
       {canChangeAvailability && (
         <Link href={`/site/${siteFromPath}/change-availability`}>
           <Button type="button" styleType="secondary">
@@ -53,7 +53,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
       )}
 
       <ViewAvailabilityPage site={site} searchMonth={searchMonth} />
-    </NhsPage>
+    </>
   );
 };
 

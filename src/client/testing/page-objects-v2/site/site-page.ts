@@ -4,7 +4,7 @@ import SiteDetailsPage from './details/site-details-page';
 import Users from '../manage-user/users';
 import { expect } from '@playwright/test';
 import SiteSummaryReportPage from './details/site-summary-report-page';
-import MonthViewAvailabilityPage from '../view-availability-appointment-pages/month-view-availability-page';
+import DayViewAvailabilityPage from '../view-availability-appointment-pages/day-view-availability-page';
 
 export default class SitePage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -66,11 +66,13 @@ export default class SitePage extends MYALayout {
     return new SiteDetailsPage(this.page, this.site);
   }
 
-  async clickSiteAvailabilityCard(): Promise<MonthViewAvailabilityPage> {
+  async clickSiteAvailabilityCard(): Promise<DayViewAvailabilityPage> {
     await this.viewAvailabilityAndManageAppointmentsCard.click();
-    await this.page.waitForURL(`**/site/${this.site?.id}/view-availability`);
+    await this.page.waitForURL(
+      `**/site/${this.site?.id}/view-availability/daily-appointments?date=**`,
+    );
 
-    return new MonthViewAvailabilityPage(this.page, this.site);
+    return new DayViewAvailabilityPage(this.page, this.site);
   }
 
   async clickManageUsersCard(): Promise<Users> {

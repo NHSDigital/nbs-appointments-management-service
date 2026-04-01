@@ -21,6 +21,7 @@ import BuildNumber from './build-number';
 import PrintPageButton from './print-page-button';
 import fromServer from '@server/fromServer';
 import NhsPageHeader from './nhsuk-frontend/nhs-page-header';
+import { GetCurrentDateTime } from '@services/timeService';
 
 type Props = {
   children: ReactNode;
@@ -31,6 +32,7 @@ type Props = {
   backLink?: NavigationByHrefProps;
   originPage: string;
   showPrintButton?: boolean;
+  secondaryNavigation?: ReactNode;
 } & NhsHeadingProps;
 
 const NhsPage = async ({
@@ -43,6 +45,7 @@ const NhsPage = async ({
   backLink,
   originPage,
   showPrintButton = false,
+  secondaryNavigation,
 }: Props) => {
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
@@ -61,7 +64,7 @@ const NhsPage = async ({
         trail={[
           ...breadcrumbs,
           ...(breadcrumbs.length > 0 && !omitTitleFromBreadcrumbs
-            ? [{ name: title }]
+            ? [{ name: title ?? '' }]
             : []),
         ]}
       />
@@ -74,10 +77,14 @@ const NhsPage = async ({
           />
         )}
 
+        {secondaryNavigation}
+
         <div className="nhsuk-grid-row">
-          <div className="nhsuk-grid-column-three-quarters">
-            <NhsHeading title={title} caption={caption} />
-          </div>
+          {title && (
+            <div className="nhsuk-grid-column-three-quarters">
+              <NhsHeading title={title} caption={caption} />
+            </div>
+          )}
           <div className="nhsuk-grid-column-one-quarter">
             {showPrintButton && (
               <div className="custom-print-button-wrapper nhsuk-u-padding-top-3">
@@ -119,7 +126,7 @@ const getLinksForSite = async (
     if (permissionsAtSite.includes('availability:query')) {
       navigationLinks.push({
         label: 'View availability',
-        href: `${basePath}/site/${site.id}/view-availability`,
+        href: `${basePath}/site/${site.id}/view-availability/daily-appointments?date=${GetCurrentDateTime('YYYY-MM-DD')}&page=1`,
       });
     }
 

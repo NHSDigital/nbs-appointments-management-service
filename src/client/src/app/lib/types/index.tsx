@@ -465,6 +465,13 @@ type CancelDateRangeResponse = {
   bookingsWithoutContactDetailsCount: number;
 };
 
+type NavigationLink = {
+  id: string;
+  label: string;
+  href: string;
+  isCurrent: boolean;
+};
+
 export type {
   Accessibility,
   AccessibilityDefinition,
@@ -502,6 +509,7 @@ export type {
   FetchAvailabilityRequest,
   FetchBookingsRequest,
   IdentityProvider,
+  NavigationLink,
   NewlyUnsupportedBookingAction,
   NhsMyaCookieConsent,
   ProposeCancelDateRangeResponse,

@@ -8,6 +8,7 @@ import {
 } from '@testing/data';
 import { verifyV10SummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 import { getAppInsightsClient } from '../../appInsights';
+import { GetCurrentDateTime } from '@services/timeService';
 
 jest.mock('../../appInsights', () => {
   const mockFn = jest.fn();
@@ -22,6 +23,15 @@ jest.mock('../../appInsights', () => {
     }),
   };
 });
+
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    GetCurrentDateTime: jest.fn(),
+  };
+});
+const mockGetCurrentDatTime = GetCurrentDateTime as jest.Mock<string>;
 
 describe('Site Page', () => {
   it('displays a summary of the site', () => {
@@ -120,7 +130,7 @@ describe('Site Page', () => {
     [
       'availability:query',
       'View availability and manage appointments for your site',
-      'view-availability',
+      'view-availability/daily-appointments?date=2026-06-05&page=1',
     ],
     ['availability:setup', 'Create availability', 'create-availability'],
     [
@@ -139,6 +149,7 @@ describe('Site Page', () => {
     'displays the correct cards when permissions are present',
     (permission: string, cardTitle: string, path: string) => {
       const mockSite = mockSites[0];
+      mockGetCurrentDatTime.mockReturnValue('2026-06-05');
 
       render(
         <SitePage

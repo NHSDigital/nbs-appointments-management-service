@@ -3,7 +3,7 @@ import { ClinicalService, WeekSummary } from '@types';
 import { Card } from 'nhsuk-react-components';
 import { BookingsTable } from './bookings-table';
 import PipeDelimitedLinks from '@components/pipe-delimited-links';
-import { RFC3339Format } from '@services/timeService';
+import { isThisWeek, RFC3339Format } from '@services/timeService';
 
 type WeekSummaryCardProps = {
   ukWeekSummary: WeekSummary;
@@ -33,13 +33,17 @@ export const WeekSummaryCard = ({
     {} as Record<string, number>,
   );
 
+  const weekHeading = isThisWeek(startDate, endDate)
+    ? `${startDate.format('D MMMM')} to ${endDate.format('D MMMM')} (this week)`
+    : `${startDate.format('D MMMM')} to ${endDate.format('D MMMM')}`;
+
   return (
     <Card>
       <Card.Heading
         headingLevel="h3"
         className="appointment-summary-card-item-margin"
       >
-        {startDate.format('D MMMM')} to {endDate.format('D MMMM')}
+        {weekHeading}
       </Card.Heading>
       {Object.entries(allBookingsInWeek).length > 0 ? (
         <BookingsTable

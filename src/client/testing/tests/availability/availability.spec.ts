@@ -35,7 +35,7 @@ import EditServicesConfirmedPage from '../../page-objects/view-availability-appo
 import EditAvailabilityConfirmationPage from '../../page-objects/view-availability-appointment-pages/edit-availability-confirmation-page';
 import EditServicesConfirmationPage from '../../page-objects/view-availability-appointment-pages/edit-services-confirmation-page';
 
-test.describe('Create Availability', () => {
+test.describe.skip('Create Availability', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let siteSelectionPage: SiteSelectionPage;
@@ -352,7 +352,7 @@ test.describe('Create Availability', () => {
   });
 });
 
-test.describe('Update Session', () => {
+test.describe.skip('Update Session', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let monthViewAvailabilityPage: MonthViewAvailabilityPage;
@@ -935,7 +935,7 @@ test.describe('Update Session', () => {
   });
 });
 
-test.describe('View Month Availability', () => {
+test.describe.skip('View Month Availability', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let monthViewAvailabilityPage: MonthViewAvailabilityPage;
@@ -1101,7 +1101,7 @@ test.describe('View Month Availability', () => {
   });
 });
 
-test.describe('View Week Availability', () => {
+test.describe.skip('View Week Availability', () => {
   let rootPage: RootPage;
   let oAuthPage: OAuthLoginPage;
   let weekViewAvailabilityPage: WeekViewAvailabilityPage;

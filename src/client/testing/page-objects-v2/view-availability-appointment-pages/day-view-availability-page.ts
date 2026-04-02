@@ -1,7 +1,7 @@
+import { MYALayout } from '@e2etests/types';
 import { Locator } from '../../fixtures-v2';
 import ChangeAvailabilityPage from '../change-availability/change-availability-page';
-import BaseViewAvailabilityPage from './base-view-availability-page';
-export default class DayViewAvailabilityPage extends BaseViewAvailabilityPage {
+export default class DayViewAvailabilityPage extends MYALayout {
   title = this.page.getByRole('heading');
 
   readonly changeAvailabilityButton = this.page.getByRole('button', {

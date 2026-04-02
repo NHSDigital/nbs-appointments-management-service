@@ -106,16 +106,6 @@ type MyaFixtures = {
     testId: number;
     //TODO additional user data
     additionalUserData: Map<string, AdditionalUserSetupData>;
-    weekViewPage: WeekViewAvailabilityPage;
-    createAvailabilityPage: CreateAvailabilityPage;
-    changeAvailabilityPage: ChangeAvailabilityPage;
-    dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
-    editAvailabilityConfirmationPage: EditAvailabilityConfirmationPage;
-    editAvailabilityConfirmedPage: EditAvailabilityConfirmedPage;
-    cancelSessionDetailsPage: CancelSessionDetailsPage;
-    editServicesPage: EditServicesPage;
-    editServicesConfirmationPage: EditServicesConfirmationPage;
-    editServicesConfirmedPage: EditServicesConfirmedPage;
   }>;
 
   monthViewAvailabilityPage: MonthViewAvailabilityPage;
@@ -336,22 +326,6 @@ export const test = base.extend<MyaFixtures>({
 
       featuresUsed = features ?? [];
 
-      const weekViewPage = new WeekViewAvailabilityPage(page);
-      const createAvailabilityPage = new CreateAvailabilityPage(page);
-      const changeAvailabilityPage = new ChangeAvailabilityPage(page);
-      const dailyAppointmentDetailsPage = new DailyAppointmentDetailsPage(page);
-      const editAvailabilityConfirmationPage =
-        new EditAvailabilityConfirmationPage(page);
-      const editAvailabilityConfirmedPage = new EditAvailabilityConfirmedPage(
-        page,
-      );
-      const cancelSessionDetailsPage = new CancelSessionDetailsPage(page);
-      const editServicesPage = new EditServicesPage(page);
-      const editServicesConfirmationPage = new EditServicesConfirmationPage(
-        page,
-      );
-      const editServicesConfirmedPage = new EditServicesConfirmedPage(page);
-
       // Type cast sitePage to satisfy tests that expect sitePage to be non-optional
       return {
         site: siteDocument,
@@ -361,16 +335,6 @@ export const test = base.extend<MyaFixtures>({
         sitePage: sitePage as SitePage,
         testId,
         additionalUserData,
-        weekViewPage,
-        createAvailabilityPage,
-        changeAvailabilityPage,
-        dailyAppointmentDetailsPage,
-        editAvailabilityConfirmationPage,
-        editAvailabilityConfirmedPage,
-        cancelSessionDetailsPage,
-        editServicesPage,
-        editServicesConfirmationPage,
-        editServicesConfirmedPage,
       };
     });
 

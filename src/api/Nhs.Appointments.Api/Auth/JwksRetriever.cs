@@ -11,12 +11,12 @@ using Nhs.Appointments.Core.Caching;
 
 namespace Nhs.Appointments.Api.Auth;
 
-public class JwksRetriever(IHttpClientFactory httpClientFactory, ICacheService memoryCache)
+public class JwksRetriever(IHttpClientFactory httpClientFactory, ICacheService cacheService)
     : IJwksRetriever
 {
     public async Task<IEnumerable<SecurityKey>> GetKeys(string jwksEndpoint)
     {
-        return await memoryCache.GetCacheValue(
+        return await cacheService.GetCacheValue(
             jwksEndpoint, 
             new CacheOptions<IEnumerable<SecurityKey>>(
             async () => await GetSecurityKeys(jwksEndpoint), 

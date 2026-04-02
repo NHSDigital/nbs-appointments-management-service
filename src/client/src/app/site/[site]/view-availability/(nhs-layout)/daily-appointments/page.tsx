@@ -6,9 +6,7 @@ import {
   fetchFeatureFlag,
 } from '@services/appointmentsService';
 import { fetchBookings } from '../../../../../lib/services/appointmentsService';
-import { DailyAppointmentsPage } from './daily-appointments-page';
 import { FetchBookingsRequest } from '@types';
-import { Tab, Tabs } from '@nhsuk-frontend-components';
 import {
   dateTimeFormat,
   parseToUkDatetime,
@@ -20,6 +18,7 @@ import { Button } from '@components/nhsuk-frontend';
 import PrintPageButton from '@components/print-page-button';
 import Link from 'next/link';
 import { Heading } from 'nhsuk-react-components';
+import { DayView } from './day-view';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -59,9 +58,6 @@ const Page = async ({ params, searchParams }: PageProps) => {
       fromServer(fetchPermissions(siteFromPath)),
     ]);
 
-  const bookedAppointments = bookings.filter(b => b.status === 'Booked');
-  const cancelledAppointments = bookings.filter(b => b.status === 'Cancelled');
-
   const canCancelBookings = sitePermissions.includes('booking:cancel');
 
   const canChangeAvailability =
@@ -69,9 +65,14 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   return (
     <>
-      <div className="nhsuk-grid-column-three-quarters">
-        <Heading headingLevel="h2">{fromDate.format('dddd D MMMM')}</Heading>
+      <div className="nhsuk-button-group nhsuk-button-group--small">
+        <PrintPageButton />
       </div>
+
+      <Heading headingLevel="h2">
+        <span className="nhsuk-caption-l">{site.name}</span>
+        {fromDate.format('dddd D MMMM YYYY')}
+      </Heading>
 
       {canChangeAvailability && (
         <Link
@@ -84,38 +85,17 @@ const Page = async ({ params, searchParams }: PageProps) => {
         </Link>
       )}
 
-      <span>
-        <PrintPageButton />
-      </span>
-
       <p className="print-out-data" aria-hidden="true">
         Generated: {GetCurrentDateTime()}
       </p>
 
-      <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
-        <Tab title="Scheduled">
-          <div className="print-out-data" aria-hidden="true">
-            <h3>Scheduled Appointments</h3>
-          </div>
-          <DailyAppointmentsPage
-            bookings={bookedAppointments}
-            site={site.id}
-            displayAction={canCancelBookings}
-            clinicalServices={clinicalServices}
-          />
-        </Tab>
-        <Tab title="Cancelled">
-          <div className="print-out-data" aria-hidden="true">
-            <h3>Cancelled Appointments</h3>
-          </div>
-          <DailyAppointmentsPage
-            bookings={cancelledAppointments}
-            site={site.id}
-            displayAction={false}
-            clinicalServices={clinicalServices}
-          />
-        </Tab>
-      </Tabs>
+      <DayView
+        fromDate={fromDate}
+        bookings={bookings}
+        canCancelBookings={canCancelBookings}
+        clinicalServices={clinicalServices}
+        site={site}
+      />
     </>
   );
 };

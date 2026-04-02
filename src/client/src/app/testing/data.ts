@@ -850,6 +850,8 @@ const mockSecondaryLinks: NavigationLink[] = [
   },
 ];
 
+const mockDate = parseToUkDatetime('2026-03-31');
+
 export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
@@ -881,4 +883,5 @@ export {
   mockSession1,
   localStorageMock,
   mockSecondaryLinks,
+  mockDate,
 };

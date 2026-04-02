@@ -86,44 +86,32 @@ public class BookingDataConverterTests
     [InlineData("2", "PCN")]
     [InlineData("3", "Vaccination Centre")]
     [InlineData("4", "GP Practice")]
-    public void ExtractSiteType_ConvertsSiteType(string siteId, string expectedData)
+    [InlineData("5", "SomeRandomNewType")]
+    [InlineData("6", null)]
+    [InlineData("7", "")]
+    public void ExtractSiteType_ReturnsRawTypeFromSite(string siteId, string expectedData)
     {
         var testDocument = new NbsBookingDocument
         {
-            Site = siteId // The booking only knows the ID
+            Site = siteId
         };
 
         var converter = new BookingDataConverter(TestSites);
         var result = converter.ExtractSiteType(testDocument);
+
         result.Should().Be(expectedData);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public void ExtractSiteType_ReturnsNull_WhenTypeIsNullOrEmpty(string siteTypeInDb)
-    {
-        var siteId = "99";
-        var site = new SiteDocument { Id = siteId, Type = siteTypeInDb };
-        var sut = new BookingDataConverter(new[] { site });
-        var booking = new BookingDocument { Site = siteId };
-
-        var result = sut.ExtractSiteType(booking);
-
-        result.Should().BeNull();
-    }
-
     [Fact]
-    public void ExtractSiteType_ThrowsException_WhenTypeIsUnexpected()
+    public void ExtractSiteType_ThrowsException_WhenSiteIdDoesNotExist()
     {
-        var siteId = "100";
-        var site = new SiteDocument { Id = siteId, Type = "SomeRandomNewType" };
-        var sut = new BookingDataConverter(new[] { site });
-        var booking = new BookingDocument { Site = siteId };
+        var converter = new BookingDataConverter(Enumerable.Empty<SiteDocument>());
+        var booking = new NbsBookingDocument { Site = "non-existent-id" };
 
-        Action act = () => sut.ExtractSiteType(booking);
+        Action act = () => converter.ExtractSiteType(booking);
 
-        act.Should().Throw<ArgumentOutOfRangeException>();
+        // .Single() throws InvalidOperationException when it can't find the ID
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [Theory]
@@ -370,24 +358,28 @@ public class BookingDataConverterTests
             Location = new Location("Point", new []{2.0, 0.2 })
         },
         new SiteDocument
-    {
-        Id = "3",
-        Type = "VaccinationCentre",
-        Name = "Site Three",
-        OdsCode = "ODS_03",
-        IntegratedCareBoard = "ICB03",
-        Region = "RGN03",
-        Location = new Location("Point", new []{3.0, 0.3 })
-    },
-    new SiteDocument
-    {
-        Id = "4",
-        Type = "GPPractice",
-        Name = "Site Four",
-        OdsCode = "ODS_04",
-        IntegratedCareBoard = "ICB04",
-        Region = "RGN04",
-        Location = new Location("Point", new []{4.0, 0.4 })
-    }
+        {
+            Id = "3",
+            Type = "Vaccination Centre",
+            Name = "Site Three",
+            OdsCode = "ODS_03",
+            IntegratedCareBoard = "ICB03",
+            Region = "RGN03",
+            Location = new Location("Point", new []{3.0, 0.3 })
+        },
+        new SiteDocument
+        {
+            Id = "4",
+            Type = "GP Practice",
+            Name = "Site Four",
+            OdsCode = "ODS_04",
+            IntegratedCareBoard = "ICB04",
+            Region = "RGN04",
+            Location = new Location("Point", new []{4.0, 0.4 })
+        },
+        // New cases for your passthrough tests (don't need the extra properties)
+        new SiteDocument { Id = "5", Type = "SomeRandomNewType" },
+        new SiteDocument { Id = "6", Type = null },
+        new SiteDocument { Id = "7", Type = "" }
     };
 }

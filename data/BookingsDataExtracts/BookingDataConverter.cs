@@ -41,23 +41,7 @@ public class BookingDataConverter(IEnumerable<SiteDocument> sites)
         _ => throw new ArgumentOutOfRangeException(nameof(booking.CancellationReason)),
     };
 
-    public string ExtractSiteType(BookingDocument bookingDocument)
-    {
-        var site = sites.Single(s => s.Id == bookingDocument.Site);
-
-        // Map the string 'Type' from that site to output
-        return site.Type switch
-        {
-            "Pharmacy" => "Pharmacy",
-            "PCN" => "PCN",
-            "VaccinationCentre" => "Vaccination Centre",
-            "GPPractice" => "GP Practice",
-            null or "" => null, // Handle both null and empty string as null
-            _ => throw new ArgumentOutOfRangeException(
-                                        nameof(site.Type),
-                                        $"Unexpected Site Type: {site.Type}")
-        };
-    }
+    public string ExtractSiteType(BookingDocument bookingDocument) => sites.Single(s => s.Id == bookingDocument.Site).Type;
 
     public static bool ExtractSelfReferral(NbsBookingDocument booking) => booking.AdditionalData?.ReferralType == "SelfReferred";
 

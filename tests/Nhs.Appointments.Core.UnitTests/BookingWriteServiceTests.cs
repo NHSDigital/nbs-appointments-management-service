@@ -37,6 +37,7 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task MakeBooking_AcquiresLock_WhenBooking()
         {
+            var expectedSiteId = Guid.NewGuid().ToString();
             var expectedFrom = new DateOnly(2077, 1, 1);
             var expectedUntil = expectedFrom.AddDays(1);
             SessionInstance[] availability =
@@ -46,10 +47,9 @@ namespace Nhs.Appointments.Core.UnitTests
 
             var booking = new Booking
             {
-                Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10
+                Site = expectedSiteId, Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
             _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
             var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
@@ -94,7 +94,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -134,7 +134,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Provisional
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -173,7 +173,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Provisional
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
 
             _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
                     new DateTime(2077, 1, 1, 10, 0, 0, 0),
@@ -262,7 +262,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Provisional
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
 
             _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
                     new DateTime(2077, 1, 1, 10, 0, 0, 0),
@@ -360,7 +360,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -393,7 +393,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -418,7 +418,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
 
             _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
                     new DateTime(2077, 1, 1, 13, 0, 0, 0),
@@ -547,7 +547,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
             await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, runRecalculation: false);
 
-            _siteLeaseManager.Verify(x => x.Acquire(site), Times.Never);
+            _siteLeaseManager.Verify(x => x.Acquire(site, It.IsAny<DateOnly>()), Times.Never);
         }
 
         [Fact]
@@ -966,7 +966,7 @@ namespace Nhs.Appointments.Core.UnitTests
         {
             var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1) };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
             _bookingAvailabilityStateService
                 .Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(new List<SessionInstance>());
@@ -1300,7 +1300,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
         public AutoResetEvent WaitHandle { get; }
 
-        public ISiteLeaseContext Acquire(string site)
+        public ISiteLeaseContext Acquire(string site, DateOnly date)
         {
             WaitHandle.WaitOne();
             return new FakeLeaseContext();

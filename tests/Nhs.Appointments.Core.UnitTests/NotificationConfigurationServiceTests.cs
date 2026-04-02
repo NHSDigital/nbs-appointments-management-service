@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Nhs.Appointments.Core.Bookings;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Messaging;
 
 namespace Nhs.Appointments.Core.UnitTests;
@@ -12,7 +13,7 @@ public class NotificationConfigurationServiceTests
 
     public NotificationConfigurationServiceTests()
     {
-        _sut = new NotificationConfigurationService(_memoryCacheMock.Object, _storeMock.Object);
+        _sut = new NotificationConfigurationService(new CacheService(new InMemoryCacheStore(_memoryCacheMock.Object), TimeProvider.System), _storeMock.Object);
     }
 
     [Fact]
@@ -83,11 +84,12 @@ public class NotificationConfigurationServiceTests
 
     private void SetupMemoryCache(IEnumerable<NotificationConfiguration> cacheEntry)
     {
+        object outCache = new CacheObject<IEnumerable<NotificationConfiguration>>(cacheEntry);
         _memoryCacheMock
             .Setup(mc => mc.TryGetValue(It.IsAny<object>(), out It.Ref<object>.IsAny))
             .Callback(new TryGetValueCallback((object key, out object value) =>
             {
-                value = cacheEntry;
+                value = outCache;
             }))
             .Returns(true);
     }

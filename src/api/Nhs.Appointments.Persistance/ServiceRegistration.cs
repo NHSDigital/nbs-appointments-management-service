@@ -72,6 +72,7 @@ public static class ServiceRegistration
             .AddTransient<INotificationConfigurationService, NotificationConfigurationService>()
             .AddTransient<ISiteReportService, SiteReportService>()
             .AddScoped<ISiteService, SiteService>()
+            .AddTransient<ICacheStore, InMemoryCacheStore>()
             .AddSingleton<ICacheService, CacheService>();
 
         return services;

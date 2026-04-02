@@ -42,6 +42,7 @@ public static class NotificationsTestServiceProviderExtensions
             .AddSingleton<IAvailabilityStore, AvailabilityDocumentStore>()
             .AddSingleton<INotificationConfigurationStore, NotificationConfigurationStore>()
             .AddSingleton<ISiteService, SiteService>()
+            .AddTransient<ICacheStore, InMemoryCacheStore>()
             .AddSingleton<ICacheService, CacheService>()
             .AddSingleton<INotificationConfigurationService, NotificationConfigurationService>();
 

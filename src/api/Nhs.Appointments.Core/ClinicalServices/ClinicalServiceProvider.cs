@@ -1,8 +1,10 @@
-using Microsoft.Extensions.Caching.Memory;
+using Nhs.Appointments.Core.Caching;
 
 namespace Nhs.Appointments.Core.ClinicalServices;
-public class ClinicalServiceProvider(IClinicalServiceStore store, IMemoryCache memoryCache) : IClinicalServiceProvider
+public class ClinicalServiceProvider(IClinicalServiceStore store, ICacheService cacheService) : IClinicalServiceProvider
 {
+    private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(60);
+    
     public async Task<IEnumerable<ClinicalServiceType>> Get()
     {
         var clinicalServices = await store.Get();
@@ -19,14 +21,10 @@ public class ClinicalServiceProvider(IClinicalServiceStore store, IMemoryCache m
 
     public async Task<IEnumerable<ClinicalServiceType>> GetFromCache()
     {
-        var cacheKey = "clinical-service";
-        var clinicalServices = memoryCache.Get<IEnumerable<ClinicalServiceType>>(cacheKey);
-        if (clinicalServices == null)
-        {
-            clinicalServices = await Get();
-            memoryCache.Set(cacheKey, clinicalServices, DateTimeOffset.UtcNow.AddMinutes(60));
-        }
-
-        return clinicalServices;
+        return await cacheService.GetCacheValue(
+            CacheKey.ClinicalService, 
+            new CacheOptions<IEnumerable<ClinicalServiceType>>(
+                Get, 
+                _cacheDuration));
     }
 }

@@ -307,6 +307,9 @@ stages:
               scriptPath: "$(Build.SourcesDirectory)/scripts/blob-build/get_blob_connection_string.ps1"
               arguments: "-resourceGroup $(prBuildResourceGroup) -blobAccountName $(blobAccountName)"
           - script: |
+              echo "##vso[task.setvariable variable=SSL_CERT_DIR]$HOME/.aspnet/dev-certs/trust"
+            displayName: "Set OpenSSL env variable"
+          - script: |
               mkdir -p $(PFX_CERT_PATH)
               dotnet dev-certs https -ep $(PFX_CERT_PATH)/aspnetapp.pfx -p password -t -v
             displayName: "Create aspnet developer certificate"

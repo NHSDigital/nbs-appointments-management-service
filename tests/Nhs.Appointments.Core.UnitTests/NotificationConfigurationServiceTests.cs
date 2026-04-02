@@ -84,7 +84,7 @@ public class NotificationConfigurationServiceTests
 
     private void SetupMemoryCache(IEnumerable<NotificationConfiguration> cacheEntry)
     {
-        object outCache = new CacheService.CacheObject<IEnumerable<NotificationConfiguration>>(cacheEntry);
+        object outCache = new CacheObject<IEnumerable<NotificationConfiguration>>(cacheEntry);
         _memoryCacheMock
             .Setup(mc => mc.TryGetValue(It.IsAny<object>(), out It.Ref<object>.IsAny))
             .Callback(new TryGetValueCallback((object key, out object value) =>

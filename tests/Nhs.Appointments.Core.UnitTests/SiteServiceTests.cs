@@ -599,7 +599,7 @@ public class SiteServiceTests
         _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(true);
         
         //set up a cache, but it's for a different date range, so its not used
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
 
@@ -670,7 +670,7 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
 
@@ -773,7 +773,7 @@ public class SiteServiceTests
                 Distance: (int)(3700+i)));
             
             //valid site results happen to be cached
-            object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+            object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
             _memoryCache.Setup(x => x.TryGetValue($"LazySlide:site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(true);
         }
         
@@ -869,7 +869,7 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 3573),
         };
-        object outSites = new CacheService.CacheObject<IEnumerable<Site>>(sites.Select(s => s.Site));
+        object outSites = new CacheObject<IEnumerable<Site>>(sites.Select(s => s.Site));
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         var result = await _sut.FindSitesByArea(new Coordinates { Longitude = 0.0, Latitude = 50 }, 50000, 50, [""]);
         result.Should().BeEquivalentTo(sites);
@@ -1057,7 +1057,7 @@ public class SiteServiceTests
                     status: SiteStatus.Online, isDeleted: null,
                     Type: string.Empty)
         };
-        object outSites = new CacheService.CacheObject<IEnumerable<Site>>(sites);
+        object outSites = new CacheObject<IEnumerable<Site>>(sites);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outSites)).Returns(true);
         var result = await _sut.GetSitesPreview();
 
@@ -2183,7 +2183,7 @@ public class SiteServiceTests
         _availabilityStore.Setup(x => x.SiteSupportsAllServicesOnSingleDateInRangeAsync(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>())).ReturnsAsync(true);
         
         //set up a cache, but it's for a different date range, so its not used
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251014", out outResult)).Returns(true);
 
@@ -2269,7 +2269,7 @@ public class SiteServiceTests
         };
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites.Select(s => s.Site));
         
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6ba_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue("LazySlide:site_6877d86e-c2df-4def-8508-e1eccf0ea6bb_supports_RSV:Adult_in_20251003_20251015", out outResult)).Returns(true);
 
@@ -2387,7 +2387,7 @@ public class SiteServiceTests
                 Distance: (int)(3700+i)));
             
             //valid site results happen to be cached
-            object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+            object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
             _memoryCache.Setup(x => x.TryGetValue($"LazySlide:site_{id}_supports_RSV:Adult_in_20251003_20251006", out outResult)).Returns(true);
         }
         
@@ -2967,7 +2967,7 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
         
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
@@ -3223,7 +3223,7 @@ public class SiteServiceTests
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
@@ -3409,7 +3409,7 @@ public class SiteServiceTests
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
@@ -3502,7 +3502,7 @@ public class SiteServiceTests
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
@@ -3605,7 +3605,7 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(false);
@@ -3694,7 +3694,7 @@ public class SiteServiceTests
         _siteStore.Setup(x => x.GetAllSites())
             .ReturnsAsync(sites);
 
-        object outResult = new CacheService.LazySlideCacheObject(true, DateTimeOffset.UtcNow);
+        object outResult = new LazySlideCacheObject(true, DateTimeOffset.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test123_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test321_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("site_test456_supports_COVID:5_11_RSV:Adult_in_20250901_20251001"), out outResult)).Returns(true);
@@ -3743,7 +3743,7 @@ public class SiteServiceTests
                 "GP Practice"),
         };
 
-        object outResult = new CacheService.CacheObject<IEnumerable<Site>>(sites);
+        object outResult = new CacheObject<IEnumerable<Site>>(sites);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outResult)).Returns(true);
         
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
@@ -3793,7 +3793,7 @@ public class SiteServiceTests
                 "GP Practice"),
         };
 
-        object outResult = new CacheService.LazySlideCacheObject(sites, DateTime.UtcNow);
+        object outResult = new LazySlideCacheObject(sites, DateTime.UtcNow);
         _memoryCache.Setup(x => x.TryGetValue(CacheService.LazySlideCacheKey("sites"), out outResult)).Returns(true);
         
         _options.Setup(x => x.Value).Returns(new SiteServiceOptions
@@ -3896,7 +3896,7 @@ public class SiteServiceTests
                 "GP Practice"),
         };
 
-        object outResult = new CacheService.CacheObject<IEnumerable<Site>>(null);
+        object outResult = new CacheObject<IEnumerable<Site>>(null);
         _memoryCache.Setup(x => x.TryGetValue("sites", out outResult)).Returns(true);
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
         

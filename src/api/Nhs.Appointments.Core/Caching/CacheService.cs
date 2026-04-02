@@ -2,18 +2,6 @@ using System.Collections.Concurrent;
 
 namespace Nhs.Appointments.Core.Caching;
 
-public record LazySlideCacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan SlideThreshold, TimeSpan AbsoluteExpiration);
-public record CacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan AbsoluteExpiration, TryPatternOptions<T> TryPatternOptions = null);
-
-public record TryPatternOptions<T>(bool UseTryPattern = true, T DefaultResponse = default);
-
-public interface ICacheService
-{
-    Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options);
-
-    Task<T> GetCacheValue<T>(string cacheKey, CacheOptions<T> options);
-}
-
 public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : ICacheService
 {
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> LazySlidingCacheLocks = new();
@@ -128,7 +116,4 @@ public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : I
         await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject(value, dateTime),
             dateTime.Add(options.AbsoluteExpiration));
     }
-
-    internal record LazySlideCacheObject(object Value, DateTimeOffset DateTimeUpdated);
-    internal record CacheObject<T>(T Value);
 }

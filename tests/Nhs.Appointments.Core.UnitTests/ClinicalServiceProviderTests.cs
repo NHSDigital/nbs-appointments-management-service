@@ -69,7 +69,7 @@ public class ClinicalServiceProviderTests
     public async Task GetFromCache_ReturnsFromCache_WhenPresent()
     {
         // Arrange
-        object cached = new CacheService.CacheObject<IEnumerable<ClinicalServiceType>>(_sampleServices);
+        object cached = new CacheObject<IEnumerable<ClinicalServiceType>>(_sampleServices);
         _memoryCacheMock.Setup(mc => mc.TryGetValue(_cacheKey, out cached)).Returns(true);
 
         // Act

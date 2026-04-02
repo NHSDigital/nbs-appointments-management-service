@@ -21,7 +21,7 @@ public class JwksRetrieverTests
     [Fact]
     public async Task GetKeys_ReturnsKeysFromCache_WhenTheyArePresent()
     {
-        object dummyKeys = new CacheService.CacheObject<IEnumerable<SecurityKey>>([new DummySecurityKey()]);
+        object dummyKeys = new CacheObject<IEnumerable<SecurityKey>>([new DummySecurityKey()]);
         var jwksEndpoint = "http://test.oauth.com/jwks";
         _memoryCache.Setup(x => x.TryGetValue(jwksEndpoint, out dummyKeys)).Returns(true);
         var keys = await _sut.GetKeys(jwksEndpoint);

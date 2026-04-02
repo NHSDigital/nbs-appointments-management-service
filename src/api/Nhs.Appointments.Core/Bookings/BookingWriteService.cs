@@ -59,7 +59,7 @@ public class BookingWriteService(
 
     public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
     {
-        using var leaseContent = siteLeaseManager.Acquire(booking.Site);
+        using var leaseContent = siteLeaseManager.Acquire(booking.Site, booking.Date);
 
         var from = booking.From;
         var to = booking.From.AddMinutes(booking.Duration);
@@ -115,7 +115,7 @@ public class BookingWriteService(
 
         if (runRecalculation)
         {
-            await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From));
+            await RecalculateAppointmentStatuses(booking.Site, DateOnly.FromDateTime(booking.From)); // TODO: Change to use booking.Date
         }
 
         await RaiseBookingCancelledNotificationEvents(booking, cancellationReason, mergedAdditionalData);
@@ -178,16 +178,12 @@ public class BookingWriteService(
     public async Task RecalculateAppointmentStatuses(string site, DateOnly day,
         NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan)
     {
-        using var leaseContent = siteLeaseManager.Acquire(site);
-
         await RecalculateAppointmentStatusesForDay(site, day, newlyUnsupportedBookingAction);
     }
 
     public async Task<BookingRecalculationsStatistics> RecalculateAppointmentStatuses(string site, DateOnly[] days,
         NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan)
     {
-        using var leaseContent = siteLeaseManager.Acquire(site);
-
         var dayTasks = days.Select(async day => await RecalculateAppointmentStatusesForDay(site, day, newlyUnsupportedBookingAction));
 
         var results = await Task.WhenAll(dayTasks);
@@ -356,11 +352,12 @@ public class BookingWriteService(
         DateOnly day,
         NewlyUnsupportedBookingAction newlyUnsupportedBookingAction = NewlyUnsupportedBookingAction.Orphan)
     {
-        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = day.ToDateTime(new TimeOnly(23, 59));
+        var bookingDayRange = new BookingDayRange(day);
+
+        using var leaseContent = siteLeaseManager.Acquire(site, day);
 
         var recalculations =
-            (await bookingAvailabilityStateService.BuildRecalculations(site, dayStart, dayEnd,
+            (await bookingAvailabilityStateService.BuildRecalculations(site, bookingDayRange.Start, bookingDayRange.End,
                 newlyUnsupportedBookingAction)).ToArray();
 
         await PersistUpdatesForRecalculations(recalculations);

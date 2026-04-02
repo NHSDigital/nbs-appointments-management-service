@@ -10,6 +10,7 @@ import {
   buildUserDocument,
   CosmosDbClient,
   FeatureFlagClient,
+  generateExtraSiteIdForSameUser,
   MockOidcClient,
 } from '@e2etests/data';
 export * from '@playwright/test';
@@ -56,7 +57,9 @@ type FixtureOptions = {
 };
 
 type AdditionalUserOptions = {
-  roles?: Role[];
+  //each array item is a different site, 0-indexed
+  //and the role array is the roles for this user for that site
+  siteRoles: Role[][];
 };
 
 type UserData = {
@@ -88,7 +91,7 @@ export type SessionSetup = {
 
 type AdditionalUserSetupData = {
   user: UserData;
-  site: SiteDocument;
+  sites: SiteDocument[];
 };
 
 type setupFixtureOptions = {
@@ -224,7 +227,7 @@ export const test = base.extend<MyaFixtures>({
       };
 
       siteDocument = buildSiteDocument(testId, siteConfig);
-      userDocument = buildUserDocument(testId, roles, userConfig);
+      userDocument = buildUserDocument(testId, [roles], userConfig);
       const oidcUser = buildMockOidcUser(testId);
 
       if (bookings !== undefined) {
@@ -270,17 +273,35 @@ export const test = base.extend<MyaFixtures>({
         for (const [key, additionalUser] of Object.entries(additionalUsers)) {
           const additionalUserTestId = Number(`${testId}${index++}`);
 
+          const siteRoles = additionalUser.siteRoles ?? [[]];
+
           const additionalUserDocument = buildUserDocument(
             additionalUserTestId,
-            additionalUser.roles ?? [],
+            siteRoles,
           );
           const additionalOidcUser = buildMockOidcUser(additionalUserTestId);
-          const additionalSiteDocument = buildSiteDocument(
-            additionalUserTestId,
-            siteConfig,
-          );
 
-          await cosmosDbClient.createSite(additionalSiteDocument);
+          const additionalSiteDocuments: SiteDocument[] = [];
+
+          for (
+            let siteRoleIndex = 0;
+            siteRoleIndex < siteRoles.length;
+            siteRoleIndex++
+          ) {
+            const siteTestId = generateExtraSiteIdForSameUser(
+              additionalUserTestId,
+              siteRoleIndex,
+            );
+
+            const additionalSiteDocument = buildSiteDocument(
+              siteTestId,
+              siteConfig,
+            );
+
+            await cosmosDbClient.createSite(additionalSiteDocument);
+            additionalSiteDocuments.push(additionalSiteDocument);
+          }
+
           await cosmosDbClient.createUser(additionalUserDocument);
           await mockOidcClient.registerTestUser(additionalOidcUser);
           additionalUserData.set(key, {
@@ -288,7 +309,7 @@ export const test = base.extend<MyaFixtures>({
               document: additionalUserDocument,
               oidc: additionalOidcUser,
             },
-            site: additionalSiteDocument,
+            sites: additionalSiteDocuments,
           });
         }
       }
@@ -342,9 +363,18 @@ export const test = base.extend<MyaFixtures>({
     await Promise.all([
       cosmosDbClient.deleteSite(siteDocument),
       cosmosDbClient.deleteUser(userDocument),
-      ...Array.from(additionalUserData.values()).map(data =>
-        cosmosDbClient.deleteUser(data.user.document),
-      ),
+      ...Array.from(additionalUserData.values()).map(data => {
+        const additionalUserCleanup = [];
+        additionalUserCleanup.push(
+          cosmosDbClient.deleteUser(data.user.document),
+        );
+        for (let siteIndex = 0; siteIndex < data.sites.length; siteIndex++) {
+          additionalUserCleanup.push(
+            cosmosDbClient.deleteSite(data.sites[siteIndex]),
+          );
+        }
+        return additionalUserCleanup;
+      }),
 
       cosmosDbClient.deleteAllBookings(bookingDocuments),
       cosmosDbClient.deleteAvailability(dailyAvailabilityDocuments),

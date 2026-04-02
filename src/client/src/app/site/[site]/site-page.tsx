@@ -107,7 +107,7 @@ export const SitePage = ({
             </li>
           )}
           {(permissionsRelevantToCards.includes('site:manage') ||
-            -permissionsRelevantToCards.includes('site:view')) && (
+            permissionsRelevantToCards.includes('site:view')) && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">

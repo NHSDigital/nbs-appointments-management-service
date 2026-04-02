@@ -9,7 +9,7 @@ type Props = {
 
 export const SecondaryNavigation = ({ links }: Props) => {
   return (
-    <nav className="app-secondary-navigation">
+    <nav className="app-secondary-navigation no-print">
       <ul className="app-secondary-navigation__list">
         {links.map(link => (
           <li

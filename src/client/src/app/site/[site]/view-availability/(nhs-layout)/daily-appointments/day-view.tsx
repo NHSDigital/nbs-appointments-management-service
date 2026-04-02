@@ -36,7 +36,7 @@ export const DayView = ({
 
   return (
     <>
-      <Pagination>
+      <Pagination className="no-print">
         <Pagination.Item
           previous
           labelText={previous.title}

@@ -56,6 +56,9 @@ public class Booking
     /// </summary>
     [JsonProperty("bookingBatchSize")]
     public int? BookingBatchSize { get; set; }
+
+    [JsonIgnore]
+    public DateOnly Date => DateOnly.FromDateTime(From);
 }
 
 public class AttendeeDetails

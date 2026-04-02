@@ -17,17 +17,21 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
         _options = options.Value;
     }
 
-    public ISiteLeaseContext Acquire(string fileName)
+    public ISiteLeaseContext Acquire(string site, DateOnly date)
     {
         var containerClient = ResolveContainerClient();
 
-        var blobClient = containerClient.GetBlobClient(fileName);
+        var blobName = LeaseKeys.SiteKeyFactory.Create(site, date);
+
+        var blobClient = containerClient.GetBlobClient(blobName);
         if (blobClient.Exists() == false)
+        {
             blobClient.Upload(BinaryData.FromString(""));
+        }
 
         var leaseClient = blobClient.GetBlobLeaseClient();
         var leasePipeline = CreateResiliencePipeline();
-        leasePipeline.Execute(() => leaseClient.Acquire(TimeSpan.FromSeconds(20)));
+        leasePipeline.Execute(() => leaseClient.Acquire(TimeSpan.FromSeconds(20))); // TODO: Move this duration into the constructor parameter or options.
 
         return new SiteLeaseContext(() => leaseClient.Release());
     }

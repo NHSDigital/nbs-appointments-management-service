@@ -4,7 +4,8 @@ import SiteDetailsPage from './details/site-details-page';
 import Users from '../manage-user/users';
 import { expect } from '@playwright/test';
 import SiteSummaryReportPage from './details/site-summary-report-page';
-import DayViewAvailabilityPage from '../view-availability-appointment-pages/day-view-availability-page';
+import CreateAvailabilityPage from '../availability/create-availability';
+import MonthViewAvailabilityPage from '../view-availability-appointment-pages/month-view-availability-page';
 
 export default class SitePage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -28,6 +29,14 @@ export default class SitePage extends MYALayout {
     .getByRole('link', {
       name: 'Create availability',
     });
+
+  async clickCreateAvailabilityCard(): Promise<CreateAvailabilityPage> {
+    await this.createAvailabilityCard.click();
+    await this.page.waitForURL(
+      `/manage-your-appointments/site/${this.site?.id}/create-availability`,
+    );
+    return new CreateAvailabilityPage(this.page, this.site);
+  }
 
   readonly viewAvailabilityAndManageAppointmentsCard: Locator = this.page
     .getByRole('main')
@@ -66,13 +75,11 @@ export default class SitePage extends MYALayout {
     return new SiteDetailsPage(this.page, this.site);
   }
 
-  async clickSiteAvailabilityCard(): Promise<DayViewAvailabilityPage> {
+  async clickSiteAvailabilityCard(): Promise<MonthViewAvailabilityPage> {
     await this.viewAvailabilityAndManageAppointmentsCard.click();
-    await this.page.waitForURL(
-      `**/site/${this.site?.id}/view-availability/daily-appointments?date=**`,
-    );
+    await this.page.waitForURL(`**/site/${this.site?.id}/view-availability`);
 
-    return new DayViewAvailabilityPage(this.page, this.site);
+    return new MonthViewAvailabilityPage(this.page, this.site);
   }
 
   async clickManageUsersCard(): Promise<Users> {

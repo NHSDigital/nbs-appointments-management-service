@@ -5,13 +5,11 @@ namespace Nhs.Appointments.Core.Caching;
 public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : ICacheService
 {
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> LazySlidingCacheLocks = new();
-
-    internal static string LazySlideCacheKey(string cacheKey) => $"LazySlide:{cacheKey}";
     
     public async Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options)
     {
         //intentionally prefix cache key indicating that it is a lazy sliding value
-        var lazySlideCacheKey = LazySlideCacheKey(cacheKey);
+        var lazySlideCacheKey = CacheKey.LazySlideCacheKey(cacheKey);
         
         if (options.AbsoluteExpiration <= options.SlideThreshold)
         {
@@ -75,26 +73,33 @@ public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : I
                 return cacheObj.Value;
             }
         }
-
-        T newValue;
-        if (options.TryPatternOptions?.UseTryPattern ?? false)
-        {
-            var tryResult = await TryPattern.TryAsync(options.UpdateOperation);
-            
-            if (!tryResult.Completed)
-            {
-                return options.TryPatternOptions.DefaultResponse;
-            }
-            
-            newValue = tryResult.Result;
-        }
-        else
-        {
-            newValue = await options.UpdateOperation();
-        }
+        
+        var newValue = await options.UpdateOperation();
 
         await cacheStore.SetAsync(cacheKey, new CacheObject<T>(newValue), options.AbsoluteExpiration);
         return newValue;
+    }
+
+    public async Task<T> GetCacheValueWithDefault<T>(string cacheKey, CacheOptions<T> options, T defaultValue)
+    {
+        if (await cacheStore.TryGetAsync<CacheObject<T>>(cacheKey, out var cacheObj))
+        {
+            ArgumentNullException.ThrowIfNull(cacheObj);
+            if (cacheObj.Value != null)
+            {
+                return cacheObj.Value;
+            }
+        }
+        
+        var tryResult = await TryPattern.TryAsync(options.UpdateOperation);
+            
+        if (!tryResult.Completed)
+        {
+            return defaultValue;
+        }
+
+        await cacheStore.SetAsync(cacheKey, new CacheObject<T>(tryResult.Result), options.AbsoluteExpiration);
+        return tryResult.Result;
     }
 
     private async Task SlideCache<T>(string lazySlideCacheKey, LazySlideCacheOptions<T> options, SemaphoreSlim lazySlideCacheLock, T lazyValue, DateTimeOffset dateTime)

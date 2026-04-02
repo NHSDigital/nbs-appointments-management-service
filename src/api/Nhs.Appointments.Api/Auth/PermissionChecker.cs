@@ -19,10 +19,7 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     private const string IcbScope = "icb";
     private const string IcbScopePrefix = $"{IcbScope}:";
     
-    private readonly string _rolesCacheKey = "roles";
     private readonly TimeSpan _rolesCacheDuration = TimeSpan.FromMinutes(5);
-    
-    private string UserRolesCacheKey(string userId) => $"user_roles_{userId}";
     private readonly TimeSpan _userRolesCacheDuration = TimeSpan.FromSeconds(20);
 
     public async Task<bool> HasPermissionAsync(string userId, IEnumerable<string> siteIds, string requiredPermission)
@@ -175,26 +172,22 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
 
     private async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignmentsAsync(string userId)
     {
-        var tryPatternOptions = new TryPatternOptions<IEnumerable<RoleAssignment>>(true, []);
-        
-        return await cacheService.GetCacheValue(
-            UserRolesCacheKey(userId),
+        return await cacheService.GetCacheValueWithDefault(
+            CacheKey.UserRolesCacheKey(userId),
             new CacheOptions<IEnumerable<RoleAssignment>>(
                 () => userService.GetUserRoleAssignments(userId),
-                _userRolesCacheDuration,
-                tryPatternOptions));
+                _userRolesCacheDuration),
+            []);
     }
 
     private async Task<IEnumerable<Role>> GetRolesAsync()
     {
-        var tryPatternOptions = new TryPatternOptions<IEnumerable<Role>>(true, []);
-        
-        return await cacheService.GetCacheValue(
-            _rolesCacheKey,
+        return await cacheService.GetCacheValueWithDefault(
+            CacheKey.RolesCacheKey,
             new CacheOptions<IEnumerable<Role>>(
                 rolesService.GetRoles,
-                _rolesCacheDuration,
-                tryPatternOptions));
+                _rolesCacheDuration), 
+            []);
     }
 
     private async Task<IEnumerable<RoleAssignmentScope>> GetScopesWithPermissionsAsync(string userId, string permission)

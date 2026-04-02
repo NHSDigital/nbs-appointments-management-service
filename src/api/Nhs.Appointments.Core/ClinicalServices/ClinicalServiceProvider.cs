@@ -3,7 +3,6 @@ using Nhs.Appointments.Core.Caching;
 namespace Nhs.Appointments.Core.ClinicalServices;
 public class ClinicalServiceProvider(IClinicalServiceStore store, ICacheService cacheService) : IClinicalServiceProvider
 {
-    private const string ClinicalServiceCacheKey = "clinical-service";
     private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(60);
     
     public async Task<IEnumerable<ClinicalServiceType>> Get()
@@ -23,7 +22,7 @@ public class ClinicalServiceProvider(IClinicalServiceStore store, ICacheService 
     public async Task<IEnumerable<ClinicalServiceType>> GetFromCache()
     {
         return await cacheService.GetCacheValue(
-            ClinicalServiceCacheKey, 
+            CacheKey.ClinicalService, 
             new CacheOptions<IEnumerable<ClinicalServiceType>>(
                 Get, 
                 _cacheDuration));

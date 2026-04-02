@@ -5,7 +5,6 @@ namespace Nhs.Appointments.Core.Messaging;
 
 public class NotificationConfigurationService(ICacheService cacheService, INotificationConfigurationStore notificationConfigurationStore) : INotificationConfigurationService
 {
-    private const string CacheKey = "notification_configuration";
     private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(60);
     
     public async Task<NotificationConfiguration> GetNotificationConfigurationsAsync(string eventType)
@@ -39,7 +38,7 @@ public class NotificationConfigurationService(ICacheService cacheService, INotif
     private async Task<IEnumerable<NotificationConfiguration>> LoadNotificationConfiguration()
     {
         return await cacheService.GetCacheValue(
-            CacheKey,
+            CacheKey.NotificationConfiguration,
             new CacheOptions<IEnumerable<NotificationConfiguration>>(
                 notificationConfigurationStore.GetNotificationConfiguration,
                 _cacheDuration));

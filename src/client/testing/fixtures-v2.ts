@@ -13,7 +13,25 @@ import {
   MockOidcClient,
 } from '@e2etests/data';
 export * from '@playwright/test';
-import { LoginPage, SitePage, SiteSelectionPage } from '@e2etests/page-objects';
+import {
+  LoginPage,
+  SitePage,
+  SiteSelectionPage,
+  AddServicesPage,
+  AddSessionPage,
+  CheckSessionDetailsPage,
+  MonthViewAvailabilityPage,
+  WeekViewAvailabilityPage,
+  CreateAvailabilityPage,
+  ChangeAvailabilityPage,
+  DailyAppointmentDetailsPage,
+  EditAvailabilityConfirmationPage,
+  EditAvailabilityConfirmedPage,
+  CancelSessionDetailsPage,
+  EditServicesPage,
+  EditServicesConfirmationPage,
+  EditServicesConfirmedPage,
+} from '@e2etests/page-objects';
 import env from './testEnvironment';
 import {
   Role,
@@ -24,13 +42,6 @@ import {
   BookingDocument,
   DailyAvailabilityDocument,
 } from '@e2etests/types';
-import {
-  AddServicesPage,
-  AddSessionPage,
-  CheckSessionDetailsPage,
-  MonthViewAvailabilityPage,
-  WeekViewAvailabilityPage,
-} from '@e2etests/page-objects';
 import CancelDayForm from './page-objects-v2/cancel-day-pages/cancel-day-form';
 import ConfirmedCancellationPage from './page-objects-v2/cancel-day-pages/confirm-cancellation';
 import { AvailabilityStatus, BookingStatus } from '@types';
@@ -104,6 +115,16 @@ type MyaFixtures = {
   checkSessionDetailsPage: CheckSessionDetailsPage;
   cancelDayForm: CancelDayForm;
   confirmedCancellationPage: ConfirmedCancellationPage;
+  weekViewPage: WeekViewAvailabilityPage;
+  createAvailabilityPage: CreateAvailabilityPage;
+  changeAvailabilityPage: ChangeAvailabilityPage;
+  dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
+  editAvailabilityConfirmationPage: EditAvailabilityConfirmationPage;
+  editAvailabilityConfirmedPage: EditAvailabilityConfirmedPage;
+  cancelSessionDetailsPage: CancelSessionDetailsPage;
+  editServicesPage: EditServicesPage;
+  editServicesConfirmationPage: EditServicesConfirmationPage;
+  editServicesConfirmedPage: EditServicesConfirmedPage;
 };
 
 export const test = base.extend<MyaFixtures>({
@@ -128,7 +149,38 @@ export const test = base.extend<MyaFixtures>({
   confirmedCancellationPage: async ({ page }, use) => {
     await use(new ConfirmedCancellationPage(page));
   },
+  weekViewPage: async ({ page }, use) => {
+    await use(new WeekViewAvailabilityPage(page));
+  },
+  createAvailabilityPage: async ({ page }, use) => {
+    await use(new CreateAvailabilityPage(page));
+  },
+  changeAvailabilityPage: async ({ page }, use) => {
+    await use(new ChangeAvailabilityPage(page));
+  },
+  dailyAppointmentDetailsPage: async ({ page }, use) => {
+    await use(new DailyAppointmentDetailsPage(page));
+  },
+  editAvailabilityConfirmationPage: async ({ page }, use) => {
+    await use(new EditAvailabilityConfirmationPage(page));
+  },
+  editAvailabilityConfirmedPage: async ({ page }, use) => {
+    await use(new EditAvailabilityConfirmedPage(page));
+  },
+  cancelSessionDetailsPage: async ({ page }, use) => {
+    await use(new CancelSessionDetailsPage(page));
+  },
+  editServicesPage: async ({ page }, use) => {
+    await use(new EditServicesPage(page));
+  },
+  editServicesConfirmationPage: async ({ page }, use) => {
+    await use(new EditServicesConfirmationPage(page));
+  },
+  editServicesConfirmedPage: async ({ page }, use) => {
+    await use(new EditServicesConfirmedPage(page));
+  },
 
+  // TODO: Extend this (or create new fixtures) to cover multiple sites and multiple users per site
   setup: async ({ page }, use, testInfo) => {
     const cosmosDbClient = new CosmosDbClient(
       env.COSMOS_ENDPOINT,
@@ -163,7 +215,7 @@ export const test = base.extend<MyaFixtures>({
         siteConfig,
         bookings,
         availability,
-        userConfig, // Extract userConfig
+        userConfig,
         additionalUsers = [],
         skipSiteSelection = false, // Default to false so existing tests don't break
       } = {

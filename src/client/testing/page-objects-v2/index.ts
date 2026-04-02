@@ -13,6 +13,16 @@ import AddSessionPage from './view-availability-appointment-pages/add-session-pa
 import CheckSessionDetailsPage from './view-availability-appointment-pages/check-session-details-page';
 import MonthViewAvailabilityPage from './view-availability-appointment-pages/month-view-availability-page';
 import WeekViewAvailabilityPage from './view-availability-appointment-pages/week-view-availability-page';
+import CreateAvailabilityPage from './availability/create-availability';
+import SummaryPage from './availability/summary-page';
+import ChangeAvailabilityPage from './view-availability-appointment-pages/change-availability-page';
+import DailyAppointmentDetailsPage from './view-availability-appointment-pages/daily-appointment-details-page';
+import EditAvailabilityConfirmationPage from './view-availability-appointment-pages/edit-availability-confirmation-page';
+import EditAvailabilityConfirmedPage from './view-availability-appointment-pages/edit-availability-confirmed';
+import CancelSessionDetailsPage from './view-availability-appointment-pages/cancel-session-details-page';
+import EditServicesPage from './view-availability-appointment-pages/edit-services-page';
+import EditServicesConfirmationPage from './view-availability-appointment-pages/edit-services-confirmation-page';
+import EditServicesConfirmedPage from './view-availability-appointment-pages/edit-services-confirmed';
 
 export {
   CookiePoliciesPage,
@@ -29,5 +39,15 @@ export {
   AddSessionPage,
   CheckSessionDetailsPage,
   MonthViewAvailabilityPage,
-  WeekViewAvailabilityPage
+  WeekViewAvailabilityPage,
+  CreateAvailabilityPage,
+  SummaryPage,
+  ChangeAvailabilityPage,
+  DailyAppointmentDetailsPage,
+  EditAvailabilityConfirmationPage,
+  EditAvailabilityConfirmedPage,
+  CancelSessionDetailsPage,
+  EditServicesPage,
+  EditServicesConfirmationPage,
+  EditServicesConfirmedPage,
 };

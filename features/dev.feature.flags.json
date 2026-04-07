@@ -1,7 +1,6 @@
 {
   "FeatureManagement": {
     "TestFeatureEnabled": true,
-    "SiteStatus": true,
     "CancelDay": false,
     "QuerySites": true,
     "MultiServiceJointBookings": true,
@@ -49,7 +48,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }
@@ -80,7 +79,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ],
+              "Users": ["api@test"],
               "DefaultRolloutPercentage": 0
             }
           }

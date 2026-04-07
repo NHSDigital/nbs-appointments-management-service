@@ -22,7 +22,6 @@ public class UpdateSiteStatusFunctionTests
     private readonly Mock<ILogger<UpdateSiteStatusFunction>> _logger = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
-    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
     private readonly UpdateSiteStatusFunction _sut;
 
@@ -33,25 +32,12 @@ public class UpdateSiteStatusFunctionTests
             _validator.Object,
             _logger.Object,
             _userContextProvider.Object,
-            _metricsRecorder.Object,
-            _featureToggleHelper.Object);
-    }
-
-    [Fact]
-    public async Task RunAsync_ReturnsNotImplemented_WhenFeatureToggleIsDisabled()
-    {
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(false);
-
-        var result = await _sut.RunAsync(CreateRequest("site-id", SiteStatus.Offline)) as ContentResult;
-
-        result.StatusCode.Should().Be(501);
+            _metricsRecorder.Object);
     }
 
     [Fact]
     public async Task RunAsync_ReturnsBadRequest_WhenSiteStatusNotProvided()
     {
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(true);
-
         var result = await _sut.RunAsync(CreateRequest("site-id", null)) as ContentResult;
 
         result.StatusCode.Should().Be(400);
@@ -60,7 +46,6 @@ public class UpdateSiteStatusFunctionTests
     [Fact]
     public async Task RunAsync_UpdatesSiteStatus()
     {
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(true);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<SetSiteStatusRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         _siteService.Setup(x => x.SetSiteStatus(It.IsAny<string>(), It.IsAny<SiteStatus>()))

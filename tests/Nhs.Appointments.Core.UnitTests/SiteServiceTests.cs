@@ -16,7 +16,6 @@ public class SiteServiceTests
     private readonly Mock<ISiteStore> _siteStore = new();
     private readonly Mock<IAvailabilityStore> _availabilityStore = new();
     private readonly Mock<ILogger<ISiteService>> _logger = new();
-    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly SiteService _sut;
     private readonly Mock<IOptions<SiteServiceOptions>> _options = new();
 
@@ -34,7 +33,7 @@ public class SiteServiceTests
 
         var cacheService = new CacheService(_memoryCache.Object, TimeProvider.System);
         
-        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _logger.Object, _featureToggleHelper.Object, cacheService, _options.Object);
+        _sut = new SiteService(_siteStore.Object, _availabilityStore.Object, _logger.Object, cacheService, _options.Object);
         _memoryCache.Setup(x => x.CreateEntry(It.IsAny<object>())).Returns(_cacheEntry.Object);
     }
 
@@ -1232,7 +1231,6 @@ public class SiteServiceTests
                     Type: string.Empty),
                 Distance: 328)
         };
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.SiteStatus)).ReturnsAsync(true);
 
         _siteStore.Setup(x => x.GetAllSites()).ReturnsAsync(sites);
 

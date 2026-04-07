@@ -11,11 +11,9 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
@@ -27,8 +25,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 /// <summary>
 ///     Tests that depend on the setup and async disposal of sites due to location (long lat) search collisions
 /// </summary>
-public abstract class SiteLocationDependentFeatureSteps(string flag, bool enabled)
-    : SingleFeatureToggledSteps(flag, enabled), IAsyncLifetime
+[FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent.feature")]
+public class SiteLocationDependentFeatureSteps : BaseFeatureSteps, IAsyncLifetime
 {
     private QueryAvailabilityResponse _queryResponse;
     private IEnumerable<SiteWithDistance> _sitesWithDistanceResponse;
@@ -39,14 +37,13 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
 
     private IEnumerable<ErrorMessageResponseItem> ErrorResponses { get; set; }
 
-    public new async Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        await base.InitializeAsync();
+        await Task.CompletedTask;
     }
 
-    public new async Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        await base.DisposeAsync();
         await CosmosDeleteFeed<SiteDocument>("core_data", sd => sd.Id.Contains(GetTestId), new PartitionKey("site"));
     }
 
@@ -901,13 +898,4 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         throw new TimeoutException(
             $"{expectedSiteResponseLength} sites not returned within the expected timeout period");
     }
-
-    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
-    [FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent_QuerySitesEnabled.feature")]
-    public class SiteLocationDependent_QuerySitesEnabled() : SiteLocationDependentFeatureSteps(Flags.QuerySites, true);
-
-    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
-    [FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent_QuerySitesDisabled.feature")]
-    public class SiteLocationDependent_QuerySitesDisabled()
-        : SiteLocationDependentFeatureSteps(Flags.QuerySites, false);
 }

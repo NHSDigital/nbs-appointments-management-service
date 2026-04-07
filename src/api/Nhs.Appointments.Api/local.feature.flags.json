@@ -4,7 +4,6 @@
     "TestFeatureEnabled": true,
     "MultipleServices": false,
     "CancelDay": false,
-    "QuerySites": false,
     "MultiServiceJointBookings": false,
     "ReportsUplift": false,
     "CancelADateRange": false,

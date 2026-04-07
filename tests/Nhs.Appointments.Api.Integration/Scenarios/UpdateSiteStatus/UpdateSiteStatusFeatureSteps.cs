@@ -12,7 +12,7 @@ using Xunit.Gherkin.Quick;
 namespace Nhs.Appointments.Api.Integration.Scenarios.UpdateSiteStatus;
 
 [FeatureFile("./Scenarios/UpdateSiteStatus/UpdateSiteStatus.feature")]
-public abstract class UpdateSiteStatusFeatureSteps : BaseFeatureSteps
+public class UpdateSiteStatusFeatureSteps : BaseFeatureSteps
 {
     private HttpResponseMessage Response { get; set; }
     private SiteStatus UpdatedSiteStatus;

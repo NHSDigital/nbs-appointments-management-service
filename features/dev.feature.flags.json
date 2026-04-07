@@ -2,7 +2,6 @@
   "FeatureManagement": {
     "TestFeatureEnabled": true,
     "CancelDay": false,
-    "QuerySites": true,
     "MultiServiceJointBookings": true,
     "JointBookingsReporting": true,
     "ReportsUplift": true,

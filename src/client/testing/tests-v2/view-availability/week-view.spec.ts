@@ -106,7 +106,6 @@ test.describe('View Week Availability', () => {
               },
             ] as BookingSetup[];
 
-            //go to a specific month page that has a daylight savings change
             const { site } = await setup({
               availability: defaultSessions,
               bookings: defaultBookings,
@@ -147,7 +146,7 @@ test.describe('View Week Availability', () => {
               },
             );
 
-            //     //create some new availability to show shuffling
+            //create some new availability to show shuffling
             await page.goto(
               `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=${rfcFormat}`,
             );
@@ -193,7 +192,7 @@ test.describe('View Week Availability', () => {
               },
             );
 
-            //     //create some new availability to show shuffling
+            //create some new availability to show shuffling
             await page.goto(
               `/manage-your-appointments/site/${site.id}/create-availability/wizard?date=${rfcFormat}`,
             );

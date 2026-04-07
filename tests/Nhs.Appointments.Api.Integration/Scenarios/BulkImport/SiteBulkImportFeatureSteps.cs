@@ -61,7 +61,7 @@ public class SiteBulkImportFeatureSteps : BaseBulkImportFeatureSteps, IAsyncLife
             InformationForCitizens: row.Cells.ElementAt(7).Value,
             Accessibilities: ParseAccessibilities(row.Cells.ElementAt(8).Value),
             location: new Location("Point", [double.Parse(row.Cells.ElementAt(9).Value), double.Parse(row.Cells.ElementAt(10).Value)]),
-            status: null,
+            status: SiteStatus.Online,
             isDeleted: dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
             Type: dataTable.GetRowValueOrDefault(row, "Type")
         );

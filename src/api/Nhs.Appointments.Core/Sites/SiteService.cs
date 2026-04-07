@@ -40,7 +40,6 @@ public class SiteService(
     ISiteStore siteStore,
     IAvailabilityStore availabilityStore,
     ILogger<ISiteService> logger,
-    IFeatureToggleHelper featureToggleHelper,
     ICacheService cacheService,
     IOptions<SiteServiceOptions> options) : ISiteService
 {
@@ -51,12 +50,8 @@ public class SiteService(
         var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false)
             .Select(an => $"accessibility/{an}").ToList();
 
-        var sites = await GetAllSites(false, ignoreCache);
-
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
-        {
-            sites = sites.Where(s => s.status is SiteStatus.Online or null);
-        }
+        var sites = (await GetAllSites(false, ignoreCache))
+            .Where(s => s.status is SiteStatus.Online or null);
 
         var sitesWithDistance = sites
             .Select(site => new SiteWithDistance(site,
@@ -277,12 +272,8 @@ public class SiteService(
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords,
         bool ignoreCache)
     {
-        var sites = await GetAllSites(false, ignoreCache);
-
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
-        {
-            sites = sites.Where(s => s.status is SiteStatus.Online or null);
-        }
+        var sites = (await GetAllSites(false, ignoreCache))
+            .Where(s => s.status is SiteStatus.Online or null);
 
         var allResults = new List<SiteWithDistance>();
 

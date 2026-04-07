@@ -165,6 +165,26 @@ export const isAfterCalendarDateUk = (
   );
 };
 
+export const isBeforeCalendarDateUk = (
+  firstUkDatetime: dayjs.Dayjs,
+  secondUkDatetime: dayjs.Dayjs,
+) => {
+  return isBefore(
+    firstUkDatetime.startOf('day'),
+    secondUkDatetime.startOf('day'),
+  );
+};
+
+export const isBeforeOrEqualCalendarDateUk = (
+  firstUkDatetime: dayjs.Dayjs,
+  secondUkDatetime: dayjs.Dayjs,
+) => {
+  return isBeforeOrEqual(
+    firstUkDatetime.startOf('day'),
+    secondUkDatetime.startOf('day'),
+  );
+};
+
 export const occurInOrder = (ukDates: dayjs.Dayjs[]) => {
   for (let index = 1; index < ukDates.length; index++) {
     if (
@@ -177,16 +197,6 @@ export const occurInOrder = (ukDates: dayjs.Dayjs[]) => {
     }
   }
   return true;
-};
-
-export const isBeforeOrEqualCalendarDateUk = (
-  firstUkDatetime: dayjs.Dayjs,
-  secondUkDatetime: dayjs.Dayjs,
-) => {
-  return isBeforeOrEqual(
-    firstUkDatetime.startOf('day'),
-    secondUkDatetime.startOf('day'),
-  );
 };
 
 export const isFutureCalendarDateUk = (ukDatetime: dayjs.Dayjs) => {

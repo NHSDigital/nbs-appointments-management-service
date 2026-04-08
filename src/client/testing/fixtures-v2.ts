@@ -32,6 +32,7 @@ import {
   EditServicesPage,
   EditServicesConfirmationPage,
   EditServicesConfirmedPage,
+  CancelAppointmentDetailsPage,
 } from '@e2etests/page-objects';
 import env from './testEnvironment';
 import {
@@ -42,6 +43,7 @@ import {
   MockOidcUser,
   BookingDocument,
   DailyAvailabilityDocument,
+  AttendeeDetails,
 } from '@e2etests/types';
 import CancelDayForm from './page-objects-v2/cancel-day-pages/cancel-day-form';
 import ConfirmedCancellationPage from './page-objects-v2/cancel-day-pages/confirm-cancellation';
@@ -74,6 +76,7 @@ export type BookingSetup = {
   service: string;
   status: BookingStatus;
   availabilityStatus: AvailabilityStatus;
+  attendeeDetails?: AttendeeDetails;
 };
 
 export type AvailabilitySetup = {
@@ -122,6 +125,7 @@ type MyaFixtures = {
   createAvailabilityPage: CreateAvailabilityPage;
   changeAvailabilityPage: ChangeAvailabilityPage;
   dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
+  cancelAppointmentDetailsPage: CancelAppointmentDetailsPage;
   editAvailabilityConfirmationPage: EditAvailabilityConfirmationPage;
   editAvailabilityConfirmedPage: EditAvailabilityConfirmedPage;
   cancelSessionDetailsPage: CancelSessionDetailsPage;
@@ -163,6 +167,9 @@ export const test = base.extend<MyaFixtures>({
   },
   dailyAppointmentDetailsPage: async ({ page }, use) => {
     await use(new DailyAppointmentDetailsPage(page));
+  },
+  cancelAppointmentDetailsPage: async ({ page }, use) => {
+    await use(new CancelAppointmentDetailsPage(page));
   },
   editAvailabilityConfirmationPage: async ({ page }, use) => {
     await use(new EditAvailabilityConfirmationPage(page));
@@ -245,6 +252,7 @@ export const test = base.extend<MyaFixtures>({
               data.service,
               data.status,
               data.availabilityStatus,
+              data.attendeeDetails,
             ),
           );
         }

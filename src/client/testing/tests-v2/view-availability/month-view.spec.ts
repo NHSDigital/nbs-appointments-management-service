@@ -1,14 +1,10 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { DayJsType, getUkWeeksOfTheMonth, ukNow } from '@services/timeService';
+import { test } from '../../fixtures-v2';
 import {
-  DayJsType,
-  getUkWeeksOfTheMonth,
-  getWeek,
-  parseDateComponentsToUkDatetime,
-  RFC3339Format,
-  ukNow,
-} from '@services/timeService';
-import { AvailabilitySetup, BookingSetup, test } from '../../fixtures-v2';
-import { WeekOverview } from '../../availability';
+  clockBackwardWeeksData,
+  clockForwardWeeksData,
+  WeekOverview,
+} from '../../availability';
 
 test.describe('View Month Availability', () => {
   ['Europe/London', 'Asia/Kamchatka', 'US/Pacific'].forEach(async timezone => {
@@ -22,40 +18,12 @@ test.describe('View Month Availability', () => {
             page,
             monthViewAvailabilityPage,
           }) => {
-            //target data for test across a 3 week period spanning the end of March,
-            //this guarantees DST boundary is crossed with some data before, on, and after the boundary
             const nextYear = ukNow().year() + yearIncrement;
-
-            const twentyFourMarch = parseDateComponentsToUkDatetime({
-              day: 24,
-              month: 3,
-              year: nextYear,
-            });
-            const thirtyOneMarch = parseDateComponentsToUkDatetime({
-              day: 31,
-              month: 3,
-              year: nextYear,
-            });
-            const sevenApril = parseDateComponentsToUkDatetime({
-              day: 7,
-              month: 4,
-              year: nextYear,
-            });
-
-            const weekOne = getWeek(twentyFourMarch!);
-            const weekTwo = getWeek(thirtyOneMarch!);
-            const weekThree = getWeek(sevenApril!);
-
-            const allWeeks = weekOne.concat(weekTwo).concat(weekThree);
-
-            const availability = mapToSessions(allWeeks);
-            const firstBookings = mapToFirstBookings(allWeeks);
-            const lastBookings = mapToLastBookings(allWeeks);
+            const data = clockForwardWeeksData(nextYear);
 
             //go to a specific month page that has a daylight savings change
             const { site } = await setup({
-              availability: availability,
-              bookings: firstBookings.concat(lastBookings),
+              ...data,
             });
 
             //next year march
@@ -74,7 +42,7 @@ test.describe('View Month Availability', () => {
               `April ${nextYear}`,
             );
 
-            const marchWeeks = getUkWeeksOfTheMonth(thirtyOneMarch!);
+            const marchWeeks = getUkWeeksOfTheMonth(data.firstDate);
 
             //expect last 2 week cards to have data, none of the rest should!
             const lastTwoWeeks = marchWeeks.slice(marchWeeks.length - 2);
@@ -107,7 +75,7 @@ test.describe('View Month Availability', () => {
               `May ${nextYear}`,
             );
 
-            const aprilWeeks = getUkWeeksOfTheMonth(sevenApril!);
+            const aprilWeeks = getUkWeeksOfTheMonth(data.lastDate);
 
             let cardsWithData = 2;
 
@@ -141,37 +109,11 @@ test.describe('View Month Availability', () => {
             //target data for test across a 3 week period spanning the end of October,
             //this guarantees DST boundary is crossed with some data before, on, and after the boundary
             const nextYear = ukNow().year() + yearIncrement;
-
-            const twentyFourOctober = parseDateComponentsToUkDatetime({
-              day: 24,
-              month: 10,
-              year: nextYear,
-            });
-            const thirtyOneOctober = parseDateComponentsToUkDatetime({
-              day: 31,
-              month: 10,
-              year: nextYear,
-            });
-            const sevenNovember = parseDateComponentsToUkDatetime({
-              day: 7,
-              month: 11,
-              year: nextYear,
-            });
-
-            const weekOne = getWeek(twentyFourOctober!);
-            const weekTwo = getWeek(thirtyOneOctober!);
-            const weekThree = getWeek(sevenNovember!);
-
-            const allWeeks = weekOne.concat(weekTwo).concat(weekThree);
-
-            const availability = mapToSessions(allWeeks);
-            const firstBookings = mapToFirstBookings(allWeeks);
-            const lastBookings = mapToLastBookings(allWeeks);
+            const data = clockBackwardWeeksData(nextYear);
 
             //go to a specific month page that has a daylight savings change
             const { site } = await setup({
-              availability: availability,
-              bookings: firstBookings.concat(lastBookings),
+              ...data,
             });
 
             //next year march
@@ -190,7 +132,7 @@ test.describe('View Month Availability', () => {
               `November ${nextYear}`,
             );
 
-            const octoberWeeks = getUkWeeksOfTheMonth(thirtyOneOctober!);
+            const octoberWeeks = getUkWeeksOfTheMonth(data.firstDate);
 
             //expect last 2 week cards to have data, none of the rest should!
             const lastTwoWeeks = octoberWeeks.slice(octoberWeeks.length - 2);
@@ -223,7 +165,7 @@ test.describe('View Month Availability', () => {
               `December ${nextYear}`,
             );
 
-            const novemberWeeks = getUkWeeksOfTheMonth(sevenNovember!);
+            const novemberWeeks = getUkWeeksOfTheMonth(data.lastDate);
 
             let cardsWithData = 2;
 
@@ -253,49 +195,6 @@ test.describe('View Month Availability', () => {
     });
   });
 });
-
-const mapToSessions = (days: DayJsType[]): AvailabilitySetup[] => {
-  return days.map(day => {
-    return {
-      date: day.format(RFC3339Format),
-      sessions: [
-        {
-          from: '09:00',
-          until: '17:00',
-          services: ['RSV Adult'],
-          slotLength: 10,
-          capacity: 2,
-        },
-      ],
-    } as AvailabilitySetup;
-  });
-};
-
-const mapToFirstBookings = (days: DayJsType[]): BookingSetup[] => {
-  return days.map(day => {
-    return {
-      fromDate: day.format(RFC3339Format),
-      fromTime: '09:00:00',
-      durationMins: 10,
-      service: 'RSV Adult',
-      status: 'Booked',
-      availabilityStatus: 'Supported',
-    } as BookingSetup;
-  });
-};
-
-const mapToLastBookings = (days: DayJsType[]): BookingSetup[] => {
-  return days.map(day => {
-    return {
-      fromDate: day.format(RFC3339Format),
-      fromTime: '16:50:00',
-      durationMins: 10,
-      service: 'RSV Adult',
-      status: 'Booked',
-      availabilityStatus: 'Supported',
-    } as BookingSetup;
-  });
-};
 
 const noSessionsInWeeks = (weeks: DayJsType[][]): WeekOverview[] => {
   return weeks.map(week => {

@@ -6,6 +6,10 @@ import {
   ukNow,
 } from '@services/timeService';
 import { AvailabilitySetup, BookingSetup, test } from '../../fixtures-v2';
+import {
+  clockBackwardWeeksData,
+  clockForwardWeeksData,
+} from '../../availability';
 
 test.describe('View Week Availability', () => {
   ['Europe/London', 'Asia/Kamchatka', 'US/Pacific'].forEach(async timezone => {
@@ -32,7 +36,7 @@ test.describe('View Week Availability', () => {
           });
         }
 
-        test.describe(`Test on ${firstOfMonth!.format('dddd D MMMM')}`, () => {
+        test.describe(`Greedy shuffle: ${firstOfMonth!.format('dddd D MMMM')}`, () => {
           test('View week page data is arranged according to greedy model allocation, and the data shuffles on session changes', async ({
             setup,
             page,
@@ -317,6 +321,82 @@ test.describe('View Week Availability', () => {
                 ],
               },
             );
+          });
+        });
+      });
+
+      const forwardData = clockForwardWeeksData(ukNow().year());
+
+      forwardData.weekTestCases.forEach(weekCase => {
+        test.describe(`Week: '${weekCase.weekHeader}'`, () => {
+          test.beforeEach(async ({ setup, page }) => {
+            const { site } = await setup({ ...forwardData });
+
+            //start test by navigating to the week view that contains this session
+            await page.goto(
+              `manage-your-appointments/site/${site.id}/view-availability/week?date=${weekCase.week}`,
+            );
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability/week?date=${weekCase.week}`,
+            );
+            await page.waitForSelector('.nhsuk-loader', {
+              state: 'detached',
+            });
+          });
+
+          test(`View week page data is arranged in the day cards as expected`, async ({
+            weekViewAvailabilityPage,
+          }) => {
+            // TODO add back in
+
+            // await weekViewAvailabilityPage.verifyViewNextAndPreviousWeeksButtonsDisplayed(
+            //   week.previousWeek,
+            //   week.nextWeek,
+            // );
+
+            for (let i = 0; i < weekCase.dayOverviews.length; i++) {
+              await weekViewAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly(
+                weekCase.dayOverviews[i],
+              );
+            }
+          });
+        });
+      });
+
+      const backwardData = clockBackwardWeeksData(ukNow().year());
+
+      backwardData.weekTestCases.forEach(weekCase => {
+        test.describe(`Week: '${weekCase.weekHeader}'`, () => {
+          test.beforeEach(async ({ setup, page }) => {
+            const { site } = await setup({ ...backwardData });
+
+            //start test by navigating to the week view that contains this session
+            await page.goto(
+              `manage-your-appointments/site/${site.id}/view-availability/week?date=${weekCase.week}`,
+            );
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability/week?date=${weekCase.week}`,
+            );
+            await page.waitForSelector('.nhsuk-loader', {
+              state: 'detached',
+            });
+          });
+
+          test(`View week page data is arranged in the day cards as expected`, async ({
+            weekViewAvailabilityPage,
+          }) => {
+            // TODO add back in
+
+            // await weekViewAvailabilityPage.verifyViewNextAndPreviousWeeksButtonsDisplayed(
+            //   week.previousWeek,
+            //   week.nextWeek,
+            // );
+
+            for (let i = 0; i < weekCase.dayOverviews.length; i++) {
+              await weekViewAvailabilityPage.verifyAllDayCardInformationDisplayedCorrectly(
+                weekCase.dayOverviews[i],
+              );
+            }
           });
         });
       });

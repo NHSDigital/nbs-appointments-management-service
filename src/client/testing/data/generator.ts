@@ -1,4 +1,5 @@
 import {
+  AttendeeDetails,
   BookingDocument,
   DailyAvailabilityDocument,
   MockOidcUser,
@@ -204,7 +205,15 @@ const buildBookingDocument = (
   service: string,
   status: BookingStatus,
   availabilityStatus: AvailabilityStatus,
+  attendeeDetails?: AttendeeDetails,
 ): BookingDocument => {
+  const attendee = attendeeDetails ?? {
+    nhsNumber: '1975486535',
+    firstName: 'Jeremy',
+    lastName: 'Oswald',
+    dateOfBirth: '1952-11-13',
+  };
+
   return {
     id: buildBookingId(testId, index),
     reference: buildBookingId(testId, index),
@@ -216,12 +225,7 @@ const buildBookingDocument = (
     availabilityStatus: availabilityStatus,
     docType: 'booking',
 
-    attendeeDetails: {
-      nhsNumber: '1975486535',
-      firstName: 'Jeremy',
-      lastName: 'Oswald',
-      dateOfBirth: '1952-11-13',
-    },
+    attendeeDetails: attendee,
     contactDetails: [],
     additionalData: {
       isCallCentreBooking: false,

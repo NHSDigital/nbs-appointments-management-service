@@ -1,3 +1,15 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+import {
+  DayJsType,
+  getWeek,
+  isBeforeCalendarDateUk,
+  parseDateComponentsToUkDatetime,
+  RFC3339Format,
+  ukNow,
+} from '@services/timeService';
+import { AvailabilitySetup, BookingSetup } from './fixtures-v2';
+
 type ServiceOverview = {
   serviceName: string;
   bookedAppointments: number;
@@ -33,11 +45,12 @@ export type RemovedServicesOverview = {
   serviceNames: string;
 };
 
-type SessionTestCase = {
+type DayTestCase = {
   week: string;
   day: string;
   dayCardHeader: string;
   changeSessionHeader: string;
+  cancelSessionHeader: string;
   timeRange: string;
   startHour: string;
   startMins: string;
@@ -51,7 +64,7 @@ type SessionTestCase = {
   cancelDailyAppointments: CancelDailyAppointment[];
 };
 
-type WeekViewTestCase = {
+export type WeekViewTestCase = {
   week: string;
   weekHeader: string;
   previousWeek: string;
@@ -76,601 +89,348 @@ type CancelDailyAppointment = {
   services: string;
 };
 
-//update this number to stop datetime test collisionsß∂
-//TODO this needs remedying ASAP as this is crap.
-export const staticHackyDayIncrementToBump = 119;
-
 export const timeZones = ['Europe/London', 'Asia/Kamchatka', 'US/Pacific'];
 
-//session test cases to verify, should have session&booking data in the seeder
-export const sessionTestCases: SessionTestCase[] = [
-  {
-    week: '2026-04-20',
-    day: '2026-04-25',
-    dayCardHeader: 'Saturday 25 April',
-    changeSessionHeader: '25 April 2026',
-    timeRange: '10:00 - 17:00',
-    startHour: '10',
-    startMins: '00',
-    endHour: '17',
-    endMins: '00',
-    service: 'RSV Adult',
-    booked: 2,
-    unbooked: 418,
-    viewDailyAppointments: [
-      {
-        time: '10:00',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-      {
-        time: '16:55',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-    ],
-    cancelDailyAppointments: [
-      {
-        time: '25 April 202610:00am',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-      {
-        time: '25 April 202616:55pm',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-    ],
-  },
-  {
-    week: '2026-04-20',
-    day: '2026-04-26',
-    dayCardHeader: 'Sunday 26 April',
-    changeSessionHeader: '26 April 2026',
-    timeRange: '10:00 - 17:00',
-    startHour: '10',
-    startMins: '00',
-    endHour: '17',
-    endMins: '00',
-    service: 'RSV Adult',
-    booked: 2,
-    unbooked: 418,
-    viewDailyAppointments: [
-      {
-        time: '10:00',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-      {
-        time: '16:55',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-    ],
-    cancelDailyAppointments: [
-      {
-        time: '26 April 202610:00am',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-      {
-        time: '26 April 202616:55pm',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-    ],
-  },
-  {
-    week: '2026-04-27',
-    day: '2026-04-27',
-    dayCardHeader: 'Monday 27 April',
-    changeSessionHeader: '27 April 2026',
-    timeRange: '10:00 - 17:00',
-    startHour: '10',
-    startMins: '00',
-    endHour: '17',
-    endMins: '00',
-    service: 'RSV Adult',
-    booked: 2,
-    unbooked: 418,
-    viewDailyAppointments: [
-      {
-        time: '10:00',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-      {
-        time: '16:55',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-    ],
-    cancelDailyAppointments: [
-      {
-        time: '27 April 202610:00am',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-      {
-        time: '27 April 202616:55pm',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-    ],
-  },
-  {
-    week: '2026-03-23',
-    day: '2026-03-28',
-    dayCardHeader: 'Saturday 28 March',
-    changeSessionHeader: '28 March 2026',
-    timeRange: '08:00 - 14:00',
-    startHour: '08',
-    startMins: '00',
-    endHour: '14',
-    endMins: '00',
-    service: 'RSV Adult',
-    booked: 2,
-    unbooked: 238,
-    viewDailyAppointments: [
-      {
-        time: '08:00',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-      {
-        time: '13:45',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-    ],
-    cancelDailyAppointments: [
-      {
-        time: '28 March 20268:00am',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-      {
-        time: '28 March 202613:45pm',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-    ],
-  },
-  {
-    week: '2026-03-23',
-    day: '2026-03-29',
-    dayCardHeader: 'Sunday 29 March',
-    changeSessionHeader: '29 March 2026',
-    timeRange: '08:00 - 14:00',
-    startHour: '08',
-    startMins: '00',
-    endHour: '14',
-    endMins: '00',
-    service: 'RSV Adult',
-    booked: 2,
-    unbooked: 238,
-    viewDailyAppointments: [
-      {
-        time: '08:00',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-      {
-        time: '13:45',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-    ],
-    cancelDailyAppointments: [
-      {
-        time: '29 March 20268:00am',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-      {
-        time: '29 March 202613:45pm',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-    ],
-  },
-  {
-    week: '2026-03-30',
-    day: '2026-03-30',
-    dayCardHeader: 'Monday 30 March',
-    changeSessionHeader: '30 March 2026',
-    timeRange: '08:00 - 14:00',
-    startHour: '08',
-    startMins: '00',
-    endHour: '14',
-    endMins: '00',
-    service: 'RSV Adult',
-    booked: 2,
-    unbooked: 238,
-    viewDailyAppointments: [
-      {
-        time: '08:00',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-      {
-        time: '13:45',
-        nameNhsNumber: 'Jeremy Oswald1975486535',
-        dob: '13 November 1952',
-        contactDetails: '',
-        services: 'RSV Adult',
-      },
-    ],
-    cancelDailyAppointments: [
-      {
-        time: '30 March 20268:00am',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-      {
-        time: '30 March 202613:45pm',
-        name: 'Jeremy Oswald',
-        nhsNumber: '1975486535',
-        dob: '13 November 1952',
-        contactDetails: 'Not provided',
-        services: 'RSV Adult',
-      },
-    ],
-  },
-];
+//target data for test across a 3 week period spanning the end of March,
+//this guarantees DST boundary is crossed with some data before, on, and after the boundary
+export const clockForwardWeeksData = (
+  year: number,
+): {
+  bookings?: BookingSetup[];
+  availability?: AvailabilitySetup[];
+  firstDate: DayJsType;
+  lastDate: DayJsType;
+  weekTestCases: WeekViewTestCase[];
+} => {
+  const twentyFourMarch = parseDateComponentsToUkDatetime({
+    day: 24,
+    month: 3,
+    year: year,
+  });
+  const thirtyOneMarch = parseDateComponentsToUkDatetime({
+    day: 31,
+    month: 3,
+    year: year,
+  });
+  const sevenApril = parseDateComponentsToUkDatetime({
+    day: 7,
+    month: 4,
+    year: year,
+  });
 
-export const weekTestCases: WeekViewTestCase[] = [
-  {
-    week: '2026-04-20',
-    weekHeader: '20 April to 26 April',
-    previousWeek: '13-19 April 2026',
-    nextWeek: '27-3 May 2026',
-    dayOverviews: [
-      {
-        header: 'Monday 20 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
+  const weekOne = getWeek(twentyFourMarch!);
+  const weekTwo = getWeek(thirtyOneMarch!);
+  const weekThree = getWeek(sevenApril!);
+
+  const allWeeks = weekOne.concat(weekTwo).concat(weekThree);
+  const firstBookings = mapToFirstBookings(allWeeks);
+  const lastBookings = mapToLastBookings(allWeeks);
+
+  return {
+    availability: mapToSessions(allWeeks),
+    bookings: firstBookings.concat(lastBookings),
+    firstDate: twentyFourMarch!,
+    lastDate: sevenApril!,
+    weekTestCases: mapToWeekTestCases(weekOne)
+      .concat(mapToWeekTestCases(weekTwo))
+      .concat(mapToWeekTestCases(weekThree)),
+  };
+};
+
+export const clockForwardDaysData = (): {
+  bookings?: BookingSetup[];
+  availability?: AvailabilitySetup[];
+  dayTestCases: DayTestCase[];
+} => {
+  const now = ukNow();
+
+  //guaranteed before DST
+  let twentyThreeMarch = parseDateComponentsToUkDatetime({
+    day: 24,
+    month: 3,
+    year: now.year(),
+  });
+
+  const isBefore1 = isBeforeCalendarDateUk(now, twentyThreeMarch!);
+
+  //need to set target date to next year to keep within the allowed bounds
+  if (!isBefore1) {
+    twentyThreeMarch = parseDateComponentsToUkDatetime({
+      day: 23,
+      month: 3,
+      year: now.year() + 1,
+    });
+  }
+
+  //guaranteed after DST
+  let firstApril = parseDateComponentsToUkDatetime({
+    day: 1,
+    month: 4,
+    year: now.year(),
+  });
+
+  const isBefore2 = isBeforeCalendarDateUk(now, firstApril!);
+
+  //need to set target date to next year to keep within the allowed bounds
+  if (!isBefore2) {
+    firstApril = parseDateComponentsToUkDatetime({
+      day: 1,
+      month: 4,
+      year: now.year() + 1,
+    });
+  }
+
+  const days = [twentyThreeMarch!, firstApril!];
+
+  const firstBookings = mapToFirstBookings(days);
+  const lastBookings = mapToLastBookings(days);
+
+  return {
+    availability: mapToSessions(days),
+    bookings: firstBookings.concat(lastBookings),
+    dayTestCases: mapToDayTestCases(days),
+  };
+};
+
+//target data for test across a 3 week period spanning the end of October,
+//this guarantees DST boundary is crossed with some data before, on, and after the boundary
+export const clockBackwardWeeksData = (
+  year: number,
+): {
+  bookings?: BookingSetup[];
+  availability?: AvailabilitySetup[];
+  firstDate: DayJsType;
+  lastDate: DayJsType;
+  weekTestCases: WeekViewTestCase[];
+} => {
+  const twentyFourOctober = parseDateComponentsToUkDatetime({
+    day: 24,
+    month: 10,
+    year: year,
+  });
+  const thirtyOneOctober = parseDateComponentsToUkDatetime({
+    day: 31,
+    month: 10,
+    year: year,
+  });
+  const sevenNovember = parseDateComponentsToUkDatetime({
+    day: 7,
+    month: 11,
+    year: year,
+  });
+
+  const weekOne = getWeek(twentyFourOctober!);
+  const weekTwo = getWeek(thirtyOneOctober!);
+  const weekThree = getWeek(sevenNovember!);
+
+  const allWeeks = weekOne.concat(weekTwo).concat(weekThree);
+  const firstBookings = mapToFirstBookings(allWeeks);
+  const lastBookings = mapToLastBookings(allWeeks);
+
+  return {
+    availability: mapToSessions(allWeeks),
+    bookings: firstBookings.concat(lastBookings),
+    firstDate: twentyFourOctober!,
+    lastDate: sevenNovember!,
+    weekTestCases: mapToWeekTestCases(weekOne)
+      .concat(mapToWeekTestCases(weekTwo))
+      .concat(mapToWeekTestCases(weekThree)),
+  };
+};
+
+export const clockBackwardDaysData = (): {
+  bookings?: BookingSetup[];
+  availability?: AvailabilitySetup[];
+  dayTestCases: DayTestCase[];
+} => {
+  const now = ukNow();
+
+  //guaranteed before DST
+  let twentyThreeOctober = parseDateComponentsToUkDatetime({
+    day: 24,
+    month: 10,
+    year: now.year(),
+  });
+
+  const isBefore1 = isBeforeCalendarDateUk(now, twentyThreeOctober!);
+
+  //need to set target date to next year to keep within the allowed bounds
+  if (!isBefore1) {
+    twentyThreeOctober = parseDateComponentsToUkDatetime({
+      day: 23,
+      month: 10,
+      year: now.year() + 1,
+    });
+  }
+
+  //guaranteed after DST
+  let firstNovember = parseDateComponentsToUkDatetime({
+    day: 1,
+    month: 11,
+    year: now.year(),
+  });
+
+  const isBefore2 = isBeforeCalendarDateUk(now, firstNovember!);
+
+  //need to set target date to next year to keep within the allowed bounds
+  if (!isBefore2) {
+    firstNovember = parseDateComponentsToUkDatetime({
+      day: 1,
+      month: 11,
+      year: now.year() + 1,
+    });
+  }
+
+  const days = [twentyThreeOctober!, firstNovember!];
+
+  const firstBookings = mapToFirstBookings(days);
+  const lastBookings = mapToLastBookings(days);
+
+  return {
+    availability: mapToSessions(days),
+    bookings: firstBookings.concat(lastBookings),
+    dayTestCases: mapToDayTestCases(days),
+  };
+};
+
+const mapToSessions = (days: DayJsType[]): AvailabilitySetup[] => {
+  return days.map(day => {
+    return {
+      date: day.format(RFC3339Format),
+      sessions: [
+        {
+          from: '09:00',
+          until: '17:00',
+          services: ['RSV Adult'],
+          slotLength: 10,
+          capacity: 2,
+        },
+      ],
+    } as AvailabilitySetup;
+  });
+};
+
+const mapToFirstBookings = (days: DayJsType[]): BookingSetup[] => {
+  return days.map(day => {
+    return {
+      fromDate: day.format(RFC3339Format),
+      fromTime: '09:00:00',
+      durationMins: 10,
+      service: 'RSV Adult',
+      status: 'Booked',
+      availabilityStatus: 'Supported',
+      attendeeDetails: {
+        nhsNumber: '1975486535-1',
+        firstName: 'David',
+        lastName: 'Ormond',
+        dateOfBirth: '1963-02-03',
       },
-      {
-        header: 'Tuesday 21 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
+    } as BookingSetup;
+  });
+};
+
+const mapToLastBookings = (days: DayJsType[]): BookingSetup[] => {
+  return days.map(day => {
+    return {
+      fromDate: day.format(RFC3339Format),
+      fromTime: '16:50:00',
+      durationMins: 10,
+      service: 'RSV Adult',
+      status: 'Booked',
+      availabilityStatus: 'Supported',
+      attendeeDetails: {
+        nhsNumber: '1975486535-2',
+        firstName: 'James',
+        lastName: 'Livingstone',
+        dateOfBirth: '1949-10-17',
       },
-      {
-        header: 'Wednesday 22 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Thursday 23 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Friday 24 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Saturday 25 April',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 418,
-            sessionTimeInterval: '10:00 - 17:00',
-          },
-        ],
-        totalAppointments: 420,
-        booked: 2,
-        unbooked: 418,
-        orphaned: 0,
-      },
-      {
-        header: 'Sunday 26 April',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 418,
-            sessionTimeInterval: '10:00 - 17:00',
-          },
-        ],
-        totalAppointments: 420,
-        booked: 2,
-        unbooked: 418,
-        orphaned: 0,
-      },
-    ],
-  },
-  {
-    week: '2026-04-27',
-    weekHeader: '27 April to 3 May',
-    previousWeek: '20-26 April 2026',
-    nextWeek: '4-10 May 2026',
-    dayOverviews: [
-      {
-        header: 'Monday 27 April',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 418,
-            sessionTimeInterval: '10:00 - 17:00',
-          },
-        ],
-        totalAppointments: 420,
-        booked: 2,
-        unbooked: 418,
-        orphaned: 0,
-      },
-      {
-        header: 'Tuesday 28 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Wednesday 29 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Thursday 30 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Friday 1 May',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Saturday 2 May',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Sunday 3 May',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-    ],
-  },
-  {
-    week: '2026-03-23',
-    weekHeader: '23 March to 29 March',
-    previousWeek: '16-22 March 2026',
-    nextWeek: '30-5 April 2026',
-    dayOverviews: [
-      {
-        header: 'Monday 23 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Tuesday 24 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Wednesday 25 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Thursday 26 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Friday 27 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Saturday 28 March',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 238,
-            sessionTimeInterval: '08:00 - 14:00',
-          },
-        ],
-        totalAppointments: 240,
-        booked: 2,
-        unbooked: 238,
-        orphaned: 0,
-      },
-      {
-        header: 'Sunday 29 March',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 238,
-            sessionTimeInterval: '08:00 - 14:00',
-          },
-        ],
-        totalAppointments: 240,
-        booked: 2,
-        unbooked: 238,
-        orphaned: 0,
-      },
-    ],
-  },
-  {
-    week: '2026-03-30',
-    weekHeader: '30 March to 5 April',
-    previousWeek: '23-29 March 2026',
-    nextWeek: '6-12 April 2026',
-    dayOverviews: [
-      {
-        header: 'Monday 30 March',
-        sessions: [
-          {
-            serviceName: 'RSV Adult',
-            booked: '2 booked',
-            unbooked: 238,
-            sessionTimeInterval: '08:00 - 14:00',
-          },
-        ],
-        totalAppointments: 240,
-        booked: 2,
-        unbooked: 238,
-        orphaned: 0,
-      },
-      {
-        header: 'Tuesday 31 March',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Wednesday 1 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Thursday 2 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Friday 3 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Saturday 4 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-      {
-        header: 'Sunday 5 April',
-        sessions: [],
-        totalAppointments: 0,
-        booked: 0,
-        unbooked: 0,
-        orphaned: 0,
-      },
-    ],
-  },
-];
+    } as BookingSetup;
+  });
+};
+
+const mapToWeekTestCases = (week: DayJsType[]): WeekViewTestCase[] => {
+  const dayOverviews = [] as DayOverview[];
+
+  for (let i = 0; i < 7; i++) {
+    dayOverviews.push({
+      header: week[i].format('dddd D MMMM'),
+      sessions: [
+        {
+          serviceName: 'RSV Adult',
+          booked: '2 booked',
+          unbooked: 94,
+          sessionTimeInterval: '09:00 - 17:00',
+        },
+      ],
+      totalAppointments: 96,
+      booked: 2,
+      unbooked: 94,
+      orphaned: 0,
+    });
+  }
+
+  return [
+    {
+      week: week[0].format(RFC3339Format),
+      weekHeader: `${week[0].format('D MMMM')} to ${week[6].format('D MMMM')}`,
+      //TODO add back in
+      // previousWeek: '16-22 March 2026',
+      // nextWeek: '30 March-5 April 2026',
+      dayOverviews: dayOverviews,
+    },
+  ] as WeekViewTestCase[];
+};
+
+const mapToDayTestCases = (days: DayJsType[]): DayTestCase[] => {
+  return days.map(day => {
+    return {
+      day: day.format(RFC3339Format),
+      dayCardHeader: day.format('dddd D MMMM'),
+      changeSessionHeader: day.format('DD MMMM YYYY'),
+      cancelSessionHeader: day.format('dddd DD MMMM'),
+      timeRange: '09:00 - 17:00',
+      startHour: '09',
+      startMins: '00',
+      endHour: '17',
+      endMins: '00',
+      service: 'RSV Adult',
+      booked: 2,
+      unbooked: 94,
+
+      viewDailyAppointments: [
+        {
+          time: '09:00',
+          nameNhsNumber: 'David Ormond1975486535-1',
+          dob: '3 February 1963',
+          contactDetails: '',
+          services: 'RSV Adult',
+        },
+        {
+          time: '16:50',
+          nameNhsNumber: 'James Livingstone1975486535-2',
+          dob: '17 October 1949',
+          contactDetails: '',
+          services: 'RSV Adult',
+        },
+      ],
+      cancelDailyAppointments: [
+        {
+          time: day.format('D MMMM YYYY') + '9:00am',
+          name: 'David Ormond',
+          nhsNumber: '1975486535-1',
+          dob: '3 February 1963',
+          contactDetails: 'Not provided',
+          services: 'RSV Adult',
+        },
+        {
+          time: day.format('D MMMM YYYY') + '16:50pm',
+          name: 'James Livingstone',
+          nhsNumber: '1975486535-2',
+          dob: '17 October 1949',
+          contactDetails: 'Not provided',
+          services: 'RSV Adult',
+        },
+      ],
+    } as DayTestCase;
+  });
+};

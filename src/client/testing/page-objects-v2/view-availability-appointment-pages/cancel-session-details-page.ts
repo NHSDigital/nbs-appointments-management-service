@@ -24,6 +24,10 @@ export default class CancelSessionDetailsPage extends MYALayout {
     name: /View (all )?bookings for this week/i,
   });
 
+  readonly cancelSessionHeader: Locator = this.page
+    .getByRole('heading', { level: 1 })
+    .first();
+
   /**
    * Verifies the confirmation page is displayed before clicking cancel.
    */

@@ -17,6 +17,7 @@ import CreateAvailabilityPage from './availability/create-availability';
 import SummaryPage from './availability/summary-page';
 import ChangeAvailabilityPage from './view-availability-appointment-pages/change-availability-page';
 import DailyAppointmentDetailsPage from './view-availability-appointment-pages/daily-appointment-details-page';
+import CancelAppointmentDetailsPage from './view-availability-appointment-pages/cancel-appointment-details-page';
 import EditAvailabilityConfirmationPage from './view-availability-appointment-pages/edit-availability-confirmation-page';
 import EditAvailabilityConfirmedPage from './view-availability-appointment-pages/edit-availability-confirmed';
 import CancelSessionDetailsPage from './view-availability-appointment-pages/cancel-session-details-page';
@@ -44,6 +45,7 @@ export {
   SummaryPage,
   ChangeAvailabilityPage,
   DailyAppointmentDetailsPage,
+  CancelAppointmentDetailsPage,
   EditAvailabilityConfirmationPage,
   EditAvailabilityConfirmedPage,
   CancelSessionDetailsPage,

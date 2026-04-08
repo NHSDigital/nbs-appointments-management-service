@@ -61,7 +61,7 @@ type BookingIndexDocument = {
   statusUpdated: string;
 };
 
-type AttendeeDetails = {
+export type AttendeeDetails = {
   nhsNumber: string;
   firstName: string;
   lastName: string;

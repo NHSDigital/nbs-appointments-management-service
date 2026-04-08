@@ -15,6 +15,10 @@ export default class ChangeAvailabilityPage extends MYALayout {
     name: 'Continue',
   });
 
+  readonly changeHeader: Locator = this.page
+    .getByRole('heading', { level: 1 })
+    .first();
+
   // Radio Options - Using Regex for resilience
   readonly editLengthCapacityRadioOption: Locator = this.page.getByRole(
     'radio',

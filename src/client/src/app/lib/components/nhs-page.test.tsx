@@ -324,7 +324,7 @@ describe('Nhs Page', () => {
     },
   );
 
-  it('Displays a Change Site link if a site is provided', async () => {
+  it('Displays a link with the site name if a site is provided', async () => {
     fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const jsx = await NhsPage({
@@ -350,12 +350,10 @@ describe('Nhs Page', () => {
     });
     render(jsx);
 
-    expect(
-      screen.getByRole('link', { name: 'Change site' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Test site' })).toBeInTheDocument();
   });
 
-  it('Does not display a Change Site link if no site is provided', async () => {
+  it('Does not display site name link if no site is provided', async () => {
     fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const jsx = await NhsPage({
@@ -366,7 +364,7 @@ describe('Nhs Page', () => {
     });
     render(jsx);
 
-    expect(screen.queryByRole('link', { name: 'Change site' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Test site' })).toBeNull();
   });
 
   it('displays the back link with the correct title and URL', async () => {

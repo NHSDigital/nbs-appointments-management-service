@@ -10,12 +10,14 @@ type Props = {
   userEmail?: string;
   navigationLinks?: NavigationLink[];
   showChangeSiteButton?: boolean;
+  siteName?: string;
 };
 
 const NhsPageHeader = ({
   userEmail,
   navigationLinks = [],
   showChangeSiteButton,
+  siteName,
 }: Props) => {
   return (
     <Header
@@ -25,6 +27,11 @@ const NhsPageHeader = ({
       }}
     >
       <Header.Account>
+        {showChangeSiteButton && (
+          <HeaderAccountItem href="/manage-your-appointments/sites">
+            {siteName}
+          </HeaderAccountItem>
+        )}
         <HeaderAccountItem href="#" icon>
           {userEmail}
         </HeaderAccountItem>
@@ -36,11 +43,6 @@ const NhsPageHeader = ({
         >
           Log out
         </Header.AccountItem>
-        {showChangeSiteButton && (
-          <HeaderAccountItem href="/manage-your-appointments/sites">
-            Change site
-          </HeaderAccountItem>
-        )}
       </Header.Account>
       {navigationLinks.length > 0 && (
         <Header.Navigation>

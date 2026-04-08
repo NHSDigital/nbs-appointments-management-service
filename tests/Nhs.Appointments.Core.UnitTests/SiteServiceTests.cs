@@ -3,8 +3,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Caching;
-using Nhs.Appointments.Core.Features;
-using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Sites;
 
 namespace Nhs.Appointments.Core.UnitTests;

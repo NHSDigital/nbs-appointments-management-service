@@ -39,7 +39,7 @@ export const ReportsSelect = ({ userPermissions }: Props) => {
             <Card
               href={`/reports/${ReportType.MasterSiteList}`}
               title="All sites report"
-              description="A list of all sites and their IDs"
+              description="A list of all sites in MYA and their site information"
             />
           </li>
         )}
@@ -48,7 +48,7 @@ export const ReportsSelect = ({ userPermissions }: Props) => {
             <Card
               href={`/reports/${ReportType.SitesUsers}`}
               title="Users report"
-              description="All users at your sites and their last login"
+              description="A list of all users in MYA"
             />
           </li>
         )}

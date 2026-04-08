@@ -98,7 +98,7 @@ test('Permissions are applied per site for the same user, and affect card visibi
 
     await site1Page.verifyTileNotVisible('CreateAvailability');
 
-    await site1Page.changeSite().then(async siteSelectionPage2 => {
+    await site1Page.changeSite(site1.name).then(async siteSelectionPage2 => {
       const site2Page = await siteSelectionPage2.selectSite(site2);
 
       //assert cards for role
@@ -108,7 +108,7 @@ test('Permissions are applied per site for the same user, and affect card visibi
       await site2Page.verifyTileVisible('CreateAvailability');
       await site2Page.verifyTileVisible('DownloadReports');
 
-      await site2Page.changeSite().then(async siteSelectionPage3 => {
+      await site2Page.changeSite(site2.name).then(async siteSelectionPage3 => {
         const site3Page = await siteSelectionPage3.selectSite(site3);
 
         //assert cards for role
@@ -120,41 +120,48 @@ test('Permissions are applied per site for the same user, and affect card visibi
         await site3Page.verifyTileNotVisible('CreateAvailability');
         await site3Page.verifyTileNotVisible('UserManagement');
 
-        await site3Page.changeSite().then(async siteSelectionPage4 => {
-          const site4Page = await siteSelectionPage4.selectSite(site4);
-
-          //assert cards for role
-          await site4Page.verifyTileVisible('ManageAppointment');
-          await site4Page.verifyTileVisible('SiteManagement');
-          //since user has one site with this permission, visible on all site pages
-          await site4Page.verifyTileVisible('DownloadReports');
-
-          await site4Page.verifyTileNotVisible('CreateAvailability');
-          await site4Page.verifyTileNotVisible('UserManagement');
-
-          await site4Page.changeSite().then(async siteSelectionPage5 => {
-            const site5Page = await siteSelectionPage5.selectSite(site5);
+        await site3Page
+          .changeSite(site3.name)
+          .then(async siteSelectionPage4 => {
+            const site4Page = await siteSelectionPage4.selectSite(site4);
 
             //assert cards for role
-            await site5Page.verifyTileVisible('ManageAppointment');
-            await site5Page.verifyTileVisible('SiteManagement');
-            await site5Page.verifyTileVisible('CreateAvailability');
-            await site5Page.verifyTileVisible('DownloadReports');
+            await site4Page.verifyTileVisible('ManageAppointment');
+            await site4Page.verifyTileVisible('SiteManagement');
+            //since user has one site with this permission, visible on all site pages
+            await site4Page.verifyTileVisible('DownloadReports');
 
-            await site5Page.verifyTileNotVisible('UserManagement');
+            await site4Page.verifyTileNotVisible('CreateAvailability');
+            await site4Page.verifyTileNotVisible('UserManagement');
 
-            await site5Page.changeSite().then(async siteSelectionPage6 => {
-              const site6Page = await siteSelectionPage6.selectSite(site6);
+            await site4Page
+              .changeSite(site4.name)
+              .then(async siteSelectionPage5 => {
+                const site5Page = await siteSelectionPage5.selectSite(site5);
 
-              //all cards visible for both roles for site
-              await site6Page.verifyTileVisible('ManageAppointment');
-              await site6Page.verifyTileVisible('SiteManagement');
-              await site6Page.verifyTileVisible('UserManagement');
-              await site6Page.verifyTileVisible('CreateAvailability');
-              await site6Page.verifyTileVisible('DownloadReports');
-            });
+                //assert cards for role
+                await site5Page.verifyTileVisible('ManageAppointment');
+                await site5Page.verifyTileVisible('SiteManagement');
+                await site5Page.verifyTileVisible('CreateAvailability');
+                await site5Page.verifyTileVisible('DownloadReports');
+
+                await site5Page.verifyTileNotVisible('UserManagement');
+
+                await site5Page
+                  .changeSite(site5.name)
+                  .then(async siteSelectionPage6 => {
+                    const site6Page =
+                      await siteSelectionPage6.selectSite(site6);
+
+                    //all cards visible for both roles for site
+                    await site6Page.verifyTileVisible('ManageAppointment');
+                    await site6Page.verifyTileVisible('SiteManagement');
+                    await site6Page.verifyTileVisible('UserManagement');
+                    await site6Page.verifyTileVisible('CreateAvailability');
+                    await site6Page.verifyTileVisible('DownloadReports');
+                  });
+              });
           });
-        });
       });
     });
   });

@@ -127,7 +127,7 @@ public class SiteService(
                 }
                 else
                 {
-                    var cacheKey = GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
+                    var cacheKey = CacheKey.GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
                     var slideThreshold =
                         TimeSpan.FromSeconds(options.Value.SiteSupportsServiceSlidingCacheSlideThresholdSeconds);
                     var slideExpiry = TimeSpan.FromSeconds(options.Value
@@ -137,7 +137,7 @@ public class SiteService(
                         await cacheService.GetLazySlidingCacheValue(cacheKey,
                             new LazySlideCacheOptions<bool>(
                                 async () => await FetchSiteOffersServiceDuringPeriod(swd.Site.Id, uniqueSortedServices,
-                                    from, to), slideThreshold, slideExpiry));
+                                    from, to), slideExpiry, slideThreshold));
 
                     ArgumentNullException.ThrowIfNull(siteOffersServiceDuringPeriodLazyCache);
                     if (siteOffersServiceDuringPeriodLazyCache)
@@ -431,8 +431,7 @@ public class SiteService(
                 options.Value.SiteCacheKey,
                 new LazySlideCacheOptions<IEnumerable<Site>>(
                     async () => await siteStore.GetAllSites(),
-                    TimeSpan.FromMinutes(options.Value.AllSitesSlideCacheDurationMinutes),
-                    TimeSpan.FromMinutes(options.Value.AllSitesCacheDurationMinutes)));
+                    TimeSpan.FromMinutes(options.Value.AllSitesCacheDurationMinutes), TimeSpan.FromMinutes(options.Value.AllSitesSlideCacheDurationMinutes)));
         }
 
         return await cacheService.GetCacheValue(
@@ -440,14 +439,6 @@ public class SiteService(
             new CacheOptions<IEnumerable<Site>>(
                 async () => await siteStore.GetAllSites(),
                 TimeSpan.FromMinutes(options.Value.AllSitesCacheDurationMinutes)));
-    }
-
-    private static string GetCacheSiteServiceSupportDateRangeKey(string siteId, List<string> services, DateOnly from,
-        DateOnly until)
-    {
-        var joinedServices = string.Join('_', services);
-        var dateRange = $"{from:yyyyMMdd}_{until:yyyyMMdd}";
-        return $"site_{siteId}_supports_{joinedServices}_in_{dateRange}";
     }
 
     private async Task<bool> FetchSiteOffersServiceDuringPeriod(string siteId, List<string> services, DateOnly from,

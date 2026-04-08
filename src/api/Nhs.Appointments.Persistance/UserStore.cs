@@ -208,8 +208,8 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task<IEnumerable<User>> GetUsersWithPermissionScope(string scope)
     {
-        using (metricsRecorder.BeginScope("GetUsersWithPermissionScope"))
-        {
+        ////using (metricsRecorder.BeginScope("GetUsersWithPermissionScope"))
+        ////{
             var docType = cosmosStore.GetDocumentType();
 
             var query = @"
@@ -226,6 +226,6 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
                 .WithParameter("@scope", scope);
 
             return await cosmosStore.RunSqlQueryAsync<User>(queryDefinition);
-        }
+        ////}
     }
 }

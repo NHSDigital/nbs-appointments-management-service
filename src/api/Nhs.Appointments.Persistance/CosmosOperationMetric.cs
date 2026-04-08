@@ -20,6 +20,8 @@ public record CosmosOperationMetric : IMetric
 
     public string DocumentType { get; init; }
 
+    public string Path { get; init; }
+
     public List<CosmosOperationAttemptTiming> Timings { get; private set; } = [];
 
     public string Name => nameof(CosmosOperationMetric);

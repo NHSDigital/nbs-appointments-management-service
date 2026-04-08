@@ -19,10 +19,10 @@ public class BookingCosmosDocumentStore(
            
     public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
-        using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
-        {
+        ////using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
+        ////{
             return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
-        }
+        ////}
     }
 
     public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
@@ -33,14 +33,14 @@ public class BookingCosmosDocumentStore(
         // Unfortunately, CosmosDB throws a Method Unsupported error the second you throw anything precompiled at it.
         // This will ONLY work if you write the predicate inline, at which point you lose testability and abstraction.
 
-        using (metricsRecorder.BeginScope("QueryByFilter"))
-        {
+        ////using (metricsRecorder.BeginScope("QueryByFilter"))
+        ////{
             var rawResults = await bookingStore.RunQueryAsync<Booking>(b =>
                 b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
                 b.From <= queryFilter.StartsAtOrBefore);
 
             return rawResults.Where(queryFilter.Matches);
-        }
+        ////}
     }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
@@ -390,8 +390,8 @@ public class BookingCosmosDocumentStore(
             site,
             [AppointmentStatus.Booked]);
 
-        using (metricsRecorder.BeginScope("CancelAllBookingsInDay"))
-        {
+        ////using (metricsRecorder.BeginScope("CancelAllBookingsInDay"))
+        ////{
             var bookings = await QueryByFilterAsync(bookingFilter);
 
             var successfulCancellations = 0;
@@ -413,7 +413,7 @@ public class BookingCosmosDocumentStore(
             var bookingsWithContactDetails = bookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
 
             return (successfulCancellations, bookingsWithoutContactDetailsCount, bookingsWithContactDetails);
-        }
+        ////}
     }
 
     public async Task SetCancellationNotified(string bookingReference, string site)
@@ -445,9 +445,9 @@ public class BookingCosmosDocumentStore(
 
     private async Task<IEnumerable<Booking>> GetInStatusUpdatedRange(DateTime from, DateTime to, string site)
     {
-        using (metricsRecorder.BeginScope("GetInStatusUpdatedRange"))
-        {
+        ////using (metricsRecorder.BeginScope("GetInStatusUpdatedRange"))
+        ////{
             return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.StatusUpdated >= from && b.StatusUpdated <= to);
-        }
+        ////}
     }
 }    

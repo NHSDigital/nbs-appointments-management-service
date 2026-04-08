@@ -14,6 +14,7 @@ public static class CosmosOperationHelper
         ILogger logger,
         IMetricsRecorder metricsRecorder,
         string documentType,
+        string path,
         // TODO: Add ITimeProvider
         CancellationToken cancellationToken = default)
     {
@@ -24,6 +25,7 @@ public static class CosmosOperationHelper
         {
             Container = containerRetryConfiguration.ContainerName,
             DocumentType = documentType,
+            Path = path
         };
 
         var backoffStrategy = CosmosBackoffStrategyFactory.Create(containerRetryConfiguration);

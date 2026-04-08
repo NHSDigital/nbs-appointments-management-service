@@ -13,8 +13,8 @@ public class AvailabilityDocumentStore(
     {
         var results = new List<SessionInstance>();
         var docType = documentStore.GetDocumentType();
-        using (metricsRecorder.BeginScope("GetSessions"))
-        {
+        ////using (metricsRecorder.BeginScope("GetSessions"))
+        ////{
             var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
                 b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
 
@@ -27,7 +27,7 @@ public class AvailabilityDocumentStore(
                     }
                 ));
             }
-        }
+        ////}
 
         return results;
     }
@@ -97,8 +97,8 @@ public class AvailabilityDocumentStore(
 
     public async Task<bool> SiteSupportsAllServicesOnSingleDateInRangeAsync(string siteId, List<string> services, List<string> datesInPeriod)
     {
-        using (metricsRecorder.BeginScope("SiteSupportsAllServicesOnSingleDateInRangeAsync"))
-        {
+        ////using (metricsRecorder.BeginScope("SiteSupportsAllServicesOnSingleDateInRangeAsync"))
+        ////{
             var docType = documentStore.GetDocumentType();
 
             var query = @"
@@ -121,7 +121,7 @@ public class AvailabilityDocumentStore(
 
             var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(queryDef)).Single();
             return dailyAvailabilityCount > 0;
-        }
+        ////}
     }
 
     public async Task CancelDayAsync(string site, DateOnly date)
@@ -222,12 +222,12 @@ public class AvailabilityDocumentStore(
             var originalSessions = originalDocument.Sessions;
             var newSessions = originalSessions.Concat(sessions);
             var dailyAvailabilityDocumentPatch = PatchOperation.Add("/sessions", newSessions);
-            await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
+            await documentStore.PatchDocument(site, documentId, [dailyAvailabilityDocumentPatch]);
         }
         else
         {
             var dailyAvailabilityDocumentPatch = PatchOperation.Add("/sessions", sessions);
-            await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
+            await documentStore.PatchDocument(site, documentId, [dailyAvailabilityDocumentPatch]);
         }
     }
 

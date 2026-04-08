@@ -14,6 +14,7 @@ using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nhs.Appointments.Api.Integration.Data;
@@ -137,6 +138,7 @@ public abstract partial class BaseFeatureSteps : Feature
             new Logger<T>(new LoggerFactory()),
             new InMemoryMetricsRecorder(),
             "TestDocumentType",
+            "TestPath",
             cancellationToken)).result;
     }
 

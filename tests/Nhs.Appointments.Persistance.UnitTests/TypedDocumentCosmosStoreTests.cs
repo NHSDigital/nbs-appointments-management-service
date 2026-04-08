@@ -79,7 +79,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var result =
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Once);
@@ -128,7 +128,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var result =
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Once);
@@ -186,7 +186,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None));
 
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
 
@@ -256,7 +256,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None));
 
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
 
@@ -331,7 +331,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var result =
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Exactly(10));
@@ -379,7 +379,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None));
 
         exception.Message.Should().Contain("TooManyRequests exception does not have a RetryAfter value");
     }
@@ -424,7 +424,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var result =
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Exactly(2));
@@ -504,7 +504,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var result =
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None);
 
         result.Should().Be(response);
         mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
@@ -584,7 +584,7 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None);
 
         mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
 
@@ -647,7 +647,7 @@ public class TypedDocumentCosmosStoreTests
         //invalid usage
         var action = async () =>
         {
-            _ = await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None);
+            _ = await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None);
         };
         await action.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -707,7 +707,7 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None, false);
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None, false);
 
         mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
 
@@ -779,7 +779,7 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None,
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None,
             canExtractRequestCharge: false);
 
         mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
@@ -839,7 +839,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None));
 
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
 
@@ -971,7 +971,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None));
 
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
 
@@ -1092,7 +1092,7 @@ public class TypedDocumentCosmosStoreTests
             _logger.Object);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None));
+            await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None));
 
         exception.Message.Should().Contain("Container 'test-container' too many requests were exceeded");
 

@@ -2,9 +2,11 @@ using Nhs.Appointments.Core.Metrics;
 
 public interface IMetricsRecorder
 {
-    IDisposable BeginScope(string scopeName);
+    string Source { get; }
+
+    void BeginRecording(string source);
 
     void RecordMetric(IMetric metric);
 
-    IReadOnlyCollection<(string Path, IMetric Metric)> Metrics { get; }
+    IReadOnlyCollection<IMetric> Metrics { get; }
 }

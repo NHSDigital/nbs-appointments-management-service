@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace Nhs.Appointments.Core.Metrics;
 
 public class InMemoryMetricsRecorder : IMetricsRecorder

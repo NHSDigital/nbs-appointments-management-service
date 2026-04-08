@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Core.Metrics;
 
 namespace Nhs.Appointments.Core.UnitTests.Metrics;

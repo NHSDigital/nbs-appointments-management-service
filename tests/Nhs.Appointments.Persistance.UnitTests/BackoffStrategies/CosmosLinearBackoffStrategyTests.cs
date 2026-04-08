@@ -2,7 +2,6 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Persistance.BackoffStrategies;
-using Nhs.Appointments.Persistance.UnitTests.Helpers;
 
 namespace Nhs.Appointments.Persistance.UnitTests.BackoffStrategies;
 

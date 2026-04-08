@@ -7,7 +7,6 @@ using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -152,7 +151,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
 
     public async Task<TModel> GetDocument<TModel>(string documentId)
     {
-        return await GetDocument<TModel>(documentId);
+        return await GetDocument<TModel>(documentId, _documentType.Value);
     }
 
     public async Task<TModel> GetDocument<TModel>(string documentId, string partitionKey)

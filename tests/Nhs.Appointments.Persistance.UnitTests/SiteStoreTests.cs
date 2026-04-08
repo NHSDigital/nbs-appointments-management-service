@@ -180,4 +180,147 @@ public class SiteStoreTests
 
         _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
     }
+
+    [Fact]
+    public async Task UpdateSiteDetails_FailsToFindSite()
+    {
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(null as Site);
+
+        var result = await _sut.UpdateSiteDetails("some-site-id", "Site Name", "1 Site Lane", "N", (decimal)-0.751, (decimal)50.369);
+
+        result.Success.Should().BeFalse();
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateSiteDetails_FailsToFindSite_WhenItHasBeenSoftDeleted()
+    {
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "some-site-id",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                "Information",
+                [],
+                new Location("Coordinates", [-1.75, 52.76]),
+                SiteStatus.Online,
+                true,
+                string.Empty));
+
+        var result = await _sut.UpdateSiteDetails("some-site-id", "Site Name", "1 Site Lane", "N", (decimal)-0.751, (decimal)50.369);
+
+        result.Success.Should().BeFalse();
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateSiteDetails_PatchesSiteDetails_ButNotSiteType()
+    {
+        List<PatchOperation> patchOperations = [];
+
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "some-site-id",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                "Information",
+                [],
+                new Location("Coordinates", [-1.75, 52.76]),
+                SiteStatus.Online, null,
+                string.Empty));
+        _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches)
+                => patchOperations = [.. patches])
+            .ReturnsAsync(null as SiteDocument);
+
+        var result = await _sut.UpdateSiteDetails("some-site-id", "Site Name", "1 Site Lane", "N", (decimal)-0.751, (decimal)50.369);
+
+        result.Success.Should().BeTrue();
+
+        patchOperations.Should().HaveCount(4);
+        patchOperations.Last().Path.Should().Be("/location/coordinates");
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateSiteDetails_PatchesSiteDetails_AndAddsSiteType()
+    {
+        List<PatchOperation> patchOperations = [];
+
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "some-site-id",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                "Information",
+                [],
+                new Location("Coordinates", [-1.75, 52.76]),
+                SiteStatus.Online, null,
+                null));
+        _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches)
+                => patchOperations = [.. patches])
+            .ReturnsAsync(null as SiteDocument);
+
+        var result = await _sut.UpdateSiteDetails("some-site-id", "Site Name", "1 Site Lane", "N", (decimal)-0.751, (decimal)50.369, "GP Practice");
+
+        result.Success.Should().BeTrue();
+
+        patchOperations.Should().HaveCount(5);
+        patchOperations.Last().Path.Should().Be("/type");
+        patchOperations.Last().OperationType.Should().Be(PatchOperationType.Add);
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateSiteDetails_PatchesSiteDetails_AndReplacesSiteType()
+    {
+        List<PatchOperation> patchOperations = [];
+
+        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
+            .ReturnsAsync(new Site(
+                "some-site-id",
+                "Test Site",
+                "Test Address",
+                "01234567890",
+                "ODS1",
+                "R1",
+                "ICB1",
+                "Information",
+                [],
+                new Location("Coordinates", [-1.75, 52.76]),
+                SiteStatus.Online, null,
+                "GP Practice"));
+        _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
+            .Callback<string, string, PatchOperation[]>((site, reference, patches)
+                => patchOperations = [.. patches])
+            .ReturnsAsync(null as SiteDocument);
+
+        var result = await _sut.UpdateSiteDetails("some-site-id", "Site Name", "1 Site Lane", "N", (decimal)-0.751, (decimal)50.369, "Pharmacy");
+
+        result.Success.Should().BeTrue();
+
+        patchOperations.Should().HaveCount(5);
+        patchOperations.Last().Path.Should().Be("/type");
+        patchOperations.Last().OperationType.Should().Be(PatchOperationType.Replace);
+
+        _siteStore.Verify(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()), Times.Once);
+    }
 }

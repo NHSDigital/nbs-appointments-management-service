@@ -9,14 +9,7 @@ public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : I
     public async Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options)
     {
         //intentionally prefix cache key indicating that it is a lazy sliding value
-        var lazySlideCacheKey = CacheKey.LazySlideCacheKey(cacheKey);
-        
-        if (options.AbsoluteExpiration <= options.SlideThreshold)
-        {
-            throw new ArgumentException("Configuration is not supported, AbsoluteExpiration must be greater than the SlideThreshold");
-        }
-        
-        var utcNow = timeProvider.GetUtcNow();
+        var lazySlideCacheKey = CacheKeys.LazySlideCacheKey(cacheKey);
         
         var lazySlideCacheLock =
             LazySlidingCacheLocks.GetOrAdd(lazySlideCacheKey, _ => new SemaphoreSlim(1, 1));
@@ -28,30 +21,27 @@ public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : I
 
         try
         {
-            if (await cacheStore.TryGetAsync<LazySlideCacheObject>(lazySlideCacheKey, out var lazySlideCacheObject))
+            if (await cacheStore.TryGetAsync<LazySlideCacheObject<T>>(lazySlideCacheKey, out var lazySlideCacheObject))
             {
                 ArgumentNullException.ThrowIfNull(lazySlideCacheObject);
             
-                //check if we want to update the existing cache in the background lazily...
-                if (lazySlideCacheObject.DateTimeUpdated.Add(options.SlideThreshold) < utcNow)
+                if (lazySlideCacheObject.IsFresh(options.SlideThreshold, timeProvider.GetUtcNow()))
                 {
-                    //Sliding cache functionality
-                    
-                    //Update the cache value so the NEXT request gets a newer version of the latest expensive value fetch
-                    //This approach means the cache entry is never guaranteed to be the exact latest value (unless a cache value does not exist) - but it is recent enough to not have a big impact
-                    //The performance gain is a sufficient benefit to the value being potentially slightly behind the latest value
-                    _ = SlideCache(lazySlideCacheKey, options, lazySlideCacheLock, (T)lazySlideCacheObject.Value, utcNow);
-                    slidePerformed = true;
+                    return lazySlideCacheObject.Value;
                 }
-            
-                //return the current cached value regardless of whether sliding was invoked
-                return (T)lazySlideCacheObject.Value;
+                    
+                /*
+                    Update the cache value so the NEXT request gets a newer version of the latest expensive value fetch
+                    This approach means the cache entry is never guaranteed to be the exact latest value (unless a cache value does not exist) - but it is recent enough to not have a big impact
+                    The performance gain is a sufficient benefit to the value being potentially slightly behind the latest value 
+                */
+                _ = SlideCache(lazySlideCacheKey, options, lazySlideCacheLock, lazySlideCacheObject.Value);
+                slidePerformed = true;
+
+                return lazySlideCacheObject.Value;
             }
             
-            var value = await options.UpdateOperation();
-            await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject(value, utcNow),
-                utcNow.Add(options.AbsoluteExpiration));
-            return value;
+            return await SetCacheAndReturn(lazySlideCacheKey, options, (value) => new LazySlideCacheObject<T>(value, timeProvider.GetUtcNow()));
         }
         finally
         {
@@ -74,10 +64,7 @@ public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : I
             }
         }
         
-        var newValue = await options.UpdateOperation();
-
-        await cacheStore.SetAsync(cacheKey, new CacheObject<T>(newValue), options.AbsoluteExpiration);
-        return newValue;
+        return await SetCacheAndReturn(cacheKey, options, (value) => new CacheObject<T>(value));
     }
 
     public async Task<T> GetCacheValueWithDefault<T>(string cacheKey, CacheOptions<T> options, T defaultValue)
@@ -102,13 +89,20 @@ public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : I
         return tryResult.Result;
     }
 
-    private async Task SlideCache<T>(string lazySlideCacheKey, LazySlideCacheOptions<T> options, SemaphoreSlim lazySlideCacheLock, T lazyValue, DateTimeOffset dateTime)
+    private async Task<T> SetCacheAndReturn<T, TCache>(string cacheKey, CacheOptions<T> options, Func<T, TCache> initialiseCacheObject)
+    {
+        var newValue = await options.UpdateOperation();
+        await cacheStore.SetAsync(cacheKey, initialiseCacheObject(newValue), options.AbsoluteExpiration);
+        return newValue;
+    }
+
+    private async Task SlideCache<T>(string lazySlideCacheKey, LazySlideCacheOptions<T> options, SemaphoreSlim lazySlideCacheLock, T lazyValue)
     {
         try
         {
             //update the cache datetime prematurely so that concurrent waiting threads do not trigger their own slide operation
-            await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject(lazyValue, dateTime),
-                dateTime.Add(options.AbsoluteExpiration));
+            await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject<T>(lazyValue, timeProvider.GetUtcNow()),
+                options.AbsoluteExpiration);
         }
         finally
         {
@@ -117,8 +111,6 @@ public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : I
         }
         
         //then update the actual value now that no locks are being held
-        var value = await options.UpdateOperation();
-        await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject(value, dateTime),
-            dateTime.Add(options.AbsoluteExpiration));
+        await SetCacheAndReturn(lazySlideCacheKey, options, (value) => new LazySlideCacheObject<T>(value, timeProvider.GetUtcNow()));
     }
 }

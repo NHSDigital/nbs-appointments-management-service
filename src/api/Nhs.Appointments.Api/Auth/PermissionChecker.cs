@@ -173,7 +173,7 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     private async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignmentsAsync(string userId)
     {
         return await cacheService.GetCacheValueWithDefault(
-            CacheKey.UserRolesCacheKey(userId),
+            CacheKeys.UserRolesCacheKey(userId),
             new CacheOptions<IEnumerable<RoleAssignment>>(
                 () => userService.GetUserRoleAssignments(userId),
                 _userRolesCacheDuration),
@@ -183,7 +183,7 @@ public class PermissionChecker(IUserService userService, IRolesService rolesServ
     private async Task<IEnumerable<Role>> GetRolesAsync()
     {
         return await cacheService.GetCacheValueWithDefault(
-            CacheKey.RolesCacheKey,
+            CacheKeys.RolesCacheKey,
             new CacheOptions<IEnumerable<Role>>(
                 rolesService.GetRoles,
                 _rolesCacheDuration), 

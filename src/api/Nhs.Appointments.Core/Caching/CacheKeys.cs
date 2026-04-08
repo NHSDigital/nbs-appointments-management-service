@@ -1,6 +1,6 @@
 ﻿namespace Nhs.Appointments.Core.Caching;
 
-public static class CacheKey
+public static class CacheKeys
 {
     public const string ClinicalService = "clinical-service";
     public const string RolesCacheKey = "roles";

@@ -132,7 +132,7 @@ public class SiteService(
                 }
                 else
                 {
-                    var cacheKey = CacheKey.GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
+                    var cacheKey = CacheKeys.GetCacheSiteServiceSupportDateRangeKey(swd.Site.Id, uniqueSortedServices, from, to);
                     var slideThreshold =
                         TimeSpan.FromSeconds(options.Value.SiteSupportsServiceSlidingCacheSlideThresholdSeconds);
                     var slideExpiry = TimeSpan.FromSeconds(options.Value

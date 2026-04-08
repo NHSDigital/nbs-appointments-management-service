@@ -22,7 +22,7 @@ public class ClinicalServiceProvider(IClinicalServiceStore store, ICacheService 
     public async Task<IEnumerable<ClinicalServiceType>> GetFromCache()
     {
         return await cacheService.GetCacheValue(
-            CacheKey.ClinicalService, 
+            CacheKeys.ClinicalService, 
             new CacheOptions<IEnumerable<ClinicalServiceType>>(
                 Get, 
                 _cacheDuration));

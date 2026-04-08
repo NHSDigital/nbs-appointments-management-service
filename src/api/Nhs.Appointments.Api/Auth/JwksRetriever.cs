@@ -14,13 +14,16 @@ namespace Nhs.Appointments.Api.Auth;
 public class JwksRetriever(IHttpClientFactory httpClientFactory, ICacheService cacheService)
     : IJwksRetriever
 {
+    private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(60); // ToDo inject this as options
+    
     public async Task<IEnumerable<SecurityKey>> GetKeys(string jwksEndpoint)
     {
         return await cacheService.GetCacheValue(
             jwksEndpoint, 
             new CacheOptions<IEnumerable<SecurityKey>>(
             async () => await GetSecurityKeys(jwksEndpoint), 
-            TimeSpan.FromHours(1)));
+            _cacheDuration
+            ));
     }
 
     private async Task<IEnumerable<SecurityKey>> GetSecurityKeys(string jwksEndpoint)

@@ -38,7 +38,7 @@ public class NotificationConfigurationService(ICacheService cacheService, INotif
     private async Task<IEnumerable<NotificationConfiguration>> LoadNotificationConfiguration()
     {
         return await cacheService.GetCacheValue(
-            CacheKey.NotificationConfiguration,
+            CacheKeys.NotificationConfiguration,
             new CacheOptions<IEnumerable<NotificationConfiguration>>(
                 notificationConfigurationStore.GetNotificationConfiguration,
                 _cacheDuration));

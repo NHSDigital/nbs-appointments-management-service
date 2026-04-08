@@ -62,7 +62,7 @@ public class CacheServiceTests
         var cacheValue = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
         Assert.False(cacheValue.IsCompleted);
         
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         keyValue1.Should().BeNull();
 
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
@@ -75,7 +75,7 @@ public class CacheServiceTests
         keyValue2.Should().BeNull();
 
         //Need to query by lazy slide prefix
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue3);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue3);
         ((LazySlideCacheObject)keyValue3)?.Value.Should().Be(true);
     }
     
@@ -95,7 +95,7 @@ public class CacheServiceTests
         call2.Result.Should().BeTrue();
         call3.Result.Should().BeTrue();
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
@@ -117,10 +117,10 @@ public class CacheServiceTests
         call2.Result.Should().BeFalse();
         call3.Result.Should().BeTrue();
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey("Key1"), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey("Key1"), out var keyValue1);
         ((LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey("Key2"), out var keyValue2);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey("Key2"), out var keyValue2);
         ((LazySlideCacheObject)keyValue2)?.Value.Should().Be(false);
         
         _memoryCache.TryGetValue("Key3", out var keyValue3);
@@ -145,7 +145,7 @@ public class CacheServiceTests
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //slide threshold has been crossed
@@ -171,7 +171,7 @@ public class CacheServiceTests
         while (slideCacheValue1)
         {
             await Task.Delay(5);
-            _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue2);
+            _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue2);
             slideCacheValue1 = (bool)((LazySlideCacheObject)keyValue2)?.Value!;
         }
 
@@ -195,7 +195,7 @@ public class CacheServiceTests
         while (!slideCacheValue2)
         {
             await Task.Delay(5);
-            _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue3);
+            _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue3);
             slideCacheValue2 = (bool)(keyValue3 as LazySlideCacheObject)?.Value!;
         }
 
@@ -217,7 +217,7 @@ public class CacheServiceTests
 
         FakeExpensiveBoolOperationCallCount.Should().Be(1);
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //slide threshold has NOT YET been crossed
@@ -251,12 +251,12 @@ public class CacheServiceTests
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
 
         (await call1).Should().BeTrue();
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //No easy way to simulate timeProvider with memoryCacheOptions
         //Just simulate the cache expiring
-        _memoryCache.Remove(CacheKey.LazySlideCacheKey(DefaultCacheKey));
+        _memoryCache.Remove(CacheKeys.LazySlideCacheKey(DefaultCacheKey));
 
         var call2 = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
         _ = _sut.GetLazySlidingCacheValue(DefaultCacheKey, DefaultOptions);
@@ -290,7 +290,7 @@ public class CacheServiceTests
         //slide threshold has been crossed
         _timeProvider.Advance(DefaultSlideThreshold.Add(TimeSpan.FromMinutes(1)));
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
         ((LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
         //multiple requests occur during the slide threshold
@@ -331,13 +331,13 @@ public class CacheServiceTests
         call1.Result.Should().BeTrue();
         call2.Result.Should().BeFalse();
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey("Key1"), out var keyValue1);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey("Key1"), out var keyValue1);
         ((LazySlideCacheObject)keyValue1)?.Value.Should().Be(true);
 
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey("Key2"), out var keyValue2);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey("Key2"), out var keyValue2);
         ((LazySlideCacheObject)keyValue2)?.Value.Should().Be(false);
         
-        _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey("Key3"), out var keyValue3);
+        _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey("Key3"), out var keyValue3);
         keyValue3.Should().BeNull();
         
         //only 2 trigger initially
@@ -364,10 +364,10 @@ public class CacheServiceTests
         while (key1CacheValue && !key2CacheValue)
         {
             await Task.Delay(5);
-            _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey("Key1"), out var key1Value);
+            _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey("Key1"), out var key1Value);
             key1CacheValue = (bool)((LazySlideCacheObject)key1Value)?.Value!;
             
-            _memoryCache.TryGetValue(CacheKey.LazySlideCacheKey("Key2"), out var key2Value);
+            _memoryCache.TryGetValue(CacheKeys.LazySlideCacheKey("Key2"), out var key2Value);
             key2CacheValue = (bool)((LazySlideCacheObject)key2Value)?.Value!;
         }
 

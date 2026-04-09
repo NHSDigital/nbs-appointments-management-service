@@ -18,7 +18,6 @@ namespace Nhs.Appointments.Api.Functions.HttpFunctions;
 
 public class QuerySitesFunction(
     ISiteService siteService,
-    IFeatureToggleHelper featureToggleHelper,
     IValidator<QuerySitesRequest> validator,
     IUserContextProvider userContextProvider,
     ILogger<QuerySitesFunction> logger,
@@ -41,9 +40,7 @@ public class QuerySitesFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sites")]
         HttpRequest req)
     {
-        return await featureToggleHelper.IsFeatureEnabled(Flags.QuerySites)
-            ? await base.RunAsync(req)
-            : ProblemResponse(HttpStatusCode.NotImplemented, null);
+        return await base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<IEnumerable<SiteWithDistance>>> HandleRequest(QuerySitesRequest request, ILogger logger)

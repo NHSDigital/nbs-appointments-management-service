@@ -19,7 +19,6 @@ public class QuerySitesFunctionTests
     private readonly Mock<ILogger<QuerySitesFunction>> _logger = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
     private readonly Mock<ISiteService> _siteService = new();
-    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<QuerySitesRequest>> _validator = new();
 
@@ -29,7 +28,6 @@ public class QuerySitesFunctionTests
     {
         _sut = new QuerySitesFunction(
             _siteService.Object,
-            _featureToggleHelper.Object,
             _validator.Object,
             _userContextProvider.Object,
             _logger.Object,
@@ -39,25 +37,9 @@ public class QuerySitesFunctionTests
     }
 
     [Fact]
-    public async Task RunAsync_ShouldReturnNotImplemented_WhenFeatureToggleDisabled()
-    {
-        var request = CreateRequest();
-
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.QuerySites))
-            .ReturnsAsync(false);
-
-        var result = await _sut.RunAsync(request) as ContentResult;
-
-        result.StatusCode.Should().Be(501);
-    }
-
-    [Fact]
     public async Task RunAsync_CallsSitesService_AndReturnsSuccessResponse()
     {
         var request = CreateRequest();
-
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.QuerySites))
-            .ReturnsAsync(true);
 
         var result = await _sut.RunAsync(request) as ContentResult;
 

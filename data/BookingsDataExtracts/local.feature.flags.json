@@ -6,7 +6,6 @@
     "CancelDay": false,
     "ChangeSessionUpliftedJourney": false,
     "CancelSessionUpliftedJourney": false,
-    "QuerySites": false,
     "MultiServiceJointBookings": false,
     "JointBookingsReporting": false,
     "ReportsUplift": false,

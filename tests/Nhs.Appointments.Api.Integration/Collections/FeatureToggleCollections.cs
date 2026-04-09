@@ -6,7 +6,6 @@ namespace Nhs.Appointments.Api.Integration.Collections;
 public static class FeatureToggleCollectionNames
 {
     public const string CancelDayCollection = $"{Flags.CancelDay}_Toggle";
-    public const string QuerySitesCollection = $"{Flags.QuerySites}_Toggle";
     public const string MultiServiceJointBookingsCollection = $"{Flags.MultiServiceJointBookings}_Toggle";
     public const string ReportsUpliftCollection = $"{Flags.ReportsUplift}_Toggle";
 
@@ -17,11 +16,6 @@ public static class FeatureToggleCollectionNames
 
 [CollectionDefinition(FeatureToggleCollectionNames.CancelDayCollection)]
 public class CancelDaySerialToggleCollection : ICollectionFixture<object>
-{
-}
-
-[CollectionDefinition(FeatureToggleCollectionNames.QuerySitesCollection)]
-public class QuerySitesSerialToggleCollection : ICollectionFixture<object>
 {
 }
 

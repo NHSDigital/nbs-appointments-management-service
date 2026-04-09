@@ -124,6 +124,13 @@ const getLinksForSite = async (
   const navigationLinks: NavigationLink[] = [];
 
   if (site !== undefined) {
+    if (permissionsAtSite.includes('site:view')) {
+      navigationLinks.push({
+        label: 'Home',
+        href: `${basePath}/site/${site.id}`,
+      });
+    }
+
     if (permissionsAtSite.includes('availability:query')) {
       navigationLinks.push({
         label: 'View availability',

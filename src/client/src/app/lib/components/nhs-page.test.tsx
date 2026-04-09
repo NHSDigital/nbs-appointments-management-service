@@ -272,6 +272,7 @@ describe('Nhs Page', () => {
       screen.queryByRole('navigation', { name: 'Primary navigation' }),
     ).toBeNull();
 
+    expect(screen.queryByRole('link', { name: 'Home' })).toBeNull();
     expect(
       screen.queryByRole('link', { name: 'View availability' }),
     ).toBeNull();
@@ -363,7 +364,7 @@ describe('Nhs Page', () => {
     ).toHaveAttribute('href', '/test/url');
   });
 
-  it('displays secondary navgation with the correct details when provided', async () => {
+  it('displays secondary navigation with the correct details when provided', async () => {
     fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
     const secondaryNavJsx = await SecondaryNavigation({
@@ -420,6 +421,78 @@ describe('Nhs Page', () => {
     expect(screen.getByRole('link', { name: 'Link Three' })).toHaveAttribute(
       'href',
       '/link/three/url',
+    );
+  });
+
+  it('displays site navigation links when site is defined', async () => {
+    fetchPermissionsMock.mockResolvedValue(
+      asServerActionResult([
+        'availability:query',
+        'availability:setup',
+        'site:manage',
+        'users:view',
+        'site:view',
+      ]),
+    );
+    mockGetCurrentDatTime.mockReturnValue('2026-06-05');
+
+    const jsx = await NhsPage({
+      title: 'Test title',
+      children: null,
+      site: mockSite,
+      breadcrumbs: [],
+      originPage: '',
+    });
+    render(jsx);
+
+    expect(fetchPermissionsMock).toHaveBeenCalledWith(
+      '34e990af-5dc9-43a6-8895-b9123216d699',
+    );
+
+    expect(screen.queryByRole('link', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Home' })).toHaveAttribute(
+      'href',
+      `/manage-your-appointments/site/${mockSite.id}`,
+    );
+
+    expect(
+      screen.queryByRole('link', { name: 'View availability' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'View availability' }),
+    ).toHaveAttribute(
+      'href',
+      `/manage-your-appointments/site/${mockSite.id}/view-availability/daily-appointments?date=2026-06-05&page=1`,
+    );
+
+    expect(
+      screen.queryByRole('link', { name: 'Create availability' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Create availability' }),
+    ).toHaveAttribute(
+      'href',
+      `/manage-your-appointments/site/${mockSite.id}/create-availability`,
+    );
+
+    expect(
+      screen.queryByRole('link', { name: 'Change site details' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Change site details' }),
+    ).toHaveAttribute(
+      'href',
+      `/manage-your-appointments/site/${mockSite.id}/details`,
+    );
+
+    expect(
+      screen.queryByRole('link', { name: 'Manage users' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Manage users' }),
+    ).toHaveAttribute(
+      'href',
+      `/manage-your-appointments/site/${mockSite.id}/users`,
     );
   });
 });

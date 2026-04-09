@@ -1,12 +1,16 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { Header, HeaderAccountItem } from 'nhsuk-react-components';
-import path from 'path';
 
 export type NavigationLink = {
   label: string;
   href: string;
+  pathToCheckIfCurrent?: LinkCurrentCheck;
+};
+
+export type LinkCurrentCheck = {
   pathToCheckIfCurrent?: string;
+  checkType: 'includes' | 'endsWith';
 };
 
 type Props = {
@@ -54,7 +58,7 @@ const NhsPageHeader = ({
               <Header.NavigationItem
                 href={link.href}
                 key={`naviagtion-item-${index}`}
-                {...(isCurrentPage(pathname, link.pathToCheckIfCurrent)
+                {...(isCurrentPage(pathname, link)
                   ? { 'aria-current': 'true' }
                   : {})}
               >
@@ -68,14 +72,21 @@ const NhsPageHeader = ({
   );
 };
 
-const isCurrentPage = (
-  pathname: string,
-  pathToCheckIfCurrent: string | undefined,
-) => {
+// Adding checkType so the new 'Home' link does not have the aria-current attribute
+// when other pages were also 'current' as they included 'site/:id' in their path as well
+const isCurrentPage = (pathname: string, link: NavigationLink) => {
+  const { pathToCheckIfCurrent, checkType } = link.pathToCheckIfCurrent || {};
   if (!pathToCheckIfCurrent) {
     return false;
   }
-  return pathname.includes(pathToCheckIfCurrent);
+  if (checkType === 'includes') {
+    return pathname.includes(pathToCheckIfCurrent);
+  }
+  if (checkType === 'endsWith') {
+    return pathname.endsWith(pathToCheckIfCurrent);
+  }
+
+  return false;
 };
 
 export default NhsPageHeader;

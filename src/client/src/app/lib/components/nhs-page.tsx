@@ -126,7 +126,10 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Home',
         href: `${basePath}/site/${site.id}`,
-        pathToCheckIfCurrent: `/site/${site.id}`,
+        pathToCheckIfCurrent: {
+          checkType: 'endsWith',
+          pathToCheckIfCurrent: `/site/${site.id}`,
+        },
       });
     }
 
@@ -134,7 +137,10 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'View availability',
         href: `${basePath}/site/${site.id}/view-availability/daily-appointments?date=${GetCurrentDateTime('YYYY-MM-DD')}&page=1`,
-        pathToCheckIfCurrent: 'view-availability',
+        pathToCheckIfCurrent: {
+          checkType: 'includes',
+          pathToCheckIfCurrent: `/site/${site.id}/view-availability`,
+        },
       });
     }
 
@@ -142,7 +148,10 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Create availability',
         href: `${basePath}/site/${site.id}/create-availability`,
-        pathToCheckIfCurrent: 'create-availability',
+        pathToCheckIfCurrent: {
+          checkType: 'includes',
+          pathToCheckIfCurrent: `/site/${site.id}/create-availability`,
+        },
       });
     }
 
@@ -153,7 +162,10 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Change site details',
         href: `${basePath}/site/${site.id}/details`,
-        pathToCheckIfCurrent: 'details',
+        pathToCheckIfCurrent: {
+          checkType: 'includes',
+          pathToCheckIfCurrent: `/site/${site.id}/details`,
+        },
       });
     }
 
@@ -161,7 +173,10 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Manage users',
         href: `${basePath}/site/${site.id}/users`,
-        pathToCheckIfCurrent: 'users',
+        pathToCheckIfCurrent: {
+          checkType: 'includes',
+          pathToCheckIfCurrent: `/site/${site.id}/users`,
+        },
       });
     }
   }
@@ -170,7 +185,10 @@ const getLinksForSite = async (
     navigationLinks.push({
       label: 'Reports',
       href: `${basePath}/reports`,
-      pathToCheckIfCurrent: 'reports',
+      pathToCheckIfCurrent: {
+        checkType: 'endsWith',
+        pathToCheckIfCurrent: '/reports',
+      },
     });
   }
 

@@ -7,18 +7,43 @@ public class InMemoryMetricsRecorderTests
     private readonly InMemoryMetricsRecorder _sut = new();
 
     [Fact]
+    public void BeginRecording_RecordsSource()
+    {
+        // Arrange.
+        var randomSource = Guid.NewGuid().ToString();
+
+        // Act.
+        _sut.BeginRecording(randomSource);
+
+        // Assert.
+        _sut.Source.Should().Be(randomSource);
+    }
+
+    [Fact]
+    public void CannotBeginRecordingMoreThanOnce()
+    {
+        // Arrange.
+        var randomSource = Guid.NewGuid().ToString();
+        _sut.BeginRecording(randomSource);
+
+        // Act.
+        Action action = () => _sut.BeginRecording(randomSource);
+
+        // Assert.
+        action.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
     public void RecordMetric_RecordsMetrics()
     {
         var random = new Random();
         var expectedValue1 = random.Next(1,1000);
         var generatedName1 = Guid.NewGuid().ToString();
-        var generatedPath1 = Guid.NewGuid().ToString();
-        var testMetric = new TestMetric(generatedName1, generatedPath1, expectedValue1);
+        var testMetric = new TestMetric(generatedName1, expectedValue1);
 
         var generatedName2 = Guid.NewGuid().ToString();
-        var generatedPath2 = Guid.NewGuid().ToString();
         var expectedValue2 = Guid.NewGuid().ToString();
-        var otherMetric = new OtherMetric(generatedName2, generatedPath2, "myField", expectedValue2);
+        var otherMetric = new OtherMetric(generatedName2, "myField", expectedValue2);
 
         _sut.RecordMetric(testMetric);
         _sut.RecordMetric(otherMetric);
@@ -30,14 +55,14 @@ public class InMemoryMetricsRecorderTests
         _sut.Metrics.Should().BeEquivalentTo(expectedResults);
     }
 
-    private class TestMetric(string name, string path, int value) : IMetric
+    private class TestMetric(string name, int value) : IMetric
     {
         public string Name => name;
 
         public int Value => value;
     }
 
-    private class OtherMetric(string name, string path, string field, string value) : IMetric
+    private class OtherMetric(string name, string field, string value) : IMetric
     {
         public string Name => name;
 

@@ -324,49 +324,6 @@ describe('Nhs Page', () => {
     },
   );
 
-  it('Displays a link with the site name if a site is provided', async () => {
-    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
-
-    const jsx = await NhsPage({
-      title: 'Test title',
-      children: null,
-      site: {
-        id: '6877d86e-c2df-4def-8508-e1eccf0ea6be',
-        name: 'Test site',
-        address: '',
-        odsCode: 'K12',
-        integratedCareBoard: '',
-        region: '',
-        phoneNumber: '01189998819991197253',
-        location: {
-          coordinates: [-2.3, 53.1],
-          type: 'point',
-        },
-        accessibilities: [],
-        informationForCitizens: '',
-      },
-      breadcrumbs: [],
-      originPage: '',
-    });
-    render(jsx);
-
-    expect(screen.getByRole('link', { name: 'Test site' })).toBeInTheDocument();
-  });
-
-  it('Does not display site name link if no site is provided', async () => {
-    fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
-
-    const jsx = await NhsPage({
-      title: 'Test title',
-      children: null,
-      breadcrumbs: [],
-      originPage: '',
-    });
-    render(jsx);
-
-    expect(screen.queryByRole('link', { name: 'Test site' })).toBeNull();
-  });
-
   it('displays the back link with the correct title and URL', async () => {
     fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 

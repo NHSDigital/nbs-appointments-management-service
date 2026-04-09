@@ -1,3 +1,4 @@
+import { timeZones } from '../../availability';
 import { test, expect, BookingSetup } from '../../fixtures-v2';
 import {
   daysFromToday,
@@ -8,7 +9,7 @@ import { ukNow, startOfUkWeek, endOfUkWeek } from '@services/timeService';
 
 test.describe.configure({ mode: 'serial' });
 
-['Europe/London'].forEach(timezone => {
+timeZones.forEach(timezone => {
   test.describe(`Test in timezone: '${timezone}'`, () => {
     test.use({ timezoneId: timezone });
 

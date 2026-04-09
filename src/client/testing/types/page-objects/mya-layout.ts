@@ -35,8 +35,8 @@ export default abstract class MYALayout extends PageObject {
     return new LoginPage(this.page);
   }
 
-  async changeSite(): Promise<SiteSelectionPage> {
-    await this.header.changeSiteLink.click();
+  async changeSite(siteName: string): Promise<SiteSelectionPage> {
+    await this.header.changeSiteLink(siteName).click();
     await this.page.waitForURL('**/sites');
 
     return new SiteSelectionPage(this.page);

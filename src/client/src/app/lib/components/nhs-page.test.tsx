@@ -22,6 +22,13 @@ const fetchPermissionsMock = fetchPermissions as jest.Mock<
   Promise<ServerActionResult<string[]>>
 >;
 
+const mockUsePathname = jest.fn();
+jest.mock('next/navigation', () => {
+  return {
+    usePathname: () => mockUsePathname(),
+  };
+});
+
 jest.mock('@components/nhs-header-log-in', () => {
   const MockNhsHeaderLogIn = () => {
     return <button type="submit">log in</button>;
@@ -70,6 +77,7 @@ describe('Nhs Page', () => {
         'users:view',
       ]),
     );
+    mockUsePathname.mockReturnValue('/test/current/path');
   });
 
   afterEach(() => {
@@ -424,7 +432,7 @@ describe('Nhs Page', () => {
     );
   });
 
-  it('displays site navigation links when site is defined', async () => {
+  it('displays site navigation links when site is defined and correct sets aria current attribute', async () => {
     fetchPermissionsMock.mockResolvedValue(
       asServerActionResult([
         'availability:query',
@@ -435,6 +443,7 @@ describe('Nhs Page', () => {
       ]),
     );
     mockGetCurrentDatTime.mockReturnValue('2026-06-05');
+    mockUsePathname.mockReturnValue(`/site/${mockSite.id}`);
 
     const jsx = await NhsPage({
       title: 'Test title',
@@ -454,6 +463,10 @@ describe('Nhs Page', () => {
       'href',
       `/manage-your-appointments/site/${mockSite.id}`,
     );
+    expect(screen.queryByRole('link', { name: 'Home' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
 
     expect(
       screen.queryByRole('link', { name: 'View availability' }),
@@ -464,6 +477,9 @@ describe('Nhs Page', () => {
       'href',
       `/manage-your-appointments/site/${mockSite.id}/view-availability/daily-appointments?date=2026-06-05&page=1`,
     );
+    expect(
+      screen.queryByRole('link', { name: 'View availability' }),
+    ).not.toHaveAttribute('aria-current', 'true');
 
     expect(
       screen.queryByRole('link', { name: 'Create availability' }),
@@ -474,6 +490,9 @@ describe('Nhs Page', () => {
       'href',
       `/manage-your-appointments/site/${mockSite.id}/create-availability`,
     );
+    expect(
+      screen.queryByRole('link', { name: 'Create availability' }),
+    ).not.toHaveAttribute('aria-current', 'true');
 
     expect(
       screen.queryByRole('link', { name: 'Change site details' }),
@@ -484,6 +503,9 @@ describe('Nhs Page', () => {
       'href',
       `/manage-your-appointments/site/${mockSite.id}/details`,
     );
+    expect(
+      screen.queryByRole('link', { name: 'Change site details' }),
+    ).not.toHaveAttribute('aria-current', 'true');
 
     expect(
       screen.queryByRole('link', { name: 'Manage users' }),
@@ -494,5 +516,8 @@ describe('Nhs Page', () => {
       'href',
       `/manage-your-appointments/site/${mockSite.id}/users`,
     );
+    expect(
+      screen.queryByRole('link', { name: 'Manage users' }),
+    ).not.toHaveAttribute('aria-current', 'true');
   });
 });

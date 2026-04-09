@@ -1,9 +1,12 @@
 'use client';
+import { usePathname } from 'next/navigation';
 import { Header, HeaderAccountItem } from 'nhsuk-react-components';
+import path from 'path';
 
 export type NavigationLink = {
   label: string;
   href: string;
+  pathToCheckIfCurrent?: string;
 };
 
 type Props = {
@@ -19,6 +22,8 @@ const NhsPageHeader = ({
   showChangeSiteButton,
   siteName,
 }: Props) => {
+  const pathname = usePathname();
+
   return (
     <Header
       service={{
@@ -51,6 +56,9 @@ const NhsPageHeader = ({
               <Header.NavigationItem
                 href={link.href}
                 key={`naviagtion-item-${index}`}
+                {...(isCurrentPage(pathname, link.pathToCheckIfCurrent)
+                  ? { 'aria-current': 'true' }
+                  : {})}
               >
                 {link.label}
               </Header.NavigationItem>
@@ -60,6 +68,16 @@ const NhsPageHeader = ({
       )}
     </Header>
   );
+};
+
+const isCurrentPage = (
+  pathname: string,
+  pathToCheckIfCurrent: string | undefined,
+) => {
+  if (!pathToCheckIfCurrent) {
+    return false;
+  }
+  return pathname.includes(pathToCheckIfCurrent);
 };
 
 export default NhsPageHeader;

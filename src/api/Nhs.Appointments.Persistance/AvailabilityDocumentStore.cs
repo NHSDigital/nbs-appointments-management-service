@@ -220,12 +220,12 @@ public class AvailabilityDocumentStore(
             var originalSessions = originalDocument.Sessions;
             var newSessions = originalSessions.Concat(sessions);
             var dailyAvailabilityDocumentPatch = PatchOperation.Add("/sessions", newSessions);
-            await documentStore.PatchDocument(site, documentId, [dailyAvailabilityDocumentPatch]);
+            await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
         }
         else
         {
             var dailyAvailabilityDocumentPatch = PatchOperation.Add("/sessions", sessions);
-            await documentStore.PatchDocument(site, documentId, [dailyAvailabilityDocumentPatch]);
+            await documentStore.PatchDocument(site, documentId, dailyAvailabilityDocumentPatch);
         }
     }
 

@@ -2,9 +2,20 @@ import { render, screen } from '@testing-library/react';
 import { WeekSummaryCard } from './week-summary-card';
 import { mockWeekSummary } from '@testing/availability-and-bookings-mock-data';
 import { mockMultipleServices } from '@testing/data';
+import { isThisWeek } from '@services/timeService';
+
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    isThisWeek: jest.fn(),
+  };
+});
+const mockIsThisWeek = isThisWeek as jest.Mock<boolean>;
 
 describe('Week Summary Card', () => {
   it('renders', () => {
+    mockIsThisWeek.mockReturnValue(false);
     render(
       <WeekSummaryCard
         ukWeekSummary={mockWeekSummary}
@@ -99,5 +110,19 @@ describe('Week Summary Card', () => {
       'href',
       `view-availability/week?date=2024-06-10`,
     );
+  });
+
+  it('Adds this week label', async () => {
+    mockIsThisWeek.mockReturnValue(true);
+    render(
+      <WeekSummaryCard
+        ukWeekSummary={mockWeekSummary}
+        clinicalServices={mockMultipleServices}
+      />,
+    );
+
+    expect(
+      screen.getByRole('heading', { name: '10 June to 16 June (this week)' }),
+    ).toBeInTheDocument();
   });
 });

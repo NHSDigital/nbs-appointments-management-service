@@ -153,7 +153,7 @@ public class SiteService(
     }
 
     public async Task<IEnumerable<Site>> GetSitesInRegion(string region)
-        => await siteStore.GetSitesInRegionAsync(region);
+        => (await GetAllSites()).Where(s => s.Region.Equals(region, StringComparison.InvariantCultureIgnoreCase));
 
     public async Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false)
     {
@@ -217,7 +217,7 @@ public class SiteService(
     }
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
-        => await siteStore.GetSitesInIcbAsync(icb);
+        => (await GetAllSites()).Where(s => s.IntegratedCareBoard.Equals(icb, StringComparison.InvariantCultureIgnoreCase));
 
     public async Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId)
     {

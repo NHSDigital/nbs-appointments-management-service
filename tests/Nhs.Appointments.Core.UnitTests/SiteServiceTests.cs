@@ -170,36 +170,6 @@ public class SiteServiceTests
     }
 
     [Fact]
-    public async Task GetSitesInRegion_CachedSitesNotFound_ReturnsAllSitesFilteredWithMatchingRegion()
-    {
-        var sites = new List<Site>()
-        {
-            new(
-                Id: "ABC01",
-                Name: "Site 1",
-                Address: "1 Park Row",
-                PhoneNumber: "0113 1111111",
-                OdsCode: "odsCode1",
-                Region: "R1",
-                IntegratedCareBoard: "ICB1",
-                location: new Location("Point", [0.04, 50.0]),
-                InformationForCitizens: "",
-                Accessibilities: new List<Accessibility>() {new (Id: "accessibility/access_need_1", Value: "true")},
-                status: SiteStatus.Online, isDeleted: null,
-                Type: string.Empty),
-        };
-
-        _siteStore.Setup(x => x.GetSitesInRegionAsync("R1")).ReturnsAsync(sites);
-
-        var result = await _sut.GetSitesInRegion("R1");
-
-        result.Count().Should().Be(1);
-        result.First().Region.Should().Be("R1");
-
-        _siteStore.Verify(x => x.GetSitesInRegionAsync("R1"), Times.Once);
-    }
-
-    [Fact]
     public async Task QuerySitesAsync_FiltersSitesOnAccessNeeds()
     {
         var filters = new List<SiteFilter>

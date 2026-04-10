@@ -128,6 +128,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         using var response = await Retry_CosmosOperation_OnTooManyRequests(
             async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)),
             CancellationToken.None, canExtractRequestCharge: false);
+        
         if (!response.IsSuccessStatusCode)
         {
             return default;

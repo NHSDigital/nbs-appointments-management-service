@@ -1,8 +1,12 @@
-﻿public interface IMetricsRecorder
+using Nhs.Appointments.Core.Metrics;
+
+public interface IMetricsRecorder
 {
-    IDisposable BeginScope(string scopeName);
+    string Source { get; }
 
-    void RecordMetric(string name, double value);
+    void BeginRecording(string source);
 
-    IReadOnlyCollection<(string Path, double Value)> Metrics { get; }
+    void RecordMetric(IMetric metric);
+
+    IReadOnlyCollection<IMetric> Metrics { get; }
 }

@@ -1,205 +1,118 @@
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
+using Nhs.Appointments.Core.Metrics;
+using Nhs.Appointments.Persistance.BackoffStrategies;
 
 namespace Nhs.Appointments.Persistance;
 
 public static class CosmosOperationHelper
 {
-    private static int DefaultCosmosMaxRetries => 9;
-    
-    public static async Task<(T result, double totalRequestCharge)> Retry_CosmosOperation_OnTooManyRequests<T>(
+    public static async Task<(T result, CosmosOperationMetric resultantMetric)> Retry_CosmosOperation_OnTooManyRequests<T>(
         ContainerRetryConfiguration containerRetryConfiguration,
         Func<Task<T>> cosmosOperation,
         ILogger logger,
         IMetricsRecorder metricsRecorder,
+        string documentType,
+        string path,
+        // TODO: Add ITimeProvider
         CancellationToken cancellationToken = default)
     {
-        var linkId = Guid.NewGuid();
+        var context = new CosmosBackoffContext();
 
-        var retryRequired = true;
-        var cutoffExceeded = false;
-        
-        var retryCount = 0;
-
-        //make sure default behaviour is a least 10ms
-        var customDelayMs = TimeSpan.FromMilliseconds(Math.Max(containerRetryConfiguration.InitialValueMs, 10));
-        var customCutoffMs = TimeSpan.FromMilliseconds(containerRetryConfiguration.CutoffRetryMs);
-
-        var totalDelayMs = TimeSpan.FromMilliseconds(0);
-        var retryResult = default(T);
-        //log metrics for total request charge for the initial attempt, and any retries required
-        double totalRequestCharge = 0;
-
-        //used for exponential only
-        double exponent = 0;
-
-        //default cosmos can error out before the cutoff reached
-        var defaultCosmosTooManyAttempts = false;
-
-        switch (containerRetryConfiguration.BackoffRetryType)
+        var metric = new CosmosOperationMetric
         {
-            case BackoffRetryType.CosmosDefault:
-            case BackoffRetryType.Linear:
-            case BackoffRetryType.GeometricDouble:
-                //no work to do
-                break;
-            case BackoffRetryType.Exponential:
-                //derive initial exponent needed to increment next delays, using the provided initial value
-                exponent = Math.Log(containerRetryConfiguration.InitialValueMs);
+            Container = containerRetryConfiguration.ContainerName,
+            DocumentType = documentType,
+            Path = path
+        };
 
-                //increment for next usage
-                exponent++;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        var backoffStrategy = CosmosBackoffStrategyFactory.Create(containerRetryConfiguration);
 
-        while (retryRequired && !cutoffExceeded)
+        try
         {
-            try
+            while (true)
             {
-                if (retryCount > 0)
+                try
                 {
-                    logger.LogInformation(
-                        "{linkId} - Cosmos TooManyRequests retryCount: {retryCount}, for container: {container}, total delay time ms: {totalDelayMs}",
-                        linkId, retryCount, containerRetryConfiguration.ContainerName, totalDelayMs.TotalMilliseconds);
-                }
+                    LogReattempt(containerRetryConfiguration, logger, context);
 
-                retryResult = await cosmosOperation();
+                    var retryResult = await Attempt(cosmosOperation, metric);
 
-                if (retryResult is ResponseMessage { StatusCode: HttpStatusCode.TooManyRequests } message)
-                {
-                    var retryDelay = customDelayMs;
-                    
-                    //try and use default cosmos retry header response, if CosmosDefault retryType and value exists
-                    if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault && message.Headers != null && message.Headers.TryGetValue("x-ms-retry-after-ms", out var retryAfterMs))
-                    {
-                        var milliseconds = long.Parse(retryAfterMs);
-                        
-                        //force at least 10ms in case cosmos defined retryAfter is too low...
-                        retryDelay = TimeSpan.FromMilliseconds(Math.Max(milliseconds, 10));
-                    }
-                    
-                    throw new ResponseMessageException("Database too busy!", statusCode: HttpStatusCode.TooManyRequests, 0, string.Empty, message.Headers?.RequestCharge ?? 0, retryDelay);
+                     // TODO: Can we safely add the results request charge by extracting it here, so as not to need to extract it in the caller? Need to understand the "canExtractRequestCharge" boolean.
+                    return (retryResult, metric); // No error if we reach this point.
                 }
-                
-                //if we get to here, there wasn't a cosmos exception, so no need to retry
-                retryRequired = false;
-            }
-            catch (CosmosException ex)
-            {
-                totalRequestCharge += ex.RequestCharge;
+                // TODO: Add the catch logic for our own exception if the fact that the exception shape differs would be problematic for accessing the RequestCharge, RetryValue, etc.
+                catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    metric.AddRuCharge(ex.RequestCharge);
+                    var nextRetryDelayMs = backoffStrategy.Backoff(ex, context);
 
-                if (ex.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    var nextRetryDelayMs = ExtractRetryDelay(ex, containerRetryConfiguration, customDelayMs);
-                    
-                    //if cosmos and current retry was the last allowed, break out
-                    if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault && (retryCount) == DefaultCosmosMaxRetries)
+                    if (context.TotalDelayMs + nextRetryDelayMs > TimeSpan.FromMilliseconds(containerRetryConfiguration.CutoffRetryMs)) // TODO: containerRetryConfiguration.CutoffRetryTimespan
                     {
-                        defaultCosmosTooManyAttempts = true;
-                        break;
+                        var error =
+                            $"{context.LinkId} - Cosmos TooManyRequests failed because the CutoffRetryMs ({containerRetryConfiguration.CutoffRetryMs}) would be exceeded on the next retry attempt : total retries: {context.RetryCount} for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {context.TotalDelayMs.TotalMilliseconds}";
+
+                        throw new BackoffException(error);
                     }
-                    
-                    //only perform a delay if a retry is required for the next attempt
-                    if ((totalDelayMs + nextRetryDelayMs) <= customCutoffMs)
-                    {
-                        retryCount++;
-                        
-                        await Task.Delay(nextRetryDelayMs, cancellationToken);
-                        
-                        //keep a running total delay time for this cosmosOperation
-                        totalDelayMs += nextRetryDelayMs;
-                        
-                        switch (containerRetryConfiguration.BackoffRetryType)
-                        {
-                            case BackoffRetryType.CosmosDefault:
-                            case BackoffRetryType.Linear:
-                                //do nothing
-                                break;
-                            case BackoffRetryType.Exponential:
-                                //increment the exponent to derive next delay value needed for exponential backoff
-                                customDelayMs = TimeSpan.FromMilliseconds((int)Math.Floor(Math.Exp(exponent++)));
-                                break;
-                            case BackoffRetryType.GeometricDouble:
-                                //double delay time between retries
-                                customDelayMs *= 2;
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                    }
-                    else
-                    {
-                        cutoffExceeded = true;
-                    }
+
+                    context.RecordBackoff(nextRetryDelayMs);
+
+                    await Task.Delay(nextRetryDelayMs, cancellationToken);
                 }
-                else
+                catch (CosmosException ex)
                 {
-                    RecordQueryMetrics(metricsRecorder, totalRequestCharge);
+                    metric.AddRuCharge(ex.RequestCharge);
+
+                    RecordQueryMetrics(metricsRecorder, metric);
                     throw;
                 }
             }
         }
-
-        if (defaultCosmosTooManyAttempts)
+        catch (BackoffException ex)
         {
-            var error =
-                $"{linkId} - Cosmos TooManyRequests failed after max retries ({DefaultCosmosMaxRetries}) exceeded for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {totalDelayMs.TotalMilliseconds}";
-            LogTooManyRequestsError(containerRetryConfiguration, logger, metricsRecorder, linkId, error, totalRequestCharge);
-        }
-        
-        if (cutoffExceeded)
-        {
-            var error =
-                $"{linkId} - Cosmos TooManyRequests failed because the CutoffRetryMs ({containerRetryConfiguration.CutoffRetryMs}) would be exceeded on the next retry attempt : total retries: {retryCount} for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {totalDelayMs.TotalMilliseconds}";
-            LogTooManyRequestsError(containerRetryConfiguration, logger, metricsRecorder, linkId, error, totalRequestCharge);
-        }
+            RecordQueryMetrics(metricsRecorder, metric);
+            logger.LogError(ex, "A backoff exception was thrown.");
 
-        return (retryResult, totalRequestCharge);
+            throw new InvalidOperationException(
+                $"Container '{containerRetryConfiguration.ContainerName}' too many requests were exceeded for linkId: {context.LinkId}");
+        }
     }
 
-    private static TimeSpan ExtractRetryDelay(CosmosException ex, ContainerRetryConfiguration containerRetryConfiguration, TimeSpan customDelayMs)
+    private static async Task<T> Attempt<T>(Func<Task<T>> cosmosOperation, CosmosOperationMetric metric)
     {
-        TimeSpan nextRetryDelayMs;
-        
-        if (ex is ResponseMessageException responseMessageException)
+        metric.StartAttempt(DateTime.UtcNow);
+        try
         {
-            nextRetryDelayMs = responseMessageException.OverriddenRetryAfter;
-        }
-        else
-        {
-            if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault &&
-                !ex.RetryAfter.HasValue)
+            // TODO: Need to add the logic here for APPT-2222 to throw our own exception.
+            var result = await cosmosOperation();
+            if (result is ResponseMessage message && message.StatusCode == HttpStatusCode.TooManyRequests)
             {
-                throw new InvalidOperationException("TooManyRequests exception does not have a RetryAfter value");
+                // TODO: Make this a MyaCosmosException inheriting from CosmosException, rather than creating a CosmosException directly.
+                // Set the Headers.RetryAfter value, and the existing code will work ok.
+                throw new CosmosException(message.ErrorMessage, message.StatusCode, 0, message.Headers.ActivityId, message.Headers.RequestCharge);
             }
-                    
-            nextRetryDelayMs = containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault
-                ? ex.RetryAfter!.Value
-                : customDelayMs;
+
+            return result;
         }
-        
-        return nextRetryDelayMs;
+        finally
+        {
+            metric.EndAttempt(DateTime.UtcNow);
+        }
     }
-    
-    private static void LogTooManyRequestsError(
-        ContainerRetryConfiguration containerRetryConfiguration,
-        ILogger logger, 
-        IMetricsRecorder metricsRecorder, 
-        Guid linkId,
-        string loggedError, 
-        double totalRequestCharge)
+
+    private static void LogReattempt(ContainerRetryConfiguration containerRetryConfiguration, ILogger logger, CosmosBackoffContext context)
     {
-        RecordQueryMetrics(metricsRecorder, totalRequestCharge);
-        logger.LogError(loggedError);
-        throw new InvalidOperationException(
-            $"Container '{containerRetryConfiguration.ContainerName}' too many requests were exceeded for linkId: {linkId}");
+        if (context.IsReattempt)
+        {
+            logger.LogInformation(
+                "{linkId} - Cosmos TooManyRequests retryCount: {retryCount}, for container: {container}, total delay time ms: {totalDelayMs}",
+                context.LinkId, context.RetryCount, containerRetryConfiguration.ContainerName, context.TotalDelayMs.TotalMilliseconds);
+        }
     }
-    
-    public static void RecordQueryMetrics(IMetricsRecorder metricsRecorder, double requestCharge)
+
+    public static void RecordQueryMetrics(IMetricsRecorder metricsRecorder, IMetric metric)
     {
-        metricsRecorder.RecordMetric("RequestCharge", requestCharge);
+        metricsRecorder.RecordMetric(metric);
     }
 }

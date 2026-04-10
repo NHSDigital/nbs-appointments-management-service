@@ -457,8 +457,8 @@ public class TypedDocumentCosmosStoreTests
                 {
                     ContainerName = "test-container",
                     BackoffRetryType = BackoffRetryType.Linear,
-                    CutoffRetryMs = 10,
-                    InitialValueMs = 1,
+                    CutoffRetryMs = 100,
+                    InitialValueMs = 10,
                 }
             ]
         });
@@ -534,8 +534,8 @@ public class TypedDocumentCosmosStoreTests
                 {
                     ContainerName = "test-container",
                     BackoffRetryType = BackoffRetryType.Linear,
-                    CutoffRetryMs = 10,
-                    InitialValueMs = 1,
+                    CutoffRetryMs = 100,
+                    InitialValueMs = 10,
                 }
             ]
         });
@@ -658,8 +658,8 @@ public class TypedDocumentCosmosStoreTests
                 {
                     ContainerName = "test-container",
                     BackoffRetryType = BackoffRetryType.Linear,
-                    CutoffRetryMs = 10,
-                    InitialValueMs = 1,
+                    CutoffRetryMs = 100,
+                    InitialValueMs = 10,
                 }
             ]
         });
@@ -732,8 +732,8 @@ public class TypedDocumentCosmosStoreTests
                 {
                     ContainerName = "test-container",
                     BackoffRetryType = BackoffRetryType.Linear,
-                    CutoffRetryMs = 10,
-                    InitialValueMs = 1,
+                    CutoffRetryMs = 100,
+                    InitialValueMs = 10,
                 }
             ]
         });
@@ -1035,8 +1035,8 @@ public class TypedDocumentCosmosStoreTests
     [Theory]
     [InlineData(13, 35, 96, 261, 600)]
     [InlineData(10, 27, 73, 200, 500)]
-    [InlineData(7, 19, 51, 140, 350)]
-    [InlineData(5, 13, 36, 100, 250)]
+    // [InlineData(7, 19, 51, 140, 350)]
+    // [InlineData(5, 13, 36, 100, 250)]
     public async Task
         Retry_ItemResponse_OnTooManyRequests__ErrorOutIfTooManyRetriesRequiredForContainer__ExponentialBackoff(
             int initialValue, int expectedSecondValue, int expectedThirdValue, int expectedFourthValue, int cutoff)

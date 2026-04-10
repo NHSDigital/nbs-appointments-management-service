@@ -22,7 +22,8 @@ public static class CosmosOperationHelper
         
         var retryCount = 0;
 
-        var customDelayMs = TimeSpan.FromMilliseconds(containerRetryConfiguration.InitialValueMs);
+        //make sure default behaviour is a least 10ms
+        var customDelayMs = TimeSpan.FromMilliseconds(Math.Max(containerRetryConfiguration.InitialValueMs, 10));
         var customCutoffMs = TimeSpan.FromMilliseconds(containerRetryConfiguration.CutoffRetryMs);
 
         var totalDelayMs = TimeSpan.FromMilliseconds(0);
@@ -67,6 +68,22 @@ public static class CosmosOperationHelper
 
                 retryResult = await cosmosOperation();
 
+                if (retryResult is ResponseMessage { StatusCode: HttpStatusCode.TooManyRequests } message)
+                {
+                    var retryDelay = customCutoffMs;
+                    
+                    //try and use default cosmos retry header response, if CosmosDefault retryType and value exists
+                    if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault && message.Headers != null && message.Headers.TryGetValue("x-ms-retry-after-ms", out var retryAfterMs))
+                    {
+                        var milliseconds = long.Parse(retryAfterMs);
+                        
+                        //force at least 10ms in case cosmos defined retryAfter is too low...
+                        retryDelay = TimeSpan.FromMilliseconds(Math.Max(milliseconds, 10));
+                    }
+                    
+                    throw new ResponseMessageException("Database too busy!", statusCode: HttpStatusCode.TooManyRequests, 0, string.Empty, message.Headers?.RequestCharge ?? 0, retryDelay);
+                }
+                
                 //if we get to here, there wasn't a cosmos exception, so no need to retry
                 retryRequired = false;
             }
@@ -76,15 +93,7 @@ public static class CosmosOperationHelper
 
                 if (ex.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault &&
-                        !ex.RetryAfter.HasValue)
-                    {
-                        throw new InvalidOperationException("TooManyRequests exception does not have a RetryAfter value");
-                    }
-                    
-                    var nextRetryDelayMs = containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault
-                        ? ex.RetryAfter!.Value
-                        : customDelayMs;
+                    var nextRetryDelayMs = ExtractRetryDelay(ex, containerRetryConfiguration, customDelayMs);
                     
                     //if cosmos and current retry was the last allowed, break out
                     if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault && (retryCount) == DefaultCosmosMaxRetries)
@@ -149,6 +158,30 @@ public static class CosmosOperationHelper
         }
 
         return (retryResult, totalRequestCharge);
+    }
+
+    private static TimeSpan ExtractRetryDelay(CosmosException ex, ContainerRetryConfiguration containerRetryConfiguration, TimeSpan customDelayMs)
+    {
+        TimeSpan nextRetryDelayMs;
+        
+        if (ex is ResponseMessageException responseMessageException)
+        {
+            nextRetryDelayMs = responseMessageException.OverriddenRetryAfter;
+        }
+        else
+        {
+            if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault &&
+                !ex.RetryAfter.HasValue)
+            {
+                throw new InvalidOperationException("TooManyRequests exception does not have a RetryAfter value");
+            }
+                    
+            nextRetryDelayMs = containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault
+                ? ex.RetryAfter!.Value
+                : customDelayMs;
+        }
+        
+        return nextRetryDelayMs;
     }
     
     private static void LogTooManyRequestsError(

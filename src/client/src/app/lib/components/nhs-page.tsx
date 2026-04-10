@@ -47,7 +47,7 @@ const NhsPage = async ({
 }: Props) => {
   const cookieStore = await cookies();
   const notification = cookieStore.get('ams-notification')?.value;
-  const navigationLinks = await getLinksForSite(site);
+  const navigationLinks = await getLinksForSite(site, originPage);
   const userProfile = await fromServer(fetchUserProfile());
 
   return (
@@ -103,6 +103,7 @@ const NhsPage = async ({
 
 const getLinksForSite = async (
   site: Site | undefined,
+  originUrl: string,
 ): Promise<NavigationLink[]> => {
   const [permissionsAtSite, permissionsAtAnySite] = await Promise.all([
     fromServer(fetchPermissions(site?.id)),
@@ -118,6 +119,9 @@ const getLinksForSite = async (
   };
 
   const basePath = process.env.CLIENT_BASE_PATH;
+
+  // Use the originUrl prop which is already reliable
+  const encodedReturnUrl = encodeURIComponent(originUrl);
 
   const navigationLinks: NavigationLink[] = [];
 
@@ -181,16 +185,18 @@ const getLinksForSite = async (
     }
   }
 
-  if (hasAnyReportPermissions()) {
-    navigationLinks.push({
-      label: 'Reports',
-      href: `${basePath}/reports`,
-      active: {
-        type: 'endsWith',
-        path: '/reports',
-      },
-    });
-  }
+    if (hasAnyReportPermissions()) {
+        navigationLinks.push({
+            label: 'Reports',
+            // Your logic for the return URL
+            href: `${basePath}/reports?returnUrl=${encodedReturnUrl}`,
+            // Main's logic for the active link styling
+            active: {
+                type: 'endsWith',
+                path: '/reports',
+            },
+        });
+    }
 
   return navigationLinks;
 };

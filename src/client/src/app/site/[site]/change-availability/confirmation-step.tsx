@@ -151,13 +151,19 @@ const ConfirmationStep = ({
       </p>
 
       <Heading headingLevel="h3">
-        {cancellationSummary.bookingsWithoutContactDetailsCount} people have not
-        been notified
+        {cancellationSummary.bookingsWithoutContactDetailsCount}{' '}
+        {cancellationSummary.bookingsWithoutContactDetailsCount > 1
+          ? 'people have'
+          : 'person has'}{' '}
+        not been notified
       </Heading>
 
       <p>
-        These people did not provide an email address or mobile number. If you
-        can, you should contact them to tell them their booking is cancelled.
+        {cancellationSummary.bookingsWithoutContactDetailsCount > 1
+          ? 'These people'
+          : 'This person'}{' '}
+        did not provide an email address or mobile number. If you can, you
+        should contact them to tell them their booking is cancelled.
       </p>
 
       <Link href="" onClick={onContinue}>
@@ -182,8 +188,7 @@ const ConfirmationStep = ({
 
     if (
       cancellationDecision == 'cancel-bookings' &&
-      cancellationSummary.bookingsWithoutContactDetailsCount ==
-        cancellationSummary.cancelledBookingsCount
+      cancellationSummary.bookingsWithoutContactDetailsCount == 0
     ) {
       return cancelBookingsAllNotifiedCancellation();
     }
@@ -196,7 +201,6 @@ const ConfirmationStep = ({
     ) {
       return cancelBookingsSomeNotNotifiedCancellation();
     }
-
     return cancelBookingsNoOneNotifiedCancellation();
   };
 

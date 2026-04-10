@@ -8,6 +8,7 @@ import {
   SummaryList,
 } from 'nhsuk-react-components';
 import { mapSiteOverviewSummaryData } from '@services/siteService';
+import { GetCurrentDateTime } from '@services/timeService';
 
 interface SitePageProps {
   site: Site;
@@ -82,7 +83,7 @@ export const SitePage = ({
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">
                   <Card.Link
-                    href={`/manage-your-appointments/site/${site.id}/view-availability`}
+                    href={`/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${GetCurrentDateTime('YYYY-MM-DD')}&page=1`}
                   >
                     View availability and manage appointments for your site
                   </Card.Link>
@@ -106,7 +107,7 @@ export const SitePage = ({
             </li>
           )}
           {(permissionsRelevantToCards.includes('site:manage') ||
-            -permissionsRelevantToCards.includes('site:view')) && (
+            permissionsRelevantToCards.includes('site:view')) && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">

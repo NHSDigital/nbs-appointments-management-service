@@ -114,7 +114,7 @@ public sealed class BookingExtractsFeatureSteps : Feature
                 {
                     Source = "NHSApp",
                     ReferralType = ""
-                }
+                },
             });
 
         foreach (var booking in bookings)

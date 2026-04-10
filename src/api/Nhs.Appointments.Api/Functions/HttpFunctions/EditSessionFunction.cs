@@ -23,8 +23,7 @@ public class EditSessionFunction(
     IUserContextProvider userContextProvider,
     ILogger<EditSessionFunction> logger,
     IMetricsRecorder metricsRecorder,
-    IAvailabilityWriteService availabilityWriteService,
-    IFeatureToggleHelper featureToggleHelper)
+    IAvailabilityWriteService availabilityWriteService)
     : BaseApiFunction<EditSessionRequest, SessionModificationResult>(validator, userContextProvider, logger,
         metricsRecorder)
 {
@@ -42,9 +41,7 @@ public class EditSessionFunction(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "session/edit")]
         HttpRequest req)
     {
-        return await featureToggleHelper.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney)
-            ? await base.RunAsync(req)
-            : ProblemResponse(HttpStatusCode.NotImplemented, null);
+        return await base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<SessionModificationResult>> HandleRequest(EditSessionRequest request, ILogger logger)

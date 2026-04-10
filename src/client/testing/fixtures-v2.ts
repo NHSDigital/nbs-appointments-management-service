@@ -10,10 +10,30 @@ import {
   buildUserDocument,
   CosmosDbClient,
   FeatureFlagClient,
+  generateExtraSiteIdForSameUser,
   MockOidcClient,
 } from '@e2etests/data';
 export * from '@playwright/test';
-import { LoginPage, SitePage, SiteSelectionPage } from '@e2etests/page-objects';
+import {
+  LoginPage,
+  SitePage,
+  SiteSelectionPage,
+  AddServicesPage,
+  AddSessionPage,
+  CheckSessionDetailsPage,
+  MonthViewAvailabilityPage,
+  WeekViewAvailabilityPage,
+  CreateAvailabilityPage,
+  ChangeAvailabilityPage,
+  DailyAppointmentDetailsPage,
+  EditAvailabilityConfirmationPage,
+  EditAvailabilityConfirmedPage,
+  CancelSessionDetailsPage,
+  EditServicesPage,
+  EditServicesConfirmationPage,
+  EditServicesConfirmedPage,
+  CancelAppointmentDetailsPage,
+} from '@e2etests/page-objects';
 import env from './testEnvironment';
 import {
   Role,
@@ -23,14 +43,8 @@ import {
   MockOidcUser,
   BookingDocument,
   DailyAvailabilityDocument,
+  AttendeeDetails,
 } from '@e2etests/types';
-import {
-  AddServicesPage,
-  AddSessionPage,
-  CheckSessionDetailsPage,
-  MonthViewAvailabilityPage,
-  WeekViewAvailabilityPage,
-} from '@e2etests/page-objects';
 import CancelDayForm from './page-objects-v2/cancel-day-pages/cancel-day-form';
 import ConfirmedCancellationPage from './page-objects-v2/cancel-day-pages/confirm-cancellation';
 import { AvailabilityStatus, BookingStatus } from '@types';
@@ -45,7 +59,9 @@ type FixtureOptions = {
 };
 
 type AdditionalUserOptions = {
-  roles?: Role[];
+  //each array item is a different site, 0-indexed
+  //and the role array is the roles for this user for that site
+  siteRoles: Role[][];
 };
 
 type UserData = {
@@ -53,13 +69,14 @@ type UserData = {
   oidc: MockOidcUser;
 };
 
-type BookingSetup = {
+export type BookingSetup = {
   fromDate: string;
   fromTime: string;
   durationMins: number;
   service: string;
   status: BookingStatus;
   availabilityStatus: AvailabilityStatus;
+  attendeeDetails?: AttendeeDetails;
 };
 
 export type AvailabilitySetup = {
@@ -77,7 +94,7 @@ export type SessionSetup = {
 
 type AdditionalUserSetupData = {
   user: UserData;
-  site: SiteDocument;
+  sites: SiteDocument[];
 };
 
 type setupFixtureOptions = {
@@ -104,6 +121,17 @@ type MyaFixtures = {
   checkSessionDetailsPage: CheckSessionDetailsPage;
   cancelDayForm: CancelDayForm;
   confirmedCancellationPage: ConfirmedCancellationPage;
+  weekViewPage: WeekViewAvailabilityPage;
+  createAvailabilityPage: CreateAvailabilityPage;
+  changeAvailabilityPage: ChangeAvailabilityPage;
+  dailyAppointmentDetailsPage: DailyAppointmentDetailsPage;
+  cancelAppointmentDetailsPage: CancelAppointmentDetailsPage;
+  editAvailabilityConfirmationPage: EditAvailabilityConfirmationPage;
+  editAvailabilityConfirmedPage: EditAvailabilityConfirmedPage;
+  cancelSessionDetailsPage: CancelSessionDetailsPage;
+  editServicesPage: EditServicesPage;
+  editServicesConfirmationPage: EditServicesConfirmationPage;
+  editServicesConfirmedPage: EditServicesConfirmedPage;
 };
 
 export const test = base.extend<MyaFixtures>({
@@ -127,6 +155,39 @@ export const test = base.extend<MyaFixtures>({
   },
   confirmedCancellationPage: async ({ page }, use) => {
     await use(new ConfirmedCancellationPage(page));
+  },
+  weekViewPage: async ({ page }, use) => {
+    await use(new WeekViewAvailabilityPage(page));
+  },
+  createAvailabilityPage: async ({ page }, use) => {
+    await use(new CreateAvailabilityPage(page));
+  },
+  changeAvailabilityPage: async ({ page }, use) => {
+    await use(new ChangeAvailabilityPage(page));
+  },
+  dailyAppointmentDetailsPage: async ({ page }, use) => {
+    await use(new DailyAppointmentDetailsPage(page));
+  },
+  cancelAppointmentDetailsPage: async ({ page }, use) => {
+    await use(new CancelAppointmentDetailsPage(page));
+  },
+  editAvailabilityConfirmationPage: async ({ page }, use) => {
+    await use(new EditAvailabilityConfirmationPage(page));
+  },
+  editAvailabilityConfirmedPage: async ({ page }, use) => {
+    await use(new EditAvailabilityConfirmedPage(page));
+  },
+  cancelSessionDetailsPage: async ({ page }, use) => {
+    await use(new CancelSessionDetailsPage(page));
+  },
+  editServicesPage: async ({ page }, use) => {
+    await use(new EditServicesPage(page));
+  },
+  editServicesConfirmationPage: async ({ page }, use) => {
+    await use(new EditServicesConfirmationPage(page));
+  },
+  editServicesConfirmedPage: async ({ page }, use) => {
+    await use(new EditServicesConfirmedPage(page));
   },
 
   // TODO: Extend this (or create new fixtures) to cover multiple sites and multiple users per site
@@ -157,10 +218,6 @@ export const test = base.extend<MyaFixtures>({
 
     const additionalUserData = new Map<string, AdditionalUserSetupData>();
 
-    // Fixture setup. Result of use() is piped to the test
-    // This currently accepts a list of roles and feature flags.
-    // In the future this will be extended to accept a list of users and sites to enable tests to request extra users and sites in their setup.
-    // Alternatively, we can add extra fixtures to this list and make them each responsible for setup/teardown of a different thing. Tests can import multiple fixtures as needed.
     await use(async options => {
       const {
         roles = [],
@@ -168,7 +225,7 @@ export const test = base.extend<MyaFixtures>({
         siteConfig,
         bookings,
         availability,
-        userConfig, // Extract userConfig
+        userConfig,
         additionalUsers = [],
         skipSiteSelection = false, // Default to false so existing tests don't break
       } = {
@@ -177,7 +234,7 @@ export const test = base.extend<MyaFixtures>({
       };
 
       siteDocument = buildSiteDocument(testId, siteConfig);
-      userDocument = buildUserDocument(testId, roles, userConfig);
+      userDocument = buildUserDocument(testId, [roles], userConfig);
       const oidcUser = buildMockOidcUser(testId);
 
       if (bookings !== undefined) {
@@ -195,6 +252,7 @@ export const test = base.extend<MyaFixtures>({
               data.service,
               data.status,
               data.availabilityStatus,
+              data.attendeeDetails,
             ),
           );
         }
@@ -223,17 +281,35 @@ export const test = base.extend<MyaFixtures>({
         for (const [key, additionalUser] of Object.entries(additionalUsers)) {
           const additionalUserTestId = Number(`${testId}${index++}`);
 
+          const siteRoles = additionalUser.siteRoles ?? [[]];
+
           const additionalUserDocument = buildUserDocument(
             additionalUserTestId,
-            additionalUser.roles ?? [],
+            siteRoles,
           );
           const additionalOidcUser = buildMockOidcUser(additionalUserTestId);
-          const additionalSiteDocument = buildSiteDocument(
-            additionalUserTestId,
-            siteConfig,
-          );
 
-          await cosmosDbClient.createSite(additionalSiteDocument);
+          const additionalSiteDocuments: SiteDocument[] = [];
+
+          for (
+            let siteRoleIndex = 0;
+            siteRoleIndex < siteRoles.length;
+            siteRoleIndex++
+          ) {
+            const siteTestId = generateExtraSiteIdForSameUser(
+              additionalUserTestId,
+              siteRoleIndex,
+            );
+
+            const additionalSiteDocument = buildSiteDocument(
+              siteTestId,
+              siteConfig,
+            );
+
+            await cosmosDbClient.createSite(additionalSiteDocument);
+            additionalSiteDocuments.push(additionalSiteDocument);
+          }
+
           await cosmosDbClient.createUser(additionalUserDocument);
           await mockOidcClient.registerTestUser(additionalOidcUser);
           additionalUserData.set(key, {
@@ -241,7 +317,7 @@ export const test = base.extend<MyaFixtures>({
               document: additionalUserDocument,
               oidc: additionalOidcUser,
             },
-            site: additionalSiteDocument,
+            sites: additionalSiteDocuments,
           });
         }
       }
@@ -295,9 +371,18 @@ export const test = base.extend<MyaFixtures>({
     await Promise.all([
       cosmosDbClient.deleteSite(siteDocument),
       cosmosDbClient.deleteUser(userDocument),
-      ...Array.from(additionalUserData.values()).map(data =>
-        cosmosDbClient.deleteUser(data.user.document),
-      ),
+      ...Array.from(additionalUserData.values()).map(data => {
+        const additionalUserCleanup = [];
+        additionalUserCleanup.push(
+          cosmosDbClient.deleteUser(data.user.document),
+        );
+        for (let siteIndex = 0; siteIndex < data.sites.length; siteIndex++) {
+          additionalUserCleanup.push(
+            cosmosDbClient.deleteSite(data.sites[siteIndex]),
+          );
+        }
+        return additionalUserCleanup;
+      }),
 
       cosmosDbClient.deleteAllBookings(bookingDocuments),
       cosmosDbClient.deleteAvailability(dailyAvailabilityDocuments),

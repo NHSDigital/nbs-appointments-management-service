@@ -4,6 +4,8 @@ import SiteDetailsPage from './details/site-details-page';
 import Users from '../manage-user/users';
 import { expect } from '@playwright/test';
 import SiteSummaryReportPage from './details/site-summary-report-page';
+import DayViewAvailabilityPage from '../view-availability-appointment-pages/day-view-availability-page';
+import CreateAvailabilityPage from '../availability/create-availability';
 
 export default class SitePage extends MYALayout {
   title = this.page.getByRole('heading', {
@@ -28,6 +30,14 @@ export default class SitePage extends MYALayout {
       name: 'Create availability',
     });
 
+  async clickCreateAvailabilityCard(): Promise<CreateAvailabilityPage> {
+    await this.createAvailabilityCard.click();
+    await this.page.waitForURL(
+      `/manage-your-appointments/site/${this.site?.id}/create-availability`,
+    );
+    return new CreateAvailabilityPage(this.page, this.site);
+  }
+
   readonly viewAvailabilityAndManageAppointmentsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
@@ -37,7 +47,8 @@ export default class SitePage extends MYALayout {
   readonly reportsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'Report',
+      name: 'Download reports',
+      exact: true,
     });
 
   readonly topNav = {
@@ -63,6 +74,15 @@ export default class SitePage extends MYALayout {
     await this.page.waitForURL(`**/site/${this.site?.id}/details`);
 
     return new SiteDetailsPage(this.page, this.site);
+  }
+
+  async clickSiteAvailabilityCard(): Promise<DayViewAvailabilityPage> {
+    await this.viewAvailabilityAndManageAppointmentsCard.click();
+    await this.page.waitForURL(
+      `**/site/${this.site?.id}/view-availability/daily-appointments?date=**`,
+    );
+
+    return new DayViewAvailabilityPage(this.page, this.site);
   }
 
   async clickManageUsersCard(): Promise<Users> {
@@ -94,29 +114,60 @@ export default class SitePage extends MYALayout {
       | 'ManageAppointment'
       | 'SiteManagement'
       | 'UserManagement'
-      | 'CreateAvailability',
+      | 'CreateAvailability'
+      | 'DownloadReports',
   ) {
     if (tileName == 'ManageAppointment') {
       await expect(
         this.viewAvailabilityAndManageAppointmentsCard,
       ).toBeVisible();
     }
+
     if (tileName == 'SiteManagement') {
       await expect(this.siteManagementCard).toBeVisible();
     }
+
     if (tileName == 'CreateAvailability') {
       await expect(this.createAvailabilityCard).toBeVisible();
+    }
+
+    if (tileName == 'UserManagement') {
+      await expect(this.userManagementCard).toBeVisible();
+    }
+
+    if (tileName == 'DownloadReports') {
+      await expect(this.reportsCard).toBeVisible();
     }
   }
 
   async verifyTileNotVisible(
-    tileName: 'UserManagement' | 'CreateAvailability',
+    tileName:
+      | 'ManageAppointment'
+      | 'SiteManagement'
+      | 'UserManagement'
+      | 'CreateAvailability'
+      | 'DownloadReports',
   ) {
+    if (tileName == 'ManageAppointment') {
+      await expect(
+        this.viewAvailabilityAndManageAppointmentsCard,
+      ).not.toBeVisible();
+    }
+
     if (tileName == 'CreateAvailability') {
       await expect(this.createAvailabilityCard).not.toBeVisible();
     }
+
+    if (tileName == 'SiteManagement') {
+      await expect(this.siteManagementCard).not.toBeVisible();
+    }
+
     if (tileName == 'UserManagement') {
       await expect(this.userManagementCard).not.toBeVisible();
+    }
+
+    if (tileName == 'DownloadReports') {
+      await expect(this.reportsCard).not.toBeVisible();
     }
   }
 }

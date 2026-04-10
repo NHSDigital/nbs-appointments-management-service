@@ -75,7 +75,15 @@ const NoNotificationStep = ({ site }: InjectedWizardProps & Props) => {
             fromServer(fetchClinicalServices()),
           ]);
 
-        setBookings(cancelledBookingsResult);
+        const cancelledBookingsWithoutContactDetails =
+          cancelledBookingsResult.filter(
+            b =>
+              !Array.isArray(b.contactDetails) ||
+              b.contactDetails.length === 0 ||
+              b.contactDetails.every(d => d.type === 'Landline'),
+          );
+
+        setBookings(cancelledBookingsWithoutContactDetails);
         setClinicalServices(clinicalServicesResult);
       } catch (err) {
         setError(err as Error);

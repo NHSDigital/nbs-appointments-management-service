@@ -73,6 +73,13 @@ class CosmosDbClient {
     console.log(
       `Written user: ${userDocument.id} with EULA v${userDocument.latestAcceptedEulaVersion} to Cosmos DB.`,
     );
+    for (let index = 0; index < userDocument.roleAssignments.length; index++) {
+      const roleAssignment = userDocument.roleAssignments[index];
+
+      console.log(
+        `Role: ${roleAssignment.role}, Scope: ${roleAssignment.scope}`,
+      );
+    }
   }
 
   public async deleteUser(user: UserDocument | undefined) {
@@ -105,7 +112,7 @@ class CosmosDbClient {
         partitionKey: { paths: ['/docType'] },
       });
 
-    const upsertTasks = bookingDocuments.map(async bookingDocument => {
+    for await (const bookingDocument of bookingDocuments) {
       await bookingContainer.items.upsert(bookingDocument);
       console.log(`Written booking: ${bookingDocument.id} to Cosmos DB.`);
 
@@ -113,9 +120,7 @@ class CosmosDbClient {
 
       await indexContainer.items.upsert(indexDocument);
       console.log(`Written booking index: ${indexDocument.id} to Cosmos DB.`);
-    });
-
-    await Promise.all(upsertTasks);
+    }
   }
 
   public async deleteAllBookings(bookings: BookingDocument[]) {
@@ -132,7 +137,7 @@ class CosmosDbClient {
         partitionKey: { paths: ['/docType'] },
       });
 
-    const deleteTasks = bookings.map(async booking => {
+    for await (const booking of bookings) {
       try {
         await bookingContainer.item(booking.id, booking.site).delete();
         console.log(`Deleted booking: ${booking.id} from Cosmos DB.`);
@@ -142,9 +147,7 @@ class CosmosDbClient {
       } catch (e) {
         console.error(e);
       }
-    });
-
-    Promise.all(deleteTasks);
+    }
   }
 
   public mapToIndexDocument = (
@@ -172,16 +175,12 @@ class CosmosDbClient {
       partitionKey: { paths: ['/site'] },
     });
 
-    const upsertTasks = dailyAvailabilityDocuments.map(
-      async dailyAvailabilityDocument => {
-        await container.items.upsert(dailyAvailabilityDocument);
-        console.log(
-          `Written daily availability: ${dailyAvailabilityDocument.id} for site: ${dailyAvailabilityDocument.site} to Cosmos DB.`,
-        );
-      },
-    );
-
-    await Promise.all(upsertTasks);
+    for await (const dailyAvailabilityDocument of dailyAvailabilityDocuments) {
+      await container.items.upsert(dailyAvailabilityDocument);
+      console.log(
+        `Written daily availability: ${dailyAvailabilityDocument.id} for site: ${dailyAvailabilityDocument.site} to Cosmos DB.`,
+      );
+    }
   }
 
   public async deleteAvailability(availability: DailyAvailabilityDocument[]) {
@@ -192,7 +191,7 @@ class CosmosDbClient {
         partitionKey: { paths: ['/site'] },
       });
 
-    const deleteTasks = availability.map(async date => {
+    for await (const date of availability) {
       try {
         await bookingContainer.item(date.id, date.site).delete();
         console.log(
@@ -201,9 +200,7 @@ class CosmosDbClient {
       } catch (e) {
         console.error(e);
       }
-    });
-
-    Promise.all(deleteTasks);
+    }
   }
 }
 

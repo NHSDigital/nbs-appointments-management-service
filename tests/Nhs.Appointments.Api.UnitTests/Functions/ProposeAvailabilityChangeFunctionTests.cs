@@ -22,7 +22,6 @@ public class ProposeAvailabilityChangeFunctionTests
     private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
     private readonly Mock<IUserContextProvider> _userContextProvider = new();
     private readonly Mock<IValidator<AvailabilityChangeProposalRequest>> _validator = new();
-    private readonly Mock<IFeatureToggleHelper> _featureToggleHelper = new();
 
     private readonly ProposeAvailabilityChangeFunction _sut;
 
@@ -33,9 +32,7 @@ public class ProposeAvailabilityChangeFunctionTests
             _validator.Object, 
             _userContextProvider.Object,
             _logger.Object, 
-            _metricsRecorder.Object,
-            _featureToggleHelper.Object
-        );
+            _metricsRecorder.Object);
         _validator.Setup(x => x.ValidateAsync(It.IsAny<AvailabilityChangeProposalRequest>(), It.IsAny<CancellationToken>()))
          .ReturnsAsync(new ValidationResult());
     }
@@ -58,8 +55,6 @@ public class ProposeAvailabilityChangeFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>())
         ).ReturnsAsync(response);
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
-            .ReturnsAsync(true);
 
         var result = await _sut.RunAsync(request) as ContentResult;
 
@@ -91,39 +86,10 @@ public class ProposeAvailabilityChangeFunctionTests
             It.IsAny<Session>(),
             It.IsAny<Session>())
         ).ReturnsAsync(response);
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
-            .ReturnsAsync(true);
 
         var result = await _sut.RunAsync(request) as ContentResult;
 
         result.StatusCode.Should().Be(400);
-    }
-
-    [Fact]
-    public async Task RunAsync_FeatureToggleDisabled_ResultIsNotImplemented()
-    {
-        var request = BuildRequest();
-        var response = new AvailabilityUpdateProposal()
-        {
-            NewlySupportedBookingsCount = 1,
-            NewlyUnsupportedBookingsCount = 1,
-            MatchingSessionNotFound = true
-        };
-
-        _bookingAvailabilityStateService.Setup(x =>
-        x.GenerateSessionProposalActionMetrics(
-            It.IsAny<string>(),
-            It.IsAny<DateTime>(),
-            It.IsAny<DateTime>(),
-            It.IsAny<Session>(),
-            It.IsAny<Session>())
-        ).ReturnsAsync(response);
-        _featureToggleHelper.Setup(x => x.IsFeatureEnabled(Flags.ChangeSessionUpliftedJourney))
-            .ReturnsAsync(false);
-
-        var result = await _sut.RunAsync(request) as ContentResult;
-
-        result.StatusCode.Should().Be(501);
     }
 
     private static HttpRequest BuildRequest()

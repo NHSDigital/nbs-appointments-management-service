@@ -104,7 +104,11 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
         if (type != null)
         {
-            detailsPatchOperations.Add(PatchOperation.Replace("/type", type));
+            var siteTypePatch = originalDocument.Type is null
+                ? PatchOperation.Add("/type", type)
+                : PatchOperation.Replace("/type", type);
+
+            detailsPatchOperations.Add(siteTypePatch);
         }
 
         await cosmosStore.PatchDocument(documentType, siteId, [.. detailsPatchOperations]);

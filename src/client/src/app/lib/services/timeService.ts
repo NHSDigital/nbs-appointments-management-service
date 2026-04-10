@@ -5,6 +5,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import updateLocale from 'dayjs/plugin/updateLocale';
+import isToday from 'dayjs/plugin/isToday';
 
 export const RFC3339Format = 'YYYY-MM-DD';
 export const dateTimeFormat = 'YYYY-MM-DDTHH:mm:ss';
@@ -17,6 +18,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(updateLocale);
+dayjs.extend(isToday);
 
 // Set UK-style weeks: Monday as start
 dayjs.updateLocale('en', {
@@ -165,6 +167,26 @@ export const isAfterCalendarDateUk = (
   );
 };
 
+export const isBeforeCalendarDateUk = (
+  firstUkDatetime: dayjs.Dayjs,
+  secondUkDatetime: dayjs.Dayjs,
+) => {
+  return isBefore(
+    firstUkDatetime.startOf('day'),
+    secondUkDatetime.startOf('day'),
+  );
+};
+
+export const isBeforeOrEqualCalendarDateUk = (
+  firstUkDatetime: dayjs.Dayjs,
+  secondUkDatetime: dayjs.Dayjs,
+) => {
+  return isBeforeOrEqual(
+    firstUkDatetime.startOf('day'),
+    secondUkDatetime.startOf('day'),
+  );
+};
+
 export const occurInOrder = (ukDates: dayjs.Dayjs[]) => {
   for (let index = 1; index < ukDates.length; index++) {
     if (
@@ -177,16 +199,6 @@ export const occurInOrder = (ukDates: dayjs.Dayjs[]) => {
     }
   }
   return true;
-};
-
-export const isBeforeOrEqualCalendarDateUk = (
-  firstUkDatetime: dayjs.Dayjs,
-  secondUkDatetime: dayjs.Dayjs,
-) => {
-  return isBeforeOrEqual(
-    firstUkDatetime.startOf('day'),
-    secondUkDatetime.startOf('day'),
-  );
 };
 
 export const isFutureCalendarDateUk = (ukDatetime: dayjs.Dayjs) => {
@@ -402,4 +414,23 @@ export const isValidStartTime = (
 // Returns current UK date & time as formatted string
 export const GetCurrentDateTime = (format = 'YYYY-MM-DD HH:mm:ss'): string => {
   return ukNow().format(format);
+};
+
+// Returns true if the date passed in is today
+export const dateIsToday = (ukDate: string | dayjs.Dayjs): boolean => {
+  if (typeof ukDate === 'string') {
+    const date = parseToUkDatetime(ukDate);
+    return date.isToday();
+  }
+
+  return ukDate.isToday();
+};
+
+// Returns true if the startDate & endDate are the current week
+export const isThisWeek = (
+  startDate: dayjs.Dayjs,
+  endDate: dayjs.Dayjs,
+): boolean => {
+  const week = getWeek(dayjs());
+  return startDate.isSame(week[0]) && endDate.isSame(week[week.length - 1]);
 };

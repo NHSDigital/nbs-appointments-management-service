@@ -22,6 +22,7 @@ import {
   RoleAssignment,
   ClinicalService,
   CancelDayResponse,
+  NavigationLink,
 } from '@types';
 
 const getMockUserAssignments = (site: string): User[] => [
@@ -828,6 +829,29 @@ const localStorageMock = (() => {
   };
 })();
 
+const mockSecondaryLinks: NavigationLink[] = [
+  {
+    id: 'link-one',
+    href: '/link/one/url',
+    isCurrent: false,
+    label: 'Link One',
+  },
+  {
+    id: 'link-two',
+    href: '/link/two/url',
+    isCurrent: true,
+    label: 'Link Two',
+  },
+  {
+    id: 'link-three',
+    href: '/link/three/url',
+    isCurrent: false,
+    label: 'Link Three',
+  },
+];
+
+const mockDate = parseToUkDatetime('2026-03-31');
+
 export {
   getMockUserAssignments,
   mockAvailabilityCreatedEvents,
@@ -858,4 +882,6 @@ export {
   mockCancelDayResponse,
   mockSession1,
   localStorageMock,
+  mockSecondaryLinks,
+  mockDate,
 };

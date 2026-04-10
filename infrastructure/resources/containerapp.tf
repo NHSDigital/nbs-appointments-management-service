@@ -75,7 +75,7 @@ resource "azurerm_container_app" "nbs_mya_splunk_otel_collector" {
 }
 
 resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
-  count                        = var.create_data_extracts ? 1 : 0 
+  count                        = var.create_booking_data_extracts ? 1 : 0 
   name                         = "${var.application}-bookjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location
@@ -109,6 +109,11 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
   secret {
     name  = "app-config-connection-string"
     value = azurerm_app_configuration.nbs_mya_app_configuration[0].primary_read_key[0].connection_string
+  }
+
+  secret {
+    name  = "splunk-hec-token"
+    value = var.splunk_hec_token
   }
 
   registry {
@@ -179,6 +184,14 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
         name = "APP_CONFIG_CONNECTION"
         secret_name = "app-config-connection-string"
       }
+      env {
+        name  = "SPLUNK_HOST_URL"
+        value = var.splunk_host_url
+      }
+      env {
+        name        = "SPLUNK_HEC_TOKEN"
+        secret_name = "splunk-hec-token"
+      }
     }
   }
 
@@ -189,7 +202,7 @@ resource "azurerm_container_app_job" "nbs_mya_booking_extracts_job" {
 
 
 resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
-  count                        = var.create_data_extracts ? 1 : 0 
+  count                        = var.create_capacity_data_extracts ? 1 : 0 
   name                         = "${var.application}-capjob-${var.environment}-${var.loc}"
   resource_group_name          = local.resource_group_name
   location                     = var.location
@@ -219,6 +232,11 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
   secret {
     name  = "key-vault-secret"
     value = var.keyvault_client_secret
+  }
+
+  secret {
+    name  = "splunk-hec-token"
+    value = var.splunk_hec_token
   }
 
   registry {
@@ -284,6 +302,14 @@ resource "azurerm_container_app_job" "nbs_mya_capacity_extracts_job" {
       env {
         name = "KeyVault__ClientSecret"
         secret_name = "key-vault-secret"
+      }
+      env {
+        name  = "SPLUNK_HOST_URL"
+        value = var.splunk_host_url
+      }
+      env {
+        name        = "SPLUNK_HEC_TOKEN"
+        secret_name = "splunk-hec-token"
       }
     
     }
@@ -514,6 +540,11 @@ resource "azurerm_container_app" "nbs_mya_aggregator" {
       env {
         name  = "SPLUNK_HOST_URL"
         value = var.splunk_host_url
+      }
+
+      env {
+        name        = "SPLUNK_HEC_TOKEN"
+        secret_name = "splunk-hec-token"
       }
 
       env {

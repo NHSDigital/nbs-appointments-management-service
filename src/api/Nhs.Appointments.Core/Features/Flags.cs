@@ -2,16 +2,14 @@ namespace Nhs.Appointments.Core.Features;
 
 public static class Flags
 {
-    public const string SiteStatus = "SiteStatus";
     public const string CancelDay = "CancelDay";
-    public const string ChangeSessionUpliftedJourney = "ChangeSessionUpliftedJourney";
-    public const string CancelSessionUpliftedJourney = "CancelSessionUpliftedJourney";
-    public const string QuerySites = "QuerySites";
     public const string MultiServiceJointBookings = "MultiServiceJointBookings";
     public const string JointBookingsReporting = "JointBookingsReporting";
     public const string ReportsUplift = "ReportsUplift";
     public const string CancelADateRange = "CancelADateRange";
     public const string CancelADateRangeWithBookings = "CancelADateRangeWithBookings";
+    public const string CancellationReasonBookingsReporting = "CancellationReasonBookingsReporting";
+    public const string SiteTypeBookingsReporting = "SiteTypeBookingsReporting";
 
     #region TestFlags
     //a simple on/off global flag

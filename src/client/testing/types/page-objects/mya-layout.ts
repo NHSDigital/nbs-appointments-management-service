@@ -1,5 +1,9 @@
 import { Page, type Locator } from '@playwright/test';
-import { LoginPage, CookiePoliciesPage } from '@e2etests/page-objects';
+import {
+  LoginPage,
+  CookiePoliciesPage,
+  SiteSelectionPage,
+} from '@e2etests/page-objects';
 import PageObject from './page-object';
 import Footer from './footer';
 import CookieBanner from './cookie-banner';
@@ -29,6 +33,13 @@ export default abstract class MYALayout extends PageObject {
     await this.page.waitForURL('**/login');
 
     return new LoginPage(this.page);
+  }
+
+  async changeSite(): Promise<SiteSelectionPage> {
+    await this.header.changeSiteLink.click();
+    await this.page.waitForURL('**/sites');
+
+    return new SiteSelectionPage(this.page);
   }
 
   async clickCookiesFooterLink(): Promise<CookiePoliciesPage> {

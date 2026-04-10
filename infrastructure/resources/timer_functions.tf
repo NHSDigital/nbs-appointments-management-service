@@ -53,8 +53,8 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     SITE_SUMMARY_MINIMUM_PARALLELIZATION                                   = var.site_summary_minimum_parallelization
     SITE_CACHE_KEY                                                         = var.site_cache_key
     ALLSITES_SLIDING_CACHE_ENABLED                                         = var.allsites_sliding_cache_enabled
-    ALLSITES_CACHE_DURATION_MINUTES                                        = var.allsites_sliding_cache_duration_minutes
-    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                                = var.allsites_cache_duration_minutes
+    ALLSITES_CACHE_DURATION_MINUTES                                        = var.allsites_cache_duration_minutes
+    ALLSITES_SLIDING_CACHE_DURATION_MINUTES                                = var.allsites_sliding_cache_duration_minutes
     DISABLE_SITE_CACHE                                                     = var.disable_site_cache
     SPLUNK_HOST_URL                                                        = var.splunk_host_url
     SPLUNK_HEC_TOKEN                                                       = var.splunk_hec_token
@@ -83,7 +83,6 @@ resource "azurerm_windows_function_app" "nbs_mya_timer_func_app" {
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
     "AzureWebJobs.GetSiteMetaData.Disabled"                                = true
-    "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = true
     "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = true
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true
@@ -224,7 +223,6 @@ resource "azurerm_windows_function_app_slot" "nbs_mya_timer_func_app_preview" {
     "AzureWebJobs.GetRolesFunction.Disabled"                               = true
     "AzureWebJobs.GetSiteFunction.Disabled"                                = true
     "AzureWebJobs.GetSiteMetaData.Disabled"                                = true
-    "AzureWebJobs.GetSitesByAreaFunction.Disabled"                         = true
     "AzureWebJobs.GetSitesPreviewFunction.Disabled"                        = true
     "AzureWebJobs.GetPermissionsForUserFunction.Disabled"                  = true
     "AzureWebJobs.GetUserProfileFunction.Disabled"                         = true

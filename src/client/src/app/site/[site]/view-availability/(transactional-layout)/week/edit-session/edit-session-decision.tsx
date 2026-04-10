@@ -1,0 +1,137 @@
+'use client';
+import {
+  Button,
+  FormGroup,
+  Radio,
+  RadioGroup,
+  SmallSpinnerWithText,
+} from '@components/nhsuk-frontend';
+import { SessionSummaryTable } from '@components/session-summary-table';
+import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
+import { ClinicalService, SessionSummary, Site } from '@types';
+import { useRouter } from 'next/navigation';
+import { InsetText } from 'nhsuk-react-components';
+import { useEffect, useTransition } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
+type EditSessionDecisionProps = {
+  site: Site;
+  sessionSummary: string;
+  date: string;
+  clinicalServices: ClinicalService[];
+};
+
+type EditSessionDecisionFormData = {
+  action?: 'edit-session' | 'edit-services' | 'cancel-session';
+};
+
+export const EditSessionDecision = ({
+  site,
+  sessionSummary,
+  date,
+  clinicalServices,
+}: EditSessionDecisionProps) => {
+  const [pendingSubmit, startTransition] = useTransition();
+  const router = useRouter();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<EditSessionDecisionFormData>({});
+
+  useEffect(() => {
+    const storedDraft = sessionStorage.getItem(AVAILABILITY_EDIT_DRAFT_KEY);
+    if (storedDraft) {
+      sessionStorage.removeItem(AVAILABILITY_EDIT_DRAFT_KEY);
+    }
+  }, []);
+
+  const submitForm: SubmitHandler<EditSessionDecisionFormData> = async (
+    form: EditSessionDecisionFormData,
+  ) => {
+    startTransition(async () => {
+      let reroute = `/site/${site.id}/availability/`;
+      switch (form.action) {
+        case 'edit-session':
+          reroute += `edit?session=${sessionSummary}&date=${date}`;
+          break;
+        case 'edit-services':
+          reroute += `edit-services?session=${sessionSummary}&date=${date}`;
+          break;
+        case 'cancel-session':
+          reroute += `cancel/confirmation?session=${sessionSummary}&date=${date}`;
+          break;
+        default:
+          throw new Error('Invalid form action');
+      }
+
+      router.push(reroute);
+    });
+  };
+
+  const session: SessionSummary = JSON.parse(atob(sessionSummary));
+
+  return (
+    <>
+      <SessionSummaryTable
+        sessionSummaries={[session]}
+        clinicalServices={clinicalServices}
+        showUnbooked={false}
+      />
+
+      <InsetText>
+        <p>
+          You can only reduce time, capacity or services from this screen. If
+          you want to increase availability for this day, you must create a new
+          session.
+        </p>
+      </InsetText>
+
+      <form onSubmit={handleSubmit(submitForm)}>
+        <FormGroup
+          legend="What do you want to do?"
+          error={errors.action?.message}
+        >
+          {/* TODO: There is an issue with updating Radios & Buttons to use nhsuk-react-components as it breaks jest tests
+          with the error: TypeError: A dynamic import callback was invoked without --experimental-vm-modules
+          This will need further investigation in another ticket before we convert to using the nhsuk-react-components of these elements */}
+          <RadioGroup>
+            <Radio
+              label="Change the length or capacity of this session"
+              hint="Shorten session length or remove capacity"
+              id="edit-session"
+              value="edit-session"
+              {...register('action', {
+                required: { value: true, message: 'Select an option' },
+              })}
+            />
+            <Radio
+              label="Cancel the session"
+              id="cancel-session"
+              value="cancel-session"
+              {...register('action', {
+                required: { value: true, message: 'Select an option' },
+              })}
+            />
+            {Object.keys(session.totalSupportedAppointmentsByService).length >
+              1 && (
+              <Radio
+                label="Remove a service or multiple services"
+                id="edit-services"
+                value="edit-services"
+                {...register('action', {
+                  required: { value: true, message: 'Select an option' },
+                })}
+              />
+            )}
+          </RadioGroup>
+        </FormGroup>
+        {pendingSubmit ? (
+          <SmallSpinnerWithText text="Working..." />
+        ) : (
+          <Button type="submit">Continue</Button>
+        )}
+      </form>
+    </>
+  );
+};

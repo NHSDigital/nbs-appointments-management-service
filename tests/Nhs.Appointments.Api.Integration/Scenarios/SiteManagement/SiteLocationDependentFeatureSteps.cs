@@ -11,11 +11,9 @@ using FluentAssertions;
 using Gherkin.Ast;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Api.Availability;
-using Nhs.Appointments.Api.Integration.Collections;
 using Nhs.Appointments.Api.Integration.Data;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Persistance.Models;
 using Xunit;
@@ -27,8 +25,8 @@ namespace Nhs.Appointments.Api.Integration.Scenarios.SiteManagement;
 /// <summary>
 ///     Tests that depend on the setup and async disposal of sites due to location (long lat) search collisions
 /// </summary>
-public abstract class SiteLocationDependentFeatureSteps(string flag, bool enabled)
-    : SingleFeatureToggledSteps(flag, enabled), IAsyncLifetime
+[FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent.feature")]
+public class SiteLocationDependentFeatureSteps : BaseFeatureSteps, IAsyncLifetime
 {
     private QueryAvailabilityResponse _queryResponse;
     private IEnumerable<SiteWithDistance> _sitesWithDistanceResponse;
@@ -39,14 +37,13 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
 
     private IEnumerable<ErrorMessageResponseItem> ErrorResponses { get; set; }
 
-    public new async Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        await base.InitializeAsync();
+        await Task.CompletedTask;
     }
 
-    public new async Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        await base.DisposeAsync();
         await CosmosDeleteFeed<SiteDocument>("core_data", sd => sd.Id.Contains(GetTestId), new PartitionKey("site"));
     }
 
@@ -418,23 +415,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
     [Then(@"the call should fail with (\d*)")]
     public void AssertFailureCode(int statusCode) => StatusCode.Should().Be((HttpStatusCode)statusCode);
 
-    [When("I make the 'get sites by area' request with access needs")]
-    public async Task RequestSitesByAreaWithAccessNeeds(DataTable dataTable)
-    {
-        var row = dataTable.Rows.ElementAt(1);
-        var maxRecords = row.Cells.ElementAt(0).Value;
-        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
-        var longitude = row.Cells.ElementAt(2).Value;
-        var latitude = row.Cells.ElementAt(3).Value;
-        var accessNeeds = row.Cells.ElementAt(4).Value;
-        Response = await GetHttpClientForTest().GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&accessNeeds={accessNeeds}&ignoreCache=true");
-        var jsonString = await Response.Content.ReadAsStringAsync();
-        (_, _sitesWithDistanceResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
-    }
-
     [When("I make the 'query sites' request with access needs")]
     public async Task QuerySitesWithAccessNeeds(DataTable dataTable)
     {
@@ -513,28 +493,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             .Should().BeEquivalentTo(expectedAvailability, options => options.WithStrictOrdering());
     }
 
-    [When("I make the 'get sites by area' request with service filtering and with access needs")]
-    public async Task RequestSitesByAreaWithServiceFilteringAndAccessNeeds(DataTable dataTable)
-    {
-        var row = dataTable.Rows.ElementAt(1);
-        var maxRecords = row.Cells.ElementAt(0).Value;
-        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
-        var longitude = row.Cells.ElementAt(2).Value;
-        var latitude = row.Cells.ElementAt(3).Value;
-
-        var services = row.Cells.ElementAt(4).Value;
-        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
-        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
-
-        var accessNeeds = row.Cells.ElementAt(7).Value;
-
-        Response = await GetHttpClientForTest().GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=true");
-        (_, _sitesWithDistanceResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
-    }
-
     [When("I make the 'query sites' request with service filtering and with access needs")]
     public async Task QuerySitesWithServiceFilteringAndAccessNeeds(DataTable dataTable)
     {
@@ -570,53 +528,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         };
 
         await PostQuerySitesRequestAsync(payload);
-    }
-
-    [When("I make the 'get sites by area' request with service filtering, access needs, and caching")]
-    public async Task RequestSitesByAreaWithServiceFilteringAndAccessNeedsAndCacheEnabled(DataTable dataTable)
-    {
-        var row = dataTable.Rows.ElementAt(1);
-        var maxRecords = row.Cells.ElementAt(0).Value;
-        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
-        var longitude = row.Cells.ElementAt(2).Value;
-        var latitude = row.Cells.ElementAt(3).Value;
-
-        var services = row.Cells.ElementAt(4).Value;
-        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
-        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
-
-        var accessNeeds = row.Cells.ElementAt(7).Value;
-
-        Response = await GetHttpClientForTest().GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=false");
-        (_, _sitesWithDistanceResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
-    }
-
-    //polling the request endpoint until we get the expected response length!
-    [When(
-        "I make repeated 'get sites by area' requests with service filtering, access needs, and caching - until '(.+)' sites are returned")]
-    public async Task RepeatedPollingOfRequestSitesByAreaWithServiceFilteringAndAccessNeedsAndCacheEnabled(
-        int expectedSiteResponseLength, DataTable dataTable)
-    {
-        var row = dataTable.Rows.ElementAt(1);
-        var maxRecords = row.Cells.ElementAt(0).Value;
-        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
-        var longitude = row.Cells.ElementAt(2).Value;
-        var latitude = row.Cells.ElementAt(3).Value;
-
-        var services = row.Cells.ElementAt(4).Value;
-        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
-        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
-
-        var accessNeeds = row.Cells.ElementAt(7).Value;
-
-        var requestString =
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&accessNeeds={accessNeeds}&ignoreCache=false";
-
-        await PollApiForExpectedResponseCount(async () => await GetHttpClientForTest().GetAsync(requestString),
-            expectedSiteResponseLength);
     }
 
     [When("I make the 'query sites' request with service filtering, access needs, and caching")]
@@ -711,27 +622,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
             expectedSiteResponseLength);
     }
 
-    [When("I make the 'get sites by area' request with service filtering")]
-    public async Task RequestSitesByAreaWithServiceFiltering(DataTable dataTable)
-    {
-        var row = dataTable.Rows.ElementAt(1);
-        var maxRecords = row.Cells.ElementAt(0).Value;
-        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
-        var longitude = row.Cells.ElementAt(2).Value;
-        var latitude = row.Cells.ElementAt(3).Value;
-
-        var services = row.Cells.ElementAt(4).Value;
-
-        var from = NaturalLanguageDate.Parse(row.Cells.ElementAt(5).Value);
-        var until = NaturalLanguageDate.Parse(row.Cells.ElementAt(6).Value);
-
-        Response = await GetHttpClientForTest().GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&services={services}&from={from:yyyy-MM-dd}&until={until:yyyy-MM-dd}&ignoreCache=true");
-        (_, _sitesWithDistanceResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
-    }
-
     [When("I make the 'query sites' request with service filtering")]
     public async Task QuerySitesWithServiceFiltering(DataTable dataTable)
     {
@@ -765,21 +655,6 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         };
 
         await PostQuerySitesRequestAsync(payload);
-    }
-
-    [When("I make the 'get sites by area' request without access needs")]
-    public async Task RequestSitesByAreaWithoutAccessNeeds(DataTable dataTable)
-    {
-        var row = dataTable.Rows.ElementAt(1);
-        var maxRecords = row.Cells.ElementAt(0).Value;
-        var searchRadiusNumber = row.Cells.ElementAt(1).Value;
-        var longitude = row.Cells.ElementAt(2).Value;
-        var latitude = row.Cells.ElementAt(3).Value;
-        Response = await GetHttpClientForTest().GetAsync(
-            $"http://localhost:7071/api/sites?long={longitude}&lat={latitude}&searchRadius={searchRadiusNumber}&maxRecords={maxRecords}&ignoreCache=true");
-        (_, _sitesWithDistanceResponse) =
-            await JsonRequestReader.ReadRequestAsync<IEnumerable<SiteWithDistance>>(
-                await Response.Content.ReadAsStreamAsync());
     }
 
     [When("I make the 'query sites' request without access needs")]
@@ -901,13 +776,4 @@ public abstract class SiteLocationDependentFeatureSteps(string flag, bool enable
         throw new TimeoutException(
             $"{expectedSiteResponseLength} sites not returned within the expected timeout period");
     }
-
-    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
-    [FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent_QuerySitesEnabled.feature")]
-    public class SiteLocationDependent_QuerySitesEnabled() : SiteLocationDependentFeatureSteps(Flags.QuerySites, true);
-
-    [Collection(FeatureToggleCollectionNames.QuerySitesCollection)]
-    [FeatureFile("./Scenarios/SiteManagement/SiteLocationDependent_QuerySitesDisabled.feature")]
-    public class SiteLocationDependent_QuerySitesDisabled()
-        : SiteLocationDependentFeatureSteps(Flags.QuerySites, false);
 }

@@ -167,7 +167,9 @@ const CheckYourAnswersStep = ({
             <SmallSpinnerWithText text="Saving..." />
           ) : (
             <Button type="submit" styleType="warning" onClick={onContinue}>
-              Cancel sessions
+              {cancellationDecision == 'cancel-bookings'
+                ? 'Cancel sessions and bookings'
+                : 'Cancel sessions'}
             </Button>
           )}
         </div>

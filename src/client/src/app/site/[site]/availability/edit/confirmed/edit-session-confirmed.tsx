@@ -13,7 +13,6 @@ type PageProps = {
   newlyUnsupportedBookingsCount: number;
   cancelledWithDetailsCount: number;
   cancelledWithoutDetailsCount: number;
-  changeSessionUpliftedJourneyEnabled: boolean;
 };
 
 const EditSessionConfirmed = ({
@@ -26,7 +25,6 @@ const EditSessionConfirmed = ({
   newlyUnsupportedBookingsCount,
   cancelledWithDetailsCount,
   cancelledWithoutDetailsCount,
-  changeSessionUpliftedJourneyEnabled,
 }: PageProps) => {
   return (
     <>
@@ -35,22 +33,7 @@ const EditSessionConfirmed = ({
         clinicalServices={clinicalServices}
       />
 
-      {changeSessionUpliftedJourneyEnabled === false ? (
-        <>
-          <InsetText>
-            <p>
-              Some booked appointments may be affected by this change. If so,
-              you'll need to cancel these appointments manually.
-            </p>
-          </InsetText>
-
-          <Link
-            href={`/site/${site.id}/view-availability/daily-appointments?date=${date}&page=1`}
-          >
-            Cancel appointments
-          </Link>
-        </>
-      ) : hasBookings === false ? (
+      {hasBookings === false ? (
         <>
           <div className="margin-top-bottom">The session has been changed.</div>
           <Link href={`/site/${site.id}/view-availability/week?date=${date}`}>

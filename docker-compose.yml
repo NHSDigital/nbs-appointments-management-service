@@ -14,6 +14,7 @@ services:
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://splunk-otel-collector:4318/v1/traces
       OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://splunk-otel-collector:4318/v1/metrics
       APP_INSIGHTS_CONNECTION_STRING: InstrumentationKey=00000000-0000-0000-0000-000000000000
+      TZ: UTC
 
     volumes:
       - ./src/client/src:/app/src
@@ -120,6 +121,7 @@ services:
       - ContainerRetry__Configurations__5__InitialValueMs=200
       - ContainerRetry__Configurations__5__CutoffRetryMs=10000
       - CANCEL_A_DATE_RANGE_MAXIMUM_DAYS=90
+      - TZ=UTC
   splunk:
     image: splunk/splunk:9.3
     container_name: splunk

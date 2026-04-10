@@ -61,7 +61,7 @@ type BookingIndexDocument = {
   statusUpdated: string;
 };
 
-type AttendeeDetails = {
+export type AttendeeDetails = {
   nhsNumber: string;
   firstName: string;
   lastName: string;
@@ -100,7 +100,9 @@ type Role =
   | 'canned:user-manager'
   | 'system:admin-user'
   | 'system:regional-user'
-  | 'system:icb-user';
+  | 'system:icb-user'
+  | 'system:api-user'
+  | 'system:integration-test-user';
 
 export type {
   SiteDocument,

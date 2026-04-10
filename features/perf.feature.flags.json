@@ -1,14 +1,12 @@
 {
   "FeatureManagement": {
-    "SiteStatus": true,
-    "CancelDay": true,
-    "ChangeSessionUpliftedJourney": true,
-    "CancelSessionUpliftedJourney": true,
-    "QuerySites": true,
+    "CancelDay": false,
     "MultiServiceJointBookings": true,
-    "JointBookingsReporting": false,
-    "ReportsUplift": false,
-    "CancelADateRange": false,
-    "CancelADateRangeWithBookings": false
+    "JointBookingsReporting": true,
+    "ReportsUplift": true,
+    "CancelADateRange": true,
+    "CancelADateRangeWithBookings": true,
+    "CancellationReasonBookingsReporting": true,
+    "SiteTypeBookingsReporting": true
   }
 }

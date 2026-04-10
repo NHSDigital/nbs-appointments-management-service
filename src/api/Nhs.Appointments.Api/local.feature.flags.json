@@ -3,15 +3,13 @@
     "JointBookings": false,
     "TestFeatureEnabled": true,
     "MultipleServices": false,
-    "SiteStatus": false,
     "CancelDay": false,
-    "ChangeSessionUpliftedJourney": false,
-    "CancelSessionUpliftedJourney": false,
-    "QuerySites": false,
     "MultiServiceJointBookings": false,
     "ReportsUplift": false,
-    "CancelADateRange":  false,
-    "CancelADateRangeWithBookings":  false,
+    "CancelADateRange": false,
+    "CancelADateRangeWithBookings": false,
+    "CancellationReasonBookingsReporting": false,
+    "SiteTypeBookingsReporting": false,
     "TestFeaturePercentageEnabled": {
       "EnabledFor": [
         {

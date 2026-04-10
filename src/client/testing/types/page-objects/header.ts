@@ -15,13 +15,13 @@ export default class Header extends PageObject {
     .getByRole('banner')
     .getByRole('link', { name: 'Manage Your Appointments' });
 
-  public readonly changeSiteButton: Locator = this.page
+  public readonly changeSiteLink: Locator = this.page
     .getByRole('banner')
-    .getByRole('button', { name: 'Change Site' });
+    .getByRole('link', { name: 'Change site', exact: true });
 
   public readonly logOutButton: Locator = this.page
     .getByRole('banner')
-    .getByRole('button', { name: 'Log Out' });
+    .getByRole('button', { name: 'Log out' });
 
   public readonly currentUser: (userName: string) => Locator = (
     userName: string,

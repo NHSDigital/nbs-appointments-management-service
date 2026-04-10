@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
 import { Heading, ErrorSummary } from 'nhsuk-react-components';
+import Link from 'next/link';
 
 interface Props {
   cancelADateRangeWithBookingsEnabled: boolean;
@@ -65,9 +66,9 @@ const CancellationImpactStep = ({
         >
           Return to view availability
         </Button>
-        <Button styleType="secondary" onClick={goToPreviousStep}>
+        <Link href={''} onClick={goToPreviousStep} role="button">
           Select different dates
-        </Button>
+        </Link>
       </ButtonGroup>
     </>
   );

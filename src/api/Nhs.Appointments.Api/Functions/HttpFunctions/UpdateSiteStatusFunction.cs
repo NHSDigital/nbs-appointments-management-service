@@ -7,11 +7,9 @@ using Microsoft.Extensions.Logging;
 using Nhs.Appointments.Api.Auth;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Inspectors;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -24,8 +22,7 @@ public class UpdateSiteStatusFunction(
     IValidator<SetSiteStatusRequest> validator,
     ILogger<UpdateSiteStatusFunction> logger,
     IUserContextProvider userContextProvider,
-    IMetricsRecorder metricsRecorder,
-    IFeatureToggleHelper featureToggleHelper) : BaseApiFunction<SetSiteStatusRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
+    IMetricsRecorder metricsRecorder) : BaseApiFunction<SetSiteStatusRequest, EmptyResponse>(validator, userContextProvider, logger, metricsRecorder)
 {
     [OpenApiOperation(operationId: "Set Site Status", tags: ["SiteStatus"], Summary = "Set a site's status to online or offline")]
     [OpenApiRequestBody("application/json", typeof(SetSiteStatusRequest), Required = true)]
@@ -40,9 +37,7 @@ public class UpdateSiteStatusFunction(
     [Function("UpdateSiteStatusFunction")]
     public override async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "site-status")] HttpRequest req)
     {
-        return await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus)
-            ? await base.RunAsync(req)
-            : ProblemResponse(HttpStatusCode.NotImplemented, null);
+        return await base.RunAsync(req);
     }
 
     protected override async Task<ApiResult<EmptyResponse>> HandleRequest(SetSiteStatusRequest request, ILogger logger)

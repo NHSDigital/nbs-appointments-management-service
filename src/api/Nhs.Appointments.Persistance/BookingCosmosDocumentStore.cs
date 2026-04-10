@@ -396,11 +396,11 @@ public class BookingCosmosDocumentStore(
                 successfulCancellations++;
             }
 
-            if (booking.ContactDetails is null || booking.ContactDetails.Length == 0)
-            {
-                bookingsWithoutContactDetailsCount++;
+                if (booking.ContactDetails == null || booking.ContactDetails.All(c => c.Type == ContactItemType.Landline))
+                {
+                    bookingsWithoutContactDetailsCount++;
+                }
             }
-        }
 
         var bookingsWithContactDetails = bookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
 

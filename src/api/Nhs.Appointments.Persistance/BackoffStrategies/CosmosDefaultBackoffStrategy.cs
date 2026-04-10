@@ -12,6 +12,7 @@ internal class CosmosDefaultBackoffStrategy(ContainerRetryConfiguration containe
 
     public TimeSpan Backoff(CosmosException ex, CosmosBackoffContext context)
     {
+        // TODO: This currently assumes we'll be receiving a CosmosException. It may need to be more subtle in order to fix APPT-2222, or at least a descendant of CosmosException.
         if (!ex.RetryAfter.HasValue)
         {
             // TODO: Should the metrics be being logged in this situation? If so, we need to track this in the caller.

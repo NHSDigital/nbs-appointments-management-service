@@ -33,7 +33,7 @@ type PageProps = {
 
 const Page = async ({ params, searchParams }: PageProps) => {
   const { site: siteFromPath } = { ...(await params) };
-  const { date, page } = { ...(await searchParams) };
+  const { date, page, tab } = { ...(await searchParams) };
   if (date === undefined || page === undefined) {
     return notFound();
   }
@@ -63,6 +63,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
   const canChangeAvailability =
     cancelADateRange.enabled && sitePermissions.includes('availability:setup');
 
+  // Construct the return URL for the current Day View
+  // We include date, page, and tab so the user returns to exactly what they were seeing
+  const currentViewPath = `/site/${siteFromPath}/view-availability/daily-appointments?date=${date}&page=${page}${tab ? `&tab=${tab}` : ''}`;
+
+  // Encode it for safe URL passing
+  const encodedReturnUrl = encodeURIComponent(currentViewPath);
+
   return (
     <>
       <div className="nhsuk-button-group nhsuk-button-group--small">
@@ -76,7 +83,8 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
       {canChangeAvailability && (
         <Link
-          href={`/site/${siteFromPath}/change-availability`}
+          /* Inject the returnUrl into the href */
+          href={`/site/${siteFromPath}/change-availability?returnUrl=${encodedReturnUrl}`}
           className="no-print nhsuk-u-margin-right-3"
         >
           <Button type="button" styleType="secondary">

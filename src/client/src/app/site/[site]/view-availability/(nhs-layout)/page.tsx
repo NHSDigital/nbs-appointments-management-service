@@ -37,6 +37,13 @@ const Page = async ({ params, searchParams }: PageProps) => {
 
   const searchMonth = date ? parseToUkDatetime(date, RFC3339Format) : ukNow();
 
+  // Construct the return URL for the current view
+  // We include the date so the back button knows exactly which month to return to
+  const currentViewPath = `/site/${siteFromPath}/view-availability${date ? `?date=${date}` : ''}`;
+
+  // Encode it so it's safe to put inside another URL
+  const encodedReturnUrl = encodeURIComponent(currentViewPath);
+
   return (
     <>
       <Heading headingLevel="h2">
@@ -45,7 +52,10 @@ const Page = async ({ params, searchParams }: PageProps) => {
       </Heading>
 
       {canChangeAvailability && (
-        <Link href={`/site/${siteFromPath}/change-availability`}>
+        /* Pass the returnUrl to the wizard */
+        <Link
+          href={`/site/${siteFromPath}/change-availability?returnUrl=${encodedReturnUrl}`}
+        >
           <Button type="button" styleType="secondary">
             Change availability
           </Button>

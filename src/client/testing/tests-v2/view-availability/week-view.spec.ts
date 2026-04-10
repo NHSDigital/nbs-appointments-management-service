@@ -282,12 +282,20 @@ test.describe('View Week Availability', () => {
 
             await changeAvailabilityPage.cancelSessionButton.click();
 
+            //then wait for confirmed
+            await page.waitForURL(
+              `**/site/${site.id}/availability/cancel/confirmed?session=**`,
+            );
+
+            //navigate back to required view
             await page.goto(
               `manage-your-appointments/site/${site.id}/view-availability/week?date=${rfcFormat}`,
             );
+
             await page.waitForURL(
               `**/site/${site.id}/view-availability/week?date=${rfcFormat}`,
             );
+
             await page.waitForSelector('.nhsuk-loader', {
               state: 'detached',
             });

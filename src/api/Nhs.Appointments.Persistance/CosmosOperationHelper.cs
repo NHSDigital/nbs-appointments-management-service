@@ -70,7 +70,7 @@ public static class CosmosOperationHelper
 
                 if (retryResult is ResponseMessage { StatusCode: HttpStatusCode.TooManyRequests } message)
                 {
-                    var retryDelay = customCutoffMs;
+                    var retryDelay = customDelayMs;
                     
                     //try and use default cosmos retry header response, if CosmosDefault retryType and value exists
                     if (containerRetryConfiguration.BackoffRetryType == BackoffRetryType.CosmosDefault && message.Headers != null && message.Headers.TryGetValue("x-ms-retry-after-ms", out var retryAfterMs))

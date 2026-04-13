@@ -10,6 +10,6 @@ internal class CosmosLinearBackoffStrategy(ContainerRetryConfiguration container
 {
     public TimeSpan Backoff(CosmosException ex, CosmosBackoffContext context)
     {
-        return TimeSpan.FromMilliseconds(containerRetryConfiguration.InitialValueMs);
+        return containerRetryConfiguration.InitialValueTimeSpan;
     }
 }

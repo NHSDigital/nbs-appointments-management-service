@@ -132,13 +132,12 @@ public abstract partial class BaseFeatureSteps : Feature
     internal async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
         Func<Task<T>> cosmosOperation, CancellationToken cancellationToken = default)
     {
-        return (await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(BaseRetryOptions,
+        return await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(BaseRetryOptions,
             cosmosOperation,
             new Logger<T>(new LoggerFactory()),
             new InMemoryMetricsRecorder(),
-            "TestDocumentType",
-            "TestPath",
-            cancellationToken)).result;
+            new CosmosOperationMetric(),
+            cancellationToken);
     }
 
     /// <summary>

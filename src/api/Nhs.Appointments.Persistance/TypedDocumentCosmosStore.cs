@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+using System.Reflection;
 using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -5,8 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Persistance.Models;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Nhs.Appointments.Persistance;
 
@@ -137,8 +137,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         using var response = await Retry_CosmosOperation_OnTooManyRequests(
             async () => await GetContainer().ReadItemStreamAsync(documentId, new PartitionKey(partitionKey)),
             nameof(GetByIdOrDefaultAsync),
-            CancellationToken.None, 
-            canExtractRequestCharge: false
+            CancellationToken.None
         );
         if (!response.IsSuccessStatusCode)
         {
@@ -213,7 +212,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 var lastUpdatedOnPatch = patchList.Single(x => x.Path == "/lastUpdatedOn");
                 patchList.Remove(lastUpdatedOnPatch);
                 patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
-            
+
                 return await GetContainer()
                     .PatchItemAsync<TDocument>(
                         id: documentId,
@@ -248,25 +247,31 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     /// <exception cref="ArgumentOutOfRangeException">When BackoffRetryType configuration is not supported</exception>
     /// <exception cref="InvalidOperationException">When the totaled retry delay times exceed the allowed cutoff time window</exception>
     internal async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
-        Func<Task<T>> cosmosOperation, 
-        string path, 
+        Func<Task<T>> cosmosOperation,
+        string path,
         CancellationToken cancellationToken = default,
         bool canExtractRequestCharge = true)
     {
-        var (result, metric) = await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(
+        var metric = new CosmosOperationMetric
+        {
+            Container = ContainerName,
+            DocumentType = _documentType.Value,
+            Path = path
+        };
+
+        var result = await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(
             ContainerRetryConfiguration,
             cosmosOperation,
             _logger,
             _metricsRecorder,
-            _documentType.Value,
-            path,
+            metric,
             cancellationToken);
 
         if (canExtractRequestCharge)
         {
             metric.AddRuCharge(ExtractRequestCharge(result));
-            CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, metric);
         }
+        CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, metric);
 
         return result;
     }
@@ -277,12 +282,13 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         {
             Response<TDocument> itemResponse => itemResponse.RequestCharge,
             Response<IEnumerable<TDocument>> listResponse => listResponse.RequestCharge,
+            ResponseMessage responseMessage => responseMessage.Headers.RequestCharge,
             _ => throw new InvalidOperationException()
         };
     }
 
     private async Task<IEnumerable<TOutput>> IterateResults<TSource, TOutput>(FeedIterator<TSource> queryFeed,
-        Func<TSource, TOutput> map, string path, bool canExtractRequestCharge = true)
+        Func<TSource, TOutput> map, string path, bool canExtractRequestCharge = true) // TODO: Remove this if we can always extract the RequestCharge from the Sql query.
     {
         var results = new List<TOutput>();
 
@@ -293,22 +299,21 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             Path = path
         };
 
-        metric.StartAttempt(DateTime.UtcNow);
         using (queryFeed)
         {
             while (queryFeed.HasMoreResults)
             {
-                var resultSet = await Retry_CosmosOperation_OnTooManyRequests(
+                var resultSet = await CosmosOperationHelper.Retry_CosmosOperation_OnTooManyRequests(
+                    ContainerRetryConfiguration,
                     async () => await queryFeed.ReadNextAsync(),
-                    path,
-                    CancellationToken.None, 
-                    canExtractRequestCharge
-                );
+                    _logger,
+                    _metricsRecorder,
+                    metric,
+                    CancellationToken.None);
+
                 results.AddRange(resultSet.Select(map));
                 metric.AddRuCharge(resultSet.RequestCharge);
             }
-            
-            metric.EndAttempt(DateTime.UtcNow);
         }
 
         CosmosOperationHelper.RecordQueryMetrics(_metricsRecorder, metric);

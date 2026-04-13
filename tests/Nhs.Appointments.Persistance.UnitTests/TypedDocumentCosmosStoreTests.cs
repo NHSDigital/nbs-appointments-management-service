@@ -722,8 +722,13 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(retriesNeeded)
         );
 
-        //cannot extract request charge from TModel usage of FeedResponse
-        _metricsRecorder.Verify(f => f.RecordMetric(It.IsAny<CosmosOperationMetric>()), Times.Never);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => 
+            c.Name == "CosmosOperationMetric" 
+            && c.RuCharge == (2 * retriesNeeded) 
+            && c.Container == "test-container" 
+            && c.DocumentType == "test_doc")),
+            Times.Once);
     }
 
     [Theory]
@@ -739,6 +744,9 @@ public class TypedDocumentCosmosStoreTests
         Retry_ResponseMessage_OnTooManyRequests__Linear__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
             int retriesNeeded)
     {
+        const double SuccessRequestCharge = 1.2;
+        const double FailureRequestCharge = 2.34;
+
         var retryOptions = Options.Create(new ContainerRetryOptions
         {
             Configurations =
@@ -754,7 +762,7 @@ public class TypedDocumentCosmosStoreTests
         });
 
         var successResponse = Mock.Of<ResponseMessage>(r =>
-            r.StatusCode == HttpStatusCode.OK
+            r.StatusCode == HttpStatusCode.OK && r.Headers.RequestCharge == SuccessRequestCharge
         );
 
         var mockCosmosOperation = new Mock<Func<Task<ResponseMessage>>>();
@@ -765,9 +773,9 @@ public class TypedDocumentCosmosStoreTests
         for (var i = 0; i < retriesNeeded; i++)
         {
             var tooManyRequestResponse = Mock.Of<ResponseMessage>(r =>
-                r.StatusCode == HttpStatusCode.TooManyRequests
+                r.StatusCode == HttpStatusCode.TooManyRequests && r.Headers.ActivityId == "fake_activity_id" && r.Headers.RequestCharge == FailureRequestCharge
             );
-            
+
             chain.ReturnsAsync(tooManyRequestResponse);
         }
 
@@ -799,8 +807,14 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(retriesNeeded)
         );
 
-        //Response Message does not record metrics
-        _metricsRecorder.Verify(f => f.RecordMetric(It.IsAny<IMetric>()), Times.Never);
+        var expectedRuCharge = Math.Round(FailureRequestCharge * retriesNeeded, 2);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c => 
+                c.Name == "CosmosOperationMetric" 
+                && Math.Round(c.RuCharge, 2) == expectedRuCharge 
+                && c.Container == "test-container" 
+                && c.DocumentType == "test_doc")),
+            Times.Once);
     }
     
     [Theory]
@@ -816,8 +830,11 @@ public class TypedDocumentCosmosStoreTests
         Retry_ResponseMessage_OnTooManyRequests__CosmosDefault__OperationInvoked_NPlus1_TimesIf_N_RetriesRequiredForContainer(
             int retriesNeeded)
     {
+        const double SuccessRequestCharge = 5.6;
+        const double FailureRequestCharge = 2.71;
+
         var successResponse = Mock.Of<ResponseMessage>(r =>
-            r.StatusCode == HttpStatusCode.OK
+            r.StatusCode == HttpStatusCode.OK && r.Headers.RequestCharge == SuccessRequestCharge
         );
 
         var mockCosmosOperation = new Mock<Func<Task<ResponseMessage>>>();
@@ -828,7 +845,7 @@ public class TypedDocumentCosmosStoreTests
         for (var i = 0; i < retriesNeeded; i++)
         {
             var tooManyRequestResponse = Mock.Of<ResponseMessage>(r =>
-                r.StatusCode == HttpStatusCode.TooManyRequests
+                r.StatusCode == HttpStatusCode.TooManyRequests && r.Headers.ActivityId == "fake_activity_id" && r.Headers.RequestCharge == FailureRequestCharge
             );
             
             chain.ReturnsAsync(tooManyRequestResponse);
@@ -846,7 +863,7 @@ public class TypedDocumentCosmosStoreTests
             _lastUpdatedByResolver.Object,
             _logger.Object);
 
-        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, CancellationToken.None,
+        await sut.Retry_CosmosOperation_OnTooManyRequests(mockCosmosOperation.Object, "TESTMETHOD", CancellationToken.None,
             canExtractRequestCharge: false);
 
         mockCosmosOperation.Verify(f => f(), Times.Exactly(retriesNeeded + 1));
@@ -862,8 +879,15 @@ public class TypedDocumentCosmosStoreTests
             ), Times.Exactly(retriesNeeded)
         );
 
-        //Response Message does not record metrics
-        _metricsRecorder.Verify(f => f.RecordMetric("RequestCharge", It.IsAny<double>()), Times.Never);
+        var expectedRuCharge = Math.Round(FailureRequestCharge * retriesNeeded, 2);
+        Console.WriteLine(expectedRuCharge);
+        _metricsRecorder.Verify(f => f.RecordMetric(
+            It.Is<CosmosOperationMetric>(c =>
+                c.Name == "CosmosOperationMetric"
+                && Math.Round(c.RuCharge,2) == expectedRuCharge
+                && c.Container == "test-container"
+                && c.DocumentType == "test_doc")),
+            Times.Once);
     }
 
     [Fact]

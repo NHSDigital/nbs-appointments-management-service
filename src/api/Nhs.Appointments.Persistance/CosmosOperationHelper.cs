@@ -8,24 +8,16 @@ namespace Nhs.Appointments.Persistance;
 
 public static class CosmosOperationHelper
 {
-    public static async Task<(T result, CosmosOperationMetric resultantMetric)> Retry_CosmosOperation_OnTooManyRequests<T>(
+    public static async Task<T> Retry_CosmosOperation_OnTooManyRequests<T>(
         ContainerRetryConfiguration containerRetryConfiguration,
         Func<Task<T>> cosmosOperation,
         ILogger logger,
         IMetricsRecorder metricsRecorder,
-        string documentType,
-        string path,
+        CosmosOperationMetric metric,
         // TODO: Add ITimeProvider
         CancellationToken cancellationToken = default)
     {
         var context = new CosmosBackoffContext();
-
-        var metric = new CosmosOperationMetric
-        {
-            Container = containerRetryConfiguration.ContainerName,
-            DocumentType = documentType,
-            Path = path
-        };
 
         var backoffStrategy = CosmosBackoffStrategyFactory.Create(containerRetryConfiguration);
 
@@ -37,18 +29,14 @@ public static class CosmosOperationHelper
                 {
                     LogReattempt(containerRetryConfiguration, logger, context);
 
-                    var retryResult = await Attempt(cosmosOperation, metric);
-
-                     // TODO: Can we safely add the results request charge by extracting it here, so as not to need to extract it in the caller? Need to understand the "canExtractRequestCharge" boolean.
-                    return (retryResult, metric); // No error if we reach this point.
+                    return await Attempt(cosmosOperation, metric, containerRetryConfiguration);
                 }
-                // TODO: Add the catch logic for our own exception if the fact that the exception shape differs would be problematic for accessing the RequestCharge, RetryValue, etc.
                 catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.TooManyRequests)
                 {
                     metric.AddRuCharge(ex.RequestCharge);
                     var nextRetryDelayMs = backoffStrategy.Backoff(ex, context);
 
-                    if (context.TotalDelayMs + nextRetryDelayMs > TimeSpan.FromMilliseconds(containerRetryConfiguration.CutoffRetryMs)) // TODO: containerRetryConfiguration.CutoffRetryTimespan
+                    if (context.TotalDelayMs + nextRetryDelayMs > containerRetryConfiguration.CutoffRetryTimeSpan)
                     {
                         var error =
                             $"{context.LinkId} - Cosmos TooManyRequests failed because the CutoffRetryMs ({containerRetryConfiguration.CutoffRetryMs}) would be exceeded on the next retry attempt : total retries: {context.RetryCount} for container: {containerRetryConfiguration.ContainerName}, total delay time ms: {context.TotalDelayMs.TotalMilliseconds}";
@@ -79,25 +67,37 @@ public static class CosmosOperationHelper
         }
     }
 
-    private static async Task<T> Attempt<T>(Func<Task<T>> cosmosOperation, CosmosOperationMetric metric)
+    private static async Task<T> Attempt<T>(Func<Task<T>> cosmosOperation, CosmosOperationMetric metric, ContainerRetryConfiguration containerRetryConfiguration)
     {
         metric.StartAttempt(DateTime.UtcNow);
         try
         {
-            // TODO: Need to add the logic here for APPT-2222 to throw our own exception.
             var result = await cosmosOperation();
-            if (result is ResponseMessage message && message.StatusCode == HttpStatusCode.TooManyRequests)
-            {
-                // TODO: Make this a MyaCosmosException inheriting from CosmosException, rather than creating a CosmosException directly.
-                // Set the Headers.RetryAfter value, and the existing code will work ok.
-                throw new CosmosException(message.ErrorMessage, message.StatusCode, 0, message.Headers.ActivityId, message.Headers.RequestCharge);
-            }
+            HandleResponseMessage(result, containerRetryConfiguration);
 
             return result;
         }
         finally
         {
             metric.EndAttempt(DateTime.UtcNow);
+        }
+    }
+
+    private static void HandleResponseMessage<T>(T result, ContainerRetryConfiguration containerRetryConfiguration)
+    {
+        if (result is ResponseMessage message && message.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            var retryDelay = containerRetryConfiguration.InitialValueTimeSpan;
+
+            if (message.Headers != null && message.Headers.TryGetValue("x-ms-retry-after-ms", out var retryAfterMs))
+            {
+                var milliseconds = long.Parse(retryAfterMs);
+
+                // Force at least 10ms in case cosmos defined retryAfterMs is too low.
+                retryDelay = TimeSpan.FromMilliseconds(Math.Max(milliseconds, 10));
+            }
+
+            throw new ResponseMessageException(message.ErrorMessage, message.StatusCode, 0, message.Headers.ActivityId, message.Headers.RequestCharge, retryDelay);
         }
     }
 

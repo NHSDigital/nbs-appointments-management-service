@@ -21,7 +21,7 @@ export default class SitePage extends MYALayout {
   readonly siteManagementCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'Change site details and accessibility information',
+      name: 'Change site details',
     });
 
   readonly createAvailabilityCard: Locator = this.page
@@ -41,13 +41,13 @@ export default class SitePage extends MYALayout {
   readonly viewAvailabilityAndManageAppointmentsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'View availability and manage appointments for your site',
+      name: 'View availability',
     });
 
   readonly reportsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'Download reports',
+      name: 'Reports',
       exact: true,
     });
 

@@ -285,17 +285,11 @@ describe('Nhs Page', () => {
   });
 
   it.each([
-    [
-      ['availability:query'],
-      'View availability and manage appointments for your site',
-    ],
+    [['availability:query'], 'View availability'],
     [['availability:setup'], 'Create availability'],
-    [
-      ['site:manage', 'site:view'],
-      'Change site details and accessibility information',
-    ],
+    [['site:manage', 'site:view'], 'Change site details'],
     [['users:view'], 'Manage users'],
-    [['reports:sitesummary'], 'Download reports'],
+    [['reports:sitesummary'], 'Reports'],
   ])(
     'hides the correct links when permissions are lacking',
     async (permissions: string[], cardTitle: string) => {

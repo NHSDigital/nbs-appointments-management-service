@@ -16,7 +16,7 @@ export default class SitePage extends RootPage {
       name: 'Manage users',
     });
     this.siteManagementCard = this.page.getByRole('main').getByRole('link', {
-      name: 'Change site details and accessibility information',
+      name: 'Change site details',
     });
     this.createAvailabilityCard = this.page
       .getByRole('main')
@@ -26,10 +26,10 @@ export default class SitePage extends RootPage {
     this.viewAvailabilityAndManageAppointmentsCard = this.page
       .getByRole('main')
       .getByRole('link', {
-        name: 'View availability and manage appointments for your site',
+        name: 'View availability',
       });
     this.reportsCard = this.page.getByRole('main').getByRole('link', {
-      name: 'Download reports',
+      name: 'Reports',
     });
   }
 

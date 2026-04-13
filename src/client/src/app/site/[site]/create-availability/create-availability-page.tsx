@@ -38,7 +38,7 @@ export const CreateAvailabilityPage = ({
         </Link>
         .
       </p>
-      <p>Any sessions that ended in the past are hiden.</p>
+      <p>Any sessions that ended in the past are hidden.</p>
 
       <br />
       <Suspense fallback={<Spinner />}>

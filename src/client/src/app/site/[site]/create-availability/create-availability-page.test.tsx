@@ -69,7 +69,7 @@ describe('Create Availability Page', () => {
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText('Any sessions that ended in the past are hiden.'),
+      screen.getByText('Any sessions that ended in the past are hidden.'),
     ).toBeInTheDocument();
   });
 

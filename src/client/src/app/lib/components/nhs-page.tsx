@@ -126,9 +126,9 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Home',
         href: `${basePath}/site/${site.id}`,
-        pathToCheckIfCurrent: {
-          checkType: 'endsWith',
-          pathToCheckIfCurrent: `/site/${site.id}`,
+        active: {
+          type: 'endsWith',
+          path: `/site/${site.id}`,
         },
       });
     }
@@ -137,9 +137,9 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'View availability',
         href: `${basePath}/site/${site.id}/view-availability/daily-appointments?date=${GetCurrentDateTime('YYYY-MM-DD')}&page=1`,
-        pathToCheckIfCurrent: {
-          checkType: 'includes',
-          pathToCheckIfCurrent: `/site/${site.id}/view-availability`,
+        active: {
+          type: 'includes',
+          path: `/site/${site.id}/view-availability`,
         },
       });
     }
@@ -148,9 +148,9 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Create availability',
         href: `${basePath}/site/${site.id}/create-availability`,
-        pathToCheckIfCurrent: {
-          checkType: 'includes',
-          pathToCheckIfCurrent: `/site/${site.id}/create-availability`,
+        active: {
+          type: 'includes',
+          path: `/site/${site.id}/create-availability`,
         },
       });
     }
@@ -162,9 +162,9 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Change site details',
         href: `${basePath}/site/${site.id}/details`,
-        pathToCheckIfCurrent: {
-          checkType: 'includes',
-          pathToCheckIfCurrent: `/site/${site.id}/details`,
+        active: {
+          type: 'includes',
+          path: `/site/${site.id}/details`,
         },
       });
     }
@@ -173,9 +173,9 @@ const getLinksForSite = async (
       navigationLinks.push({
         label: 'Manage users',
         href: `${basePath}/site/${site.id}/users`,
-        pathToCheckIfCurrent: {
-          checkType: 'includes',
-          pathToCheckIfCurrent: `/site/${site.id}/users`,
+        active: {
+          type: 'includes',
+          path: `/site/${site.id}/users`,
         },
       });
     }
@@ -185,9 +185,9 @@ const getLinksForSite = async (
     navigationLinks.push({
       label: 'Reports',
       href: `${basePath}/reports`,
-      pathToCheckIfCurrent: {
-        checkType: 'endsWith',
-        pathToCheckIfCurrent: '/reports',
+      active: {
+        type: 'endsWith',
+        path: '/reports',
       },
     });
   }

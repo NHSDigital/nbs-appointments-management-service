@@ -5,12 +5,12 @@ import { Header, HeaderAccountItem } from 'nhsuk-react-components';
 export type NavigationLink = {
   label: string;
   href: string;
-  pathToCheckIfCurrent?: LinkCurrentCheck;
+  active?: ActiveLinkMatch;
 };
 
-export type LinkCurrentCheck = {
-  pathToCheckIfCurrent?: string;
-  checkType: 'includes' | 'endsWith';
+export type ActiveLinkMatch = {
+  path?: string;
+  type: 'includes' | 'endsWith';
 };
 
 type Props = {
@@ -77,15 +77,15 @@ const NhsPageHeader = ({
 // Adding checkType so the new 'Home' link does not have the aria-current attribute
 // when other pages were also 'current' as they included 'site/:id' in their path as well
 const isCurrentPage = (pathname: string, link: NavigationLink) => {
-  const { pathToCheckIfCurrent, checkType } = link.pathToCheckIfCurrent || {};
-  if (!pathToCheckIfCurrent) {
+  const { path, type } = link.active || {};
+  if (!path) {
     return false;
   }
-  if (checkType === 'includes') {
-    return pathname.includes(pathToCheckIfCurrent);
+  if (type === 'includes') {
+    return pathname.includes(path);
   }
-  if (checkType === 'endsWith') {
-    return pathname.endsWith(pathToCheckIfCurrent);
+  if (type === 'endsWith') {
+    return pathname.endsWith(path);
   }
 
   return false;

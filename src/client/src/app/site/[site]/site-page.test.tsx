@@ -129,25 +129,43 @@ describe('Site Page', () => {
   it.each([
     [
       'availability:query',
-      'View availability and manage appointments for your site',
+      'View availability',
       'view-availability/daily-appointments?date=2026-06-05&page=1',
+      'View and manage appointments for your site',
     ],
-    ['availability:setup', 'Create availability', 'create-availability'],
+    [
+      'availability:setup',
+      'Create availability',
+      'create-availability',
+      'Add new availability for your site',
+    ],
     [
       'site:manage',
-      'Change site details and accessibility information',
+      'Change site details',
       'details',
+      'Change site details and accessibility information',
     ],
     [
       'site:view',
-      'Change site details and accessibility information',
+      'Change site details',
       'details',
+      'Change site details and accessibility information',
     ],
-    ['users:view', 'Manage users', 'users'],
-    ['reports:sitesummary', 'Download reports', 'reports'],
+    [
+      'users:view',
+      'Manage users',
+      'users',
+      'Add or remove users for your site',
+    ],
+    ['reports:sitesummary', 'Reports', 'reports', 'Download reports'],
   ])(
     'displays the correct cards when permissions are present',
-    (permission: string, cardTitle: string, path: string) => {
+    (
+      permission: string,
+      cardTitle: string,
+      path: string,
+      cardDescription: string,
+    ) => {
       const mockSite = mockSites[0];
       mockGetCurrentDatTime.mockReturnValue('2026-06-05');
 
@@ -164,6 +182,7 @@ describe('Site Page', () => {
       );
 
       expect(screen.getByRole('link', { name: cardTitle })).toBeInTheDocument();
+      expect(screen.getByText(cardDescription)).toBeInTheDocument();
 
       if (path === 'reports') {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(

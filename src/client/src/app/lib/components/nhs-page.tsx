@@ -185,18 +185,16 @@ const getLinksForSite = async (
     }
   }
 
-    if (hasAnyReportPermissions()) {
-        navigationLinks.push({
-            label: 'Reports',
-            // Your logic for the return URL
-            href: `${basePath}/reports?returnUrl=${encodedReturnUrl}`,
-            // Main's logic for the active link styling
-            active: {
-                type: 'endsWith',
-                path: '/reports',
-            },
-        });
-    }
+  if (hasAnyReportPermissions()) {
+    navigationLinks.push({
+      label: 'Reports',
+      href: `${basePath}/reports?returnUrl=${encodedReturnUrl}`,
+      active: {
+        type: 'endsWith',
+        path: '/reports',
+      },
+    });
+  }
 
   return navigationLinks;
 };

@@ -21,7 +21,7 @@ export default class SitePage extends MYALayout {
   readonly siteManagementCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'Change site details and accessibility information',
+      name: 'Change site details',
     });
 
   readonly createAvailabilityCard: Locator = this.page
@@ -41,18 +41,20 @@ export default class SitePage extends MYALayout {
   readonly viewAvailabilityAndManageAppointmentsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'View availability and manage appointments for your site',
+      name: 'View availability',
     });
 
   readonly reportsCard: Locator = this.page
     .getByRole('main')
     .getByRole('link', {
-      name: 'Download reports',
+      name: 'Reports',
       exact: true,
     });
 
   readonly topNav = {
-    reportsLink: this.page.getByRole('link', { name: 'Reports', exact: true }),
+    reportsLink: this.page.locator('.nhsuk-header__navigation-link', {
+      hasText: 'Reports',
+    }),
 
     clickReports: async (
       reportsUpliftEnabled: boolean,

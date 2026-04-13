@@ -52,7 +52,9 @@ export default class SitePage extends MYALayout {
     });
 
   readonly topNav = {
-    reportsLink: this.page.getByRole('link', { name: 'Reports', exact: true }),
+    reportsLink: this.page.locator('.nhsuk-header__navigation-link', {
+      hasText: 'Reports',
+    }),
 
     clickReports: async (
       reportsUpliftEnabled: boolean,

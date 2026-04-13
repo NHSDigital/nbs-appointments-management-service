@@ -40,10 +40,7 @@ export const mapSiteOverviewSummaryData = (
   return { items, border: false };
 };
 
-export const mapCoreSiteSummaryData = (
-  site: Site,
-  siteStatusEnabled: boolean,
-) => {
+export const mapCoreSiteSummaryData = (site: Site) => {
   if (!site) {
     return undefined;
   }
@@ -73,9 +70,7 @@ export const mapCoreSiteSummaryData = (
     items.push({ title: 'Phone Number', value: site.phoneNumber });
   }
 
-  if (siteStatusEnabled) {
-    items = [siteStatusSummaryItem(site), ...items];
-  }
+  items = [siteStatusSummaryItem(site), ...items];
 
   return { items, border: false };
 };

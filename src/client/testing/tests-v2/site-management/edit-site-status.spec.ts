@@ -2,31 +2,11 @@ import { test, expect } from '../../fixtures-v2';
 
 test.describe.configure({ mode: 'serial' });
 
-test('A site manager cannot edit site status when the feature toggle is disabled', async ({
-  setup,
-}) => {
-  await setup({
-    features: [{ name: 'SiteStatus', enabled: false }],
-  })
-    .then(({ sitePage }) => {
-      return sitePage.clickSiteDetailsCard();
-    })
-    .then(async siteDetailsPage => {
-      await expect(
-        siteDetailsPage.detailsCard.summaryList.getV10Item('Site status'),
-      ).not.toBeVisible();
-
-      await expect(siteDetailsPage.detailsCard.editLinks[1]).not.toBeVisible();
-    });
-});
-
 test('A site manager takes an online site offline', async ({ setup }) => {
-  await setup({
-    features: [{ name: 'SiteStatus', enabled: true }],
-  })
-    .then(({ sitePage }) => {
-      return sitePage.clickSiteDetailsCard();
-    })
+  const { sitePage } = await setup();
+
+  await sitePage
+    .clickSiteDetailsCard()
     .then(async siteDetailsPage => {
       return siteDetailsPage.clickEditSiteStatusLink();
     })
@@ -57,7 +37,6 @@ test('A site manager takes an online site offline', async ({ setup }) => {
 
 test('A site manager takes an offline site online', async ({ setup }) => {
   await setup({
-    features: [{ name: 'SiteStatus', enabled: true }],
     siteConfig: { status: 'Offline' },
   })
     .then(({ sitePage }) => {
@@ -94,10 +73,10 @@ test('A site manager takes an offline site online', async ({ setup }) => {
 test('A user starts to update site status then changes their mind using the back button', async ({
   setup,
 }) => {
-  await setup({ features: [{ name: 'SiteStatus', enabled: true }] })
-    .then(({ sitePage }) => {
-      return sitePage.clickSiteDetailsCard();
-    })
+  const { sitePage } = await setup();
+
+  await sitePage
+    .clickSiteDetailsCard()
     .then(async siteDetailsPage => {
       return siteDetailsPage.clickEditSiteStatusLink();
     })

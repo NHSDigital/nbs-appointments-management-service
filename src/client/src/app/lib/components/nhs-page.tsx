@@ -58,6 +58,7 @@ const NhsPage = async ({
         navigationLinks={navigationLinks}
         showChangeSiteButton={site !== undefined}
         userEmail={userProfile.emailAddress}
+        siteName={site?.name}
       ></NhsPageHeader>
       <FeedbackBanner originPage={originPage} />
       <Breadcrumbs

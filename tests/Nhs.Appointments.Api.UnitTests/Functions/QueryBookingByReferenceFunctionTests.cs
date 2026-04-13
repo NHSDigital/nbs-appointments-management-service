@@ -1,6 +1,7 @@
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using Grpc.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ using Nhs.Appointments.Core.Users;
 
 namespace Nhs.Appointments.Api.Tests.Functions;
 
-public class QueryBookingByReferenceNumberTests
+public class QueryBookingByReferenceFunctionTests
 {
     private readonly Mock<IBookingQueryService> _bookingQueryService = new();
     private readonly Mock<ILogger<QueryBookingByReferenceFunction>> _logger = new();
@@ -26,7 +27,7 @@ public class QueryBookingByReferenceNumberTests
     private readonly Mock<IValidator<QueryBookingByReferenceRequest>> _validator = new();
     private readonly Mock<ISiteService> _siteService = new();
 
-    public QueryBookingByReferenceNumberTests()
+    public QueryBookingByReferenceFunctionTests()
     {
         _sut = new QueryBookingByReferenceFunction(
             _bookingQueryService.Object,
@@ -166,6 +167,26 @@ public class QueryBookingByReferenceNumberTests
 
         var result = await _sut.RunAsync(httpRequest) as ContentResult;
         result.StatusCode.Should().Be(404);
+    }
+
+    [Fact]
+    public async Task ReturnsNotFound_WhenProvisionalBookingNotFound()
+    {
+        //Arrange
+        const string bookingRef = "ABC123";
+
+        _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
+            .ReturnsAsync(() => null);
+
+        //Act
+        var request = new QueryBookingByReferenceRequest(bookingRef, "TEST03");
+        var httpRequest = CreateRequest(request.site);
+
+        //Assert
+        var result = await _sut.RunAsync(httpRequest) as ContentResult;
+        result.StatusCode.Should().Be(404);
+
+        _siteService.Verify(x => x.GetSiteByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     private static HttpRequest CreateRequest(string site)

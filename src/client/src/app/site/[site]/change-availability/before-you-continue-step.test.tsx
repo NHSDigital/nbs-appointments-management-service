@@ -9,7 +9,10 @@ jest.mock('next/navigation', () => ({
 
 describe('BeforeYouContinueStep', () => {
   const mockGoToNextStep = jest.fn();
-  const mockRouter = { back: jest.fn() };
+  const mockRouter = {
+    back: jest.fn(),
+    push: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -82,7 +85,7 @@ describe('BeforeYouContinueStep', () => {
     expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
   });
 
-  it('calls router.back when the BackLink is clicked', () => {
+  it('calls router.push when the BackLink is clicked', () => {
     render(
       <BeforeYouContinueStep
         {...defaultProps}
@@ -91,8 +94,9 @@ describe('BeforeYouContinueStep', () => {
     );
 
     const backButton = screen.getByText(/Back/i);
+
     fireEvent.click(backButton);
 
-    expect(mockRouter.back).toHaveBeenCalledTimes(1);
+    expect(mockRouter.push).toHaveBeenCalledTimes(1);
   });
 });

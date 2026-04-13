@@ -43,7 +43,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -59,7 +58,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -81,7 +79,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
     verifyV10SummaryListItem('Region', mockSite.region);
@@ -102,7 +99,6 @@ describe('Site Page', () => {
         permissions={mockNonManagerPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -118,7 +114,6 @@ describe('Site Page', () => {
         permissions={mockNonManagerPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -177,7 +172,6 @@ describe('Site Page', () => {
             permission === 'reports:sitesummary' ? ['reports:sitesummary'] : []
           }
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-          siteStatusEnabled
         />,
       );
 
@@ -215,7 +209,6 @@ describe('Site Page', () => {
           permissions={mockAllPermissions.filter(p => !permissions.includes(p))}
           permissionsAtAnySite={[]}
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-          siteStatusEnabled
         />,
       );
 
@@ -236,7 +229,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 

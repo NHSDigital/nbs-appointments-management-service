@@ -4,7 +4,6 @@ import { Site, WellKnownOdsEntry } from '@types';
 export const mapSiteOverviewSummaryData = (
   site: Site,
   wellKnownOdsCodeEntries: WellKnownOdsEntry[],
-  siteStatusEnabled: boolean,
 ) => {
   if (!site) {
     return undefined;
@@ -33,9 +32,7 @@ export const mapSiteOverviewSummaryData = (
     },
   ];
 
-  if (siteStatusEnabled) {
-    items = [siteStatusSummaryItem(site), ...items];
-  }
+  items = [siteStatusSummaryItem(site), ...items];
 
   return { items, border: false };
 };

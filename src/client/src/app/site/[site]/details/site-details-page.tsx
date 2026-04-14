@@ -1,7 +1,6 @@
 import fromServer from '@server/fromServer';
 import {
   fetchAccessibilityDefinitions,
-  fetchFeatureFlag,
   fetchSite,
 } from '@services/appointmentsService';
 import {

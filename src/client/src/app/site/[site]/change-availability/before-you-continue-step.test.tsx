@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import BeforeYouContinueStep from './before-you-continue-step';
 import { useRouter } from 'next/navigation';
 import { InjectedWizardProps } from '@components/wizard';
@@ -85,7 +85,7 @@ describe('BeforeYouContinueStep', () => {
     expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
   });
 
-  it('calls router.push when the BackLink is clicked', () => {
+  it('renders the Back link with the correct role', () => {
     render(
       <BeforeYouContinueStep
         {...defaultProps}
@@ -93,10 +93,41 @@ describe('BeforeYouContinueStep', () => {
       />,
     );
 
-    const backButton = screen.getByText(/Back/i);
+    const backLink = screen.getByRole('link', { name: /Back/i });
+    expect(backLink).toBeInTheDocument();
+  });
 
-    fireEvent.click(backButton);
+  it('calls router.push with the previousUrl when one is provided', () => {
+    const customUrl = '/specific-previous-page';
 
-    expect(mockRouter.push).toHaveBeenCalledTimes(1);
+    render(
+      <BeforeYouContinueStep
+        {...defaultProps}
+        cancelADateRangeWithBookingsEnabled={false}
+        previousUrl={customUrl}
+      />,
+    );
+
+    const backLink = screen.getByText(/Back/i);
+    fireEvent.click(backLink);
+
+    // This proves the 'if (previousUrl)' logic works
+    expect(mockRouter.push).toHaveBeenCalledWith(customUrl);
+  });
+
+  it('calls router.push with "/sites" fallback when previousUrl is missing', () => {
+    render(
+      <BeforeYouContinueStep
+        {...defaultProps}
+        cancelADateRangeWithBookingsEnabled={false}
+        previousUrl={undefined} // No previous URL
+      />,
+    );
+
+    const backLink = screen.getByText(/Back/i);
+    fireEvent.click(backLink);
+
+    // External traffic fallback
+    expect(mockRouter.push).toHaveBeenCalledWith('/sites');
   });
 });

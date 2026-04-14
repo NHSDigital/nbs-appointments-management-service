@@ -11,46 +11,36 @@ public class BookingAvailabilityStateService(
 
     public async Task<AvailabilitySummary> GetWeekSummary(string site, DateOnly from)
     {
-        var dayStart = from.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = from.AddDays(6).ToDateTime(new TimeOnly(23, 59, 59));
-        var returnType = BookingAvailabilityStateReturnType.Summary;
+        var instruction = BookingAvailabilityStateInstructionFactory.CreateWeekSummaryInstruction(from);
 
-        return (await BuildFullState(site, dayStart, dayEnd, returnType)).Summary;
+        return (await BuildFullState(site, instruction)).Summary;
     }
 
     public async Task<AvailabilitySummary> GetDaySummary(string site, DateOnly day)
     {
-        var dayStart = day.ToDateTime(new TimeOnly(0, 0));
-        var dayEnd = day.ToDateTime(new TimeOnly(23, 59, 59));
-        var returnType = BookingAvailabilityStateReturnType.Summary;
-        
-        return (await BuildFullState(site, dayStart, dayEnd, returnType)).Summary;
+        var instruction = BookingAvailabilityStateInstructionFactory.CreateDaySummaryInstruction(day);
+
+        return (await BuildFullState(site, instruction)).Summary;
     }
     
-    /// <summary>
-    /// Fetches all required data and builds up the state
-    /// </summary>
-    private async Task<BookingAvailabilityState> BuildFullState(string site, DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
-    {
-        var (bookings, sessions) =
-            await FetchData(site, from, to,  returnType);
-
-        return (BuildState(bookings, sessions, returnType, from, to));
-    }
-
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
         DateTime to, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction)
     {
-        var (bookings, sessions) =
-            await FetchData(site, from, to,  BookingAvailabilityStateReturnType.Recalculations);
+        // TODO: Create the combination of from to and the return type as a BookingAvailabilityStateInstruction instance from a factory method.
+        // e.g. BookingAvailabilityStateInstructionFactory.CreateRecalculation(from, to)
+        // Pass this object into FetchData and BuildState, rather than the separate parameters.
+        var instruction = BookingAvailabilityStateInstructionFactory.CreateRecalculationsInstruction(from, to);
+        var (bookings, sessions) = await FetchData(site, instruction);
 
-        return (BuildState(bookings, sessions, BookingAvailabilityStateReturnType.Recalculations, from, to, newlyUnsupportedBookingAction)).BookingAvailabilityUpdates;
+        return BuildState(bookings, sessions, instruction, newlyUnsupportedBookingAction).BookingAvailabilityUpdates;
     }
 
     public async Task<AvailabilityUpdateProposal> GenerateSessionProposalActionMetrics(string site, DateTime from,
     DateTime to, Session matcher, Session replacement)
     {
-        var (bookings, sessions) = await FetchData(site, from, to,  BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics);
+        var instruction = BookingAvailabilityStateInstructionFactory.CreateSessionUpdateProposalInstruction(from, to);
+
+        var (bookings, sessions) = await FetchData(site, instruction);
 
         var proposalAction = DetermineAvailabilityUpdateProposalAction(matcher, replacement);
 
@@ -102,30 +92,45 @@ public class BookingAvailabilityStateService(
                     break;
             }
         }
-        
-        return (BuildState(bookings, sessions, BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics, from, to)).UpdateProposal;
+
+        return BuildState(bookings, sessions, instruction).UpdateProposal;
     }
 
     public async Task<IEnumerable<SessionInstance>> GetAvailableSlots(string site, DateTime from, DateTime to)
     {
-        return (await BuildFullState(site, from, to, BookingAvailabilityStateReturnType.AvailableSlots)).AvailableSlots;
+        var instruction = BookingAvailabilityStateInstructionFactory.CreateAvailableSlotsInstruction(from, to);
+
+        return (await BuildFullState(site, instruction)).AvailableSlots;
     }
 
     public async Task<(int SessionCount, int BookingCount)> GenerateCancelDateRangeProposalActionMetricsAsync(string site, DateOnly from, DateOnly to)
     {
-        var (bookings, sessions) = await FetchData(site, from.ToDateTime(TimeOnly.MinValue), to.ToDateTime(new TimeOnly(23, 59, 59)), BookingAvailabilityStateReturnType.Summary);
+        var instruction = BookingAvailabilityStateInstructionFactory.CreateDateRangeSummaryInstruction(from, to);
+
+        var (bookings, sessions) = await FetchData(site, instruction);
+
         return (sessions.Count, bookings.Count(b => b.AvailabilityStatus == AvailabilityStatus.Supported));
     }
 
-    private async Task<(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,
-        DateTime from, DateTime to, BookingAvailabilityStateReturnType returnType)
+    /// <summary>
+    /// Fetches all required data and builds up the state
+    /// </summary>
+    private async Task<BookingAvailabilityState> BuildFullState(string site, BookingAvailabilityStateInstruction instruction)
     {
-        var isSummary = returnType == BookingAvailabilityStateReturnType.Summary;
+        var (bookings, sessions) = await FetchData(site, instruction);
+
+        return BuildState(bookings, sessions, instruction);
+    }
+
+    private async Task<(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions)> FetchData(string site,
+        BookingAvailabilityStateInstruction instruction)
+    {
+        var isSummary = instruction.ReturnType == BookingAvailabilityStateReturnType.Summary;
 
         var statuses = isSummary ? [AppointmentStatus.Booked, AppointmentStatus.Cancelled] : _liveStatuses;
-        var bookingsTask = bookingQueryService.GetOrderedBookings(site, from, to, statuses);
-        var sessionsTask = availabilityQueryService.GetLinkedSessions(site, DateOnly.FromDateTime(from),
-            DateOnly.FromDateTime(to), isSummary);
+        var bookingsTask = bookingQueryService.GetOrderedBookings(site, instruction.From, instruction.To, statuses);
+        var sessionsTask = availabilityQueryService.GetLinkedSessions(site, DateOnly.FromDateTime(instruction.From),
+            DateOnly.FromDateTime(instruction.To), isSummary);
         await Task.WhenAll(bookingsTask, sessionsTask);
         return (bookingsTask.Result, sessionsTask.Result.ToList());
     }
@@ -145,10 +150,11 @@ public class BookingAvailabilityStateService(
         }).ToList();
     }
 
+    // TODO: Receive a BookingAvailabilityStateInstruction instance, rather than the separate from, to and returnType fields.
     private BookingAvailabilityState BuildState(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions,
-        BookingAvailabilityStateReturnType returnType, DateTime from, DateTime to, NewlyUnsupportedBookingAction? newlyUnsupportedBookingAction = null)
+        BookingAvailabilityStateInstruction instruction, NewlyUnsupportedBookingAction? newlyUnsupportedBookingAction = null)
     {
-        if (returnType == BookingAvailabilityStateReturnType.Recalculations)
+        if (instruction.ReturnType == BookingAvailabilityStateReturnType.Recalculations)
         {
             //newlyUnsupportedBookingAction is only required if this is a Recalculations generation
             ArgumentNullException.ThrowIfNull(newlyUnsupportedBookingAction);
@@ -163,9 +169,9 @@ public class BookingAvailabilityStateService(
 
         List<DayAvailabilitySummary> daySummaries = [];
 
-        if (returnType == BookingAvailabilityStateReturnType.Summary)
+        if (instruction.ReturnType == BookingAvailabilityStateReturnType.Summary)
         {
-            daySummaries = InitialiseDaySummaries(from, to, sessions);
+            daySummaries = InitialiseDaySummaries(instruction.From, instruction.To, sessions);
         }
 
         foreach (var booking in liveBookings)
@@ -175,7 +181,7 @@ public class BookingAvailabilityStateService(
 
             if (bookingIsSupportedByAvailability)
             {
-                switch (returnType)
+                switch (instruction.ReturnType)
                 {
                     case BookingAvailabilityStateReturnType.AvailableSlots:
                         break;
@@ -204,14 +210,14 @@ public class BookingAvailabilityStateService(
                         }
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
+                        throw new ArgumentOutOfRangeException(nameof(instruction.ReturnType), instruction.ReturnType, null);
                 }
 
                 targetSlot.Capacity--;
                 continue;
             }
 
-            switch (returnType)
+            switch (instruction.ReturnType)
             {
                 case BookingAvailabilityStateReturnType.AvailableSlots:
                     continue;
@@ -237,12 +243,12 @@ public class BookingAvailabilityStateService(
                     }
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
+                    throw new ArgumentOutOfRangeException(nameof(instruction.ReturnType), instruction.ReturnType, null);
             }
         }
 
         //finalise data
-        switch (returnType)
+        switch (instruction.ReturnType)
         {
             case BookingAvailabilityStateReturnType.AvailableSlots:
                 //we only need to do this calculation if we want to return the available slots
@@ -256,7 +262,7 @@ public class BookingAvailabilityStateService(
                 //no further action
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(returnType), returnType, null);
+                throw new ArgumentOutOfRangeException(nameof(instruction.ReturnType), instruction.ReturnType, null);
         }
 
         return state;
@@ -334,129 +340,4 @@ public class BookingAvailabilityStateService(
             .OrderBy(slot => slot.Services.Length)
             .ThenBy(slot => string.Join(string.Empty, slot.Services.Order()))
             .FirstOrDefault();
-}
-
-
-public static class RecalculationExtensions
-{
-    public static void AppendNewlySupportedBooking(this List<BookingAvailabilityUpdate> recalculations, Booking booking)
-    {
-        if (booking.AvailabilityStatus is not AvailabilityStatus.Supported)
-        {
-            recalculations.Add(
-                new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToSupported));
-        }
-    }
-
-    public static void AppendNewlyUnsupportedBookings(this List<BookingAvailabilityUpdate> recalculations,
-        Booking booking, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction)
-    {
-        if (booking.AvailabilityStatus is AvailabilityStatus.Supported &&
-            booking.Status is AppointmentStatus.Booked)
-        {
-            switch (newlyUnsupportedBookingAction)
-            {
-                case NewlyUnsupportedBookingAction.Orphan:
-                    recalculations.Add(
-                        new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToOrphaned));
-                    break;
-                case NewlyUnsupportedBookingAction.Cancel:
-                    recalculations.Add(
-                        new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.SetToCancelled));
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(newlyUnsupportedBookingAction), newlyUnsupportedBookingAction, null);
-            }
-        }
-    }
-
-    public static void AppendProvisionalBookingsToBeDeleted(this List<BookingAvailabilityUpdate> recalculations,
-        Booking booking)
-    {
-        if (booking.Status is AppointmentStatus.Provisional)
-        {
-            recalculations.Add(new BookingAvailabilityUpdate(booking, AvailabilityUpdateAction.ProvisionalToDelete));
-        }
-    }
-
-    public static LinkedSessionInstance FindMatchingSession(this List<LinkedSessionInstance> sessions, Session matcher)
-    {
-        return sessions.FirstOrDefault(s =>
-                        s.From.TimeOfDay == matcher.From.ToTimeSpan() &&
-                        s.Until.TimeOfDay == matcher.Until.ToTimeSpan() &&
-                        s.Duration == (matcher.Until - matcher.From) &&
-                        s.Capacity == matcher.Capacity &&
-                        matcher.Services.All(ms => s.Services.Contains(ms))
-                    );
-    }
-}
-
-public class BookingAvailabilityState
-{
-    public readonly List<BookingAvailabilityUpdate> BookingAvailabilityUpdates = [];
-
-    public IEnumerable<SessionInstance> AvailableSlots { get; set; } = [];
-
-    public AvailabilitySummary Summary { get; set; }
-
-    public AvailabilityUpdateProposal UpdateProposal { get; set; } = new AvailabilityUpdateProposal();
-}
-
-public class AvailabilityUpdateProposal
-{
-    public AvailabilityUpdateProposal(){}
-    public AvailabilityUpdateProposal(bool matchingSessionNotFound)
-    {
-        MatchingSessionNotFound = matchingSessionNotFound;
-    }
-    public int NewlySupportedBookingsCount { get; set; }
-    public int NewlyUnsupportedBookingsCount { get; set; } 
-    public bool MatchingSessionNotFound { get; set; }
-}
-
-public enum BookingAvailabilityStateReturnType
-{
-    /// <summary>
-    ///     Return a list of available slots
-    /// </summary>
-    AvailableSlots = 0,
-
-    /// <summary>
-    ///     Return a list of bookings that need an update
-    /// </summary>
-    Recalculations = 1,
-
-    /// <summary>
-    ///     Return a summary of booking/availability for a period
-    /// </summary>
-    Summary = 2,
-    
-    /// <summary>
-    ///     Return metrics that summarise the predicted outcome after a session update
-    /// </summary>
-    SessionUpdateProposalMetrics = 3
-}
-
-public class BookingAvailabilityUpdate(Booking booking, AvailabilityUpdateAction action)
-{
-    public Booking Booking { get; } = booking;
-    public AvailabilityUpdateAction Action { get; } = action;
-}
-
-public enum AvailabilityUpdateAction
-{
-    Default,
-    ProvisionalToDelete,
-    SetToSupported,
-    SetToOrphaned,
-    SetToCancelled,
-}
-
-/// <summary>
-/// Decide what to do with bookings that have changed from Supported -> Unsupported
-/// </summary>
-public enum NewlyUnsupportedBookingAction
-{
-    Orphan, //AvailabilityUpdateAction.SetToOrphaned
-    Cancel //AvailabilityUpdateAction.SetToCancelled
 }

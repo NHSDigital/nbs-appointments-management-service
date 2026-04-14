@@ -1,5 +1,5 @@
 import { DayJsType, getUkWeeksOfTheMonth, ukNow } from '@services/timeService';
-import { test } from '../../fixtures-v2';
+import { expect, test } from '../../fixtures-v2';
 import {
   clockBackwardWeeksData,
   clockForwardWeeksData,
@@ -189,6 +189,61 @@ test.describe('View Month Availability', () => {
                 expectedWeekOverviews2[i],
               );
             }
+          });
+
+          test('Date persists between month, week and day views', async ({
+            setup,
+            page,
+          }) => {
+            const nextYear = ukNow().year() + yearIncrement;
+            const data = clockForwardWeeksData(nextYear);
+
+            const { site } = await setup({
+              ...data,
+            });
+
+            const marchWeeks = getUkWeeksOfTheMonth(data.firstDate);
+            const firstDate = marchWeeks[0][0];
+
+            await page.goto(
+              `manage-your-appointments/site/${site.id}/view-availability?date=${firstDate.format('YYYY-MM-DD')}`,
+            );
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability?date=${firstDate.format('YYYY-MM-DD')}`,
+            );
+            await page.waitForSelector('.nhsuk-loader', {
+              state: 'detached',
+            });
+
+            const weekViewLink = page.getByRole('link', { name: 'Week view' });
+            await weekViewLink.click();
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability/week?date=${firstDate.format('YYYY-MM-DD')}&page=1`,
+            );
+            await page.waitForSelector('.nhsuk-loader', {
+              state: 'detached',
+            });
+
+            const expectedWeekHeader = `${marchWeeks[0][0].format('D MMMM')} to ${marchWeeks[0][6].format('D MMMM')}`;
+            expect(
+              page.getByRole('heading', { name: `${expectedWeekHeader}` }),
+            ).toBeVisible();
+
+            const dayViewLink = page.getByRole('link', { name: 'Day view' });
+            await dayViewLink.click();
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability/daily-appointments?date=${firstDate.format(
+                'YYYY-MM-DD',
+              )}&page=1`,
+            );
+            await page.waitForSelector('.nhsuk-loader', {
+              state: 'detached',
+            });
+            expect(
+              page.getByRole('heading', {
+                name: `${firstDate.format('dddd D MMMM YYYY')}`,
+              }),
+            ).toBeVisible();
           });
         });
       });

@@ -4,6 +4,7 @@ import {
   clockBackwardDaysData,
   clockForwardDaysData,
 } from '../../availability';
+import { parseToUkDatetime } from '@services/timeService';
 
 test.describe('View Daily Availability', () => {
   ['Europe/London', 'Asia/Kamchatka', 'US/Pacific'].forEach(async timezone => {
@@ -364,6 +365,71 @@ test.describe('View Daily Availability', () => {
                 `**/site/${site.id}/view-availability/daily-appointments?date=${dayCase.day}&page=1`,
               );
             }
+          });
+
+          test('View daily appointments can use next day pagination and has correct information', async ({
+            setup,
+            page,
+            dailyAppointmentDetailsPage,
+          }) => {
+            const { site } = await setup({
+              availability: forwardDayData.availability?.concat(
+                backwardDayData.availability!,
+              ),
+              bookings: forwardDayData.bookings?.concat(
+                backwardDayData.bookings!,
+              ),
+            });
+
+            await page.goto(
+              `manage-your-appointments/site/${site.id}/view-availability/week?date=${dayCase.day}`,
+            );
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability/week?date=${dayCase.day}`,
+            );
+            await page.waitForSelector('.nhsuk-loader', {
+              state: 'detached',
+            });
+
+            const viewDailyAppointmentsButton = page
+              .getByRole('heading', {
+                name: dayCase.dayCardHeader,
+              })
+              .locator('../..')
+              .getByRole('link', {
+                name: 'View daily appointments',
+              });
+
+            await viewDailyAppointmentsButton.click();
+
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability/daily-appointments?date=${dayCase.day}&page=1`,
+            );
+
+            const nextPageLink = page.getByRole('link', {
+              name: 'Next',
+            });
+
+            await nextPageLink.click();
+
+            const testDay = parseToUkDatetime(dayCase.day);
+            const nextDay = testDay.add(1, 'day');
+
+            await page.waitForURL(
+              `**/site/${site.id}/view-availability/daily-appointments?date=${nextDay.format('YYYY-MM-DD')}&page=1`,
+            );
+
+            const allTableRows =
+              await dailyAppointmentDetailsPage.appointmentsTable
+                .getByRole('row')
+                .all();
+
+            expect(
+              page.getByRole('heading', {
+                name: nextDay.format('dddd D MMMM YYYY'),
+              }),
+            ).toBeVisible();
+            expect(allTableRows.length).toBe(1);
           });
         });
       });

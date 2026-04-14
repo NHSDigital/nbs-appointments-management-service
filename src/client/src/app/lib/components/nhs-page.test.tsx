@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
+import { ComponentProps } from 'react';
 import NhsPage from './nhs-page';
 import {
   fetchUserProfile,
@@ -62,6 +63,13 @@ jest.mock('@services/timeService', () => {
 const mockGetCurrentDatTime = GetCurrentDateTime as jest.Mock<string>;
 
 describe('Nhs Page', () => {
+  const renderNhsPage = async (props: ComponentProps<typeof NhsPage>) => {
+    const jsx = await act(async () => {
+      return await NhsPage(props);
+    });
+    return render(jsx);
+  };
+
   beforeEach(() => {
     fetchUserProfileMock.mockResolvedValue(
       asServerActionResult({
@@ -85,25 +93,38 @@ describe('Nhs Page', () => {
   });
 
   it('shows the correct title', async () => {
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [],
       originPage: '',
     });
-    render(jsx);
+
     expect(screen.getByRole('heading', { name: /Test title/i })).toBeVisible();
   });
 
   it('displays the print button', async () => {
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [],
       originPage: '',
       showPrintButton: true,
     });
-    render(jsx);
+
+    expect(
+      screen.getByRole('button', { name: 'Print page' }),
+    ).toBeInTheDocument();
+  });
+
+  it('displays the print button', async () => {
+    await renderNhsPage({
+      title: 'Test title',
+      children: null,
+      breadcrumbs: [],
+      originPage: '',
+      showPrintButton: true,
+    });
 
     expect(
       screen.getByRole('button', { name: 'Print page' }),
@@ -111,13 +132,12 @@ describe('Nhs Page', () => {
   });
 
   it('hides the print button by default', async () => {
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [],
       originPage: '',
     });
-    render(jsx);
 
     expect(
       screen.queryByRole('button', { name: 'Print page' }),
@@ -125,7 +145,7 @@ describe('Nhs Page', () => {
   });
 
   it('shows the correct breadcrumbs including title', async () => {
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [
@@ -134,14 +154,13 @@ describe('Nhs Page', () => {
       ],
       originPage: '',
     });
-    render(jsx);
     expect(screen.getByRole('link', { name: 'Level One' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Level Two' })).toBeVisible();
     expect(screen.getByRole('listitem', { name: /Test title/i })).toBeVisible();
   });
 
   it('shows the correct breadcrumbs without title', async () => {
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [
@@ -151,7 +170,6 @@ describe('Nhs Page', () => {
       omitTitleFromBreadcrumbs: true,
       originPage: '',
     });
-    render(jsx);
     expect(screen.getByRole('link', { name: 'Level One' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Level Two' })).toBeVisible();
     expect(screen.queryByRole('listitem', { name: /Test title/i })).toBeNull();
@@ -164,7 +182,7 @@ describe('Nhs Page', () => {
         : undefined;
     });
 
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [
@@ -174,7 +192,6 @@ describe('Nhs Page', () => {
       omitTitleFromBreadcrumbs: true,
       originPage: '',
     });
-    render(jsx);
 
     expect(screen.getByText('This is a notification')).toBeVisible();
   });
@@ -182,7 +199,7 @@ describe('Nhs Page', () => {
   it('Does not display a notification banner when there is an ams-notification cookie', async () => {
     mockGetCookies = jest.fn().mockReturnValue(undefined);
 
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [
@@ -192,7 +209,6 @@ describe('Nhs Page', () => {
       omitTitleFromBreadcrumbs: true,
       originPage: '',
     });
-    render(jsx);
 
     expect(screen.queryByText('This is a notification')).toBeNull();
   });
@@ -218,14 +234,13 @@ describe('Nhs Page', () => {
       );
       mockGetCurrentDatTime.mockReturnValue('2026-06-05');
 
-      const jsx = await NhsPage({
+      await renderNhsPage({
         title: 'Test title',
         children: null,
         site: mockSite,
         breadcrumbs: [],
         originPage: '',
       });
-      render(jsx);
 
       expect(fetchPermissionsMock).toHaveBeenCalledWith(
         '34e990af-5dc9-43a6-8895-b9123216d699',
@@ -235,7 +250,7 @@ describe('Nhs Page', () => {
       if (path === 'reports') {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
           'href',
-          `/manage-your-appointments/${path}`,
+          `/manage-your-appointments/${path}?returnUrl=`,
         );
       } else {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
@@ -247,13 +262,12 @@ describe('Nhs Page', () => {
   );
 
   it('Still requests global permissions if site is not provided', async () => {
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       breadcrumbs: [],
       originPage: '',
     });
-    render(jsx);
 
     expect(fetchPermissionsMock).toHaveBeenCalledTimes(2);
     expect(fetchPermissionsMock).toHaveBeenCalledWith(undefined);
@@ -263,14 +277,13 @@ describe('Nhs Page', () => {
   it('Does not display any navigation links if no permissions are present', async () => {
     fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       site: mockSite,
       breadcrumbs: [],
       originPage: '',
     });
-    render(jsx);
 
     expect(fetchPermissionsMock).toHaveBeenCalledWith(
       '34e990af-5dc9-43a6-8895-b9123216d699',
@@ -308,14 +321,13 @@ describe('Nhs Page', () => {
         ),
       );
 
-      const jsx = await NhsPage({
+      await renderNhsPage({
         title: 'Test title',
         children: null,
         site: mockSite,
         breadcrumbs: [],
         originPage: '',
       });
-      render(jsx);
 
       expect(fetchPermissionsMock).toHaveBeenCalledWith(
         '34e990af-5dc9-43a6-8895-b9123216d699',
@@ -330,7 +342,7 @@ describe('Nhs Page', () => {
   it('displays the back link with the correct title and URL', async () => {
     fetchPermissionsMock.mockResolvedValue(asServerActionResult([]));
 
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       site: {
@@ -357,7 +369,6 @@ describe('Nhs Page', () => {
       originPage: '',
     });
 
-    render(jsx);
     expect(
       screen.getByRole('link', { name: 'Test back link' }),
     ).toBeInTheDocument();
@@ -373,7 +384,7 @@ describe('Nhs Page', () => {
       links: mockSecondaryLinks,
     });
 
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       site: {
@@ -400,8 +411,6 @@ describe('Nhs Page', () => {
       originPage: '',
       secondaryNavigation: secondaryNavJsx,
     });
-
-    render(jsx);
 
     expect(screen.getByRole('link', { name: 'Link One' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Link One' })).toHaveAttribute(
@@ -439,14 +448,13 @@ describe('Nhs Page', () => {
     mockGetCurrentDatTime.mockReturnValue('2026-06-05');
     mockUsePathname.mockReturnValue(`/site/${mockSite.id}`);
 
-    const jsx = await NhsPage({
+    await renderNhsPage({
       title: 'Test title',
       children: null,
       site: mockSite,
       breadcrumbs: [],
       originPage: '',
     });
-    render(jsx);
 
     expect(fetchPermissionsMock).toHaveBeenCalledWith(
       '34e990af-5dc9-43a6-8895-b9123216d699',

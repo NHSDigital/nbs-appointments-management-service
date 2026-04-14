@@ -62,9 +62,9 @@ export default class SitePage extends MYALayout {
       await this.topNav.reportsLink.click();
       reportsUpliftEnabled
         ? await this.page.waitForURL(
-            `**/manage-your-appointments/reports/select`,
+            `**/manage-your-appointments/reports/select**`,
           )
-        : await this.page.waitForURL(`**/manage-your-appointments/reports`);
+        : await this.page.waitForURL(`**/manage-your-appointments/reports**`);
       return new SiteSummaryReportPage(this.page, this.site);
     },
   };
@@ -98,8 +98,10 @@ export default class SitePage extends MYALayout {
   ): Promise<SiteSummaryReportPage> {
     await this.reportsCard.click();
     reportsUpliftEnabled
-      ? await this.page.waitForURL(`**/manage-your-appointments/reports/select`)
-      : await this.page.waitForURL(`**/manage-your-appointments/reports`);
+      ? await this.page.waitForURL(
+          `**/manage-your-appointments/reports/select**`,
+        )
+      : await this.page.waitForURL(`**/manage-your-appointments/reports**`);
     return new SiteSummaryReportPage(this.page, this.site);
   }
 

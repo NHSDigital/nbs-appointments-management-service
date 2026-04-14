@@ -43,6 +43,13 @@ const Page = async ({ searchParams, params }: PageProps) => {
   const ukWeekStart = startOfUkWeek(date);
   const ukWeekEnd = endOfUkWeek(date);
 
+  // Construct the return URL for the current Week View
+  // Since date is required for this page, we know it exists here
+  const currentViewPath = `/site/${siteFromPath}/view-availability/week?date=${date}`;
+
+  // Encode it for the query string
+  const encodedReturnUrl = encodeURIComponent(currentViewPath);
+
   return (
     <>
       <Heading headingLevel="h2">
@@ -51,7 +58,10 @@ const Page = async ({ searchParams, params }: PageProps) => {
       </Heading>
 
       {canChangeAvailability && (
-        <Link href={`/site/${siteFromPath}/change-availability`}>
+        /* Inject the returnUrl */
+        <Link
+          href={`/site/${siteFromPath}/change-availability?returnUrl=${encodedReturnUrl}`}
+        >
           <Button type="button" styleType="secondary">
             Change availability
           </Button>

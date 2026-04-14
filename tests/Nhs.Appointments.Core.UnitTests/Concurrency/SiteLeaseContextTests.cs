@@ -57,8 +57,7 @@ public class SiteLeaseContextTests
         var randomSiteKey = Guid.NewGuid().ToString();
 
         // Act.
-        var sut = new SiteLeaseContext(randomSiteKey, releaseAction.Object);
-        sut.Dispose();
+        using (new SiteLeaseContext(randomSiteKey, releaseAction.Object)) { };
 
         // Assert.
         releaseAction.Verify(action => action(), Times.Once());

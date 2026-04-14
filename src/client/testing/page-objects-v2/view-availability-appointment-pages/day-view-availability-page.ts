@@ -11,8 +11,10 @@ export default class DayViewAvailabilityPage extends BaseViewAvailabilityPage {
   async clickChangeAvailabilityButton(): Promise<ChangeAvailabilityPage> {
     await this.changeAvailabilityButton.click();
 
-    await this.page.waitForURL(
-      `/manage-your-appointments/site/${this.site?.id}/change-availability`,
+    await this.page.waitForURL(url =>
+      url.pathname.includes(
+        `/manage-your-appointments/site/${this.site?.id}/change-availability`,
+      ),
     );
 
     return new ChangeAvailabilityPage(this.page, this.site);

@@ -1,7 +1,6 @@
 import fromServer from '@server/fromServer';
 import {
   fetchAccessibilityDefinitions,
-  fetchFeatureFlag,
   fetchSite,
 } from '@services/appointmentsService';
 import {
@@ -22,17 +21,16 @@ const SiteDetailsPage = async ({
   permissions,
   wellKnownOdsEntries,
 }: Props) => {
-  const [accessibilityDefinitions, site, siteStatus] = await Promise.all([
+  const [accessibilityDefinitions, site] = await Promise.all([
     fromServer(fetchAccessibilityDefinitions()),
     fromServer(fetchSite(siteId)),
-    fromServer(fetchFeatureFlag('SiteStatus')),
   ]);
 
   const siteReferenceSummaryData = mapSiteReferenceSummaryData(
     site,
     wellKnownOdsEntries,
   );
-  const siteCoreSummary = mapCoreSiteSummaryData(site, siteStatus.enabled);
+  const siteCoreSummary = mapCoreSiteSummaryData(site);
 
   return (
     <ol className="card-list">
@@ -46,13 +44,11 @@ const SiteDetailsPage = async ({
               Edit site details
             </Card.Action>
           ) : null}
-          {siteStatus.enabled && permissions.includes('site:manage') ? (
-            <Card.Action
-              href={`/manage-your-appointments/site/${site.id}/details/edit-site-status`}
-            >
-              Change site status
-            </Card.Action>
-          ) : null}
+          <Card.Action
+            href={`/manage-your-appointments/site/${site.id}/details/edit-site-status`}
+          >
+            Change site status
+          </Card.Action>
           <SummaryList>
             {siteCoreSummary?.items.map((item, index) => (
               <SummaryList.Row key={index}>

@@ -15,7 +15,6 @@ interface SitePageProps {
   permissions: string[];
   permissionsAtAnySite: string[];
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
-  siteStatusEnabled: boolean;
 }
 
 export const SitePage = ({
@@ -23,7 +22,6 @@ export const SitePage = ({
   permissions,
   permissionsAtAnySite,
   wellKnownOdsCodeEntries,
-  siteStatusEnabled,
 }: SitePageProps) => {
   useEffect(() => {
     const appInsightsClient = getAppInsightsClient();
@@ -46,7 +44,6 @@ export const SitePage = ({
   const overviewData = mapSiteOverviewSummaryData(
     site,
     wellKnownOdsCodeEntries,
-    siteStatusEnabled,
   );
 
   return (

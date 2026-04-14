@@ -1,6 +1,5 @@
 'use client';
 import {
-  Button,
   FormGroup,
   Radio,
   RadioGroup,
@@ -19,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTransition } from 'react';
 import fromServer from '@server/fromServer';
+import { Button } from 'nhsuk-react-components';
 
 type CancelFormValue = {
   cancellationReason?: 'CancelledByCitizen' | 'CancelledBySite';

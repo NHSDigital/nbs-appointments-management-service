@@ -1,6 +1,5 @@
 'use client';
 import {
-  Button,
   FormGroup,
   InsetText,
   Radio,
@@ -14,6 +13,7 @@ import { ClinicalService, SessionSummary } from '@types';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { Button } from 'nhsuk-react-components';
 
 type PageProps = {
   date: string;

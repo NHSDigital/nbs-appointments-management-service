@@ -9,7 +9,6 @@ import {
 } from '@types';
 import { useRouter } from 'next/navigation';
 import {
-  Button,
   CheckBox,
   CheckBoxes,
   FormGroup,
@@ -26,7 +25,7 @@ import {
   SERVICE_TYPE_TITLES,
   groupServicesByType,
 } from '@services/clinicalServices';
-import { InsetText } from 'nhsuk-react-components';
+import { InsetText, Button } from 'nhsuk-react-components';
 
 export type RemoveServicesFormValues = {
   sessionToEdit: Session;

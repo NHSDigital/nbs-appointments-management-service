@@ -7,7 +7,7 @@ const createJestConfig = nextJest({
 /** @type {import('jest').Config} */
 const config = {
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
-  setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/setupTests.tsx'],
   testMatch: [
     '<rootDir>/src/**/*.(spec|test).{js,jsx,ts,tsx}',
     '<rootDir>/test/**/*.(spec|test).{js,jsx,ts,tsx}',

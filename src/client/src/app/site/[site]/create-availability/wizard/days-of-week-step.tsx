@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   CheckBox,
   CheckBoxes,
   CheckBoxOrAll,
@@ -11,7 +10,7 @@ import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import { daysOfTheWeek } from '@types';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 const DaysOfWeekStep = ({
   goToNextStep,

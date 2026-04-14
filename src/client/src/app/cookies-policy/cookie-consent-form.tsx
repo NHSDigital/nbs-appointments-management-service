@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Button,
   FormGroup,
   Radio,
   RadioGroup,
@@ -12,6 +11,7 @@ import { NhsMyaCookieConsent } from '@types';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { Button } from 'nhsuk-react-components';
 
 type CookieConsentFormProps = {
   consentCookie?: NhsMyaCookieConsent;

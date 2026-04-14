@@ -1,4 +1,5 @@
-import { Button, ButtonGroup } from '@nhsuk-frontend-components';
+import { ButtonGroup } from '@nhsuk-frontend-components';
+import { Button } from 'nhsuk-react-components';
 import render from '@testing/render';
 import { screen } from '@testing-library/react';
 

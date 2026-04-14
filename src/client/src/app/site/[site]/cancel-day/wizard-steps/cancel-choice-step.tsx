@@ -1,6 +1,5 @@
 import {
   BackLink,
-  Button,
   FormGroup,
   Radio,
   RadioGroup,
@@ -12,7 +11,7 @@ import { CancelDayFromValues } from '../cancel-day-wizard';
 import CancelDaySummary from '../cancel-day-summary';
 import { DaySummaryV2, ClinicalService, Site } from '@types';
 import { DayJsType, RFC3339Format } from '@services/timeService';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 export type CancelChoiceStepProps = {
   site: Site;

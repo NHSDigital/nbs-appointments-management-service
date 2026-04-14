@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   ButtonGroup,
   FormGroup,
   RadioGroup,
@@ -11,7 +10,7 @@ import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
-import { Heading, ErrorSummary } from 'nhsuk-react-components';
+import { Heading, ErrorSummary, Button } from 'nhsuk-react-components';
 import Link from 'next/link';
 
 interface Props {

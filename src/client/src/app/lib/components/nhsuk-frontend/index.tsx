@@ -1,6 +1,5 @@
 import BackLink from './back-link';
 import Breadcrumbs, { Breadcrumb } from './breadcrumbs';
-import Button from './button';
 import ButtonGroup from './button-group';
 import Card from './card';
 import CheckBox from './checkbox';
@@ -51,7 +50,6 @@ export type {
 export {
   BackLink,
   Breadcrumbs,
-  Button,
   ButtonGroup,
   Card,
   CheckBox,

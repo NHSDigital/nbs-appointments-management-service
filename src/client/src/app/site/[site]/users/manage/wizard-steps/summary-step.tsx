@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   ButtonGroup,
   SmallSpinnerWithText,
   SummaryListItem,
@@ -12,7 +11,7 @@ import { SetUserRolesFormValues } from '../set-user-roles-form';
 import { sortRolesByName } from '@sorting';
 import { Role } from '@types';
 import { useRouter } from 'next/navigation';
-import { Heading, SummaryList } from 'nhsuk-react-components';
+import { Heading, SummaryList, Button } from 'nhsuk-react-components';
 
 export type SummaryStepProps = {
   roleOptions: Role[];
@@ -130,7 +129,7 @@ const SummaryStep = ({
           <Button type="submit">Confirm</Button>
           <Button
             type="button"
-            styleType="secondary"
+            secondary
             onClick={async () => {
               router.push(returnRouteUponCancellation);
             }}

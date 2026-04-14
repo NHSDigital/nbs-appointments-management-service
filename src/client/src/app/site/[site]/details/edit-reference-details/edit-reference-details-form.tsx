@@ -2,7 +2,6 @@
 'use client';
 import React, { useTransition } from 'react';
 import {
-  Button,
   FormGroup,
   ButtonGroup,
   SmallSpinnerWithText,
@@ -19,7 +18,7 @@ import {
   saveSiteReferenceDetails,
 } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
-import { Select, TextInput } from 'nhsuk-react-components';
+import { Select, TextInput, Button } from 'nhsuk-react-components';
 
 type FormFields = {
   odsCode: string;

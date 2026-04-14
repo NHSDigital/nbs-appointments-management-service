@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   CheckBox,
   CheckBoxes,
   FormGroup,
@@ -14,7 +13,7 @@ import {
   SERVICE_TYPE_TITLES,
   groupServicesByType,
 } from '@services/clinicalServices';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 type SelectServicesStepProps = {
   clinicalServices: ClinicalService[];

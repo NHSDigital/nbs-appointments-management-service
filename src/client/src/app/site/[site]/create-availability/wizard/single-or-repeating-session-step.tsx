@@ -2,7 +2,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   FormGroup,
   Radio,
   RadioGroup,
@@ -10,7 +9,7 @@ import {
 import { InjectedWizardProps } from '@components/wizard';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { useFormContext } from 'react-hook-form';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 const SingleOrRepeatingSessionStep = ({
   stepNumber,

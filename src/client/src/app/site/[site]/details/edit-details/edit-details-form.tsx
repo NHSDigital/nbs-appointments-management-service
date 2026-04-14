@@ -2,7 +2,6 @@
 'use client';
 import React, { useTransition } from 'react';
 import {
-  Button,
   FormGroup,
   ButtonGroup,
   SmallSpinnerWithText,
@@ -20,7 +19,7 @@ import {
   EditSiteDetailsFormValues,
 } from './edit-site-details-form-schema';
 import fromServer from '@server/fromServer';
-import { Details, TextInput } from 'nhsuk-react-components';
+import { Details, TextInput, Button } from 'nhsuk-react-components';
 
 const EditDetailsForm = ({ site }: { site: Site }) => {
   const [pendingSubmit, startTransition] = useTransition();

@@ -1,11 +1,12 @@
 'use client';
-import { Button, SmallSpinnerWithText } from '@components/nhsuk-frontend';
+import { SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import { acceptEula } from '@services/appointmentsService';
 import { EulaVersion } from '@types';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import fromServer from '@server/fromServer';
+import { Button } from 'nhsuk-react-components';
 
 type AcceptEulaFormProps = {
   eulaVersion: EulaVersion;

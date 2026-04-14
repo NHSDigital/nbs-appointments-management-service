@@ -7,10 +7,10 @@ import {
 } from './download-report-form-schema';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
+import { BackLink, ButtonGroup } from '@components/nhsuk-frontend';
 import Datepicker from '@components/nhsuk-frontend/custom/datepicker';
 import { BackLinkProps } from '@components/nhsuk-frontend/back-link';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 type DownloadReportFormProps = {
   setReportRequest: (reportRequest: DownloadReportFormValues) => void;

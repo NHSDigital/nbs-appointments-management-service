@@ -1,6 +1,5 @@
 'use client';
 import {
-  Button,
   ButtonGroup,
   FormGroup,
   SmallSpinnerWithText,
@@ -12,7 +11,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { SPECIAL_CHARACTER_REGEX, URL_REGEX } from '../../../../../constants';
 import { useTransition } from 'react';
 import fromServer from '@server/fromServer';
-import { Textarea } from 'nhsuk-react-components';
+import { Textarea, Button } from 'nhsuk-react-components';
 
 type FormFields = {
   informationForCitizen: string;
@@ -98,7 +97,7 @@ const AddInformationForCitizensForm = ({
       ) : (
         <ButtonGroup>
           <Button type="submit">Confirm site details</Button>
-          <Button styleType="secondary" onClick={cancel}>
+          <Button secondary onClick={cancel}>
             Cancel
           </Button>
         </ButtonGroup>

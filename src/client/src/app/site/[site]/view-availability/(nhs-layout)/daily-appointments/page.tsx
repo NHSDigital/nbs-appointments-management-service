@@ -14,10 +14,9 @@ import {
 } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
-import { Button } from '@components/nhsuk-frontend';
 import PrintPageButton from '@components/print-page-button';
 import Link from 'next/link';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 import { DayView } from './day-view';
 
 type PageProps = {
@@ -87,7 +86,7 @@ const Page = async ({ params, searchParams }: PageProps) => {
           href={`/site/${siteFromPath}/change-availability?returnUrl=${encodedReturnUrl}`}
           className="no-print nhsuk-u-margin-right-3"
         >
-          <Button type="button" styleType="secondary">
+          <Button type="button" secondary>
             Change availability
           </Button>
         </Link>

@@ -1,18 +1,14 @@
 import { parseToUkDatetime } from '@services/timeService';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import BackLink from '@components/nhsuk-frontend/back-link';
-import {
-  Button,
-  ButtonGroup,
-  SmallSpinnerWithText,
-} from '@components/nhsuk-frontend';
+import { ButtonGroup, SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import { ukNow } from '@services/timeService';
 import { saveAs } from 'file-saver';
 import { downloadSiteSummaryReport } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import Link from 'next/link';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 type DownloadReportConfirmationProps = {
   reportRequest: DownloadReportFormValues;
@@ -58,9 +54,7 @@ const DownloadReportConfirmation = ({
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <ButtonGroup>
-          <Button styleType="primary" onClick={handleDownload}>
-            Download report
-          </Button>
+          <Button onClick={handleDownload}>Download report</Button>
           <Link href="/sites">Return to sites list</Link>
         </ButtonGroup>
       )}

@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   ButtonGroup,
   CheckBox,
   CheckBoxes,
@@ -13,7 +12,7 @@ import { Role } from '@types';
 import { sortRolesByName } from '@sorting';
 import { useRouter } from 'next/navigation';
 import { SetUserRolesFormValues } from '../set-user-roles-form';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 export type RolesStepProps = {
   roleOptions: Role[];
@@ -78,7 +77,7 @@ const SetRolesStep = ({
         </Button>
         <Button
           type="button"
-          styleType="secondary"
+          secondary
           onClick={async () => {
             router.push(returnRouteUponCancellation);
           }}

@@ -1,6 +1,5 @@
 'use client';
 import {
-  Button,
   FormGroup,
   Radio,
   RadioGroup,
@@ -10,7 +9,7 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
 import { ClinicalService, SessionSummary, Site } from '@types';
 import { useRouter } from 'next/navigation';
-import { InsetText } from 'nhsuk-react-components';
+import { InsetText, Button } from 'nhsuk-react-components';
 import { useEffect, useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 

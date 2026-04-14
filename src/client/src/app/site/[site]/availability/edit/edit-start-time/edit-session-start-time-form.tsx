@@ -1,7 +1,6 @@
 'use client';
 import {
   SmallSpinnerWithText,
-  Button,
   FormGroup,
   RadioGroup,
   Radio,
@@ -16,6 +15,7 @@ import { AvailabilitySession, Session, SessionSummary, Site } from '@types';
 import { notFound, useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
+import { Button } from 'nhsuk-react-components';
 
 type EditSessionStartTimeFormValues = {
   newStartTime: string;

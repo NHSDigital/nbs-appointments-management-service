@@ -2,7 +2,6 @@
 'use client';
 import React, { useTransition } from 'react';
 import {
-  Button,
   FormGroup,
   CheckBoxes,
   CheckBox,
@@ -18,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { saveSiteAccessibilities } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
+import { Button } from 'nhsuk-react-components';
 
 type FormFields = {
   accessibilities: string[];
@@ -88,7 +88,7 @@ const AddAccessibilitiesForm = ({
       ) : (
         <ButtonGroup>
           <Button type="submit">Confirm site details</Button>
-          <Button styleType="secondary" onClick={cancel}>
+          <Button secondary onClick={cancel}>
             Cancel
           </Button>
         </ButtonGroup>

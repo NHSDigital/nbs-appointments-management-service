@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import {
-  Button,
   ButtonGroup,
   FormGroup,
   Radio,
@@ -24,7 +23,7 @@ import { toTimeFormat } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { BodyText, Card } from 'nhsuk-react-components';
+import { BodyText, Card, Button } from 'nhsuk-react-components';
 
 type FormData = { action?: SessionModificationAction };
 
@@ -191,7 +190,7 @@ export const EditServicesConfirmationPage = ({
         {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
-          <Button type="submit" styleType="warning">
+          <Button type="submit" warning>
             {newlyUnsupportedBookingsCount === 0 ||
             actionParam === 'remove-services'
               ? serviceCount > 1

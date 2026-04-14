@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { SessionSummaryTable } from '@components/session-summary-table';
 import {
-  Button,
   ButtonGroup,
   FormGroup,
   Radio,
@@ -25,7 +24,7 @@ import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
-import { BodyText, Card } from 'nhsuk-react-components';
+import { BodyText, Card, Button } from 'nhsuk-react-components';
 
 type Mode = 'edit' | 'cancel';
 type FormData = { action?: SessionModificationAction };
@@ -248,7 +247,7 @@ export const SessionModificationConfirmation = ({
         {pendingSubmit ? (
           <SmallSpinnerWithText text="Working..." />
         ) : (
-          <Button type="submit" styleType="warning">
+          <Button type="submit" warning>
             {texts.confirmButtonText(action)}
           </Button>
         )}

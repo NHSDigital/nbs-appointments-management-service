@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import BeforeYouContinueStep from './before-you-continue-step';
 import { useRouter } from 'next/navigation';
 import { InjectedWizardProps } from '@components/wizard';

@@ -1309,6 +1309,8 @@ namespace Nhs.Appointments.Core.UnitTests
 
     public class FakeLeaseContext : ISiteLeaseContext
     {
+        public string SiteKey => throw new NotImplementedException();
+
         public void Dispose()
         {
             GC.SuppressFinalize(this);

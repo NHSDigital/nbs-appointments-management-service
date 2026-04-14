@@ -33,6 +33,6 @@ internal class InMemorySiteLeaseManager : ISiteLeaseManager
             throw new AbandonedMutexException();
         }
 
-        return new SiteLeaseContext(() => mutex.Release());
+        return new SiteLeaseContext(keyName, () => mutex.Release());
     }        
 }

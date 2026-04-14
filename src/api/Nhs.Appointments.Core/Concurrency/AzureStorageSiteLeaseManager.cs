@@ -33,7 +33,7 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
         var leasePipeline = CreateResiliencePipeline();
         leasePipeline.Execute(() => leaseClient.Acquire(TimeSpan.FromSeconds(20))); // TODO: Move this duration into the constructor parameter or options.
 
-        return new SiteLeaseContext(() => leaseClient.Release());
+        return new SiteLeaseContext(blobName , () => leaseClient.Release());
     }
 
     private BlobContainerClient ResolveContainerClient()
@@ -60,19 +60,4 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
             })
             .Build();
     }                
-}
-
-public class SiteLeaseContext : ISiteLeaseContext
-{
-    private readonly Action _release;
-
-    public SiteLeaseContext(Action release) 
-    {
-        _release = release;
-    }
-
-    public void Dispose()
-    {
-        _release();
-    }
 }

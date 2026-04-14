@@ -11,14 +11,16 @@ public static class LeaseKeys
     public static class SiteKeyFactory
     {
         /// <summary>
-        /// This factory method creates a site lease key from the combination of the <paramref name="site"/> and <paramref name="date"/> values.
+        /// This factory method creates a site lease key from the combination of the <paramref name="siteId"/> and <paramref name="date"/> values.
         /// </summary>
-        /// <param name="site">The id of the site to be used to construct the key.</param>
+        /// <param name="siteId">The id of the site to be used to construct the key.</param>
         /// <param name="date">The date to be used to construct the key.</param>
-        /// <returns></returns>
-        public static string Create(string site, DateOnly date)
+        /// <returns>A key for the site lease lock.</returns>
+        public static string Create(string siteId, DateOnly date)
         {
-            return $"{site}_{date:YYYYMMDD}";
+            ArgumentException.ThrowIfNullOrEmpty(siteId, nameof(siteId));
+
+            return $"{siteId}_{date:yyyyMMdd}";
         }
     }
 }

@@ -2,5 +2,5 @@ namespace Nhs.Appointments.Core.Concurrency;
 
 public interface ISiteLeaseContext : IDisposable
 {
-    public string SiteKey { get; }
+    string SiteKey { get; }
 }

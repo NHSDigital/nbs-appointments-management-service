@@ -59,10 +59,10 @@ public class BookingWriteService(
 
     public async Task<(bool Success, string Reference)> MakeBooking(Booking booking)
     {
-        using var leaseContent = siteLeaseManager.Acquire(booking.Site, booking.Date);
-
         var from = booking.From;
         var to = booking.From.AddMinutes(booking.Duration);
+
+        using var leaseContent = siteLeaseManager.Acquire(booking.Site, booking.Date);
 
         var availableSlots = await bookingAvailabilityStateService.GetAvailableSlots(booking.Site, from, to);
 

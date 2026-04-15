@@ -259,7 +259,6 @@ public class CacheServiceTests
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
-        Console.WriteLine(_timeProvider.GetUtcNow());
         
         (await call1).Should().BeTrue();
         _memoryCache.TryGetValue(CacheService.LazySlideCacheKey(DefaultCacheKey), out var keyValue1);
@@ -276,9 +275,6 @@ public class CacheServiceTests
 
         //expensive operation has performed
         _timeProvider.Advance(ExpensiveOperationTimespan.Add(TimeSpan.FromMinutes(1)));
-        Console.WriteLine(_timeProvider.GetUtcNow());
-
-        await Task.Yield();
         
         (await call2).Should().BeTrue();
         Assert.True(call2.IsCompleted);

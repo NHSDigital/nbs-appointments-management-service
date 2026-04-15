@@ -15,7 +15,7 @@ timeZones.forEach(timezone => {
 
     [true, false].forEach(CancelADateRangeFlagEnabled => {
       test.describe(`Test with CancelADateRangeFlag: '${CancelADateRangeFlagEnabled}'`, () => {
-        test.describe('Cancel A Date Range Button is available', () => {
+        test.describe('Cancel a date range button is available', () => {
           test('Cancel a date range monthly page', async ({ setup }) => {
             const { sitePage } = await setup({
               features: [
@@ -194,7 +194,7 @@ timeZones.forEach(timezone => {
           });
         });
 
-        test.describe('Select Dates To Cancel', () => {
+        test.describe('Select dates to cancel', () => {
           test('Select dates to cancel error, must be in the future', async ({
             setup,
           }) => {
@@ -349,10 +349,37 @@ timeZones.forEach(timezone => {
               });
           });
 
-          test('Select dates to cancel error within 3 months - 90 days or less', async ({
+          test('Select dates to cancel - 89 days valid - Clocks forward boundary', async ({
             setup,
           }) => {
+            //target test to a 3 month period that crosses the Spring DST change
             const { sitePage } = await setup({
+              availability: [
+                {
+                  date: '2027-02-10',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: '2027-04-10',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
               features: [
                 {
                   name: 'CancelADateRange',
@@ -380,22 +407,58 @@ timeZones.forEach(timezone => {
                   await changeAvailabilityPage.clickContinueButton(),
               )
               .then(async selectDatePage => {
-                const startDate = getDateInFuture(1);
-                const endDate = getDateInFuture(90);
-                await selectDatePage.fillDates(startDate, endDate);
+                await selectDatePage.fillDates(
+                  {
+                    day: 15,
+                    month: 1,
+                    year: 2027,
+                  },
+                  {
+                    day: 14,
+                    month: 4,
+                    year: 2027,
+                  },
+                );
                 return await selectDatePage.clickContinueButton();
               })
               .then(async cancellationImpactPage => {
                 await expect(
-                  cancellationImpactPage.noSessionsHeading,
+                  cancellationImpactPage.cancelSessionsHeading(2),
                 ).toBeVisible();
               });
           });
 
-          test('Select dates to cancel error within 3 months - greater than 90 days', async ({
+          test('Select dates to cancel - 90 days valid - Clocks forward boundary', async ({
             setup,
           }) => {
+            //target test to a 3 month period that crosses the Spring DST change
             const { sitePage } = await setup({
+              availability: [
+                {
+                  date: '2027-02-10',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: '2027-04-10',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
               features: [
                 {
                   name: 'CancelADateRange',
@@ -423,9 +486,97 @@ timeZones.forEach(timezone => {
                   await changeAvailabilityPage.clickContinueButton(),
               )
               .then(async selectDatePage => {
-                const startDate = getDateInFuture(1);
-                const endDate = getDateInFuture(91);
-                await selectDatePage.fillDates(startDate, endDate);
+                await selectDatePage.fillDates(
+                  {
+                    day: 14,
+                    month: 1,
+                    year: 2027,
+                  },
+                  {
+                    day: 14,
+                    month: 4,
+                    year: 2027,
+                  },
+                );
+                return await selectDatePage.clickContinueButton();
+              })
+              .then(async cancellationImpactPage => {
+                await expect(
+                  cancellationImpactPage.cancelSessionsHeading(2),
+                ).toBeVisible();
+              });
+          });
+
+          test('Select dates to cancel - 91 days invalid - Clocks forward boundary', async ({
+            setup,
+          }) => {
+            //target test to a 3 month period that crosses the Spring DST change
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: '2027-02-10',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: '2027-04-10',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 13,
+                    month: 1,
+                    year: 2027,
+                  },
+                  {
+                    day: 14,
+                    month: 4,
+                    year: 2027,
+                  },
+                );
                 await selectDatePage.clickContinueButtonForError();
 
                 await expect(selectDatePage.startDateError).toContainText(
@@ -435,14 +586,267 @@ timeZones.forEach(timezone => {
                 await expect(selectDatePage.endDateError).toContainText(
                   /End date must be within 90 days of the start date/i,
                 );
+              });
+          });
 
-                await expect(selectDatePage.backButton).toBeVisible();
-                return await selectDatePage.clickBackButton();
+          test('Select dates to cancel - 89 days valid - Clocks backward boundary', async ({
+            setup,
+          }) => {
+            //target test to a 3 month period that crosses the Autumn DST change
+
+            //1st Sept - 29 Nov = 89 days every year
+
+            //cannot run test if NOW is within this bound! (since can't change backwards dates!)
+            //also has to be within the next year, a VERY targetted test range!
+            //i.e. this test can ONLY run 9 months every year!! (30th Aug - 30th Nov)
+
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: '2026-09-15',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: '2026-11-15',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
               })
-              .then(async changeAvailabilityPage => {
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 1,
+                    month: 9,
+                    year: 2026,
+                  },
+                  {
+                    day: 29,
+                    month: 11,
+                    year: 2026,
+                  },
+                );
+                return await selectDatePage.clickContinueButton();
+              })
+              .then(async cancellationImpactPage => {
                 await expect(
-                  changeAvailabilityPage.beforeYouContinueHeading,
+                  cancellationImpactPage.cancelSessionsHeading(2),
                 ).toBeVisible();
+              });
+          });
+
+          test('Select dates to cancel - 90 days valid - Clocks backward boundary', async ({
+            setup,
+          }) => {
+            //target test to a 3 month period that crosses the Autumn DST change
+
+            //1st Sept - 30 Nov = 90 days every year
+
+            //cannot run test if NOW is within this bound! (since can't change backwards dates!)
+            //also has to be within the next year, a VERY targetted test range!
+            //i.e. this test can ONLY run 9 months every year!! (30th Aug - 1st Dec)
+
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: '2026-09-15',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: '2026-11-15',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 1,
+                    month: 9,
+                    year: 2026,
+                  },
+                  {
+                    day: 30,
+                    month: 11,
+                    year: 2026,
+                  },
+                );
+                return await selectDatePage.clickContinueButton();
+              })
+              .then(async cancellationImpactPage => {
+                await expect(
+                  cancellationImpactPage.cancelSessionsHeading(2),
+                ).toBeVisible();
+              });
+          });
+
+          test('Select dates to cancel - 91 days invalid - Clocks backward boundary', async ({
+            setup,
+          }) => {
+            //target test to a 3 month period that crosses the Autumn DST change
+
+            //1st Sept - 1st Dec = 91 days every year
+
+            //cannot run test if NOW is within this bound! (since can't change backwards dates!)
+            //also has to be within the next year, a VERY targetted test range!
+            //i.e. this test can ONLY run 9 months every year!! (30th Aug - 2nd Dec)
+
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: '2026-09-15',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: '2026-11-15',
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 1,
+                    month: 9,
+                    year: 2026,
+                  },
+                  {
+                    day: 1,
+                    month: 12,
+                    year: 2026,
+                  },
+                );
+                await selectDatePage.clickContinueButtonForError();
+
+                await expect(selectDatePage.startDateError).toContainText(
+                  /Start date must be within 90 days of the end date/i,
+                );
+
+                await expect(selectDatePage.endDateError).toContainText(
+                  /End date must be within 90 days of the start date/i,
+                );
               });
           });
         });
@@ -899,7 +1303,7 @@ timeZones.forEach(timezone => {
           });
         });
 
-        test.describe('Cancellation Confirmation', () => {
+        test.describe('Cancellation confirmation', () => {
           test('Cancel sessions, verify sessions have been cancelled', async ({
             setup,
           }) => {

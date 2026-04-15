@@ -1,9 +1,4 @@
-import {
-  BackLink,
-  FormGroup,
-  Radio,
-  RadioGroup,
-} from '@components/nhsuk-frontend';
+import { BackLink, FormGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
@@ -11,7 +6,7 @@ import { CancelDayFromValues } from '../cancel-day-wizard';
 import CancelDaySummary from '../cancel-day-summary';
 import { DaySummaryV2, ClinicalService, Site } from '@types';
 import { DayJsType, RFC3339Format } from '@services/timeService';
-import { Heading, Button } from 'nhsuk-react-components';
+import { Heading, Button, Radios } from 'nhsuk-react-components';
 
 export type CancelChoiceStepProps = {
   site: Site;
@@ -72,26 +67,28 @@ const CancelChoiceStep = ({
         legend="Are you sure you want to cancel this day?"
         error={errors.cancelChoice?.message}
       >
-        <RadioGroup>
-          <Radio
-            label="Yes, I want to cancel the appointments"
+        <Radios>
+          <Radios.Item
             hint="Cancel day"
             id="yes-cancel"
             value="true"
             {...register('cancelChoice', {
               required: { value: true, message: 'Select an option' },
             })}
-          />
-          <Radio
-            label="No, I don't want to cancel the appointments"
+          >
+            Yes, I want to cancel the appointments
+          </Radios.Item>
+          <Radios.Item
             hint="I want to keep my day, do not cancel"
             id="no"
             value="false"
             {...register('cancelChoice', {
               required: { value: true, message: 'Select an option' },
             })}
-          />
-        </RadioGroup>
+          >
+            No, I don't want to cancel the appointments
+          </Radios.Item>
+        </Radios>
       </FormGroup>
 
       <Button

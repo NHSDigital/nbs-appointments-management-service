@@ -1,17 +1,12 @@
 'use client';
 
-import {
-  FormGroup,
-  Radio,
-  RadioGroup,
-  SmallSpinnerWithText,
-} from '@components/nhsuk-frontend';
+import { FormGroup, SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import { setCookieConsent } from '@services/cookiesService';
 import { NhsMyaCookieConsent } from '@types';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { Button } from 'nhsuk-react-components';
+import { Button, Radios } from 'nhsuk-react-components';
 
 type CookieConsentFormProps = {
   consentCookie?: NhsMyaCookieConsent;
@@ -52,24 +47,20 @@ const CookieConsentForm = ({ consentCookie }: CookieConsentFormProps) => {
         legend="Tell us if we can use analytics cookies"
         error={errors.consented?.message}
       >
-        <RadioGroup>
-          <Radio
-            label="Use cookies to measure my website use"
-            id="consented-yes"
+        <Radios>
+          <Radios.Item
             value="yes"
+            id="consented-yes"
             {...register('consented', {
-              required: { value: true, message: 'Select an option' },
+              required: 'Select an option',
             })}
-          />
-          <Radio
-            label="Do not use cookies to measure my website use"
-            id="consented-no"
-            value="no"
-            {...register('consented', {
-              required: { value: true, message: 'Select an option' },
-            })}
-          />
-        </RadioGroup>
+          >
+            Use cookies to measure my website use
+          </Radios.Item>
+          <Radios.Item value="no" id="consented-no" {...register('consented')}>
+            Do not use cookies to measure my website use
+          </Radios.Item>
+        </Radios>
       </FormGroup>
       {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />

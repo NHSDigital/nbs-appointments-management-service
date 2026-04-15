@@ -1,15 +1,10 @@
 'use client';
-import {
-  FormGroup,
-  Radio,
-  RadioGroup,
-  SmallSpinnerWithText,
-} from '@components/nhsuk-frontend';
+import { FormGroup, SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import fromServer from '@server/fromServer';
 import { updateSiteStatus } from '@services/appointmentsService';
 import { Site, SiteStatus } from '@types';
 import { useRouter } from 'next/navigation';
-import { InsetText, Button } from 'nhsuk-react-components';
+import { InsetText, Button, Radios } from 'nhsuk-react-components';
 import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -57,24 +52,26 @@ const EditSiteStatusForm = ({ site }: { site: Site }) => {
         legend="What do you want to do?"
         error={errors.siteStatus?.message}
       >
-        <RadioGroup>
-          <Radio
-            label={onlineLabel}
+        <Radios>
+          <Radios.Item
             id="site-status-online"
             value="Online"
             {...register('siteStatus', {
               required: { value: true, message: 'Select an option' },
             })}
-          />
-          <Radio
-            label={offlineLabel}
+          >
+            {onlineLabel}
+          </Radios.Item>
+          <Radios.Item
             id="site-status-offline"
             value="Offline"
             {...register('siteStatus', {
               required: { value: true, message: 'Select an option' },
             })}
-          />
-        </RadioGroup>
+          >
+            {offlineLabel}
+          </Radios.Item>
+        </Radios>
         <InsetText>
           <p>
             The change will take effect immediately. Taking your site offline

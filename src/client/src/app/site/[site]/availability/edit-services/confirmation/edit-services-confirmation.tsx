@@ -5,8 +5,6 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import {
   ButtonGroup,
   FormGroup,
-  Radio,
-  RadioGroup,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -23,7 +21,7 @@ import { toTimeFormat } from '@services/timeService';
 import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { BodyText, Card, Button } from 'nhsuk-react-components';
+import { BodyText, Card, Button, Radios } from 'nhsuk-react-components';
 
 type FormData = { action?: SessionModificationAction };
 
@@ -142,30 +140,28 @@ export const EditServicesConfirmationPage = ({
         }
         error={errors.action?.message}
       >
-        <RadioGroup>
-          <Radio
+        <Radios>
+          <Radios.Item
             key="cancel-appointments"
-            label={
-              serviceCount > 1
-                ? 'Yes, cancel the appointments and remove the services'
-                : 'Yes, cancel the appointments and remove the service'
-            }
             id="cancel-appointments"
             value="cancel-appointments"
             {...register('action', { required: 'Select an option' })}
-          />
-          <Radio
+          >
+            {serviceCount > 1
+              ? 'Yes, cancel the appointments and remove the services'
+              : 'Yes, cancel the appointments and remove the service'}
+          </Radios.Item>
+          <Radios.Item
             key="remove-services"
-            label={
-              serviceCount > 1
-                ? 'No, do not cancel the appointments but remove the services'
-                : 'No, do not cancel the appointments but remove the service'
-            }
             id="remove-services"
             value="remove-services"
             {...register('action', { required: 'Select an option' })}
-          />
-        </RadioGroup>
+          >
+            {serviceCount > 1
+              ? 'No, do not cancel the appointments but remove the services'
+              : 'No, do not cancel the appointments but remove the service'}
+          </Radios.Item>
+        </Radios>
       </FormGroup>
 
       <Button type="submit">Continue</Button>

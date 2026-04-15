@@ -12,8 +12,6 @@ import Footer from './footer';
 import FormGroup from './form-group';
 import InsetText from './inset-text';
 import { PaginationLink } from './pagination';
-import Radio from './radio';
-import RadioGroup from './radio-group';
 import RightChevron from './icons/right-chevron';
 import Select, { SelectOption } from './select';
 import SummaryList, {
@@ -63,8 +61,6 @@ export {
   Header,
   InsetText,
   Pagination,
-  Radio,
-  RadioGroup,
   RightChevron,
   Select,
   Spinner,

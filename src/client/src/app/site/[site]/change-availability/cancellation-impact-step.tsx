@@ -1,16 +1,10 @@
 'use client';
-import {
-  BackLink,
-  ButtonGroup,
-  FormGroup,
-  RadioGroup,
-  Radio,
-} from '@components/nhsuk-frontend';
+import { BackLink, ButtonGroup, FormGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { ChangeAvailabilityFormValues } from './change-availability-form-schema';
-import { Heading, ErrorSummary, Button } from 'nhsuk-react-components';
+import { Heading, ErrorSummary, Button, Radios } from 'nhsuk-react-components';
 import Link from 'next/link';
 
 interface Props {
@@ -128,9 +122,8 @@ const CancellationImpactStep = ({
       </Heading>
 
       <FormGroup error={customErrorMessage}>
-        <RadioGroup>
-          <Radio
-            label="Keep bookings"
+        <Radios>
+          <Radios.Item
             hint="These will stay in your appointments list"
             {...{
               ...cancellationDecision,
@@ -140,9 +133,10 @@ const CancellationImpactStep = ({
             }}
             id="cancellation-keep-bookings"
             value="keep-bookings"
-          />
-          <Radio
-            label="Cancel bookings"
+          >
+            Keep bookings
+          </Radios.Item>
+          <Radios.Item
             hint="We will email or text people to confirm the cancellation"
             {...{
               ...cancellationDecision,
@@ -152,8 +146,10 @@ const CancellationImpactStep = ({
             }}
             id="cancellation-cancel-bookings"
             value="cancel-bookings"
-          />
-        </RadioGroup>
+          >
+            Cancel bookings
+          </Radios.Item>
+        </Radios>
       </FormGroup>
 
       <ButtonGroup>

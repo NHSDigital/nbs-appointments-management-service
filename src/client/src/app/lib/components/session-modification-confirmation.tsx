@@ -5,8 +5,6 @@ import { SessionSummaryTable } from '@components/session-summary-table';
 import {
   ButtonGroup,
   FormGroup,
-  Radio,
-  RadioGroup,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -24,7 +22,7 @@ import fromServer from '@server/fromServer';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
-import { BodyText, Card, Button } from 'nhsuk-react-components';
+import { BodyText, Card, Button, Radios } from 'nhsuk-react-components';
 
 type Mode = 'edit' | 'cancel';
 type FormData = { action?: SessionModificationAction };
@@ -222,17 +220,18 @@ export const SessionModificationConfirmation = ({
   const renderRadioForm = () => (
     <form onSubmit={handleSubmit(recordDecision)}>
       <FormGroup legend={texts.legend} error={errors.action?.message}>
-        <RadioGroup>
+        <Radios>
           {texts.radioOptions.map((opt: RadioOption) => (
-            <Radio
+            <Radios.Item
               key={opt.value}
-              label={opt.label}
               id={opt.value}
               value={opt.value}
               {...register('action', { required: 'Select an option' })}
-            />
+            >
+              {opt.label}
+            </Radios.Item>
           ))}
-        </RadioGroup>
+        </Radios>
       </FormGroup>
 
       <Button type="submit">Continue</Button>

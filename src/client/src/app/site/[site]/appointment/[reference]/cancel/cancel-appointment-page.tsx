@@ -1,8 +1,6 @@
 'use client';
 import {
   FormGroup,
-  Radio,
-  RadioGroup,
   SmallSpinnerWithText,
   SummaryList,
   SummaryListItem,
@@ -18,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTransition } from 'react';
 import fromServer from '@server/fromServer';
-import { Button } from 'nhsuk-react-components';
+import { Button, Radios } from 'nhsuk-react-components';
 
 type CancelFormValue = {
   cancellationReason?: 'CancelledByCitizen' | 'CancelledBySite';
@@ -72,24 +70,26 @@ const CancelAppointmentPage = ({
           <legend className="nhsuk-fieldset__legend nhsuk-label--m">
             <h1 className="nhsuk-fieldset__heading">Select a reason</h1>
           </legend>
-          <RadioGroup>
-            <Radio
-              label="Cancelled by the citizen"
+          <Radios>
+            <Radios.Item
               id="cancelOperation-citizen"
               value="CancelledByCitizen"
               {...register('cancellationReason', {
                 required: 'Select a reason for cancelling the appointment',
               })}
-            />
-            <Radio
-              label="Cancelled by the site"
+            >
+              Cancelled by the citizen
+            </Radios.Item>
+            <Radios.Item
               id="cancelOperation-site"
               value="CancelledBySite"
               {...register('cancellationReason', {
                 required: 'Select a reason for cancelling the appointment',
               })}
-            />
-          </RadioGroup>
+            >
+              Cancelled by the site
+            </Radios.Item>
+          </Radios>
         </FormGroup>
 
         {pendingSubmit ? (

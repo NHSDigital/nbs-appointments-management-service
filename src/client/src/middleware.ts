@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const pathAndQuery = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  // Encode the search params (the ?... part) so that ampersands (&)
+  // are treated as text, not as separators for the login page parameters.
+  const pathAndQuery = `${request.nextUrl.pathname}${encodeURIComponent(request.nextUrl.search)}`;
 
   const shouldHandle = !request.nextUrl.pathname.includes('/api/');
 

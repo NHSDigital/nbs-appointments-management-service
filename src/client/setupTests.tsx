@@ -33,14 +33,37 @@ jest.mock('nhsuk-react-components', () => {
   MockRadiosItem.displayName = 'MockRadiosItem';
   MockRadios.Item = MockRadiosItem;
 
+  const MockCheckboxes = ({ children, ...props }: any) => (
+    <div {...props}>{children}</div>
+  );
+
+  const MockCheckboxesItem = React.forwardRef(
+    ({ children, id, value, ...props }: any, ref: any) => (
+      <div>
+        <input
+          type="checkbox"
+          id={id}
+          value={value}
+          ref={ref}
+          label={typeof children === 'string' ? children : undefined}
+          {...props}
+        />
+        <label htmlFor={id}>{children}</label>
+      </div>
+    ),
+  );
+  MockCheckboxesItem.displayName = 'MockCheckboxesItem';
+  MockCheckboxes.Item = MockCheckboxesItem;
+
   return {
     ...actual,
-    Button: ({ children, warning, ...props }: any) => (
+    Button: ({ children, warning, secondary, ...props }: any) => (
       <button {...props} data-warning={warning?.toString()}>
         {children}
       </button>
     ),
     Radios: MockRadios,
+    Checkboxes: MockCheckboxes,
   };
 });
 /* eslint-enable @typescript-eslint/no-explicit-any, react/jsx-props-no-spreading */

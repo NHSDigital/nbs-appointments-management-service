@@ -2,8 +2,7 @@ import BackLink from './back-link';
 import Breadcrumbs, { Breadcrumb } from './breadcrumbs';
 import ButtonGroup from './button-group';
 import Card from './card';
-import CheckBox from './checkbox';
-import CheckBoxes, { CheckBoxOrAll } from './checkboxes';
+import CheckBoxOrAll from './checkbox-or-all';
 import DateInput from './date-input';
 import Header, { NavigationLink } from './nhs-page-header';
 import Expander from './expander';
@@ -50,8 +49,6 @@ export {
   Breadcrumbs,
   ButtonGroup,
   Card,
-  CheckBox,
-  CheckBoxes,
   CheckBoxOrAll,
   DateInput,
   Expander,

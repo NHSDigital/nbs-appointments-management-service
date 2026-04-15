@@ -1,10 +1,5 @@
 'use client';
-import {
-  BackLink,
-  CheckBox,
-  CheckBoxes,
-  FormGroup,
-} from '@components/nhsuk-frontend';
+import { BackLink, FormGroup } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
@@ -13,7 +8,7 @@ import {
   SERVICE_TYPE_TITLES,
   groupServicesByType,
 } from '@services/clinicalServices';
-import { Heading, Button } from 'nhsuk-react-components';
+import { Heading, Button, Checkboxes } from 'nhsuk-react-components';
 
 type SelectServicesStepProps = {
   clinicalServices: ClinicalService[];
@@ -99,11 +94,10 @@ const SelectServicesStep = ({
                 </span>
               </legend>
 
-              <CheckBoxes>
+              <Checkboxes>
                 {services.map(service => (
-                  <CheckBox
+                  <Checkboxes.Item
                     id={`checkbox-${service.value}`}
-                    label={service.label.replace('-', ' to ')}
                     value={service.value}
                     key={service.value}
                     {...register('session.services', {
@@ -119,9 +113,11 @@ const SelectServicesStep = ({
                       setValue('session.services', next);
                       if (errors.session?.services) trigger('session.services');
                     }}
-                  />
+                  >
+                    {service.label.replace('-', ' to ')}
+                  </Checkboxes.Item>
                 ))}
-              </CheckBoxes>
+              </Checkboxes>
             </fieldset>
           );
         })}

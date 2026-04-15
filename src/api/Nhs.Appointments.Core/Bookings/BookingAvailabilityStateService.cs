@@ -26,9 +26,6 @@ public class BookingAvailabilityStateService(
     public async Task<IEnumerable<BookingAvailabilityUpdate>> BuildRecalculations(string site, DateTime from,
         DateTime to, NewlyUnsupportedBookingAction newlyUnsupportedBookingAction)
     {
-        // TODO: Create the combination of from to and the return type as a BookingAvailabilityStateInstruction instance from a factory method.
-        // e.g. BookingAvailabilityStateInstructionFactory.CreateRecalculation(from, to)
-        // Pass this object into FetchData and BuildState, rather than the separate parameters.
         var instruction = BookingAvailabilityStateInstructionFactory.CreateRecalculationsInstruction(from, to);
         var (bookings, sessions) = await FetchData(site, instruction);
 
@@ -135,22 +132,6 @@ public class BookingAvailabilityStateService(
         return (bookingsTask.Result, sessionsTask.Result.ToList());
     }
 
-    private static IEnumerable<SessionAvailabilitySummary> InitialiseDailySessionSummaries(DateOnly date,
-        List<LinkedSessionInstance> sessionInstances)
-    {
-        return sessionInstances.Where(x => DateOnly.FromDateTime(x.From).Equals(date)).Select(x => new SessionAvailabilitySummary
-        {
-            Id = x.InternalSessionId!.Value,
-            UkStartDatetime = x.From,
-            UkEndDatetime = x.Until,
-            MaximumCapacity = x.Capacity * x.ToSlots().Count(),
-            Capacity = x.Capacity,
-            SlotLength = x.SlotLength,
-            TotalSupportedAppointmentsByService = x.Services.ToDictionary(key => key, _ => 0)
-        }).ToList();
-    }
-
-    // TODO: Receive a BookingAvailabilityStateInstruction instance, rather than the separate from, to and returnType fields.
     private BookingAvailabilityState BuildState(IEnumerable<Booking> bookings, List<LinkedSessionInstance> sessions,
         BookingAvailabilityStateInstruction instruction, NewlyUnsupportedBookingAction? newlyUnsupportedBookingAction = null)
     {
@@ -171,7 +152,7 @@ public class BookingAvailabilityStateService(
 
         if (instruction.ReturnType == BookingAvailabilityStateReturnType.Summary)
         {
-            daySummaries = InitialiseDaySummaries(instruction.From, instruction.To, sessions);
+            daySummaries = BookingSummaries.InitialiseDaySummaries(instruction.From, instruction.To, sessions);
         }
 
         foreach (var booking in liveBookings)
@@ -255,7 +236,7 @@ public class BookingAvailabilityStateService(
                 state.AvailableSlots = slotsList.Where(s => s.Capacity > 0);
                 break;
             case BookingAvailabilityStateReturnType.Summary:
-                state.Summary = GenerateSummary(bookings, daySummaries);
+                state.Summary = BookingSummaries.GenerateSummary(bookings, daySummaries);
                 break;
             case BookingAvailabilityStateReturnType.Recalculations:
             case BookingAvailabilityStateReturnType.SessionUpdateProposalMetrics:
@@ -279,52 +260,6 @@ public class BookingAvailabilityStateService(
         Edit,
     }
     
-    private static AvailabilitySummary GenerateSummary(IEnumerable<Booking> bookings, List<DayAvailabilitySummary> daySummaries)
-    {
-        foreach (var daySummary in daySummaries)
-        {
-            var bookingsOnDay = bookings.Where(x => DateOnly.FromDateTime(x.From) == daySummary.Date).ToList();
-        
-            foreach (var booking in bookingsOnDay)
-            {
-                switch (booking.Status)
-                {
-                    case AppointmentStatus.Booked:
-                        if (booking.AvailabilityStatus is AvailabilityStatus.Orphaned){
-                            daySummary.TotalOrphanedAppointmentsByService[booking.Service] = daySummary.TotalOrphanedAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                        }
-                        break;
-                    case AppointmentStatus.Cancelled:
-                        daySummary.TotalCancelledAppointmentsByService[booking.Service] = daySummary.TotalCancelledAppointmentsByService.GetValueOrDefault(booking.Service, 0) + 1;
-                        break;
-                }
-            }
-        }
-
-        return new AvailabilitySummary(daySummaries);
-    }
-
-    private static List<DayAvailabilitySummary> InitialiseDaySummaries(
-        DateTime from, 
-        DateTime to,
-        List<LinkedSessionInstance> sessions)
-    {
-        var dayDate = DateOnly.FromDateTime(from.Date);
-
-        List<DayAvailabilitySummary> daySummaries =
-        [
-            new(dayDate, InitialiseDailySessionSummaries(dayDate, sessions))
-        ];
-
-        while (dayDate < DateOnly.FromDateTime(to.Date))
-        {
-            dayDate = dayDate.AddDays(1);
-            daySummaries.Add(new DayAvailabilitySummary(dayDate, InitialiseDailySessionSummaries(dayDate, sessions)));
-        }
-
-        return daySummaries;
-    }
-
     /// <summary>
     ///     'Greedy' solution for assigning bookings to slots for multiple services in a deterministic way
     /// </summary>

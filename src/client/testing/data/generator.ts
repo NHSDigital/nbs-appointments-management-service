@@ -1,4 +1,5 @@
 import {
+  AttendeeDetails,
   BookingDocument,
   DailyAvailabilityDocument,
   MockOidcUser,
@@ -8,7 +9,7 @@ import {
   UserDocument,
 } from '@e2etests/types';
 import { dateTimeFormat, ukNow } from '@services/timeService';
-import { AvailabilityStatus, BookingStatus } from '@types';
+import { AvailabilityStatus, BookingStatus, RoleAssignment } from '@types';
 import { createHash } from 'crypto';
 import { AvailabilitySetup } from '../fixtures-v2';
 
@@ -130,20 +131,51 @@ const buildUserPassword = (): string => {
   return `TestUserPassword123!`;
 };
 
-const buildCoreUserDocument = (testId: number, roles: Role[]): UserDocument => {
+export const generateExtraSiteIdForSameUser = (
+  testId: number,
+  siteIndex: number,
+): number => {
+  let siteTestId = testId;
+
+  //if more than one site provided, need to generate a new ID
+  if (siteIndex > 0) {
+    //prepend site index on end of testId for new number generation
+    siteTestId = Number(`${siteIndex}${testId}`);
+  }
+
+  return siteTestId;
+};
+
+const buildCoreUserDocument = (
+  testId: number,
+  siteRoles: Role[][],
+): UserDocument => {
+  let allRoles: RoleAssignment[] = [];
+
+  siteRoles.forEach((site, idx) => {
+    const roles = site.map(role => {
+      const siteTestId = generateExtraSiteIdForSameUser(testId, idx);
+
+      return {
+        role,
+        scope: buildScopeForRole(siteTestId, role),
+      } as RoleAssignment;
+    });
+
+    allRoles = allRoles.concat(roles);
+  });
+
   return {
     id: buildUserId(testId),
     docType: 'user',
     latestAcceptedEulaVersion: '2024-12-01',
-    roleAssignments: roles.map(role => {
-      return { role, scope: buildScopeForRole(testId, role) };
-    }),
-  };
+    roleAssignments: allRoles,
+  } as UserDocument;
 };
 
 const buildUserDocument = (
   testId: number,
-  roles: Role[],
+  roles: Role[][],
   userConfig?: Partial<UserDocument>,
 ): UserDocument => {
   return { ...buildCoreUserDocument(testId, roles), ...userConfig };
@@ -173,7 +205,15 @@ const buildBookingDocument = (
   service: string,
   status: BookingStatus,
   availabilityStatus: AvailabilityStatus,
+  attendeeDetails?: AttendeeDetails,
 ): BookingDocument => {
+  const attendee = attendeeDetails ?? {
+    nhsNumber: '1975486535',
+    firstName: 'Jeremy',
+    lastName: 'Oswald',
+    dateOfBirth: '1952-11-13',
+  };
+
   return {
     id: buildBookingId(testId, index),
     reference: buildBookingId(testId, index),
@@ -185,12 +225,7 @@ const buildBookingDocument = (
     availabilityStatus: availabilityStatus,
     docType: 'booking',
 
-    attendeeDetails: {
-      nhsNumber: '1975486535',
-      firstName: 'Jeremy',
-      lastName: 'Oswald',
-      dateOfBirth: '1952-11-13',
-    },
+    attendeeDetails: attendee,
     contactDetails: [],
     additionalData: {
       isCallCentreBooking: false,

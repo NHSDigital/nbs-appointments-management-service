@@ -14,7 +14,9 @@ export default class SiteSelectionPage extends MYALayout {
   readonly sitesTable: Locator = this.page.getByRole('table');
 
   async selectSite(site: SiteDocument): Promise<SitePage> {
-    await this.page.getByRole('link', { name: site.name }).click();
+    await this.page
+      .getByRole('link', { name: `View ${site.name}`, exact: true })
+      .click();
     await this.page.waitForURL(`**/site/${site.id}`);
 
     return new SitePage(this.page, site);

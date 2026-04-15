@@ -54,6 +54,12 @@ public class QueryBookingByReferenceFunction(
         ILogger logger)
     {
         var booking = await bookingQueryService.GetBookingByReference(request.bookingReference);
+
+        if (booking == null)
+        {
+            return Failed(HttpStatusCode.NotFound, "Booking not found.");
+        }
+
         if (await siteService.GetSiteByIdAsync(booking.Site) is null)
         {
             return Failed(HttpStatusCode.NotFound, "Site not found.");

@@ -1,11 +1,11 @@
-import { MYALayout } from '@e2etests/types';
 import { expect } from '../../fixtures-v2';
 import { WeekOverview } from '../../availability';
 import ChangeAvailabilityPage from '../change-availability/change-availability-page';
 import WeekViewAvailabilityPage from './week-view-availability-page';
 import { DateComponents } from '@types';
+import BaseViewAvailabilityPage from './base-view-availability-page';
 
-export default class MonthViewAvailabilityPage extends MYALayout {
+export default class MonthViewAvailabilityPage extends BaseViewAvailabilityPage {
   title = this.page.getByRole('heading');
 
   readonly nextButton = this.page.getByRole('link', {
@@ -25,8 +25,10 @@ export default class MonthViewAvailabilityPage extends MYALayout {
   async clickChangeAvailabilityButton(): Promise<ChangeAvailabilityPage> {
     await this.changeAvailabilityButton.click();
 
-    await this.page.waitForURL(
-      `/manage-your-appointments/site/${this.site?.id}/change-availability`,
+    await this.page.waitForURL(url =>
+      url.pathname.includes(
+        `/manage-your-appointments/site/${this.site?.id}/change-availability`,
+      ),
     );
 
     return new ChangeAvailabilityPage(this.page, this.site);

@@ -2,7 +2,7 @@
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import Wizard from '@components/wizard';
 import WizardStep from '@components/wizard-step';
-import { useTransition } from 'react';
+import { useTransition, useEffect, useState } from 'react';
 import BeforeYouContinueStep from './before-you-continue-step';
 import SelectDatesStep from './select-dates-step';
 import CancellationImpactStep from './cancellation-impact-step';
@@ -14,6 +14,7 @@ import {
   ChangeAvailabilityFormValues,
 } from './change-availability-form-schema';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useSearchParams } from 'next/navigation';
 
 interface Props {
   cancelADateRangeWithBookings: boolean;
@@ -27,6 +28,27 @@ const ChangeAvailabilityWizard = ({
   rangeMaximumDays,
 }: Props) => {
   const [pendingSubmit, startTransition] = useTransition();
+  const [originUrl, setOriginUrl] = useState<string | undefined>(undefined);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const returnUrl = searchParams.get('returnUrl');
+    const ref = document.referrer;
+
+    // Only "lock in" the back destination if the user actually navigated
+    // from within MYA.
+    const isInternalNavigation = ref && ref.includes(window.location.host);
+
+    if (returnUrl && isInternalNavigation) {
+      setOriginUrl(returnUrl);
+    } else {
+      // If they pasted the link or came from an external link like Google, we keep originUrl undefined
+      // so that handleBack defaults to '/sites'
+      setOriginUrl(undefined);
+    }
+  }, [searchParams]);
+
   const methods = useForm<ChangeAvailabilityFormValues>({
     resolver: yupResolver(createChangeAvailabilityFormSchema(rangeMaximumDays)),
     defaultValues: {
@@ -45,7 +67,7 @@ const ChangeAvailabilityWizard = ({
         <Wizard
           id="change-availability-wizard"
           initialStep={1}
-          returnRouteUponCancellation={`/todo`}
+          returnRouteUponCancellation={`/manage-your-appointments/sites`}
           onCompleteFinalStep={() => {}}
           pendingSubmit={pendingSubmit}
         >
@@ -56,6 +78,7 @@ const ChangeAvailabilityWizard = ({
                 cancelADateRangeWithBookingsEnabled={
                   cancelADateRangeWithBookings
                 }
+                previousUrl={originUrl}
               />
             )}
           </WizardStep>

@@ -10,10 +10,6 @@ namespace Nhs.Appointments.Core.Sites;
 
 public interface ISiteService
 {
-    Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
-        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache,
-        SiteSupportsServiceFilter siteSupportsServiceFilter = null);
-
     Task<Site> GetSiteByIdAsync(string siteId, string scope = "*");
     Task<IEnumerable<SitePreview>> GetSitesPreview(bool includeDeleted = false);
     Task<IEnumerable<Site>> GetAllSites(bool includeDeleted = false, bool ignoreCache = false);
@@ -40,55 +36,9 @@ public class SiteService(
     ISiteStore siteStore,
     IAvailabilityStore availabilityStore,
     ILogger<ISiteService> logger,
-    IFeatureToggleHelper featureToggleHelper,
     ICacheService cacheService,
     IOptions<SiteServiceOptions> options) : ISiteService
 {
-    public async Task<IEnumerable<SiteWithDistance>> FindSitesByArea(Coordinates coordinates, int searchRadius,
-        int maximumRecords, IEnumerable<string> accessNeeds, bool ignoreCache = false,
-        SiteSupportsServiceFilter siteSupportsServiceFilter = null)
-    {
-        var accessibilityIds = accessNeeds.Where(an => string.IsNullOrEmpty(an) == false)
-            .Select(an => $"accessibility/{an}").ToList();
-
-        var sites = await GetAllSites(false, ignoreCache);
-
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
-        {
-            sites = sites.Where(s => s.status is SiteStatus.Online or null);
-        }
-
-        var sitesWithDistance = sites
-            .Select(site => new SiteWithDistance(site,
-                GeographyCalculations.CalculateDistanceInMetres(coordinates, site.Coordinates)));
-
-        Func<SiteWithDistance, bool> filterPredicate = accessibilityIds.Any()
-            ? s =>
-                accessibilityIds.All(acc => s.Site.Accessibilities.SingleOrDefault(a => a.Id == acc)?.Value == "true")
-            : s => true;
-
-        if (siteSupportsServiceFilter == null)
-        {
-            return sitesWithDistance
-                .Where(s => s.Distance <= searchRadius)
-                .Where(filterPredicate)
-                .OrderBy(site => site.Distance)
-                .Take(maximumRecords);
-        }
-
-        var sitesInDistance = sitesWithDistance
-            .Where(s => s.Distance <= searchRadius)
-            .Where(filterPredicate);
-
-        return await GetSitesSupportingService(
-            sitesInDistance,
-            siteSupportsServiceFilter.services,
-            siteSupportsServiceFilter.from,
-            siteSupportsServiceFilter.until,
-            maximumRecords,
-            ignoreCache);
-    }
-
     private async Task<IEnumerable<SiteWithDistance>> GetSitesSupportingService(IEnumerable<SiteWithDistance> sites,
         List<string> services,
         DateOnly from, DateOnly to,
@@ -277,12 +227,8 @@ public class SiteService(
     public async Task<IEnumerable<SiteWithDistance>> QuerySitesAsync(SiteFilter[] filters, int maxRecords,
         bool ignoreCache)
     {
-        var sites = await GetAllSites(false, ignoreCache);
-
-        if (await featureToggleHelper.IsFeatureEnabled(Flags.SiteStatus))
-        {
-            sites = sites.Where(s => s.status is SiteStatus.Online or null);
-        }
+        var sites = (await GetAllSites(false, ignoreCache))
+            .Where(s => s.status is SiteStatus.Online or null);
 
         var allResults = new List<SiteWithDistance>();
 

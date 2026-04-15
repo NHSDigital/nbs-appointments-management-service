@@ -20,7 +20,6 @@ public class PermissionSnapShotTest
     [InlineData("post", "booking/set-status", "booking:set-status")]
     [InlineData("post", "user/roles", "users:manage")]
     [InlineData("get", "users", "users:view")]
-    [InlineData("get", "sites", "sites:query")]
     [InlineData("get", "sites/{site}", "site:view")]
     [InlineData("post", "sites/{site}/accessibilities", "site:manage")]
     [InlineData("post", "availability/apply-template", "availability:setup")]

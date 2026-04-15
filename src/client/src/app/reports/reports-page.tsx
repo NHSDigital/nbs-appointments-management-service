@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DownloadReportFormValues } from './download-report-form-schema';
 import DownloadReportForm from './download-report-form';
 import DownloadReportConfirmation from './download-report-confirmation';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export const ReportsPage = () => {
   // TODO: Atm this journey has 2 steps; one to select the dates and one to confirm the download.
@@ -13,7 +13,29 @@ export const ReportsPage = () => {
   const [reportRequest, setReportRequest] = useState<
     DownloadReportFormValues | undefined
   >(undefined);
+  const [originUrl, setOriginUrl] = useState<string | undefined>(undefined);
+
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Capture the returnUrl if it exists
+  useEffect(() => {
+    const returnUrl = searchParams.get('returnUrl');
+    const ref = document.referrer;
+    const isInternal = ref && ref.includes(window.location.host);
+
+    if (returnUrl && isInternal) {
+      setOriginUrl(returnUrl);
+    }
+  }, [searchParams]);
+
+  const handleBack = () => {
+    if (originUrl) {
+      router.push(originUrl);
+    } else {
+      router.push('/sites');
+    }
+  };
 
   return (
     <>
@@ -22,9 +44,7 @@ export const ReportsPage = () => {
           setReportRequest={setReportRequest}
           backLink={{
             renderingStrategy: 'client',
-            onClick: () => {
-              router.back();
-            },
+            onClick: handleBack,
             text: 'Back',
           }}
         />

@@ -8,6 +8,7 @@ import {
 } from '@testing/data';
 import { verifyV10SummaryListItem } from '@components/nhsuk-frontend/summary-list.test';
 import { getAppInsightsClient } from '../../appInsights';
+import { GetCurrentDateTime } from '@services/timeService';
 
 jest.mock('../../appInsights', () => {
   const mockFn = jest.fn();
@@ -23,6 +24,15 @@ jest.mock('../../appInsights', () => {
   };
 });
 
+jest.mock('@services/timeService', () => {
+  const originalModule = jest.requireActual('@services/timeService');
+  return {
+    ...originalModule,
+    GetCurrentDateTime: jest.fn(),
+  };
+});
+const mockGetCurrentDatTime = GetCurrentDateTime as jest.Mock<string>;
+
 describe('Site Page', () => {
   it('displays a summary of the site', () => {
     const mockSite = mockSites[0];
@@ -33,7 +43,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -49,7 +58,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -71,7 +79,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
     verifyV10SummaryListItem('Region', mockSite.region);
@@ -92,7 +99,6 @@ describe('Site Page', () => {
         permissions={mockNonManagerPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -108,7 +114,6 @@ describe('Site Page', () => {
         permissions={mockNonManagerPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 
@@ -119,26 +124,45 @@ describe('Site Page', () => {
   it.each([
     [
       'availability:query',
-      'View availability and manage appointments for your site',
-      'view-availability',
+      'View availability',
+      'view-availability/daily-appointments?date=2026-06-05&page=1',
+      'View and manage appointments for your site',
     ],
-    ['availability:setup', 'Create availability', 'create-availability'],
+    [
+      'availability:setup',
+      'Create availability',
+      'create-availability',
+      'Add new availability for your site',
+    ],
     [
       'site:manage',
-      'Change site details and accessibility information',
+      'Change site details',
       'details',
+      'Change site details and accessibility information',
     ],
     [
       'site:view',
-      'Change site details and accessibility information',
+      'Change site details',
       'details',
+      'Change site details and accessibility information',
     ],
-    ['users:view', 'Manage users', 'users'],
-    ['reports:sitesummary', 'Download reports', 'reports'],
+    [
+      'users:view',
+      'Manage users',
+      'users',
+      'Add or remove users for your site',
+    ],
+    ['reports:sitesummary', 'Reports', 'reports', 'Download reports'],
   ])(
     'displays the correct cards when permissions are present',
-    (permission: string, cardTitle: string, path: string) => {
+    (
+      permission: string,
+      cardTitle: string,
+      path: string,
+      cardDescription: string,
+    ) => {
       const mockSite = mockSites[0];
+      mockGetCurrentDatTime.mockReturnValue('2026-06-05');
 
       render(
         <SitePage
@@ -148,11 +172,11 @@ describe('Site Page', () => {
             permission === 'reports:sitesummary' ? ['reports:sitesummary'] : []
           }
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-          siteStatusEnabled
         />,
       );
 
       expect(screen.getByRole('link', { name: cardTitle })).toBeInTheDocument();
+      expect(screen.getByText(cardDescription)).toBeInTheDocument();
 
       if (path === 'reports') {
         expect(screen.getByRole('link', { name: cardTitle })).toHaveAttribute(
@@ -169,17 +193,11 @@ describe('Site Page', () => {
   );
 
   it.each([
-    [
-      ['availability:query'],
-      'View availability and manage appointments for your site',
-    ],
+    [['availability:query'], 'View availability'],
     [['availability:setup'], 'Create availability'],
-    [
-      ['site:manage', 'site:view'],
-      'Change site details and accessibility information',
-    ],
+    [['site:manage', 'site:view'], 'Change site details'],
     [['users:view'], 'Manage users'],
-    [['reports:sitesummary'], 'Download reports'],
+    [['reports:sitesummary'], 'Reports'],
   ])(
     'hides the correct cards when permissions are lacking',
     (permissions: string[], cardTitle: string) => {
@@ -191,7 +209,6 @@ describe('Site Page', () => {
           permissions={mockAllPermissions.filter(p => !permissions.includes(p))}
           permissionsAtAnySite={[]}
           wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-          siteStatusEnabled
         />,
       );
 
@@ -212,7 +229,6 @@ describe('Site Page', () => {
         permissions={mockAllPermissions}
         permissionsAtAnySite={[]}
         wellKnownOdsCodeEntries={mockWellKnownOdsCodeEntries}
-        siteStatusEnabled
       />,
     );
 

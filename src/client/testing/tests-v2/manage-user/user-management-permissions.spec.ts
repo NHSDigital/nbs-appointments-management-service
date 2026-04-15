@@ -40,27 +40,132 @@ test('Navigating straight to the user management page without permission shows 4
   await expect(notAuthorizedPage.title).toBeVisible();
 });
 
-// TODO: This test needs migrating over when we have a way to assign multiple sites to a user
-// Copied from v1 as that file is being removed now the rest have been converted over to v2
+test('Permissions are applied per site for the same user, and affect card visibility', async ({
+  setup,
+}) => {
+  const { sitePage, additionalUserData } = await setup({
+    additionalUsers: [
+      {
+        siteRoles: [
+          ['canned:user-manager'],
+          ['system:integration-test-user'],
+          ['system:api-user'],
+          ['canned:site-details-manager'],
+          ['canned:availability-manager'],
+          ['canned:availability-manager', 'canned:user-manager'],
+        ],
+      },
+    ],
+  });
 
-// test('permissions are applied per site', async ({ getTestUser }) => {
-//   await rootPage.goto();
-//   await rootPage.pageContentLogInButton.click();
-//   await oAuthPage.signIn(getTestUser(2));
+  const newUser = additionalUserData.get('0');
 
-//   // First check Edit column exists at Church Lane
-//   await siteSelectionPage.selectSite(site2);
-//   await sitePage.userManagementCard.click();
-//   await expect(usersPage.manageColumn).toBeVisible();
+  if (newUser === undefined) {
+    throw new Error();
+  }
 
-//   // Then check it does NOT exist at Robin Lane
-//   await rootPage.goto();
+  const oidc = newUser.user.oidc;
 
-//   await siteSelectionPage.selectSite(site1);
+  //userManager at site1,
+  //integrationUser at site2
+  //apiUser at site3
+  //site manager at site 4
+  //availabilityManager at site 5
+  //userManager AND availabilityManager at site 6
+  const site1 = newUser.sites[0];
+  const site2 = newUser.sites[1];
+  const site3 = newUser.sites[2];
+  const site4 = newUser.sites[3];
+  const site5 = newUser.sites[4];
+  const site6 = newUser.sites[5];
 
-//   await sitePage.siteManagementCard.click();
-//   await expect(siteDetailsPage1.editSiteDetailsButton).not.toBeVisible();
-// });
+  //login as extra user that has two site permissions
+  await sitePage.logOut().then(async loginPage => {
+    const mockOidcLoginPage = await loginPage.logInWithNhsMail();
+    const siteSelectionPage1 = await mockOidcLoginPage.signIn(oidc);
+    const site1Page = await siteSelectionPage1.selectSite(site1);
+
+    //assert cards for role
+
+    //TODO why does a userManager role have permission to access to the availability and bookings...?
+    //is this really needed?
+    await site1Page.verifyTileVisible('ManageAppointment');
+
+    await site1Page.verifyTileVisible('UserManagement');
+    await site1Page.verifyTileVisible('SiteManagement');
+    //since user has one site with this permission, visible on all site pages
+    await site1Page.verifyTileVisible('DownloadReports');
+
+    await site1Page.verifyTileNotVisible('CreateAvailability');
+
+    await site1Page.changeSite(site1.name).then(async siteSelectionPage2 => {
+      const site2Page = await siteSelectionPage2.selectSite(site2);
+
+      //assert cards for role
+      await site2Page.verifyTileVisible('ManageAppointment');
+      await site2Page.verifyTileVisible('SiteManagement');
+      await site2Page.verifyTileVisible('UserManagement');
+      await site2Page.verifyTileVisible('CreateAvailability');
+      await site2Page.verifyTileVisible('DownloadReports');
+
+      await site2Page.changeSite(site2.name).then(async siteSelectionPage3 => {
+        const site3Page = await siteSelectionPage3.selectSite(site3);
+
+        //assert cards for role
+        await site3Page.verifyTileVisible('ManageAppointment');
+        await site3Page.verifyTileVisible('SiteManagement');
+        //since user has one site with this permission, visible on all site pages
+        await site3Page.verifyTileVisible('DownloadReports');
+
+        await site3Page.verifyTileNotVisible('CreateAvailability');
+        await site3Page.verifyTileNotVisible('UserManagement');
+
+        await site3Page
+          .changeSite(site3.name)
+          .then(async siteSelectionPage4 => {
+            const site4Page = await siteSelectionPage4.selectSite(site4);
+
+            //assert cards for role
+            await site4Page.verifyTileVisible('ManageAppointment');
+            await site4Page.verifyTileVisible('SiteManagement');
+            //since user has one site with this permission, visible on all site pages
+            await site4Page.verifyTileVisible('DownloadReports');
+
+            await site4Page.verifyTileNotVisible('CreateAvailability');
+            await site4Page.verifyTileNotVisible('UserManagement');
+
+            await site4Page
+              .changeSite(site4.name)
+              .then(async siteSelectionPage5 => {
+                const site5Page = await siteSelectionPage5.selectSite(site5);
+
+                //assert cards for role
+                await site5Page.verifyTileVisible('ManageAppointment');
+                await site5Page.verifyTileVisible('SiteManagement');
+                await site5Page.verifyTileVisible('CreateAvailability');
+                await site5Page.verifyTileVisible('DownloadReports');
+
+                await site5Page.verifyTileNotVisible('UserManagement');
+
+                await site5Page
+                  .changeSite(site5.name)
+                  .then(async siteSelectionPage6 => {
+                    const site6Page =
+                      await siteSelectionPage6.selectSite(site6);
+
+                    //all cards visible for both roles for site
+                    await site6Page.verifyTileVisible('ManageAppointment');
+                    await site6Page.verifyTileVisible('SiteManagement');
+                    await site6Page.verifyTileVisible('UserManagement');
+                    await site6Page.verifyTileVisible('CreateAvailability');
+                    await site6Page.verifyTileVisible('DownloadReports');
+                  });
+              });
+          });
+      });
+    });
+  });
+});
 
 test('Verify user manager cannot edit or remove themself', async ({
   setup,
@@ -83,7 +188,7 @@ test('Verify user can only view appointment manager related tiles when they have
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:appointment-manager'],
+        siteRoles: [['canned:appointment-manager']],
       },
     ],
   });
@@ -95,7 +200,7 @@ test('Verify user can only view appointment manager related tiles when they have
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()
@@ -142,7 +247,7 @@ test('Verify user can only view availability manager related tiles when they hav
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:availability-manager'],
+        siteRoles: [['canned:availability-manager']],
       },
     ],
   });
@@ -154,7 +259,7 @@ test('Verify user can only view availability manager related tiles when they hav
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()
@@ -201,7 +306,7 @@ test('Verify user can only view user manager related tiles when they have user m
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:user-manager'],
+        siteRoles: [['canned:user-manager']],
       },
     ],
   });
@@ -213,7 +318,7 @@ test('Verify user can only view user manager related tiles when they have user m
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()
@@ -260,7 +365,7 @@ test('Verify user can only view site details manager related tiles when they hav
   const { sitePage, additionalUserData } = await setup({
     additionalUsers: [
       {
-        roles: ['canned:site-details-manager'],
+        siteRoles: [['canned:site-details-manager']],
       },
     ],
   });
@@ -272,7 +377,7 @@ test('Verify user can only view site details manager related tiles when they hav
   }
 
   const oidc = newUser.user.oidc;
-  const site = newUser.site;
+  const site = newUser.sites[0];
 
   await sitePage
     .clickManageUsersCard()

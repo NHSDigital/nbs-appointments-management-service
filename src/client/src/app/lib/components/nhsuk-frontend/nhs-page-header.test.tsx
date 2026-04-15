@@ -40,4 +40,22 @@ describe('Header', () => {
       '/link2',
     );
   });
+
+  it('Displays a link with the site name if a site is provided', async () => {
+    render(
+      <Header
+        showChangeSiteButton
+        siteName="Test site"
+        userEmail="test-user@test.com"
+      />,
+    );
+
+    expect(screen.getByRole('link', { name: 'Test site' })).toBeInTheDocument();
+  });
+
+  it('Does not display site name link if no site is provided', async () => {
+    render(<Header showChangeSiteButton userEmail="test.user@test.com" />);
+
+    expect(screen.queryByRole('link', { name: 'Test site' })).toBeNull();
+  });
 });

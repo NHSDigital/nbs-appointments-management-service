@@ -166,7 +166,10 @@
         "site:get-meta-data",
         "users:view",
         "users:manage",
-        "reports:sitesummary"
+        "reports:sitesummary",
+        "availability:setup",
+        "booking:view-detail",
+        "booking:cancel"
       ]
     },
     {

@@ -8,13 +8,13 @@ import {
   SummaryList,
 } from 'nhsuk-react-components';
 import { mapSiteOverviewSummaryData } from '@services/siteService';
+import { GetCurrentDateTime } from '@services/timeService';
 
 interface SitePageProps {
   site: Site;
   permissions: string[];
   permissionsAtAnySite: string[];
   wellKnownOdsCodeEntries: WellKnownOdsEntry[];
-  siteStatusEnabled: boolean;
 }
 
 export const SitePage = ({
@@ -22,7 +22,6 @@ export const SitePage = ({
   permissions,
   permissionsAtAnySite,
   wellKnownOdsCodeEntries,
-  siteStatusEnabled,
 }: SitePageProps) => {
   useEffect(() => {
     const appInsightsClient = getAppInsightsClient();
@@ -45,7 +44,6 @@ export const SitePage = ({
   const overviewData = mapSiteOverviewSummaryData(
     site,
     wellKnownOdsCodeEntries,
-    siteStatusEnabled,
   );
 
   return (
@@ -82,11 +80,14 @@ export const SitePage = ({
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">
                   <Card.Link
-                    href={`/manage-your-appointments/site/${site.id}/view-availability`}
+                    href={`/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${GetCurrentDateTime('YYYY-MM-DD')}&page=1`}
                   >
-                    View availability and manage appointments for your site
+                    View availability
                   </Card.Link>
                 </Card.Heading>
+                <Card.Description>
+                  View and manage appointments for your site
+                </Card.Description>
                 <ArrowRightCircleIcon />
               </Card>
             </li>
@@ -101,21 +102,27 @@ export const SitePage = ({
                     Create availability
                   </Card.Link>
                 </Card.Heading>
+                <Card.Description>
+                  Add new availability for your site
+                </Card.Description>
                 <ArrowRightCircleIcon />
               </Card>
             </li>
           )}
           {(permissionsRelevantToCards.includes('site:manage') ||
-            -permissionsRelevantToCards.includes('site:view')) && (
+            permissionsRelevantToCards.includes('site:view')) && (
             <li className="nhsuk-grid-column-one-third nhsuk-card-group__item">
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">
                   <Card.Link
                     href={`/manage-your-appointments/site/${site.id}/details`}
                   >
-                    Change site details and accessibility information
+                    Change site details
                   </Card.Link>
                 </Card.Heading>
+                <Card.Description>
+                  Change site details and accessibility information
+                </Card.Description>
                 <ArrowRightCircleIcon />
               </Card>
             </li>
@@ -130,6 +137,9 @@ export const SitePage = ({
                     Manage users
                   </Card.Link>
                 </Card.Heading>
+                <Card.Description>
+                  Add or remove users for your site
+                </Card.Description>
                 <ArrowRightCircleIcon />
               </Card>
             </li>
@@ -139,9 +149,10 @@ export const SitePage = ({
               <Card primary clickable>
                 <Card.Heading headingLevel="h3">
                   <Card.Link href={`/manage-your-appointments/reports`}>
-                    Download reports
+                    Reports
                   </Card.Link>
                 </Card.Heading>
+                <Card.Description>Download reports</Card.Description>
                 <ArrowRightCircleIcon />
               </Card>
             </li>

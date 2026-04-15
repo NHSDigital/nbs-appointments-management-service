@@ -1031,7 +1031,8 @@ public abstract partial class BaseFeatureSteps : Feature
                     dataTable.GetDoubleRowValueOrDefault(row, "Latitude", -60d)
                 }),
             Type = dataTable.GetRowValueOrDefault(row, "Type"),
-            IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted")
+            IsDeleted = dataTable.GetBoolRowValueOrDefault(row, "IsDeleted"),
+            Status = SiteStatus.Online
         });
         foreach (var site in sites)
         {

@@ -794,64 +794,6 @@
       "response": []
     },
     {
-      "name": "sites",
-      "protocolProfileBehavior": {
-        "disableBodyPruning": true
-      },
-      "request": {
-        "auth": {
-          "type": "noauth"
-        },
-        "method": "GET",
-        "header": [
-          {
-            "key": "ClientId",
-            "value": "{{clientId}}",
-            "type": "text"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/sites?long=-1.663038&lat=53.796638&searchRadius=100000&maxRecords=50",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "sites"],
-          "query": [
-            {
-              "key": "long",
-              "value": "-1.663038"
-            },
-            {
-              "key": "lat",
-              "value": "53.796638"
-            },
-            {
-              "key": "searchRadius",
-              "value": "100000",
-              "description": "6000"
-            },
-            {
-              "key": "maxRecords",
-              "value": "50"
-            },
-            {
-              "key": "accessNeeds",
-              "value": "accessible_toilet,braille_translation_service",
-              "disabled": true
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "roles",
       "protocolProfileBehavior": {
         "disableBodyPruning": true

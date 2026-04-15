@@ -3,11 +3,9 @@
     "JointBookings": false,
     "TestFeatureEnabled": true,
     "MultipleServices": false,
-    "SiteStatus": false,
     "CancelDay": false,
     "ChangeSessionUpliftedJourney": false,
     "CancelSessionUpliftedJourney": false,
-    "QuerySites": false,
     "MultiServiceJointBookings": false,
     "JointBookingsReporting": false,
     "ReportsUplift": false,
@@ -53,7 +51,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         }
@@ -82,7 +80,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         },

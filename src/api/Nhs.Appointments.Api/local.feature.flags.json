@@ -3,9 +3,7 @@
     "JointBookings": false,
     "TestFeatureEnabled": true,
     "MultipleServices": false,
-    "SiteStatus": false,
     "CancelDay": false,
-    "QuerySites": false,
     "MultiServiceJointBookings": false,
     "ReportsUplift": false,
     "CancelADateRange": false,
@@ -50,7 +48,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         }
@@ -79,7 +77,7 @@
           "Name": "Microsoft.Targeting",
           "Parameters": {
             "Audience": {
-              "Users": [ "api@test" ]
+              "Users": ["api@test"]
             }
           }
         },

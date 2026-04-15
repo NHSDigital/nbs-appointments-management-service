@@ -8,19 +8,19 @@ test('A user loads home page, only sites with same scope are loaded', async ({
 }) => {
   const { site, additionalUserData } = await setup({
     roles: ['canned:availability-manager'],
-    additionalUsers: [{ roles: ['canned:availability-manager'] }],
+    additionalUsers: [{ siteRoles: [['canned:availability-manager']] }],
   });
 
   const additionalUserOne = additionalUserData.get('0');
 
-  if (additionalUserOne?.site === undefined) {
+  if (additionalUserOne?.sites[0] === undefined) {
     throw new Error('Expected Site to be defined in additionalUserData');
   }
 
   await page.goto('/');
 
   await expect(
-    page.getByRole('cell').filter({ hasText: additionalUserOne.site.name }),
+    page.getByRole('cell').filter({ hasText: additionalUserOne.sites[0].name }),
   ).not.toBeVisible();
   await expect(
     page.getByRole('cell').filter({ hasText: site.name }),
@@ -38,13 +38,13 @@ test('An admin user loads home page, all sites are loaded', async ({
       'canned:availability-manager',
       'canned:user-manager',
     ],
-    additionalUsers: [{ roles: ['canned:availability-manager'] }],
+    additionalUsers: [{ siteRoles: [['canned:availability-manager']] }],
     skipSiteSelection: true,
   });
 
   const additionalUserOne = additionalUserData.get('0');
 
-  if (additionalUserOne?.site === undefined) {
+  if (additionalUserOne?.sites[0] === undefined) {
     throw new Error('Expected Site to be defined in additionalUserData');
   }
 
@@ -52,7 +52,10 @@ test('An admin user loads home page, all sites are loaded', async ({
     page.getByRole('cell', { name: site.name, exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole('cell', { name: additionalUserOne.site.name, exact: true }),
+    page.getByRole('cell', {
+      name: additionalUserOne.sites[0].name,
+      exact: true,
+    }),
   ).toBeVisible();
 });
 

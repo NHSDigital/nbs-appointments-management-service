@@ -35,14 +35,16 @@ namespace Nhs.Appointments.Core.UnitTests
         }
 
         [Fact]
-        public async Task MakeBooking_AcquiresLock_WhenBooking()
+        public async Task MakeBooking_AcquiresLockForTheSiteIdAndDayOfTheBooking_WhenBooking()
         {
             var expectedSiteId = Guid.NewGuid().ToString();
             var expectedFrom = new DateOnly(2077, 1, 1);
             var expectedUntil = expectedFrom.AddDays(1);
             SessionInstance[] availability =
             [
-                new(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0))
+                new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 9, 0, 0, 0), 
+                    new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 12, 0, 0, 0)
+                   )
             ];
 
             var booking = new Booking
@@ -56,20 +58,236 @@ namespace Nhs.Appointments.Core.UnitTests
             var availabilityQueryService =
                 new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
 
-            var leaseManager = new FakeLeaseManager();
+            _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom)).Returns(new FakeLeaseContext());
+
             var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
                 _referenceNumberProvider.Object,
-                leaseManager, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+                _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
                 new EventFactory(), _messageBus.Object, TimeProvider.System);
 
-            var task = Task.Run(() => bookingService.MakeBooking(booking));
-            await Task.Delay(100);
-            task.IsCompleted.Should().BeFalse();
+            // Act.
+            await bookingService.MakeBooking(booking);
 
-            leaseManager.WaitHandle.Set();
+            // Assert.
+            _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom), Times.Once());
+            _siteLeaseManager.VerifyNoOtherCalls();
+        }
 
-            await Task.Delay(1000);
-            task.IsCompleted.Should().BeTrue();
+        [Fact]
+        public async Task MakeBookingForTwoDifferentDaysForTheSameSite_AcquiresLockWithDifferentParameters_WhenBooking()
+        {
+            var expectedSiteId = Guid.NewGuid().ToString();
+            var expectedFrom1 = new DateOnly(2077, 1, 1);
+            var expectedUntil1 = expectedFrom1.AddDays(1);
+            var expectedFrom2 = new DateOnly(2077, 1, 2);
+            var expectedUntil2 = expectedFrom2.AddDays(1);
+
+            SessionInstance[] availability =
+            [
+                new(new DateTime(expectedFrom1.Year, expectedFrom1.Month, expectedFrom1.Day, 9, 0, 0, 0), 
+                    new DateTime(expectedFrom1.Year, expectedFrom1.Month, expectedFrom1.Day, 12, 0, 0, 0)
+                    ),
+                new(new DateTime(expectedFrom2.Year, expectedFrom2.Month, expectedFrom2.Day, 9, 0, 0, 0), 
+                    new DateTime(expectedFrom2.Year, expectedFrom2.Month, expectedFrom2.Day, 12, 0, 0, 0)
+                    )
+            ];
+
+            var booking1 = new Booking
+            {
+                Site = expectedSiteId,
+                Service = "TSERV",
+                From = new DateTime(expectedFrom1.Year, expectedFrom1.Month, expectedFrom1.Day, 10, 0, 0, 0),
+                Duration = 10
+            };
+
+            var booking2 = new Booking
+            {
+                Site = expectedSiteId,
+                Service = "TSERV",
+                From = new DateTime(expectedFrom2.Year, expectedFrom2.Month, expectedFrom2.Day, 10, 0, 0, 0),
+                Duration = 10
+            };
+
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+            var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            var availabilityQueryService =
+                new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+            _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom1)).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom2)).Returns(new FakeLeaseContext());
+
+            var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+                _referenceNumberProvider.Object,
+                _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+                new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+            // Act.
+            await bookingService.MakeBooking(booking1);
+            await bookingService.MakeBooking(booking2);
+
+            // Assert.
+            _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom1), Times.Once());
+            _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom2), Times.Once());
+            _siteLeaseManager.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task MakeBookingForTheSameDayForTwoDifferentSites_AcquiresLockWithDifferentParameters_WhenBooking()
+        {
+            var expectedSiteId1 = Guid.NewGuid().ToString();
+            var expectedSiteId2 = Guid.NewGuid().ToString();
+            var expectedFrom = new DateOnly(2077, 1, 1);
+            var expectedUntil = expectedFrom.AddDays(1);
+
+            SessionInstance[] availability =
+            [
+                new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 9, 0, 0, 0), 
+                    new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 12, 0, 0, 0)
+                   )
+            ];
+
+            var booking1 = new Booking
+            {
+                Site = expectedSiteId1,
+                Service = "TSERV",
+                From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+                Duration = 10
+            };
+
+            var booking2 = new Booking
+            {
+                Site = expectedSiteId2,
+                Service = "TSERV",
+                From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+                Duration = 10
+            };
+
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+            var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            var availabilityQueryService =
+                new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+            _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId1, expectedFrom)).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId2, expectedFrom)).Returns(new FakeLeaseContext());
+
+            var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+                _referenceNumberProvider.Object,
+                _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+                new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+            // Act.
+            await bookingService.MakeBooking(booking1);
+            await bookingService.MakeBooking(booking2);
+
+            // Assert.
+            _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId1, expectedFrom), Times.Once());
+            _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId2, expectedFrom), Times.Once());
+            _siteLeaseManager.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task MakeBookingTwiceForTheSameDayForTheSameSite_AcquiresLockWithTheSameParameters_WhenBooking()
+        {
+            var expectedSiteId = Guid.NewGuid().ToString();
+            var expectedFrom = new DateOnly(2077, 1, 1);
+            var expectedUntil = expectedFrom.AddDays(1);
+
+            SessionInstance[] availability =
+            [
+                new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 9, 0, 0, 0), 
+                    new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 12, 0, 0, 0)
+                   )
+            ];
+
+            var booking1 = new Booking
+            {
+                Site = expectedSiteId,
+                Service = "TSERV",
+                From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+                Duration = 10
+            };
+
+            var booking2 = new Booking
+            {
+                Site = expectedSiteId,
+                Service = "TSERV",
+                From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+                Duration = 10
+            };
+
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync(Guid.NewGuid().ToString());
+
+            var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            var availabilityQueryService =
+                new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+            _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom)).Returns(new FakeLeaseContext());
+
+            var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+                _referenceNumberProvider.Object,
+                _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+                new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+            // Act.
+            await bookingService.MakeBooking(booking1);
+            await bookingService.MakeBooking(booking2);
+
+            // Assert.
+            _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom), Times.Exactly(2));
+            _siteLeaseManager.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData("20260328")]
+        [InlineData("20260329")]
+        [InlineData("20260330")]
+        [InlineData("20261024")]
+        [InlineData("20261025")]
+        [InlineData("20261026")]
+        public async Task MakeBookingOnAndAroundDayClocksChange_AcquiresLockForTheCorrectDay_WhenBooking(string dateClocksChangeAsString)
+        {
+            var dayClocksGoForward = DateOnly.ParseExact(dateClocksChangeAsString, "yyyyMMdd");
+
+            var expectedSiteId = Guid.NewGuid().ToString();
+            var expectedFrom = dayClocksGoForward;
+            var expectedUntil = expectedFrom.AddDays(1);
+
+            SessionInstance[] availability =
+            [
+                new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 1, 0, 0, 0), 
+                    new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 12, 0, 0, 0)
+                    )
+            ];
+
+            var booking = new Booking
+            {
+                Site = expectedSiteId,
+                Service = "TSERV",
+                From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 1, 30, 0, 0),
+                Duration = 10
+            };
+
+            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync(Guid.NewGuid().ToString());
+
+            var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+            var availabilityQueryService =
+                new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+            _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom)).Returns(new FakeLeaseContext());
+
+            var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+                _referenceNumberProvider.Object,
+                _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+                new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+            // Act.
+            await bookingService.MakeBooking(booking);
+
+            // Assert.
+            _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom), Times.Once());
+            _siteLeaseManager.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -94,7 +312,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -134,7 +352,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Provisional
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -173,7 +391,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Provisional
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
 
             _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
                     new DateTime(2077, 1, 1, 10, 0, 0, 0),
@@ -262,7 +480,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Provisional
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
 
             _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
                     new DateTime(2077, 1, 1, 10, 0, 0, 0),
@@ -360,7 +578,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -393,7 +611,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
 
             MockAvailability(availability);
 
@@ -418,7 +636,7 @@ namespace Nhs.Appointments.Core.UnitTests
                 Status = AppointmentStatus.Booked
             };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
 
             _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
                     new DateTime(2077, 1, 1, 13, 0, 0, 0),
@@ -964,9 +1182,10 @@ namespace Nhs.Appointments.Core.UnitTests
         [Fact]
         public async Task MakeBooking_CallsAllocationStateService_WhenBooking()
         {
-            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1) };
+            var siteId = "TEST";
+            var booking = new Booking { Site = siteId, Service = "TSERV", From = new DateTime(2077, 1, 1) };
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>(), It.IsAny<DateOnly>())).Returns(new FakeLeaseContext());
+            _siteLeaseManager.Setup(x => x.Acquire(siteId, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
             _bookingAvailabilityStateService
                 .Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
                 .ReturnsAsync(new List<SessionInstance>());
@@ -1309,7 +1528,7 @@ namespace Nhs.Appointments.Core.UnitTests
 
     public class FakeLeaseContext : ISiteLeaseContext
     {
-        public string SiteKey => throw new NotImplementedException();
+        public string SiteKey => Guid.NewGuid().ToString();
 
         public void Dispose()
         {

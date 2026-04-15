@@ -21,18 +21,18 @@ internal class InMemorySiteLeaseManager : ISiteLeaseManager
 
         lock (_locks)
         {
-            if (_locks.ContainsKey(keyName) == false)
+            if (!_locks.ContainsKey(keyName))
             {
                 _locks.Add(keyName, new SemaphoreSlim(1,1));
             }
             mutex = _locks[keyName];
         }
 
-        if (mutex.Wait(_options.Timeout) == false)
+        if (!mutex.Wait(_options.Timeout))
         {
-            throw new AbandonedMutexException();
+            throw new AbandonedMutexException($"Abandoned attempt to acquire lock for site key {keyName}");
         }
 
         return new SiteLeaseContext(keyName, () => mutex.Release());
-    }        
+    }
 }

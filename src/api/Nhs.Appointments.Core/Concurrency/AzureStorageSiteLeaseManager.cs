@@ -24,7 +24,7 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
         var blobName = LeaseKeys.SiteKeyFactory.Create(site, date);
 
         var blobClient = containerClient.GetBlobClient(blobName);
-        if (blobClient.Exists() == false)
+        if (!blobClient.Exists())
         {
             blobClient.Upload(BinaryData.FromString(""));
         }
@@ -33,7 +33,7 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
         var leasePipeline = CreateResiliencePipeline();
         leasePipeline.Execute(() => leaseClient.Acquire(TimeSpan.FromSeconds(20))); // TODO: Move this duration into the constructor parameter or options.
 
-        return new SiteLeaseContext(blobName , () => leaseClient.Release());
+        return new SiteLeaseContext(blobName, () => leaseClient.Release());
     }
 
     private BlobContainerClient ResolveContainerClient()
@@ -56,7 +56,7 @@ internal class AzureStorageSiteLeaseManager : ISiteLeaseManager
                     _ => PredicateResult.False(),
                 },
                 MaxRetryAttempts = 20,
-                Delay = TimeSpan.FromMilliseconds(100)
+                Delay = TimeSpan.FromMilliseconds(100)  // TODO: Move this duration into the constructor parameter or options.
             })
             .Build();
     }                

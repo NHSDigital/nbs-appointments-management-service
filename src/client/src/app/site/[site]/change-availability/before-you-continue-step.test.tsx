@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import render from '@testing/render';
+import { screen } from '@testing-library/react';
 import BeforeYouContinueStep from './before-you-continue-step';
 import { useRouter } from 'next/navigation';
 import { InjectedWizardProps } from '@components/wizard';
@@ -69,8 +70,8 @@ describe('BeforeYouContinueStep', () => {
     ).toBeInTheDocument();
   });
 
-  it('calls goToNextStep when the "Continue to cancel" button is clicked', () => {
-    render(
+  it('calls goToNextStep when the "Continue to cancel" button is clicked', async () => {
+    const { user } = render(
       <BeforeYouContinueStep
         {...defaultProps}
         cancelADateRangeWithBookingsEnabled={false}
@@ -80,7 +81,8 @@ describe('BeforeYouContinueStep', () => {
     const continueButton = screen.getByRole('button', {
       name: /Continue to cancel/i,
     });
-    fireEvent.click(continueButton);
+
+    await user.click(continueButton); // Modern user interaction
 
     expect(mockGoToNextStep).toHaveBeenCalledTimes(1);
   });
@@ -97,10 +99,10 @@ describe('BeforeYouContinueStep', () => {
     expect(backLink).toBeInTheDocument();
   });
 
-  it('calls router.push with the previousUrl when one is provided', () => {
+  it('calls router.push with the previousUrl when one is provided', async () => {
     const customUrl = '/specific-previous-page';
 
-    render(
+    const { user } = render(
       <BeforeYouContinueStep
         {...defaultProps}
         cancelADateRangeWithBookingsEnabled={false}
@@ -109,25 +111,23 @@ describe('BeforeYouContinueStep', () => {
     );
 
     const backLink = screen.getByText(/Back/i);
-    fireEvent.click(backLink);
+    await user.click(backLink);
 
-    // This proves the 'if (previousUrl)' logic works
     expect(mockRouter.push).toHaveBeenCalledWith(customUrl);
   });
 
-  it('calls router.push with "/sites" fallback when previousUrl is missing', () => {
-    render(
+  it('calls router.push with "/sites" fallback when previousUrl is missing', async () => {
+    const { user } = render(
       <BeforeYouContinueStep
         {...defaultProps}
         cancelADateRangeWithBookingsEnabled={false}
-        previousUrl={undefined} // No previous URL
+        previousUrl={undefined}
       />,
     );
 
     const backLink = screen.getByText(/Back/i);
-    fireEvent.click(backLink);
+    await user.click(backLink);
 
-    // External traffic fallback
     expect(mockRouter.push).toHaveBeenCalledWith('/sites');
   });
 });

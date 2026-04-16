@@ -2,8 +2,8 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nhs.Appointments.Core.Blob;
 using Nhs.Appointments.Core.Json;
-using Nhs.Appointments.Jobs.BlobAuditor.Blob;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor;
 

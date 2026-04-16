@@ -16,7 +16,7 @@ public class InMemoryMetricsRecorder : IMetricsRecorder
 
     public void BeginRecording(string source)
     {
-        ArgumentException.ThrowIfNullOrEmpty(source, nameof(source));
+        ArgumentException.ThrowIfNullOrEmpty(source);
 
         if (Source is not null)
         {

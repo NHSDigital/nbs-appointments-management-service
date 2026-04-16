@@ -10,7 +10,7 @@ internal class CosmosGeometricDoubleBackoffStrategy(ContainerRetryConfiguration 
 {
     private TimeSpan customDelayMs = TimeSpan.FromMilliseconds(containerRetryConfiguration.InitialValueMs);
 
-    public TimeSpan Backoff(CosmosException ex, CosmosBackoffContext context)
+    public TimeSpan Backoff(CosmosException _, CosmosBackoffContext context)
     {
         var nextRetryDelayMs = customDelayMs;
         customDelayMs *= 2;

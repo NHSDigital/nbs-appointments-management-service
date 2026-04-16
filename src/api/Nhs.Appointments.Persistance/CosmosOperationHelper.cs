@@ -14,7 +14,6 @@ public static class CosmosOperationHelper
         ILogger logger,
         IMetricsRecorder metricsRecorder,
         CosmosOperationMetric metric,
-        // TODO: Add ITimeProvider
         CancellationToken cancellationToken = default)
     {
         var context = new CosmosBackoffContext();

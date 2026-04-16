@@ -57,7 +57,7 @@ jest.mock('nhsuk-react-components', () => {
 
   return {
     ...actual,
-    Button: ({ children, warning, secondary, ...props }: any) => (
+    Button: ({ children, warning, secondary: _, ...props }: any) => (
       <button {...props} data-warning={warning?.toString()}>
         {children}
       </button>

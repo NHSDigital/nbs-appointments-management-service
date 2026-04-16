@@ -23,7 +23,7 @@ namespace Nhs.Appointments.Persistance
             var docType = _cosmosStore.GetDocumentType();
             try
             {
-                referenceGroupDocument = await _cosmosStore.GetByIdAsync<ReferenceGroupDocument>("main");
+                referenceGroupDocument = await _cosmosStore.GetByIdAsync("main");
             }
             catch(CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {

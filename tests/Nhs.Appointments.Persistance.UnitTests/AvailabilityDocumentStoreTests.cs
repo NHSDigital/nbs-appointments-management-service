@@ -20,7 +20,7 @@ public class AvailabilityDocumentStoreTests
     [Fact]
     public async Task CancelDayAsync_ThrowsException_WhenAvailabilityNotFoundAtSite()
     {
-        _documentStore.Setup(x => x.GetByIdOrDefaultAsync<DailyAvailabilityDocument>(It.IsAny<string>(), It.IsAny<string>()))
+        _documentStore.Setup(x => x.GetByIdOrDefaultAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(null as DailyAvailabilityDocument);
 
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await _sut.CancelDayAsync("TEST_SITE_123", new DateOnly(2025, 1, 1)));
@@ -30,7 +30,7 @@ public class AvailabilityDocumentStoreTests
     public async Task CancelDayAsync_RemovesSessionsForTheDay()
     {
         var date = new DateOnly(2025, 1, 1);
-        _documentStore.Setup(x => x.GetByIdOrDefaultAsync<DailyAvailabilityDocument>(It.IsAny<string>(), It.IsAny<string>()))
+        _documentStore.Setup(x => x.GetByIdOrDefaultAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new DailyAvailabilityDocument
             {
                 Date = date,
@@ -60,7 +60,7 @@ public class AvailabilityDocumentStoreTests
         var from = new DateOnly(2025, 10, 10);
         var until = new DateOnly(2025, 10, 12);
         var site = "TEST123";
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync((IEnumerable<DailyAvailabilityDocument>)null);
 
         var result = await _sut.CancelMultipleSessions(site, from, until);
@@ -74,7 +74,7 @@ public class AvailabilityDocumentStoreTests
     [Fact]
     public async Task CancelMultipleSessions_CancelsAllSessions_ForSingleDay()
     {
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync(new List<DailyAvailabilityDocument>
             {
                 new()
@@ -106,7 +106,7 @@ public class AvailabilityDocumentStoreTests
     [Fact]
     public async Task CancelMultipleSessions_CancelsAllSessions_ForMultipleDays()
     {
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync(new List<DailyAvailabilityDocument>
             {
                 new()
@@ -192,7 +192,7 @@ public class AvailabilityDocumentStoreTests
             SlotLength = 5
         };
 
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync((IEnumerable<DailyAvailabilityDocument>)null);
 
         var result = await _sut.EditSessionsAsync(site, from, until, sessionMatcher, sessionReplacement);
@@ -226,7 +226,7 @@ public class AvailabilityDocumentStoreTests
             SlotLength = 5
         };
 
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync(new List<DailyAvailabilityDocument>
             {
                 new()
@@ -278,7 +278,7 @@ public class AvailabilityDocumentStoreTests
             SlotLength = 5
         };
 
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync(new List<DailyAvailabilityDocument>
             {
                 new()
@@ -348,7 +348,7 @@ public class AvailabilityDocumentStoreTests
         var until = new DateOnly(2026, 2, 3);
         var site = "TEST123";
 
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync((IEnumerable<DailyAvailabilityDocument>)null);
 
         var result = await _sut.CancelAllSessionsInDateRange(site, from, until);
@@ -365,7 +365,7 @@ public class AvailabilityDocumentStoreTests
         var until = new DateOnly(2026, 2, 3);
         var site = "TEST123";
 
-        _documentStore.Setup(x => x.RunQueryAsync<DailyAvailabilityDocument>(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
+        _documentStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<DailyAvailabilityDocument, bool>>>()))
             .ReturnsAsync(new List<DailyAvailabilityDocument>
             {
                 new()

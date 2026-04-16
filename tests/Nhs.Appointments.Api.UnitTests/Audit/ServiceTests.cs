@@ -1,4 +1,3 @@
-using AutoMapper;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,6 @@ public class ServiceTests
     private readonly Mock<ITypedDocumentCosmosStore<AuditUserRemovedDocument>> _auditUserRemovedDocumentStore = new();
 
     private readonly Mock<CosmosClient> _mockCosmosClient = new();
-    private readonly Mock<IMapper> _mockMapper = new();
     private readonly Mock<IMetricsRecorder> _mockMetrics = new();
     private readonly Mock<IOptions<CosmosDataStoreOptions>> _mockOptions = new();
     private readonly Mock<IOptions<ContainerRetryOptions>> _mockRetryOptions = new();
@@ -141,7 +139,6 @@ public class ServiceTests
             _mockCosmosClient.Object,
             _mockOptions.Object,
             _mockRetryOptions.Object,
-            _mockMapper.Object,
             _mockMetrics.Object,
             _mockLastUpdatedByResolver.Object,
             _funcLogger.Object);
@@ -160,7 +157,6 @@ public class ServiceTests
             _mockCosmosClient.Object,
             _mockOptions.Object,
             _mockRetryOptions.Object,
-            _mockMapper.Object,
             _mockMetrics.Object,
             _mockLastUpdatedByResolver.Object,
             _notificationLogger.Object);
@@ -179,7 +175,6 @@ public class ServiceTests
             _mockCosmosClient.Object,
             _mockOptions.Object,
             _mockRetryOptions.Object,
-            _mockMapper.Object,
             _mockMetrics.Object,
             _mockLastUpdatedByResolver.Object,
             _authLogger.Object);

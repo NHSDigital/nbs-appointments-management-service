@@ -112,7 +112,7 @@ public class CancelDateRangeRequestValidatorTests
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(3);
-        result.Errors.Last().ErrorMessage.Should().Be("Date must be in the future.");
+        result.Errors.Last().ErrorMessage.Should().Be("To date must be in the future.");
     }
 
     [Fact]

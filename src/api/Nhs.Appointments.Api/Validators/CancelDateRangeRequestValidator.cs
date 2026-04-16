@@ -1,13 +1,17 @@
 using FluentValidation;
 using Nhs.Appointments.Api.Models;
 using System;
+using Microsoft.Extensions.Options;
+using Nhs.Appointments.Api.Availability;
 
 namespace Nhs.Appointments.Api.Validators;
 
 public class CancelDateRangeRequestValidator : AbstractValidator<CancelDateRangeRequest>
 {
-    public CancelDateRangeRequestValidator(TimeProvider timeProvider)
+    public CancelDateRangeRequestValidator(TimeProvider timeProvider, IOptions<ChangeAvailabilityOptions> options)
     {
+        var maxDays = options.Value.CancelADateRangeMaximumDays;
+        
         RuleFor(x => x.Site)
             .NotEmpty()
             .WithMessage("Site is required.");
@@ -17,24 +21,23 @@ public class CancelDateRangeRequestValidator : AbstractValidator<CancelDateRange
             .LessThanOrEqualTo(x => x.To)
             .WithMessage("From date must be before To date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
-            .WithMessage("Date must be in the future.");
+            .WithMessage("From date must be in the future.");
         RuleFor(x => x.To)
             .NotEmpty()
             .WithMessage("To date is required.")
             .GreaterThanOrEqualTo(x => x.From)
             .WithMessage("To date must be after From date.")
             .GreaterThan(DateOnly.Parse(timeProvider.GetUtcNow().ToString("yyyy-MM-dd")))
-            .WithMessage("Date must be in the future.")
-            .Must((req, until) => Within90Days(until, req.From))
-            .WithMessage("To date cannot be more than 90 days after from date.");
+            .WithMessage("To date must be in the future.")
+            .Must((req, until) => WithinMaxDays(until, req.From, maxDays))
+            .WithMessage($"To date has to be less than {maxDays} days after the From date.");
         RuleFor(x => x.CancelBookings)
             .NotNull()
             .WithMessage("Provide a value for cancel bookings.");
     }
 
-    // TODO: Move this value to config in APPT-1987
-    private static bool Within90Days(DateOnly until, DateOnly from)
+    private static bool WithinMaxDays(DateOnly until, DateOnly from, int maxDays)
     {
-        return until < from.AddDays(90);
+        return until < from.AddDays(maxDays);
     }
 }

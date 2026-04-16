@@ -13,7 +13,6 @@ public class ProposeCancelDateRangeRequestValidatorTests
     private readonly Mock<IOptions<ChangeAvailabilityOptions>> _availabilityConfig = new();
     private readonly ProposeCancelDateRangeRequestValidator _sut;
     
-
     public ProposeCancelDateRangeRequestValidatorTests()
     {
         _timeProvider
@@ -230,6 +229,44 @@ public class ProposeCancelDateRangeRequestValidatorTests
         var result = _sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
+    }
+    
+    [Theory]
+    [InlineData(91, 90, false)]
+    [InlineData(90, 90, false)]
+    [InlineData(89, 90, true)]
+    [InlineData(88, 90, true)]
+    
+    [InlineData(0, 10, true)]
+    [InlineData(9, 10, true)]
+    [InlineData(10, 10, false)]
+    [InlineData(90, 10, false)]
+    
+    [InlineData(0, 1, true)]
+    [InlineData(1, 1, false)]
+    
+    //if you set the CancelADateRangeMaximumDays config to zero, no values are valid!
+    [InlineData(0, 0, false)]
+    [InlineData(1, 0, false)]
+    public void ExpectedOutcomes_WhenToDate_MoreThanIncrementDays_AfterStartDate_WithMaxConfiguration(int incrementDays, int cancelADateRangeMaximumDays, bool expectedOutcome)
+    {
+        _availabilityConfig.Setup(x => x.Value).Returns(new ChangeAvailabilityOptions
+        {
+            CancelADateRangeMaximumDays = cancelADateRangeMaximumDays
+        });
+
+        var sut = new ProposeCancelDateRangeRequestValidator(_timeProvider.Object, _availabilityConfig.Object);
+
+        var startDate = DateOnly.Parse("2077-04-01");
+        var endDate = startDate.AddDays(incrementDays);
+        
+        var request = new ProposeCancelDateRangeRequest(
+            "test-site-123",
+            startDate,
+            endDate);
+
+        var result = sut.Validate(request);
+        result.IsValid.Should().Be(expectedOutcome);
     }
 
     [Fact]

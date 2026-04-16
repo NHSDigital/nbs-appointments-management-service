@@ -37,6 +37,6 @@ public class ProposeCancelDateRangeRequestValidator : AbstractValidator<ProposeC
 
     private static bool WithinMaxDays(DateOnly until, DateOnly from, int maxDays)
     {
-        return until <= from.AddDays(maxDays - 1);
+        return until < from.AddDays(maxDays);
     }
 }

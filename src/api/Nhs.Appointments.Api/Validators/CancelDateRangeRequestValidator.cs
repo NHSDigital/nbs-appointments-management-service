@@ -35,6 +35,6 @@ public class CancelDateRangeRequestValidator : AbstractValidator<CancelDateRange
     // TODO: Move this value to config in APPT-1987
     private static bool Within90Days(DateOnly until, DateOnly from)
     {
-        return until <= from.AddDays(90);
+        return until < from.AddDays(90);
     }
 }

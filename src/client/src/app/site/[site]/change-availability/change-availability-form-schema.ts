@@ -2,8 +2,9 @@ import {
   occurInOrder,
   parseDateComponentsToUkDatetime,
   ukNow,
-  isAfter,
   addToUkDatetime,
+  isAfterCalendarDateUk,
+  isBeforeCalendarDateUk,
 } from '@services/timeService';
 import * as yup from 'yup';
 import { DateComponents } from '@types';
@@ -78,15 +79,18 @@ export const createChangeAvailabilityFormSchema = (maxDays: number) => {
       );
       const end = parseDateComponentsToUkDatetime(endDate as DateComponents);
 
+      const ukDateTime = ukNow();
+
       if (
         !start ||
         !end ||
-        !isAfter(start, ukNow()) ||
-        !isAfter(end, ukNow())
+        !isAfterCalendarDateUk(start, ukDateTime) ||
+        !isAfterCalendarDateUk(end, ukDateTime)
       ) {
         return true;
       }
 
+      //TODO this seems expensive to check greater than logic??
       if (!occurInOrder([start, end])) {
         return this.createError({
           path: 'endDate',
@@ -94,9 +98,9 @@ export const createChangeAvailabilityFormSchema = (maxDays: number) => {
         });
       }
 
-      const allowedEnd = addToUkDatetime(start, maxDays - 1, 'day');
+      const allowedEnd = addToUkDatetime(start, maxDays, 'day');
 
-      if (isAfter(end, allowedEnd)) {
+      if (!isBeforeCalendarDateUk(end, allowedEnd)) {
         return new yup.ValidationError([
           this.createError({
             path: 'startDate',

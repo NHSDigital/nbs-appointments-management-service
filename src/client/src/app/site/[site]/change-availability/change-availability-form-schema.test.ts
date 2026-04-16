@@ -110,15 +110,68 @@ describe('changeAvailabilityFormSchema', () => {
       }
     });
 
-    it('passes if range is exactly 90 days', async () => {
+    it('passes if range is exactly 89 days', async () => {
       const data = {
-        startDate: { day: '01', month: '03', year: '2026' },
-        endDate: { day: '29', month: '05', year: '2026' },
+        startDate: { day: '15', month: '01', year: '2027' },
+        endDate: { day: '14', month: '04', year: '2027' },
         cancellationDecision: 'keep-bookings',
       };
 
       const result = await schema.validate(data);
       expect(result).toBeDefined();
+    });
+
+    it('passes if range is exactly 89 days - leap year', async () => {
+      const data = {
+        startDate: { day: '16', month: '01', year: '2028' },
+        endDate: { day: '14', month: '04', year: '2028' },
+        cancellationDecision: 'keep-bookings',
+      };
+
+      const result = await schema.validate(data);
+      expect(result).toBeDefined();
+    });
+
+    it('fails if range is exactly 90 days (1 day over limit)', async () => {
+      const data = {
+        startDate: { day: '14', month: '01', year: '2027' },
+        endDate: { day: '14', month: '04', year: '2027' },
+        cancellationDecision: 'keep-bookings',
+      };
+
+      try {
+        await schema.validate(data, { abortEarly: false });
+        throw new Error('Schema should have thrown');
+      } catch (err) {
+        const validationError = err as ValidationError;
+        expect(validationError.errors).toContain(
+          'Start date must be within 90 days of the end date',
+        );
+        expect(validationError.errors).toContain(
+          'End date must be within 90 days of the start date',
+        );
+      }
+    });
+
+    it('fails if range is exactly 90 days (1 day over limit) - leap year', async () => {
+      const data = {
+        startDate: { day: '15', month: '01', year: '2028' },
+        endDate: { day: '14', month: '04', year: '2028' },
+        cancellationDecision: 'keep-bookings',
+      };
+
+      try {
+        await schema.validate(data, { abortEarly: false });
+        throw new Error('Schema should have thrown');
+      } catch (err) {
+        const validationError = err as ValidationError;
+        expect(validationError.errors).toContain(
+          'Start date must be within 90 days of the end date',
+        );
+        expect(validationError.errors).toContain(
+          'End date must be within 90 days of the start date',
+        );
+      }
     });
 
     it('respects a custom maxDays configuration', async () => {

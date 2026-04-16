@@ -18,7 +18,7 @@ public class ProposeCancelDateRangeRequestValidatorTests
     {
         _timeProvider
             .Setup(x => x.GetUtcNow())
-            .Returns(new DateTimeOffset(DateTime.Parse("2076-12-31T00:00:00Z")));
+            .Returns(new DateTimeOffset(DateTime.Parse("2075-12-31T00:00:00Z")));
         _availabilityConfig.Setup(x => x.Value).Returns(new ChangeAvailabilityOptions
         {
             CancelADateRangeMaximumDays = 90
@@ -70,8 +70,8 @@ public class ProposeCancelDateRangeRequestValidatorTests
         var request = new ProposeCancelDateRangeRequest
         (
             "SiteA",
-            DateOnly.Parse("2076-12-30"),
-            DateOnly.Parse("2077-01-02")
+            DateOnly.Parse("2075-12-30"),
+            DateOnly.Parse("2076-01-02")
         );
 
         var result = _sut.Validate(request);
@@ -88,6 +88,84 @@ public class ProposeCancelDateRangeRequestValidatorTests
             DateOnly.Parse("2077-01-03"),
             DateOnly.Parse("2077-01-02")
         );
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate89DaysAfterFromDate_DSTCrossed_1()
+    {
+        var request = new ProposeCancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-01-15"),
+            DateOnly.Parse("2077-04-14"));
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate90DaysAfterFromDate_DSTCrossed_1()
+    {
+        var request = new ProposeCancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-01-14"),
+            DateOnly.Parse("2077-04-14"));
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate89DaysAfterFromDate_DSTCrossed_2()
+    {
+        var request = new ProposeCancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-09-01"),
+            DateOnly.Parse("2077-11-29"));
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate90DaysAfterFromDate_DSTCrossed_2()
+    {
+        var request = new ProposeCancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-09-01"),
+            DateOnly.Parse("2077-11-30"));
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate89DaysAfterFromDate_DSTCrossed_LeapYear_1()
+    {
+        var request = new ProposeCancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2076-01-16"),
+            DateOnly.Parse("2076-04-14"));
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate90DaysAfterFromDate_DSTCrossed_LeapYear_2()
+    {
+        var request = new ProposeCancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2076-01-15"),
+            DateOnly.Parse("2076-04-14"));
 
         var result = _sut.Validate(request);
 

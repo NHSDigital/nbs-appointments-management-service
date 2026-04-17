@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Azure.Storage.Blobs;
 using FluentAssertions;
 using Gherkin.Ast;
@@ -63,7 +62,6 @@ public abstract partial class BaseFeatureSteps : Feature
     
     protected readonly BlobServiceClient BlobServiceClient;
 
-    protected readonly Mapper Mapper;
     protected HttpStatusCode _statusCode;
     
     /// <summary>
@@ -108,12 +106,6 @@ public abstract partial class BaseFeatureSteps : Feature
             clientOptions: options);
         
         BlobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING") ?? "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;TableEndpoint=http://host.docker.internal:10002/devstoreaccount1;");
-
-        var mapperConfiguration = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<CosmosAutoMapperProfile>();
-        });
-        Mapper = new Mapper(mapperConfiguration);
     }
 
     /// <summary>

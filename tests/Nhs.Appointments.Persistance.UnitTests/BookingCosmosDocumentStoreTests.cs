@@ -69,11 +69,11 @@ public class BookingCosmosDocumentStoreTests
         };
 
         _indexStore.Setup(x =>
-                x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+                x.RunQueryAsync(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
             .ReturnsAsync(bookingIndexDocuments);
 
         await _sut.GetByNhsNumberAsync("9999999999");
-        _bookingStore.Verify(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()),
+        _bookingStore.Verify(x => x.RunQueryAsync(It.IsAny<Expression<Func<BookingDocument, bool>>>()),
             Times.Once);
     }
 
@@ -103,11 +103,11 @@ public class BookingCosmosDocumentStoreTests
         };
 
         _indexStore.Setup(x =>
-                x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+                x.RunQueryAsync(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
             .ReturnsAsync(bookingIndexDocuments);
 
         await _sut.GetByNhsNumberAsync("9999999999");
-        _bookingStore.Verify(x => x.GetDocument<Booking>(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+        _bookingStore.Verify(x => x.GetDocument(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -172,13 +172,13 @@ public class BookingCosmosDocumentStoreTests
         };
 
         _indexStore.Setup(x =>
-                x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+                x.RunQueryAsync(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
             .ReturnsAsync(bookingIndexDocuments);
 
         await _sut.GetByNhsNumberAsync("9999999999");
-        _bookingStore.Verify(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()),
+        _bookingStore.Verify(x => x.RunQueryAsync(It.IsAny<Expression<Func<BookingDocument, bool>>>()),
             Times.Once);
-        _bookingStore.Verify(x => x.GetDocument<Booking>(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+        _bookingStore.Verify(x => x.GetDocument(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
     }
 
 
@@ -199,9 +199,9 @@ public class BookingCosmosDocumentStoreTests
         };
 
         _indexStore.Setup(x =>
-                x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+                x.RunQueryAsync(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
             .ReturnsAsync(bookingIndexDocuments);
-        _bookingStore.Setup(x => x.GetDocument<Booking>(It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception());
+        _bookingStore.Setup(x => x.GetDocument(It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception());
         var bookingReference = bookingIndexDocuments[0].Reference;
 
         await _sut.GetByNhsNumberAsync("9999999999");
@@ -227,7 +227,7 @@ public class BookingCosmosDocumentStoreTests
         var bookingIndexDocument = new BookingIndexDocument();
         List<PatchOperation> capturedPatchOperations = null;
         
-        _indexStore.Setup(x => x.GetDocument<BookingIndexDocument>(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
+        _indexStore.Setup(x => x.GetDocument(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
         _bookingStore
             .Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches) =>
@@ -254,7 +254,7 @@ public class BookingCosmosDocumentStoreTests
         var bookingIndexDocument = new BookingIndexDocument();
         List<PatchOperation> capturedPatchOperations = null;
 
-        _indexStore.Setup(x => x.GetDocument<BookingIndexDocument>(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
+        _indexStore.Setup(x => x.GetDocument(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
         _bookingStore
             .Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches) =>
@@ -290,7 +290,7 @@ public class BookingCosmosDocumentStoreTests
         };
         List<PatchOperation> capturedPatchOperations = null;
 
-        _indexStore.Setup(x => x.GetByIdOrDefaultAsync<BookingIndexDocument>(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
+        _indexStore.Setup(x => x.GetByIdOrDefaultAsync(It.IsAny<string>())).ReturnsAsync(bookingIndexDocument);
         _bookingStore
             .Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches) => capturedPatchOperations = [.. patches])
@@ -306,7 +306,7 @@ public class BookingCosmosDocumentStoreTests
     [Fact]
     public async Task CancelAllBookingsInDay_UpdatesBookingStatuses_OfNonCancelledBookings_AndReturnsCorrectCount()
     {
-        var bookings = new List<Booking>
+        var bookings = new List<BookingDocument>
         {
             new()
             {
@@ -415,9 +415,9 @@ public class BookingCosmosDocumentStoreTests
             }
         };
 
-        _bookingStore.Setup(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+        _bookingStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
             .ReturnsAsync(bookings);
-        _indexStore.SetupSequence(x => x.GetDocument<BookingIndexDocument>(It.IsAny<string>()))
+        _indexStore.SetupSequence(x => x.GetDocument(It.IsAny<string>()))
             .ReturnsAsync(bookingIndexDocuments[0])
             .ReturnsAsync(bookingIndexDocuments[1])
             .ReturnsAsync(bookingIndexDocuments[2])
@@ -435,8 +435,8 @@ public class BookingCosmosDocumentStoreTests
     [Fact]
     public async Task CancelAllBookingsInDay_DoesNotUpdateBookingStatuses_WithNoBookings()
     {
-        _bookingStore.Setup(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
-            .ReturnsAsync(new List<Booking>());
+        _bookingStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+            .ReturnsAsync(new List<BookingDocument>());
 
         var (cancelledBookingsCount, bookingsWithoutContactDetailsCount, bookingsWithContactDetails) = await _sut.CancelAllBookingsInDay("TEST_SITE_123", new DateOnly(2025, 1, 1));
 
@@ -502,7 +502,7 @@ public class BookingCosmosDocumentStoreTests
                 StatusUpdated = statusUpdated
             }
         };
-        var bookings = new List<Booking>
+        var bookings = new List<BookingDocument>
         {
             new()
             {
@@ -572,9 +572,9 @@ public class BookingCosmosDocumentStoreTests
             }
         };
 
-        _indexStore.Setup(x => x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+        _indexStore.Setup(x => x.RunQueryAsync(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
             .ReturnsAsync(bookingIndexDocuments);
-        _bookingStore.SetupSequence(x => x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+        _bookingStore.SetupSequence(x => x.RunQueryAsync(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
             .ReturnsAsync(bookings.Take(2))
             .ReturnsAsync(bookings.Skip(2).Take(2));
 
@@ -596,7 +596,7 @@ public class BookingCosmosDocumentStoreTests
     public async Task GetCrossSiteAsync_ShouldFilterOnStatus()
     {
         _indexStore.Setup(x =>
-                x.RunQueryAsync<BookingIndexDocument>(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
+                x.RunQueryAsync(It.IsAny<Expression<Func<BookingIndexDocument, bool>>>()))
             .ReturnsAsync(new List<BookingIndexDocument>()
             {
                 new ()
@@ -616,8 +616,8 @@ public class BookingCosmosDocumentStoreTests
                 },
             });
         _bookingStore.Setup(x =>
-                x.RunQueryAsync<Booking>(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
-            .ReturnsAsync(new List<Booking>()
+                x.RunQueryAsync(It.IsAny<Expression<Func<BookingDocument, bool>>>()))
+            .ReturnsAsync(new List<BookingDocument>()
             {
                 new()
                 {
@@ -638,12 +638,12 @@ public class BookingCosmosDocumentStoreTests
 
         var expected = new List<Booking>()
         {
-            new() { Reference = "test-1", Status = AppointmentStatus.Booked, },
-            new() { Reference = "test-3", Status = AppointmentStatus.Booked, },
+            new() { Reference = "test-1", Status = AppointmentStatus.Booked, AvailabilityStatus = AvailabilityStatus.Unknown },
+            new() { Reference = "test-3", Status = AppointmentStatus.Booked, AvailabilityStatus = AvailabilityStatus.Unknown },
         };
         var result = await _sut.GetCrossSiteAsync(DateTime.MinValue, DateTime.MaxValue, AppointmentStatus.Booked);
         
-        Assert.Equivalent(expected, result, true);
+        result.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
@@ -652,7 +652,7 @@ public class BookingCosmosDocumentStoreTests
         var timeNow = new DateTimeOffset(2025, 1, 1, 12, 0, 0, TimeSpan.Zero);
         _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
 
-        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+        _indexStore.Setup(x => x.RunSqlQueryAsync(It.IsAny<QueryDefinition>()))
             .ReturnsAsync(Array.Empty<BookingIndexDocument>());
 
         var result = await _sut.RemoveUnconfirmedProvisionalBookings();
@@ -667,7 +667,7 @@ public class BookingCosmosDocumentStoreTests
         _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
 
         var doc = new BookingIndexDocument { Reference = "id1", Site = "site1", Status = AppointmentStatus.Provisional };
-        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+        _indexStore.Setup(x => x.RunSqlQueryAsync(It.IsAny<QueryDefinition>()))
             .ReturnsAsync(new[] { doc });
 
         _indexStore.Setup(x => x.DeleteDocument("id1", "booking_index")).Returns(Task.CompletedTask);
@@ -685,7 +685,7 @@ public class BookingCosmosDocumentStoreTests
         _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
 
         var doc = new BookingIndexDocument { Reference = "id2", Site = "site2", Status = AppointmentStatus.Provisional };
-        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+        _indexStore.Setup(x => x.RunSqlQueryAsync(It.IsAny<QueryDefinition>()))
             .ReturnsAsync(new[] { doc });
 
         _indexStore.Setup(x => x.DeleteDocument("id2", "booking_index"))
@@ -705,7 +705,7 @@ public class BookingCosmosDocumentStoreTests
         _timeProvider.Setup(tp => tp.GetUtcNow()).Returns(timeNow);
 
         var doc = new BookingIndexDocument { Reference = "id3", Site = "site3", Status = AppointmentStatus.Provisional };
-        _indexStore.Setup(x => x.RunSqlQueryAsync<BookingIndexDocument>(It.IsAny<QueryDefinition>()))
+        _indexStore.Setup(x => x.RunSqlQueryAsync(It.IsAny<QueryDefinition>()))
             .ReturnsAsync(new[] { doc });
 
         _indexStore.Setup(x => x.DeleteDocument("id3", "booking_index"))

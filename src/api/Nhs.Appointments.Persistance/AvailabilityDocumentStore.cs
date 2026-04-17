@@ -12,7 +12,7 @@ public class AvailabilityDocumentStore(
     {
         var results = new List<SessionInstance>();
         var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
+        var documents = await documentStore.RunQueryAsync(b =>
             b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
 
         foreach (var day in documents)
@@ -65,8 +65,9 @@ public class AvailabilityDocumentStore(
     public async Task<IEnumerable<DailyAvailability>> GetDailyAvailability(string site, DateOnly from, DateOnly to)
     {
         var docType = documentStore.GetDocumentType();
-        return await documentStore.RunQueryAsync<DailyAvailability>(b =>
+        var availabilityDocuments = await documentStore.RunQueryAsync(b =>
             b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+        return availabilityDocuments.Select(MapToDailyAvailability) ?? [];
     }
 
     public async Task<SessionInstance> CancelSession(string site, DateOnly date, Session session)
@@ -89,9 +90,7 @@ public class AvailabilityDocumentStore(
         return new SessionInstance(dayDocument.Date.ToDateTime(session.From),
             dayDocument.Date.ToDateTime(session.Until))
         {
-            Services = session.Services,
-            SlotLength = session.SlotLength,
-            Capacity = session.Capacity,
+            Services = session.Services, SlotLength = session.SlotLength, Capacity = session.Capacity,
         };
     }
 
@@ -118,7 +117,6 @@ public class AvailabilityDocumentStore(
             .WithParameter("@requestedServiceCount", services.Count);
 
         var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(queryDef)).Single();
-
         return dailyAvailabilityCount > 0;
     }
 
@@ -134,7 +132,7 @@ public class AvailabilityDocumentStore(
     public async Task<OperationResult> EditSessionsAsync(string site, DateOnly from, DateOnly until, Session sessionMatcher, Session sessionReplacement)
     {
         var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
+        var documents = await documentStore.RunQueryAsync(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
         if (documents == null || !documents.Any())
         {
@@ -152,7 +150,7 @@ public class AvailabilityDocumentStore(
     public async Task<OperationResult> CancelMultipleSessions(string site, DateOnly from, DateOnly until, Session sessionMatcher = null)
     {
         var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
+        var documents = await documentStore.RunQueryAsync(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
         if (documents == null || !documents.Any())
         {
@@ -175,7 +173,7 @@ public class AvailabilityDocumentStore(
     public async Task<int> CancelAllSessionsInDateRange(string site, DateOnly from, DateOnly until)
     {
         var docType = documentStore.GetDocumentType();
-        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
+        var documents = await documentStore.RunQueryAsync(b => b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= until);
 
         if (documents is null || !documents.Any())
         {
@@ -231,7 +229,7 @@ public class AvailabilityDocumentStore(
 
     private async Task<DailyAvailabilityDocument> GetOrDefaultAsync(string documentId, string partitionKey)
     {
-        return await documentStore.GetByIdOrDefaultAsync<DailyAvailabilityDocument>(documentId, partitionKey);
+        return await documentStore.GetByIdOrDefaultAsync(documentId, partitionKey);
     }
 
     private static Session FindMatchingSession(List<Session> sessions, Session sessionToMatch)
@@ -271,5 +269,21 @@ public class AvailabilityDocumentStore(
             && session.SlotLength == sessionToMatch.SlotLength
             && session.Capacity == sessionToMatch.Capacity
             && session.Services.SequenceEqual(sessionToMatch.Services);
+    }
+
+    private static DailyAvailability MapToDailyAvailability(DailyAvailabilityDocument document)
+    {
+        return document is null ? null : new DailyAvailability
+        {
+            Date = document.Date,
+            Sessions = [.. document.Sessions.Select(s => new Session
+            {
+                From = s.From,
+                Until = s.Until,
+                Services = s.Services,
+                SlotLength = s.SlotLength,
+                Capacity = s.Capacity
+            })]
+        };
     }
 }

@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Persistance.Models;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
@@ -16,7 +15,7 @@ public class EmailWhitelistStoreTests
     [Fact]
     public async Task ReturnsWhitelist_AndNhsNet()
     {
-        _cosmosStore.Setup(x => x.GetDocument<WhitelistedEmailDomainsDocument>(It.IsAny<string>()))
+        _cosmosStore.Setup(x => x.GetDocument(It.IsAny<string>()))
             .ReturnsAsync(new WhitelistedEmailDomainsDocument
             {
                 Domains = ["@nhs.net", "@test-domain.com", "@another-test-domain.co.uk"]
@@ -27,6 +26,6 @@ public class EmailWhitelistStoreTests
         whitelistedEmails.Count().Should().Be(3);
         whitelistedEmails.Should().Contain("@nhs.net");
 
-        _cosmosStore.Verify(x => x.GetDocument<WhitelistedEmailDomainsDocument>("whitelisted_email_domains"), Times.Once());
+        _cosmosStore.Verify(x => x.GetDocument("whitelisted_email_domains"), Times.Once());
     }
 }

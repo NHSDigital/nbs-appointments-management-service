@@ -23,16 +23,32 @@ public class DailySiteSummaryStore(ITypedDocumentCosmosStore<DailySiteSummaryDoc
 
     public async Task<IEnumerable<DailySiteSummary>> GetSiteSummaries(string site, DateOnly from, DateOnly to)
     {
-        return await store.RunQueryAsync<DailySiteSummary>(x => x.Id == site && x.Date >= from && x.Date <= to);
+        var summaries = await store.RunQueryAsync(x => x.Id == site && x.Date >= from && x.Date <= to);
+        return summaries.Select(MapToDailySiteSummary);
     }
     
     public async Task IfExistsDelete(string site, DateOnly date)
     {
-        var document = await store.GetByIdOrDefaultAsync<DailySiteSummaryDocument>(site, date.ToString("yyyy-MM-dd"));
+        var document = await store.GetByIdOrDefaultAsync(site, date.ToString("yyyy-MM-dd"));
 
         if (document is not null)
         {
             await store.DeleteDocument(site, date.ToString("yyyy-MM-dd"));
         }
+    }
+
+    private static DailySiteSummary MapToDailySiteSummary(DailySiteSummaryDocument document)
+    {
+        return document is null ? null : new DailySiteSummary()
+        {
+            Site = document.Id,
+            Date = document.Date,
+            Bookings = document.Bookings,
+            Orphaned = document.Orphaned,
+            Cancelled = document.Cancelled,
+            RemainingCapacity = document.RemainingCapacity,
+            MaximumCapacity = document.MaximumCapacity,
+            GeneratedAtUtc = document.GeneratedAtUtc
+        };
     }
 }

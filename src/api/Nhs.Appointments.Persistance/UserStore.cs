@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.Azure.Cosmos;
 using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Users;
@@ -8,7 +7,7 @@ using User = Nhs.Appointments.Core.Users.User;
 
 namespace Nhs.Appointments.Persistance;
 
-public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMapper mapper) : IUserStore
+public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore) : IUserStore
 {
     private const string IcbUserRole = "system:icb-user";
     private const string RegionalUserRole = "system:regional-user";
@@ -16,19 +15,20 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
     public async Task<string> GetApiUserSigningKey(string clientId)
     {
         var documentId = $"api@{clientId}";
-        var userDocument = await cosmosStore.GetByIdAsync<UserDocument>(documentId);
+        var userDocument = await cosmosStore.GetByIdAsync(documentId);
         return userDocument.ApiSigningKey;
     }
 
     public async Task<User> GetUserAsync(string userId)
     {
-        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower());
+        var userDocument = await cosmosStore.GetByIdOrDefaultAsync(userId.ToLower());
+        return userDocument is null ? null : MapToUser(userDocument);
     }
 
     public async Task<IEnumerable<RoleAssignment>> GetUserRoleAssignments(string userId)
     {
-        var userDocument = await cosmosStore.GetByIdOrDefaultAsync<UserDocument>(userId.ToLower());
-        return userDocument is not null ? userDocument.RoleAssignments.Select(mapper.Map<RoleAssignment>) : Array.Empty<RoleAssignment>();
+        var userDocument = await cosmosStore.GetByIdOrDefaultAsync(userId.ToLower());
+        return userDocument is not null ? userDocument.RoleAssignments.Select(MapToRoleAssignment) : Array.Empty<RoleAssignment>();
     }
 
     /// <summary>
@@ -126,18 +126,20 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
 
     public async Task<IEnumerable<User>> GetUsersAsync(string site)
     {
-        return await cosmosStore.RunQueryAsync<User>(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{site}"));
+        var userDocuments = await cosmosStore.RunQueryAsync(usr => usr.DocumentType == "user" && usr.RoleAssignments.Any(ra => ra.Scope == $"site:{site}"));
+        return userDocuments?.Select(MapToUser) ?? [];
     }
-
+    
     private async Task InsertAsync(User user)
     {
-        var document = cosmosStore.ConvertToDocument(user);
+        var document = MapToUserDocument(user);
         await cosmosStore.WriteAsync(document);
     }
 
     public async Task<User> GetOrDefaultAsync(string userId)
     {
-        return await cosmosStore.GetByIdOrDefaultAsync<User>(userId.ToLower());
+        var userDocument = await cosmosStore.GetByIdOrDefaultAsync(userId.ToLower());
+        return userDocument is null ? null : MapToUser(userDocument);
     }
 
     public async Task SaveAdminUserAsync(User adminUser)
@@ -219,10 +221,62 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore, IMap
                         WHERE CONTAINS(a['scope'], @scope)
                     )";
 
-        var queryDefinition = new QueryDefinition(query)
-            .WithParameter("@docType", docType)
-            .WithParameter("@scope", scope);
+            var queryDefinition = new QueryDefinition(query)
+                .WithParameter("@docType", docType)
+                .WithParameter("@scope", scope);
 
-        return await cosmosStore.RunSqlQueryAsync<User>(queryDefinition);
+            var userDocuments = await cosmosStore.RunSqlQueryAsync(queryDefinition);
+            return userDocuments?.Select(MapToUser) ?? [];
+    }
+
+    private UserDocument MapToUserDocument(User user)
+    {
+        var userDocument = new UserDocument
+        {
+            Id = user.Id.ToLower(),
+            RoleAssignments = [.. user.RoleAssignments.Select(ra => new Models.RoleAssignment
+            {
+                Role = ra.Role,
+                Scope = ra.Scope
+            })],
+            DocumentType = cosmosStore.GetDocumentType()
+        };
+
+        if (user.LatestAcceptedEulaVersion.HasValue)
+        {
+            userDocument.LatestAcceptedEulaVersion = user.LatestAcceptedEulaVersion.Value;
+        }
+        
+        return userDocument;
+    }
+
+    private static User MapToUser(UserDocument userDocument)
+    {
+        var user = new User { Id = userDocument?.Id };
+
+        if (userDocument.RoleAssignments?.Length > 0)
+        {
+            user.RoleAssignments = [.. userDocument.RoleAssignments.Select(ra => new RoleAssignment
+            {
+                Role = ra?.Role,
+                Scope = ra?.Scope
+            })];
+        }
+
+        if (userDocument?.LatestAcceptedEulaVersion != default)
+        {
+            user.LatestAcceptedEulaVersion = userDocument.LatestAcceptedEulaVersion;
+        }
+
+        return user;
+    }
+
+    private static RoleAssignment MapToRoleAssignment(Models.RoleAssignment roleAssignment)
+    {
+        return new RoleAssignment
+        {
+            Role = roleAssignment.Role,
+            Scope = roleAssignment.Scope
+        };
     }
 }

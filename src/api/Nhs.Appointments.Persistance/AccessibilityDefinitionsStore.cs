@@ -8,7 +8,7 @@ public class AccessibilityDefinitionsStore(ITypedDocumentCosmosStore<Accessibili
     private const string AccessibilitySetsDocumentId = "accessibilities";
     public async Task<IEnumerable<AccessibilityDefinition>> GetAccessibilityDefinitionsDocument()
     {
-        var document = await cosmosStore.GetDocument<AccessibilityDefinitionsDocument>(AccessibilitySetsDocumentId);
+        var document = await cosmosStore.GetDocument(AccessibilitySetsDocumentId);
         return document.AccessibilityDefinitions;
     }
 }

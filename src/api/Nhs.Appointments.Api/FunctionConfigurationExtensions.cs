@@ -117,7 +117,6 @@ public static class FunctionConfigurationExtensions
             .AddTransient<IClinicalServiceProvider, ClinicalServiceProvider>()
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
             .AddUserNotifications(configuration)
-            .AddAutoMapper(typeof(CosmosAutoMapperProfile))
             .AddTransient<IAdminUserDataImportHandler, AdminUserDataImportHandler>()
             .AddTransient<ISiteStatusDataImportHandler, SiteStatusDataImportHandler>()
             .AddTransient<IAvailableSlotsFilter, AvailableSlotsFilter>()

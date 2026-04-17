@@ -7,6 +7,10 @@ public class EulaStore(ITypedDocumentCosmosStore<EulaDocument> documentStore) : 
 {
     public async Task<EulaVersion> GetLatestVersion()
     {
-        return await documentStore.GetDocument<EulaVersion>("eula");
+        var eulaDocument = await documentStore.GetDocument("eula");
+        return new EulaVersion
+        {
+            VersionDate = eulaDocument.VersionDate
+        };
     }
 }

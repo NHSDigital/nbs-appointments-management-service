@@ -18,8 +18,8 @@ public class SiteStoreTests
     [Fact]
     public async Task UpdateSiteStatusAsync_ReturnsUnsuccessful_WhenSiteDoesNotExist()
     {
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(null as Site);
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(null as SiteDocument);
 
         var result = await _sut.UpdateSiteStatusAsync("some-site-id", SiteStatus.Online);
 
@@ -33,20 +33,23 @@ public class SiteStoreTests
     {
         List<PatchOperation> patchOperations = [];
 
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                null, null,
-                string.Empty));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            { 
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                IsDeleted = null,
+                Status = null,
+                Type = string.Empty
+            });
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])
@@ -68,20 +71,23 @@ public class SiteStoreTests
     {
         List<PatchOperation> patchOperations = [];
 
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online, null,
-                string.Empty));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            {
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                IsDeleted = null,
+                Status = SiteStatus.Online,
+                Type = string.Empty
+            });
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])
@@ -103,20 +109,23 @@ public class SiteStoreTests
     {
         List<PatchOperation> patchOperations = [];
 
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online, false,
-                string.Empty));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            {
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                Status = SiteStatus.Online,
+                IsDeleted = false,
+                Type = string.Empty
+            });
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])
@@ -138,20 +147,23 @@ public class SiteStoreTests
     {
         List<PatchOperation> patchOperations = [];
 
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online, null,
-                string.Empty));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            {
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                Status = SiteStatus.Online,
+                IsDeleted = null,
+                Type = string.Empty
+            });
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])
@@ -171,8 +183,8 @@ public class SiteStoreTests
     [Fact]
     public async Task ToggleSiteSoftDeletionAsync_FailsToFindSite()
     {
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(null as Site);
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(null as SiteDocument);
 
         var result = await _sut.ToggleSiteSoftDeletionAsync("some-site-id");
 
@@ -184,8 +196,8 @@ public class SiteStoreTests
     [Fact]
     public async Task UpdateSiteDetails_FailsToFindSite()
     {
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(null as Site);
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(null as SiteDocument);
 
         var result = await _sut.UpdateSiteDetails("some-site-id", "Site Name", "1 Site Lane", "N", (decimal)-0.751, (decimal)50.369);
 
@@ -197,21 +209,23 @@ public class SiteStoreTests
     [Fact]
     public async Task UpdateSiteDetails_FailsToFindSite_WhenItHasBeenSoftDeleted()
     {
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online,
-                true,
-                string.Empty));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            {
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                Status = SiteStatus.Online,
+                IsDeleted = true,
+                Type = string.Empty
+            });
 
         var result = await _sut.UpdateSiteDetails("some-site-id", "Site Name", "1 Site Lane", "N", (decimal)-0.751, (decimal)50.369);
 
@@ -225,20 +239,23 @@ public class SiteStoreTests
     {
         List<PatchOperation> patchOperations = [];
 
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online, null,
-                string.Empty));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            {
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                Status = SiteStatus.Online,
+                IsDeleted = null,
+                Type = string.Empty
+            });
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])
@@ -259,20 +276,22 @@ public class SiteStoreTests
     {
         List<PatchOperation> patchOperations = [];
 
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online, null,
-                null));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            {
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                Status = SiteStatus.Online,
+                IsDeleted = null
+            });
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])
@@ -294,20 +313,23 @@ public class SiteStoreTests
     {
         List<PatchOperation> patchOperations = [];
 
-        _siteStore.Setup(x => x.GetDocument<Site>(It.IsAny<string>()))
-            .ReturnsAsync(new Site(
-                "some-site-id",
-                "Test Site",
-                "Test Address",
-                "01234567890",
-                "ODS1",
-                "R1",
-                "ICB1",
-                "Information",
-                [],
-                new Location("Coordinates", [-1.75, 52.76]),
-                SiteStatus.Online, null,
-                "GP Practice"));
+        _siteStore.Setup(x => x.GetDocument(It.IsAny<string>()))
+            .ReturnsAsync(new SiteDocument
+            {
+                Id = "some-site-id",
+                Name = "Test Site",
+                Address = "Test Address",
+                PhoneNumber = "01234567890",
+                OdsCode = "ODS1",
+                Region = "R1",
+                IntegratedCareBoard = "ICB1",
+                InformationForCitizens = "Information",
+                Accessibilities = [],
+                Location = new Location("Coordinates", [-1.75, 52.76]),
+                Status = SiteStatus.Online,
+                IsDeleted = null,
+                Type = "GP Practice"
+            });
         _siteStore.Setup(x => x.PatchDocument(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PatchOperation[]>()))
             .Callback<string, string, PatchOperation[]>((site, reference, patches)
                 => patchOperations = [.. patches])

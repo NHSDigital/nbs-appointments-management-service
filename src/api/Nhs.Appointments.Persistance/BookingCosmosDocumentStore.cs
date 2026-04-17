@@ -18,7 +18,8 @@ public class BookingCosmosDocumentStore(
 
     public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
-        return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
+        var bookings = await bookingStore.RunQueryAsync(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
+        return bookings?.Select(MapToBooking) ?? [];
     }
 
     public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
@@ -29,11 +30,13 @@ public class BookingCosmosDocumentStore(
         // Unfortunately, CosmosDB throws a Method Unsupported error the second you throw anything precompiled at it.
         // This will ONLY work if you write the predicate inline, at which point you lose testability and abstraction.
 
-        var rawResults = await bookingStore.RunQueryAsync<Booking>(b =>
+        var rawResults = await bookingStore.RunQueryAsync(b =>
             b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
             b.From <= queryFilter.StartsAtOrBefore);
 
-        return rawResults.Where(queryFilter.Matches);
+            var mappedResults = rawResults?.Select(MapToBooking) ?? [];
+
+            return mappedResults.Where(queryFilter.Matches);
     }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
@@ -41,7 +44,7 @@ public class BookingCosmosDocumentStore(
         if (statuses.Length == 0)
             throw new ArgumentException("You must specify one or more statuses");
 
-        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.DocumentType == "booking_index" && i.From >= from && i.From <= to);
+        var bookingIndexDocuments = await indexStore.RunQueryAsync(i => i.DocumentType == "booking_index" && i.From >= from && i.From <= to);
         var siteGroupedBookings = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
@@ -60,9 +63,9 @@ public class BookingCosmosDocumentStore(
     {
         try
         {
-            var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+            var bookingIndexDocument = await indexStore.GetDocument(bookingReference);
             var siteId = bookingIndexDocument.Site;
-            return await bookingStore.GetDocument<Booking>(bookingReference, siteId);
+            return MapToBooking(await bookingStore.GetDocument(bookingReference, siteId));
         }
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
@@ -72,7 +75,7 @@ public class BookingCosmosDocumentStore(
 
     public async Task<IEnumerable<Booking>> GetByNhsNumberAsync(string nhsNumber)
     {
-        var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.DocumentType == "booking_index" && bi.NhsNumber == nhsNumber)).ToList();
+        var bookingIndexDocuments = (await indexStore.RunQueryAsync(bi => bi.DocumentType == "booking_index" && bi.NhsNumber == nhsNumber)).ToList();
         var results = new List<Booking>();
 
         var grouped = bookingIndexDocuments.Where(bi => bi.Status == AppointmentStatus.Booked).GroupBy(bi => bi.Site);
@@ -80,8 +83,8 @@ public class BookingCosmosDocumentStore(
         {
             if (siteBookings.Count() > PointReadLimit)
             {
-                var result = await bookingStore.RunQueryAsync<Booking>(b => b.Site == siteBookings.Key && b.AttendeeDetails.NhsNumber == nhsNumber);
-                results.AddRange(result);
+                var bookingDocuments = await bookingStore.RunQueryAsync(b => b.Site == siteBookings.Key && b.AttendeeDetails.NhsNumber == nhsNumber);
+                results.AddRange(bookingDocuments.Select(MapToBooking) ?? []);
             }
             else
             {
@@ -92,14 +95,13 @@ public class BookingCosmosDocumentStore(
 
                     try
                     {
-                        var result = await bookingStore.GetDocument<Booking>(bookingReference, siteId);
+                        var result = await bookingStore.GetDocument(bookingReference, siteId);
                         if (result != null)
                         {
-                            results.Add(result);
+                            results.Add(MapToBooking(result));
                         }
                     }
-                    catch (Exception ex)
-                    {
+                    catch (Exception ex) {
                         logger.LogError(ex, "Did not find booking: {BookingReference} in booking container", bookingReference);
                     }
                 }
@@ -112,8 +114,8 @@ public class BookingCosmosDocumentStore(
         AvailabilityStatus availabilityStatus, CancellationReason? cancellationReason = null,
         object additionalData = null)
     {
-        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
-        if (bookingIndexDocument == null)
+        var bookingIndexDocument = await indexStore.GetDocument(bookingReference);
+        if(bookingIndexDocument == null)
         {
             return false;
         }
@@ -124,7 +126,7 @@ public class BookingCosmosDocumentStore(
 
     public async Task<bool> UpdateAvailabilityStatus(string bookingReference, AvailabilityStatus status)
     {
-        var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
+        var bookingIndexDocument = await indexStore.GetDocument(bookingReference);
         if (bookingIndexDocument == null)
         {
             return false;
@@ -181,7 +183,7 @@ public class BookingCosmosDocumentStore(
     {
         if (string.IsNullOrEmpty(bookingReference) == false)
         {
-            var rescheduleDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
+            var rescheduleDocument = await indexStore.GetByIdOrDefaultAsync(bookingReference);
             if (rescheduleDocument == null)
             {
                 return (BookingConfirmationResult.RescheduleNotFound, null);
@@ -203,9 +205,9 @@ public class BookingCosmosDocumentStore(
         var bookingBatchSize = bookingReferences.Length;
         var bookingDocuments = new List<BookingIndexDocument>();
 
-        foreach (var reference in bookingReferences)
+        foreach (var reference in bookingReferences) 
         {
-            var childIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(reference);
+            var childIndexDocument = await indexStore.GetByIdOrDefaultAsync(reference);
             var childProvisionalValidationResult = ValidateBookingDocumentProvisionalState(childIndexDocument);
 
             if (childProvisionalValidationResult != BookingConfirmationResult.Success)
@@ -216,7 +218,7 @@ public class BookingCosmosDocumentStore(
             bookingDocuments.Add(childIndexDocument);
         }
 
-        foreach (var document in bookingDocuments)
+        foreach (var document in bookingDocuments) 
         {
             await PatchProvisionalToConfirmed(document, contactDetails, bookingBatchSize);
         }
@@ -230,7 +232,7 @@ public class BookingCosmosDocumentStore(
         string bookingToReschedule,
         CancellationReason? cancellationReason = null)
     {
-        var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(bookingReference);
+        var bookingIndexDocument = await indexStore.GetByIdOrDefaultAsync(bookingReference);
         var provisionalValidationResult = ValidateBookingDocumentProvisionalState(bookingIndexDocument);
 
         if (provisionalValidationResult != BookingConfirmationResult.Success)
@@ -259,7 +261,7 @@ public class BookingCosmosDocumentStore(
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
         var statusUpdatedPatch = PatchOperation.Add("/statusUpdated", time.GetUtcNow());
 
-        var patches = new[]
+        var patches = new []
         {
             updateStatusPatch,
             statusUpdatedPatch,
@@ -272,11 +274,11 @@ public class BookingCosmosDocumentStore(
         {
             patches = patches.Append(PatchOperation.Add("/bookingBatchSize", bookingBatchSize)).ToArray();
         }
-
+        
         await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, patches);
     }
 
-    private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document)
+    private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document) 
     {
         if (document == null)
         {
@@ -304,11 +306,11 @@ public class BookingCosmosDocumentStore(
 
     public async Task InsertAsync(Booking booking)
     {
-        var bookingDocument = bookingStore.ConvertToDocument(booking);
+        var bookingDocument = MapToBookingDocument(booking);
         bookingDocument.StatusUpdated = time.GetUtcNow();
         await bookingStore.WriteAsync(bookingDocument);
 
-        var bookingIndex = indexStore.ConvertToDocument(booking);
+        var bookingIndex = MapToBookingIndexDocument(booking);
         await indexStore.WriteAsync(bookingIndex);
     }
 
@@ -333,7 +335,7 @@ public class BookingCosmosDocumentStore(
             .WithParameter("@docType", "booking_index")
             .WithParameter("@status", AppointmentStatus.Provisional.ToString())
             .WithParameter("@expiry", expiryDateTime);
-        var indexDocuments = await indexStore.RunSqlQueryAsync<BookingIndexDocument>(query);
+        var indexDocuments = await indexStore.RunSqlQueryAsync(query);
 
         var removed = new ConcurrentBag<string>();
 
@@ -420,7 +422,7 @@ public class BookingCosmosDocumentStore(
             throw new ArgumentException("You must specify one or more statuses.");
         }
 
-        var bookingIndexDocuments = await indexStore.RunQueryAsync<BookingIndexDocument>(i => i.DocumentType == "booking_index" && i.StatusUpdated >= from && i.StatusUpdated <= to);
+        var bookingIndexDocuments = await indexStore.RunQueryAsync(i => i.DocumentType == "booking_index" && i.StatusUpdated >= from && i.StatusUpdated <= to);
         var siteGroupedBookings = bookingIndexDocuments.Where(b => statuses.Contains(b.Status)).GroupBy(i => i.Site);
 
         var concurrentResults = new ConcurrentBag<IEnumerable<Booking>>();
@@ -436,6 +438,74 @@ public class BookingCosmosDocumentStore(
 
     private async Task<IEnumerable<Booking>> GetInStatusUpdatedRange(DateTime from, DateTime to, string site)
     {
-        return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.StatusUpdated >= from && b.StatusUpdated <= to);
+        var bookingDocuments = await bookingStore.RunQueryAsync(b => b.DocumentType == "booking" && b.Site == site && b.StatusUpdated >= from && b.StatusUpdated <= to);
+            return bookingDocuments.Select(MapToBooking) ?? [];
     }
-}
+
+    private BookingDocument MapToBookingDocument(Booking booking)
+    {
+        return booking == null
+            ? null
+            : new BookingDocument
+                {
+                    Id = booking.Reference,
+                    Reference = booking.Reference,
+                    Site = booking.Site,
+                    From = booking.From,
+                    Duration = booking.Duration,
+                    Service = booking.Service,
+                    Created = booking.Created,
+                    Status = booking.Status,
+                    AvailabilityStatus = booking.AvailabilityStatus ?? AvailabilityStatus.Unknown,
+                    AttendeeDetails = booking.AttendeeDetails,
+                    ContactDetails = booking.ContactDetails,
+                    AdditionalData = booking.AdditionalData,
+                    ReminderSent = booking.ReminderSent,
+                    CancellationReason = booking.CancellationReason,
+                    CancellationNotificationStatus = booking.CancellationNotificationStatus,
+                    BookingBatchSize = booking.BookingBatchSize,
+                    DocumentType = bookingStore.GetDocumentType()
+            };
+    }
+
+    private BookingIndexDocument MapToBookingIndexDocument(Booking booking)
+    {
+        return booking == null
+            ? null
+            : new BookingIndexDocument
+                {
+                    Id = booking.Reference,
+                    Reference = booking.Reference,
+                    Site = booking.Site,
+                    From = booking.From,
+                    Status = booking.Status,
+                    NhsNumber = booking.AttendeeDetails?.NhsNumber,
+                    Created = booking.Created,
+                    DocumentType = indexStore.GetDocumentType()
+                };
+    }
+
+    private static Booking MapToBooking(BookingDocument bookingDocument)
+    {
+        return bookingDocument == null
+            ? null
+            : new Booking
+                {
+                    Reference = bookingDocument.Reference,
+                    From = bookingDocument.From,
+                    Duration = bookingDocument.Duration,
+                    Service = bookingDocument.Service,
+                    Site = bookingDocument.Site,
+                    Created = bookingDocument.Created,
+                    Status = bookingDocument.Status,
+                    AvailabilityStatus = bookingDocument.AvailabilityStatus,
+                    AttendeeDetails = bookingDocument.AttendeeDetails,
+                    ContactDetails = bookingDocument.ContactDetails,
+                    AdditionalData = bookingDocument.AdditionalData,
+                    ReminderSent = bookingDocument.ReminderSent,
+                    CancellationReason = bookingDocument.CancellationReason,
+                    CancellationNotificationStatus = bookingDocument.CancellationNotificationStatus,
+                    BookingBatchSize = bookingDocument.BookingBatchSize
+                };
+    }
+}    

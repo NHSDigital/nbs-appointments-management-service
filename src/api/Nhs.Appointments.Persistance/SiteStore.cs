@@ -14,11 +14,14 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<IEnumerable<Site>> GetAllSites()
-        => await cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site");
+    {
+        var siteDocuments = await cosmosStore.RunQueryAsync(sd => sd.DocumentType == "site");
+        return siteDocuments?.Select(MapToSite) ?? [];
+    }
 
     public async Task<int> GetReferenceNumberGroup(string site)
     {
-        var siteDocument = await cosmosStore.GetDocument<SiteDocument>(site);
+        var siteDocument = await cosmosStore.GetDocument(site);
         return siteDocument.ReferenceNumberGroup;
     }
 
@@ -119,7 +122,8 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     {
         try
         {
-            return await cosmosStore.GetDocument<Site>(siteId);
+            var siteDocument = await cosmosStore.GetDocument(siteId);
+            return MapToSite(siteDocument);
         }
         catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
@@ -150,8 +154,7 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
                 Status = siteStatus,
                 IsDeleted = isDeleted
             };
-            var document = cosmosStore.ConvertToDocument(site);
-            await cosmosStore.WriteAsync(document);
+            await cosmosStore.WriteAsync(site);
 
             return new OperationResult(true);
         }
@@ -174,7 +177,8 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
 
     public async Task<IEnumerable<Site>> GetSitesInRegionAsync(string region)
     {
-        return await cosmosStore.RunQueryAsync<Site>(sd => sd.DocumentType == "site" && sd.Region == region);
+        var siteDocuments = await cosmosStore.RunQueryAsync(sd => sd.DocumentType == "site" && sd.Region == region);
+        return siteDocuments?.Select(MapToSite) ?? [];
     }
 
     public async Task<OperationResult> UpdateSiteStatusAsync(string siteId, SiteStatus status)
@@ -199,7 +203,10 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
     }
 
     public async Task<IEnumerable<Site>> GetSitesInIcbAsync(string icb)
-        => await cosmosStore.RunQueryAsync<Site>(s => s.DocumentType == "site" && s.IntegratedCareBoard == icb);
+    {
+        var siteDocuments = await cosmosStore.RunQueryAsync(sd => sd.DocumentType == "site" && sd.IntegratedCareBoard == icb);
+        return siteDocuments?.Select(MapToSite) ?? [];
+    }
 
     public async Task<OperationResult> ToggleSiteSoftDeletionAsync(string siteId)
     {
@@ -216,7 +223,24 @@ public class SiteStore(ITypedDocumentCosmosStore<SiteDocument> cosmosStore) : IS
             : PatchOperation.Replace("/isDeleted", !originalDocument.isDeleted);
 
         await cosmosStore.PatchDocument(docType, siteId, [patchOperation]);
-        return new OperationResult(true);
-        
+        return new OperationResult(true);        
+    }
+
+    private static Site MapToSite(SiteDocument siteDocument)
+    {
+        return siteDocument is null ? null : new Site(
+            siteDocument.Id,
+            siteDocument.Name,
+            siteDocument.Address,
+            siteDocument.PhoneNumber,
+            siteDocument.OdsCode,
+            siteDocument.Region,
+            siteDocument.IntegratedCareBoard,
+            siteDocument.InformationForCitizens,
+            siteDocument.Accessibilities ?? [],
+            siteDocument.Location,
+            siteDocument.Status,
+            siteDocument.IsDeleted,
+            siteDocument.Type);
     }
 }

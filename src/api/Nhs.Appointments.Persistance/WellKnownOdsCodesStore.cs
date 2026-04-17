@@ -8,7 +8,7 @@ public class WellKnownOdsCodesStore(ITypedDocumentCosmosStore<WellKnownOdsCodesD
     private const string WellKnownOdsCodeDocumentId = "well_known_ods_codes";
     public async Task<IEnumerable<WellKnownOdsEntry>> GetWellKnownOdsCodesDocument()
     {
-        var document = await cosmosStore.GetDocument<WellKnownOdsCodesDocument>(WellKnownOdsCodeDocumentId);
+        var document = await cosmosStore.GetDocument(WellKnownOdsCodeDocumentId);
         return document.Entries;
     }
 }

@@ -1,5 +1,4 @@
 using System.Net;
-using AutoMapper;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -18,7 +17,6 @@ public class TypedDocumentCosmosStoreTests
     private readonly Mock<ILastUpdatedByResolver> _lastUpdatedByResolver = new();
 
     private readonly Mock<ILogger<TestDocument>> _logger = new();
-    private readonly Mock<IMapper> _mapper = new();
     private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     private readonly IOptions<CosmosDataStoreOptions> _options =
@@ -37,7 +35,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             _retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -73,7 +70,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             noRetryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -122,7 +118,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -180,7 +175,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -250,7 +244,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -325,7 +318,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -373,7 +365,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -418,7 +409,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -498,7 +488,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -579,7 +568,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -639,7 +627,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -702,7 +689,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -786,7 +772,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -858,7 +843,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             null,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -924,7 +908,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -1056,7 +1039,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -1177,7 +1159,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -1280,7 +1261,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             supportedRetryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -1305,7 +1285,6 @@ public class TypedDocumentCosmosStoreTests
                 _cosmosClient.Object,
                 _options,
                 unsupportedRetryOptions,
-                _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object,
                 _logger.Object);
@@ -1330,7 +1309,6 @@ public class TypedDocumentCosmosStoreTests
                 _cosmosClient.Object,
                 _options,
                 unsupportedRetryOptions,
-                _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object,
                 _logger.Object);
@@ -1355,7 +1333,6 @@ public class TypedDocumentCosmosStoreTests
                 _cosmosClient.Object,
                 _options,
                 unsupportedRetryOptions,
-                _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object,
                 _logger.Object);
@@ -1393,7 +1370,6 @@ public class TypedDocumentCosmosStoreTests
                 _cosmosClient.Object,
                 _options,
                 unsupportedRetryOptions,
-                _mapper.Object,
                 _metricsRecorder.Object,
                 _lastUpdatedByResolver.Object,
                 _logger.Object);
@@ -1422,7 +1398,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             unsupportedRetryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -1497,7 +1472,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);
@@ -1569,7 +1543,6 @@ public class TypedDocumentCosmosStoreTests
             _cosmosClient.Object,
             _options,
             retryOptions,
-            _mapper.Object,
             _metricsRecorder.Object,
             _lastUpdatedByResolver.Object,
             _logger.Object);

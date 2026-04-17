@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Caching;
-using Nhs.Appointments.Core.Geography;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Metrics;
 using Nhs.Appointments.Core.Sites;
@@ -25,7 +24,6 @@ public static class NotificationsTestServiceProviderExtensions
         services
             .AddLogging()
             .AddSingleton<IMemoryCache, MemoryCache>()
-            .AddAutoMapper(typeof(CosmosAutoMapperProfile))
             .AddSingleton(cosmosClient)
             .AddSingleton(TimeProvider.System)
             .AddSingleton<IMetricsRecorder, InMemoryMetricsRecorder>()

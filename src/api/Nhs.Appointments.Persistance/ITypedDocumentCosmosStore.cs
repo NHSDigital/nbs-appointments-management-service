@@ -1,21 +1,21 @@
-﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using System.Linq.Expressions;
 
 namespace Nhs.Appointments.Persistance;
 
 public interface ITypedDocumentCosmosStore<TDocument> 
 {
-    Task<TModel> GetByIdAsync<TModel>(string documentId);
-    Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId, string partitionKey);
-    Task<TModel> GetByIdOrDefaultAsync<TModel>(string documentId);
-    Task<IEnumerable<TModel>> RunQueryAsync<TModel>(Expression<Func<TDocument, bool>> predicate);
-    Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query);
-    Task<TModel> GetDocument<TModel>(string documentId);
-    Task<TModel> GetDocument<TModel>(string documentId, string partitionKey);
+    Task<TDocument> GetByIdAsync(string documentId);
+    Task<TDocument> GetByIdOrDefaultAsync(string documentId, string partitionKey);
+    Task<TDocument> GetByIdOrDefaultAsync(string documentId);
+    Task<IEnumerable<TDocument>> RunQueryAsync(Expression<Func<TDocument, bool>> predicate);
+    Task<IEnumerable<TDocument>> RunSqlQueryAsync(QueryDefinition query);
+    Task<TDocument> GetDocument(string documentId);
+    Task<TDocument> GetDocument(string documentId, string partitionKey);
     Task DeleteDocument(string documentId, string partitionKey);
     Task WriteAsync(TDocument document);
     TDocument NewDocument();
-    TDocument ConvertToDocument<TModel>(TModel model);
     Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches);
     string GetDocumentType();
+    Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query);
 }

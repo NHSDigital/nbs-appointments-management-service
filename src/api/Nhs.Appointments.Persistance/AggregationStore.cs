@@ -11,12 +11,13 @@ public class AggregationStore(ITypedDocumentCosmosStore<AggregationDocument> sto
 
     public async Task<Aggregation> GetLastRun()
     {
-        return await Store.GetByIdOrDefaultAsync<Aggregation>(AggregationDocumentId);
+        var document = await Store.GetByIdOrDefaultAsync(AggregationDocumentId);
+        return document is null ? null : MapToAggregation(document);
     }
 
     public async Task SetLastRun(DateTimeOffset lastTriggerUtcDate, DateOnly aggregationFrom, DateOnly aggregationTo, DateOnly dateUntilAggregated)
     {
-        var document = await Store.GetByIdOrDefaultAsync<AggregationDocument>(AggregationDocumentId);
+        var document = await Store.GetByIdOrDefaultAsync(AggregationDocumentId);
 
         if (document is not null)
         {
@@ -40,5 +41,16 @@ public class AggregationStore(ITypedDocumentCosmosStore<AggregationDocument> sto
                 LastRanToDateOnly = dateUntilAggregated
             }
         });
+    }
+
+    private static Aggregation MapToAggregation(AggregationDocument document)
+    {
+        return new Aggregation
+        {
+            LastTriggeredUtcDate = document.LastTriggeredUtcDate,
+            FromDateOnly = document.LastRunMetaData.FromDateOnly,
+            ToDateOnly = document.LastRunMetaData.ToDateOnly,
+            LastRanToDateOnly = document.LastRunMetaData.LastRanToDateOnly
+        };
     }
 }

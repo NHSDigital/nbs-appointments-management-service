@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nhs.Appointments.Core;
@@ -60,7 +60,6 @@ public static class ServiceRegistration
             .AddScoped<ITypedDocumentCosmosStore<DailySiteSummaryDocument>, TypedDocumentCosmosStore<DailySiteSummaryDocument>>()
             .AddSingleton<ILastUpdatedByResolver>(new LastUpdatedByResolver(applicationName))
             .AddScoped<IMetricsRecorder, InMemoryMetricsRecorder>()
-            .AddScoped<IBookingQueryService, BookingQueryService>()
-            .AddAutoMapper(typeof(CosmosAutoMapperProfile));
+            .AddScoped<IBookingQueryService, BookingQueryService>();
     }
 }

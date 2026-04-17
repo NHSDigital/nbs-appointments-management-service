@@ -12,7 +12,6 @@ using Nhs.Appointments.Core.ClinicalServices;
 using Nhs.Appointments.Core.Features;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Reports.SiteSummary;
-using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 using Nhs.Appointments.Persistance;
 

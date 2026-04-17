@@ -97,7 +97,7 @@ const AddInformationForCitizensForm = ({
       ) : (
         <ButtonGroup>
           <Button type="submit">Confirm site details</Button>
-          <Button secondary onClick={cancel}>
+          <Button secondary type="button" onClick={cancel}>
             Cancel
           </Button>
         </ButtonGroup>

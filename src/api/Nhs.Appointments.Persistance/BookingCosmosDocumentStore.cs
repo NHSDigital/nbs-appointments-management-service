@@ -454,6 +454,7 @@ public class BookingCosmosDocumentStore(
                 {
                     Id = booking.Reference,
                     Reference = booking.Reference,
+                    Site = booking.Site,
                     From = booking.From,
                     Duration = booking.Duration,
                     Service = booking.Service,

@@ -230,7 +230,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore) : IU
         }
     }
 
-    private static UserDocument MapToUserDocument(User user)
+    private UserDocument MapToUserDocument(User user)
     {
         var userDocument = new UserDocument
         {
@@ -240,6 +240,7 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore) : IU
                 Role = ra.Role,
                 Scope = ra.Scope
             })],
+            DocumentType = cosmosStore.GetDocumentType()
         };
 
         if (user.LatestAcceptedEulaVersion.HasValue)

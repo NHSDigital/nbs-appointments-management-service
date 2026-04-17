@@ -1,1211 +1,1482 @@
+using System.Globalization;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Core.Bookings;
 using Nhs.Appointments.Core.Concurrency;
 using Nhs.Appointments.Core.Messaging;
 using Nhs.Appointments.Core.Messaging.Events;
 
-namespace Nhs.Appointments.Core.UnitTests
+namespace Nhs.Appointments.Core.UnitTests;
+
+public class BookingWriteServiceTests
 {
-    public class BookingWriteServiceTests
+    private const string MockSite = "some-site";
+    private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
+    private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+
+    private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
+
+    private readonly Mock<IBookingQueryService> _bookingQueryService = new();
+    private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
+    private readonly Mock<IMessageBus> _messageBus = new();
+    private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
+    private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
+    private BookingWriteService _sut;
+
+    public BookingWriteServiceTests()
     {
-        private const string MockSite = "some-site";
-        private readonly Mock<IAvailabilityCreatedEventStore> _availabilityCreatedEventStore = new();
-        private readonly Mock<IAvailabilityStore> _availabilityStore = new();
+        _sut = new BookingWriteService(
+            _bookingsDocumentStore.Object,
+            _bookingQueryService.Object,
+            _referenceNumberProvider.Object,
+            _siteLeaseManager.Object,
+            _bookingAvailabilityStateService.Object,
+            new EventFactory(),
+            _messageBus.Object,
+            TimeProvider.System);
+    }
 
-        private readonly Mock<IBookingAvailabilityStateService> _bookingAvailabilityStateService = new();
+    [Theory]
+    [InlineData("000000")]
+    [InlineData("003000")]
+    [InlineData("015800")]
+    [InlineData("060200")]
+    [InlineData("141726")]
+    [InlineData("225959")]
+    public async Task MakeBooking_AcquiresLockForTheSiteIdAndLocalDayOfTheBooking_WhenBooking(string bookingLocalTimeDuringDay)
+    {
+        var bookingTime = TimeOnly.ParseExact(bookingLocalTimeDuringDay, "HHmmss", CultureInfo.InvariantCulture);
 
-        private readonly Mock<IBookingQueryService> _bookingQueryService = new();
-        private readonly Mock<IBookingsDocumentStore> _bookingsDocumentStore = new();
-        private readonly Mock<IMessageBus> _messageBus = new();
-        private readonly Mock<IReferenceNumberProvider> _referenceNumberProvider = new();
-        private readonly Mock<ISiteLeaseManager> _siteLeaseManager = new();
-        private BookingWriteService _sut;
+        var expectedSiteId = Guid.NewGuid().ToString();
+        var expectedDay = new DateOnly(2077, 6, 1);
+        var expectedFrom = expectedDay.AddDays(-1);
+        var expectedUntil = expectedDay.AddDays(1);
+        SessionInstance[] availability =
+        [
+            new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 0, 0, 0, 0), 
+                new DateTime(expectedUntil.Year, expectedUntil.Month, expectedUntil.Day, 23, 0, 0, 0)
+               )
+        ];
 
-        public BookingWriteServiceTests()
+        var booking = new Booking
         {
-            _sut = new BookingWriteService(
-                _bookingsDocumentStore.Object,
-                _bookingQueryService.Object,
-                _referenceNumberProvider.Object,
-                _siteLeaseManager.Object,
-                _bookingAvailabilityStateService.Object,
-                new EventFactory(),
-                _messageBus.Object,
-                TimeProvider.System);
-        }
+            Site = expectedSiteId, Service = "TSERV", 
+            From = new DateTime(expectedDay, bookingTime, DateTimeKind.Local), 
+            Duration = 10
+        };
 
-        [Fact]
-        public async Task MakeBooking_AcquiresLock_WhenBooking()
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+        var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+        var availabilityQueryService =
+            new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+        _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedDay)).Returns(new FakeLeaseContext());
+
+        var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+            _referenceNumberProvider.Object,
+            _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+            new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+        // Act.
+        await bookingService.MakeBooking(booking);
+
+        // Assert.
+        _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedDay), Times.Once());
+        _siteLeaseManager.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task MakeBookingForTwoDifferentDaysForTheSameSite_AcquiresLockWithDifferentParameters_WhenBooking()
+    {
+        var expectedSiteId = Guid.NewGuid().ToString();
+        var expectedFrom1 = new DateOnly(2077, 1, 1);
+        var expectedUntil1 = expectedFrom1.AddDays(1);
+        var expectedFrom2 = new DateOnly(2077, 1, 2);
+        var expectedUntil2 = expectedFrom2.AddDays(1);
+
+        SessionInstance[] availability =
+        [
+            new(new DateTime(expectedFrom1.Year, expectedFrom1.Month, expectedFrom1.Day, 9, 0, 0, 0), 
+                new DateTime(expectedFrom1.Year, expectedFrom1.Month, expectedFrom1.Day, 12, 0, 0, 0)
+                ),
+            new(new DateTime(expectedFrom2.Year, expectedFrom2.Month, expectedFrom2.Day, 9, 0, 0, 0), 
+                new DateTime(expectedFrom2.Year, expectedFrom2.Month, expectedFrom2.Day, 12, 0, 0, 0)
+                )
+        ];
+
+        var booking1 = new Booking
         {
-            var expectedFrom = new DateOnly(2077, 1, 1);
-            var expectedUntil = expectedFrom.AddDays(1);
-            SessionInstance[] availability =
+            Site = expectedSiteId,
+            Service = "TSERV",
+            From = new DateTime(expectedFrom1.Year, expectedFrom1.Month, expectedFrom1.Day, 10, 0, 0, 0),
+            Duration = 10
+        };
+
+        var booking2 = new Booking
+        {
+            Site = expectedSiteId,
+            Service = "TSERV",
+            From = new DateTime(expectedFrom2.Year, expectedFrom2.Month, expectedFrom2.Day, 10, 0, 0, 0),
+            Duration = 10
+        };
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+        var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+        var availabilityQueryService =
+            new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+        _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom1)).Returns(new FakeLeaseContext());
+        _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom2)).Returns(new FakeLeaseContext());
+
+        var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+            _referenceNumberProvider.Object,
+            _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+            new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+        // Act.
+        await bookingService.MakeBooking(booking1);
+        await bookingService.MakeBooking(booking2);
+
+        // Assert.
+        _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom1), Times.Once());
+        _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom2), Times.Once());
+        _siteLeaseManager.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task MakeBookingForTheSameDayForTwoDifferentSites_AcquiresLockWithDifferentParameters_WhenBooking()
+    {
+        var expectedSiteId1 = Guid.NewGuid().ToString();
+        var expectedSiteId2 = Guid.NewGuid().ToString();
+        var expectedFrom = new DateOnly(2077, 1, 1);
+        var expectedUntil = expectedFrom.AddDays(1);
+
+        SessionInstance[] availability =
+        [
+            new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 9, 0, 0, 0), 
+                new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 12, 0, 0, 0)
+               )
+        ];
+
+        var booking1 = new Booking
+        {
+            Site = expectedSiteId1,
+            Service = "TSERV",
+            From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+            Duration = 10
+        };
+
+        var booking2 = new Booking
+        {
+            Site = expectedSiteId2,
+            Service = "TSERV",
+            From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+            Duration = 10
+        };
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+        var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+        var availabilityQueryService =
+            new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+        _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId1, expectedFrom)).Returns(new FakeLeaseContext());
+        _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId2, expectedFrom)).Returns(new FakeLeaseContext());
+
+        var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+            _referenceNumberProvider.Object,
+            _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+            new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+        // Act.
+        await bookingService.MakeBooking(booking1);
+        await bookingService.MakeBooking(booking2);
+
+        // Assert.
+        _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId1, expectedFrom), Times.Once());
+        _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId2, expectedFrom), Times.Once());
+        _siteLeaseManager.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task MakeBookingTwiceForTheSameDayForTheSameSite_AcquiresLockWithTheSameParameters_WhenBooking()
+    {
+        var expectedSiteId = Guid.NewGuid().ToString();
+        var expectedFrom = new DateOnly(2077, 1, 1);
+        var expectedUntil = expectedFrom.AddDays(1);
+
+        SessionInstance[] availability =
+        [
+            new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 9, 0, 0, 0), 
+                new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 12, 0, 0, 0)
+               )
+        ];
+
+        var booking1 = new Booking
+        {
+            Site = expectedSiteId,
+            Service = "TSERV",
+            From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+            Duration = 10
+        };
+
+        var booking2 = new Booking
+        {
+            Site = expectedSiteId,
+            Service = "TSERV",
+            From = new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 10, 0, 0, 0),
+            Duration = 10
+        };
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync(Guid.NewGuid().ToString());
+
+        var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+        var availabilityQueryService =
+            new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+        _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedFrom)).Returns(new FakeLeaseContext());
+
+        var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+            _referenceNumberProvider.Object,
+            _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+            new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+        // Act.
+        await bookingService.MakeBooking(booking1);
+        await bookingService.MakeBooking(booking2);
+
+        // Assert.
+        _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedFrom), Times.Exactly(2));
+        _siteLeaseManager.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("20260328", 0)]
+    [InlineData("20260329", 0)]
+    [InlineData("20260330", 0)]
+    [InlineData("20261024", 0)]
+    [InlineData("20261025", 0)]
+    [InlineData("20261026", 0)]
+    [InlineData("20260328", 1)]
+    [InlineData("20260329", 1)]
+    [InlineData("20260330", 1)]
+    [InlineData("20261024", 1)]
+    [InlineData("20261025", 1)]
+    [InlineData("20261026", 1)]
+    public async Task MakeBookingOnAndAroundDayClocksChange_AcquiresLockForTheCorrectDay_WhenBooking(string dateClocksChangeAsString, int hourOfBooking)
+    {
+        var dayClocksChange = DateOnly.ParseExact(dateClocksChangeAsString, "yyyyMMdd");
+
+        var expectedSiteId = Guid.NewGuid().ToString();
+        var expectedDay = dayClocksChange;
+        var expectedFrom = expectedDay.AddDays(-1);
+        var expectedUntil = expectedDay.AddDays(1);
+
+        SessionInstance[] availability =
+        [
+            new(new DateTime(expectedFrom.Year, expectedFrom.Month, expectedFrom.Day, 0, 0, 0, 0, DateTimeKind.Local), 
+                new DateTime(expectedUntil.Year, expectedUntil.Month, expectedUntil.Day, 12, 0, 0, 0, DateTimeKind.Local)
+                )
+        ];
+
+        var booking = new Booking
+        {
+            Site = expectedSiteId,
+            Service = "TSERV",
+            From = new DateTime(expectedDay.Year, expectedDay.Month, expectedDay.Day, hourOfBooking, 30, 0, 0, DateTimeKind.Local),
+            Duration = 10
+        };
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync(Guid.NewGuid().ToString());
+
+        var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
+        var availabilityQueryService =
+            new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
+
+        _siteLeaseManager.Setup(x => x.Acquire(expectedSiteId, expectedDay)).Returns(new FakeLeaseContext());
+
+        var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
+            _referenceNumberProvider.Object,
+            _siteLeaseManager.Object, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
+            new EventFactory(), _messageBus.Object, TimeProvider.System);
+
+        // Act.
+        await bookingService.MakeBooking(booking);
+
+        // Assert.
+        _siteLeaseManager.Verify(slm => slm.Acquire(expectedSiteId, expectedDay), Times.Once());
+        _siteLeaseManager.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task MakeBooking_RaisesNotificationEvent_WhenBooking()
+    {
+        var availability = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
+            {
+                Services = ["TSERV"]
+            }
+        };
+
+        var booking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@test.com" }],
+            AttendeeDetails = new AttendeeDetails(),
+            Status = AppointmentStatus.Booked
+        };
+
+        _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+
+        MockAvailability(availability);
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+        var result = await _sut.MakeBooking(booking);
+
+        _messageBus.Verify(x => x.Send(It.Is<BookingMade>(e => e.Reference == booking.Reference)));
+    }
+
+    private void MockAvailability(SessionInstance[] availability)
+    {
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                new DateTime(2077, 1, 1, 10, 10, 0, 0)))
+            .ReturnsAsync(availability.ToList());
+    }
+
+    [Fact]
+    public async Task MakeBooking_DoesNotRaiseNotificationEvent_WhenProvisional()
+    {
+        var availability = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
+            {
+                Services = ["TSERV"]
+            }
+        };
+
+        var booking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = null,
+            Status = AppointmentStatus.Provisional
+        };
+
+        _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+
+        MockAvailability(availability);
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+        var result = await _sut.MakeBooking(booking);
+
+        _messageBus.Verify(x => x.Send(It.Is<BookingMade>(e => e.Reference == booking.Reference)), Times.Never);
+    }
+
+    [Fact]
+    public async Task RescheduleBooking_IsSuccessful()
+    {
+        var availability = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
+            {
+                Services = ["TSERV"]
+            },
+            new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0), new DateTime(2077, 1, 1, 11, 10, 0, 0))
+            {
+                Services = ["TSERV"]
+            },
+        };
+
+        ContactItem[] contactDetails =
+            [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
+
+        var initialBooking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = null,
+            Status = AppointmentStatus.Provisional
+        };
+
+        _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                new DateTime(2077, 1, 1, 10, 10, 0, 0)))
+            .ReturnsAsync([
+                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                    new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = ["TSERV"] }
+            ]);
+
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                new DateTime(2077, 1, 1, 11, 10, 0, 0)))
+            .ReturnsAsync([
+                new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                    new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
+            ]);
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+        _bookingsDocumentStore
+            .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
+                It.IsAny<string>(), It.IsAny<CancellationReason>()))
+            .ReturnsAsync(BookingConfirmationResult.Success);
+        _bookingQueryService.Setup(x => x.GetBookingByReference("TEST1")).ReturnsAsync(new Booking
+        {
+            Reference = "TEST1",
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = contactDetails,
+            Status = AppointmentStatus.Booked,
+            AttendeeDetails = new AttendeeDetails()
+        });
+        _bookingQueryService.Setup(x => x.GetBookingByReference("TEST2")).ReturnsAsync(new Booking
+        {
+            Reference = "TEST2",
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = contactDetails,
+            Status = AppointmentStatus.Booked,
+            AttendeeDetails = new AttendeeDetails()
+        });
+
+        var initialBookingResult = await _sut.MakeBooking(initialBooking);
+        await _sut.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST2");
+
+        var rescheduledBooking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = null,
+            Status = AppointmentStatus.Provisional
+        };
+        var rescheduledBookingResult = await _sut.MakeBooking(rescheduledBooking);
+
+        var rescheduleResult = await _sut.ConfirmProvisionalBooking(rescheduledBooking.Reference,
+            contactDetails, initialBookingResult.Reference);
+
+        rescheduleResult.Should().Be(BookingConfirmationResult.Success);
+
+        _bookingsDocumentStore.Verify(x =>
+                x.ConfirmProvisional(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference,
+                    CancellationReason.RescheduledByCitizen),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RescheduleBooking_RaisesNotificationEvent()
+    {
+        ContactItem[] contactDetails =
+            [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
+
+        var initialBooking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = null,
+            Status = AppointmentStatus.Provisional
+        };
+
+        _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                new DateTime(2077, 1, 1, 10, 10, 0, 0)))
+            .ReturnsAsync(
             [
-                new(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0))
-            ];
+                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0),
+                    new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = ["TSERV"] }
+            ]);
 
-            var booking = new Booking
-            {
-                Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1, 10, 0, 0, 0), Duration = 10
-            };
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                new DateTime(2077, 1, 1, 11, 10, 0, 0)))
+            .ReturnsAsync(
+            [
+                new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0),
+                    new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
+            ]);
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-
-            var bookingQueryService = new BookingQueryService(_bookingsDocumentStore.Object, TimeProvider.System);
-            var availabilityQueryService =
-                new AvailabilityQueryService(_availabilityStore.Object, _availabilityCreatedEventStore.Object);
-
-            var leaseManager = new FakeLeaseManager();
-            var bookingService = new BookingWriteService(_bookingsDocumentStore.Object, bookingQueryService,
-                _referenceNumberProvider.Object,
-                leaseManager, new BookingAvailabilityStateService(availabilityQueryService, bookingQueryService),
-                new EventFactory(), _messageBus.Object, TimeProvider.System);
-
-            var task = Task.Run(() => bookingService.MakeBooking(booking));
-            await Task.Delay(100);
-            task.IsCompleted.Should().BeFalse();
-
-            leaseManager.WaitHandle.Set();
-
-            await Task.Delay(1000);
-            task.IsCompleted.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task MakeBooking_RaisesNotificationEvent_WhenBooking()
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+        _bookingsDocumentStore
+            .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
+                It.IsAny<string>(), It.IsAny<CancellationReason>()))
+            .ReturnsAsync(BookingConfirmationResult.Success);
+        _bookingQueryService.Setup(x => x.GetBookingByReference("TEST1")).ReturnsAsync(new Booking
         {
-            var availability = new[]
-            {
-                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
-                {
-                    Services = ["TSERV"]
-                }
-            };
-
-            var booking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@test.com" }],
-                AttendeeDetails = new AttendeeDetails(),
-                Status = AppointmentStatus.Booked
-            };
-
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-
-            MockAvailability(availability);
-
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-
-            var result = await _sut.MakeBooking(booking);
-
-            _messageBus.Verify(x => x.Send(It.Is<BookingMade>(e => e.Reference == booking.Reference)));
-        }
-
-        private void MockAvailability(SessionInstance[] availability)
+            Reference = "TEST1",
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = contactDetails,
+            Status = AppointmentStatus.Booked,
+            AttendeeDetails = new AttendeeDetails()
+        });
+        _bookingQueryService.Setup(x => x.GetBookingByReference("TEST2")).ReturnsAsync(new Booking
         {
-            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
-                    new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                    new DateTime(2077, 1, 1, 10, 10, 0, 0)))
-                .ReturnsAsync(availability.ToList());
-        }
+            Reference = "TEST2",
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = contactDetails,
+            Status = AppointmentStatus.Booked,
+            AttendeeDetails = new AttendeeDetails()
+        });
+        var initialBookingResult = await _sut.MakeBooking(initialBooking);
+        await _sut.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
 
-        [Fact]
-        public async Task MakeBooking_DoesNotRaiseNotificationEvent_WhenProvisional()
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST2");
+
+        var rescheduledBooking = new Booking
         {
-            var availability = new[]
-            {
-                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
-                {
-                    Services = ["TSERV"]
-                }
-            };
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = null,
+            Status = AppointmentStatus.Provisional
+        };
+        var rescheduledBookingResult = await _sut.MakeBooking(rescheduledBooking);
 
-            var booking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = null,
-                Status = AppointmentStatus.Provisional
-            };
+        var rescheduleResult = await _sut.ConfirmProvisionalBooking(rescheduledBooking.Reference,
+            contactDetails, initialBookingResult.Reference);
 
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
+        _messageBus.Verify(
+            x => x.Send(It.Is<BookingRescheduled>(e => e.Reference == rescheduledBookingResult.Reference)),
+            Times.Once);
 
-            MockAvailability(availability);
+        _bookingsDocumentStore.Verify(x =>
+                x.ConfirmProvisional(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference,
+                    CancellationReason.RescheduledByCitizen),
+            Times.Once);
+    }
 
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-
-            var result = await _sut.MakeBooking(booking);
-
-            _messageBus.Verify(x => x.Send(It.Is<BookingMade>(e => e.Reference == booking.Reference)), Times.Never);
-        }
-
-        [Fact]
-        public async Task RescheduleBooking_IsSuccessful()
+    [Fact]
+    public async Task MakeBooking_ReturnsSuccess_WhenSlotIsAvailable()
+    {
+        var availability = new[]
         {
-            var availability = new[]
+            new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
             {
-                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
+                Services = ["TSERV"]
+            }
+        };
+
+        var booking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = [new ContactItem()],
+            AttendeeDetails = new AttendeeDetails(),
+            Status = AppointmentStatus.Booked
+        };
+
+        _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+
+        MockAvailability(availability);
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+        var result = await _sut.MakeBooking(booking);
+        result.Success.Should().BeTrue();
+        result.Reference.Should().Be("TEST1");
+    }
+
+    [Fact]
+    public async Task MakeBooking_FlagsBookingForReminder_WhenBooking()
+    {
+        var availability = new[]
+        {
+            new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
+            {
+                Services = ["TSERV"]
+            }
+        };
+
+        var booking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
+            Duration = 10,
+            ContactDetails = [new ContactItem()],
+            AttendeeDetails = new AttendeeDetails(),
+            Status = AppointmentStatus.Booked
+        };
+
+        _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+
+        MockAvailability(availability);
+
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
+
+        booking.ReminderSent = true; // make sure we're not just testing the default value of False
+
+        var result = await _sut.MakeBooking(booking);
+
+        Assert.False(booking.ReminderSent);
+    }
+
+    [Fact]
+    public async Task MakeBooking_ReturnsNonSuccess_WhenSlotIsNotAvailable()
+    {
+        var booking = new Booking
+        {
+            Site = MockSite,
+            Service = "TSERV",
+            From = new DateTime(2077, 1, 1, 13, 0, 0, 0),
+            Duration = 10,
+            Status = AppointmentStatus.Booked
+        };
+
+        _siteLeaseManager.Setup(x => x.Acquire(MockSite, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+
+        _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
+                new DateTime(2077, 1, 1, 13, 0, 0, 0),
+                new DateTime(2077, 1, 1, 13, 10, 0, 0)))
+            .ReturnsAsync(
+            [
+                new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0))
                 {
                     Services = ["TSERV"]
                 },
-                new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0), new DateTime(2077, 1, 1, 11, 10, 0, 0))
-                {
-                    Services = ["TSERV"]
-                },
-            };
+                //test a different session that could have been used, had it been the right service for the booking
+                new SessionInstance(new DateTime(2077, 1, 1, 13, 0, 0, 0),
+                    new DateTime(2077, 1, 1, 13, 10, 0, 0)) { Services = ["TDIFFSERV"] }
+            ]);
 
-            ContactItem[] contactDetails =
-                [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
+        _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
 
-            var initialBooking = new Booking
+        var result = await _sut.MakeBooking(booking);
+        result.Success.Should().BeFalse();
+        result.Reference.Should().Be(string.Empty);
+    }
+
+    [Fact]
+    public async Task CancelBooking_ReturnsNonSuccess_WhenInvalidReference()
+    {
+        _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult<Booking>(null));
+        var result = await _sut.CancelBooking("some-reference", "TEST01", CancellationReason.CancelledByCitizen);
+        Assert.Equal(BookingCancellationResult.NotFound, result);
+    }
+
+    [Fact]
+    public async Task CancelBooking_CancelsBookingInDatabase()
+    {
+        var site = "some-site";
+        var bookingRef = "some-booking";
+
+        _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
+            .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
+        _bookingsDocumentStore
+            .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown,
+                CancellationReason.CancelledByCitizen, null))
+            .ReturnsAsync(true).Verifiable();
+
+        await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
+
+        _bookingsDocumentStore.VerifyAll();
+    }
+
+    [Fact]
+    public async Task CancelBooking_DoesNotRaiseNotificationEvent_WhenNoContactDetails()
+    {
+        var site = "some-site";
+        var bookingRef = "some-booking";
+
+        var updateMock = new Mock<IDocumentUpdate<Booking>>();
+        updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+            .Returns(updateMock.Object);
+
+        _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+            Task.FromResult(new Booking
             {
+                Reference = bookingRef,
+                Site = site,
+                ContactDetails = null
+            }));
+        _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+        _bookingsDocumentStore.Setup(x => x.SetCancellationNotified(It.IsAny<string>(), It.IsAny<string>()))
+            .Verifiable(Times.Never);
+
+        _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e =>
+            e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
+            e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Never);
+
+        await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
+
+        _messageBus.VerifyAll();
+    }
+
+    [Fact]
+    public async Task CancelBooking_AutoCancelled_DoesNotRaiseNotificationEvent()
+    {
+        var site = "some-site";
+        var bookingRef = "some-booking";
+
+        var updateMock = new Mock<IDocumentUpdate<Booking>>();
+        updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+            .Returns(updateMock.Object);
+
+        _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+            Task.FromResult(new Booking
+            {
+                Reference = bookingRef,
+                Site = site,
+                ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+            }));
+        _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
+        _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
+
+        await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByService,
+            new { AutoCancellation = "true" });
+
+        _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Never);
+    }
+
+    [Fact]
+    public async Task CancelBooking_NotRunningAppointmentStatusesRecalculation()
+    {
+        var site = "some-site";
+        var bookingRef = "some-booking";
+
+        var updateMock = new Mock<IDocumentUpdate<Booking>>();
+        updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
+            .Returns(updateMock.Object);
+
+        _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
+            Task.FromResult(new Booking
+            {
+                Reference = bookingRef,
+                Site = site,
+                ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
+            }));
+
+        _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled,
+        AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen, It.IsAny<object>()));
+
+        await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, runRecalculation: false);
+
+        _siteLeaseManager.Verify(x => x.Acquire(site, It.IsAny<DateOnly>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CancelBooking_ReturnsNotFoundWhenSiteDoesNotMatch()
+    {
+        var site = "some-site";
+        var bookingRef = "some-booking";
+
+        _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
+        _bookingsDocumentStore
+            .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null,
+                It.IsAny<object>()))
+            .ReturnsAsync(true).Verifiable();
+
+        var result = await _sut.CancelBooking(bookingRef, "some-other-site", CancellationReason.CancelledByCitizen);
+
+        result.Should().Be(BookingCancellationResult.NotFound);
+    }
+
+    [Theory]
+    [InlineData(CancellationReason.CancelledByCitizen, CancellationReason.CancelledByCitizen)]
+    [InlineData(CancellationReason.CancelledBySite, CancellationReason.CancelledBySite)]
+    [InlineData(CancellationReason.CancelledByService, CancellationReason.CancelledByService)]
+    public async Task CancelBooking_ValidCancellationReasonIsUsed(CancellationReason reason,
+        CancellationReason expectedReason)
+    {
+        var reference = "BOOK-123";
+        var site = "SITE01";
+        var booking = new Booking
+        {
+            Reference = reference, Site = site, From = DateTime.UtcNow, Status = AppointmentStatus.Booked
+        };
+
+        _bookingQueryService.Setup(x => x.GetBookingByReference(reference)).ReturnsAsync(booking);
+        _bookingsDocumentStore.Setup(x =>
+                x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason,
+                    null))
+            .ReturnsAsync(true)
+            .Verifiable();
+
+        var result = await _sut.CancelBooking(reference, site, reason);
+
+        result.Should().Be(BookingCancellationResult.Success);
+        _bookingsDocumentStore.Verify();
+    }
+
+    [Fact]
+    public async Task ConfirmProvisional_CancellationReasonIsUsed_WhenReschedulingAppointment()
+    {
+        var contactDetails =
+            new List<ContactItem> { new() { Type = ContactItemType.Email, Value = "test.email@domain.com" } };
+
+        _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(),
+                It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<CancellationReason>()))
+            .ReturnsAsync(BookingConfirmationResult.Success);
+        _bookingQueryService.Setup(x => x.GetBookingByReference("test-booking-ref")).ReturnsAsync(
+            new Booking
+            {
+                Reference = "test-booking-ref",
                 Site = MockSite,
                 Service = "TSERV",
                 From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
                 Duration = 10,
-                ContactDetails = null,
-                Status = AppointmentStatus.Provisional
-            };
-
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-
-            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
-                    new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                    new DateTime(2077, 1, 1, 10, 10, 0, 0)))
-                .ReturnsAsync([
-                    new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                        new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = ["TSERV"] }
-                ]);
-
-            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
-                    new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                    new DateTime(2077, 1, 1, 11, 10, 0, 0)))
-                .ReturnsAsync([
-                    new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                        new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
-                ]);
-
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _bookingsDocumentStore
-                .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>(), It.IsAny<CancellationReason>()))
-                .ReturnsAsync(BookingConfirmationResult.Success);
-            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST1")).ReturnsAsync(new Booking
-            {
-                Reference = "TEST1",
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = contactDetails,
+                ContactDetails = contactDetails.ToArray(),
                 Status = AppointmentStatus.Booked,
                 AttendeeDetails = new AttendeeDetails()
             });
-            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST2")).ReturnsAsync(new Booking
-            {
-                Reference = "TEST2",
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = contactDetails,
-                Status = AppointmentStatus.Booked,
-                AttendeeDetails = new AttendeeDetails()
-            });
 
-            var initialBookingResult = await _sut.MakeBooking(initialBooking);
-            await _sut.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
+        var result =
+            await _sut.ConfirmProvisionalBooking("test-booking-ref", contactDetails, "booking-to-reschedule");
 
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST2");
+        result.Should().Be(BookingConfirmationResult.Success);
+        _bookingsDocumentStore.Verify(x =>
+                x.ConfirmProvisional("test-booking-ref", It.IsAny<IEnumerable<ContactItem>>(),
+                    "booking-to-reschedule", CancellationReason.RescheduledByCitizen),
+            Times.Once);
+    }
 
-            var rescheduledBooking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = null,
-                Status = AppointmentStatus.Provisional
-            };
-            var rescheduledBookingResult = await _sut.MakeBooking(rescheduledBooking);
-
-            var rescheduleResult = await _sut.ConfirmProvisionalBooking(rescheduledBooking.Reference,
-                contactDetails, initialBookingResult.Reference);
-
-            rescheduleResult.Should().Be(BookingConfirmationResult.Success);
-
-            _bookingsDocumentStore.Verify(x =>
-                    x.ConfirmProvisional(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference,
-                        CancellationReason.RescheduledByCitizen),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task RescheduleBooking_RaisesNotificationEvent()
+    [Fact]
+    public async Task RecalculateAppointmentStatuses_CancelUnsupportedBookings()
+    {
+        var bookings = new List<Booking>
         {
-            ContactItem[] contactDetails =
-                [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }];
-
-            var initialBooking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = null,
-                Status = AppointmentStatus.Provisional
-            };
-
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-
-            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
-                    new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                    new DateTime(2077, 1, 1, 10, 10, 0, 0)))
-                .ReturnsAsync(
-                [
-                    new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                        new DateTime(2077, 1, 1, 10, 10, 0, 0)) { Services = ["TSERV"] }
-                ]);
-
-            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
-                    new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                    new DateTime(2077, 1, 1, 11, 10, 0, 0)))
-                .ReturnsAsync(
-                [
-                    new SessionInstance(new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                        new DateTime(2077, 1, 1, 11, 10, 0, 0)) { Services = ["TSERV"] }
-                ]);
-
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-            _bookingsDocumentStore
-                .Setup(x => x.ConfirmProvisional(It.IsAny<string>(), It.IsAny<IEnumerable<ContactItem>>(),
-                    It.IsAny<string>(), It.IsAny<CancellationReason>()))
-                .ReturnsAsync(BookingConfirmationResult.Success);
-            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST1")).ReturnsAsync(new Booking
-            {
-                Reference = "TEST1",
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = contactDetails,
-                Status = AppointmentStatus.Booked,
-                AttendeeDetails = new AttendeeDetails()
-            });
-            _bookingQueryService.Setup(x => x.GetBookingByReference("TEST2")).ReturnsAsync(new Booking
-            {
-                Reference = "TEST2",
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = contactDetails,
-                Status = AppointmentStatus.Booked,
-                AttendeeDetails = new AttendeeDetails()
-            });
-            var initialBookingResult = await _sut.MakeBooking(initialBooking);
-            await _sut.ConfirmProvisionalBooking(initialBookingResult.Reference, contactDetails, "");
-
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST2");
-
-            var rescheduledBooking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 11, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = null,
-                Status = AppointmentStatus.Provisional
-            };
-            var rescheduledBookingResult = await _sut.MakeBooking(rescheduledBooking);
-
-            var rescheduleResult = await _sut.ConfirmProvisionalBooking(rescheduledBooking.Reference,
-                contactDetails, initialBookingResult.Reference);
-
-            _messageBus.Verify(
-                x => x.Send(It.Is<BookingRescheduled>(e => e.Reference == rescheduledBookingResult.Reference)),
-                Times.Once);
-
-            _bookingsDocumentStore.Verify(x =>
-                    x.ConfirmProvisional(rescheduledBooking.Reference, contactDetails, initialBookingResult.Reference,
-                        CancellationReason.RescheduledByCitizen),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task MakeBooking_ReturnsSuccess_WhenSlotIsAvailable()
-        {
-            var availability = new[]
-            {
-                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
-                {
-                    Services = ["TSERV"]
-                }
-            };
-
-            var booking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = [new ContactItem()],
-                AttendeeDetails = new AttendeeDetails(),
-                Status = AppointmentStatus.Booked
-            };
-
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-
-            MockAvailability(availability);
-
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-
-            var result = await _sut.MakeBooking(booking);
-            result.Success.Should().BeTrue();
-            result.Reference.Should().Be("TEST1");
-        }
-
-        [Fact]
-        public async Task MakeBooking_FlagsBookingForReminder_WhenBooking()
-        {
-            var availability = new[]
-            {
-                new SessionInstance(new DateTime(2077, 1, 1, 10, 0, 0, 0), new DateTime(2077, 1, 1, 10, 10, 0, 0))
-                {
-                    Services = ["TSERV"]
-                }
-            };
-
-            var booking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                Duration = 10,
-                ContactDetails = [new ContactItem()],
-                AttendeeDetails = new AttendeeDetails(),
-                Status = AppointmentStatus.Booked
-            };
-
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-
-            MockAvailability(availability);
-
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-
-            booking.ReminderSent = true; // make sure we're not just testing the default value of False
-
-            var result = await _sut.MakeBooking(booking);
-
-            Assert.False(booking.ReminderSent);
-        }
-
-        [Fact]
-        public async Task MakeBooking_ReturnsNonSuccess_WhenSlotIsNotAvailable()
-        {
-            var booking = new Booking
-            {
-                Site = MockSite,
-                Service = "TSERV",
-                From = new DateTime(2077, 1, 1, 13, 0, 0, 0),
-                Duration = 10,
-                Status = AppointmentStatus.Booked
-            };
-
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-
-            _bookingAvailabilityStateService.Setup(x => x.GetAvailableSlots(MockSite,
-                    new DateTime(2077, 1, 1, 13, 0, 0, 0),
-                    new DateTime(2077, 1, 1, 13, 10, 0, 0)))
-                .ReturnsAsync(
-                [
-                    new SessionInstance(new DateTime(2077, 1, 1, 9, 0, 0, 0), new DateTime(2077, 1, 1, 12, 0, 0, 0))
-                    {
-                        Services = ["TSERV"]
-                    },
-                    //test a different session that could have been used, had it been the right service for the booking
-                    new SessionInstance(new DateTime(2077, 1, 1, 13, 0, 0, 0),
-                        new DateTime(2077, 1, 1, 13, 10, 0, 0)) { Services = ["TDIFFSERV"] }
-                ]);
-
-            _referenceNumberProvider.Setup(x => x.GetReferenceNumber(It.IsAny<string>())).ReturnsAsync("TEST1");
-
-            var result = await _sut.MakeBooking(booking);
-            result.Success.Should().BeFalse();
-            result.Reference.Should().Be(string.Empty);
-        }
-
-        [Fact]
-        public async Task CancelBooking_ReturnsNonSuccess_WhenInvalidReference()
-        {
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
-                .Returns(Task.FromResult<Booking>(null));
-            var result = await _sut.CancelBooking("some-reference", "TEST01", CancellationReason.CancelledByCitizen);
-            Assert.Equal(BookingCancellationResult.NotFound, result);
-        }
-
-        [Fact]
-        public async Task CancelBooking_CancelsBookingInDatabase()
-        {
-            var site = "some-site";
-            var bookingRef = "some-booking";
-
-            _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>()))
-                .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
-            _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown,
-                    CancellationReason.CancelledByCitizen, null))
-                .ReturnsAsync(true).Verifiable();
-
-            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
-
-            _bookingsDocumentStore.VerifyAll();
-        }
-
-        [Fact]
-        public async Task CancelBooking_DoesNotRaiseNotificationEvent_WhenNoContactDetails()
-        {
-            var site = "some-site";
-            var bookingRef = "some-booking";
-
-            var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
-                .Returns(updateMock.Object);
-
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
-                Task.FromResult(new Booking
-                {
-                    Reference = bookingRef,
-                    Site = site,
-                    ContactDetails = null
-                }));
-            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
-            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified(It.IsAny<string>(), It.IsAny<string>()))
-                .Verifiable(Times.Never);
-
-            _messageBus.Setup(x => x.Send(It.Is<BookingCancelled[]>(e =>
-                e[0].Site == site && e[0].Reference == bookingRef && e[0].NotificationType == NotificationType.Email &&
-                e[0].Destination == "test@tempuri.org"))).Verifiable(Times.Never);
-
-            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen);
-
-            _messageBus.VerifyAll();
-        }
-
-        [Fact]
-        public async Task CancelBooking_AutoCancelled_DoesNotRaiseNotificationEvent()
-        {
-            var site = "some-site";
-            var bookingRef = "some-booking";
-
-            var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
-                .Returns(updateMock.Object);
-
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
-                Task.FromResult(new Booking
-                {
-                    Reference = bookingRef,
-                    Site = site,
-                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
-                }));
-            _bookingsDocumentStore.Setup(x => x.BeginUpdate(site, bookingRef)).Returns(updateMock.Object);
-            _bookingsDocumentStore.Setup(x => x.SetCancellationNotified("some-booking", "some-site"));
-
-            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByService,
-                new { AutoCancellation = "true" });
-
-            _bookingsDocumentStore.Verify(x => x.SetCancellationNotified("some-booking", "some-site"), Times.Never);
-        }
-
-        [Fact]
-        public async Task CancelBooking_NotRunningAppointmentStatusesRecalculation()
-        {
-            var site = "some-site";
-            var bookingRef = "some-booking";
-
-            var updateMock = new Mock<IDocumentUpdate<Booking>>();
-            updateMock.Setup(x => x.UpdateProperty(b => b.Status, AppointmentStatus.Cancelled))
-                .Returns(updateMock.Object);
-
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>())).Returns(
-                Task.FromResult(new Booking
-                {
-                    Reference = bookingRef,
-                    Site = site,
-                    ContactDetails = [new ContactItem { Type = ContactItemType.Email, Value = "test@tempuri.org" }]
-                }));
-
-            _bookingsDocumentStore.Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled,
-            AvailabilityStatus.Unknown, CancellationReason.CancelledByCitizen, It.IsAny<object>()));
-
-            await _sut.CancelBooking(bookingRef, site, CancellationReason.CancelledByCitizen, runRecalculation: false);
-
-            _siteLeaseManager.Verify(x => x.Acquire(site), Times.Never);
-        }
-
-        [Fact]
-        public async Task CancelBooking_ReturnsNotFoundWhenSiteDoesNotMatch()
-        {
-            var site = "some-site";
-            var bookingRef = "some-booking";
-
-            _bookingsDocumentStore.Setup(x => x.GetByReferenceOrDefaultAsync(It.IsAny<string>()))
-                .Returns(Task.FromResult(new Booking { Site = site, ContactDetails = [] }));
-            _bookingsDocumentStore
-                .Setup(x => x.UpdateStatus(bookingRef, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, null,
-                    It.IsAny<object>()))
-                .ReturnsAsync(true).Verifiable();
-
-            var result = await _sut.CancelBooking(bookingRef, "some-other-site", CancellationReason.CancelledByCitizen);
-
-            result.Should().Be(BookingCancellationResult.NotFound);
-        }
-
-        [Theory]
-        [InlineData(CancellationReason.CancelledByCitizen, CancellationReason.CancelledByCitizen)]
-        [InlineData(CancellationReason.CancelledBySite, CancellationReason.CancelledBySite)]
-        [InlineData(CancellationReason.CancelledByService, CancellationReason.CancelledByService)]
-        public async Task CancelBooking_ValidCancellationReasonIsUsed(CancellationReason reason,
-            CancellationReason expectedReason)
-        {
-            var reference = "BOOK-123";
-            var site = "SITE01";
-            var booking = new Booking
-            {
-                Reference = reference, Site = site, From = DateTime.UtcNow, Status = AppointmentStatus.Booked
-            };
-
-            _bookingQueryService.Setup(x => x.GetBookingByReference(reference)).ReturnsAsync(booking);
-            _bookingsDocumentStore.Setup(x =>
-                    x.UpdateStatus(reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, expectedReason,
-                        null))
-                .ReturnsAsync(true)
-                .Verifiable();
-
-            var result = await _sut.CancelBooking(reference, site, reason);
-
-            result.Should().Be(BookingCancellationResult.Success);
-            _bookingsDocumentStore.Verify();
-        }
-
-        [Fact]
-        public async Task ConfirmProvisional_CancellationReasonIsUsed_WhenReschedulingAppointment()
-        {
-            var contactDetails =
-                new List<ContactItem> { new() { Type = ContactItemType.Email, Value = "test.email@domain.com" } };
-
-            _bookingsDocumentStore.Setup(x => x.ConfirmProvisional(It.IsAny<string>(),
-                    It.IsAny<IEnumerable<ContactItem>>(), It.IsAny<string>(), It.IsAny<CancellationReason>()))
-                .ReturnsAsync(BookingConfirmationResult.Success);
-            _bookingQueryService.Setup(x => x.GetBookingByReference("test-booking-ref")).ReturnsAsync(
-                new Booking
-                {
-                    Reference = "test-booking-ref",
-                    Site = MockSite,
-                    Service = "TSERV",
-                    From = new DateTime(2077, 1, 1, 10, 0, 0, 0),
-                    Duration = 10,
-                    ContactDetails = contactDetails.ToArray(),
-                    Status = AppointmentStatus.Booked,
-                    AttendeeDetails = new AttendeeDetails()
-                });
-
-            var result =
-                await _sut.ConfirmProvisionalBooking("test-booking-ref", contactDetails, "booking-to-reschedule");
-
-            result.Should().Be(BookingConfirmationResult.Success);
-            _bookingsDocumentStore.Verify(x =>
-                    x.ConfirmProvisional("test-booking-ref", It.IsAny<IEnumerable<ContactItem>>(),
-                        "booking-to-reschedule", CancellationReason.RescheduledByCitizen),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task RecalculateAppointmentStatuses_CancelUnsupportedBookings()
-        {
-            var bookings = new List<Booking>
-            {
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 0, 0),
-                    Reference = "1",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Orphaned,
-                    Duration = 10,
-                    Service = "Service 1"
-                }
-            };
-            _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>())).ReturnsAsync(bookings.First());
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Cancel)).ReturnsAsync(
-                    new List<BookingAvailabilityUpdate>
-                    {
-                        new(bookings.First(), AvailabilityUpdateAction.SetToCancelled),
-                    });
-
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), NewlyUnsupportedBookingAction.Cancel);
-
-            _bookingsDocumentStore.Verify(
-                x => x.UpdateStatus(It.IsAny<string>(), AppointmentStatus.Cancelled,
-                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
-        {
-            var bookings = new List<Booking>
-            {
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 0, 0),
-                    Reference = "1",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Orphaned,
-                    Duration = 10,
-                    Service = "Service 1"
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 10, 0),
-                    Reference = "2",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Orphaned,
-                    Duration = 10,
-                    Service = "Service 1"
-                }
-            };
-
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan)).ReturnsAsync(
-                    new List<BookingAvailabilityUpdate>
-                    {
-                        new(bookings.First(), AvailabilityUpdateAction.SetToSupported),
-                        new(bookings.Last(), AvailabilityUpdateAction.SetToSupported),
-                    });
-
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
-
-            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
-                    It.Is<string>(s => s == "1"),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
-                Times.Once);
-
-            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
-                    It.Is<string>(s => s == "2"),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task RecalculateAppointmentStatuses_OrphansLiveAppointmentsIfTheyCannotBeFulfilled()
-        {
-            var bookings = new List<Booking>
-            {
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 0, 0),
-                    Reference = "1",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 10, 0),
-                    Reference = "2",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10
-                }
-            };
-
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan)).ReturnsAsync(
-                    new List<BookingAvailabilityUpdate>
-                    {
-                        new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
-                        new(bookings.Last(), AvailabilityUpdateAction.SetToOrphaned),
-                    });
-
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
-
-            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
-                    It.Is<string>(s => s == "1"),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
-                Times.Once);
-
-            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
-                    It.Is<string>(s => s == "2"),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task RecalculateAppointmentStatuses_DeletesProvisionalAppointments()
-        {
-            const string service = "Service 1";
-
-            IEnumerable<Booking> bookings = new List<Booking>
-            {
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 0, 0),
-                    Reference = "1",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10,
-                    Site = MockSite,
-                    Service = service
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 10, 0),
-                    Reference = "2",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                    Status = AppointmentStatus.Provisional,
-                    Duration = 10,
-                    Site = MockSite,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Service = service
-                }
-            };
-
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan)).ReturnsAsync(
-                    new List<BookingAvailabilityUpdate>
-                    {
-                        new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
-                        new(bookings.Last(), AvailabilityUpdateAction.ProvisionalToDelete),
-                    });
-
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
-
-            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
-                    It.Is<string>(s => s == "1"),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
-                Times.Once);
-
-            _bookingsDocumentStore.Verify(x => x.DeleteBooking(
-                    It.Is<string>(s => s == "2"),
-                    It.Is<string>(s => s == MockSite)),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task RecalculateAppointmentStatuses_ReturnsBookingsCanceledWithoutDetails()
-        {
-            const string service = "Service 1";
-            var days = new DateOnly[] {
-                new DateOnly(2025, 1, 1),
-                new DateOnly(2025, 1, 2)
-            };
-
-            var bookings = new Booking[]
-            {
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 0, 0),
-                    Reference = "1",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10,
-                    Site = MockSite,
-                    Service = service,
-                    ContactDetails = new ContactItem[] { 
-                        new ContactItem{ Type = ContactItemType.Email, Value = "test@mya.uk"}
-                    },
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 10, 0),
-                    Reference = "2",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                    Status = AppointmentStatus.Provisional,
-                    Duration = 10,
-                    Site = MockSite,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Service = service
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 02, 9, 0, 0),
-                    Reference = "3",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10,
-                    Site = MockSite,
-                    Service = service,
-                    ContactDetails = null
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 02, 9, 10, 0),
-                    Reference = "4",
-                    AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
-                    Status = AppointmentStatus.Provisional,
-                    Duration = 10,
-                    Site = MockSite,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Service = service
-                }
-            };
-            
-            _bookingQueryService
-                .Setup(x => x.GetBookingByReference("1"))
-                .ReturnsAsync(new Booking()
-                {
-                    Reference = "1",
-                    Site = MockSite
-                });
-            
-            _bookingQueryService
-                .Setup(x => x.GetBookingByReference("3"))
-                .ReturnsAsync(new Booking()
-                {
-                    Reference = "3",
-                    Site = MockSite
-                });
-
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite,
-                    It.Is<DateTime>(d => d.Date == new DateTime(2025, 1, 1)),
-                    It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Cancel))
-                .ReturnsAsync(new List<BookingAvailabilityUpdate>
-                {
-                    new(bookings[0], AvailabilityUpdateAction.SetToCancelled),
-                    new(bookings[1], AvailabilityUpdateAction.ProvisionalToDelete)
-                });
-
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite,
-                    It.Is<DateTime>(d => d.Date == new DateTime(2025, 1, 2)),
-                    It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Cancel))
-                .ReturnsAsync(new List<BookingAvailabilityUpdate>
-                {
-                    new(bookings[2], AvailabilityUpdateAction.SetToCancelled),
-                    new(bookings[3], AvailabilityUpdateAction.ProvisionalToDelete)
-                });
-
-            var result = await _sut.RecalculateAppointmentStatuses(MockSite, days, NewlyUnsupportedBookingAction.Cancel);
-            
-            result.BookingsCanceled.Should().Be(2);
-            result.BookingsCanceledWithoutDetails.Should().Be(1);
-            
-            //no need to orphan booking if its being cancelled
-            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
-                    It.Is<string>(s => s == "1"),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
-                Times.Never);
-            
-            //no need to orphan booking if its being cancelled
-            _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
-                    It.Is<string>(s => s == "3"),
-                    It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
-                Times.Never);
-            
-            _bookingsDocumentStore.Verify(x => x.UpdateStatus(
-                    It.Is<string>(s => s == "1"),
-                    It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
-                    AvailabilityStatus.Unknown,
-                    CancellationReason.CancelledBySite,
-                    It.IsAny<object>()),
-                Times.Once);
-            
-            _bookingsDocumentStore.Verify(x => x.UpdateStatus(
-                    It.Is<string>(s => s == "3"),
-                    It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
-                    AvailabilityStatus.Unknown,
-                    CancellationReason.CancelledBySite,
-                    It.IsAny<object>()),
-                Times.Once);
-
-            _bookingsDocumentStore.Verify(x => x.DeleteBooking(
-                    It.Is<string>(s => s == "2"),
-                    It.Is<string>(s => s == MockSite)),
-                Times.Once);
-            
-            _bookingsDocumentStore.Verify(x => x.DeleteBooking(
-                    It.Is<string>(s => s == "4"),
-                    It.Is<string>(s => s == MockSite)),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task RecalculateAppointmentStatuses_MakesNoChangesIfAllAppointmentsAreStillValid()
-        {
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan))
-                .ReturnsAsync(new List<BookingAvailabilityUpdate>());
-
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
-
-            _bookingsDocumentStore.Verify(
-                x => x.UpdateStatus(It.IsAny<string>(), AppointmentStatus.Cancelled,
-                    It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
-                Times.Never);
-        }
-
-        [Fact]
-        public async Task MakeBooking_CallsAllocationStateService_WhenBooking()
-        {
-            var booking = new Booking { Site = "TEST", Service = "TSERV", From = new DateTime(2077, 1, 1) };
-
-            _siteLeaseManager.Setup(x => x.Acquire(It.IsAny<string>())).Returns(new FakeLeaseContext());
-            _bookingAvailabilityStateService
-                .Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .ReturnsAsync(new List<SessionInstance>());
-            await _sut.MakeBooking(booking);
-            _bookingAvailabilityStateService.Verify(x =>
-                x.GetAvailableSlots(booking.Site, booking.From, booking.From.AddMinutes(booking.Duration)));
-        }
-
-        [Theory]
-        [InlineData(NewlyUnsupportedBookingAction.Orphan)]
-        [InlineData(NewlyUnsupportedBookingAction.Cancel)]
-        public async Task RecalculateAppointmentStatuses_DoesntGoDownSingleServiceCodePath(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction)
-        {
-            _bookingAvailabilityStateService
-                .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), newlyUnsupportedBookingAction)).ReturnsAsync(
-                    new List<BookingAvailabilityUpdate>());
-
-            await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), newlyUnsupportedBookingAction);
-
-            //multiService code path
-            _bookingAvailabilityStateService.Verify(x => x.BuildRecalculations(
-                    MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), newlyUnsupportedBookingAction),
-                Times.Once);
-
-            //singleService code path
-            _bookingQueryService.Verify(x => x.GetBookings(
-                    It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite),
-                Times.Never);
-            _availabilityStore.Verify(x => x.GetSessions(
-                    MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>()),
-                Times.Never);
-        }
-
-        [Fact]
-        public async Task CancelAllBookingsInDayAsync_CallsBookingStore()
-        {
-            var date = new DateOnly(2025, 1, 1);
-            _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
-                .ReturnsAsync((5, 1, new List<Booking>()));
-
-            var result = await _sut.CancelAllBookingsInDayAsync("TEST_SITE_123", date);
-
-            result.Should().Be((5, 1));
-
-            _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
-        }
-
-        [Fact]
-        public async Task CancelAllBookingsInDayAsync_SendsNotifications()
-        {
-            var date = new DateOnly(2025, 1, 1);
-            var booking = new Booking
+            new()
             {
                 From = new DateTime(2025, 01, 01, 9, 0, 0),
                 Reference = "1",
-                ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Orphaned,
+                Duration = 10,
+                Service = "Service 1"
+            }
+        };
+        _bookingQueryService.Setup(x => x.GetBookingByReference(It.IsAny<string>())).ReturnsAsync(bookings.First());
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Cancel)).ReturnsAsync(
+                new List<BookingAvailabilityUpdate>
+                {
+                    new(bookings.First(), AvailabilityUpdateAction.SetToCancelled),
+                });
+
+        await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), NewlyUnsupportedBookingAction.Cancel);
+
+        _bookingsDocumentStore.Verify(
+            x => x.UpdateStatus(It.IsAny<string>(), AppointmentStatus.Cancelled,
+                It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RecalculateAppointmentStatuses_SchedulesOrphanedAppointmentsIfPossible()
+    {
+        var bookings = new List<Booking>
+        {
+            new()
+            {
+                From = new DateTime(2025, 01, 01, 9, 0, 0),
+                Reference = "1",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Orphaned,
+                Duration = 10,
+                Service = "Service 1"
+            },
+            new()
+            {
+                From = new DateTime(2025, 01, 01, 9, 10, 0),
+                Reference = "2",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Orphaned,
+                Duration = 10,
+                Service = "Service 1"
+            }
+        };
+
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan)).ReturnsAsync(
+                new List<BookingAvailabilityUpdate>
+                {
+                    new(bookings.First(), AvailabilityUpdateAction.SetToSupported),
+                    new(bookings.Last(), AvailabilityUpdateAction.SetToSupported),
+                });
+
+        await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+
+        _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                It.Is<string>(s => s == "1"),
+                It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
+            Times.Once);
+
+        _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                It.Is<string>(s => s == "2"),
+                It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Supported)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RecalculateAppointmentStatuses_OrphansLiveAppointmentsIfTheyCannotBeFulfilled()
+    {
+        var bookings = new List<Booking>
+        {
+            new()
+            {
+                From = new DateTime(2025, 01, 01, 9, 0, 0),
+                Reference = "1",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Duration = 10
+            },
+            new()
+            {
+                From = new DateTime(2025, 01, 01, 9, 10, 0),
+                Reference = "2",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Duration = 10
+            }
+        };
+
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan)).ReturnsAsync(
+                new List<BookingAvailabilityUpdate>
+                {
+                    new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
+                    new(bookings.Last(), AvailabilityUpdateAction.SetToOrphaned),
+                });
+
+        await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+
+        _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                It.Is<string>(s => s == "1"),
+                It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
+            Times.Once);
+
+        _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                It.Is<string>(s => s == "2"),
+                It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RecalculateAppointmentStatuses_DeletesProvisionalAppointments()
+    {
+        const string service = "Service 1";
+
+        IEnumerable<Booking> bookings = new List<Booking>
+        {
+            new()
+            {
+                From = new DateTime(2025, 01, 01, 9, 0, 0),
+                Reference = "1",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
                 Status = AppointmentStatus.Booked,
                 AvailabilityStatus = AvailabilityStatus.Supported,
                 Duration = 10,
                 Site = MockSite,
-                Service = "RSV:Adult",
-                AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber"}
-            };
-
-            _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
-                .ReturnsAsync((5, 1, new List<Booking> { booking }));
-
-            var result = await _sut.CancelAllBookingsInDayAsync("TEST_SITE_123", date);
-
-            result.Should().Be((5, 1));
-
-            _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
-            _messageBus.Verify(
-                x => x.Send(It.Is<BookingCancelled>(e => e.Reference == booking.Reference)),
-                Times.Once);
-        }
-
-        [Fact]
-        public void CanMergeAdditionalData()
-        {
-            var currentAdditionalData = new
+                Service = service
+            },
+            new()
             {
-                selfReferralOccupation = "Clinician",
-                isAppBooking = false,
-                favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
-            };
+                From = new DateTime(2025, 01, 01, 9, 10, 0),
+                Reference = "2",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                Status = AppointmentStatus.Provisional,
+                Duration = 10,
+                Site = MockSite,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Service = service
+            }
+        };
 
-            var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
-
-            var result = _sut.MergeAdditionalData(currentAdditionalData, newAdditionalData);
-
-            var expectedMergedResult = new Dictionary<string, object>
-            {
-                { "selfReferralOccupation", "Doctor" },
-                { "isAppBooking", false },
-                { "someNewProperty", "some new value" },
-                { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
-            };
-
-            result.Should().BeEquivalentTo(expectedMergedResult);
-        }
-
-        [Fact]
-        public void CanMergeAdditionalData__Old_Is_Null()
-        {
-            var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
-
-            var result = _sut.MergeAdditionalData(null, newAdditionalData);
-
-            var expectedMergedResult = new Dictionary<string, object>
-            {
-                { "selfReferralOccupation", "Doctor" }, { "someNewProperty", "some new value" }
-            };
-
-            result.Should().BeEquivalentTo(expectedMergedResult);
-        }
-
-        [Fact]
-        public void CanMergeAdditionalData__New_Is_Null()
-        {
-            var currentAdditionalData = new
-            {
-                selfReferralOccupation = "Clinician",
-                isAppBooking = false,
-                favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
-            };
-
-            var result = _sut.MergeAdditionalData(currentAdditionalData, null);
-
-            var expectedMergedResult = new Dictionary<string, object>
-            {
-                { "selfReferralOccupation", "Clinician" },
-                { "isAppBooking", false },
-                { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
-            };
-
-            result.Should().BeEquivalentTo(expectedMergedResult);
-        }
-
-        [Fact]
-        public void CanMergeAdditionalData__Both_Null()
-        {
-            var result = _sut.MergeAdditionalData(null, null);
-
-            result.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreNoBookingsToProcess()
-        {
-            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .ReturnsAsync([]);
-
-            await _sut.SendAutoCancelledBookingNotifications();
-
-            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreBookings_ButNoAutoCancelledOnes()
-        {
-            var bookings = new List<Booking>
-            {
-                new()
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan)).ReturnsAsync(
+                new List<BookingAvailabilityUpdate>
                 {
-                    Reference = "12345",
-                    ContactDetails =
-                    [
-                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
-                    ],
-                    Site = "Test Site 123",
-                    Status = AppointmentStatus.Cancelled,
-                    CancellationReason = CancellationReason.CancelledByService,
-                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified
-                }
-            };
+                    new(bookings.First(), AvailabilityUpdateAction.SetToOrphaned),
+                    new(bookings.Last(), AvailabilityUpdateAction.ProvisionalToDelete),
+                });
 
-            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .ReturnsAsync(bookings);
+        await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
 
-            await _sut.SendAutoCancelledBookingNotifications();
+        _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                It.Is<string>(s => s == "1"),
+                It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
+            Times.Once);
 
-            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
-        }
+        _bookingsDocumentStore.Verify(x => x.DeleteBooking(
+                It.Is<string>(s => s == "2"),
+                It.Is<string>(s => s == MockSite)),
+            Times.Once);
+    }
 
-        [Fact]
-        public async Task SendAutoCancelledNotifications_CallsMessageBus_WhenThereAreBookingsToProcess()
+    [Fact]
+    public async Task RecalculateAppointmentStatuses_ReturnsBookingsCanceledWithoutDetails()
+    {
+        const string service = "Service 1";
+        var days = new DateOnly[] {
+            new DateOnly(2025, 1, 1),
+            new DateOnly(2025, 1, 2)
+        };
+
+        var bookings = new Booking[]
         {
-            var bookings = new List<Booking>
+            new()
             {
-                new()
-                {
-                    Reference = "12345",
-                    ContactDetails =
-                    [
-                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
-                    ],
-                    Site = "Test Site 123",
-                    Status = AppointmentStatus.Cancelled,
-                    CancellationReason = CancellationReason.CancelledByService,
-                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
-                    AdditionalData = new
-                    {
-                        AutoCancellation = false
-                    },
-                    AttendeeDetails = new AttendeeDetails() { NhsNumber = "NhsNumber" }
+                From = new DateTime(2025, 01, 01, 9, 0, 0),
+                Reference = "1",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Duration = 10,
+                Site = MockSite,
+                Service = service,
+                ContactDetails = new ContactItem[] { 
+                    new ContactItem{ Type = ContactItemType.Email, Value = "test@mya.uk"}
                 },
-                new()
-                {
-                    Reference = "54321",
-                    ContactDetails =
-                    [
-                        new() { Type = ContactItemType.Phone, Value = "07777777777" }
-                    ],
-                    Site = "Test Site 123",
-                    Status = AppointmentStatus.Cancelled,
-                    CancellationReason = CancellationReason.CancelledByService,
-                    CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
-                    AdditionalData = new
-                    {
-                        AutoCancellation = true
-                    },
-                    AttendeeDetails = new AttendeeDetails() { NhsNumber = "NhsNumber" }
-                }
-            };
+            },
+            new()
+            {
+                From = new DateTime(2025, 01, 01, 9, 10, 0),
+                Reference = "2",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                Status = AppointmentStatus.Provisional,
+                Duration = 10,
+                Site = MockSite,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Service = service
+            },
+            new()
+            {
+                From = new DateTime(2025, 01, 02, 9, 0, 0),
+                Reference = "3",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Daniel", LastName = "Dixon" },
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Duration = 10,
+                Site = MockSite,
+                Service = service,
+                ContactDetails = null
+            },
+            new()
+            {
+                From = new DateTime(2025, 01, 02, 9, 10, 0),
+                Reference = "4",
+                AttendeeDetails = new AttendeeDetails { FirstName = "Alexander", LastName = "Cooper" },
+                Status = AppointmentStatus.Provisional,
+                Duration = 10,
+                Site = MockSite,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Service = service
+            }
+        };
+        
+        _bookingQueryService
+            .Setup(x => x.GetBookingByReference("1"))
+            .ReturnsAsync(new Booking()
+            {
+                Reference = "1",
+                Site = MockSite
+            });
+        
+        _bookingQueryService
+            .Setup(x => x.GetBookingByReference("3"))
+            .ReturnsAsync(new Booking()
+            {
+                Reference = "3",
+                Site = MockSite
+            });
 
-            _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
-                .ReturnsAsync(bookings);
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite,
+                It.Is<DateTime>(d => d.Date == new DateTime(2025, 1, 1)),
+                It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Cancel))
+            .ReturnsAsync(new List<BookingAvailabilityUpdate>
+            {
+                new(bookings[0], AvailabilityUpdateAction.SetToCancelled),
+                new(bookings[1], AvailabilityUpdateAction.ProvisionalToDelete)
+            });
 
-            await _sut.SendAutoCancelledBookingNotifications();
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite,
+                It.Is<DateTime>(d => d.Date == new DateTime(2025, 1, 2)),
+                It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Cancel))
+            .ReturnsAsync(new List<BookingAvailabilityUpdate>
+            {
+                new(bookings[2], AvailabilityUpdateAction.SetToCancelled),
+                new(bookings[3], AvailabilityUpdateAction.ProvisionalToDelete)
+            });
 
-            _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Once);
-        }
+        var result = await _sut.RecalculateAppointmentStatuses(MockSite, days, NewlyUnsupportedBookingAction.Cancel);
+        
+        result.BookingsCanceled.Should().Be(2);
+        result.BookingsCanceledWithoutDetails.Should().Be(1);
+        
+        //no need to orphan booking if its being cancelled
+        _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                It.Is<string>(s => s == "1"),
+                It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
+            Times.Never);
+        
+        //no need to orphan booking if its being cancelled
+        _bookingsDocumentStore.Verify(x => x.UpdateAvailabilityStatus(
+                It.Is<string>(s => s == "3"),
+                It.Is<AvailabilityStatus>(s => s == AvailabilityStatus.Orphaned)),
+            Times.Never);
+        
+        _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                It.Is<string>(s => s == "1"),
+                It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
+                AvailabilityStatus.Unknown,
+                CancellationReason.CancelledBySite,
+                It.IsAny<object>()),
+            Times.Once);
+        
+        _bookingsDocumentStore.Verify(x => x.UpdateStatus(
+                It.Is<string>(s => s == "3"),
+                It.Is<AppointmentStatus>(s => s == AppointmentStatus.Cancelled),
+                AvailabilityStatus.Unknown,
+                CancellationReason.CancelledBySite,
+                It.IsAny<object>()),
+            Times.Once);
 
-        [Fact]
-        public async Task CancelAllBookingsInDateRange_CancelsBookingsInSingleDay()
+        _bookingsDocumentStore.Verify(x => x.DeleteBooking(
+                It.Is<string>(s => s == "2"),
+                It.Is<string>(s => s == MockSite)),
+            Times.Once);
+        
+        _bookingsDocumentStore.Verify(x => x.DeleteBooking(
+                It.Is<string>(s => s == "4"),
+                It.Is<string>(s => s == MockSite)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task RecalculateAppointmentStatuses_MakesNoChangesIfAllAppointmentsAreStillValid()
+    {
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), NewlyUnsupportedBookingAction.Orphan))
+            .ReturnsAsync(new List<BookingAvailabilityUpdate>());
+
+        await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1));
+
+        _bookingsDocumentStore.Verify(
+            x => x.UpdateStatus(It.IsAny<string>(), AppointmentStatus.Cancelled,
+                It.IsAny<AvailabilityStatus>(), It.IsAny<CancellationReason>(), It.IsAny<object>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MakeBooking_CallsAllocationStateService_WhenBooking()
+    {
+        var siteId = "TEST";
+        var booking = new Booking { Site = siteId, Service = "TSERV", From = new DateTime(2077, 1, 1) };
+
+        _siteLeaseManager.Setup(x => x.Acquire(siteId, new DateOnly(2077, 1, 1))).Returns(new FakeLeaseContext());
+        _bookingAvailabilityStateService
+            .Setup(x => x.GetAvailableSlots(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(new List<SessionInstance>());
+        await _sut.MakeBooking(booking);
+        _bookingAvailabilityStateService.Verify(x =>
+            x.GetAvailableSlots(booking.Site, booking.From, booking.From.AddMinutes(booking.Duration)));
+    }
+
+    [Theory]
+    [InlineData(NewlyUnsupportedBookingAction.Orphan)]
+    [InlineData(NewlyUnsupportedBookingAction.Cancel)]
+    public async Task RecalculateAppointmentStatuses_DoesntGoDownSingleServiceCodePath(NewlyUnsupportedBookingAction newlyUnsupportedBookingAction)
+    {
+        _bookingAvailabilityStateService
+            .Setup(x => x.BuildRecalculations(MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), newlyUnsupportedBookingAction)).ReturnsAsync(
+                new List<BookingAvailabilityUpdate>());
+
+        await _sut.RecalculateAppointmentStatuses(MockSite, new DateOnly(2025, 1, 1), newlyUnsupportedBookingAction);
+
+        //multiService code path
+        _bookingAvailabilityStateService.Verify(x => x.BuildRecalculations(
+                MockSite, It.IsAny<DateTime>(), It.IsAny<DateTime>(), newlyUnsupportedBookingAction),
+            Times.Once);
+
+        //singleService code path
+        _bookingQueryService.Verify(x => x.GetBookings(
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), MockSite),
+            Times.Never);
+        _availabilityStore.Verify(x => x.GetSessions(
+                MockSite, It.IsAny<DateOnly>(), It.IsAny<DateOnly>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CancelAllBookingsInDayAsync_CallsBookingStore()
+    {
+        var date = new DateOnly(2025, 1, 1);
+        _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync((5, 1, new List<Booking>()));
+
+        var result = await _sut.CancelAllBookingsInDayAsync("TEST_SITE_123", date);
+
+        result.Should().Be((5, 1));
+
+        _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
+    }
+
+    [Fact]
+    public async Task CancelAllBookingsInDayAsync_SendsNotifications()
+    {
+        var date = new DateOnly(2025, 1, 1);
+        var booking = new Booking
         {
-            var date = new DateOnly(2025, 1, 1);
-            var booking = new Booking
+            From = new DateTime(2025, 01, 01, 9, 0, 0),
+            Reference = "1",
+            ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
+            Status = AppointmentStatus.Booked,
+            AvailabilityStatus = AvailabilityStatus.Supported,
+            Duration = 10,
+            Site = MockSite,
+            Service = "RSV:Adult",
+            AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber"}
+        };
+
+        _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync((5, 1, new List<Booking> { booking }));
+
+        var result = await _sut.CancelAllBookingsInDayAsync("TEST_SITE_123", date);
+
+        result.Should().Be((5, 1));
+
+        _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
+        _messageBus.Verify(
+            x => x.Send(It.Is<BookingCancelled>(e => e.Reference == booking.Reference)),
+            Times.Once);
+    }
+
+    [Fact]
+    public void CanMergeAdditionalData()
+    {
+        var currentAdditionalData = new
+        {
+            selfReferralOccupation = "Clinician",
+            isAppBooking = false,
+            favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
+        };
+
+        var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
+
+        var result = _sut.MergeAdditionalData(currentAdditionalData, newAdditionalData);
+
+        var expectedMergedResult = new Dictionary<string, object>
+        {
+            { "selfReferralOccupation", "Doctor" },
+            { "isAppBooking", false },
+            { "someNewProperty", "some new value" },
+            { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
+        };
+
+        result.Should().BeEquivalentTo(expectedMergedResult);
+    }
+
+    [Fact]
+    public void CanMergeAdditionalData__Old_Is_Null()
+    {
+        var newAdditionalData = new { selfReferralOccupation = "Doctor", someNewProperty = "some new value" };
+
+        var result = _sut.MergeAdditionalData(null, newAdditionalData);
+
+        var expectedMergedResult = new Dictionary<string, object>
+        {
+            { "selfReferralOccupation", "Doctor" }, { "someNewProperty", "some new value" }
+        };
+
+        result.Should().BeEquivalentTo(expectedMergedResult);
+    }
+
+    [Fact]
+    public void CanMergeAdditionalData__New_Is_Null()
+    {
+        var currentAdditionalData = new
+        {
+            selfReferralOccupation = "Clinician",
+            isAppBooking = false,
+            favouriteFruit = new List<string>(["Apples", "Oranges", "Pears"])
+        };
+
+        var result = _sut.MergeAdditionalData(currentAdditionalData, null);
+
+        var expectedMergedResult = new Dictionary<string, object>
+        {
+            { "selfReferralOccupation", "Clinician" },
+            { "isAppBooking", false },
+            { "favouriteFruit", new List<string>(["Apples", "Oranges", "Pears"]) }
+        };
+
+        result.Should().BeEquivalentTo(expectedMergedResult);
+    }
+
+    [Fact]
+    public void CanMergeAdditionalData__Both_Null()
+    {
+        var result = _sut.MergeAdditionalData(null, null);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreNoBookingsToProcess()
+    {
+        _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ReturnsAsync([]);
+
+        await _sut.SendAutoCancelledBookingNotifications();
+
+        _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SendAutoCancelledNotifications_DoesNotCallMessageBus_WhenThereAreBookings_ButNoAutoCancelledOnes()
+    {
+        var bookings = new List<Booking>
+        {
+            new()
+            {
+                Reference = "12345",
+                ContactDetails =
+                [
+                    new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                ],
+                Site = "Test Site 123",
+                Status = AppointmentStatus.Cancelled,
+                CancellationReason = CancellationReason.CancelledByService,
+                CancellationNotificationStatus = CancellationNotificationStatus.Unnotified
+            }
+        };
+
+        _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(bookings);
+
+        await _sut.SendAutoCancelledBookingNotifications();
+
+        _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SendAutoCancelledNotifications_CallsMessageBus_WhenThereAreBookingsToProcess()
+    {
+        var bookings = new List<Booking>
+        {
+            new()
+            {
+                Reference = "12345",
+                ContactDetails =
+                [
+                    new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                ],
+                Site = "Test Site 123",
+                Status = AppointmentStatus.Cancelled,
+                CancellationReason = CancellationReason.CancelledByService,
+                CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
+                AdditionalData = new
+                {
+                    AutoCancellation = false
+                },
+                AttendeeDetails = new AttendeeDetails() { NhsNumber = "NhsNumber" }
+            },
+            new()
+            {
+                Reference = "54321",
+                ContactDetails =
+                [
+                    new() { Type = ContactItemType.Phone, Value = "07777777777" }
+                ],
+                Site = "Test Site 123",
+                Status = AppointmentStatus.Cancelled,
+                CancellationReason = CancellationReason.CancelledByService,
+                CancellationNotificationStatus = CancellationNotificationStatus.Unnotified,
+                AdditionalData = new
+                {
+                    AutoCancellation = true
+                },
+                AttendeeDetails = new AttendeeDetails() { NhsNumber = "NhsNumber" }
+            }
+        };
+
+        _bookingQueryService.Setup(x => x.GetRecentlyUpdatedBookingsCrossSiteAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ReturnsAsync(bookings);
+
+        await _sut.SendAutoCancelledBookingNotifications();
+
+        _messageBus.Verify(x => x.Send(It.IsAny<BookingAutoCancelled[]>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CancelAllBookingsInDateRange_CancelsBookingsInSingleDay()
+    {
+        var date = new DateOnly(2025, 1, 1);
+        var booking = new Booking
+        {
+            From = new DateTime(2025, 01, 01, 9, 0, 0),
+            Reference = "1",
+            ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
+            Status = AppointmentStatus.Booked,
+            AvailabilityStatus = AvailabilityStatus.Supported,
+            Duration = 10,
+            Site = MockSite,
+            Service = "RSV:Adult",
+            AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber" }
+        };
+
+        _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync((5, 1, new List<Booking> { booking }));
+
+        var result = await _sut.CancelAllBookingsInDateRangeAsync("TEST_SITE_123", date, date);
+
+        result.Should().Be((5, 1));
+
+        _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
+        _messageBus.Verify(
+            x => x.Send(It.Is<BookingCancelled>(e => e.Reference == booking.Reference)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CancelAllBookingsInDateRange_CancelsAllBookingsOverMultipleDays()
+    {
+        var start = new DateOnly(2025, 1, 1);
+        var end = new DateOnly(2025, 1, 3);
+        var bookings = new List<Booking>
+        {
+            new()
             {
                 From = new DateTime(2025, 01, 01, 9, 0, 0),
                 Reference = "1",
@@ -1216,102 +1487,70 @@ namespace Nhs.Appointments.Core.UnitTests
                 Site = MockSite,
                 Service = "RSV:Adult",
                 AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber" }
-            };
-
-            _bookingsDocumentStore.Setup(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
-                .ReturnsAsync((5, 1, new List<Booking> { booking }));
-
-            var result = await _sut.CancelAllBookingsInDateRangeAsync("TEST_SITE_123", date, date);
-
-            result.Should().Be((5, 1));
-
-            _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", date), Times.Once);
-            _messageBus.Verify(
-                x => x.Send(It.Is<BookingCancelled>(e => e.Reference == booking.Reference)),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task CancelAllBookingsInDateRange_CancelsAllBookingsOverMultipleDays()
-        {
-            var start = new DateOnly(2025, 1, 1);
-            var end = new DateOnly(2025, 1, 3);
-            var bookings = new List<Booking>
+            },
+            new()
             {
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 0, 0),
-                    Reference = "1",
-                    ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10,
-                    Site = MockSite,
-                    Service = "RSV:Adult",
-                    AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber" }
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 02, 9, 10, 0),
-                    Reference = "2",
-                    ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10,
-                    Site = MockSite,
-                    Service = "FLU:18_64",
-                    AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber" }
-                },
-                new()
-                {
-                    From = new DateTime(2025, 01, 01, 9, 0, 0),
-                    Reference = "3",
-                    ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
-                    Status = AppointmentStatus.Booked,
-                    AvailabilityStatus = AvailabilityStatus.Supported,
-                    Duration = 10,
-                    Site = MockSite,
-                    Service = "COVID:18+",
-                    AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber" }
-                },
-            };
+                From = new DateTime(2025, 01, 02, 9, 10, 0),
+                Reference = "2",
+                ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Duration = 10,
+                Site = MockSite,
+                Service = "FLU:18_64",
+                AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber" }
+            },
+            new()
+            {
+                From = new DateTime(2025, 01, 01, 9, 0, 0),
+                Reference = "3",
+                ContactDetails = [new() { Type = ContactItemType.Phone, Value = "01234 567890", }],
+                Status = AppointmentStatus.Booked,
+                AvailabilityStatus = AvailabilityStatus.Supported,
+                Duration = 10,
+                Site = MockSite,
+                Service = "COVID:18+",
+                AttendeeDetails = new AttendeeDetails { NhsNumber = "NhsNumber" }
+            },
+        };
 
-            _bookingsDocumentStore.SetupSequence(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
-                .ReturnsAsync((5, 1, [.. bookings.Skip(0).Take(1)]))
-                .ReturnsAsync((5, 1, [.. bookings.Skip(1).Take(1)]))
-                .ReturnsAsync((5, 1, [.. bookings.Skip(2).Take(1)]));
+        _bookingsDocumentStore.SetupSequence(x => x.CancelAllBookingsInDay(It.IsAny<string>(), It.IsAny<DateOnly>()))
+            .ReturnsAsync((5, 1, [.. bookings.Skip(0).Take(1)]))
+            .ReturnsAsync((5, 1, [.. bookings.Skip(1).Take(1)]))
+            .ReturnsAsync((5, 1, [.. bookings.Skip(2).Take(1)]));
 
-            var result = await _sut.CancelAllBookingsInDateRangeAsync("TEST_SITE_123", start, end);
+        var result = await _sut.CancelAllBookingsInDateRangeAsync("TEST_SITE_123", start, end);
 
-            result.Should().Be((15, 3));
+        result.Should().Be((15, 3));
 
-            _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", It.IsAny<DateOnly>()), Times.Exactly(3));
-            _messageBus.Verify(x => x.Send(It.IsAny<BookingCancelled>()), Times.Exactly(3));
-        }
+        _bookingsDocumentStore.Verify(x => x.CancelAllBookingsInDay("TEST_SITE_123", It.IsAny<DateOnly>()), Times.Exactly(3));
+        _messageBus.Verify(x => x.Send(It.IsAny<BookingCancelled>()), Times.Exactly(3));
+    }
+}
+
+public class FakeLeaseManager : ISiteLeaseManager
+{
+    public FakeLeaseManager()
+    {
+        WaitHandle = new AutoResetEvent(false);
     }
 
-    public class FakeLeaseManager : ISiteLeaseManager
+
+    public AutoResetEvent WaitHandle { get; }
+
+    public ISiteLeaseContext Acquire(string site, DateOnly date)
     {
-        public FakeLeaseManager()
-        {
-            WaitHandle = new AutoResetEvent(false);
-        }
-
-
-        public AutoResetEvent WaitHandle { get; }
-
-        public ISiteLeaseContext Acquire(string site)
-        {
-            WaitHandle.WaitOne();
-            return new FakeLeaseContext();
-        }
+        WaitHandle.WaitOne();
+        return new FakeLeaseContext();
     }
+}
 
-    public class FakeLeaseContext : ISiteLeaseContext
+public class FakeLeaseContext : ISiteLeaseContext
+{
+    public string SiteKey => Guid.NewGuid().ToString();
+
+    public void Dispose()
     {
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
+        GC.SuppressFinalize(this);
     }
 }

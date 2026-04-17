@@ -1,28 +1,15 @@
 using System.Collections.Concurrent;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Nhs.Appointments.Core.Caching;
 
-public record LazySlideCacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan SlideThreshold, TimeSpan AbsoluteExpiration);
-public record CacheOptions<T>(Func<Task<T>> UpdateOperation, TimeSpan AbsoluteExpiration);
-
-public interface ICacheService
-{
-    Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options);
-
-    Task<T> GetCacheValue<T>(string cacheKey, CacheOptions<T> options);
-}
-
-public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) : ICacheService
+public class CacheService(ICacheStore cacheStore, TimeProvider timeProvider) : ICacheService
 {
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> LazySlidingCacheLocks = new();
-
-    internal static string LazySlideCacheKey(string cacheKey) => $"LazySlide:{cacheKey}";
     
     public async Task<T> GetLazySlidingCacheValue<T>(string cacheKey, LazySlideCacheOptions<T> options)
     {
         //intentionally prefix cache key indicating that it is a lazy sliding value
-        var lazySlideCacheKey = LazySlideCacheKey(cacheKey);
+        var lazySlideCacheKey = CacheKey.LazySlideCacheKey(cacheKey);
         
         if (options.AbsoluteExpiration <= options.SlideThreshold)
         {
@@ -41,7 +28,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
 
         try
         {
-            if (memoryCache.TryGetValue<LazySlideCacheObject>(lazySlideCacheKey, out var lazySlideCacheObject))
+            if (await cacheStore.TryGetAsync<LazySlideCacheObject>(lazySlideCacheKey, out var lazySlideCacheObject))
             {
                 ArgumentNullException.ThrowIfNull(lazySlideCacheObject);
             
@@ -62,7 +49,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
             }
             
             var value = await options.UpdateOperation();
-            memoryCache.Set(lazySlideCacheKey, new LazySlideCacheObject(value, utcNow),
+            await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject(value, utcNow),
                 utcNow.Add(options.AbsoluteExpiration));
             return value;
         }
@@ -78,7 +65,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
 
     public async Task<T> GetCacheValue<T>(string cacheKey, CacheOptions<T> options)
     {
-        if (memoryCache.TryGetValue<CacheObject<T>>(cacheKey, out var cacheObj))
+        if (await cacheStore.TryGetAsync<CacheObject<T>>(cacheKey, out var cacheObj))
         {
             ArgumentNullException.ThrowIfNull(cacheObj);
             if (cacheObj.Value != null)
@@ -88,8 +75,31 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         }
         
         var newValue = await options.UpdateOperation();
-        memoryCache.Set(cacheKey, new CacheObject<T>(newValue), options.AbsoluteExpiration);
+
+        await cacheStore.SetAsync(cacheKey, new CacheObject<T>(newValue), options.AbsoluteExpiration);
         return newValue;
+    }
+
+    public async Task<T> GetCacheValueWithDefault<T>(string cacheKey, CacheOptions<T> options, T defaultValue)
+    {
+        if (await cacheStore.TryGetAsync<CacheObject<T>>(cacheKey, out var cacheObj))
+        {
+            ArgumentNullException.ThrowIfNull(cacheObj);
+            if (cacheObj.Value != null)
+            {
+                return cacheObj.Value;
+            }
+        }
+        
+        var tryResult = await TryPattern.TryAsync(options.UpdateOperation);
+            
+        if (!tryResult.Completed)
+        {
+            return defaultValue;
+        }
+
+        await cacheStore.SetAsync(cacheKey, new CacheObject<T>(tryResult.Result), options.AbsoluteExpiration);
+        return tryResult.Result;
     }
 
     private async Task SlideCache<T>(string lazySlideCacheKey, LazySlideCacheOptions<T> options, SemaphoreSlim lazySlideCacheLock, T lazyValue, DateTimeOffset dateTime)
@@ -97,7 +107,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         try
         {
             //update the cache datetime prematurely so that concurrent waiting threads do not trigger their own slide operation
-            memoryCache.Set(lazySlideCacheKey, new LazySlideCacheObject(lazyValue, dateTime),
+            await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject(lazyValue, dateTime),
                 dateTime.Add(options.AbsoluteExpiration));
         }
         finally
@@ -108,10 +118,7 @@ public class CacheService(IMemoryCache memoryCache, TimeProvider timeProvider) :
         
         //then update the actual value now that no locks are being held
         var value = await options.UpdateOperation();
-        memoryCache.Set(lazySlideCacheKey, new LazySlideCacheObject(value, dateTime),
+        await cacheStore.SetAsync(lazySlideCacheKey, new LazySlideCacheObject(value, dateTime),
             dateTime.Add(options.AbsoluteExpiration));
     }
-
-    internal record LazySlideCacheObject(object Value, DateTimeOffset DateTimeUpdated);
-    internal record CacheObject<T>(T Value);
 }

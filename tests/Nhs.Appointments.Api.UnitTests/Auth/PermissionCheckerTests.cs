@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Nhs.Appointments.Api.Auth;
+using Nhs.Appointments.Core.Caching;
 using Nhs.Appointments.Core.Sites;
 using Nhs.Appointments.Core.Users;
 
@@ -23,7 +24,7 @@ public class PermissionCheckerTests
         _sut = new PermissionChecker(
             _userAssignmentService.Object,
             _roleService.Object,
-            _cache.Object,
+            new CacheService(new InMemoryCacheStore(_cache.Object), TimeProvider.System),
             _siteService.Object);
 
         _cache.Setup(x => x.CreateEntry(It.IsAny<string>())).Returns(_cacheEntry.Object);

@@ -118,8 +118,8 @@ public class AvailabilityDocumentStore(
                 .WithParameter("@services", services.ToArray())
                 .WithParameter("@requestedServiceCount", services.Count);
 
-            var dailyAvailabilityDocuments = await documentStore.RunSqlQueryAsync(queryDef);
-            return dailyAvailabilityDocuments.Any();
+            var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(queryDef)).Single();
+            return dailyAvailabilityCount > 0;
         }
     }
 

@@ -176,6 +176,14 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         return await IterateResults(queryFeed, canExtractRequestCharge: false);
     }
 
+    public async Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
+    {
+        var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
+            queryDefinition: query);
+
+        return await IterateResults(queryFeed, canExtractRequestCharge: false);
+    }
+
     public async Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches)
     {
         var patchList = patches.ToList();

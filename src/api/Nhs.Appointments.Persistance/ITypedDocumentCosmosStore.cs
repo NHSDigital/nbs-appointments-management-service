@@ -17,4 +17,5 @@ public interface ITypedDocumentCosmosStore<TDocument>
     TDocument NewDocument();
     Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches);
     string GetDocumentType();
+    Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query);
 }

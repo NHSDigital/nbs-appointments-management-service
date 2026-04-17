@@ -1,20 +1,29 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { timeZones } from '../../availability';
 import { test, expect, BookingSetup } from '../../fixtures-v2';
 import {
   daysFromToday,
   getDateInFuture,
   getLongDayDateText,
 } from '../../utils/date-utility';
-import { ukNow, startOfUkWeek, endOfUkWeek } from '@services/timeService';
+import {
+  ukNow,
+  startOfUkWeek,
+  endOfUkWeek,
+  parseDateComponentsToUkDatetime,
+  isAfterCalendarDateUk,
+  isBeforeCalendarDateUk,
+} from '@services/timeService';
 
 test.describe.configure({ mode: 'serial' });
 
-['Europe/London'].forEach(timezone => {
+timeZones.forEach(timezone => {
   test.describe(`Test in timezone: '${timezone}'`, () => {
     test.use({ timezoneId: timezone });
 
     [true, false].forEach(CancelADateRangeFlagEnabled => {
       test.describe(`Test with CancelADateRangeFlag: '${CancelADateRangeFlagEnabled}'`, () => {
-        test.describe('Cancel A Date Range Button is available', () => {
+        test.describe('Cancel a date range button is available', () => {
           test('Cancel a date range monthly page', async ({ setup }) => {
             const { sitePage } = await setup({
               features: [
@@ -193,7 +202,7 @@ test.describe.configure({ mode: 'serial' });
           });
         });
 
-        test.describe('Select Dates To Cancel', () => {
+        test.describe('Select dates to cancel', () => {
           test('Select dates to cancel error, must be in the future', async ({
             setup,
           }) => {
@@ -348,10 +357,53 @@ test.describe.configure({ mode: 'serial' });
               });
           });
 
-          test('Select dates to cancel error within 3 months - 90 days or less', async ({
+          test('Select dates to cancel - 88 days valid - Clocks forward boundary', async ({
             setup,
           }) => {
+            //can only run this test when *NOW* is not within the targetted period of the test
+            const now = ukNow();
+            //TODO handle leap years :/ (2028 next one...)
+            const currentYear = now.year();
+            const nextYear = currentYear + 1;
+            const endDate = parseDateComponentsToUkDatetime({
+              day: 1,
+              month: 4,
+              year: currentYear,
+            });
+
+            const canRuntest = isAfterCalendarDateUk(now, endDate!);
+
+            if (!canRuntest) {
+              test.skip();
+            }
+
             const { sitePage } = await setup({
+              availability: [
+                {
+                  date: `${nextYear}-02-10`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: `${nextYear}-04-01`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
               features: [
                 {
                   name: 'CancelADateRange',
@@ -379,22 +431,74 @@ test.describe.configure({ mode: 'serial' });
                   await changeAvailabilityPage.clickContinueButton(),
               )
               .then(async selectDatePage => {
-                const startDate = getDateInFuture(1);
-                const endDate = getDateInFuture(90);
-                await selectDatePage.fillDates(startDate, endDate);
+                await selectDatePage.fillDates(
+                  {
+                    day: 3,
+                    month: 1,
+                    year: nextYear,
+                  },
+                  {
+                    day: 1,
+                    month: 4,
+                    year: nextYear,
+                  },
+                );
                 return await selectDatePage.clickContinueButton();
               })
               .then(async cancellationImpactPage => {
                 await expect(
-                  cancellationImpactPage.noSessionsHeading,
+                  cancellationImpactPage.cancelSessionsHeading(2),
                 ).toBeVisible();
               });
           });
 
-          test('Select dates to cancel error within 3 months - greater than 90 days', async ({
+          test('Select dates to cancel - 89 days valid - Clocks forward boundary', async ({
             setup,
           }) => {
+            //can only run this test when *NOW* is not within the targetted period of the test
+            const now = ukNow();
+            //TODO handle leap years :/ (2028 next one...)
+            const currentYear = now.year();
+            const nextYear = currentYear + 1;
+            const endDate = parseDateComponentsToUkDatetime({
+              day: 2,
+              month: 4,
+              year: currentYear,
+            });
+
+            const canRuntest = isAfterCalendarDateUk(now, endDate!);
+
+            if (!canRuntest) {
+              test.skip();
+            }
+
             const { sitePage } = await setup({
+              availability: [
+                {
+                  date: `${nextYear}-02-10`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: `${nextYear}-04-01`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
               features: [
                 {
                   name: 'CancelADateRange',
@@ -422,9 +526,113 @@ test.describe.configure({ mode: 'serial' });
                   await changeAvailabilityPage.clickContinueButton(),
               )
               .then(async selectDatePage => {
-                const startDate = getDateInFuture(1);
-                const endDate = getDateInFuture(91);
-                await selectDatePage.fillDates(startDate, endDate);
+                await selectDatePage.fillDates(
+                  {
+                    day: 3,
+                    month: 1,
+                    year: nextYear,
+                  },
+                  {
+                    day: 2,
+                    month: 4,
+                    year: nextYear,
+                  },
+                );
+                return await selectDatePage.clickContinueButton();
+              })
+              .then(async cancellationImpactPage => {
+                await expect(
+                  cancellationImpactPage.cancelSessionsHeading(2),
+                ).toBeVisible();
+              });
+          });
+
+          test('Select dates to cancel - 90 days invalid - Clocks forward boundary', async ({
+            setup,
+          }) => {
+            //can only run this test when *NOW* is not within the targetted period of the test
+            const now = ukNow();
+            //TODO handle leap years :/ (2028 next one...)
+            const currentYear = now.year();
+            const nextYear = currentYear + 1;
+            const endDate = parseDateComponentsToUkDatetime({
+              day: 3,
+              month: 4,
+              year: currentYear,
+            });
+
+            const canRuntest = isAfterCalendarDateUk(now, endDate!);
+
+            if (!canRuntest) {
+              test.skip();
+            }
+
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: `${nextYear}-02-10`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: `${nextYear}-04-01`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 3,
+                    month: 1,
+                    year: nextYear,
+                  },
+                  {
+                    day: 3,
+                    month: 4,
+                    year: nextYear,
+                  },
+                );
                 await selectDatePage.clickContinueButtonForError();
 
                 await expect(selectDatePage.startDateError).toContainText(
@@ -434,14 +642,288 @@ test.describe.configure({ mode: 'serial' });
                 await expect(selectDatePage.endDateError).toContainText(
                   /End date must be within 90 days of the start date/i,
                 );
+              });
+          });
 
-                await expect(selectDatePage.backButton).toBeVisible();
-                return await selectDatePage.clickBackButton();
+          test('Select dates to cancel - 88 days valid - Clocks backward boundary', async ({
+            setup,
+          }) => {
+            //can only run this test when *NOW* is not within the targetted period of the test
+            const now = ukNow();
+            const currentYear = now.year();
+            const startDate = parseDateComponentsToUkDatetime({
+              day: 30,
+              month: 9,
+              year: currentYear,
+            });
+
+            const canRuntest = isBeforeCalendarDateUk(now, startDate!);
+
+            if (!canRuntest) {
+              test.skip();
+            }
+
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: `${currentYear}-09-30`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: `${currentYear}-11-15`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
               })
-              .then(async changeAvailabilityPage => {
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 30,
+                    month: 9,
+                    year: currentYear,
+                  },
+                  {
+                    day: 27,
+                    month: 12,
+                    year: currentYear,
+                  },
+                );
+                return await selectDatePage.clickContinueButton();
+              })
+              .then(async cancellationImpactPage => {
                 await expect(
-                  changeAvailabilityPage.beforeYouContinueHeading,
+                  cancellationImpactPage.cancelSessionsHeading(2),
                 ).toBeVisible();
+              });
+          });
+
+          test('Select dates to cancel - 89 days valid - Clocks backward boundary', async ({
+            setup,
+          }) => {
+            //can only run this test when *NOW* is not within the targetted period of the test
+            const now = ukNow();
+            const currentYear = now.year();
+            const startDate = parseDateComponentsToUkDatetime({
+              day: 30,
+              month: 9,
+              year: currentYear,
+            });
+
+            const canRuntest = isBeforeCalendarDateUk(now, startDate!);
+
+            if (!canRuntest) {
+              test.skip();
+            }
+
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: `${currentYear}-09-30`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: `${currentYear}-11-15`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 30,
+                    month: 9,
+                    year: currentYear,
+                  },
+                  {
+                    day: 28,
+                    month: 12,
+                    year: currentYear,
+                  },
+                );
+                return await selectDatePage.clickContinueButton();
+              })
+              .then(async cancellationImpactPage => {
+                await expect(
+                  cancellationImpactPage.cancelSessionsHeading(2),
+                ).toBeVisible();
+              });
+          });
+
+          test('Select dates to cancel - 90 days invalid - Clocks backward boundary', async ({
+            setup,
+          }) => {
+            //can only run this test when *NOW* is not within the targetted period of the test
+            const now = ukNow();
+            const currentYear = now.year();
+            const startDate = parseDateComponentsToUkDatetime({
+              day: 30,
+              month: 9,
+              year: currentYear,
+            });
+
+            const canRuntest = isBeforeCalendarDateUk(now, startDate!);
+
+            if (!canRuntest) {
+              test.skip();
+            }
+
+            const { sitePage } = await setup({
+              availability: [
+                {
+                  date: `${currentYear}-09-30`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+                {
+                  date: `${currentYear}-11-15`,
+                  sessions: [
+                    {
+                      from: '09:00',
+                      until: '10:00',
+                      services: ['RSV:Adult'],
+                      slotLength: 5,
+                      capacity: 5,
+                    },
+                  ],
+                },
+              ],
+              features: [
+                {
+                  name: 'CancelADateRange',
+                  enabled: CancelADateRangeFlagEnabled,
+                },
+              ],
+            });
+
+            await sitePage
+              .clickSiteAvailabilityCard()
+              .then(async dayViewAvailabilityPage => {
+                return await dayViewAvailabilityPage.clickMonthViewLink();
+              })
+              .then(async monthViewAvailabilityPage => {
+                if (!CancelADateRangeFlagEnabled) {
+                  await expect(
+                    monthViewAvailabilityPage.changeAvailabilityButton,
+                  ).not.toBeVisible();
+                  test.skip();
+                }
+                return await monthViewAvailabilityPage.clickChangeAvailabilityButton();
+              })
+              .then(
+                async changeAvailabilityPage =>
+                  await changeAvailabilityPage.clickContinueButton(),
+              )
+              .then(async selectDatePage => {
+                await selectDatePage.fillDates(
+                  {
+                    day: 30,
+                    month: 9,
+                    year: currentYear,
+                  },
+                  {
+                    day: 29,
+                    month: 12,
+                    year: currentYear,
+                  },
+                );
+                await selectDatePage.clickContinueButtonForError();
+
+                await expect(selectDatePage.startDateError).toContainText(
+                  /Start date must be within 90 days of the end date/i,
+                );
+
+                await expect(selectDatePage.endDateError).toContainText(
+                  /End date must be within 90 days of the start date/i,
+                );
               });
           });
         });
@@ -898,7 +1380,7 @@ test.describe.configure({ mode: 'serial' });
           });
         });
 
-        test.describe('Cancellation Confirmation', () => {
+        test.describe('Cancellation confirmation', () => {
           test('Cancel sessions, verify sessions have been cancelled', async ({
             setup,
           }) => {

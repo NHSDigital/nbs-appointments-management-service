@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
+using Nhs.Appointments.Api.Availability;
 using Nhs.Appointments.Api.Models;
 using Nhs.Appointments.Api.Validators;
 
@@ -9,14 +11,19 @@ public class CancelDateRangeRequestValidatorTests
 {
     private readonly Mock<TimeProvider> _timeProvider = new();
     private readonly CancelDateRangeRequestValidator _sut;
+    private readonly Mock<IOptions<ChangeAvailabilityOptions>> _availabilityConfig = new();
 
     public CancelDateRangeRequestValidatorTests()
     {
         _timeProvider
             .Setup(x => x.GetUtcNow())
-            .Returns(new DateTimeOffset(DateTime.Parse("2076-12-31T00:00:00Z")));
+            .Returns(new DateTimeOffset(DateTime.Parse("2075-12-31T00:00:00Z")));
+        _availabilityConfig.Setup(x => x.Value).Returns(new ChangeAvailabilityOptions
+        {
+            CancelADateRangeMaximumDays = 90
+        });
 
-        _sut = new CancelDateRangeRequestValidator(_timeProvider.Object);
+        _sut = new CancelDateRangeRequestValidator(_timeProvider.Object, _availabilityConfig.Object);
     }
 
     [Theory]
@@ -105,7 +112,7 @@ public class CancelDateRangeRequestValidatorTests
 
         result.IsValid.Should().BeFalse();
         result.Errors.Count.Should().Be(3);
-        result.Errors.Last().ErrorMessage.Should().Be("Date must be in the future.");
+        result.Errors.Last().ErrorMessage.Should().Be("To date must be in the future.");
     }
 
     [Fact]
@@ -115,6 +122,90 @@ public class CancelDateRangeRequestValidatorTests
             "test-site-123",
             DateOnly.Parse("2077-03-01"),
             DateOnly.Parse("2077-06-01"),
+            false);
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate89DaysAfterFromDate_DSTCrossed_1()
+    {
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-01-15"),
+            DateOnly.Parse("2077-04-14"),
+            false);
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate90DaysAfterFromDate_DSTCrossed_1()
+    {
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-01-14"),
+            DateOnly.Parse("2077-04-14"),
+            false);
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate89DaysAfterFromDate_DSTCrossed_2()
+    {
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-09-01"),
+            DateOnly.Parse("2077-11-29"),
+            false);
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate90DaysAfterFromDate_DSTCrossed_2()
+    {
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2077-09-01"),
+            DateOnly.Parse("2077-11-30"),
+            false);
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate89DaysAfterFromDate_DSTCrossed_LeapYear_1()
+    {
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2076-01-16"),
+            DateOnly.Parse("2076-04-14"),
+            false);
+
+        var result = _sut.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void PassesValidation_WhenToDate90DaysAfterFromDate_DSTCrossed_LeapYear_2()
+    {
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            DateOnly.Parse("2076-01-15"),
+            DateOnly.Parse("2076-04-14"),
             false);
 
         var result = _sut.Validate(request);
@@ -134,6 +225,45 @@ public class CancelDateRangeRequestValidatorTests
         var result = _sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
+    }
+    
+    [Theory]
+    [InlineData(91, 90, false)]
+    [InlineData(90, 90, false)]
+    [InlineData(89, 90, true)]
+    [InlineData(88, 90, true)]
+    
+    [InlineData(0, 10, true)]
+    [InlineData(9, 10, true)]
+    [InlineData(10, 10, false)]
+    [InlineData(90, 10, false)]
+    
+    [InlineData(0, 1, true)]
+    [InlineData(1, 1, false)]
+    
+    //if you set the CancelADateRangeMaximumDays config to zero, no values are valid!
+    [InlineData(0, 0, false)]
+    [InlineData(1, 0, false)]
+    public void ExpectedOutcomes_WhenToDate_MoreThanIncrementDays_AfterStartDate_WithMaxConfiguration(int incrementDays, int cancelADateRangeMaximumDays, bool expectedOutcome)
+    {
+        _availabilityConfig.Setup(x => x.Value).Returns(new ChangeAvailabilityOptions
+        {
+            CancelADateRangeMaximumDays = cancelADateRangeMaximumDays
+        });
+
+        var sut = new CancelDateRangeRequestValidator(_timeProvider.Object, _availabilityConfig.Object);
+
+        var startDate = DateOnly.Parse("2077-04-01");
+        var endDate = startDate.AddDays(incrementDays);
+        
+        var request = new CancelDateRangeRequest(
+            "test-site-123",
+            startDate,
+            endDate,
+            false);
+
+        var result = sut.Validate(request);
+        result.IsValid.Should().Be(expectedOutcome);
     }
 
     [Fact]

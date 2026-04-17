@@ -99,6 +99,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
                 document.LastUpdatedOn = DateTime.UtcNow;
                 return await GetContainer().UpsertItemAsync(document);
             },
+            nameof(WriteAsync),
             CancellationToken.None);
     }
 
@@ -156,7 +157,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
     public async Task<IEnumerable<TDocument>> RunQueryAsync(Expression<Func<TDocument, bool>> predicate)
     {
         var queryFeed = GetContainer().GetItemLinqQueryable<TDocument>().Where(predicate).ToFeedIterator();
-        return await IterateResults(queryFeed);
+        return await IterateResults(queryFeed, nameof(RunQueryAsync));
     }
 
     public async Task DeleteDocument(string documentId, string partitionKey)
@@ -173,7 +174,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var queryFeed = GetContainer().GetItemQueryIterator<TDocument>(
             queryDefinition: query);
 
-        return await IterateResults(queryFeed, canExtractRequestCharge: false);
+        return await IterateResults(queryFeed, nameof(RunSqlQueryAsync), canExtractRequestCharge: false);
     }
 
     public async Task<IEnumerable<TModel>> RunSqlQueryAsync<TModel>(QueryDefinition query)
@@ -181,7 +182,7 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         var queryFeed = GetContainer().GetItemQueryIterator<TModel>(
             queryDefinition: query);
 
-        return await IterateResults(queryFeed, canExtractRequestCharge: false);
+        return await IterateResults(queryFeed, nameof(RunSqlQueryAsync), canExtractRequestCharge: false);
     }
 
     public async Task<TDocument> PatchDocument(string partitionKey, string documentId, params PatchOperation[] patches)
@@ -206,13 +207,15 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
             var lastUpdatedOnPatch = patchList.Single(x => x.Path == "/lastUpdatedOn");
             patchList.Remove(lastUpdatedOnPatch);
             patchList.Add(PatchOperation.Set("/lastUpdatedOn", DateTime.UtcNow));
-            
+
             return await GetContainer()
                 .PatchItemAsync<TDocument>(
                     id: documentId,
                     partitionKey: new PartitionKey(partitionKey),
                     patchOperations: patchList);
-        });
+        },
+            nameof(PatchDocument)
+        );
 
         return result.Resource;
     }
@@ -279,9 +282,8 @@ public class TypedDocumentCosmosStore<TDocument> : ITypedDocumentCosmosStore<TDo
         };
     }
 
-    private async Task<IEnumerable<TSource>> IterateResults<TSource>(FeedIterator<TSource> queryFeed, bool canExtractRequestCharge = true)
+    private async Task<IEnumerable<TSource>> IterateResults<TSource>(FeedIterator<TSource> queryFeed, string path, bool canExtractRequestCharge = true)
     {
-        var requestCharge = 0.0;
         var results = new List<TSource>();
 
         var metric = new CosmosOperationMetric

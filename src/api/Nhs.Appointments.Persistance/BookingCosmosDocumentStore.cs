@@ -18,11 +18,8 @@ public class BookingCosmosDocumentStore(
 
     public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
-        using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
-        {
-            var bookings = await bookingStore.RunQueryAsync(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
-            return bookings?.Select(MapToBooking) ?? [];
-        }
+        var bookings = await bookingStore.RunQueryAsync(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
+        return bookings?.Select(MapToBooking) ?? [];
     }
 
     public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
@@ -33,14 +30,13 @@ public class BookingCosmosDocumentStore(
         // Unfortunately, CosmosDB throws a Method Unsupported error the second you throw anything precompiled at it.
         // This will ONLY work if you write the predicate inline, at which point you lose testability and abstraction.
 
-        var rawResults = await bookingStore.RunQueryAsync<Booking>(b =>
+        var rawResults = await bookingStore.RunQueryAsync(b =>
             b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
             b.From <= queryFilter.StartsAtOrBefore);
 
             var mappedResults = rawResults?.Select(MapToBooking) ?? [];
 
             return mappedResults.Where(queryFilter.Matches);
-        }
     }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)

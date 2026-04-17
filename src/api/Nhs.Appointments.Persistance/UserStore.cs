@@ -227,7 +227,6 @@ public class UserStore(ITypedDocumentCosmosStore<UserDocument> cosmosStore) : IU
 
             var userDocuments = await cosmosStore.RunSqlQueryAsync(queryDefinition);
             return userDocuments?.Select(MapToUser) ?? [];
-        }
     }
 
     private UserDocument MapToUserDocument(User user)

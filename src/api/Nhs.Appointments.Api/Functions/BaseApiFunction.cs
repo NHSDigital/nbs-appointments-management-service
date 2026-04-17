@@ -9,6 +9,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Nhs.Appointments.Api.File;
 using Nhs.Appointments.Api.Json;
 using Nhs.Appointments.Api.Models;
@@ -43,12 +44,10 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
             }
 
             ApiResult<TResponse> response;
-            using (metricsRecorder.BeginScope(GetType().Name))
-            {
-                response = await HandleRequest(request, logger);
-            }
+            metricsRecorder.BeginRecording(GetType().Name);
+            response = await HandleRequest(request, logger);
 
-            WriteMetricsToConsole();
+            WriteMetrics();
 
             if (response.IsSuccess)
             {
@@ -59,7 +58,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
 
                 switch (ResponseType)
                 {
-                    case ApiResponseType.Json: 
+                    case ApiResponseType.Json:
                         return JsonResponseWriter.WriteResult(response.ResponseObject);
                     case ApiResponseType.File:
                         if (response.ResponseObject.GetType() != typeof(FileResponse))
@@ -70,7 +69,7 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
                         return FileResponseWriter.WriteResult(response.ResponseObject as FileResponse);
                 }
 
-                
+
             }
 
             return ProblemResponse(response.StatusCode, response.Reason);
@@ -110,13 +109,14 @@ public abstract class BaseApiFunction<TRequest, TResponse>(
         return ProblemResponse(status, error);
     }
 
-    private void WriteMetricsToConsole()
+    private void WriteMetrics()
     {
         if (metricsRecorder.Metrics != null)
         {
             foreach (var metric in metricsRecorder.Metrics)
             {
-                Console.WriteLine(metric.Path + ": " + metric.Value);
+                var json = JsonConvert.SerializeObject(metric);
+                logger.LogInformation("{Source}: {Metric}", metricsRecorder.Source, json);
             }
         }
     }

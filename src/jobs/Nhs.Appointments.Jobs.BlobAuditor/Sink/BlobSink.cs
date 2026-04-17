@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Nhs.Appointments.Jobs.BlobAuditor.Blob;
+using Nhs.Appointments.Core.Blob;
 using Nhs.Appointments.Jobs.ChangeFeed;
 
 namespace Nhs.Appointments.Jobs.BlobAuditor.Sink;

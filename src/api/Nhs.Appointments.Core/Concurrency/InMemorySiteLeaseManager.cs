@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 
 namespace Nhs.Appointments.Core.Concurrency;
 
@@ -13,22 +13,26 @@ internal class InMemorySiteLeaseManager : ISiteLeaseManager
         _options = options.Value;
     }
 
-    public ISiteLeaseContext Acquire(string site)
+    public ISiteLeaseContext Acquire(string site, DateOnly date)
     {
         SemaphoreSlim mutex;
 
+        var keyName = LeaseKeys.SiteKeyFactory.Create(site, date);
+
         lock (_locks)
         {
-            if (_locks.ContainsKey(site) == false)
+            if (!_locks.ContainsKey(keyName))
             {
-                _locks.Add(site, new SemaphoreSlim(1,1));
+                _locks.Add(keyName, new SemaphoreSlim(1,1));
             }
-            mutex = _locks[site];
+            mutex = _locks[keyName];
         }
 
-        if (mutex.Wait(_options.Timeout) == false)
-            throw new AbandonedMutexException();
+        if (!mutex.Wait(_options.Timeout))
+        {
+            throw new AbandonedMutexException($"Abandoned attempt to acquire lock for site key {keyName}");
+        }
 
-        return new SiteLeaseContext(() => mutex.Release());
-    }        
+        return new SiteLeaseContext(keyName, () => mutex.Release());
+    }
 }

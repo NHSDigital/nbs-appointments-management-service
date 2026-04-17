@@ -1,6 +1,7 @@
-﻿namespace Nhs.Appointments.Core.Concurrency;
+
+namespace Nhs.Appointments.Core.Concurrency;
 
 public interface ISiteLeaseManager
 {
-    ISiteLeaseContext Acquire(string site);
+    ISiteLeaseContext Acquire(string site, DateOnly date);
 }

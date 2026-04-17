@@ -1,62 +1,73 @@
-﻿using Nhs.Appointments.Core.Metrics;
+using Nhs.Appointments.Core.Metrics;
 
 namespace Nhs.Appointments.Core.UnitTests.Metrics;
 
 public class InMemoryMetricsRecorderTests
 {
-    private readonly InMemoryMetricsRecorder _sut = new InMemoryMetricsRecorder();
+    private readonly InMemoryMetricsRecorder _sut = new();
+
+    [Fact]
+    public void BeginRecording_RecordsSource()
+    {
+        // Arrange.
+        var randomSource = Guid.NewGuid().ToString();
+
+        // Act.
+        _sut.BeginRecording(randomSource);
+
+        // Assert.
+        _sut.Source.Should().Be(randomSource);
+    }
+
+    [Fact]
+    public void CannotBeginRecordingMoreThanOnce()
+    {
+        // Arrange.
+        var randomSource = Guid.NewGuid().ToString();
+        _sut.BeginRecording(randomSource);
+
+        // Act.
+        Action action = () => _sut.BeginRecording(randomSource);
+
+        // Assert.
+        action.Should().Throw<InvalidOperationException>();
+    }
 
     [Fact]
     public void RecordMetric_RecordsMetrics()
-    {            
-        _sut.RecordMetric("Test", 1);
-        _sut.RecordMetric("Other", 2);
-        var expectedResults = new List<(string Path, double Value)>
-        {
-            ("Test", 1),
-            ("Other", 2)
-        };
-        _sut.Metrics.Should().BeEquivalentTo(expectedResults);
-    }
-
-    [Fact]
-    public void BeginScope_CreatesNestedScopes()
     {
-        using(_sut.BeginScope("Scope1"))
+        var random = new Random();
+        var expectedValue1 = random.Next(1,1000);
+        var generatedName1 = Guid.NewGuid().ToString();
+        var testMetric = new TestMetric(generatedName1, expectedValue1);
+
+        var generatedName2 = Guid.NewGuid().ToString();
+        var expectedValue2 = Guid.NewGuid().ToString();
+        var otherMetric = new OtherMetric(generatedName2, "myField", expectedValue2);
+
+        _sut.RecordMetric(testMetric);
+        _sut.RecordMetric(otherMetric);
+        var expectedResults = new List<IMetric>
         {
-            using(_sut.BeginScope("Scope2"))
-            {
-                _sut.RecordMetric("Test", 1);
-            }
-        }
-                
-        var expectedResults = new List<(string Path, double Value)>
-        {
-            ("Scope1/Scope2/Test", 1),
+            testMetric,
+            otherMetric
         };
         _sut.Metrics.Should().BeEquivalentTo(expectedResults);
     }
 
-    [Fact]
-    public void BeginScope_PoppedScopes_AreHandledCorrectly()
+    private class TestMetric(string name, int value) : IMetric
     {
-        using (_sut.BeginScope("Scope1"))
-        {
-            _sut.RecordMetric("Test", 1);            
-        }
+        public string Name => name;
 
-        using (_sut.BeginScope("Scope2"))
-        {
-            _sut.RecordMetric("Other", 1);
-        }
-
-        var expectedResults = new List<(string Path, double Value)>
-        {
-            ("Scope1/Test", 1),
-            ("Scope2/Other", 1),
-        };
-        _sut.Metrics.Should().BeEquivalentTo(expectedResults);
+        public int Value => value;
     }
 
+    private class OtherMetric(string name, string field, string value) : IMetric
+    {
+        public string Name => name;
+
+        public string Field => field;
+
+        public string Value => value;
+    }
 }
-

@@ -1,4 +1,4 @@
-﻿namespace Nhs.Appointments.Persistance;
+namespace Nhs.Appointments.Persistance;
 
 public class ContainerRetryOptions
 {
@@ -21,11 +21,21 @@ public class ContainerRetryConfiguration
     /// Initial value in milliseconds to be used by the BackoffRetryType
     /// </summary>
     public int InitialValueMs { get; set; }
-    
+
+    /// <summary>
+    /// Initial value as TimeSpan to be used by the BackoffRetryType
+    /// </summary>
+    public TimeSpan InitialValueTimeSpan => TimeSpan.FromMilliseconds(InitialValueMs);
+
     /// <summary>
     /// A total cutoff time that won't be exceeded for retry attempts for a single request
     /// </summary>
     public int CutoffRetryMs { get; set; }
+
+    /// <summary>
+    /// A total cutoff TimeSpan that won't be exceeded for retry attempts for a single request
+    /// </summary>
+    public TimeSpan CutoffRetryTimeSpan => TimeSpan.FromMilliseconds(CutoffRetryMs);
 }
 
 public enum BackoffRetryType

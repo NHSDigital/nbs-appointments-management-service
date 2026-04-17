@@ -6,27 +6,25 @@ using Nhs.Appointments.Persistance.Models;
 namespace Nhs.Appointments.Persistance;
 
 public class AvailabilityDocumentStore(
-    ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore,
-    IMetricsRecorder metricsRecorder) : IAvailabilityStore
+    ITypedDocumentCosmosStore<DailyAvailabilityDocument> documentStore) : IAvailabilityStore
 {
     public async Task<IEnumerable<SessionInstance>> GetSessions(string site, DateOnly from, DateOnly to)
     {
         var results = new List<SessionInstance>();
         var docType = documentStore.GetDocumentType();
-        using (metricsRecorder.BeginScope("GetSessions"))
-        {
-            var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
-                b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
+        var documents = await documentStore.RunQueryAsync<DailyAvailabilityDocument>(b =>
+            b.DocumentType == docType && b.Site == site && b.Date >= from && b.Date <= to);
 
-            foreach (var day in documents)
-            {
-                results.AddRange(day.Sessions.Select(s =>
-                    new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
-                    {
-                        Services = s.Services, SlotLength = s.SlotLength, Capacity = s.Capacity
-                    }
-                ));
-            }
+        foreach (var day in documents)
+        {
+            results.AddRange(day.Sessions.Select(s =>
+                new SessionInstance(day.Date.ToDateTime(s.From), day.Date.ToDateTime(s.Until))
+                {
+                    Services = s.Services,
+                    SlotLength = s.SlotLength,
+                    Capacity = s.Capacity
+                }
+            ));
         }
 
         return results;
@@ -91,17 +89,17 @@ public class AvailabilityDocumentStore(
         return new SessionInstance(dayDocument.Date.ToDateTime(session.From),
             dayDocument.Date.ToDateTime(session.Until))
         {
-            Services = session.Services, SlotLength = session.SlotLength, Capacity = session.Capacity,
+            Services = session.Services,
+            SlotLength = session.SlotLength,
+            Capacity = session.Capacity,
         };
     }
 
     public async Task<bool> SiteSupportsAllServicesOnSingleDateInRangeAsync(string siteId, List<string> services, List<string> datesInPeriod)
     {
-        using (metricsRecorder.BeginScope("SiteSupportsAllServicesOnSingleDateInRangeAsync"))
-        {
-            var docType = documentStore.GetDocumentType();
+        var docType = documentStore.GetDocumentType();
 
-            var query = @"
+        var query = @"
                     SELECT VALUE COUNT(1)
                     FROM booking_data bd
                     WHERE ARRAY_CONTAINS(@docIds, bd.id)
@@ -112,16 +110,16 @@ public class AvailabilityDocumentStore(
                             SELECT VALUE svc FROM session IN bd.sessions JOIN svc IN session.services
                         ), @services)) = @requestedServiceCount";
 
-            var queryDef = new QueryDefinition(query)
-                .WithParameter("@docType", docType)
-                .WithParameter("@docIds", datesInPeriod)
-                .WithParameter("@site", siteId)
-                .WithParameter("@services", services.ToArray())
-                .WithParameter("@requestedServiceCount", services.Count);
+        var queryDef = new QueryDefinition(query)
+            .WithParameter("@docType", docType)
+            .WithParameter("@docIds", datesInPeriod)
+            .WithParameter("@site", siteId)
+            .WithParameter("@services", services.ToArray())
+            .WithParameter("@requestedServiceCount", services.Count);
 
-            var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(queryDef)).Single();
-            return dailyAvailabilityCount > 0;
-        }
+        var dailyAvailabilityCount = (await documentStore.RunSqlQueryAsync<int>(queryDef)).Single();
+
+        return dailyAvailabilityCount > 0;
     }
 
     public async Task CancelDayAsync(string site, DateOnly date)

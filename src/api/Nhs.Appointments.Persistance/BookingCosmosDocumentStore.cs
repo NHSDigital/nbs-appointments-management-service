@@ -8,21 +8,17 @@ using Nhs.Appointments.Persistance.Models;
 namespace Nhs.Appointments.Persistance;
 
 public class BookingCosmosDocumentStore(
-    ITypedDocumentCosmosStore<BookingDocument> bookingStore, 
-    ITypedDocumentCosmosStore<BookingIndexDocument> indexStore, 
-    IMetricsRecorder metricsRecorder, 
+    ITypedDocumentCosmosStore<BookingDocument> bookingStore,
+    ITypedDocumentCosmosStore<BookingIndexDocument> indexStore,
     TimeProvider time,
     ILogger<BookingCosmosDocumentStore> logger
 ) : IBookingsDocumentStore
 {
-    private const int PointReadLimit = 3;    
-           
+    private const int PointReadLimit = 3;
+
     public async Task<IEnumerable<Booking>> GetInDateRangeAsync(DateTime from, DateTime to, string site)
     {
-        using (metricsRecorder.BeginScope("GetBookingsInDateRange"))
-        {
-            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
-        }
+        return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.From >= from && b.From <= to);
     }
 
     public async Task<IEnumerable<Booking>> QueryByFilterAsync(BookingQueryFilter queryFilter)
@@ -33,14 +29,11 @@ public class BookingCosmosDocumentStore(
         // Unfortunately, CosmosDB throws a Method Unsupported error the second you throw anything precompiled at it.
         // This will ONLY work if you write the predicate inline, at which point you lose testability and abstraction.
 
-        using (metricsRecorder.BeginScope("QueryByFilter"))
-        {
-            var rawResults = await bookingStore.RunQueryAsync<Booking>(b =>
-                b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
-                b.From <= queryFilter.StartsAtOrBefore);
+        var rawResults = await bookingStore.RunQueryAsync<Booking>(b =>
+            b.DocumentType == "booking" && b.Site == queryFilter.Site && b.From >= queryFilter.StartsAtOrAfter &&
+            b.From <= queryFilter.StartsAtOrBefore);
 
-            return rawResults.Where(queryFilter.Matches);
-        }
+        return rawResults.Where(queryFilter.Matches);
     }
 
     public async Task<IEnumerable<Booking>> GetCrossSiteAsync(DateTime from, DateTime to, params AppointmentStatus[] statuses)
@@ -76,7 +69,7 @@ public class BookingCosmosDocumentStore(
             return default;
         }
     }
-    
+
     public async Task<IEnumerable<Booking>> GetByNhsNumberAsync(string nhsNumber)
     {
         var bookingIndexDocuments = (await indexStore.RunQueryAsync<BookingIndexDocument>(bi => bi.DocumentType == "booking_index" && bi.NhsNumber == nhsNumber)).ToList();
@@ -105,7 +98,8 @@ public class BookingCosmosDocumentStore(
                             results.Add(result);
                         }
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex)
+                    {
                         logger.LogError(ex, "Did not find booking: {BookingReference} in booking container", bookingReference);
                     }
                 }
@@ -119,7 +113,7 @@ public class BookingCosmosDocumentStore(
         object additionalData = null)
     {
         var bookingIndexDocument = await indexStore.GetDocument<BookingIndexDocument>(bookingReference);
-        if(bookingIndexDocument == null)
+        if (bookingIndexDocument == null)
         {
             return false;
         }
@@ -197,10 +191,10 @@ public class BookingCosmosDocumentStore(
             {
                 return (BookingConfirmationResult.RescheduleMismatch, null);
             }
-            
+
             return (BookingConfirmationResult.Unknown, rescheduleDocument);
         }
-        
+
         return (BookingConfirmationResult.Unknown, null);
     }
 
@@ -209,7 +203,7 @@ public class BookingCosmosDocumentStore(
         var bookingBatchSize = bookingReferences.Length;
         var bookingDocuments = new List<BookingIndexDocument>();
 
-        foreach (var reference in bookingReferences) 
+        foreach (var reference in bookingReferences)
         {
             var childIndexDocument = await indexStore.GetByIdOrDefaultAsync<BookingIndexDocument>(reference);
             var childProvisionalValidationResult = ValidateBookingDocumentProvisionalState(childIndexDocument);
@@ -222,7 +216,7 @@ public class BookingCosmosDocumentStore(
             bookingDocuments.Add(childIndexDocument);
         }
 
-        foreach (var document in bookingDocuments) 
+        foreach (var document in bookingDocuments)
         {
             await PatchProvisionalToConfirmed(document, contactDetails, bookingBatchSize);
         }
@@ -255,7 +249,7 @@ public class BookingCosmosDocumentStore(
         {
             await UpdateStatus(rescheduleDocument, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, cancellationReason);
         }
-        
+
         return BookingConfirmationResult.Success;
     }
 
@@ -265,7 +259,7 @@ public class BookingCosmosDocumentStore(
         var updateStatusPatch = PatchOperation.Replace("/status", AppointmentStatus.Booked);
         var statusUpdatedPatch = PatchOperation.Add("/statusUpdated", time.GetUtcNow());
 
-        var patches = new []
+        var patches = new[]
         {
             updateStatusPatch,
             statusUpdatedPatch,
@@ -278,11 +272,11 @@ public class BookingCosmosDocumentStore(
         {
             patches = patches.Append(PatchOperation.Add("/bookingBatchSize", bookingBatchSize)).ToArray();
         }
-        
+
         await bookingStore.PatchDocument(bookingIndexDocument.Site, bookingIndexDocument.Reference, patches);
     }
 
-    private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document) 
+    private BookingConfirmationResult ValidateBookingDocumentProvisionalState(BookingIndexDocument document)
     {
         if (document == null)
         {
@@ -390,19 +384,17 @@ public class BookingCosmosDocumentStore(
             site,
             [AppointmentStatus.Booked]);
 
-        using (metricsRecorder.BeginScope("CancelAllBookingsInDay"))
+        var bookings = await QueryByFilterAsync(bookingFilter);
+
+        var successfulCancellations = 0;
+        var bookingsWithoutContactDetailsCount = 0;
+
+        foreach (var booking in bookings)
         {
-            var bookings = await QueryByFilterAsync(bookingFilter);
-
-            var successfulCancellations = 0;
-            var bookingsWithoutContactDetailsCount = 0;
-
-            foreach (var booking in bookings)
+            if (await UpdateStatus(booking.Reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledBySite))
             {
-                if (await UpdateStatus(booking.Reference, AppointmentStatus.Cancelled, AvailabilityStatus.Unknown, CancellationReason.CancelledBySite))
-                {
-                    successfulCancellations++;
-                }
+                successfulCancellations++;
+            }
 
                 if (booking.ContactDetails == null || booking.ContactDetails.All(c => c.Type == ContactItemType.Landline))
                 {
@@ -410,10 +402,9 @@ public class BookingCosmosDocumentStore(
                 }
             }
 
-            var bookingsWithContactDetails = bookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
+        var bookingsWithContactDetails = bookings.Where(b => b.ContactDetails is not null && b.ContactDetails.Length > 0).ToList();
 
-            return (successfulCancellations, bookingsWithoutContactDetailsCount, bookingsWithContactDetails);
-        }
+        return (successfulCancellations, bookingsWithoutContactDetailsCount, bookingsWithContactDetails);
     }
 
     public async Task SetCancellationNotified(string bookingReference, string site)
@@ -445,9 +436,6 @@ public class BookingCosmosDocumentStore(
 
     private async Task<IEnumerable<Booking>> GetInStatusUpdatedRange(DateTime from, DateTime to, string site)
     {
-        using (metricsRecorder.BeginScope("GetInStatusUpdatedRange"))
-        {
-            return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.StatusUpdated >= from && b.StatusUpdated <= to);
-        }
+        return await bookingStore.RunQueryAsync<Booking>(b => b.DocumentType == "booking" && b.Site == site && b.StatusUpdated >= from && b.StatusUpdated <= to);
     }
-}    
+}

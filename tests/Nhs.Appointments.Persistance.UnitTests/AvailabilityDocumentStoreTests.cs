@@ -1,24 +1,20 @@
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
-using Moq;
-using Nhs.Appointments.Core;
 using Nhs.Appointments.Core.Availability;
 using Nhs.Appointments.Persistance.Models;
 using System.Linq.Expressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Nhs.Appointments.Persistance.UnitTests;
 
 public class AvailabilityDocumentStoreTests
 {
     private readonly Mock<ITypedDocumentCosmosStore<DailyAvailabilityDocument>> _documentStore = new();
-    private readonly Mock<IMetricsRecorder> _metricsRecorder = new();
 
     private readonly AvailabilityDocumentStore _sut;
 
     public AvailabilityDocumentStoreTests()
     {
-        _sut = new AvailabilityDocumentStore(_documentStore.Object, _metricsRecorder.Object);
+        _sut = new AvailabilityDocumentStore(_documentStore.Object);
     }
 
     [Fact]

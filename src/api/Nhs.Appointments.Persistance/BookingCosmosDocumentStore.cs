@@ -446,7 +446,7 @@ public class BookingCosmosDocumentStore(
             return bookingDocuments.Select(MapToBooking) ?? [];
     }
 
-    private static BookingDocument MapToBookingDocument(Booking booking)
+    private BookingDocument MapToBookingDocument(Booking booking)
     {
         return booking == null
             ? null
@@ -466,11 +466,12 @@ public class BookingCosmosDocumentStore(
                     ReminderSent = booking.ReminderSent,
                     CancellationReason = booking.CancellationReason,
                     CancellationNotificationStatus = booking.CancellationNotificationStatus,
-                    BookingBatchSize = booking.BookingBatchSize
-                };
+                    BookingBatchSize = booking.BookingBatchSize,
+                    DocumentType = bookingStore.GetDocumentType()
+            };
     }
 
-    private static BookingIndexDocument MapToBookingIndexDocument(Booking booking)
+    private BookingIndexDocument MapToBookingIndexDocument(Booking booking)
     {
         return booking == null
             ? null
@@ -483,6 +484,7 @@ public class BookingCosmosDocumentStore(
                     Status = booking.Status,
                     NhsNumber = booking.AttendeeDetails?.NhsNumber,
                     Created = booking.Created,
+                    DocumentType = indexStore.GetDocumentType()
                 };
     }
 

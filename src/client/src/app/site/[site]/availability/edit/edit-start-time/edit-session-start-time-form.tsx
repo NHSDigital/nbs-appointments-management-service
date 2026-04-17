@@ -1,11 +1,5 @@
 'use client';
-import {
-  SmallSpinnerWithText,
-  Button,
-  FormGroup,
-  RadioGroup,
-  Radio,
-} from '@components/nhsuk-frontend';
+import { SmallSpinnerWithText, FormGroup } from '@components/nhsuk-frontend';
 import {
   getNearestAlignedTimes,
   parseDateAndTimeComponentsToUkDateTime,
@@ -16,6 +10,7 @@ import { AvailabilitySession, Session, SessionSummary, Site } from '@types';
 import { notFound, useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
+import { Button, Radios } from 'nhsuk-react-components';
 
 type EditSessionStartTimeFormValues = {
   newStartTime: string;
@@ -107,21 +102,22 @@ const EditSessionStartTimeForm = ({
           legend="What time do you want the session to start?"
           error={errors.newStartTime?.message}
         >
-          <RadioGroup>
+          <Radios>
             {nearestOptions.map((option, index) => {
               return (
-                <Radio
-                  label={`${option.format('HH:mma')}`}
+                <Radios.Item
                   id={`start-time-option-${index}`}
                   key={index}
                   value={`${option.format('HH:mm')}`}
                   {...register('newStartTime', {
                     required: { value: true, message: 'Select an option' },
                   })}
-                />
+                >
+                  {`${option.format('HH:mma')}`}
+                </Radios.Item>
               );
             })}
-          </RadioGroup>
+          </Radios>
         </FormGroup>
 
         {pendingSubmit ? (

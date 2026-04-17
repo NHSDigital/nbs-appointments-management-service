@@ -4,11 +4,8 @@ import React, { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { removeUserFromSite } from '@services/appointmentsService';
-import {
-  Button,
-  ButtonGroup,
-  SmallSpinnerWithText,
-} from '@nhsuk-frontend-components';
+import { ButtonGroup, SmallSpinnerWithText } from '@nhsuk-frontend-components';
+import { Button } from 'nhsuk-react-components';
 import { Site } from '@types';
 import fromServer from '@server/fromServer';
 
@@ -46,10 +43,10 @@ const RemoveUserPage = ({ site, user }: { site: Site; user: string }) => {
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <ButtonGroup>
-          <Button type="submit" styleType="warning">
+          <Button type="submit" warning>
             Remove this account
           </Button>
-          <Button styleType="secondary" onClick={cancel}>
+          <Button secondary onClick={cancel}>
             Cancel
           </Button>
         </ButtonGroup>

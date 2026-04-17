@@ -8,13 +8,7 @@ import {
   ClinicalService,
 } from '@types';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  CheckBox,
-  CheckBoxes,
-  FormGroup,
-  SmallSpinnerWithText,
-} from '@components/nhsuk-frontend';
+import { FormGroup, SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import {
   dateTimeFormat,
   parseToUkDatetime,
@@ -26,7 +20,7 @@ import {
   SERVICE_TYPE_TITLES,
   groupServicesByType,
 } from '@services/clinicalServices';
-import { InsetText } from 'nhsuk-react-components';
+import { InsetText, Button, Checkboxes } from 'nhsuk-react-components';
 
 export type RemoveServicesFormValues = {
   sessionToEdit: Session;
@@ -142,12 +136,11 @@ const EditServicesForm = ({
               <legend className="nhsuk-fieldset__legend nhsuk-fieldset__legend--s">
                 {groupTitle}
               </legend>
-              <CheckBoxes>
+              <Checkboxes>
                 {services.map(clinicalService => {
                   return (
-                    <CheckBox
+                    <Checkboxes.Item
                       id={`checkbox-${clinicalService.value}`}
-                      label={clinicalService.label.replace('-', ' to ')}
                       value={clinicalService.value}
                       key={`checkbox-${clinicalService.value}`}
                       {...register('servicesToRemove', {
@@ -162,10 +155,12 @@ const EditServicesForm = ({
                           }
                         },
                       })}
-                    />
+                    >
+                      {clinicalService.label.replace('-', ' to ')}
+                    </Checkboxes.Item>
                   );
                 })}
-              </CheckBoxes>
+              </Checkboxes>
             </fieldset>
           );
         })}

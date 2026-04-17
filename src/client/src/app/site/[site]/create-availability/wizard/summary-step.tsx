@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   SmallSpinnerWithText,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
@@ -13,7 +12,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { ClinicalService } from '@types';
-import { Heading, SummaryList } from 'nhsuk-react-components';
+import { Heading, SummaryList, Button } from 'nhsuk-react-components';
 
 type SummaryStepProps = {
   clinicalServices: ClinicalService[];

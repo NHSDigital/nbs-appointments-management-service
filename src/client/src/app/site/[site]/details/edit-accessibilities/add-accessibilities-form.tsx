@@ -2,10 +2,7 @@
 'use client';
 import React, { useTransition } from 'react';
 import {
-  Button,
   FormGroup,
-  CheckBoxes,
-  CheckBox,
   ButtonGroup,
   SmallSpinnerWithText,
 } from '@nhsuk-frontend-components';
@@ -18,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { saveSiteAccessibilities } from '@services/appointmentsService';
 import fromServer from '@server/fromServer';
+import { Button, Checkboxes } from 'nhsuk-react-components';
 
 type FormFields = {
   accessibilities: string[];
@@ -70,17 +68,18 @@ const AddAccessibilitiesForm = ({
         <div className="nhsuk-hint" id="example-hint">
           Select all options that the current site offers
         </div>
-        <CheckBoxes>
+        <Checkboxes>
           {accessibilityDefinitions.map(ad => (
-            <CheckBox
+            <Checkboxes.Item
               id={ad.id}
-              label={ad.displayName}
               key={`checkbox-key-${ad.id}`}
               value={ad.id}
               {...register('accessibilities')}
-            />
+            >
+              {ad.displayName}
+            </Checkboxes.Item>
           ))}
-        </CheckBoxes>
+        </Checkboxes>
       </FormGroup>
 
       {pendingSubmit ? (
@@ -88,7 +87,7 @@ const AddAccessibilitiesForm = ({
       ) : (
         <ButtonGroup>
           <Button type="submit">Confirm site details</Button>
-          <Button styleType="secondary" onClick={cancel}>
+          <Button secondary type="button" onClick={cancel}>
             Cancel
           </Button>
         </ButtonGroup>

@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Spinner } from '@nhsuk-frontend-components';
+import { ButtonGroup, Spinner } from '@nhsuk-frontend-components';
+import { Button } from 'nhsuk-react-components';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { AvailabilityCreatedEventsTable } from './availabilityCreatedEventsTable';
@@ -21,7 +22,7 @@ export const CreateAvailabilityPage = ({
         </Link>
         {canChangeAvailability && (
           <Link href={`/site/${site.id}/change-availability`}>
-            <Button type="button" styleType="secondary">
+            <Button type="button" secondary>
               Change availability
             </Button>
           </Link>

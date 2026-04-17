@@ -1,15 +1,10 @@
-import {
-  BackLink,
-  Button,
-  ButtonGroup,
-  FormGroup,
-} from '@components/nhsuk-frontend';
+import { BackLink, ButtonGroup, FormGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import Link from 'next/link';
 import CancelDaySummary from '../cancel-day-summary';
 import { DaySummaryV2, ClinicalService, Site } from '@types';
 import { DayJsType, RFC3339Format } from '@services/timeService';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 export type ConfirmCancelChoiceStepProps = {
   site: Site;
@@ -45,7 +40,7 @@ export const ConfirmCancelChoiceStep = ({
 
       <FormGroup legend="Are you sure you want to cancel this day?" error="">
         <ButtonGroup vertical>
-          <Button type="submit" styleType="warning">
+          <Button type="submit" warning>
             Cancel day
           </Button>
           <Link

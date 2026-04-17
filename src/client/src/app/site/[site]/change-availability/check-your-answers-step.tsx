@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   SmallSpinnerWithText,
   SummaryListItem,
 } from '@components/nhsuk-frontend';
@@ -15,7 +14,7 @@ import {
 } from '@services/timeService';
 import { cancelDateRange } from '@services/appointmentsService';
 import { useState } from 'react';
-import { SummaryList } from 'nhsuk-react-components';
+import { SummaryList, Button } from 'nhsuk-react-components';
 
 interface Props {
   site: string;
@@ -166,7 +165,7 @@ const CheckYourAnswersStep = ({
           {pendingSubmit ? (
             <SmallSpinnerWithText text="Saving..." />
           ) : (
-            <Button type="submit" styleType="warning" onClick={onContinue}>
+            <Button type="submit" warning onClick={onContinue}>
               {cancellationDecision == 'cancel-bookings'
                 ? 'Cancel sessions and bookings'
                 : 'Cancel sessions'}

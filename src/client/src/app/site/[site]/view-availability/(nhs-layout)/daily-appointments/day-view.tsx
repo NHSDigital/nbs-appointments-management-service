@@ -1,8 +1,13 @@
 import { DayJsType, RFC3339Format } from '@services/timeService';
 import { Booking, ClinicalService, Site } from '@types';
-import { Pagination } from 'nhsuk-react-components';
+import {
+  Pagination,
+  Tabs,
+  TabsList,
+  TabsListItem,
+  TabsContents,
+} from 'nhsuk-react-components';
 import { DailyAppointmentsPage } from './daily-appointments-page';
-import { Tab, Tabs } from '@nhsuk-frontend-components';
 
 type DayViewProps = {
   fromDate: DayJsType;
@@ -49,8 +54,12 @@ export const DayView = ({
         </Pagination.Item>
       </Pagination>
 
-      <Tabs paramsToSetOnTabChange={[{ key: 'page', value: '1' }]}>
-        <Tab title="Scheduled">
+      <Tabs>
+        <TabsList>
+          <TabsListItem id="scheduled">Scheduled</TabsListItem>
+          <TabsListItem id="cancelled">Cancelled</TabsListItem>
+        </TabsList>
+        <TabsContents id="scheduled">
           <div className="print-out-data" aria-hidden="true">
             <h3>Scheduled Appointments</h3>
           </div>
@@ -60,8 +69,11 @@ export const DayView = ({
             displayAction={canCancelBookings}
             clinicalServices={clinicalServices}
           />
-        </Tab>
-        <Tab title="Cancelled">
+        </TabsContents>
+        <TabsContents
+          id="cancelled"
+          className="nhsuk-tabs__panel nhsuk-tabs__panel--hidden"
+        >
           <div className="print-out-data" aria-hidden="true">
             <h3>Cancelled Appointments</h3>
           </div>
@@ -71,7 +83,7 @@ export const DayView = ({
             displayAction={false}
             clinicalServices={clinicalServices}
           />
-        </Tab>
+        </TabsContents>
       </Tabs>
     </>
   );

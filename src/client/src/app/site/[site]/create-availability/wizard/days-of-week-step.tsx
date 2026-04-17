@@ -1,17 +1,10 @@
 'use client';
-import {
-  BackLink,
-  Button,
-  CheckBox,
-  CheckBoxes,
-  CheckBoxOrAll,
-  FormGroup,
-} from '@components/nhsuk-frontend';
+import { BackLink, CheckBoxOrAll, FormGroup } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { InjectedWizardProps } from '@components/wizard';
 import { daysOfTheWeek } from '@types';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button, Checkboxes } from 'nhsuk-react-components';
 
 const DaysOfWeekStep = ({
   goToNextStep,
@@ -70,11 +63,10 @@ const DaysOfWeekStep = ({
       <br />
 
       <FormGroup error={errors.days?.message}>
-        <CheckBoxes>
+        <Checkboxes>
           {daysOfTheWeek.map(dayOfWeek => (
-            <CheckBox
+            <Checkboxes.Item
               id={`checkbox-${dayOfWeek.toLowerCase()}`}
-              label={dayOfWeek}
               value={dayOfWeek}
               key={`checkbox-${dayOfWeek.toLowerCase()}`}
               {...register('days', {
@@ -98,11 +90,12 @@ const DaysOfWeekStep = ({
                   trigger('days');
                 }
               }}
-            />
+            >
+              {dayOfWeek}
+            </Checkboxes.Item>
           ))}
           <CheckBoxOrAll />
-          <CheckBox
-            label={'Select all days'}
+          <Checkboxes.Item
             value={daysOfTheWeek}
             id={'allDays'}
             checked={daysWatch?.length == daysOfTheWeek.length}
@@ -119,8 +112,10 @@ const DaysOfWeekStep = ({
                 trigger('days');
               }
             }}
-          />
-        </CheckBoxes>
+          >
+            Select all days
+          </Checkboxes.Item>
+        </Checkboxes>
       </FormGroup>
       <Button
         type="button"

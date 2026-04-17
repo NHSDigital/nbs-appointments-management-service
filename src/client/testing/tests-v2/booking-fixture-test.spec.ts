@@ -67,10 +67,10 @@ test('Bookings can be setup for the test-scoped site', async ({
     await expect(page.getByText('17:00')).not.toBeVisible();
 
     await page.goto(
-      `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${day}&page=1&tab=1`,
+      `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${day}&page=1#cancelled`,
     );
     await page.waitForURL(
-      `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${day}&page=1&tab=1`,
+      `/manage-your-appointments/site/${site.id}/view-availability/daily-appointments?date=${day}&page=1#cancelled`,
     );
 
     await expect(page.getByText('09:00')).not.toBeVisible();

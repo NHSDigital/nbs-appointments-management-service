@@ -1,4 +1,4 @@
-import { Button } from '@nhsuk-frontend-components';
+import { Button } from 'nhsuk-react-components';
 import Link from 'next/link';
 import { Role, User, UserProfile } from '@types';
 import { useMemo } from 'react';

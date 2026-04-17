@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button } from '@nhsuk-frontend-components';
+import { Button } from 'nhsuk-react-components';
 
 type LogInButtonProps = {
   redirectUrl: string;
@@ -21,7 +21,6 @@ const LogInButton = ({
       <Button
         aria-label={`Sign in to service with ${friendlyName}`}
         type="button"
-        styleType="primary"
       >
         Sign in to service with {friendlyName}
       </Button>

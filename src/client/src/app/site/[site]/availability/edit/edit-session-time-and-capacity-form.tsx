@@ -2,11 +2,7 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Site, SessionSummary, Session, AvailabilitySession } from '@types';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  FormGroup,
-  SmallSpinnerWithText,
-} from '@components/nhsuk-frontend';
+import { FormGroup, SmallSpinnerWithText } from '@components/nhsuk-frontend';
 import { Controller } from 'react-hook-form';
 import {
   compareTimes,
@@ -20,7 +16,7 @@ import {
 import { ChangeEvent, useEffect, useTransition } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
 import { AVAILABILITY_EDIT_DRAFT_KEY } from '@constants';
-import { InsetText, TextInput } from 'nhsuk-react-components';
+import { InsetText, TextInput, Button } from 'nhsuk-react-components';
 
 export type EditSessionFormValues = {
   sessionToEdit: Session;

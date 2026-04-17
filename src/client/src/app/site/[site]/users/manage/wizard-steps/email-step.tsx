@@ -1,10 +1,5 @@
 'use client';
-import {
-  BackLink,
-  Button,
-  ButtonGroup,
-  FormGroup,
-} from '@components/nhsuk-frontend';
+import { BackLink, ButtonGroup, FormGroup } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
 import { SetUserRolesFormValues } from '../set-user-roles-form';
@@ -12,8 +7,7 @@ import { useRouter } from 'next/navigation';
 import { fetchUsers, proposeNewUser } from '@services/appointmentsService';
 import { Site, UserProfile } from '@types';
 import fromServer from '@server/fromServer';
-import { Heading } from 'nhsuk-react-components';
-import { TextInput } from 'nhsuk-react-components';
+import { Heading, TextInput, Button } from 'nhsuk-react-components';
 
 export type EmailStepProps = {
   site: Site;
@@ -120,7 +114,7 @@ const NamesStep = ({
         </Button>
         <Button
           type="button"
-          styleType="secondary"
+          secondary
           onClick={async () => {
             router.push(returnRouteUponCancellation);
           }}

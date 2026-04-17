@@ -1,6 +1,6 @@
 'use client';
-import { Heading } from 'nhsuk-react-components';
-import { BackLink, Button, ButtonGroup } from '@components/nhsuk-frontend';
+import { Heading, Button } from 'nhsuk-react-components';
+import { BackLink, ButtonGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { useRouter } from 'next/navigation';
 

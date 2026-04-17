@@ -1,10 +1,7 @@
 'use client';
 import {
-  Button,
   FormGroup,
   InsetText,
-  Radio,
-  RadioGroup,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
 import { SessionSummaryTable } from '@components/session-summary-table';
@@ -14,6 +11,7 @@ import { ClinicalService, SessionSummary } from '@types';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { Button, Radios } from 'nhsuk-react-components';
 
 type PageProps = {
   date: string;
@@ -70,24 +68,26 @@ const ConfirmCancellation = ({
         legend="Would you like to cancel this session?"
         error={errors.action?.message}
       >
-        <RadioGroup>
-          <Radio
-            label="Yes, I want to cancel this session"
+        <Radios>
+          <Radios.Item
             id="cancel-session"
             value="cancel-session"
             {...register('action', {
               required: { value: true, message: 'Select an option' },
             })}
-          />
-          <Radio
-            label="No, I don't want to cancel this session"
+          >
+            Yes, I want to cancel this session
+          </Radios.Item>
+          <Radios.Item
             id="dont-cancel-session"
             value="dont-cancel-session"
             {...register('action', {
               required: { value: true, message: 'Select an option' },
             })}
-          />
-        </RadioGroup>
+          >
+            No, I don't want to cancel this session
+          </Radios.Item>
+        </Radios>
       </FormGroup>
       {pendingSubmit ? (
         <SmallSpinnerWithText text="Working..." />

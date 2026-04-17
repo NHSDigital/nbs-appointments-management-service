@@ -1,16 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import {
-  BackLink,
-  Button,
-  FormGroup,
-  Radio,
-  RadioGroup,
-} from '@components/nhsuk-frontend';
+import { BackLink, FormGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import { CreateAvailabilityFormValues } from './availability-template-wizard';
 import { useFormContext } from 'react-hook-form';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button, Radios } from 'nhsuk-react-components';
 
 const SingleOrRepeatingSessionStep = ({
   stepNumber,
@@ -62,9 +56,8 @@ const SingleOrRepeatingSessionStep = ({
       </ul>
       <br />
       <FormGroup>
-        <RadioGroup>
-          <Radio
-            label="Weekly sessions"
+        <Radios>
+          <Radios.Item
             hint="Sessions that run at the same times every week"
             {...{
               ...sessionType,
@@ -82,9 +75,10 @@ const SingleOrRepeatingSessionStep = ({
             }}
             id="sessionType-repeating"
             value="repeating"
-          />
-          <Radio
-            label="Single date session"
+          >
+            Weekly sessions
+          </Radios.Item>
+          <Radios.Item
             hint="Sessions that run on one day and don't repeat"
             {...{
               ...sessionType,
@@ -102,8 +96,10 @@ const SingleOrRepeatingSessionStep = ({
             }}
             id="sessionType-single"
             value="single"
-          />
-        </RadioGroup>
+          >
+            Single date session
+          </Radios.Item>
+        </Radios>
       </FormGroup>
 
       <Button

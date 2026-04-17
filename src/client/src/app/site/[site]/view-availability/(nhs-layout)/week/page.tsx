@@ -8,9 +8,8 @@ import { ViewWeekAvailabilityPage } from './view-week-availability-page';
 import { endOfUkWeek, startOfUkWeek } from '@services/timeService';
 import { notFound } from 'next/navigation';
 import fromServer from '@server/fromServer';
-import { Button } from '@components/nhsuk-frontend';
 import Link from 'next/link';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 type PageProps = {
   searchParams?: Promise<{
@@ -62,7 +61,7 @@ const Page = async ({ searchParams, params }: PageProps) => {
         <Link
           href={`/site/${siteFromPath}/change-availability?returnUrl=${encodedReturnUrl}`}
         >
-          <Button type="button" styleType="secondary">
+          <Button type="button" secondary>
             Change availability
           </Button>
         </Link>

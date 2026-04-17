@@ -1,19 +1,12 @@
 'use client';
-import {
-  BackLink,
-  Button,
-  ButtonGroup,
-  CheckBox,
-  CheckBoxes,
-  FormGroup,
-} from '@components/nhsuk-frontend';
+import { BackLink, ButtonGroup, FormGroup } from '@components/nhsuk-frontend';
 import { useFormContext } from 'react-hook-form';
 import { InjectedWizardProps } from '@components/wizard';
 import { Role } from '@types';
 import { sortRolesByName } from '@sorting';
 import { useRouter } from 'next/navigation';
 import { SetUserRolesFormValues } from '../set-user-roles-form';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button, Checkboxes } from 'nhsuk-react-components';
 
 export type RolesStepProps = {
   roleOptions: Role[];
@@ -53,18 +46,19 @@ const SetRolesStep = ({
       <p>{getValues('email')}</p>
 
       <FormGroup error={errors.roleIds?.message} legend="Roles">
-        <CheckBoxes>
+        <Checkboxes>
           {roleOptions.toSorted(sortRolesByName).map(r => (
-            <CheckBox
+            <Checkboxes.Item
               id={r.id}
-              label={r.displayName}
               hint={r.description}
               key={`checkbox-key-${r.id}`}
               value={r.id}
               {...register('roleIds')}
-            />
+            >
+              {r.displayName}
+            </Checkboxes.Item>
           ))}
-        </CheckBoxes>
+        </Checkboxes>
       </FormGroup>
 
       <ButtonGroup>
@@ -78,7 +72,7 @@ const SetRolesStep = ({
         </Button>
         <Button
           type="button"
-          styleType="secondary"
+          secondary
           onClick={async () => {
             router.push(returnRouteUponCancellation);
           }}

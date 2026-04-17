@@ -1,7 +1,6 @@
 'use client';
 import {
   BackLink,
-  Button,
   ButtonGroup,
   SmallSpinnerWithText,
 } from '@components/nhsuk-frontend';
@@ -12,7 +11,7 @@ import { DownloadReportFormValues } from '../download-report-form-schema';
 import Link from 'next/link';
 import { parseToUkDatetime } from '@services/timeService';
 import { redirect } from 'next/navigation';
-import { Heading } from 'nhsuk-react-components';
+import { Heading, Button } from 'nhsuk-react-components';
 
 interface Props {
   reportType: ReportType;
@@ -58,9 +57,7 @@ const ReportConfirmationStep = ({
         <SmallSpinnerWithText text="Working..." />
       ) : (
         <ButtonGroup>
-          <Button styleType="primary" type="submit">
-            Download report
-          </Button>
+          <Button type="submit">Download report</Button>
           <Link href={returnRouteUponCancellation}>Return to sites list</Link>
         </ButtonGroup>
       )}

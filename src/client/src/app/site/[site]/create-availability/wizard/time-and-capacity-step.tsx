@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 'use client';
-import { BackLink, Button, FormGroup } from '@components/nhsuk-frontend';
+import { BackLink, FormGroup } from '@components/nhsuk-frontend';
 import { InjectedWizardProps } from '@components/wizard';
 import {
   CreateAvailabilityFormValues,
@@ -11,7 +11,7 @@ import CapacityCalculation from './capacity-calculation';
 import { toTimeFormat } from '@services/timeService';
 import { ChangeEvent } from 'react';
 import { sessionLengthInMinutes } from '@services/availabilityCalculatorService';
-import { Heading, TextInput } from 'nhsuk-react-components';
+import { Heading, TextInput, Button } from 'nhsuk-react-components';
 
 type TimeAndCapacityStepProps = {
   goToPreviousStepOverride?: () => void;

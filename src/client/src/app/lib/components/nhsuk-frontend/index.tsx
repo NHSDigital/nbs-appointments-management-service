@@ -19,7 +19,6 @@ import SummaryList, {
   OnClickActionProps,
 } from './summary-list';
 import Table, { Cell } from './table';
-import Tabs, { Tab } from './tabs';
 import Tag, { TagColor } from './tag';
 import TextArea from './text-area';
 import TextInput from './text-input';
@@ -65,8 +64,6 @@ export {
   SmallSpinnerWithText,
   SummaryList,
   Table,
-  Tabs,
-  Tab,
   Tag,
   TextArea,
   TextInput,

@@ -63,13 +63,9 @@ describe('Day View Component', () => {
       />,
     );
 
-    expect(
-      screen.getByRole('listitem', { name: 'Scheduled' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Scheduled' })).toBeInTheDocument();
 
-    expect(
-      screen.getByRole('listitem', { name: 'Cancelled' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Cancelled' })).toBeInTheDocument();
   });
 
   it('does not render cancelled appointments in the scheduled tab', () => {

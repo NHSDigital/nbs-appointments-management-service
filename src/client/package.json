@@ -39,7 +39,7 @@
     "dayjs": "^1.11.20",
     "file-saver": "^2.0.5",
     "manage-your-appointments": "file:",
-    "next": "^15.5.14",
+    "next": "^15.5.15",
     "nhsuk-frontend": "^10.4.1",
     "nhsuk-react-components": "^6.0.0",
     "react": "^18",
